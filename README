@@ -1,8 +1,8 @@
 
-SDL_mixer 1.1
+SDL_mixer 1.2
 
 The latest version of this library is available from:
-http://www.devolution.com/~slouken/SDL/projects/SDL_mixer/
+http://www.libsdl.org/projects/SDL_mixer/
 
 Due to popular demand, here is a simple multi-channel audio mixer.
 It supports 8 channels of 16 bit stereo audio, plus a single channel
@@ -23,11 +23,11 @@ sound choppy, try using 8-bit audio, mono audio, or lower frequencies.
 
 To play MIDI files, you'll need to get a complete set of GUS patches
 from:
-http://www.devolution.com/~slouken/SDL/projects/mixer/timidity/timidity.tar.gz
+http://www.libsdl.org/projects/mixer/timidity/timidity.tar.gz
 and unpack them in /usr/local/lib under UNIX, and C:\ under Win32.
 
 You may add panning, reverb, echo, whatever, but if you do, please
-mail changes back to me, Sam Lantinga at slouken@devolution.com
+mail changes back to me, Sam Lantinga at slouken@libsdl.org
 
 This library is available under the GNU Library General Public License.
 
