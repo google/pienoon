@@ -120,4 +120,5 @@ AC_OUTPUT([
 Makefile
 mikmod/Makefile
 timidity/Makefile
+SDL_mixer.spec
 ])

@@ -38,3 +38,12 @@ bin_PROGRAMS = playwave playmus
 
 playwave_LDADD = libSDL_mixer.la
 playmus_LDADD = libSDL_mixer.la
+
+# Rule to build tar-gzipped distribution package
+$(PACKAGE)-$(VERSION).tar.gz: dist
+
+# Rule to build RPM distribution package
+rpm: $(PACKAGE)-$(VERSION).tar.gz
+	cp $(PACKAGE)-$(VERSION).tar.gz /usr/src/redhat/SOURCES
+	rpm -ba SDL_mixer.spec
+

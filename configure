@@ -2424,6 +2424,7 @@ trap 'rm -fr `echo "
 Makefile
 mikmod/Makefile
 timidity/Makefile
+SDL_mixer.spec
 " | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
@@ -2552,6 +2553,7 @@ cat >> $CONFIG_STATUS <<EOF
 CONFIG_FILES=\${CONFIG_FILES-"Makefile
 mikmod/Makefile
 timidity/Makefile
+SDL_mixer.spec
 "}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
