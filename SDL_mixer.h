@@ -228,7 +228,7 @@ extern DECLSPEC void Mix_CloseAudio(void);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
-};
+}
 #endif
 #include "close_code.h"
 
