@@ -22,6 +22,8 @@
     slouken@devolution.com
 */
 
+#include <stdlib.h>
+#include <string.h>
 #include <SDL/SDL_endian.h>
 #include <SDL/SDL_audio.h>
 
