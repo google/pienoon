@@ -19,6 +19,9 @@
 
 /* This is for use with the SDL library */
 #define SDL
+#if defined(WIN32) || defined(_WIN32)
+#define __WIN32__
+#endif
 
 /* When a patch file can't be opened, one of these extensions is
    appended to the filename and the open is tried again.
