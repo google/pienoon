@@ -1,4 +1,8 @@
 
+1.0.5:
+Paul Furber - Fri Mar  3 14:58:50 PST 2000
+ * Fixed MP3 detection with compilers that use signed char datatypes
+
 1.0.4:
 Sam Lantinga - Thu Feb 10 19:42:03 PST 2000
  * Ported the base mixer and mikmod libraries to MacOS
