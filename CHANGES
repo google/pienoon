@@ -1,4 +1,8 @@
 
+1.1.0:
+Sam Lantinga - Wed Nov 29 20:47:13 PST 2000
+ * Package specifically for SDL 1.1 (no real reason API-wise, but for clarity)
+
 1.0.7:
 Sam Lantinga - Tue Nov  7 10:22:09 PST 2000
  * Fixed hang in mikmod re-initialization
