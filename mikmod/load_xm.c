@@ -614,8 +614,8 @@ BOOL XM_Load(BOOL curious)
 	}
 
 	/* set module variables */
-	of.initspeed = mh->tempo;
-	of.inittempo = mh->bpm;
+	of.initspeed = (UBYTE)mh->tempo;
+	of.inittempo = (UBYTE)mh->bpm;
 	strncpy(tracker,mh->trackername,20);tracker[20]=0;
 	for(t=20;(tracker[t]<=' ')&&(t>=0);t--) tracker[t]=0;
 

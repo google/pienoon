@@ -29,9 +29,9 @@ extern float sine(int x);
 
 #define SINE_CYCLE_LENGTH 1024
 extern int32 freq_table[];
-extern float vol_table[];
-extern float bend_fine[];
-extern float bend_coarse[];
+extern double vol_table[];
+extern double bend_fine[];
+extern double bend_coarse[];
 extern uint8 *_l2u; /* 13-bit PCM to 8-bit u-law */
 extern uint8 _l2u_[]; /* used in LOOKUP_HACK */
 #ifdef LOOKUP_HACK

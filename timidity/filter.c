@@ -63,10 +63,10 @@ static void kaiser(float *w,int n,float beta)
     float xind, xi;
     int i;
     
-    xind = (2*n - 1) * (2*n - 1);
+    xind = (float)((2*n - 1) * (2*n - 1));
     for (i =0; i<n ; i++) 
 	{
-	    xi = i + 0.5;
+	    xi = (float)(i + 0.5);
 	    w[i] = ino((float)(beta * sqrt((double)(1. - 4 * xi * xi / xind))))
 		/ ino((float)beta);
 	}
@@ -83,14 +83,14 @@ static void designfir(float *g , float fc)
     
     for (i =0; i < ORDER2 ;i++) 
 	{
-	    xi = (float) i + 0.5;
-	    omega = PI * xi;
-	    g[i] = sin( (double) omega * fc) / omega;
+	    xi = (float) (i + 0.5);
+	    omega = (float)(PI * xi);
+	    g[i] = (float)(sin( (double) omega * fc) / omega);
 	}
     
     att = 40.; /* attenuation  in  db */
-    beta = (float) exp(log((double)0.58417 * (att - 20.96)) * 0.4) + 0.07886 
-	* (att - 20.96);
+    beta = (float) (exp(log((double)0.58417 * (att - 20.96)) * 0.4) + 0.07886 
+	* (att - 20.96));
     kaiser( w, ORDER2, beta);
     
     /* Matrix product */
@@ -116,8 +116,8 @@ static void filter(sample_t *result,sample_t *data, int32 length,float coef[])
 	    sample_window= sample - ORDER2;
 	   
 	    for (i = 0; i < ORDER ;i++) 
-		sum += coef[i] *
-		    ((sample_window<0)? 0.0 : data[sample_window++]) ;
+		sum += (float)(coef[i] *
+		    ((sample_window<0)? 0.0 : data[sample_window++])) ;
 	    
 	    /* Saturation ??? */
 	    if (sum> 32767.) { sum=32767.; peak++; }
@@ -147,8 +147,8 @@ static void filter(sample_t *result,sample_t *data, int32 length,float coef[])
 	    sample_window= sample - ORDER2;
 	    
 	    for (i = 0; i < ORDER ;i++) 
-		sum += coef[i] *
-		    ((sample_window>=length)? 0.0 : data[sample_window++]) ;
+		sum += (float)(coef[i] *
+		    ((sample_window>=length)? 0.0 : data[sample_window++])) ;
 	    
 	    /* Saturation ??? */
 	    if (sum> 32767.) { sum=32767.; peak++; }

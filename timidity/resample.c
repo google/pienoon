@@ -694,7 +694,7 @@ void pre_resample(Sample * sp)
 
   a = ((double) (sp->sample_rate) * freq_table[(int) (sp->note_to_use)]) /
     ((double) (sp->root_freq) * play_mode->rate);
-  newlen = sp->data_length / a;
+  newlen = (int32)(sp->data_length / a);
   dest = newdata = safe_malloc(newlen >> (FRACTION_BITS - 1));
 
   count = (newlen >> FRACTION_BITS) - 1;
@@ -713,8 +713,8 @@ void pre_resample(Sample * sp)
       v3 = *(vptr + 1);
       v4 = *(vptr + 2);
       xdiff = FSCALENEG(ofs & FRACTION_MASK, FRACTION_BITS);
-      *dest++ = v2 + (xdiff / 6.0) * (-2 * v1 - 3 * v2 + 6 * v3 - v4 +
-      xdiff * (3 * (v1 - 2 * v2 + v3) + xdiff * (-v1 + 3 * (v2 - v3) + v4)));
+      *dest++ = (int16)(v2 + (xdiff / 6.0) * (-2 * v1 - 3 * v2 + 6 * v3 - v4 +
+      xdiff * (3 * (v1 - 2 * v2 + v3) + xdiff * (-v1 + 3 * (v2 - v3) + v4))));
       ofs += incr;
     }
 
@@ -728,8 +728,8 @@ void pre_resample(Sample * sp)
     *dest++ = src[ofs >> FRACTION_BITS];
 
   sp->data_length = newlen;
-  sp->loop_start = sp->loop_start / a;
-  sp->loop_end = sp->loop_end / a;
+  sp->loop_start = (int32)(sp->loop_start / a);
+  sp->loop_end = (int32)(sp->loop_end / a);
   free(sp->data);
   sp->data = (sample_t *) newdata;
   sp->sample_rate = 0;

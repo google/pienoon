@@ -71,7 +71,7 @@ static int32 sample_count, current_sample;
 
 static void adjust_amplification(void)
 { 
-  master_volume = (double)(amplification) / 100.0L;
+  master_volume = (float)(amplification) / (float)100.0;
 }
 
 static void reset_voices(void)
@@ -195,7 +195,7 @@ static void recompute_freq(int v)
 	  if (pb<0)
 	    i=-i;
 	  channel[voice[v].channel].pitchfactor=
-	    bend_fine[(i>>5) & 0xFF] * bend_coarse[i>>13];
+	    (float)(bend_fine[(i>>5) & 0xFF] * bend_coarse[i>>13]);
 	}
       if (pb>0)
 	voice[v].frequency=
@@ -263,7 +263,7 @@ static void recompute_amp(int v)
 	    FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
 		      27);
 	  voice[v].right_amp=voice[v].left_amp * (voice[v].panning);
-	  voice[v].left_amp *= (double)(127-voice[v].panning);
+	  voice[v].left_amp *= (float)(127-voice[v].panning);
 	}
     }
   else
@@ -910,9 +910,7 @@ void Timidity_SetVolume(int volume)
 MidiSong *Timidity_LoadSong(char *midifile)
 {
   MidiSong *song;
-  MidiEvent *event;
-  int32 events, samples;
-  int rc;
+  int32 events;
   FILE *fp;
 
   /* Allocate memory for the song */

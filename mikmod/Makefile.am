@@ -10,7 +10,6 @@ libmikmod_la_SOURCES =		\
 	load_xm.c		\
 	mdreg.c			\
 	mdriver.c		\
-	mdulaw.c		\
 	mikmod.h		\
 	mikmod_build.h		\
 	mikmod_internals.h	\

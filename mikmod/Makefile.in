@@ -87,7 +87,7 @@ VERSION = @VERSION@
 
 noinst_LTLIBRARIES = libmikmod.la
 
-libmikmod_la_SOURCES =  	drv_nos.c			drv_sdl.c			load_it.c			load_mod.c			load_s3m.c			load_xm.c			mdreg.c				mdriver.c			mdulaw.c			mikmod.h			mikmod_build.h			mikmod_internals.h		mloader.c			mlreg.c				mlutil.c			mmalloc.c			mmerror.c			mmio.c				mplayer.c			munitrk.c			mwav.c				npertab.c			sloader.c			virtch.c			virtch2.c			virtch_common.c
+libmikmod_la_SOURCES =  	drv_nos.c			drv_sdl.c			load_it.c			load_mod.c			load_s3m.c			load_xm.c			mdreg.c				mdriver.c			mikmod.h			mikmod_build.h			mikmod_internals.h		mloader.c			mlreg.c				mlutil.c			mmalloc.c			mmerror.c			mmio.c				mplayer.c			munitrk.c			mwav.c				npertab.c			sloader.c			virtch.c			virtch2.c			virtch_common.c
 
 
 EXTRA_DIST = AUTHORS COPYING.LESSER README
@@ -103,9 +103,9 @@ LIBS = @LIBS@
 libmikmod_la_LDFLAGS = 
 libmikmod_la_LIBADD = 
 libmikmod_la_OBJECTS =  drv_nos.lo drv_sdl.lo load_it.lo load_mod.lo \
-load_s3m.lo load_xm.lo mdreg.lo mdriver.lo mdulaw.lo mloader.lo \
-mlreg.lo mlutil.lo mmalloc.lo mmerror.lo mmio.lo mplayer.lo munitrk.lo \
-mwav.lo npertab.lo sloader.lo virtch.lo virtch2.lo virtch_common.lo
+load_s3m.lo load_xm.lo mdreg.lo mdriver.lo mloader.lo mlreg.lo \
+mlutil.lo mmalloc.lo mmerror.lo mmio.lo mplayer.lo munitrk.lo mwav.lo \
+npertab.lo sloader.lo virtch.lo virtch2.lo virtch_common.lo
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -120,10 +120,10 @@ TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/drv_nos.P .deps/drv_sdl.P .deps/load_it.P \
 .deps/load_mod.P .deps/load_s3m.P .deps/load_xm.P .deps/mdreg.P \
-.deps/mdriver.P .deps/mdulaw.P .deps/mloader.P .deps/mlreg.P \
-.deps/mlutil.P .deps/mmalloc.P .deps/mmerror.P .deps/mmio.P \
-.deps/mplayer.P .deps/munitrk.P .deps/mwav.P .deps/npertab.P \
-.deps/sloader.P .deps/virtch.P .deps/virtch2.P .deps/virtch_common.P
+.deps/mdriver.P .deps/mloader.P .deps/mlreg.P .deps/mlutil.P \
+.deps/mmalloc.P .deps/mmerror.P .deps/mmio.P .deps/mplayer.P \
+.deps/munitrk.P .deps/mwav.P .deps/npertab.P .deps/sloader.P \
+.deps/virtch.P .deps/virtch2.P .deps/virtch_common.P
 SOURCES = $(libmikmod_la_SOURCES)
 OBJECTS = $(libmikmod_la_OBJECTS)
 

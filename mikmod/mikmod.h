@@ -39,8 +39,7 @@ extern "C" {
 /*
  * ========== Compiler magic for shared libraries
  */
-
-#ifdef WIN32
+#if defined(WIN32) && 0 /* We're not building a shared library */
 #ifdef DLL_EXPORTS
 #define MIKMODAPI __declspec(dllexport)
 #else

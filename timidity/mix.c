@@ -89,16 +89,16 @@ void apply_envelope_to_amp(int v)
 	}
       if (voice[v].sample->modes & MODES_ENVELOPE)
 	{
-	  lamp *= vol_table[voice[v].envelope_volume>>23];
-	  ramp *= vol_table[voice[v].envelope_volume>>23];
+	  lamp *= (float)vol_table[voice[v].envelope_volume>>23];
+	  ramp *= (float)vol_table[voice[v].envelope_volume>>23];
 	}
 
-      la = FSCALE(lamp,AMP_BITS);
+      la = (int32)FSCALE(lamp,AMP_BITS);
       
       if (la>MAX_AMP_VALUE)
 	la=MAX_AMP_VALUE;
 
-      ra = FSCALE(ramp,AMP_BITS);
+      ra = (int32)FSCALE(ramp,AMP_BITS);
       if (ra>MAX_AMP_VALUE)
 	ra=MAX_AMP_VALUE;
 
@@ -111,9 +111,9 @@ void apply_envelope_to_amp(int v)
       if (voice[v].tremolo_phase_increment)
 	lamp *= voice[v].tremolo_volume;
       if (voice[v].sample->modes & MODES_ENVELOPE)
-	lamp *= vol_table[voice[v].envelope_volume>>23];
+	lamp *= (float)vol_table[voice[v].envelope_volume>>23];
 
-      la = FSCALE(lamp,AMP_BITS);
+      la = (int32)FSCALE(lamp,AMP_BITS);
 
       if (la>MAX_AMP_VALUE)
 	la=MAX_AMP_VALUE;
@@ -162,10 +162,10 @@ static void update_tremolo(int v)
   /* if (voice[v].tremolo_phase >= (SINE_CYCLE_LENGTH<<RATE_SHIFT))
      voice[v].tremolo_phase -= SINE_CYCLE_LENGTH<<RATE_SHIFT;  */
 
-  voice[v].tremolo_volume = 
-    1.0 - FSCALENEG((sine(voice[v].tremolo_phase >> RATE_SHIFT) + 1.0)
+  voice[v].tremolo_volume = (float) 
+    (1.0 - FSCALENEG((sine(voice[v].tremolo_phase >> RATE_SHIFT) + 1.0)
 		    * depth * TREMOLO_AMPLITUDE_TUNING,
-		    17);
+		    17));
 
   /* I'm not sure about the +1.0 there -- it makes tremoloed voices'
      volumes on average the lower the higher the tremolo amplitude. */

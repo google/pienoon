@@ -89,6 +89,9 @@ VERSION = @VERSION@
 
 lib_LTLIBRARIES = libSDL_mixer.la
 
+EXTRA_DIST =  	CHANGES				autogen.sh
+
+
 SUBDIRS = @MUSIC_SUBDIRS@
 DIST_SUBIDRS = mikmod timidity
 
@@ -102,9 +105,6 @@ libSDL_mixer_la_SOURCES =  	mixer.c				music.c				music_cmd.c			music_cmd.h			wa
 @USE_MIKMOD_FALSE@MIKMOD_LIB = 
 @USE_TIMIDITY_TRUE@TIMIDITY_LIB = timidity/libtimidity.la
 @USE_TIMIDITY_FALSE@TIMIDITY_LIB = 
-
-EXTRA_DIST =  	CHANGES				autogen.sh
-
 
 libSDL_mixer_la_LDFLAGS =          -release $(LT_RELEASE)		-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 

@@ -294,7 +294,7 @@ BOOL S3M_Load(BOOL curious)
 		return 0;
 	}
 
-	poslookupcnt=mh->ordnum;
+	poslookupcnt=(UBYTE)mh->ordnum;
 	S3MIT_CreateOrders(curious);
 
 	if(!(paraptr=(UWORD*)_mm_malloc((of.numins+of.numpat)*sizeof(UWORD))))

@@ -1,5 +1,10 @@
 
 1.0.4:
+* Sam Lantinga Tue Feb  1 13:25:44 PST 2000
+- Added Visual C++ project file
+* Markus Oberhumer Tue Feb  1 13:23:11 PST 2000
+- Cleaned up code for compiling with Visual C++
+- Don't hang in Mix_HaltMusic() if the music is paused
 * Sam Lantinga Fri Jan 28 08:54:56 PST 2000
 - Fixed looping WAVE chunks that are not aligned on sample boundaries
 
@@ -12,8 +17,8 @@
 1.0.2:
 * Sam Lantinga Fri Jan 14 11:06:56 PST 2000
 - Made the CHANGELOG entries Y2K compliant. :)
-FXJ -	Updated the mikmod support to MikMod 3.1.8
-FXJ -	Added Mix_HookMusicFinished() API function
+MFX -	Updated the mikmod support to MikMod 3.1.8
+MFX -	Added Mix_HookMusicFinished() API function
 
 1.0.1:
 SOL -	Added a post-mixing callback
@@ -30,4 +35,4 @@ SP  -   Added expiration delay for samples
 Initial Key:
 SOL - Sam Lantinga (hercules@lokigames.com)
 SP  - Stephane Peter (megastep@lokigames.com)
-FXJ - Markus Oberhumer (markus.oberhumer@jk.uni-linz.ac.at)
+MFX - Markus Oberhumer (markus.oberhumer@jk.uni-linz.ac.at)

@@ -46,11 +46,11 @@ static struct _Mix_Channel {
 	int volume;
 	int looping;
 	int tag;
-	int expire;
+	Uint32 expire;
 	Uint32 start_time;
 	Mix_Fading fading;
 	int fade_volume;
-	int fade_length;
+	Uint32 fade_length;
 	Uint32 ticks_fade;
 } *channel = NULL;
 static int num_channels;
@@ -61,11 +61,15 @@ static int reserved_channels = 0;
 static void (*mix_postmix)(void *udata, Uint8 *stream, int len) = NULL;
 static void *mix_postmix_data = NULL;
 
+/* Music function declarations */
+extern int open_music(SDL_AudioSpec *mixer);
+extern void close_music(void);
+
 /* Support for user defined music functions, plus the default one */
-extern int music_active;
+extern int volatile music_active;
 extern void music_mixer(void *udata, Uint8 *stream, int len);
 static void (*mix_music)(void *udata, Uint8 *stream, int len) = music_mixer;
-void *music_data = NULL;
+static void *music_data = NULL;
 
 /* Mixing function */
 static void mix_channels(void *udata, Uint8 *stream, int len)
@@ -87,13 +91,13 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 				/* Expiration delay for that channel is reached */
 				channel[i].playing = 0;
 				channel[i].fading = MIX_NO_FADING;
-				channel[i].expire = -1;
+				channel[i].expire = 0;
 			} else if ( channel[i].fading != MIX_NO_FADING ) {
 				Uint32 ticks = sdl_ticks - channel[i].ticks_fade;
 				if( ticks > channel[i].fade_length ) {
 					if( channel[i].fading == MIX_FADING_OUT ) {
 						channel[i].playing = 0;
-						channel[i].expire = -1;
+						channel[i].expire = 0;
 						Mix_Volume(i, channel[i].fading); /* Restore the volume */
 					}
 					channel[i].fading = MIX_NO_FADING;
@@ -113,11 +117,9 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 				/* If looping the sample and we are at its end, make sure
 				   we will still return a full buffer */
 				if ( channel[i].looping && mixable < len ) {
-					char buffer[len]; /* Hum, gcc feature */
 					int remaining = len - mixable;
-					memcpy(buffer, channel[i].samples, mixable);
-					memcpy(buffer+mixable, channel[i].chunk->abuf, remaining);
-					SDL_MixAudio(stream, buffer, len, volume);
+					SDL_MixAudio(stream, channel[i].samples, mixable, volume);
+					SDL_MixAudio(stream+mixable, channel[i].chunk->abuf, remaining, volume);
 					--channel[i].looping;
 					channel[i].samples = channel[i].chunk->abuf + remaining;
 					channel[i].playing = channel[i].chunk->alen - remaining;
@@ -204,7 +206,7 @@ int Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize)
 		channel[i].looping = 0;
 		channel[i].volume = SDL_MIX_MAXVOLUME;
 		channel[i].tag = -1;
-		channel[i].expire = -1;
+		channel[i].expire = 0;
 	}
 	Mix_VolumeMusic(SDL_MIX_MAXVOLUME);
 	audio_opened = 1;
@@ -239,7 +241,7 @@ int Mix_AllocateChannels(int numchans)
 			channel[i].looping = 0;
 			channel[i].volume = SDL_MIX_MAXVOLUME;
 			channel[i].tag = -1;
-			channel[i].expire = -1;
+			channel[i].expire = 0;
 		}
 	}
 	num_channels = numchans;
@@ -482,7 +484,7 @@ int Mix_PlayChannelTimed(int which, Mix_Chunk *chunk, int loops, int ticks)
 			channel[which].paused = 0;
 			channel[which].fading = MIX_NO_FADING;
 			channel[which].start_time = sdl_ticks;
-			channel[which].expire = (ticks>0) ? (sdl_ticks + ticks) : -1;
+			channel[which].expire = (ticks>0) ? (sdl_ticks + ticks) : 0;
 		}
 	}
 	SDL_mutexV(mixer_lock);
@@ -503,7 +505,7 @@ int Mix_ExpireChannel(int which, int ticks)
 		}
 	} else if ( which < num_channels ) {
 		SDL_mutexP(mixer_lock);
-		channel[which].expire = (ticks>0) ? (SDL_GetTicks() + ticks) : -1;
+		channel[which].expire = (ticks>0) ? (SDL_GetTicks() + ticks) : 0;
 		SDL_mutexV(mixer_lock);
 		++ status;
 	}
@@ -547,9 +549,9 @@ int Mix_FadeInChannelTimed(int which, Mix_Chunk *chunk, int loops, int ms, int t
 			channel[which].fading = MIX_FADING_IN;
 			channel[which].fade_volume = channel[which].volume;
 			channel[which].volume = 0;
-			channel[which].fade_length = ms;
+			channel[which].fade_length = (Uint32)ms;
 			channel[which].start_time = channel[which].ticks_fade = sdl_ticks;
-			channel[which].expire = (ticks > 0) ? (sdl_ticks+ticks) : -1;
+			channel[which].expire = (ticks > 0) ? (sdl_ticks+ticks) : 0;
 		}
 	}
 	SDL_mutexV(mixer_lock);
@@ -609,7 +611,7 @@ int Mix_HaltChannel(int which)
 	} else {
 		SDL_mutexP(mixer_lock);
 		channel[which].playing = 0;
-		channel[which].expire = -1;
+		channel[which].expire = 0;
 		if(channel[which].fading != MIX_NO_FADING) /* Restore volume */
 			channel[which].volume = channel[which].fade_volume;
 		channel[which].fading = MIX_NO_FADING;

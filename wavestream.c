@@ -39,7 +39,7 @@
 static WAVStream *theWave = NULL;
 
 /* This is initialized by the music mixer */
-SDL_mutex *music_lock = NULL;
+static SDL_mutex *music_lock = NULL;
 
 /* This is the format of the audio mixer data */
 static SDL_AudioSpec mixer;
@@ -304,7 +304,7 @@ static FILE *LoadWAVStream (const char *file, SDL_AudioSpec *spec,
 			was_error = 1;
 			goto done;
 	}
-	spec->channels = SDL_SwapLE16(format->channels);
+	spec->channels = (Uint8) SDL_SwapLE16(format->channels);
 	spec->samples = 4096;		/* Good default buffer size */
 
 	/* Set the file offset to the DATA chunk data */
@@ -452,7 +452,7 @@ static FILE *LoadAIFFStream (const char *file, SDL_AudioSpec *spec,
 			was_error = 1;
 			goto done;
 	}
-	spec->channels = channels;
+	spec->channels = (Uint8) channels;
 	spec->samples = 4096;		/* Good default buffer size */
 
 done:

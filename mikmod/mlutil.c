@@ -81,7 +81,7 @@ int speed_to_finetune(ULONG speed,int sample)
         note++;
     }
 
-    if(tmp!=speed) {
+    if(tmp!=(int)speed) {
         if((tmp-speed)<(speed-ctmp))
             while(tmp>speed)
                 tmp=getfrequency(of.flags,getlinearperiod(note<<1,--finetune));

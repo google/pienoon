@@ -86,7 +86,7 @@ static int32 getvl(void)
 static int dumpstring(int32 len, char *label)
 {
   signed char *s=safe_malloc(len+1);
-  if (len != fread(s, 1, len, fp))
+  if (len != (int32)fread(s, 1, len, fp))
     {
       free(s);
       return -1;

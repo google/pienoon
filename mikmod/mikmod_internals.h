@@ -44,6 +44,7 @@ extern "C" {
 #include <mikmod_build.h>
 
 #ifdef WIN32
+#define __STDC__
 #pragma warning(disable:4761)
 #endif
 

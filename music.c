@@ -63,12 +63,12 @@
 static SDL_AudioSpec used_mixer;
 #endif
 
-int music_active = 1;
-static int music_stopped = 0;
+int volatile music_active = 1;
+static int volatile music_stopped = 0;
 static int music_loops = 0;
 static char *music_cmd = NULL;
 static int samplesize;
-static Mix_Music *music_playing = 0;
+static Mix_Music * volatile music_playing = NULL;
 static int music_volume = MIX_MAX_VOLUME;
 static int music_swap8;
 static int music_swap16;
@@ -130,8 +130,6 @@ void Mix_HookMusicFinished(void (*music_finished)(void))
 /* Mixing function */
 void music_mixer(void *udata, Uint8 *stream, int len)
 {
-	int i;
-
 	if ( music_playing ) {
 		if ( music_stopped ) {
 			/* To avoid concurrency problems and the use of mutexes,
@@ -196,6 +194,7 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 				VC_WriteBytes((SBYTE *)stream, len);
 				if ( music_swap8 ) {
 					Uint8 *dst;
+					int i;
 
 					dst = stream;
 					for ( i=len; i; --i ) {
@@ -204,6 +203,7 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 				} else
 				if ( music_swap16 ) {
 					Uint8 *dst, tmp;
+					int i;
 
 					dst = stream;
 					for ( i=(len/2); i; --i ) {
@@ -311,7 +311,7 @@ int open_music(SDL_AudioSpec *mixer)
 	/* Keep a copy of the mixer */
 	used_mixer = *mixer;
 #endif
-	music_playing = 0;
+	music_playing = NULL;
 	music_stopped = 0;
 	if ( music_error ) {
 		return(-1);
@@ -319,7 +319,7 @@ int open_music(SDL_AudioSpec *mixer)
 	Mix_VolumeMusic(SDL_MIX_MAXVOLUME);
 
 	/* Calculate the number of ms for each callback */
-	ms_per_step = ((float)mixer->samples * 1000.0) / mixer->freq;
+	ms_per_step = (int)((float)mixer->samples * 1000.0) / mixer->freq;
 
 	return(0);
 }
@@ -491,7 +491,7 @@ static int lowlevel_play(Mix_Music *music)
 #endif
 #ifdef MOD_MUSIC
 		case MUS_MOD:
-			Player_SetVolume(music_volume);
+			Player_SetVolume((SWORD)music_volume);
 			Player_Start(music->data.module);
 			Player_SetPosition(0);
 			break;
@@ -584,7 +584,7 @@ int Mix_VolumeMusic(int volume)
 #endif
 #ifdef MOD_MUSIC
 		case MUS_MOD:
-			Player_SetVolume(music_volume);
+			Player_SetVolume((SWORD)music_volume);
 			break;
 #endif
 #ifdef MID_MUSIC
@@ -653,7 +653,7 @@ int Mix_HaltMusic(void)
 		/* Mark the music to be stopped from the sound thread */
 		music_stopped = 1;
 		/* Wait for it to be actually stopped */
-		while ( music_playing )
+		while ( music_playing && music_active )
 			SDL_Delay(10);
 	}
 	return(0);

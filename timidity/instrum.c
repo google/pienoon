@@ -482,7 +482,7 @@ static Instrument *load_instrument(char *name, int percussion,
 
 #ifdef ADJUST_SAMPLE_VOLUMES
       if (amp!=-1)
-	sp->volume=(double)(amp) / 100.0;
+	sp->volume=(float)((amp) / 100.0);
       else
 	{
 	  /* Try to determine a volume scaling factor for the sample.
@@ -498,7 +498,7 @@ static Instrument *load_instrument(char *name, int percussion,
 	      if (a>maxamp)
 		maxamp=a;
 	    }
-	  sp->volume=32768.0 / (double)(maxamp);
+	  sp->volume=(float)(32768.0 / maxamp);
 	  ctl->cmsg(CMSG_INFO, VERB_DEBUG, " * volume comp: %f", sp->volume);
 	}
 #else
