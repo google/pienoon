@@ -39,20 +39,20 @@ static Mix_Chunk *wave = NULL;
 
 void CleanUp(void)
 {
-	if ( audio_open ) {
-		Mix_CloseAudio();
-		audio_open = 0;
-	}
 	if ( wave ) {
 		Mix_FreeChunk(wave);
 		wave = NULL;
+	}
+	if ( audio_open ) {
+		Mix_CloseAudio();
+		audio_open = 0;
 	}
 	SDL_Quit();
 }
 
 void Usage(char *argv0)
 {
-	fprintf(stderr, "Usage: %s [-8] [-r rate] [-m] <wavefile>\n", argv0);
+	fprintf(stderr, "Usage: %s [-8] [-r rate] [-l] [-m] <wavefile>\n", argv0);
 }
 	
 main(int argc, char *argv[])
@@ -60,6 +60,7 @@ main(int argc, char *argv[])
 	Uint32 audio_rate;
 	Uint16 audio_format;
 	int audio_channels;
+	int loops = 0;
 	int i;
 
 	/* Initialize variables */
@@ -75,6 +76,9 @@ main(int argc, char *argv[])
 		} else
 		if ( strcmp(argv[i], "-m") == 0 ) {
 			audio_channels = 1;
+		} else
+		if ( strcmp(argv[i], "-l") == 0 ) {
+			loops = -1;
 		} else
 		if ( strcmp(argv[i], "-8") == 0 ) {
 			audio_format = AUDIO_U8;
@@ -103,9 +107,14 @@ main(int argc, char *argv[])
 		exit(2);
 	} else {
 		Mix_QuerySpec(&audio_rate, &audio_format, &audio_channels);
-		printf("Opened audio at %d Hz %d bit %s\n", audio_rate,
+		printf("Opened audio at %d Hz %d bit %s", audio_rate,
 			(audio_format&0xFF),
 			(audio_channels > 1) ? "stereo" : "mono");
+		if ( loops ) {
+		  printf(" (looping)\n");
+		} else {
+		  putchar('\n');
+		}
 	}
 	audio_open = 1;
 
@@ -118,7 +127,7 @@ main(int argc, char *argv[])
 	}
 
 	/* Play and then exit */
-	Mix_PlayChannel(0, wave, 0);
+	Mix_PlayChannel(0, wave, loops);
 	while ( Mix_Playing(0) ) {
 		SDL_Delay(100);
 	}
