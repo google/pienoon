@@ -44,6 +44,7 @@
 
 /* The internal format for an audio chunk */
 typedef struct {
+	int allocated;
 	Uint8 *abuf;
 	Uint32 alen;
 	Uint8 volume;		/* Per-sample volume, 0-128 */
@@ -61,10 +62,13 @@ extern int Mix_OpenAudio(int frequency, Uint16 format, int channels,
  */
 extern int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels);
 
-/* Load a wave file or a MOD (.mod .s3m .it .xm) file */
+/* Load a wave file or a music (.mod .s3m .it .xm) file */
 extern Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc);
 #define Mix_LoadWAV(file)	Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
 extern Mix_Music *Mix_LoadMUS(const char *file);
+
+/* Load a wave file of the mixer format from a memory buffer */
+extern Mix_Chunk *Mix_QuickLoad_WAV(Uint8 *mem);
 
 /* Free an audio chunk previously loaded */
 extern void Mix_FreeChunk(Mix_Chunk *chunk);

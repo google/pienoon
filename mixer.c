@@ -232,9 +232,45 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 		free(chunk);
 		return(NULL);
 	}
+	chunk->allocated = 1;
 	chunk->abuf = wavecvt.buf;
 	chunk->alen = wavecvt.len_cvt;
 	chunk->volume = MIX_MAX_VOLUME;
+	return(chunk);
+}
+
+/* Load a wave file of the mixer format from a memory buffer */
+Mix_Chunk *Mix_QuickLoad_WAV(Uint8 *mem)
+{
+	Mix_Chunk *chunk;
+	Uint8 magic[4];
+
+	/* Make sure audio has been opened */
+	if ( ! audio_opened ) {
+		SDL_SetError("Audio device hasn't been opened");
+		return(NULL);
+	}
+
+	/* Allocate the chunk memory */
+	chunk = (Mix_Chunk *)malloc(sizeof(Mix_Chunk));
+	if ( chunk == NULL ) {
+		SDL_SetError("Out of memory");
+		return(NULL);
+	}
+
+	/* Essentially just skip to the audio data (no error checking - fast) */
+	chunk->allocated = 0;
+	mem += 12; /* WAV header */
+	do {
+		memcpy(magic, mem, 4);
+		mem += 4;
+		chunk->alen = ((mem[3]<<24)|(mem[2]<<16)|(mem[1]<<8)|(mem[0]));
+		mem += 4;
+		chunk->abuf = mem;
+		mem += chunk->alen;
+	} while ( memcmp(magic, "data", 4) != 0 );
+	chunk->volume = MIX_MAX_VOLUME;
+
 	return(chunk);
 }
 
@@ -255,7 +291,9 @@ void Mix_FreeChunk(Mix_Chunk *chunk)
 		SDL_mutexV(mixer_lock);
 
 		/* Actually free the chunk */
-		free(chunk->abuf);
+		if ( chunk->allocated ) {
+			free(chunk->abuf);
+		}
 		free(chunk);
 	}
 }
