@@ -42,6 +42,10 @@ static struct _Mix_Channel {
 	Uint8 *samples;
 	int volume;
 	int looping;
+	Mix_Fading fading;
+	int fade_volume;
+	int fade_length;
+	Uint32 ticks_fade;
 } channel[MIX_CHANNELS];
 
 #define MUSIC_VOL	64		/* Music volume 0-64 */
@@ -63,6 +67,23 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 	SDL_mutexP(mixer_lock);
 	num_channels = 0;
 	for ( i=0; i<MIX_CHANNELS; ++i ) {
+		if ( channel[i].fading != MIX_NO_FADING ) {
+			Uint32 ticks = SDL_GetTicks() - channel[i].ticks_fade;
+			if( ticks > channel[i].fade_length ) {
+				if( channel[i].fading == MIX_FADING_OUT ) {
+					channel[i].playing = 0;
+					Mix_Volume(i, channel[i].fading); /* Restore the volume */
+				}
+				channel[i].fading = MIX_NO_FADING;
+			} else {
+				if( channel[i].fading == MIX_FADING_OUT ) {
+					Mix_Volume(i, (channel[i].fade_volume * (channel[i].fade_length-ticks))
+							   / channel[i].fade_length );
+				} else {
+					Mix_Volume(i, (channel[i].fade_volume * ticks) / channel[i].fade_length );
+				}
+			}
+		}
 		if ( channel[i].playing && !channel[i].paused ) {
 		    ++ num_channels;
 			mixable = channel[i].playing;
@@ -368,6 +389,53 @@ int Mix_PlayChannel(int which, Mix_Chunk *chunk, int loops)
 			channel[which].looping = loops;
 			channel[which].chunk = chunk;
 			channel[which].paused = 0;
+			channel[which].fading = MIX_NO_FADING;
+		}
+	}
+	SDL_mutexV(mixer_lock);
+
+	/* Return the channel on which the sound is being played */
+	return(which);
+}
+
+/* Fade in a sound on a channel, over ms milliseconds */
+int Mix_FadeInChannel(int which, Mix_Chunk *chunk, int loops, int ms)
+{
+	int i;
+
+	/* Don't play null pointers :-) */
+	if ( chunk == NULL ) {
+		return(-1);
+	}
+
+	/* Lock the mixer while modifying the playing channels */
+	SDL_mutexP(mixer_lock);
+	{
+		/* If which is -1, play on the first free channel */
+		if ( which == -1 ) {
+			for ( i=reserved_channels; i<MIX_CHANNELS; ++i ) {
+				if ( channel[i].playing <= 0 )
+					break;
+			}
+			if ( i == MIX_CHANNELS ) {
+				which = -1;
+			} else {
+				which = i;
+			}
+		}
+
+		/* Queue up the audio data for this channel */
+		if ( which >= 0 ) {
+			channel[which].samples = chunk->abuf;
+			channel[which].playing = chunk->alen;
+			channel[which].looping = loops;
+			channel[which].chunk = chunk;
+			channel[which].paused = 0;
+			channel[which].fading = MIX_FADING_IN;
+			channel[which].fade_volume = channel[which].volume;
+			channel[which].volume = 0;
+			channel[which].fade_length = ms;
+			channel[which].ticks_fade = SDL_GetTicks();
 		}
 	}
 	SDL_mutexV(mixer_lock);
@@ -390,12 +458,13 @@ int Mix_Volume(int which, int volume)
 		prev_volume /= MIX_CHANNELS;
 	} else {
 		prev_volume = channel[which].volume;
-		if ( volume >= 0 ) {
-			if ( volume > SDL_MIX_MAXVOLUME ) {
-				volume = SDL_MIX_MAXVOLUME;
-			}
-			channel[which].volume = volume;
+		if ( volume < 0 ) {
+			volume = 0;
 		}
+		if ( volume > SDL_MIX_MAXVOLUME ) {
+			volume = SDL_MIX_MAXVOLUME;
+		}
+		channel[which].volume = volume;
 	}
 	return(prev_volume);
 }
@@ -426,9 +495,45 @@ int Mix_HaltChannel(int which)
 	} else {
 		SDL_mutexP(mixer_lock);
 		channel[which].playing = 0;
+		if(channel[which].fading != MIX_NO_FADING) /* Restore volume */
+			channel[which].volume = channel[which].fade_volume;
+		channel[which].fading = MIX_NO_FADING;
 		SDL_mutexV(mixer_lock);
 	}
 	return(0);
+}
+
+/* Fade out a channel and then stop it automatically */
+int Mix_FadeOutChannel(int which, int ms)
+{
+	int status;
+
+	status = 0;
+	if ( which == -1 ) {
+		int i;
+
+		for ( i=0; i<MIX_CHANNELS; ++i ) {
+			status += Mix_FadeOutChannel(i,ms);
+		}
+	} else {
+		SDL_mutexP(mixer_lock);
+		if ( channel[which].playing && channel[which].volume>0 && 
+			 channel[which].fading==MIX_NO_FADING ) {
+
+			channel[which].fading = MIX_FADING_OUT;
+			channel[which].fade_volume = channel[which].volume;
+			channel[which].fade_length = ms;
+			channel[which].ticks_fade = SDL_GetTicks();
+			++ status;
+		}
+		SDL_mutexV(mixer_lock);
+	}
+	return(status);
+}
+
+Mix_Fading Mix_FadingChannel(int which)
+{
+	return channel[which].fading;
 }
 
 /* Check the status of a specific channel.

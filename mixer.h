@@ -50,6 +50,13 @@ typedef struct {
 	Uint8 volume;		/* Per-sample volume, 0-128 */
 } Mix_Chunk;
 
+/* The different fading types supported */
+typedef enum {
+	MIX_NO_FADING,
+	MIX_FADING_OUT,
+	MIX_FADING_IN
+} Mix_Fading;
+
 /* The internal format for a music chunk interpreted via mikmod */
 typedef struct _Mix_Music Mix_Music;
 
@@ -98,6 +105,10 @@ extern int Mix_ReserveChannels(int num);
 extern int Mix_PlayChannel(int channel, Mix_Chunk *chunk, int loops);
 extern int Mix_PlayMusic(Mix_Music *music, int loops);
 
+/* Fade in music or a channel over "ms" milliseconds, same semantics as the "Play" functions */
+extern int Mix_FadeInMusic(Mix_Music *music, int loops, int ms);
+extern int Mix_FadeInChannel(int channel, Mix_Chunk *chunk, int loops, int ms);
+
 /* Set the volume in the range of 0-128 of a specific channel or chunk.
    If the specified channel is -1, set volume for all channels.
    Returns the original volume.
@@ -110,6 +121,17 @@ extern int Mix_VolumeMusic(int volume);
 /* Halt playing of a particular channel */
 extern int Mix_HaltChannel(int channel);
 extern int Mix_HaltMusic(void);
+
+/* Halt a channel, fading it out progressively till it's silent 
+   The ms parameter indicates the number of milliseconds the fading
+   will take.
+ */
+extern int Mix_FadeOutChannel(int which, int ms);
+extern int Mix_FadeOutMusic(int ms);
+
+/* Query the fading status of a channel */
+extern Mix_Fading Mix_FadingMusic(void);
+extern Mix_Fading Mix_FadingChannel(int which);
 
 /* Pause/Resume a particular channel */
 extern void Mix_Pause(int channel);

@@ -57,9 +57,11 @@ static int music_loops = 0;
 static char *music_cmd = NULL;
 static int samplesize;
 static Mix_Music *music_playing = 0;
+static SDL_mutex *music_lock;
 static int music_volume;
 static int music_swap8;
 static int music_swap16;
+
 struct _Mix_Music {
 	enum {
 		MUS_CMD,
@@ -85,6 +87,10 @@ struct _Mix_Music {
 		SMPEG *mp3;
 #endif
 	} data;
+	Mix_Fading fading;
+	int fade_volume;
+	int fade_length;
+	Uint32 ticks_fade;
 	int error;
 };
 static int timidity_ok;
@@ -95,6 +101,26 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 	int i;
 
 	if ( music_playing ) {
+		if( music_playing->fading != MIX_NO_FADING ) {
+			Uint32 ticks = SDL_GetTicks() - music_playing->ticks_fade;
+			if( ticks > music_playing->fade_length ) {
+				if ( music_playing->fading == MIX_FADING_OUT ) {
+					music_volume = music_playing->fade_volume;
+					music_playing->fading = MIX_NO_FADING;
+					Mix_HaltMusic();
+					return;
+				}
+				music_playing->fading = MIX_NO_FADING;
+			} else {
+				if ( music_playing->fading == MIX_FADING_OUT ) {
+					Mix_VolumeMusic((music_playing->fade_volume * (music_playing->fade_length-ticks)) 
+									/ music_playing->fade_length);
+				} else { /* Fading in */
+					Mix_VolumeMusic((music_playing->fade_volume * ticks) 
+									/ music_playing->fade_length);
+				}
+			}
+		}
 		switch (music_playing->type) {
 #ifdef CMD_MUSIC
 			case MUS_CMD:
@@ -227,6 +253,9 @@ int open_music(SDL_AudioSpec *mixer)
 	used_mixer = *mixer;
 #endif
 	music_playing = 0;
+
+	/* Initialize the music lock */
+	music_lock = SDL_CreateMutex();
 	if ( music_error ) {
 		return(-1);
 	}
@@ -340,7 +369,13 @@ void Mix_FreeMusic(Mix_Music *music)
 	if ( music ) {
 		/* Caution: If music is playing, mixer will crash */
 		if ( music == music_playing ) {
-			Mix_HaltMusic();
+			if ( music->fading == MIX_FADING_OUT ) {
+				/* Wait for the fade out to finish */
+				while(music->fading == MIX_FADING_OUT)
+					SDL_Delay(100);
+			} else {
+				Mix_HaltMusic(); /* Stop it immediately */
+			}
 		}
 		switch (music->type) {
 #ifdef CMD_MUSIC
@@ -384,6 +419,10 @@ int Mix_PlayMusic(Mix_Music *music, int loops)
 	if ( music == NULL ) {
 		return(-1);
 	}
+	/* If the current music is fading out, wait for the fade to complete */
+	while ( music_playing && music_playing->fading==MIX_FADING_OUT ) {
+		SDL_Delay(100);
+	}
 	switch (music->type) {
 #ifdef CMD_MUSIC
 		case MUS_CMD:
@@ -425,6 +464,22 @@ int Mix_PlayMusic(Mix_Music *music, int loops)
 	}
 	music_active = 1;
 	music_playing = music;
+	music_playing->fading = MIX_NO_FADING;
+	return(0);
+}
+
+/* Fade in a music over "ms" milliseconds */
+int Mix_FadeInMusic(Mix_Music *music, int loops, int ms)
+{
+	if ( music && music_volume > 0 ) { /* No need to fade if we can't hear it */
+		music->fade_volume = music_volume;
+		music_volume = 0;
+		if(Mix_PlayMusic(music,loops)<0)
+			return(-1);
+		music_playing->fading = MIX_FADING_IN;
+		music_playing->fade_length = ms;
+		music_playing->ticks_fade = SDL_GetTicks();
+	}
 	return(0);
 }
 
@@ -434,42 +489,43 @@ int Mix_VolumeMusic(int volume)
 	int prev_volume;
 
 	prev_volume = music_volume;
-	if ( volume >= 0 ) {
-		if ( volume > SDL_MIX_MAXVOLUME ) {
-			volume = SDL_MIX_MAXVOLUME;
-		}
-		music_volume = volume;
-		if ( music_playing ) {
-			switch (music_playing->type) {
+	if ( volume < 0 ) {
+		volume = 0;
+	}
+	if ( volume > SDL_MIX_MAXVOLUME ) {
+		volume = SDL_MIX_MAXVOLUME;
+	}
+	music_volume = volume;
+	if ( music_playing ) {
+		switch (music_playing->type) {
 #ifdef CMD_MUSIC
-				case MUS_CMD:
-					MusicCMD_SetVolume(music_volume);
-					break;
+		case MUS_CMD:
+			MusicCMD_SetVolume(music_volume);
+			break;
 #endif
 #ifdef WAV_MUSIC
-				case MUS_WAV:
-					WAVStream_SetVolume(music_volume);
-					break;
+		case MUS_WAV:
+			WAVStream_SetVolume(music_volume);
+			break;
 #endif
 #ifdef MOD_MUSIC
-				case MUS_MOD:
-					Player_SetVolume(music_volume);
-					break;
+		case MUS_MOD:
+			Player_SetVolume(music_volume);
+			break;
 #endif
 #ifdef MID_MUSIC
-				case MUS_MID:
-					Timidity_SetVolume(music_volume);
-					break;
+		case MUS_MID:
+			Timidity_SetVolume(music_volume);
+			break;
 #endif
 #ifdef MP3_MUSIC
-			    case MUS_MP3:
-					SMPEG_setvolume(music_playing->data.mp3,((float)music_volume/(float)MIX_MAX_VOLUME)*100.0);
-					break;
+		case MUS_MP3:
+			SMPEG_setvolume(music_playing->data.mp3,((float)music_volume/(float)MIX_MAX_VOLUME)*100.0);
+			break;
 #endif
-				default:
-					/* Unknown music type?? */
-					break;
-			}
+		default:
+			/* Unknown music type?? */
+			break;
 		}
 	}
 	return(prev_volume);
@@ -478,6 +534,10 @@ int Mix_VolumeMusic(int volume)
 /* Halt playing of music */
 int Mix_HaltMusic(void)
 {
+	/* This function can be called both from the main program thread
+	   and from the SDL audio thread (when fading), so we need to ensure 
+	   that only one thread is running it at once */
+	SDL_mutexP(music_lock);
 	if ( music_playing ) {
 		switch (music_playing->type) {
 #ifdef CMD_MUSIC
@@ -507,11 +567,38 @@ int Mix_HaltMusic(void)
 #endif
 			default:
 				/* Unknown music type?? */
+				SDL_mutexV(music_lock);
 				return(-1);
 		}
+		if(music_playing->fading != MIX_NO_FADING) /* Restore volume */
+			music_volume = music_playing->fade_volume;
+		music_playing->fading = MIX_NO_FADING;
 		music_playing = 0;
 	}
+	SDL_mutexV(music_lock);
 	return(0);
+}
+
+/* Progressively stop the music */
+int Mix_FadeOutMusic(int ms)
+{
+	if ( music_playing && music_playing->fading==MIX_NO_FADING ) {
+		if ( music_volume>0 ) {
+			music_playing->fading = MIX_FADING_OUT;
+			music_playing->fade_volume = music_volume;
+			music_playing->fade_length = ms;
+			music_playing->ticks_fade = SDL_GetTicks();
+			return(1);
+		}
+	}
+	return(0);
+}
+
+Mix_Fading Mix_FadingMusic(void)
+{
+	if( music_playing )
+		return music_playing->fading;
+	return MIX_NO_FADING;
 }
 
 /* Pause/Resume the music stream */
@@ -533,6 +620,7 @@ void Mix_PauseMusic(void)
 	}
 	music_active = 0;
 }
+
 void Mix_ResumeMusic(void)
 {
 	if ( music_playing ) {

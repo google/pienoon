@@ -39,6 +39,10 @@ static Mix_Music *music = NULL;
 
 void CleanUp(void)
 {
+	if( Mix_PlayingMusic() ) {
+		Mix_FadeOutMusic(1500);
+		SDL_Delay(1500);
+	}
 	if ( audio_open ) {
 		Mix_CloseAudio();
 		audio_open = 0;
@@ -121,7 +125,7 @@ main(int argc, char *argv[])
 	}
 
 	/* Play and then exit */
-	Mix_PlayMusic(music,0);
+	Mix_FadeInMusic(music,0,2000);
 	while ( Mix_PlayingMusic() ) {
 		SDL_Delay(100);
 	}
