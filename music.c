@@ -401,7 +401,7 @@ void Mix_FreeMusic(Mix_Music *music)
 		if ( music == music_playing && !music_stopped ) {
 			if ( music->fading == MIX_FADING_OUT ) {
 				/* Wait for the fade out to finish */
-				while(music->fading == MIX_FADING_OUT)
+				while(music_playing && !music_stopped && music_playing->fading == MIX_FADING_OUT)
 					SDL_Delay(100);
 			} else {
 				Mix_HaltMusic(); /* Stop it immediately */
@@ -670,7 +670,7 @@ Mix_Fading Mix_FadingMusic(void)
 /* Pause/Resume the music stream */
 void Mix_PauseMusic(void)
 {
-	if ( music_playing && !music_stopped ) {
+	if ( music_playing && music_active && !music_stopped ) {
 		switch ( music_playing->type ) {
 #ifdef CMD_MUSIC
 		case MUS_CMD:
@@ -689,7 +689,7 @@ void Mix_PauseMusic(void)
 
 void Mix_ResumeMusic(void)
 {
-	if ( music_playing && !music_stopped ) {
+	if ( music_playing && !music_active && !music_stopped ) {
 		switch ( music_playing->type ) {
 #ifdef CMD_MUSIC
 		case MUS_CMD:
