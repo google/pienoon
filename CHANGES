@@ -1,4 +1,9 @@
 
+1.1.1:
+John Hall - Tue Jan  2 13:46:54 PST 2001
+ * Added support to playmus for track switching with Ctrl-C
+ * Added support to playmus for multiple command line files
+
 1.1.0:
 Sam Lantinga - Wed Nov 29 20:47:13 PST 2000
  * Package specifically for SDL 1.1 (no real reason API-wise, but for clarity)

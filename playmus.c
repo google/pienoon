@@ -36,6 +36,7 @@
 
 static int audio_open = 0;
 static Mix_Music *music = NULL;
+static int next_track = 0;
 
 void CleanUp(void)
 {
@@ -79,6 +80,15 @@ void Menu(void)
 	}
 	printf("Music playing: %s Paused: %s\n", Mix_PlayingMusic() ? "yes" : "no", 
 		   Mix_PausedMusic() ? "yes" : "no");
+}
+
+void IntHandler(int sig)
+{
+	switch (sig) {
+	        case SIGINT:
+			next_track++;
+			break;
+	}
 }
 
 main(int argc, char *argv[])
@@ -134,7 +144,7 @@ main(int argc, char *argv[])
 		exit(255);
 	}
 	atexit(CleanUp);
-	signal(SIGINT, exit);
+	signal(SIGINT, IntHandler);
 	signal(SIGTERM, exit);
 
 	/* Open the audio device */
@@ -153,21 +163,33 @@ main(int argc, char *argv[])
 	/* Set the external music player, if any */
 	Mix_SetMusicCMD(getenv("MUSIC_CMD"));
 
-	/* Load the requested music file */
-	music = Mix_LoadMUS(argv[i]);
-	if ( music == NULL ) {
-		fprintf(stderr, "Couldn't load %s: %s\n",
-						argv[i], SDL_GetError());
-		exit(2);
-	}
+	while (argv[i]) {
+		next_track = 0;
+		
+		/* Load the requested music file */
+		music = Mix_LoadMUS(argv[i]);
+		if ( music == NULL ) {
+			fprintf(stderr, "Couldn't load %s: %s\n",
+				argv[i], SDL_GetError());
+			exit(2);
+		}
+		
+		/* Play and then exit */
+		printf("Playing %s\n", argv[i]);
+		Mix_FadeInMusic(music,looping,2000);
+		while ( !next_track && Mix_PlayingMusic() || Mix_PausedMusic() ) {
+			if(interactive)
+				Menu();
+			else
+				SDL_Delay(100);
+		}
+		Mix_FreeMusic(music);
 
-	/* Play and then exit */
-	Mix_FadeInMusic(music,looping,2000);
-	while ( Mix_PlayingMusic() || Mix_PausedMusic() ) {
-		if(interactive)
-			Menu();
-		else
-			SDL_Delay(100);
+		/* If the user presses Ctrl-C more than once, exit. */
+		SDL_Delay(500);
+		if ( next_track > 1 ) break;
+		
+		i++;
 	}
 	exit(0);
 }
