@@ -1,0 +1,9 @@
+
+1.0.0:
+SOL -   Added autoconf support
+SP  -   Added MP3 support using SMPEG
+
+Initial Key:
+SOL - Sam Lantinga (hercules@lokigames.com)
+SP  - Stephane Peter (megastep@lokigames.com)
+

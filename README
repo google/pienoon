@@ -1,0 +1,27 @@
+
+Due to popular demand, here is a simple multi-channel audio mixer.
+It supports 4 channels of 16 bit stereo audio, plus a single channel
+of music, mixed by the popular MikMod MOD, Timidity MIDI and SMPEG MP3
+libraries.
+
+See the header file mixer.h and the examples playwave.c and playmus.c
+for documentation on this mixer library.
+
+The mixer can currently load Microsoft WAVE files as audio samples
+and can load MIDI files via Timidity and the following music formats
+via MikMod:  .MOD .S3M .IT .XM. It can also load MP3 music using the
+SMPEG library.
+
+The process of mixing MIDI files to wave output is very CPU intensive,
+so if playing regular WAVE files sound great, but playing MIDI files
+sound choppy, try using 8-bit audio, mono audio, or lower frequencies.
+
+To play MIDI files, you'll need to get a complete set of GUS patches
+from:  http://www.devolution.com/~slouken/SDL/timidity/timidity.tar.gz
+and unpack them in /usr/local/lib under UNIX, and C:\ under Win32.
+
+You may add panning, reverb, echo, whatever, but if you do, please
+mail changes back to me, Sam Lantinga at slouken@devolution.com
+
+This library is available under the GNU Library General Public License.
+

@@ -1,0 +1,19 @@
+MikMod is now under a "free-with-no-strings-attached-if-it-breaks-you-get-to-
+keep-both-pieces" type of license.  Basically this means:
+
+a) We're not responsible for anything you do with this program, anything
+anything this program does to you, or for the little incident involving
+the goat, the nun, and the jar of vasoline that occurred last summer.
+
+b) We're not charging you anything for this.  You don't owe us anything.
+On the other hand, we don't owe you anything, either.  Try to keep that in
+mind when writing us...  We'd also prefer that, should you pass this program
+on to friends, that you keep it free for them too.  And keep this message 
+intact as well.
+
+
+This is open-source software.  That means the source code is free
+for you to inspect and dissect, learn from, be disgusted by, whatever.
+If you make any great additions to MikMod, we'd like to see them!
+
+	- Peter Amstutz  <amstpi@freenet.tlh.fl.us>

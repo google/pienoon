@@ -1,0 +1,105 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(README)
+
+dnl Set various version strings - taken gratefully from the GTk sources
+
+# Making releases:
+#   MICRO_VERSION += 1;
+#   INTERFACE_AGE += 1;
+#   BINARY_AGE += 1;
+# if any functions have been added, set INTERFACE_AGE to 0.
+# if backwards compatibility has been broken,
+# set BINARY_AGE and INTERFACE_AGE to 0.
+
+MAJOR_VERSION=1
+MINOR_VERSION=0
+MICRO_VERSION=0
+INTERFACE_AGE=0
+BINARY_AGE=0
+VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION
+
+AC_SUBST(MAJOR_VERSION)
+AC_SUBST(MINOR_VERSION)
+AC_SUBST(MICRO_VERSION)
+AC_SUBST(INTERFACE_AGE)
+AC_SUBST(BINARY_AGE)
+AC_SUBST(VERSION)
+
+# libtool versioning
+LT_RELEASE=$MAJOR_VERSION.$MINOR_VERSION
+LT_CURRENT=`expr $MICRO_VERSION - $INTERFACE_AGE`
+LT_REVISION=$INTERFACE_AGE
+LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
+
+AC_SUBST(LT_RELEASE)
+AC_SUBST(LT_CURRENT)
+AC_SUBST(LT_REVISION)
+AC_SUBST(LT_AGE)
+
+dnl Setup for automake
+AM_INIT_AUTOMAKE(mixer, $VERSION)
+
+dnl Check for tools
+
+AC_PROG_MAKE_SET
+AC_PROG_CC
+AM_PROG_LIBTOOL
+AC_PROG_INSTALL
+
+dnl Check for SDL 0.11.2
+AM_PATH_SDL(0.11.2)
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+LIBS="$LIBS $SDL_LIBS"
+
+dnl Check command-line options
+AC_ARG_ENABLE(music-cmd,
+[  --enable-music-cmd      support an external music player [default=yes]],
+              , enable_music_cmd=yes)
+if test x$enable_music_cmd = xyes; then
+    CFLAGS="$CFLAGS -DCMD_MUSIC"
+fi
+AC_ARG_ENABLE(music-wave,
+[  --enable-music-wave     enable streaming WAVE music [default=yes]],
+              , enable_music_wave=yes)
+if test x$enable_music_wave = xyes; then
+    CFLAGS="$CFLAGS -DWAV_MUSIC"
+fi
+AC_ARG_ENABLE(music-midi,
+[  --enable-music-midi     enable MIDI music via timidity [default=yes]],
+              , enable_music_midi=yes)
+if test x$enable_music_midi = xyes; then
+    CFLAGS="$CFLAGS -DMID_MUSIC -I\$(top_srcdir)/timidity"
+    #MUSIC_SUBDIRS="$MUSIC_SUBDIRS timidity"
+fi
+AC_ARG_ENABLE(music-mod,
+[  --enable-music-mod      enable MOD music via mikmod [default=yes]],
+              , enable_music_mod=yes)
+if test x$enable_music_mod = xyes; then
+    CFLAGS="$CFLAGS -DMOD_MUSIC -I\$(top_srcdir)/mikmod"
+    #MUSIC_SUBDIRS="$MUSIC_SUBDIRS mikmod"
+fi
+AC_ARG_ENABLE(music-mp3,
+[  --enable-music-mp3      enable MP3 music via smpeg [default=yes]],
+              , enable_music_mp3=yes)
+if test x$enable_music_mp3 = xyes; then
+    AC_MSG_CHECKING(for SMPEG headers and libraries)
+    have_smpeg=no
+    AC_TRY_COMPILE([
+     #include <smpeg/smpeg.h>
+    ],[
+    ],[
+    have_smpeg=yes
+    ])
+    AC_MSG_RESULT($have_smpeg)
+    if test x$have_smpeg = xyes; then
+        CFLAGS="$CFLAGS -DMP3_MUSIC"
+        LIBS="$LIBS -lsmpeg"
+    fi
+fi
+
+# Finally create all the generated files
+AC_OUTPUT([
+Makefile
+mikmod/Makefile
+timidity/Makefile
+])
