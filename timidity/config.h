@@ -164,6 +164,10 @@
 #  define LITTLE_ENDIAN
 #endif
 
+#ifdef i386
+#define LITTLE_ENDIAN
+#endif
+
 /* DEC MMS has 64 bit long words */
 #ifdef DEC
 typedef unsigned int uint32;
