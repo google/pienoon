@@ -32,7 +32,7 @@
 #include "SDL_endian.h"
 #include "SDL_timer.h"
 
-#include "mixer.h"
+#include "SDL_mixer.h"
 
 static int audio_opened = 0;
 

@@ -34,7 +34,7 @@
 #include <string.h>
 #include <signal.h>
 
-#include "mixer.h"
+#include "SDL_mixer.h"
 #include "music_cmd.h"
 
 /* Unimplemented */

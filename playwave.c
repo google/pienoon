@@ -31,7 +31,7 @@
 #endif
 
 #include "SDL.h"
-#include "mixer.h"
+#include "SDL_mixer.h"
 
 
 static int audio_open = 0;

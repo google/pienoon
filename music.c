@@ -28,7 +28,7 @@
 #include "SDL_audio.h"
 #include "SDL_timer.h"
 
-#include "mixer.h"
+#include "SDL_mixer.h"
 
 /* The music command hack is UNIX specific */
 #ifndef unix
