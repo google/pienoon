@@ -47,4 +47,11 @@ void MikMod_RegisterAllDrivers(void)
 	MUTEX_UNLOCK(lists);
 }
 
+void MikMod_UnregisterAllDrivers(void)
+{
+	MUTEX_LOCK(lists);
+	_mm_unregisterdrivers();
+	MUTEX_UNLOCK(lists);
+}
+
 /* ex:set ts=4: */

@@ -680,7 +680,9 @@ extern BOOL MD_DropPrivileges(void);
 /*========== Prototypes for non-MT safe versions of some public functions */
 
 extern void _mm_registerdriver(struct MDRIVER*);
+extern void _mm_unregisterdrivers(void);
 extern void _mm_registerloader(struct MLOADER*);
+extern void _mm_unregisterloaders(void);
 extern BOOL MikMod_Active_internal(void);
 extern void MikMod_DisableOutput_internal(void);
 extern BOOL MikMod_EnableOutput_internal(void);

@@ -217,6 +217,7 @@ MIKMODAPI extern MikMod_handler_t MikMod_RegisterErrorHandler(MikMod_handler_t);
 struct MDRIVER;
 
 MIKMODAPI extern void   MikMod_RegisterAllDrivers(void);
+MIKMODAPI extern void   MikMod_UnregisterAllDrivers(void);
 
 MIKMODAPI extern CHAR*  MikMod_InfoDriver(void);
 MIKMODAPI extern void   MikMod_RegisterDriver(struct MDRIVER*);
@@ -495,6 +496,7 @@ struct MLOADER;
 
 MIKMODAPI extern CHAR*   MikMod_InfoLoader(void);
 MIKMODAPI extern void    MikMod_RegisterAllLoaders(void);
+MIKMODAPI extern void    MikMod_UnregisterAllLoaders(void);
 MIKMODAPI extern void    MikMod_RegisterLoader(struct MLOADER*);
 
 MIKMODAPI extern struct MLOADER load_669; /* 669 and Extended-669 (by Tran/Renaissance) */

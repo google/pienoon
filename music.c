@@ -855,6 +855,8 @@ void close_music(void)
 #endif
 #ifdef MOD_MUSIC
 	MikMod_Exit();
+    MikMod_UnregisterAllLoaders();
+    MikMod_UnregisterAllDrivers();
 #endif
 }
 

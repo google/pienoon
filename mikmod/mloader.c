@@ -80,6 +80,18 @@ void _mm_registerloader(MLOADER* ldr)
 		firstloader=ldr;
 }
 
+void _mm_unregisterloaders(void)
+{
+	MLOADER *cruise=firstloader, *ldr;
+
+    while ( cruise ) {
+        ldr = cruise;
+        cruise = cruise->next;
+        ldr->next = NULL;
+    }
+    firstloader = NULL;
+}
+
 void MikMod_RegisterLoader(struct MLOADER* ldr)
 {
 	/* if we try to register an invalid loader, or an already registered loader,

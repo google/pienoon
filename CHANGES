@@ -1,5 +1,9 @@
 
 1.0.7:
+Sam Lantinga - Tue Nov  7 10:22:09 PST 2000
+ * Fixed hang in mikmod re-initialization
+Stephane Peter - Oct 17 13:07:32 PST 2000
+ * Fixed music fading
 Ray Kelm - Fri, 04 Aug 2000 20:58:00 -0400
  * Added support for cross-compiling Windows DLL from Linux
 

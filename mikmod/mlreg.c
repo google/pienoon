@@ -67,4 +67,12 @@ void MikMod_RegisterAllLoaders(void)
 	MikMod_RegisterAllLoaders_internal();
 	MUTEX_UNLOCK(lists);
 }
+
+void MikMod_UnregisterAllLoaders(void)
+{
+	MUTEX_LOCK(lists);
+	_mm_unregisterloaders();
+	MUTEX_UNLOCK(lists);
+}
+
 /* ex:set ts=4: */

@@ -199,6 +199,18 @@ void _mm_registerdriver(struct MDRIVER* drv)
 		firstdriver = drv;
 }
 
+void _mm_unregisterdrivers(void)
+{
+	MDRIVER *cruise=firstdriver, *drv;
+
+    while ( cruise ) {
+        drv = cruise;
+        cruise = cruise->next;
+        drv->next = NULL;
+    }
+    firstdriver = NULL;
+}
+
 void MikMod_RegisterDriver(struct MDRIVER* drv)
 {
 	/* if we try to register an invalid driver, or an already registered driver,

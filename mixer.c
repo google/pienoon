@@ -654,7 +654,7 @@ int Mix_FadeOutChannel(int which, int ms)
 	} else {
 		SDL_mutexP(mixer_lock);
 		if ( mix_channel[which].playing && mix_channel[which].volume>0 &&
-			 mix_channel[which].fading==MIX_NO_FADING ) {
+			 mix_channel[which].fading!=MIX_FADING_OUT ) {
 
 			mix_channel[which].fading = MIX_FADING_OUT;
 			mix_channel[which].fade_volume = mix_channel[which].volume;
