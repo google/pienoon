@@ -28,6 +28,7 @@
 #include "SDL_types.h"
 #include "SDL_rwops.h"
 #include "SDL_audio.h"
+#include "SDL_byteorder.h"
 #include "begin_code.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -42,7 +43,11 @@ extern "C" {
 
 /* Good default values for a PC soundcard */
 #define MIX_DEFAULT_FREQUENCY	22050
-#define MIX_DEFAULT_FORMAT	AUDIO_S16
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define MIX_DEFAULT_FORMAT	AUDIO_S16LSB
+#else
+#define MIX_DEFAULT_FORMAT	AUDIO_S16MSB
+#endif
 #define MIX_DEFAULT_CHANNELS	2
 #define MIX_MAX_VOLUME		128	/* Volume of a chunk */
 
