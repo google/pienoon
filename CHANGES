@@ -1,5 +1,9 @@
 
 1.0.6:
+Darrell Walisser - Wed Jun 28 11:59:40 PDT 2000
+ * Added Codewarrior projects for MacOS
+Sam Lantinga - Mon Jun 26 12:01:11 PDT 2000
+ * Fixed symbol aliasing problem with "channel"
 Matt - Wed, 12 Apr 2000 15:36:13 -0700
  * Added SDL_RWops support for mikmod loading (not hooked into music.c yet)
 

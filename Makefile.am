@@ -33,6 +33,7 @@ EXTRA_DIST =			\
 	CHANGES			\
 	VisualC.zip		\
 	MPWmake.sea.hqx		\
+	CWprojects.sea.hqx	\
 	autogen.sh
 
 libSDL_mixer_la_LDFLAGS = 		\
