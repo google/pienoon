@@ -2,6 +2,7 @@
 1.0.0:
 SOL -   Added autoconf support
 SP  -   Added MP3 support using SMPEG
+SP  -   Added fading in/out of music and samples
 
 Initial Key:
 SOL - Sam Lantinga (hercules@lokigames.com)
