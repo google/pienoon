@@ -270,6 +270,17 @@ int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels)
 	return(audio_opened);
 }
 
+
+/*
+ * !!! FIXME: Ideally, we want a Mix_LoadSample_RW(), which will handle the
+ *             generic setup, then call the correct file format loader.
+ */
+
+#ifdef VOC_SAMPLES
+SDL_AudioSpec *Mix_LoadVOC_RW (SDL_RWops *src, int freesrc,
+		SDL_AudioSpec *spec, Uint8 **audio_buf, Uint32 *audio_len);
+#endif
+
 /* Load a wave file */
 Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 {
@@ -277,6 +288,12 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 	SDL_AudioSpec wavespec;
 	SDL_AudioCVT wavecvt;
 	int samplesize;
+
+	/* rcg06012001 Make sure src is valid */
+	if ( ! src ) {
+		SDL_SetError("Mix_LoadWAV_RW with NULL SDL_RWops");
+		return(NULL);
+	}
 
 	/* Make sure audio has been opened */
 	if ( ! audio_opened ) {
@@ -297,12 +314,22 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 		return(NULL);
 	}
 
+	/* rcg06012001 Handle Creative Labs .VOC format chunks. */
+#ifdef VOC_SAMPLES
+	if ( Mix_LoadVOC_RW(src, 0,
+		&wavespec, (Uint8 **)&chunk->abuf, &chunk->alen) == NULL ) {
+#endif
 	/* Load the WAV file into the chunk */
 	if ( SDL_LoadWAV_RW(src, freesrc,
 		&wavespec, (Uint8 **)&chunk->abuf, &chunk->alen) == NULL ) {
 		free(chunk);
 		return(NULL);
 	}
+
+#ifdef VOC_SAMPLES
+	}
+#endif
+
 #if 0
 	PrintFormat("Audio device", &mixer);
 	PrintFormat("-- Wave file", &wavespec);

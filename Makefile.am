@@ -18,7 +18,8 @@ libSDL_mixer_la_SOURCES =	\
 	music_ogg.h		\
 	wave.h			\
 	wavestream.c		\
-	wavestream.h
+	wavestream.h		\
+	voc.c
 
 if USE_MIKMOD
 MIKMOD_LIB = mikmod/libmikmod.la
