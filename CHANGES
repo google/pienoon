@@ -3,6 +3,9 @@
 SOL -   Added autoconf support
 SP  -   Added MP3 support using SMPEG
 SP  -   Added fading in/out of music and samples
+SP  -   Added dynamic allocation of channels
+SP  -   Added channel grouping functions
+SP  -   Added expiration delay for samples
 
 Initial Key:
 SOL - Sam Lantinga (hercules@lokigames.com)

@@ -64,6 +64,13 @@ typedef struct _Mix_Music Mix_Music;
 extern int Mix_OpenAudio(int frequency, Uint16 format, int channels,
 							int chunksize);
 
+/* Dynamically change the number of channels managed by the mixer.
+   If decreasing the number of channels, the upper channels are
+   stopped.
+   This function returns the new number of allocated channels.
+ */
+extern int Mix_AllocateChannels(int numchans);
+
 /* Find out what the actual audio device parameters are.
    This function returns 1 if the audio has been opened, 0 otherwise.
  */
@@ -96,18 +103,39 @@ extern void *Mix_GetMusicHookData(void);
  */
 extern int Mix_ReserveChannels(int num);
 
+/* Channel grouping functions */
+
+/* Attach a tag to a channel. A tag can be assigned to several mixer
+   channels, to form groups of channels.
+   If 'tag' is -1, the tag is removed (actually -1 is the tag used to
+   represent the group of all the channels).
+   Returns true if everything was OK.
+ */
+extern int Mix_GroupChannel(int which, int tag);
+/* Assign several consecutive channels to a group */
+extern int Mix_GroupChannels(int from, int to, int tag);
+/* Finds the first available channel in a group of channels */
+extern int Mix_GroupAvailable(int tag);
+/* Returns the number of channels in a group. This is also a subtle
+   way to get the total number of channels when 'tag' is -1
+ */
+extern int Mix_GroupCount(int tag);
+
 /* Play an audio chunk on a specific channel.
    If the specified channel is -1, play on the first free channel.
    If 'loops' is greater than zero, loop the sound that many times.
    If 'loops' is -1, loop inifinitely (~65000 times).
    Returns which channel was used to play the sound.
 */
-extern int Mix_PlayChannel(int channel, Mix_Chunk *chunk, int loops);
+#define Mix_PlayChannel(channel,chunk,loops) Mix_PlayChannelTimed(channel,chunk,loops,-1)
+/* The same as above, but the sound is played at most 'ticks' milliseconds */
+extern int Mix_PlayChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ticks);
 extern int Mix_PlayMusic(Mix_Music *music, int loops);
 
 /* Fade in music or a channel over "ms" milliseconds, same semantics as the "Play" functions */
 extern int Mix_FadeInMusic(Mix_Music *music, int loops, int ms);
-extern int Mix_FadeInChannel(int channel, Mix_Chunk *chunk, int loops, int ms);
+#define Mix_FadeInChannel(channel,chunk,loops,ms) Mix_FadeInChannelTimed(channel,chunk,loops,ms,-1)
+extern int Mix_FadeInChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ms, int ticks);
 
 /* Set the volume in the range of 0-128 of a specific channel or chunk.
    If the specified channel is -1, set volume for all channels.
@@ -120,13 +148,21 @@ extern int Mix_VolumeMusic(int volume);
 
 /* Halt playing of a particular channel */
 extern int Mix_HaltChannel(int channel);
+extern int Mix_HaltGroup(int tag);
 extern int Mix_HaltMusic(void);
+
+/* Change the expiration delay for a particular channel.
+   The sample will stop playing after the 'ticks' milliseconds have elapsed,
+   or remove the expiration if 'ticks' is -1
+*/
+extern int Mix_ExpireChannel(int channel, int ticks);
 
 /* Halt a channel, fading it out progressively till it's silent 
    The ms parameter indicates the number of milliseconds the fading
    will take.
  */
 extern int Mix_FadeOutChannel(int which, int ms);
+extern int Mix_FadeOutGroup(int tag, int ms);
 extern int Mix_FadeOutMusic(int ms);
 
 /* Query the fading status of a channel */
