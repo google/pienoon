@@ -1,5 +1,7 @@
 
 1.2.1:
+Sam Lantinga - Sat Aug 18 04:14:13 PDT 2001
+ * Fixed building Ogg Vorbis support on Windows
 Ryan C. Gordon - Thu, 7 Jun 2001 13:15:51
  * Added Mix_ChannelFinished() and Mix_GetChunk()
 Ryan C. Gordon - Tue, 5 Jun 2001 11:01:51
