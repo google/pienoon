@@ -2,8 +2,6 @@
 
 lib_LTLIBRARIES = libSDL_mixer.la
 
-EXTRA_DIST = CHANGES VisualC.zip
-
 SUBDIRS = @MUSIC_SUBDIRS@
 DIST_SUBIDRS = mikmod timidity
 
@@ -33,6 +31,7 @@ endif
 
 EXTRA_DIST =			\
 	CHANGES			\
+	VisualC.zip		\
 	autogen.sh
 
 libSDL_mixer_la_LDFLAGS = 		\

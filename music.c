@@ -319,7 +319,7 @@ int open_music(SDL_AudioSpec *mixer)
 	Mix_VolumeMusic(SDL_MIX_MAXVOLUME);
 
 	/* Calculate the number of ms for each callback */
-	ms_per_step = (int)((float)mixer->samples * 1000.0) / mixer->freq;
+	ms_per_step = (int) (((float)mixer->samples * 1000.0) / mixer->freq);
 
 	return(0);
 }

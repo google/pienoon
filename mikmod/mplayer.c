@@ -232,7 +232,7 @@ static int getrandom(int ceil)
 #ifdef HAVE_SRANDOM
 	return random()&(ceil-1);
 #else
-	return (int)(rand()*ceil)/(RAND_MAX+1.0);
+	return (int)((rand()*ceil)/(RAND_MAX+1.0));
 #endif
 }
 
