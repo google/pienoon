@@ -263,7 +263,7 @@ int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels)
 		if ( format ) {
 			*format = mixer.format;
 		}
-		if ( mix_channels ) {
+		if ( channels ) {
 			*channels = mixer.channels;
 		}
 	}
