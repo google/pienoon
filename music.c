@@ -289,7 +289,6 @@ int open_music(SDL_AudioSpec *mixer)
 
     /* Calculate the number of ms for each callback */
     ms_per_step = ((float)mixer->samples * 1000.0) / mixer->freq;
-printf("MS per step = %d\n", ms_per_step);
 
 	return(0);
 }
