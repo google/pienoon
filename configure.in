@@ -131,7 +131,7 @@ if test x$enable_music_mp3 = xyes; then
     SMPEG_VERSION=0.4.3
     AM_PATH_SMPEG($SMPEG_VERSION, have_smpeg=yes, have_smpeg=no)
     if test x$have_smpeg = xyes; then
-        CFLAGS="$CFLAGS $SMPEG_CFLAGS"
+        CFLAGS="$CFLAGS -DMP3_MUSIC $SMPEG_CFLAGS"
         LIBS="$LIBS $SMPEG_LIBS"
     fi
 fi
