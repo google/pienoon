@@ -11,7 +11,6 @@ Copyright: LGPL
 Group: System Environment/Libraries
 BuildRoot: /var/tmp/%{name}-buildroot
 Prefix: %{_prefix}
-Requires: SDL
 
 %description
 Due to popular demand, here is a simple multi-channel audio mixer.
@@ -23,7 +22,6 @@ libraries.
 Summary: Libraries, includes and more to develop SDL applications.
 Group: Development/Libraries
 Requires: %{name}
-Requires: SDL-devel
 
 %description devel
 Due to popular demand, here is a simple multi-channel audio mixer.
