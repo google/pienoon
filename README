@@ -1,5 +1,5 @@
 
-mixer 1.0
+SDLmixer 1.0
 
 Due to popular demand, here is a simple multi-channel audio mixer.
 It supports 4 channels of 16 bit stereo audio, plus a single channel
