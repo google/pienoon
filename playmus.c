@@ -56,15 +56,38 @@ void CleanUp(void)
 
 void Usage(char *argv0)
 {
-	fprintf(stderr, "Usage: %s |-l] [-8] [-r rate] [-s] <musicfile>\n", argv0);
+	fprintf(stderr, "Usage: %s [-i] |-l] [-8] [-r rate] [-s] <musicfile>\n", argv0);
 }
-	
+
+void Menu(void)
+{
+	char buf[10];
+
+	printf("Available commands: (p)ause (r)esume (h)alt > ");
+	fflush(stdin);
+	scanf("%s",buf);
+	switch(buf[0]){
+	case 'p': case 'P':
+		Mix_PauseMusic();
+		break;
+	case 'r': case 'R':
+		Mix_ResumeMusic();
+		break;
+	case 'h': case 'H':
+		Mix_HaltMusic();
+		break;
+	}
+	printf("Music playing: %s Paused: %s\n", Mix_PlayingMusic() ? "yes" : "no", 
+		   Mix_PausedMusic() ? "yes" : "no");
+}
+
 main(int argc, char *argv[])
 {
 	Uint32 audio_rate;
 	Uint16 audio_format;
 	int audio_channels;
 	int looping = 0;
+	int interactive = 0;
 	int i;
 
 	/* Initialize variables */
@@ -83,6 +106,9 @@ main(int argc, char *argv[])
 		} else
 		if ( strcmp(argv[i], "-l") == 0 ) {
 			looping = -1;
+		} else
+		if ( strcmp(argv[i], "-i") == 0 ) {
+			interactive = 1;
 		} else
 		if ( strcmp(argv[i], "-8") == 0 ) {
 			audio_format = AUDIO_U8;
@@ -130,8 +156,11 @@ main(int argc, char *argv[])
 
 	/* Play and then exit */
 	Mix_FadeInMusic(music,looping,2000);
-	while ( Mix_PlayingMusic() ) {
-		SDL_Delay(100);
+	while ( Mix_PlayingMusic() || Mix_PausedMusic() ) {
+		if(interactive)
+			Menu();
+		else
+			SDL_Delay(100);
 	}
 	exit(0);
 }

@@ -731,6 +731,14 @@ void Mix_Resume(int which)
 	}
 }
 
+int Mix_Paused(int which)
+{
+	if ( which < 0 || which > num_channels )
+		return(0);
+
+	return channel[which].paused != 0;
+}
+
 /* Change the group of a channel */
 int Mix_GroupChannel(int which, int tag)
 {

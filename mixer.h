@@ -186,11 +186,13 @@ extern Mix_Fading Mix_FadingChannel(int which);
 /* Pause/Resume a particular channel */
 extern void Mix_Pause(int channel);
 extern void Mix_Resume(int channel);
+extern int  Mix_Paused(int channel);
 
 /* Pause/Resume the music stream */
 extern void Mix_PauseMusic(void);
 extern void Mix_ResumeMusic(void);
 extern void Mix_RewindMusic(void);
+extern int  Mix_PausedMusic(void);
 
 /* Check the status of a specific channel.
    If the specified channel is -1, check all channels.

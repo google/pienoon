@@ -54,6 +54,7 @@ static SDL_AudioSpec used_mixer;
 
 int music_active = 1;
 static int music_stopped = 0;
+static int music_paused = 0;
 static int music_loops = 0;
 static char *music_cmd = NULL;
 static int samplesize;
@@ -102,7 +103,6 @@ static int timidity_ok;
 /* Local low-level functions prototypes */
 static void lowlevel_halt(void);
 static int  lowlevel_play(Mix_Music *music);
-static int  lowlevel_playing(void);
 
 /* Mixing function */
 void music_mixer(void *udata, Uint8 *stream, int len)
@@ -116,6 +116,10 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 			lowlevel_halt(); /* This function sets music_playing to NULL */
 			return;
 		}	
+		if ( music_paused ) {
+			return;
+		}
+		/* Handle fading */
 		if ( !music_stopped && music_playing->fading != MIX_NO_FADING ) {
 			Uint32 ticks = SDL_GetTicks() - music_playing->ticks_fade;
 			if( ticks > music_playing->fade_length ) {
@@ -142,7 +146,8 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 				}
 			}
 		}
-		if ( music_loops && !lowlevel_playing() ) {
+		/* Restart music if it has to loop */
+		if ( music_loops && !Mix_PlayingMusic() ) {
 			if ( -- music_loops ) {
 				Mix_RewindMusic();
 				if ( lowlevel_play(music_playing) < 0 ) {
@@ -629,6 +634,7 @@ static void lowlevel_halt(void)
 	music_playing = 0;
 	music_active = 0;
 	music_loops = 0;
+	music_paused = 0;
 	music_stopped = 0;
 }
 
@@ -671,39 +677,17 @@ Mix_Fading Mix_FadingMusic(void)
 void Mix_PauseMusic(void)
 {
 	if ( music_playing && music_active && !music_stopped ) {
-		switch ( music_playing->type ) {
-#ifdef CMD_MUSIC
-		case MUS_CMD:
-			MusicCMD_Pause(music_playing->data.cmd);
-			break;
-#endif
-#ifdef MP3_MUSIC
-		case MUS_MP3:
-			SMPEG_pause(music_playing->data.mp3);
-			break;
-#endif
-		}
+		music_active = 0;
+		music_paused = 1;
 	}
-	music_active = 0;
 }
 
 void Mix_ResumeMusic(void)
 {
 	if ( music_playing && !music_active && !music_stopped ) {
-		switch ( music_playing->type ) {
-#ifdef CMD_MUSIC
-		case MUS_CMD:
-			MusicCMD_Resume(music_playing->data.cmd);
-			break;
-#endif
-#ifdef MP3_MUSIC
-		case MUS_MP3:
-			SMPEG_pause(music_playing->data.mp3);
-			break;
-#endif
-		}
+		music_active = 1;
+		music_paused = 0;
 	}
-	music_active = 1;
 }
 
 void Mix_RewindMusic(void)
@@ -720,10 +704,15 @@ void Mix_RewindMusic(void)
 	}
 }
 
-/* Check the status of the music */
-static int lowlevel_playing(void)
+int Mix_PausedMusic(void)
 {
-	if ( music_playing && !music_stopped ) {
+	return music_paused;
+}
+
+/* Check the status of the music */
+int Mix_PlayingMusic(void)
+{
+	if ( music_playing && ! music_stopped ) {
 		switch (music_playing->type) {
 #ifdef CMD_MUSIC
 			case MUS_CMD:
@@ -760,19 +749,9 @@ static int lowlevel_playing(void)
 				break;
 #endif
 		}
-	}
-	return(1);
-}
-
-int Mix_PlayingMusic(void)
-{
-	int active;
-	active = lowlevel_playing();
-	if ( !active && music_loops ) {
 		return(1);
-	} else {
-		return(active);
 	}
+	return(0);
 }
 
 /* Set the external music playback command */
