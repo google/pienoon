@@ -270,6 +270,7 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 	Mix_Chunk *chunk;
 	SDL_AudioSpec wavespec;
 	SDL_AudioCVT wavecvt;
+	int samplesize;
 
 	/* Make sure audio has been opened */
 	if ( ! audio_opened ) {
@@ -309,7 +310,8 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 		free(chunk);
 		return(NULL);
 	}
-	wavecvt.len = chunk->alen;
+	samplesize = ((wavespec.format & 0xFF)/8)*wavespec.channels;
+	wavecvt.len = chunk->alen & ~(samplesize-1);
 	wavecvt.buf = (Uint8 *)malloc(wavecvt.len*wavecvt.len_mult);
 	if ( wavecvt.buf == NULL ) {
 		SDL_SetError("Out of memory");
