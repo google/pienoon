@@ -13,9 +13,9 @@ dnl Set various version strings - taken gratefully from the GTk sources
 
 MAJOR_VERSION=1
 MINOR_VERSION=0
-MICRO_VERSION=6
-INTERFACE_AGE=4
-BINARY_AGE=6
+MICRO_VERSION=7
+INTERFACE_AGE=5
+BINARY_AGE=7
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION
 
 AC_SUBST(MAJOR_VERSION)
@@ -64,7 +64,7 @@ case "$target" in
 esac
 
 dnl Check for SDL
-SDL_VERSION=1.1.1
+SDL_VERSION=1.0.8
 AM_PATH_SDL($SDL_VERSION,
             :,
 	    AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
