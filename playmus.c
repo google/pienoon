@@ -56,7 +56,7 @@ void CleanUp(void)
 
 void Usage(char *argv0)
 {
-	fprintf(stderr, "Usage: %s [-i] |-l] [-8] [-r rate] [-s] <musicfile>\n", argv0);
+	fprintf(stderr, "Usage: %s [-i] |-l] [-8] [-r rate] [-b buffers] [-s] <musicfile>\n", argv0);
 }
 
 void Menu(void)
@@ -86,6 +86,7 @@ main(int argc, char *argv[])
 	Uint32 audio_rate;
 	Uint16 audio_format;
 	int audio_channels;
+	int audio_buffers;
 	int looping = 0;
 	int interactive = 0;
 	int i;
@@ -94,12 +95,17 @@ main(int argc, char *argv[])
 	audio_rate = 22050;
 	audio_format = AUDIO_S16;
 	audio_channels = 2;
+	audio_buffers = 4096;
 
 	/* Check command line usage */
 	for ( i=1; argv[i] && (*argv[i] == '-'); ++i ) {
 		if ( (strcmp(argv[i], "-r") == 0) && argv[i+1] ) {
 			++i;
 			audio_rate = atoi(argv[i]);
+		} else
+		if ( (strcmp(argv[i], "-b") == 0) && argv[i+1] ) {
+			++i;
+			audio_buffers = atoi(argv[i]);
 		} else
 		if ( strcmp(argv[i], "-m") == 0 ) {
 			audio_channels = 1;
@@ -132,14 +138,15 @@ main(int argc, char *argv[])
 	signal(SIGTERM, exit);
 
 	/* Open the audio device */
-	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, 4096) < 0) {
+	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
 		fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
 		exit(2);
 	} else {
 		Mix_QuerySpec(&audio_rate, &audio_format, &audio_channels);
-		printf("Opened audio at %d Hz %d bit %s\n", audio_rate,
+		printf("Opened audio at %d Hz %d bit %s, %d bytes audio buffer\n", audio_rate,
 			(audio_format&0xFF),
-			(audio_channels > 1) ? "stereo" : "mono");
+			(audio_channels > 1) ? "stereo" : "mono", 
+			audio_buffers );
 	}
 	audio_open = 1;
 
