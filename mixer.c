@@ -70,6 +70,11 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 	int i, mixable, volume;
 	Uint32 sdl_ticks;
 
+	/* Mix the music (must be done before the channels are added) */
+	if ( music_active ) {
+		mix_music(music_data, stream, len);
+	}
+
 	/* Grab the channels we need to mix */
 	SDL_mutexP(mixer_lock);
 	mixed_channels = 0;
@@ -120,11 +125,6 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 		}
 	}
 	SDL_mutexV(mixer_lock);
-
-	/* Mix the music */
-	if ( music_active ) {
-		mix_music(music_data, stream, len);
-	}
 }
 
 static void PrintFormat(char *title, SDL_AudioSpec *fmt)
