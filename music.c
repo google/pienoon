@@ -54,18 +54,13 @@ static SDL_AudioSpec used_mixer;
 
 int music_active = 1;
 static int music_stopped = 0;
-static int music_paused = 0;
 static int music_loops = 0;
 static char *music_cmd = NULL;
 static int samplesize;
 static Mix_Music *music_playing = 0;
-static int music_volume;
+static int music_volume = MIX_MAX_VOLUME;
 static int music_swap8;
 static int music_swap16;
-
-/* For fading/chaining musics */
-static Mix_Music *next_music = 0;
-static int next_period = 0, next_loops = 0;
 
 struct _Mix_Music {
 	enum {
@@ -94,11 +89,14 @@ struct _Mix_Music {
 	} data;
 	Mix_Fading fading;
 	int fade_volume;
-	int fade_length;
-	Uint32 ticks_fade;
+	int fade_step;
+	int fade_steps;
 	int error;
 };
 static int timidity_ok;
+
+/* Used to calculate fading steps */
+static int ms_per_step;
 
 /* Local low-level functions prototypes */
 static void lowlevel_halt(void);
@@ -116,34 +114,25 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 			lowlevel_halt(); /* This function sets music_playing to NULL */
 			return;
 		}	
-		if ( music_paused ) {
-			return;
-		}
 		/* Handle fading */
-		if ( !music_stopped && music_playing->fading != MIX_NO_FADING ) {
-			Uint32 ticks = SDL_GetTicks() - music_playing->ticks_fade;
-			if( ticks > music_playing->fade_length ) {
+		if ( music_playing->fading != MIX_NO_FADING ) {
+			if ( music_playing->fade_step++ < music_playing->fade_steps ) {
+                int fade_volume = music_playing->fade_volume;
+                int fade_step = music_playing->fade_step;
+                int fade_steps = music_playing->fade_steps;
+
 				if ( music_playing->fading == MIX_FADING_OUT ) {
-					music_volume = music_playing->fade_volume;
-					music_playing->fading = MIX_NO_FADING;
-					if (next_music) {
-						Mix_FadeInMusic(next_music,next_loops,next_period);
-						next_music = 0;
-						next_period = next_loops = 0;
-					} else {
-						lowlevel_halt();
-					}
+					Mix_VolumeMusic((fade_volume * (fade_steps-fade_step)) 
+									/ fade_steps);
+				} else { /* Fading in */
+					Mix_VolumeMusic((fade_volume * fade_step) / fade_steps);
+				}
+			} else {
+				if ( music_playing->fading == MIX_FADING_OUT ) {
+					lowlevel_halt();
 					return;
 				}
 				music_playing->fading = MIX_NO_FADING;
-			} else {
-				if ( music_playing->fading == MIX_FADING_OUT ) {
-					Mix_VolumeMusic((music_playing->fade_volume * (music_playing->fade_length-ticks)) 
-									/ music_playing->fade_length);
-				} else { /* Fading in */
-					Mix_VolumeMusic((music_playing->fade_volume * ticks) 
-									/ music_playing->fade_length);
-				}
 			}
 		}
 		/* Restart music if it has to loop */
@@ -293,11 +282,14 @@ int open_music(SDL_AudioSpec *mixer)
 #endif
 	music_playing = 0;
 	music_stopped = 0;
-
 	if ( music_error ) {
 		return(-1);
 	}
 	Mix_VolumeMusic(SDL_MIX_MAXVOLUME);
+
+    /* Calculate the number of ms for each callback */
+    ms_per_step = ((float)mixer->samples * 1000.0) / mixer->freq;
+printf("MS per step = %d\n", ms_per_step);
 
 	return(0);
 }
@@ -409,7 +401,7 @@ void Mix_FreeMusic(Mix_Music *music)
 		if ( music == music_playing && !music_stopped ) {
 			if ( music->fading == MIX_FADING_OUT ) {
 				/* Wait for the fade out to finish */
-				while(music_playing && !music_stopped && music_playing->fading == MIX_FADING_OUT)
+				while ( music_playing && !music_stopped && (music_playing->fading == MIX_FADING_OUT) )
 					SDL_Delay(100);
 			} else {
 				Mix_HaltMusic(); /* Stop it immediately */
@@ -508,9 +500,9 @@ int Mix_PlayMusic(Mix_Music *music, int loops)
 		SDL_Delay(100);
 	}
 
-	if(lowlevel_play(music)<0)
+	if ( lowlevel_play(music) < 0 ) {
 		return(-1);
-
+    }
 	music_active = 1;
 	music_stopped = 0;
 	music_loops = loops;
@@ -525,30 +517,14 @@ int Mix_FadeInMusic(Mix_Music *music, int loops, int ms)
 	if ( music && music_volume > 0 ) { /* No need to fade if we can't hear it */
 		music->fade_volume = music_volume;
 		music_volume = 0;
-		if(Mix_PlayMusic(music,loops)<0)
+		if ( Mix_PlayMusic(music, loops) < 0 ) {
 			return(-1);
+        }
+		music_playing->fade_step = 0;
+		music_playing->fade_steps = ms/ms_per_step;
 		music_playing->fading = MIX_FADING_IN;
-		music_playing->fade_length = ms;
-		music_playing->ticks_fade = SDL_GetTicks();
 	}
 	return(0);
-}
-
-/* Fades out the currently playing music, and progressively fades in a new music,
-   all in the background. The 'ms' period is half for fading out the music and
-   fading in the new one */
-int Mix_FadeOutInMusic(Mix_Music *music, int loops, int ms)
-{
-	if( music_stopped || !music_playing ) {
-		return Mix_FadeInMusic(music,loops,ms/2);
-	} else {
-		/* Set up the data for chaining the next music */
-		next_music = music;
-		next_period = ms/2;
-		next_loops = loops;
-		/* Fade out the current music */
-		Mix_FadeOutMusic(ms/2);
-	}
 }
 
 /* Set the music volume */
@@ -631,13 +607,12 @@ static void lowlevel_halt(void)
 		/* Unknown music type?? */
 		return;
 	}
-	if(music_playing->fading != MIX_NO_FADING) /* Restore volume */
+	if ( music_playing->fading != MIX_NO_FADING ) /* Restore volume */
 		music_volume = music_playing->fade_volume;
 	music_playing->fading = MIX_NO_FADING;
-	music_playing = 0;
+	music_playing = NULL;
 	music_active = 0;
 	music_loops = 0;
-	music_paused = 0;
 	music_stopped = 0;
 }
 
@@ -657,12 +632,12 @@ int Mix_HaltMusic(void)
 /* Progressively stop the music */
 int Mix_FadeOutMusic(int ms)
 {
-	if ( music_playing && !music_stopped && music_playing->fading==MIX_NO_FADING ) {
-		if ( music_volume>0 ) {
+	if ( music_playing && !music_stopped && (music_playing->fading == MIX_NO_FADING) ) {
+		if ( music_volume > 0 ) {
 			music_playing->fading = MIX_FADING_OUT;
 			music_playing->fade_volume = music_volume;
-			music_playing->fade_length = ms;
-			music_playing->ticks_fade = SDL_GetTicks();
+		    music_playing->fade_step = 0;
+		    music_playing->fade_steps = ms/ms_per_step;
 			return(1);
 		}
 	}
@@ -679,17 +654,15 @@ Mix_Fading Mix_FadingMusic(void)
 /* Pause/Resume the music stream */
 void Mix_PauseMusic(void)
 {
-	if ( music_playing && music_active && !music_stopped ) {
+	if ( music_playing && !music_stopped ) {
 		music_active = 0;
-		music_paused = 1;
 	}
 }
 
 void Mix_ResumeMusic(void)
 {
-	if ( music_playing && !music_active && !music_stopped ) {
+	if ( music_playing && !music_stopped ) {
 		music_active = 1;
-		music_paused = 0;
 	}
 }
 
@@ -709,7 +682,7 @@ void Mix_RewindMusic(void)
 
 int Mix_PausedMusic(void)
 {
-	return music_paused;
+	return (music_active == 0);
 }
 
 /* Check the status of the music */

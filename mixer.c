@@ -53,15 +53,13 @@ static struct _Mix_Channel {
 	Uint32 ticks_fade;
 } *channel = NULL;
 static int num_channels;
+static int reserved_channels = 0;
 
-#define MUSIC_VOL	64		/* Music volume 0-64 */
 
 /* Support for user defined music functions, plus the default one */
 extern int music_active;
 extern void music_mixer(void *udata, Uint8 *stream, int len);
 static void (*mix_music)(void *udata, Uint8 *stream, int len) = music_mixer;
-static int mixed_channels = 0; /* Holds the number of channels actually mixed, for debugging */
-static int reserved_channels = 0;
 void *music_data = NULL;
 
 /* Mixing function */
@@ -77,7 +75,6 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 
 	/* Grab the channels we need to mix */
 	SDL_mutexP(mixer_lock);
-	mixed_channels = 0;
 	sdl_ticks = SDL_GetTicks();
 	for ( i=0; i<num_channels; ++i ) {
 		if( ! channel[i].paused ) {
@@ -105,7 +102,6 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 				}
 			}
 			if ( channel[i].playing > 0 ) {
-				++ mixed_channels;
 				mixable = channel[i].playing;
 				if ( mixable > len ) {
 					mixable = len;
