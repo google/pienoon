@@ -1,4 +1,6 @@
 
+mixer 1.0
+
 Due to popular demand, here is a simple multi-channel audio mixer.
 It supports 4 channels of 16 bit stereo audio, plus a single channel
 of music, mixed by the popular MikMod MOD, Timidity MIDI and SMPEG MP3
