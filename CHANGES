@@ -1,4 +1,8 @@
 
+1.0.1:
+SOL -	Added a post-mixing callback
+SP  -	A few music-related bugfixes
+
 1.0.0:
 SOL -   Added autoconf support
 SP  -   Added MP3 support using SMPEG
