@@ -1,4 +1,8 @@
 
+1.0.2:
+FXJ -	Updated the mikmod support to MikMod 3.1.8
+FXJ -	Added Mix_HookMusicFinished() API function
+
 1.0.1:
 SOL -	Added a post-mixing callback
 SP  -	A few music-related bugfixes
@@ -14,4 +18,4 @@ SP  -   Added expiration delay for samples
 Initial Key:
 SOL - Sam Lantinga (hercules@lokigames.com)
 SP  - Stephane Peter (megastep@lokigames.com)
-
+FXJ - Markus Oberhumer (markus.oberhumer@jk.uni-linz.ac.at)

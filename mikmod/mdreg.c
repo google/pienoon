@@ -1,31 +1,50 @@
-/*
+/*	MikMod sound library
+	(c) 1998, 1999 Miodrag Vallat and others - see file AUTHORS for
+	complete list.
 
- Name:  MDREG.C
+	This library is free software; you can redistribute it and/or modify
+	it under the terms of the GNU Library General Public License as
+	published by the Free Software Foundation; either version 2 of
+	the License, or (at your option) any later version.
 
- Description:
- A single routine for registering all drivers in MikMod for the current
- platform.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Library General Public License for more details.
 
- Portability:
- DOS, WIN95, OS2, SunOS, Solaris,
- Linux, HPUX, AIX, SGI, Alpha
-
- Anything not listed above is assumed to not be supported by this procedure!
-
- All Others: n
-
- - all compilers!
-
+	You should have received a copy of the GNU Library General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+	02111-1307, USA.
 */
 
-#include "mikmod.h"
+/*==============================================================================
+
+  $Id$
+
+  Routine for registering all drivers in libmikmod for the current platform.
+
+==============================================================================*/
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "mikmod_internals.h"
+
+MIKMODAPI extern struct MDRIVER drv_sdl;    /* Simple Direct Media */
+
+void _mm_registeralldrivers(void)
+{
+	_mm_registerdriver(&drv_sdl);
+	_mm_registerdriver(&drv_nos);
+}
 
 void MikMod_RegisterAllDrivers(void)
 {
-
-    MikMod_RegisterDriver(drv_sdl);
-    MikMod_RegisterDriver(drv_nos);
-
+	MUTEX_LOCK(lists);
+	_mm_registeralldrivers();
+	MUTEX_UNLOCK(lists);
 }
 
-
+/* ex:set ts=4: */

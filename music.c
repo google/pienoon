@@ -26,6 +26,7 @@
 #include <string.h>
 #include "SDL_endian.h"
 #include "SDL_audio.h"
+#include "SDL_timer.h"
 
 #include "mixer.h"
 
@@ -41,7 +42,17 @@
 #include "wavestream.h"
 #endif
 #ifdef MOD_MUSIC
-#include "mikmod.h"
+#  include "mikmod.h"
+#  if defined(LIBMIKMOD_VERSION)                /* libmikmod 3.1.8 */
+#    define UNIMOD			MODULE
+#    define MikMod_Init()		MikMod_Init(NULL)
+#    define MikMod_LoadSong(a,b)	Player_Load(a,b,0)
+#    define MikMod_FreeSong		Player_Free
+     extern int MikMod_errno;
+#  else                                        /* old MikMod 3.0.3 */
+#    define MikMod_strerror(x)		_mm_errmsg[x])
+#    define MikMod_errno		_mm_errno
+#  endif
 #endif
 #ifdef MID_MUSIC
 #include "timidity.h"
@@ -93,7 +104,9 @@ struct _Mix_Music {
 	int fade_steps;
 	int error;
 };
+#ifdef MID_MUSIC
 static int timidity_ok;
+#endif
 
 /* Used to calculate fading steps */
 static int ms_per_step;
@@ -101,6 +114,18 @@ static int ms_per_step;
 /* Local low-level functions prototypes */
 static void lowlevel_halt(void);
 static int  lowlevel_play(Mix_Music *music);
+
+
+/* Support for hooking when the music has finished */
+static void (*music_finished_hook)(void) = NULL;
+
+void Mix_HookMusicFinished(void (*music_finished)(void))
+{
+	SDL_LockAudio();
+	music_finished_hook = music_finished;
+	SDL_UnlockAudio();
+}
+
 
 /* Mixing function */
 void music_mixer(void *udata, Uint8 *stream, int len)
@@ -113,7 +138,7 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 			   the music is always stopped from the sound thread */
 			lowlevel_halt(); /* This function sets music_playing to NULL */
 			return;
-		}	
+		}
 		/* Handle fading */
 		if ( music_playing->fading != MIX_NO_FADING ) {
 			if ( music_playing->fade_step++ < music_playing->fade_steps ) {
@@ -122,7 +147,7 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 				int fade_steps = music_playing->fade_steps;
 
 				if ( music_playing->fading == MIX_FADING_OUT ) {
-					Mix_VolumeMusic((fade_volume * (fade_steps-fade_step)) 
+					Mix_VolumeMusic((fade_volume * (fade_steps-fade_step))
 									/ fade_steps);
 				} else { /* Fading in */
 					Mix_VolumeMusic((fade_volume * fade_step) / fade_steps);
@@ -136,14 +161,20 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 			}
 		}
 		/* Restart music if it has to loop */
-		if ( music_loops && !Mix_PlayingMusic() ) {
-			if ( -- music_loops ) {
+		if ( !Mix_PlayingMusic() ) {
+			/* Restart music if it has to loop */
+			if ( music_loops && --music_loops ) {
 				Mix_RewindMusic();
 				if ( lowlevel_play(music_playing) < 0 ) {
 					fprintf(stderr,"Warning: Music restart failed.\n");
 					music_stopped = 1; /* Something went wrong */
 					music_playing->fading = MIX_NO_FADING;
 				}
+			}
+			else if (music_finished_hook) {
+			    lowlevel_halt();
+			    music_finished_hook();
+			    return;
 			}
 		}
 		if ( music_volume <= 0 ) { /* Don't mix if volume is null */
@@ -264,7 +295,7 @@ int open_music(SDL_AudioSpec *mixer)
 	MikMod_RegisterAllLoaders();
 	MikMod_RegisterAllDrivers();
 	if ( MikMod_Init() ) {
-		Mix_SetError("%s", _mm_errmsg[_mm_errno]);
+		Mix_SetError("%s", MikMod_strerror(MikMod_errno));
 		++music_error;
 	}
 #endif
@@ -376,7 +407,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
 		music->type = MUS_MOD;
 		music->data.module = MikMod_LoadSong((char *)file, 64);
 		if ( music->data.module == NULL ) {
-			Mix_SetError("%s", _mm_errmsg[_mm_errno]);
+			Mix_SetError("%s", MikMod_strerror(MikMod_errno));
 			music->error = 1;
 		}
 	} else
@@ -670,12 +701,20 @@ void Mix_RewindMusic(void)
 {
 	if ( music_playing && !music_stopped ) {
 		switch ( music_playing->type ) {
+#ifdef MOD_MUSIC
+		case MUS_MOD:
+			Player_Start(music_playing->data.module);
+			Player_SetPosition(0);
+			break;
+#endif
 #ifdef MP3_MUSIC
 		case MUS_MP3:
 			SMPEG_rewind(music_playing->data.mp3);
 			break;
 #endif
+		default:
 			/* TODO: Implement this for other music backends */
+			break;
 		}
 	}
 }
@@ -724,6 +763,8 @@ int Mix_PlayingMusic(void)
 					return(0);
 				break;
 #endif
+			default:
+				break;
 		}
 		return(1);
 	}

@@ -10,20 +10,23 @@ libmikmod_la_SOURCES =		\
 	load_xm.c		\
 	mdreg.c			\
 	mdriver.c		\
+	mdulaw.c		\
 	mikmod.h		\
+	mikmod_build.h		\
+	mikmod_internals.h	\
 	mloader.c		\
 	mlreg.c			\
+	mlutil.c		\
 	mmalloc.c		\
 	mmerror.c		\
 	mmio.c			\
-	mmio.h			\
 	mplayer.c		\
 	munitrk.c		\
+	mwav.c			\
 	npertab.c		\
-	ptform.h		\
-	s3m_it.c		\
 	sloader.c		\
-	tdefs.h			\
-	virtch.c
+	virtch.c		\
+	virtch2.c		\
+	virtch_common.c
 
-EXTRA_DIST = README license.txt
+EXTRA_DIST = AUTHORS COPYING.LESSER README

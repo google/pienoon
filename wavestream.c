@@ -248,7 +248,7 @@ static FILE *LoadWAVStream (const char *file, SDL_AudioSpec *spec,
 		was_error = 1;
 		goto done;
 	}
-		
+
 	/* Check the magic header */
 	RIFFchunk	= SDL_ReadLE32(src);
 	wavelen		= SDL_ReadLE32(src);
@@ -356,8 +356,6 @@ static FILE *LoadAIFFStream (const char *file, SDL_AudioSpec *spec,
 	int was_error;
 	FILE *wavefp;
 	SDL_RWops *src;
-	Chunk chunk;
-	int lenread;
 
 	/* AIFF magic header */
 	Uint32 FORMchunk;
@@ -379,7 +377,7 @@ static FILE *LoadAIFFStream (const char *file, SDL_AudioSpec *spec,
 		Uint32 l2;
 		Uint16 s1;
 	} sane_freq;
-	
+
 	Uint32 frequency;
 
 
@@ -394,7 +392,7 @@ static FILE *LoadAIFFStream (const char *file, SDL_AudioSpec *spec,
 		was_error = 1;
 		goto done;
 	}
-		
+
 	/* Check the magic header */
 	FORMchunk	= SDL_ReadLE32(src);
 	chunklen	= SDL_ReadLE32(src);

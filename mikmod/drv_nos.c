@@ -1,161 +1,107 @@
+/*	MikMod sound library
+	(c) 1998, 1999 Miodrag Vallat and others - see file AUTHORS for
+	complete list.
+
+	This library is free software; you can redistribute it and/or modify
+	it under the terms of the GNU Library General Public License as
+	published by the Free Software Foundation; either version 2 of
+	the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Library General Public License for more details.
+
+	You should have received a copy of the GNU Library General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+	02111-1307, USA.
+*/
+
+/*==============================================================================
+
+  $Id$
+
+  Driver for no output
+
+==============================================================================*/
+
 /*
 
-Name:
-DRV_NOS.C
-
-Description:
-Mikmod driver for no output on any soundcard, monitor, keyboard, or whatever :)
-
-Portability:
-All systems - All compilers
+	Written by Jean-Paul Mikkers <mikmak@via.nl>
 
 */
 
-#include "mikmod.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#include "mikmod_internals.h"
+
+#define ZEROLEN 32768
+
+static	SBYTE *zerobuf=NULL;
 
 static BOOL NS_IsThere(void)
 {
-    return 1;
+	return 1;
 }
-
-
-static SWORD NS_SampleLoad(SAMPLOAD *s, int type)
-{
-    return 0;
-}
-
-
-static void NS_SampleUnload(SWORD h)
-{
-}
-
-
-static ULONG NS_SampleSpace(int type)
-{
-    return 0;
-}
-
-
-static ULONG NS_SampleLength(int type, SAMPLE *s)
-{
-    return s->length;
-}
-
 
 static BOOL NS_Init(void)
 {
-    return 0;
+	zerobuf=(SBYTE*)_mm_malloc(ZEROLEN);
+	return VC_Init();
 }
-
 
 static void NS_Exit(void)
 {
+	VC_Exit();
+	_mm_free(zerobuf);
 }
-
-
-static BOOL NS_Reset(void)
-{
-    return 0;
-}
-
-
-static BOOL NS_PlayStart(void)
-{
-    return 0;
-}
-
-
-static void NS_PlayStop(void)
-{
-}
-
 
 static void NS_Update(void)
 {
+	if (zerobuf)
+		VC_WriteBytes(zerobuf,ZEROLEN);
 }
 
+MDRIVER drv_nos={
+	NULL,
+	"No Sound",
+	"Nosound Driver v3.0",
+	255,255,
+	"nosound",
 
-static BOOL NS_SetNumVoices(void)
-{
-    return 0;
-}
-
-
-static void NS_VoiceSetVolume(UBYTE voice,UWORD vol)
-{
-}
-
-
-static void NS_VoiceSetFrequency(UBYTE voice,ULONG frq)
-{
-}
-
-
-static void NS_VoiceSetPanning(UBYTE voice,ULONG pan)
-{
-}
-
-
-static void NS_VoicePlay(UBYTE voice,SWORD handle,ULONG start,ULONG size,ULONG reppos,ULONG repend,UWORD flags)
-{
-}
-
-
-static void NS_VoiceStop(UBYTE voice)
-{
-}
-
-
-static BOOL NS_VoiceStopped(UBYTE voice)
-{
-   return 0;
-}
-
-
-static void NS_VoiceReleaseSustain(UBYTE voice)
-{
-}
-
-
-static SLONG NS_VoiceGetPosition(UBYTE voice)
-{
-   return 0;
-}
-
-
-static ULONG NS_VoiceRealVolume(UBYTE voice)
-{
-   return 0;
-}
-
-
-
-MDRIVER drv_nos =
-{   NULL,
-    "No Sound",
-    "Nosound Driver v2.0 - (c) Creative Silence",
-    255,255,
-    NS_IsThere,
-    NS_SampleLoad,
-    NS_SampleUnload,
-    NS_SampleSpace,
-    NS_SampleLength,
-    NS_Init,
-    NS_Exit,
-    NS_Reset,
-    NS_SetNumVoices,
-    NS_PlayStart,
-    NS_PlayStop,
-    NS_Update,
-    NS_VoiceSetVolume,
-    NS_VoiceSetFrequency,
-    NS_VoiceSetPanning,
-    NS_VoicePlay,
-    NS_VoiceStop,
-    NS_VoiceStopped,
-    NS_VoiceReleaseSustain,
-    NS_VoiceGetPosition,
-    NS_VoiceRealVolume
+	NULL,
+	NS_IsThere,
+	VC_SampleLoad,
+	VC_SampleUnload,
+	VC_SampleSpace,
+	VC_SampleLength,
+	NS_Init,
+	NS_Exit,
+	NULL,
+	VC_SetNumVoices,
+	VC_PlayStart,
+	VC_PlayStop,
+	NS_Update,
+	NULL,
+	VC_VoiceSetVolume,
+	VC_VoiceGetVolume,
+	VC_VoiceSetFrequency,
+	VC_VoiceGetFrequency,
+	VC_VoiceSetPanning,
+	VC_VoiceGetPanning,
+	VC_VoicePlay,
+	VC_VoiceStop,
+	VC_VoiceStopped,
+	VC_VoiceGetPosition,
+	VC_VoiceRealVolume
 };
 
+
+/* ex:set ts=4: */

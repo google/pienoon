@@ -30,6 +30,7 @@
 
 #include "SDL_mutex.h"
 #include "SDL_endian.h"
+#include "SDL_timer.h"
 
 #include "mixer.h"
 
@@ -58,7 +59,7 @@ static int reserved_channels = 0;
 
 /* Support for hooking into the mixer callback system */
 static void (*mix_postmix)(void *udata, Uint8 *stream, int len) = NULL;
-void *mix_postmix_data = NULL;
+static void *mix_postmix_data = NULL;
 
 /* Support for user defined music functions, plus the default one */
 extern int music_active;
@@ -500,7 +501,7 @@ int Mix_ExpireChannel(int which, int ticks)
 		}
 	} else if ( which < num_channels ) {
 		SDL_mutexP(mixer_lock);
-		channel[which].expire = (ticks>0) ? (SDL_GetTicks() + ticks) : -1;		
+		channel[which].expire = (ticks>0) ? (SDL_GetTicks() + ticks) : -1;
 		SDL_mutexV(mixer_lock);
 		++ status;
 	}
@@ -642,7 +643,7 @@ int Mix_FadeOutChannel(int which, int ms)
 		}
 	} else {
 		SDL_mutexP(mixer_lock);
-		if ( channel[which].playing && channel[which].volume>0 && 
+		if ( channel[which].playing && channel[which].volume>0 &&
 			 channel[which].fading==MIX_NO_FADING ) {
 
 			channel[which].fading = MIX_FADING_OUT;
@@ -829,7 +830,7 @@ int Mix_GroupOldest(int tag)
 	Uint32 mintime = SDL_GetTicks();
 	int i;
 	for( i=0; i < num_channels; i ++ ) {
-		if ( (channel[i].tag==tag || tag==-1) && channel[i].playing > 0 
+		if ( (channel[i].tag==tag || tag==-1) && channel[i].playing > 0
 			 && channel[i].start_time <= mintime ) {
 			mintime = channel[i].start_time;
 			chan = i;
@@ -845,7 +846,7 @@ int Mix_GroupNewer(int tag)
 	Uint32 maxtime = 0;
 	int i;
 	for( i=0; i < num_channels; i ++ ) {
-		if ( (channel[i].tag==tag || tag==-1) && channel[i].playing > 0 
+		if ( (channel[i].tag==tag || tag==-1) && channel[i].playing > 0
 			 && channel[i].start_time >= maxtime ) {
 			maxtime = channel[i].start_time;
 			chan = i;

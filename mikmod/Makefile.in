@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4a from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -46,9 +46,10 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL_STRIP_FLAG =
 transform = @program_transform_name@
 
 NORMAL_INSTALL = :
@@ -87,10 +88,10 @@ VERSION = @VERSION@
 
 noinst_LTLIBRARIES = libmikmod.la
 
-libmikmod_la_SOURCES =  	drv_nos.c			drv_sdl.c			load_it.c			load_mod.c			load_s3m.c			load_xm.c			mdreg.c				mdriver.c			mikmod.h			mloader.c			mlreg.c				mmalloc.c			mmerror.c			mmio.c				mmio.h				mplayer.c			munitrk.c			npertab.c			ptform.h			s3m_it.c			sloader.c			tdefs.h				virtch.c
+libmikmod_la_SOURCES =  	drv_nos.c			drv_sdl.c			load_it.c			load_mod.c			load_s3m.c			load_xm.c			mdreg.c				mdriver.c			mdulaw.c			mikmod.h			mikmod_build.h			mikmod_internals.h		mloader.c			mlreg.c				mlutil.c			mmalloc.c			mmerror.c			mmio.c				mplayer.c			munitrk.c			mwav.c				npertab.c			sloader.c			virtch.c			virtch2.c			virtch_common.c
 
 
-EXTRA_DIST = README license.txt
+EXTRA_DIST = AUTHORS COPYING.LESSER README
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LTLIBRARIES =  $(noinst_LTLIBRARIES)
@@ -103,15 +104,15 @@ LIBS = @LIBS@
 libmikmod_la_LDFLAGS = 
 libmikmod_la_LIBADD = 
 libmikmod_la_OBJECTS =  drv_nos.lo drv_sdl.lo load_it.lo load_mod.lo \
-load_s3m.lo load_xm.lo mdreg.lo mdriver.lo mloader.lo mlreg.lo \
-mmalloc.lo mmerror.lo mmio.lo mplayer.lo munitrk.lo npertab.lo \
-s3m_it.lo sloader.lo virtch.lo
+load_s3m.lo load_xm.lo mdreg.lo mdriver.lo mdulaw.lo mloader.lo \
+mlreg.lo mlutil.lo mmalloc.lo mmerror.lo mmio.lo mplayer.lo munitrk.lo \
+mwav.lo npertab.lo sloader.lo virtch.lo virtch2.lo virtch_common.lo
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DIST_COMMON =  README Makefile.am Makefile.in
+DIST_COMMON =  README AUTHORS Makefile.am Makefile.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -120,9 +121,10 @@ TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/drv_nos.P .deps/drv_sdl.P .deps/load_it.P \
 .deps/load_mod.P .deps/load_s3m.P .deps/load_xm.P .deps/mdreg.P \
-.deps/mdriver.P .deps/mloader.P .deps/mlreg.P .deps/mmalloc.P \
-.deps/mmerror.P .deps/mmio.P .deps/mplayer.P .deps/munitrk.P \
-.deps/npertab.P .deps/s3m_it.P .deps/sloader.P .deps/virtch.P
+.deps/mdriver.P .deps/mdulaw.P .deps/mloader.P .deps/mlreg.P \
+.deps/mlutil.P .deps/mmalloc.P .deps/mmerror.P .deps/mmio.P \
+.deps/mplayer.P .deps/munitrk.P .deps/mwav.P .deps/npertab.P \
+.deps/sloader.P .deps/virtch.P .deps/virtch2.P .deps/virtch_common.P
 SOURCES = $(libmikmod_la_SOURCES)
 OBJECTS = $(libmikmod_la_OBJECTS)
 
@@ -223,7 +225,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -284,7 +286,7 @@ uninstall: uninstall-am
 all-am: Makefile $(LTLIBRARIES)
 all-redirect: all-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
 installdirs:
 
 
