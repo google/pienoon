@@ -40,7 +40,9 @@
 #include <mikmod_build.h>
 
 #ifdef macintosh
+#ifndef __MWERKS__
 #define __STDC__=1
+#endif
 static char *strdup(const char *str)
 {
 	char *newstr;
