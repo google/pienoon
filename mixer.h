@@ -31,6 +31,11 @@
 
 #include <SDL/begin_code.h>
 
+/* Set up for C function definitions, even when using C++ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* The default mixer has 8 simultaneous mixing channels */
 #ifndef MIX_CHANNELS
 #define MIX_CHANNELS	8
@@ -198,6 +203,10 @@ extern void Mix_CloseAudio(void);
 #define Mix_SetError	SDL_SetError
 #define Mix_GetError	SDL_GetError
 
+/* Ends C function definitions when using C++ */
+#ifdef __cplusplus
+};
+#endif
 #include <SDL/close_code.h>
 
 #endif /* _MIXER_H_ */
