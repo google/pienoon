@@ -116,13 +116,6 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 			lowlevel_halt(); /* This function sets music_playing to NULL */
 			return;
 		}	
-		if ( music_playing && music_loops && !lowlevel_playing() ) {
-			if ( -- music_loops ) {
-				Mix_RewindMusic();
-				if ( lowlevel_play(music_playing) < 0 )
-					music_stopped = 1; /* Something went wrong */
-			}
-		}
 		if ( !music_stopped && music_playing->fading != MIX_NO_FADING ) {
 			Uint32 ticks = SDL_GetTicks() - music_playing->ticks_fade;
 			if( ticks > music_playing->fade_length ) {
@@ -146,6 +139,16 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 				} else { /* Fading in */
 					Mix_VolumeMusic((music_playing->fade_volume * ticks) 
 									/ music_playing->fade_length);
+				}
+			}
+		}
+		if ( music_loops && !lowlevel_playing() ) {
+			if ( -- music_loops ) {
+				Mix_RewindMusic();
+				if ( lowlevel_play(music_playing) < 0 ) {
+					fprintf(stderr,"Warning: Music restart failed.\n");
+					music_stopped = 1; /* Something went wrong */
+					music_playing->fading = MIX_NO_FADING;
 				}
 			}
 		}
@@ -625,6 +628,7 @@ static void lowlevel_halt(void)
 	music_playing->fading = MIX_NO_FADING;
 	music_playing = 0;
 	music_active = 0;
+	music_loops = 0;
 	music_stopped = 0;
 }
 
