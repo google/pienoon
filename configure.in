@@ -46,6 +46,14 @@ AC_PROG_CC
 AM_PROG_LIBTOOL
 AC_PROG_INSTALL
 
+dnl The alpha architecture needs special flags for binary portability
+AC_CANONICAL_TARGET
+case "$target" in
+    alpha*-*-linux*)
+        CFLAGS="$CFLAGS -mcpu=ev4 -Wa,-mall"
+        ;;
+esac
+
 dnl Check for SDL 0.11.2
 AM_PATH_SDL(0.11.2)
 CFLAGS="$CFLAGS $SDL_CFLAGS"
