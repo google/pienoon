@@ -1,5 +1,7 @@
 
 1.2.1:
+Ryan C. Gordon - Thu, 7 Jun 2001 13:15:51
+ * Added Mix_ChannelFinished() and Mix_GetChunk()
 Ryan C. Gordon - Tue, 5 Jun 2001 11:01:51
  * Added VOC sound file support
 Guillaume Cottenceau - Thu May 10 11:17:55 PDT 2001

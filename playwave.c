@@ -54,7 +54,22 @@ void Usage(char *argv0)
 {
 	fprintf(stderr, "Usage: %s [-8] [-r rate] [-l] [-m] <wavefile>\n", argv0);
 }
-	
+
+
+/*#define TEST_MIX_CHANNELFINISHED*/
+#ifdef TEST_MIX_CHANNELFINISHED  /* rcg06072001 */
+static volatile int channel_is_done = 0;
+static void channel_complete_callback(int chan)
+{
+	Mix_Chunk *done_chunk = Mix_GetChunk(chan);
+	printf("We were just alerted that Mixer channel #%d is done.\n", chan);
+	printf("Channel's chunk pointer is (%p).\n", done_chunk);
+	printf(" Which %s correct.\n", (wave == done_chunk) ? "is" : "is NOT");
+	channel_is_done = 1;
+}
+#endif
+
+
 main(int argc, char *argv[])
 {
 	int audio_rate;
@@ -126,10 +141,23 @@ main(int argc, char *argv[])
 		return(2);
 	}
 
+#ifdef TEST_MIX_CHANNELFINISHED  /* rcg06072001 */
+	setbuf(stdout, NULL);
+	Mix_ChannelFinished(channel_complete_callback);
+#endif
+
 	/* Play and then exit */
 	Mix_PlayChannel(0, wave, loops);
+
+#ifdef TEST_MIX_CHANNELFINISHED  /* rcg06072001 */
+	while (!channel_is_done) {
+		SDL_Delay(100);
+	}
+#else
 	while ( Mix_Playing(0) ) {
 		SDL_Delay(100);
 	}
+#endif
+
 	return(0);
 }

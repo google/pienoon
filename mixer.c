@@ -61,6 +61,9 @@ static int reserved_channels = 0;
 static void (*mix_postmix)(void *udata, Uint8 *stream, int len) = NULL;
 static void *mix_postmix_data = NULL;
 
+/* rcg07062001 callback to alert when channels are done playing. */
+static void (*channel_done_callback)(int channel) = NULL;
+
 /* Music function declarations */
 extern int open_music(SDL_AudioSpec *mixer);
 extern void close_music(void);
@@ -138,6 +141,11 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 						mix_channel[i].samples = mix_channel[i].chunk->abuf;
 						mix_channel[i].playing = mix_channel[i].chunk->alen;
 					}
+				}
+
+				/* rcg06072001 Alert app if channel is done playing. */
+				if ( (!mix_channel[i].playing) && (channel_done_callback) ) {
+					channel_done_callback(i);
 				}
 			}
 		}
@@ -464,6 +472,14 @@ void *Mix_GetMusicHookData(void)
 	return(music_data);
 }
 
+void Mix_ChannelFinished(void (*channel_finished)(int channel))
+{
+    SDL_LockAudio();
+    channel_done_callback = channel_finished;
+    SDL_UnlockAudio();
+}
+
+
 /* Reserve the first channels (0 -> n-1) for the application, i.e. don't allocate
    them dynamically to the next sample if requested with a -1 value below.
    Returns the number of reserved channels.
@@ -737,6 +753,18 @@ int Mix_Playing(int which)
 		}
 	}
 	return(status);
+}
+
+/* rcg06072001 Get the chunk associated with a channel. */
+Mix_Chunk *Mix_GetChunk(int channel)
+{
+	Mix_Chunk *retval = NULL;
+
+	if ((channel >= 0) && (channel < num_channels)) {
+		retval = mix_channel[channel].chunk;
+	}
+
+	return(retval);
 }
 
 /* Close the mixer, halting all playing audio */

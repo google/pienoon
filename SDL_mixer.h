@@ -123,6 +123,11 @@ extern DECLSPEC void Mix_HookMusicFinished(void (*music_finished)(void));
 /* Get a pointer to the user data for the current music hook */
 extern DECLSPEC void *Mix_GetMusicHookData(void);
 
+/* Add your own callback when a channel has finished playing. NULL
+ * to disable callback.
+ */
+extern DECLSPEC void Mix_ChannelFinished(void (*channel_finished)(int channel));
+
 /* Reserve the first channels (0 -> n-1) for the application, i.e. don't allocate
    them dynamically to the next sample if requested with a -1 value below.
    Returns the number of reserved channels.
@@ -218,6 +223,11 @@ extern DECLSPEC int Mix_PlayingMusic(void);
 
 /* Stop music and set external music playback command */
 extern DECLSPEC int Mix_SetMusicCMD(const char *command);
+
+/* Get the Mix_Chunk currently associated with a mixer channel
+    Returns NULL if it's an invalid channel, or there's no chunk associated.
+*/
+extern DECLSPEC Mix_Chunk *Mix_GetChunk(int channel);
 
 /* Close the mixer, halting all playing audio */
 extern DECLSPEC void Mix_CloseAudio(void);
