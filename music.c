@@ -24,8 +24,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL/SDL_endian.h>
-#include <SDL/SDL_audio.h>
+#include "SDL_endian.h"
+#include "SDL_audio.h"
 
 #include "mixer.h"
 

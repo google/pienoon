@@ -28,8 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SDL/SDL_mutex.h>
-#include <SDL/SDL_endian.h>
+#include "SDL_mutex.h"
+#include "SDL_endian.h"
 
 #include "mixer.h"
 

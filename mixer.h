@@ -25,9 +25,9 @@
 #ifndef _MIXER_H_
 #define _MIXER_H_
 
-#include <SDL/SDL_types.h>
-#include <SDL/SDL_rwops.h>
-#include <SDL/SDL_audio.h>
+#include "SDL_types.h"
+#include "SDL_rwops.h"
+#include "SDL_audio.h"
 
 #include <SDL/begin_code.h>
 

@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SDL/SDL.h>
+#include "SDL.h"
 #include "config.h"
 #include "common.h"
 #include "instrum.h"

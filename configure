@@ -1688,7 +1688,7 @@ case "$target" in
         ;;
 esac
 
-SDL_VERSION=1.0.0
+SDL_VERSION=1.0.1
 # Check whether --with-sdl-prefix or --without-sdl-prefix was given.
 if test "${with_sdl_prefix+set}" = set; then
   withval="$with_sdl_prefix"

@@ -30,7 +30,7 @@
 #include <unistd.h>
 #endif
 
-#include <SDL/SDL.h>
+#include "SDL.h"
 #include "mixer.h"
 
 
