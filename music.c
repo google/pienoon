@@ -62,6 +62,10 @@ static int music_volume;
 static int music_swap8;
 static int music_swap16;
 
+/* For fading/chaining musics */
+static Mix_Music *next_music = 0;
+static int next_period = 0, next_loops = 0;
+
 struct _Mix_Music {
 	enum {
 		MUS_CMD,
@@ -95,7 +99,10 @@ struct _Mix_Music {
 };
 static int timidity_ok;
 
+/* Local low-level functions prototypes */
 static void lowlevel_halt(void);
+static int  lowlevel_play(Mix_Music *music);
+static int  lowlevel_playing(void);
 
 /* Mixing function */
 void music_mixer(void *udata, Uint8 *stream, int len)
@@ -109,13 +116,26 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 			lowlevel_halt(); /* This function sets music_playing to NULL */
 			return;
 		}	
-		if ( music_playing->fading != MIX_NO_FADING ) {
+		if ( music_playing && music_loops && !lowlevel_playing() ) {
+			if ( -- music_loops ) {
+				Mix_RewindMusic();
+				if ( lowlevel_play(music_playing) < 0 )
+					music_stopped = 1; /* Something went wrong */
+			}
+		}
+		if ( !music_stopped && music_playing->fading != MIX_NO_FADING ) {
 			Uint32 ticks = SDL_GetTicks() - music_playing->ticks_fade;
 			if( ticks > music_playing->fade_length ) {
 				if ( music_playing->fading == MIX_FADING_OUT ) {
 					music_volume = music_playing->fade_volume;
 					music_playing->fading = MIX_NO_FADING;
-					lowlevel_halt();
+					if (next_music) {
+						Mix_FadeInMusic(next_music,next_loops,next_period);
+						next_music = 0;
+						next_period = next_loops = 0;
+					} else {
+						lowlevel_halt();
+					}
 					return;
 				}
 				music_playing->fading = MIX_NO_FADING;
@@ -418,18 +438,11 @@ void Mix_FreeMusic(Mix_Music *music)
 	}
 }
 
-/* Play a music chunk.  Returns 0, or -1 if there was an error.
-*/
-int Mix_PlayMusic(Mix_Music *music, int loops)
+static int lowlevel_play(Mix_Music *music)
 {
-	/* Don't play null pointers :-) */
-	if ( music == NULL ) {
+	if(!music)
 		return(-1);
-	}
-	/* If the current music is fading out, wait for the fade to complete */
-	while ( music_playing && !music_stopped && music_playing->fading==MIX_FADING_OUT ) {
-		SDL_Delay(100);
-	}
+
 	switch (music->type) {
 #ifdef CMD_MUSIC
 		case MUS_CMD:
@@ -461,7 +474,6 @@ int Mix_PlayMusic(Mix_Music *music, int loops)
 			SMPEG_enableaudio(music->data.mp3,1);
 			SMPEG_enablevideo(music->data.mp3,0);
 			SMPEG_setvolume(music->data.mp3,((float)music_volume/(float)MIX_MAX_VOLUME)*100.0);
-			SMPEG_loop(music->data.mp3, loops);
 			SMPEG_play(music->data.mp3);
 			break;
 #endif
@@ -469,8 +481,28 @@ int Mix_PlayMusic(Mix_Music *music, int loops)
 			/* Unknown music type?? */
 			return(-1);
 	}
+	return(0);
+}
+
+/* Play a music chunk.  Returns 0, or -1 if there was an error.
+*/
+int Mix_PlayMusic(Mix_Music *music, int loops)
+{
+	/* Don't play null pointers :-) */
+	if ( music == NULL ) {
+		return(-1);
+	}
+	/* If the current music is fading out, wait for the fade to complete */
+	while ( music_playing && !music_stopped && music_playing->fading==MIX_FADING_OUT ) {
+		SDL_Delay(100);
+	}
+
+	if(lowlevel_play(music)<0)
+		return(-1);
+
 	music_active = 1;
 	music_stopped = 0;
+	music_loops = loops;
 	music_playing = music;
 	music_playing->fading = MIX_NO_FADING;
 	return(0);
@@ -489,6 +521,23 @@ int Mix_FadeInMusic(Mix_Music *music, int loops, int ms)
 		music_playing->ticks_fade = SDL_GetTicks();
 	}
 	return(0);
+}
+
+/* Fades out the currently playing music, and progressively fades in a new music,
+   all in the background. The 'ms' period is half for fading out the music and
+   fading in the new one */
+int Mix_FadeOutInMusic(Mix_Music *music, int loops, int ms)
+{
+	if( music_stopped || !music_playing ) {
+		return Mix_FadeInMusic(music,loops,ms/2);
+	} else {
+		/* Set up the data for chaining the next music */
+		next_music = music;
+		next_period = ms/2;
+		next_loops = loops;
+		/* Fade out the current music */
+		Mix_FadeOutMusic(ms/2);
+	}
 }
 
 /* Set the music volume */
@@ -668,47 +717,58 @@ void Mix_RewindMusic(void)
 }
 
 /* Check the status of the music */
-int Mix_PlayingMusic(void)
+static int lowlevel_playing(void)
 {
 	if ( music_playing && !music_stopped ) {
 		switch (music_playing->type) {
 #ifdef CMD_MUSIC
 			case MUS_CMD:
 				if (!MusicCMD_Active(music_playing->data.cmd)) {
-					music_playing = 0;
+					return(0);
 				}
 				break;
 #endif
 #ifdef WAV_MUSIC
 			case MUS_WAV:
 				if ( ! WAVStream_Active() ) {
-					music_playing = 0;
+					return(0);
 				}
 				break;
 #endif
 #ifdef MOD_MUSIC
 			case MUS_MOD:
 				if ( ! Player_Active() ) {
-					music_playing = 0;
+					return(0);
 				}
 				break;
 #endif
 #ifdef MID_MUSIC
 			case MUS_MID:
 				if ( ! Timidity_Active() ) {
-					music_playing = 0;
+					return(0);
 				}
 				break;
 #endif
 #ifdef MP3_MUSIC
 			case MUS_MP3:
 				if(SMPEG_status(music_playing->data.mp3)!=SMPEG_PLAYING)
-					music_playing = 0;
+					return(0);
 				break;
 #endif
 		}
 	}
-	return(music_playing ? 1 : 0);
+	return(1);
+}
+
+int Mix_PlayingMusic(void)
+{
+	int active;
+	active = lowlevel_playing();
+	if ( !active && music_loops ) {
+		return(1);
+	} else {
+		return(active);
+	}
 }
 
 /* Set the external music playback command */

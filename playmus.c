@@ -43,20 +43,20 @@ void CleanUp(void)
 		Mix_FadeOutMusic(1500);
 		SDL_Delay(1500);
 	}
-	if ( audio_open ) {
-		Mix_CloseAudio();
-		audio_open = 0;
-	}
 	if ( music ) {
 		Mix_FreeMusic(music);
 		music = NULL;
+	}
+	if ( audio_open ) {
+		Mix_CloseAudio();
+		audio_open = 0;
 	}
 	SDL_Quit();
 }
 
 void Usage(char *argv0)
 {
-	fprintf(stderr, "Usage: %s [-8] [-r rate] [-s] <musicfile>\n", argv0);
+	fprintf(stderr, "Usage: %s |-l] [-8] [-r rate] [-s] <musicfile>\n", argv0);
 }
 	
 main(int argc, char *argv[])
@@ -64,6 +64,7 @@ main(int argc, char *argv[])
 	Uint32 audio_rate;
 	Uint16 audio_format;
 	int audio_channels;
+	int looping = 0;
 	int i;
 
 	/* Initialize variables */
@@ -79,6 +80,9 @@ main(int argc, char *argv[])
 		} else
 		if ( strcmp(argv[i], "-m") == 0 ) {
 			audio_channels = 1;
+		} else
+		if ( strcmp(argv[i], "-l") == 0 ) {
+			looping = -1;
 		} else
 		if ( strcmp(argv[i], "-8") == 0 ) {
 			audio_format = AUDIO_U8;
@@ -125,7 +129,7 @@ main(int argc, char *argv[])
 	}
 
 	/* Play and then exit */
-	Mix_FadeInMusic(music,0,2000);
+	Mix_FadeInMusic(music,looping,2000);
 	while ( Mix_PlayingMusic() ) {
 		SDL_Delay(100);
 	}

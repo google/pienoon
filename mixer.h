@@ -146,6 +146,11 @@ extern int Mix_FadeInMusic(Mix_Music *music, int loops, int ms);
 #define Mix_FadeInChannel(channel,chunk,loops,ms) Mix_FadeInChannelTimed(channel,chunk,loops,ms,-1)
 extern int Mix_FadeInChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ms, int ticks);
 
+/* Fades out the currently playing music, and progressively fades in a new music,
+   all in the background. The 'ms' period is half for fading out the music and
+   fading in the new one */
+extern int Mix_FadeOutInMusic(Mix_Music *music, int loops, int ms);
+
 /* Set the volume in the range of 0-128 of a specific channel or chunk.
    If the specified channel is -1, set volume for all channels.
    Returns the original volume.
