@@ -36,10 +36,12 @@ EXTRA_DIST =			\
 	VisualC.zip		\
 	MPWmake.sea.bin		\
 	CWprojects.sea.hqx	\
+	SDL_mixer.spec		\
+	SDL_mixer.spec.in	\
 	autogen.sh
 
 libSDL_mixer_la_LDFLAGS = 		\
-        -release $(LT_RELEASE)	\
+	-release $(LT_RELEASE)	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 libSDL_mixer_la_LIBADD = $(MIKMOD_LIB) $(TIMIDITY_LIB)
 
@@ -49,10 +51,9 @@ playwave_LDADD = libSDL_mixer.la
 playmus_LDADD = libSDL_mixer.la
 
 # Rule to build tar-gzipped distribution package
-$(PACKAGE)-$(VERSION).tar.gz: dist
+$(PACKAGE)-$(VERSION).tar.gz: distcheck
 
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz
-	cp $(PACKAGE)-$(VERSION).tar.gz /usr/src/redhat/SOURCES
-	rpm -ba $(PACKAGE).spec
+	rpm -ta $(PACKAGE)-$(VERSION).tar.gz
 
