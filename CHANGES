@@ -1,5 +1,7 @@
 
 1.0.4:
+* Markus Oberhumer Wed Feb  2 13:16:17 PST 2000
+- Fixed problem with short looping sounds
 * Sam Lantinga Tue Feb  1 13:25:44 PST 2000
 - Added Visual C++ project file
 * Markus Oberhumer Tue Feb  1 13:23:11 PST 2000

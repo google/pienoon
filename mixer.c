@@ -111,30 +111,32 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 				}
 			}
 			if ( channel[i].playing > 0 ) {
-				volume = (channel[i].volume*channel[i].chunk->volume) /
-					MIX_MAX_VOLUME;
+				volume = (channel[i].volume*channel[i].chunk->volume) / MIX_MAX_VOLUME;
 				mixable = channel[i].playing;
+				if ( mixable > len ) {
+					mixable = len;
+				}
+				SDL_MixAudio(stream,channel[i].samples,mixable,volume);
+				channel[i].samples += mixable;
+				channel[i].playing -= mixable;
 				/* If looping the sample and we are at its end, make sure
 				   we will still return a full buffer */
-				if ( channel[i].looping && mixable < len ) {
-					int remaining = len - mixable;
-					SDL_MixAudio(stream, channel[i].samples, mixable, volume);
+				while ( channel[i].looping && mixable < len ) {
+				    	int remaining = len - mixable;
+					int alen = channel[i].chunk->alen;
+				    	if (remaining > alen) {
+						remaining = alen;
+				    	}
 					SDL_MixAudio(stream+mixable, channel[i].chunk->abuf, remaining, volume);
 					--channel[i].looping;
 					channel[i].samples = channel[i].chunk->abuf + remaining;
 					channel[i].playing = channel[i].chunk->alen - remaining;
-				} else {
-					if ( mixable > len ) {
-						mixable = len;
-					}
-					SDL_MixAudio(stream,channel[i].samples,mixable,volume);
-					channel[i].samples += mixable;
-					channel[i].playing -= mixable;
-					if ( ! channel[i].playing && channel[i].looping ) {
-						if ( --channel[i].looping ) {
-							channel[i].samples = channel[i].chunk->abuf;
-							channel[i].playing = channel[i].chunk->alen;
-						}
+					mixable += remaining;
+				}
+				if ( ! channel[i].playing && channel[i].looping ) {
+					if ( --channel[i].looping ) {
+						channel[i].samples = channel[i].chunk->abuf;
+						channel[i].playing = channel[i].chunk->alen;
 					}
 				}
 			}
