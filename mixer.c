@@ -733,10 +733,20 @@ void Mix_Resume(int which)
 
 int Mix_Paused(int which)
 {
-	if ( which < 0 || which > num_channels )
+	if ( which > num_channels )
 		return(0);
-
-	return channel[which].paused != 0;
+	if ( which < 0 ) {
+		int status = 0;
+		int i;
+		for( i=0; i < num_channels; ++i ) {
+			if ( channel[i].paused ) {
+				++ status;
+			}
+		}
+		return(status);
+	} else {
+		return(channel[which].paused != 0);
+	}
 }
 
 /* Change the group of a channel */
