@@ -20,7 +20,7 @@ sound choppy, try using 8-bit audio, mono audio, or lower frequencies.
 
 To play MIDI files, you'll need to get a complete set of GUS patches
 from:
-http://www.devolution.com/~slouken/SDL/projectx/mixer/timidity/timidity.tar.gz
+http://www.devolution.com/~slouken/SDL/projects/mixer/timidity/timidity.tar.gz
 and unpack them in /usr/local/lib under UNIX, and C:\ under Win32.
 
 You may add panning, reverb, echo, whatever, but if you do, please
