@@ -78,7 +78,9 @@ MIKMODAPI extern long MikMod_GetVersion(void);
 #define INCL_DOSSEMAPHORES
 #include <os2.h>
 #else
+#ifndef WIN32
 typedef char CHAR;
+#endif
 #endif
 
 /*@DOES_NOT_HAVE_SIGNED@*/

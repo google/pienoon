@@ -54,7 +54,9 @@ static char *strdup(const char *str)
 #endif
 
 #ifdef WIN32
+#ifndef __STDC__
 #define __STDC__
+#endif
 #pragma warning(disable:4761)
 #endif
 
