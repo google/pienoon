@@ -35,6 +35,12 @@
 #include "wave.h"
 #include "wavestream.h"
 
+/* Currently we only support a single stream at a time */
+static WAVStream *theWave = NULL;
+
+/* This is initialized by the music mixer */
+static SDL_mutex *music_lock = NULL;
+
 /* This is the format of the audio mixer data */
 static SDL_AudioSpec mixer;
 
@@ -49,6 +55,13 @@ static FILE *LoadAIFFStream (const char *file, SDL_AudioSpec *spec,
  */
 int WAVStream_Init(SDL_AudioSpec *mixerfmt)
 {
+	/* FIXME: clean up the mutex, or move it into music.c */
+	music_lock = SDL_CreateMutex();
+#ifndef macintosh /* Hmm.. */
+	if ( music_lock == NULL ) {
+		return(-1);
+	}
+#endif
 	mixer = *mixerfmt;
 	return(0);
 }
@@ -93,58 +106,75 @@ extern WAVStream *WAVStream_LoadSong(const char *file, const char *magic)
 /* Start playback of a given WAV stream */
 extern void WAVStream_Start(WAVStream *wave)
 {
+	SDL_mutexP(music_lock);
 	clearerr(wave->wavefp);
 	fseek(wave->wavefp, wave->start, SEEK_SET);
+	theWave = wave;
+	SDL_mutexV(music_lock);
 }
 
 /* Play some of a stream previously started with WAVStream_Start()
+   The music_lock is held while this function is called.
  */
-extern void WAVStream_PlaySome(WAVStream *wave, Uint8 *stream, int len)
+extern void WAVStream_PlaySome(Uint8 *stream, int len)
 {
 	long pos;
 
-	if ( (pos=ftell(wave->wavefp)) < wave->stop ) {
-		if ( wave->cvt.needed ) {
+	SDL_mutexP(music_lock);
+	if ( theWave && ((pos=ftell(theWave->wavefp)) < theWave->stop) ) {
+		if ( theWave->cvt.needed ) {
 			int original_len;
 
-			original_len=(int)((double)len/wave->cvt.len_ratio);
-			if ( wave->cvt.len != original_len ) {
+			original_len=(int)((double)len/theWave->cvt.len_ratio);
+			if ( theWave->cvt.len != original_len ) {
 				int worksize;
-				if ( wave->cvt.buf != NULL ) {
-					free(wave->cvt.buf);
+				if ( theWave->cvt.buf != NULL ) {
+					free(theWave->cvt.buf);
 				}
-				worksize = original_len*wave->cvt.len_mult;
-				wave->cvt.buf=(Uint8 *)malloc(worksize);
-				if ( wave->cvt.buf == NULL ) {
+				worksize = original_len*theWave->cvt.len_mult;
+				theWave->cvt.buf=(Uint8 *)malloc(worksize);
+				if ( theWave->cvt.buf == NULL ) {
+					SDL_mutexV(music_lock);
 					return;
 				}
-				wave->cvt.len = original_len;
+				theWave->cvt.len = original_len;
 			}
-			if ( (wave->stop - pos) < original_len ) {
-				original_len = (wave->stop - pos);
+			if ( (theWave->stop - pos) < original_len ) {
+				original_len = (theWave->stop - pos);
 			}
-			wave->cvt.len = original_len;
-			fread(wave->cvt.buf,original_len,1,wave->wavefp);
-			SDL_ConvertAudio(&wave->cvt);
-			memcpy(stream, wave->cvt.buf, wave->cvt.len_cvt);
+			theWave->cvt.len = original_len;
+			fread(theWave->cvt.buf,original_len,1,theWave->wavefp);
+			SDL_ConvertAudio(&theWave->cvt);
+			memcpy(stream, theWave->cvt.buf, theWave->cvt.len_cvt);
 		} else {
-			if ( (wave->stop - pos) < len ) {
-				len = (wave->stop - pos);
+			if ( (theWave->stop - pos) < len ) {
+				len = (theWave->stop - pos);
 			}
-			fread(stream, len, 1, wave->wavefp);
+			fread(stream, len, 1, theWave->wavefp);
 		}
 	}
+	SDL_mutexV(music_lock);
 }
 
 /* Stop playback of a stream previously started with WAVStream_Start() */
 extern void WAVStream_Stop(void)
 {
+	SDL_mutexP(music_lock);
+	theWave = NULL;
+	SDL_mutexV(music_lock);
 }
 
 /* Close the given WAV stream */
 extern void WAVStream_FreeSong(WAVStream *wave)
 {
 	if ( wave ) {
+		/* Remove song from the currently playing list */
+		SDL_mutexP(music_lock);
+		if ( wave == theWave ) {
+			theWave = NULL;
+		}
+		SDL_mutexV(music_lock);
+
 		/* Clean up associated data */
 		if ( wave->wavefp ) {
 			fclose(wave->wavefp);
@@ -157,16 +187,16 @@ extern void WAVStream_FreeSong(WAVStream *wave)
 }
 
 /* Return non-zero if a stream is currently playing */
-extern int WAVStream_Active(WAVStream *wave)
+extern int WAVStream_Active(void)
 {
 	int active;
 
-	SDL_LockAudio();
+	SDL_mutexP(music_lock);
 	active = 0;
-	if ( ftell(wave->wavefp) < wave->stop ) {
+	if ( theWave && (ftell(theWave->wavefp) < theWave->stop) ) {
 		active = 1;
 	}
-	SDL_UnlockAudio();
+	SDL_mutexV(music_lock);
 
 	return(active);
 }

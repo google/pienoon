@@ -193,7 +193,7 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 #endif
 #ifdef WAV_MUSIC
 			case MUS_WAV:
-				WAVStream_PlaySome(music_playing->data.wave, stream, len);
+				WAVStream_PlaySome(stream, len);
 				break;
 #endif
 #ifdef MOD_MUSIC
@@ -788,7 +788,7 @@ int Mix_PlayingMusic(void)
 #endif
 #ifdef WAV_MUSIC
 			case MUS_WAV:
-				if ( ! WAVStream_Active(music_playing->data.wave) ) {
+				if ( ! WAVStream_Active() ) {
 					return(0);
 				}
 				break;
