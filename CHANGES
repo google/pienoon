@@ -1,13 +1,13 @@
 
 1.0.3:
-Sam Lantinga - Mon Jan 17 19:48:09 PST 2000
- * Changed the name of the library from "mixer" to "SDL_mixer"
-   Instead of including "mixer.h", include "SDL_mixer.h",
-   Instead of linking with libmixer.a, link with libSDL_mixer.a
+* Sam Lantinga Mon Jan 17 19:48:09 PST 2000
+- Changed the name of the library from "mixer" to "SDL_mixer"
+- Instead of including "mixer.h", include "SDL_mixer.h",
+- Instead of linking with libmixer.a, link with libSDL_mixer.a
 
 1.0.2:
-Sam Lantinga - Fri Jan 14 11:06:56 PST 2000
- * Made the CHANGELOG entries Y2K compliant. :)
+* Sam Lantinga Fri Jan 14 11:06:56 PST 2000
+- Made the CHANGELOG entries Y2K compliant. :)
 FXJ -	Updated the mikmod support to MikMod 3.1.8
 FXJ -	Added Mix_HookMusicFinished() API function
 

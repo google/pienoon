@@ -29,6 +29,10 @@ else
 TIMIDITY_LIB =
 endif
 
+EXTRA_DIST =			\
+	CHANGES			\
+	autogen.sh
+
 libSDL_mixer_la_LDFLAGS = 		\
         -release $(LT_RELEASE)	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)

@@ -28,8 +28,7 @@
 #include "SDL_types.h"
 #include "SDL_rwops.h"
 #include "SDL_audio.h"
-
-#include <SDL/begin_code.h>
+#include "begin_code.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -66,7 +65,7 @@ typedef enum {
 typedef struct _Mix_Music Mix_Music;
 
 /* Open the mixer with a certain audio format */
-extern int Mix_OpenAudio(int frequency, Uint16 format, int channels,
+extern DECLSPEC int Mix_OpenAudio(int frequency, Uint16 format, int channels,
 							int chunksize);
 
 /* Dynamically change the number of channels managed by the mixer.
@@ -74,50 +73,50 @@ extern int Mix_OpenAudio(int frequency, Uint16 format, int channels,
    stopped.
    This function returns the new number of allocated channels.
  */
-extern int Mix_AllocateChannels(int numchans);
+extern DECLSPEC int Mix_AllocateChannels(int numchans);
 
 /* Find out what the actual audio device parameters are.
    This function returns 1 if the audio has been opened, 0 otherwise.
  */
-extern int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels);
+extern DECLSPEC int Mix_QuerySpec(int *frequency,Uint16 *format,int *channels);
 
 /* Load a wave file or a music (.mod .s3m .it .xm) file */
-extern Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc);
+extern DECLSPEC Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc);
 #define Mix_LoadWAV(file)	Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
-extern Mix_Music *Mix_LoadMUS(const char *file);
+extern DECLSPEC Mix_Music *Mix_LoadMUS(const char *file);
 
 /* Load a wave file of the mixer format from a memory buffer */
-extern Mix_Chunk *Mix_QuickLoad_WAV(Uint8 *mem);
+extern DECLSPEC Mix_Chunk *Mix_QuickLoad_WAV(Uint8 *mem);
 
 /* Free an audio chunk previously loaded */
-extern void Mix_FreeChunk(Mix_Chunk *chunk);
-extern void Mix_FreeMusic(Mix_Music *music);
+extern DECLSPEC void Mix_FreeChunk(Mix_Chunk *chunk);
+extern DECLSPEC void Mix_FreeMusic(Mix_Music *music);
 
 /* Set a function that is called after all mixing is performed.
    This can be used to provide real-time visual display of the audio stream
    or add a custom mixer filter for the stream data.
 */
-extern void Mix_SetPostMix(void (*mix_func)
+extern DECLSPEC void Mix_SetPostMix(void (*mix_func)
                              (void *udata, Uint8 *stream, int len), void *arg);
 
 /* Add your own music player or additional mixer function.
    If 'mix_func' is NULL, the default music player is re-enabled.
  */
-extern void Mix_HookMusic(void (*mix_func)
+extern DECLSPEC void Mix_HookMusic(void (*mix_func)
                           (void *udata, Uint8 *stream, int len), void *arg);
 
 /* Add your own callback when the music has finished playing.
  */
-extern void Mix_HookMusicFinished(void (*music_finished)(void));
+extern DECLSPEC void Mix_HookMusicFinished(void (*music_finished)(void));
 
 /* Get a pointer to the user data for the current music hook */
-extern void *Mix_GetMusicHookData(void);
+extern DECLSPEC void *Mix_GetMusicHookData(void);
 
 /* Reserve the first channels (0 -> n-1) for the application, i.e. don't allocate
    them dynamically to the next sample if requested with a -1 value below.
    Returns the number of reserved channels.
  */
-extern int Mix_ReserveChannels(int num);
+extern DECLSPEC int Mix_ReserveChannels(int num);
 
 /* Channel grouping functions */
 
@@ -127,19 +126,19 @@ extern int Mix_ReserveChannels(int num);
    represent the group of all the channels).
    Returns true if everything was OK.
  */
-extern int Mix_GroupChannel(int which, int tag);
+extern DECLSPEC int Mix_GroupChannel(int which, int tag);
 /* Assign several consecutive channels to a group */
-extern int Mix_GroupChannels(int from, int to, int tag);
+extern DECLSPEC int Mix_GroupChannels(int from, int to, int tag);
 /* Finds the first available channel in a group of channels */
-extern int Mix_GroupAvailable(int tag);
+extern DECLSPEC int Mix_GroupAvailable(int tag);
 /* Returns the number of channels in a group. This is also a subtle
    way to get the total number of channels when 'tag' is -1
  */
-extern int Mix_GroupCount(int tag);
+extern DECLSPEC int Mix_GroupCount(int tag);
 /* Finds the "oldest" sample playing in a group of channels */
-extern int Mix_GroupOldest(int tag);
+extern DECLSPEC int Mix_GroupOldest(int tag);
 /* Finds the "most recent" (i.e. last) sample playing in a group of channels */
-extern int Mix_GroupNewer(int tag);
+extern DECLSPEC int Mix_GroupNewer(int tag);
 
 /* Play an audio chunk on a specific channel.
    If the specified channel is -1, play on the first free channel.
@@ -149,68 +148,68 @@ extern int Mix_GroupNewer(int tag);
 */
 #define Mix_PlayChannel(channel,chunk,loops) Mix_PlayChannelTimed(channel,chunk,loops,-1)
 /* The same as above, but the sound is played at most 'ticks' milliseconds */
-extern int Mix_PlayChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ticks);
-extern int Mix_PlayMusic(Mix_Music *music, int loops);
+extern DECLSPEC int Mix_PlayChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ticks);
+extern DECLSPEC int Mix_PlayMusic(Mix_Music *music, int loops);
 
 /* Fade in music or a channel over "ms" milliseconds, same semantics as the "Play" functions */
-extern int Mix_FadeInMusic(Mix_Music *music, int loops, int ms);
+extern DECLSPEC int Mix_FadeInMusic(Mix_Music *music, int loops, int ms);
 #define Mix_FadeInChannel(channel,chunk,loops,ms) Mix_FadeInChannelTimed(channel,chunk,loops,ms,-1)
-extern int Mix_FadeInChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ms, int ticks);
+extern DECLSPEC int Mix_FadeInChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ms, int ticks);
 
 /* Set the volume in the range of 0-128 of a specific channel or chunk.
    If the specified channel is -1, set volume for all channels.
    Returns the original volume.
    If the specified volume is -1, just return the current volume.
 */
-extern int Mix_Volume(int channel, int volume);
-extern int Mix_VolumeChunk(Mix_Chunk *chunk, int volume);
-extern int Mix_VolumeMusic(int volume);
+extern DECLSPEC int Mix_Volume(int channel, int volume);
+extern DECLSPEC int Mix_VolumeChunk(Mix_Chunk *chunk, int volume);
+extern DECLSPEC int Mix_VolumeMusic(int volume);
 
 /* Halt playing of a particular channel */
-extern int Mix_HaltChannel(int channel);
-extern int Mix_HaltGroup(int tag);
-extern int Mix_HaltMusic(void);
+extern DECLSPEC int Mix_HaltChannel(int channel);
+extern DECLSPEC int Mix_HaltGroup(int tag);
+extern DECLSPEC int Mix_HaltMusic(void);
 
 /* Change the expiration delay for a particular channel.
    The sample will stop playing after the 'ticks' milliseconds have elapsed,
    or remove the expiration if 'ticks' is -1
 */
-extern int Mix_ExpireChannel(int channel, int ticks);
+extern DECLSPEC int Mix_ExpireChannel(int channel, int ticks);
 
 /* Halt a channel, fading it out progressively till it's silent
    The ms parameter indicates the number of milliseconds the fading
    will take.
  */
-extern int Mix_FadeOutChannel(int which, int ms);
-extern int Mix_FadeOutGroup(int tag, int ms);
-extern int Mix_FadeOutMusic(int ms);
+extern DECLSPEC int Mix_FadeOutChannel(int which, int ms);
+extern DECLSPEC int Mix_FadeOutGroup(int tag, int ms);
+extern DECLSPEC int Mix_FadeOutMusic(int ms);
 
 /* Query the fading status of a channel */
-extern Mix_Fading Mix_FadingMusic(void);
-extern Mix_Fading Mix_FadingChannel(int which);
+extern DECLSPEC Mix_Fading Mix_FadingMusic(void);
+extern DECLSPEC Mix_Fading Mix_FadingChannel(int which);
 
 /* Pause/Resume a particular channel */
-extern void Mix_Pause(int channel);
-extern void Mix_Resume(int channel);
-extern int  Mix_Paused(int channel);
+extern DECLSPEC void Mix_Pause(int channel);
+extern DECLSPEC void Mix_Resume(int channel);
+extern DECLSPEC int  Mix_Paused(int channel);
 
 /* Pause/Resume the music stream */
-extern void Mix_PauseMusic(void);
-extern void Mix_ResumeMusic(void);
-extern void Mix_RewindMusic(void);
-extern int  Mix_PausedMusic(void);
+extern DECLSPEC void Mix_PauseMusic(void);
+extern DECLSPEC void Mix_ResumeMusic(void);
+extern DECLSPEC void Mix_RewindMusic(void);
+extern DECLSPEC int  Mix_PausedMusic(void);
 
 /* Check the status of a specific channel.
    If the specified channel is -1, check all channels.
 */
-extern int Mix_Playing(int channel);
-extern int Mix_PlayingMusic(void);
+extern DECLSPEC int Mix_Playing(int channel);
+extern DECLSPEC int Mix_PlayingMusic(void);
 
 /* Stop music and set external music playback command */
-extern int Mix_SetMusicCMD(const char *command);
+extern DECLSPEC int Mix_SetMusicCMD(const char *command);
 
 /* Close the mixer, halting all playing audio */
-extern void Mix_CloseAudio(void);
+extern DECLSPEC void Mix_CloseAudio(void);
 
 /* We'll use SDL for reporting errors */
 #define Mix_SetError	SDL_SetError
@@ -220,6 +219,6 @@ extern void Mix_CloseAudio(void);
 #ifdef __cplusplus
 };
 #endif
-#include <SDL/close_code.h>
+#include "close_code.h"
 
 #endif /* _MIXER_H_ */
