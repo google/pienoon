@@ -1,25 +1,25 @@
 /*
-    MIXERLIB:  An audio mixer library based on the SDL library
-    Copyright (C) 1997-1999  Sam Lantinga
+	MIXERLIB:  An audio mixer library based on the SDL library
+	Copyright (C) 1997-1999  Sam Lantinga
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License as published by the Free Software Foundation; either
-    version 2 of the License, or (at your option) any later version.
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Library General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Library General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public
-    License along with this library; if not, write to the Free
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU Library General Public
+	License along with this library; if not, write to the Free
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-    Sam Lantinga
-    5635-34 Springhouse Dr.
-    Pleasanton, CA 94588 (USA)
-    slouken@devolution.com
+	Sam Lantinga
+	5635-34 Springhouse Dr.
+	Pleasanton, CA 94588 (USA)
+	slouken@devolution.com
 */
 
 #include <stdlib.h>
@@ -117,9 +117,9 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 		/* Handle fading */
 		if ( music_playing->fading != MIX_NO_FADING ) {
 			if ( music_playing->fade_step++ < music_playing->fade_steps ) {
-                int fade_volume = music_playing->fade_volume;
-                int fade_step = music_playing->fade_step;
-                int fade_steps = music_playing->fade_steps;
+				int fade_volume = music_playing->fade_volume;
+				int fade_step = music_playing->fade_step;
+				int fade_steps = music_playing->fade_steps;
 
 				if ( music_playing->fading == MIX_FADING_OUT ) {
 					Mix_VolumeMusic((fade_volume * (fade_steps-fade_step)) 
@@ -190,8 +190,8 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 				break;
 #endif
 #ifdef MP3_MUSIC
-		    case MUS_MP3:
-			    SMPEG_playAudio(music_playing->data.mp3, stream, len);
+			case MUS_MP3:
+				SMPEG_playAudio(music_playing->data.mp3, stream, len);
 				break;
 #endif
 			default:
@@ -242,29 +242,29 @@ int open_music(SDL_AudioSpec *mixer)
 		break;
 
 		default: {
-			SDL_SetError("Unknown hardware audio format");
+			Mix_SetError("Unknown hardware audio format");
 			++music_error;
 		}
 	}
 	if ( mixer->channels > 1 ) {
 		if ( mixer->channels > 2 ) {
-			SDL_SetError("Hardware uses more channels than mixer");
+			Mix_SetError("Hardware uses more channels than mixer");
 			++music_error;
 		}
 		md_mode |= DMODE_STEREO;
 	}
-	samplesize     = mixer->size/mixer->samples;
-	md_mixfreq     = mixer->freq;
-	md_device      = 0;
-	md_volume      = 96;
+	samplesize	 = mixer->size/mixer->samples;
+	md_mixfreq	 = mixer->freq;
+	md_device	  = 0;
+	md_volume	  = 96;
 	md_musicvolume = 128;
 	md_sndfxvolume = 128;
-	md_pansep      = 128;
-	md_reverb      = 0;
+	md_pansep	  = 128;
+	md_reverb	  = 0;
 	MikMod_RegisterAllLoaders();
 	MikMod_RegisterAllDrivers();
 	if ( MikMod_Init() ) {
-		SDL_SetError("%s", _mm_errmsg[_mm_errno]);
+		Mix_SetError("%s", _mm_errmsg[_mm_errno]);
 		++music_error;
 	}
 #endif
@@ -287,8 +287,8 @@ int open_music(SDL_AudioSpec *mixer)
 	}
 	Mix_VolumeMusic(SDL_MIX_MAXVOLUME);
 
-    /* Calculate the number of ms for each callback */
-    ms_per_step = ((float)mixer->samples * 1000.0) / mixer->freq;
+	/* Calculate the number of ms for each callback */
+	ms_per_step = ((float)mixer->samples * 1000.0) / mixer->freq;
 
 	return(0);
 }
@@ -306,7 +306,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
 		if ( fp != NULL ) {
 			fclose(fp);
 		}
-		SDL_SetError("Couldn't read from '%s'", file);
+		Mix_SetError("Couldn't read from '%s'", file);
 		return(NULL);
 	}
 	magic[4] = '\0';
@@ -315,7 +315,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
 	/* Allocate memory for the music structure */
 	music = (Mix_Music *)malloc(sizeof(Mix_Music));
 	if ( music == NULL ) {
-		SDL_SetError("Out of memory");
+		Mix_SetError("Out of memory");
 		return(NULL);
 	}
 	music->error = 0;
@@ -348,12 +348,12 @@ Mix_Music *Mix_LoadMUS(const char *file)
 		if ( timidity_ok ) {
 			music->data.midi = Timidity_LoadSong((char *)file);
 			if ( music->data.midi == NULL ) {
-				SDL_SetError("%s", Timidity_Error());
+				Mix_SetError("%s", Timidity_Error());
 				music->error = 1;
 			}
 		}
 		else {
-			SDL_SetError("%s", Timidity_Error());
+			Mix_SetError("%s", Timidity_Error());
 			music->error = 1;
 		}
 	} else
@@ -364,7 +364,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
 		music->type = MUS_MP3;
 		music->data.mp3 = SMPEG_new(file, &info, 0);
 		if(!info.has_audio){
-			SDL_SetError("MPEG file does not have any audio stream.");
+			Mix_SetError("MPEG file does not have any audio stream.");
 			music->error = 1;
 		}else{
 			SMPEG_actualSpec(music->data.mp3, &used_mixer);
@@ -376,13 +376,13 @@ Mix_Music *Mix_LoadMUS(const char *file)
 		music->type = MUS_MOD;
 		music->data.module = MikMod_LoadSong((char *)file, 64);
 		if ( music->data.module == NULL ) {
-			SDL_SetError("%s", _mm_errmsg[_mm_errno]);
+			Mix_SetError("%s", _mm_errmsg[_mm_errno]);
 			music->error = 1;
 		}
 	} else
 #endif
 	{
-		SDL_SetError("Unrecognized music format");
+		Mix_SetError("Unrecognized music format");
 		music->error = 1;
 	}
 	if ( music->error ) {
@@ -428,7 +428,7 @@ void Mix_FreeMusic(Mix_Music *music)
 				break;
 #endif
 #ifdef MP3_MUSIC
-		    case MUS_MP3:
+			case MUS_MP3:
 				SMPEG_delete(music->data.mp3);
 				break;
 #endif
@@ -472,7 +472,7 @@ static int lowlevel_play(Mix_Music *music)
 			break;
 #endif
 #ifdef MP3_MUSIC
-	    case MUS_MP3:
+		case MUS_MP3:
 			SMPEG_enableaudio(music->data.mp3,1);
 			SMPEG_enablevideo(music->data.mp3,0);
 			SMPEG_setvolume(music->data.mp3,((float)music_volume/(float)MIX_MAX_VOLUME)*100.0);
@@ -501,7 +501,7 @@ int Mix_PlayMusic(Mix_Music *music, int loops)
 
 	if ( lowlevel_play(music) < 0 ) {
 		return(-1);
-    }
+	}
 	music_active = 1;
 	music_stopped = 0;
 	music_loops = loops;
@@ -518,7 +518,7 @@ int Mix_FadeInMusic(Mix_Music *music, int loops, int ms)
 		music_volume = 0;
 		if ( Mix_PlayMusic(music, loops) < 0 ) {
 			return(-1);
-        }
+		}
 		music_playing->fade_step = 0;
 		music_playing->fade_steps = ms/ms_per_step;
 		music_playing->fading = MIX_FADING_IN;
@@ -631,12 +631,13 @@ int Mix_HaltMusic(void)
 /* Progressively stop the music */
 int Mix_FadeOutMusic(int ms)
 {
-	if ( music_playing && !music_stopped && (music_playing->fading == MIX_NO_FADING) ) {
+	if ( music_playing && !music_stopped &&
+	     (music_playing->fading == MIX_NO_FADING) ) {
 		if ( music_volume > 0 ) {
 			music_playing->fading = MIX_FADING_OUT;
 			music_playing->fade_volume = music_volume;
-		    music_playing->fade_step = 0;
-		    music_playing->fade_steps = ms/ms_per_step;
+			music_playing->fade_step = 0;
+			music_playing->fade_steps = ms/ms_per_step;
 			return(1);
 		}
 	}

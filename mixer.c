@@ -56,6 +56,10 @@ static int num_channels;
 static int reserved_channels = 0;
 
 
+/* Support for hooking into the mixer callback system */
+static void (*mix_postmix)(void *udata, Uint8 *stream, int len) = NULL;
+void *mix_postmix_data = NULL;
+
 /* Support for user defined music functions, plus the default one */
 extern int music_active;
 extern void music_mixer(void *udata, Uint8 *stream, int len);
@@ -132,6 +136,9 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 				}
 			}
 		}
+	}
+	if ( mix_postmix ) {
+		mix_postmix(mix_postmix_data, stream, len);
 	}
 	SDL_mutexV(mixer_lock);
 }
@@ -382,6 +389,19 @@ void Mix_FreeChunk(Mix_Chunk *chunk)
 		}
 		free(chunk);
 	}
+}
+
+/* Set a function that is called after all mixing is performed.
+   This can be used to provide real-time visual display of the audio stream
+   or add a custom mixer filter for the stream data.
+*/
+void Mix_SetPostMix(void (*mix_func)
+                    (void *udata, Uint8 *stream, int len), void *arg)
+{
+	SDL_LockAudio();
+	mix_postmix_data = arg;
+	mix_postmix = mix_func;
+	SDL_UnlockAudio();
 }
 
 /* Add your own music player or mixer function.

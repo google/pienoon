@@ -93,11 +93,18 @@ extern Mix_Chunk *Mix_QuickLoad_WAV(Uint8 *mem);
 extern void Mix_FreeChunk(Mix_Chunk *chunk);
 extern void Mix_FreeMusic(Mix_Music *music);
 
+/* Set a function that is called after all mixing is performed.
+   This can be used to provide real-time visual display of the audio stream
+   or add a custom mixer filter for the stream data.
+*/
+extern void Mix_SetPostMix(void (*mix_func)
+                             (void *udata, Uint8 *stream, int len), void *arg);
+
 /* Add your own music player or additional mixer function.
    If 'mix_func' is NULL, the default music player is re-enabled.
  */
-extern void Mix_HookMusic(void (*mix_func)(void *udata, Uint8 *stream, int len),
-                                                                void *arg);
+extern void Mix_HookMusic(void (*mix_func)
+                          (void *udata, Uint8 *stream, int len), void *arg);
 
 /* Get a pointer to the user data for the current music hook */
 extern void *Mix_GetMusicHookData(void);

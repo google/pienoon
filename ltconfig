@@ -170,7 +170,7 @@ progname=`$echo "X$0" | $Xsed -e 's%^.*/%%'`
 PROGRAM=ltconfig
 PACKAGE=libtool
 VERSION=1.3c
-TIMESTAMP=" (1.612 1999/09/30 00:26:50)"
+TIMESTAMP=" (1.620 1999/10/07 15:40:07)"
 ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.c 1>&5'
 ac_link='${CC-cc} -o conftest $CFLAGS $CPPFLAGS $LDFLAGS conftest.c $LIBS 1>&5'
 rm="rm -f"
@@ -511,219 +511,28 @@ old_archive_cmds='$AR cru $oldlib$oldobjs'
 old_postinstall_cmds='chmod 644 $oldlib'
 old_postuninstall_cmds=
 
-# Set a sane default for `AR'.
+# Set sane defaults for various commands
+#   -- these are usually overridden from the command line by make
 test -z "$AR" && AR=ar
+test -z "$AS" && AS=
+test -z "$DLLTOOL" && DLLTOOL=
+test -z "$LN_S" && LN_S=ln -s
+test -z "$NM" && NM=/usr/bin/nm -B
+test -z "$OBJDUMP" && OBJDUMP=
+test -z "$RANLIB" && RANLIB=ranlib
 
-# Set a sane default for `OBJDUMP'.
-test -z "$OBJDUMP" && OBJDUMP=objdump
+# Commands probed in libtool.m4
+#   -- let the user override the result from configure
+test -z "$CC" && CC=gcc
+test -z "$FILE" && FILE=file
+test -z "$LD" && LD=/usr/bin/ld
+test -z "$STRIP" && STRIP=strip
 
-# Set sane defaults for `DLLTOOL'
-test -z "$DLLTOOL" && DLLTOOL=dlltool
-
-# Set sane defaults for `AS'
-test -z "$AS" && AS=as
-
-# Check to see if we can use ln -s, or we need hard links.
-echo $ac_n "checking whether ln -s works... $ac_c" 1>&6
-echo "$progname:528: checking for ln -s" 1>&5
-result=yes
-if test "X${ac_cv_prog_LN_S+set}" = Xset; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-  if test "X$ac_cv_prog_LN_S" != "Xln -s"; then
-    result=no
-  fi
-else
-  if test -n "$LN_S"; then
-    ac_cv_prog_LN_S="$LN_S"
-  else
-    $rm conftest.dat
-    if ln -s X conftest.dat 2>/dev/null; then
-      $rm conftest.dat
-      ac_cv_prog_LN_S="ln -s"
-    else
-      ac_cv_prog_LN_S=ln
-      result=no
-    fi
-  fi
-fi
-LN_S="$ac_cv_prog_LN_S"
-echo "$ac_t""$result" 1>&6
-
-# Search for a ranlib program
-for ac_prog in "${ac_host_prefix}ranlib" ranlib :
-do
-  echo $ac_n "checking for $ac_prog... $ac_c" 1>&6
-  echo "$progname:556: checking for $ac_prog" 1>&5
-  if test "X${ac_cv_prog_RANLIB+set}" = Xset; then
-    echo $ac_n "(cached) $ac_c" 1>&6
-  else
-    if test -n "$RANLIB"; then
-      ac_cv_prog_RANLIB="$RANLIB"	# Let the user override the test.
-    else
-      IFS="${IFS= 	}"; save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
-      for dir in $PATH; do
-        test -z "$dir" && dir=.
-        if test -f $dir/$ac_prog || test -f $dir/$ac_prog$ac_exeext; then
-	  ac_cv_prog_RANLIB="$ac_prog"
-	  break
-        fi
-      done
-      IFS="$save_ifs"
-    fi
-  fi
-  if test -n "$ac_cv_prog_RANLIB"; then
-    RANLIB="$ac_cv_prog_RANLIB"
-    old_archive_cmds="$old_archive_cmds~\$RANLIB \$oldlib"
-    old_postinstall_cmds="\$RANLIB \$oldlib~$old_postinstall_cmds"
-    echo "$ac_t$RANLIB" 1>&6
-  else
-    echo "$ac_t""no" 1>&6
-  fi
-
-  test -n "$RANLIB" && break
-done
-
-if test -z "$NM"; then
-  echo $ac_n "checking for BSD-compatible nm... $ac_c" 1>&6
-  case "$NM" in
-  [\\/]* | [A-Za-z]:[\\/]*) ;; # Let the user override the test with a path.
-  *)
-    IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
-    for ac_dir in $PATH /usr/ucb /usr/ccs/bin /bin; do
-      test -z "$ac_dir" && ac_dir=.
-      if test -f $ac_dir/nm || test -f $ac_dir/nm$ac_exeext; then
-	# Check to see if the nm accepts a BSD-compat flag.
-	# Adding the `sed 1q' prevents false positives on HP-UX, which says:
-	#   nm: unknown option "B" ignored
-	if ($ac_dir/nm -B /dev/null 2>&1 | sed '1q'; exit 0) | egrep /dev/null >/dev/null; then
-	  NM="$ac_dir/nm -B"
-	  break
-	elif ($ac_dir/nm -p /dev/null 2>&1 | sed '1q'; exit 0) | egrep /dev/null >/dev/null; then
-	  NM="$ac_dir/nm -p"
-	  break
-	else
-	  NM=${NM="$ac_dir/nm"} # keep the first match, but
-	  continue # so that we can try to find one that supports BSD flags
-	fi
-      fi
-    done
-    IFS="$ac_save_ifs"
-    test -z "$NM" && NM=nm
-    ;;
-  esac
-  echo "$ac_t$NM" 1>&6
-fi
-
-# Search for a strip program
-echo $ac_n "checking for strip... $ac_c" 1>&6
-echo "$progname:619: checking for strip" 1>&5
-if test "X${ac_cv_prog_STRIP+set}" = Xset; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-  result="$ac_cv_prog_STRIP"
-else
-  if test -n "$STRIP"; then
-    result="$STRIP"		# Let the user override the test.
-    ac_cv_prog_STRIP="$result"
-  else
-    result=no
-    IFS="${IFS= 	}"; save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
-    for dir in $PATH; do
-      test -z "$dir" && dir=.
-      if test -f $dir/strip || test -f $dir/strip$ac_exeext; then
-	result="strip"
-	ac_cv_prog_STRIP="$result"
-	break
-      fi
-    done
-    IFS="$save_ifs"
-  fi
-fi
-test -n "$ac_cv_prog_STRIP" && STRIP="$ac_cv_prog_STRIP"
-echo "$ac_t$result" 1>&6
-
-# Check to see if we are using GCC.
-if test "$with_gcc" != yes || test -z "$CC"; then
-  # If CC is not set, then try to find GCC or a usable CC.
-  if test -z "$CC"; then
-    echo $ac_n "checking for gcc... $ac_c" 1>&6
-    IFS="${IFS= 	}"; save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
-    for dir in $PATH; do
-      test -z "$dir" && dir=.
-      if test -f $dir/gcc || test -f $dir/gcc$ac_exeext; then
-	CC="gcc"
-	break
-      fi
-    done
-    IFS="$save_ifs"
-
-    if test -n "$CC"; then
-      echo "$ac_t$CC" 1>&6
-    else
-      echo "$ac_t"no 1>&6
-    fi
-  fi
-
-  # Not "gcc", so try "cc", rejecting "/usr/ucb/cc".
-  if test -z "$CC"; then
-    echo $ac_n "checking for cc... $ac_c" 1>&6
-    IFS="${IFS= 	}"; save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
-    cc_rejected=no
-    for dir in $PATH; do
-      test -z "$dir" && dir=.
-      if test -f $dir/cc || test -f $dir/cc$ac_exeext; then
-	if test "$dir/cc" = "/usr/ucb/cc"; then
-	  cc_rejected=yes
-	  continue
-	fi
-	CC="cc"
-	break
-      fi
-    done
-    IFS="$save_ifs"
-    if test $cc_rejected = yes; then
-      # We found a bogon in the path, so make sure we never use it.
-      set dummy $CC
-      shift
-      if test $# -gt 0; then
-	# We chose a different compiler from the bogus one.
-	# However, it has the same name, so the bogon will be chosen
-	# first if we set CC to just the name; use the full file name.
-	shift
-	set dummy "$dir/cc" "$@"
-	shift
-	CC="$@"
-      fi
-    fi
-
-    if test -n "$CC"; then
-      echo "$ac_t$CC" 1>&6
-    else
-      echo "$ac_t"no 1>&6
-    fi
-
-    if test -z "$CC"; then
-      echo "$progname: error: no acceptable cc found in \$PATH" 1>&2
-      exit 1
-    fi
-  fi
-
-  # Now see if the compiler is really GCC.
-  with_gcc=no
-  echo $ac_n "checking whether we are using GNU C... $ac_c" 1>&6
-  echo "$progname:713: checking whether we are using GNU C" >&5
-
-  $rm conftest.c
-  cat > conftest.c <<EOF
-#ifdef __GNUC__
-  yes;
-#endif
-EOF
-  if { ac_try='${CC-cc} -E conftest.c'; { (eval echo $progname:721: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
-    with_gcc=yes
-  fi
-  $rm conftest.c
-  echo "$ac_t$with_gcc" 1>&6
-fi
+# Other config vars probed in libtool.m4
+test -z "$with_gcc" && with_gcc=yes
+test -z "$with_gnu_ld" && with_gnu_ld=yes
+objext=o
+exeext=
 
 echo $ac_n "checking for objdir... $ac_c" 1>&6
 rm -f .libs 2>/dev/null
@@ -737,70 +546,6 @@ fi
 rmdir .libs 2>/dev/null
 echo "$ac_t$objdir" 1>&6
 
-echo $ac_n "checking for object suffix... $ac_c" 1>&6
-echo "$progname:741: checking for object suffix" 1>&5
-if test "X${ac_cv_objext+set}" = Xset; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_cv_objext="no"
-  $rm conftest*
-  echo 'int i = 1;' > conftest.c
-  if { (eval echo $progname:748: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>conftest.err; }; then
-    # Append any warnings to the config.log.
-    cat conftest.err 1>&5
-
-    for ac_file in conftest.*; do
-      case $ac_file in
-      *.c | *.err) ;;
-      *) ac_cv_objext=`echo $ac_file | sed -e s/conftest.//` ;;
-      esac
-    done
-  else
-    cat conftest.err 1>&5
-    echo "$progname: failed program was:" >&5
-    cat conftest.c >&5
-  fi
-  $rm conftest*
-fi
-if test "X$ac_cv_objext" = Xno; then
-  objext=""
-else
-  objext="$ac_cv_objext"
-fi
-echo "$ac_t$ac_cv_objext" 1>&6
-
-echo $ac_n "checking for executable suffix... $ac_c" 1>&6
-echo "$progname:773: checking for executable suffix" 1>&5
-if test "X${ac_cv_exeext+set}" = Xset; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_cv_exeext="no"
-  $rm conftest*
-  echo 'main () { return 0; }' > conftest.c
-  if { (eval echo $progname:780: \"$ac_link\") 1>&5; (eval $ac_link) 2>conftest.err; }; then
-    # Append any warnings to the config.log.
-    cat conftest.err 1>&5
-
-    for ac_file in conftest.*; do
-      case $ac_file in
-      *.c | *.err | *.$objext ) ;;
-      *) ac_cv_exeext=.`echo $ac_file | sed -e s/conftest.//` ;;
-      esac
-    done
-  else
-    cat conftest.err 1>&5
-    echo "$progname: failed program was:" >&5
-    cat conftest.c >&5
-  fi
-  $rm conftest*
-fi
-if test "X$ac_cv_exeext" = Xno; then
-  exeext=""
-else
-  exeext="$ac_cv_exeext"
-fi
-echo "$ac_t$ac_cv_exeext" 1>&6
-
 # Allow CC to be a program name with arguments.
 set dummy $CC
 compiler="$2"
@@ -809,7 +554,7 @@ compiler="$2"
 # in isolation, and that seeing it set (from the cache) indicates that
 # the associated values are set (in the cache) correctly too.
 echo $ac_n "checking for $compiler option to produce PIC... $ac_c" 1>&6
-echo "$progname:812:checking for $compiler option to produce PIC" 1>&5
+echo "$progname:557:checking for $compiler option to produce PIC" 1>&5
 if test "X${ac_cv_prog_cc_pic+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -825,7 +570,7 @@ else
     ac_cv_prog_cc_static='-static'
 
     case "$host_os" in
-    beos* | irix5* | irix6* | osf3* | osf4*)
+    beos* | irix5* | irix6* | osf3* | osf4* | osf5*)
       # PIC is the default for these OSes.
       ;;
     aix*)
@@ -884,7 +629,7 @@ else
       ac_cv_prog_cc_pic='-DDLL_EXPORT'
       ;;
 
-    osf3* | osf4*)
+    osf3* | osf4* | osf5*)
       # All OSF/1 code is PIC.
       ac_cv_prog_cc_wl='-Wl,'
       ac_cv_prog_cc_static='-non_shared'
@@ -939,7 +684,7 @@ else
 
   # Check to make sure the pic_flag actually works.
   echo $ac_n "checking if $compiler PIC flag $ac_cv_prog_cc_pic works... $ac_c" 1>&6
-  echo "$progname:942:checking that $compiler PIC flag $ac_cv_prog_cc_pic works." 1>&5
+  echo "$progname:687:checking that $compiler PIC flag $ac_cv_prog_cc_pic works." 1>&5
   if test "X${ac_cv_prog_cc_pic_works+set}" = Xset; then
     echo $ac_n "(cached) $ac_c" 1>&6
   else
@@ -948,7 +693,7 @@ else
     echo "int some_variable = 0;" > conftest.c
     save_CFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS $ac_cv_prog_cc_pic -DPIC"
-    if { (eval echo $progname:951: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>conftest.err; } && test -s conftest.$objext; then
+    if { (eval echo $progname:696: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>conftest.err; } && test -s conftest.$objext; then
       # Append any warnings to the config.log.
       cat conftest.err 1>&5
     
@@ -1000,7 +745,7 @@ if test -n "$ac_cv_prog_cc_shlib"; then
 fi
 
 echo $ac_n "checking if $compiler static flag $ac_cv_prog_cc_static works... $ac_c" 1>&6
-echo "$progname:1003: checking if $compiler static flag $ac_cv_prog_cc_static works" >&5
+echo "$progname:748: checking if $compiler static flag $ac_cv_prog_cc_static works" >&5
 if test "X${ac_cv_prog_cc_static_works+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1008,7 +753,7 @@ else
   echo 'main(){return(0);}' > conftest.c
   save_LDFLAGS="$LDFLAGS"
   LDFLAGS="$LDFLAGS $ac_cv_prog_cc_static"
-  if { (eval echo $progname:1011: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+  if { (eval echo $progname:756: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
     ac_cv_prog_cc_static_works=yes
   else
     ac_cv_prog_cc_static_works=no
@@ -1045,8 +790,8 @@ mkdir out
 chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.o"
-echo "$progname:1048: checking if $compiler supports -c -o file.o" >&5
-if { (eval echo $progname:1049: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.o; then
+echo "$progname:793: checking if $compiler supports -c -o file.o" >&5
+if { (eval echo $progname:794: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.o; then
 
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
@@ -1078,8 +823,8 @@ if test x"$compiler_c_o" = x"yes"; then
   echo "int some_variable = 0;" > conftest.c
   save_CFLAGS="$CFLAGS"
   CFLAGS="$CFLAGS -c -o conftest.lo"
-  echo "$progname:1081: checking if $compiler supports -c -o file.lo" >&5
-if { (eval echo $progname:1082: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>conftest.err; } && test -s conftest.lo; then
+  echo "$progname:826: checking if $compiler supports -c -o file.lo" >&5
+if { (eval echo $progname:827: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>conftest.err; } && test -s conftest.lo; then
 
     # The compiler can only warn and ignore the option if not recognized
     # So say no if there are warnings
@@ -1130,8 +875,8 @@ if test "$with_gcc" = yes; then
   echo "int some_variable = 0;" > conftest.c
   save_CFLAGS="$CFLAGS"
   CFLAGS="$CFLAGS -fno-rtti -fno-exceptions -c conftest.c"
-  echo "$progname:1133: checking if $compiler supports -fno-rtti -fno-exceptions" >&5
-  if { (eval echo $progname:1134: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>conftest.err; } && test -s conftest.o; then
+  echo "$progname:878: checking if $compiler supports -fno-rtti -fno-exceptions" >&5
+  if { (eval echo $progname:879: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>conftest.err; } && test -s conftest.o; then
 
     # The compiler can only warn and ignore the option if not recognized
     # So say no if there are warnings
@@ -1158,89 +903,6 @@ if test "$with_gcc" = yes; then
   fi
   
 fi
-
-# Make sure LD is an absolute path.
-if test -z "$LD"; then
-  ac_prog=ld
-  if test "$with_gcc" = yes; then
-    # Check if gcc -print-prog-name=ld gives a path.
-    echo $ac_n "checking for ld used by GCC... $ac_c" 1>&6
-    echo "$progname:1168: checking for ld used by GCC" >&5
-    case $host in
-    *-*-mingw*)
-      # gcc leaves a trailing carriage return which upsets mingw
-      ac_prog=`($CC -print-prog-name=ld) 2>&5 | tr -d '\015'` ;;
-    *)
-      ac_prog=`($CC -print-prog-name=ld) 2>&5` ;;
-    esac
-    case "$ac_prog" in
-    # Accept absolute paths.
-    [\\/]* | [A-Za-z]:[\\/]*)
-      re_direlt='/[^/][^/]*/\.\./'
-      # Canonicalize the path of ld
-      ac_prog=`echo $ac_prog| sed 's%\\\\%/%g'`
-      while echo $ac_prog | grep "$re_direlt" > /dev/null 2>&1; do
-	ac_prog=`echo $ac_prog| sed "s%$re_direlt%/%"`
-      done
-      test -z "$LD" && LD="$ac_prog"
-      ;;
-    "")
-      # If it fails, then pretend we are not using GCC.
-      ac_prog=ld
-      ;;
-    *)
-      # If it is relative, then search for the first ld in PATH.
-      with_gnu_ld=unknown
-      ;;
-    esac
-  elif test "$with_gnu_ld" = yes; then
-    echo $ac_n "checking for GNU ld... $ac_c" 1>&6
-    echo "$progname:1198: checking for GNU ld" >&5
-  else
-    echo $ac_n "checking for non-GNU ld""... $ac_c" 1>&6
-    echo "$progname:1201: checking for non-GNU ld" >&5
-  fi
-
-  if test -z "$LD"; then
-    IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
-    for ac_dir in $PATH; do
-      test -z "$ac_dir" && ac_dir=.
-      if test -f "$ac_dir/$ac_prog" || test -f "$ac_dir/$ac_prog$ac_exeext"; then
-	LD="$ac_dir/$ac_prog"
-	# Check to see if the program is GNU ld.  I'd rather use --version,
-	# but apparently some GNU ld's only accept -v.
-	# Break only if it was the GNU/non-GNU ld that we prefer.
-	if "$LD" -v 2>&1 < /dev/null | egrep '(GNU|with BFD)' > /dev/null; then
-	  test "$with_gnu_ld" != no && break
-	else
-	  test "$with_gnu_ld" != yes && break
-	fi
-      fi
-    done
-    IFS="$ac_save_ifs"
-  fi
-
-  if test -n "$LD"; then
-    echo "$ac_t$LD" 1>&6
-  else
-    echo "$ac_t"no 1>&6
-  fi
-
-  if test -z "$LD"; then
-    echo "$progname: error: no acceptable ld found in \$PATH" 1>&2
-    exit 1
-  fi
-fi
-
-# Check to see if it really is or is not GNU ld.
-echo $ac_n "checking if the linker ($LD) is GNU ld... $ac_c" 1>&6
-# I'd rather use --version here, but apparently some GNU ld's only accept -v.
-if $LD -v 2>&1 </dev/null | egrep '(GNU|with BFD)' 1>&5; then
-  with_gnu_ld=yes
-else
-  with_gnu_ld=no
-fi
-echo "$ac_t$with_gnu_ld" 1>&6
 
 # See if the linker supports building shared libraries.
 echo $ac_n "checking whether the linker ($LD) supports shared libraries... $ac_c" 1>&6
@@ -1334,7 +996,7 @@ EOF
 
   beos*)
     if $LD --help 2>&1 | egrep ': supported targets:.* elf' > /dev/null; then
-      allow_undefined_flag=unsupported
+      #allow_undefined_flag=unsupported
       # Joseph Beckenbach <jrb3@best.com> says some releases of gcc
       # support --undefined.  This deserves some investigation.  FIXME
       archive_cmds='$CC -nostart $libobjs $deplibs $linker_flags ${wl}-soname $wl$soname -o $lib'
@@ -1631,7 +1293,7 @@ else
     old_archive_from_new_cmds='emximp -o $objdir/$libname.a $objdir/$libname.def'
     ;;
 
-  osf3* | osf4*)
+  osf3* | osf4* | osf5*)
     if test "$with_gcc" = yes; then
       allow_undefined_flag=' ${wl}-expect_unresolved ${wl}\*'
       archive_cmds='$CC -shared${allow_undefined_flag} $libobjs $deplibs $compiler_flags ${wl}-soname ${wl}$soname `test -n "$verstring" && echo ${wl}-set_version ${wl}$verstring` ${wl}-update_registry ${wl}${objdir}/so_locations -o $lib'
@@ -1667,17 +1329,6 @@ else
     link_all_deplibs=yes
     ;;
 
-  sysv5*)
-    no_undefined_flag=' -z text'
-    # $CC -shared without GNU ld will not create a library from C++
-    # object files and a static libstdc++, better avoid it by now
-    archive_cmds='$LD -G${allow_undefined_flag} -h $soname -o $lib $libobjs $deplibs $linkopts'
-    archive_expsym_cmds='$echo "{ global:" > $lib.exp~cat $export_symbols | sed -e "s/\(.*\)/\1;/" >> $lib.exp~$echo "local: *; };" >> $lib.exp~
-		$LD -G${allow_undefined_flag} -M $lib.exp -h $soname -o $lib $libobjs $deplibs $linkopts~$rm $lib.exp'
-    hardcode_libdir_flag_spec=
-    hardcode_shlibpath_var=no
-    ;;
-
   sunos4*)
     archive_cmds='$LD -assert pure-text -Bstatic -o $lib $libobjs $deplibs $linker_flags'
     hardcode_libdir_flag_spec='-L$libdir'
@@ -1699,12 +1350,16 @@ else
     export_dynamic_flag_spec='-Bexport'
     ;;
 
-  sysv5)
-    archive_cmds='$LD -G -h $soname -o $lib $libobjs $deplibs
-$linker_flags'
-    runpath_var='LD_RUN_PATH'
+  sysv5*)
+    no_undefined_flag=' -z text'
+    # $CC -shared without GNU ld will not create a library from C++
+    # object files and a static libstdc++, better avoid it by now
+    archive_cmds='$LD -G${allow_undefined_flag} -h $soname -o $lib $libobjs $deplibs $linker_flags'
+    archive_expsym_cmds='$echo "{ global:" > $lib.exp~cat $export_symbols | sed -e "s/\(.*\)/\1;/" >> $lib.exp~$echo "local: *; };" >> $lib.exp~
+		$LD -G${allow_undefined_flag} -M $lib.exp -h $soname -o $lib $libobjs $deplibs $linker_flags~$rm $lib.exp'
+    hardcode_libdir_flag_spec=
     hardcode_shlibpath_var=no
-    hardcode_direct=no
+    runpath_var='LD_RUN_PATH'
     ;;
 
   uts4*)
@@ -1801,7 +1456,7 @@ version_type=none
 dynamic_linker="$host_os ld.so"
 sys_lib_dlsearch_path_spec="/lib /usr/lib"
 sys_lib_search_path_spec="/lib /usr/lib /usr/local/lib"
-file_magic_cmd=
+file_magic_cmd="$FILE"
 file_magic_test_file=
 deplibs_check_method='unknown'
 # Need to set the preceding variable on all platforms that support
@@ -1861,7 +1516,6 @@ bsdi4*)
   finish_cmds='PATH="\$PATH:/sbin" ldconfig $libdir'
   shlibpath_var=LD_LIBRARY_PATH
   deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
-  file_magic_cmd=/usr/bin/file
   file_magic_test_file=/shlib/libc.so
   sys_lib_search_path_spec="/shlib /usr/lib /usr/X11/lib /usr/contrib/lib /lib /usr/local/lib"
   sys_lib_dlsearch_path_spec="/shlib /usr/lib /usr/local/lib"
@@ -1881,7 +1535,9 @@ cygwin* | mingw*)
     library_names_spec='${libname}`echo ${release} | sed -e 's/[.]/-/g'`${versuffix}.dll $libname.lib'
   fi
   dynamic_linker='Win32 ld.exe'
-  deplibs_check_method='file_magic file format pei*-i386(.*architecture: i386)?'
+  # FIXME: mingw32 cross-compiler doesn't see shared versions of libs
+  #deplibs_check_method='file_magic file format pei*-i386(.*architecture: i386)?'
+  deplibs_check_method=pass_all
   file_magic_cmd='${OBJDUMP} -f'
   # FIXME: first we should search . and the directory the executable is in
   shlibpath_var=PATH
@@ -1977,9 +1633,8 @@ irix5* | irix6*)
   shlibpath_overrides_runpath=no
   sys_lib_search_path_spec="/usr/lib${libsuff} /lib${libsuff} /usr/local/lib${libsuff}"
   sys_lib_dlsearch_path_spec="/usr/lib${libsuff} /lib${libsuff}"
-  file_magic_cmd=/usr/bin/file
   file_magic_test_file=`echo /lib${libsuff}/libc.so*`
-  deplibs_check_method='pass_all'
+  deplibs_check_method=pass_all
   ;;
 
 # No shared lib support for Linux oldld, aout, or coff.
@@ -1999,13 +1654,12 @@ linux-gnu*)
   shlibpath_overrides_runpath=no
 
   case "$host_cpu" in
-  alpha* | i*86 | sparc* )
+  alpha* | i*86 | sparc* | powerpc* )
     deplibs_check_method=pass_all ;;
   *)
     # glibc up to 2.1.1 does not perform some relocations on ARM
     deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )' ;;
   esac
-  file_magic_cmd=/usr/bin/file
   file_magic_test_file=`echo /lib/libc.so* /lib/libc-*.so`
 
   if test -f /lib/ld.so.1; then
@@ -2052,7 +1706,7 @@ os2*)
   shlibpath_var=LIBPATH
   ;;
 
-osf3* | osf4*)
+osf3* | osf4* | osf5*)
   version_type=osf
   need_version=no
   soname_spec='${libname}${release}.so'
@@ -2060,9 +1714,8 @@ osf3* | osf4*)
   shlibpath_var=LD_LIBRARY_PATH
   # this will be overridden with pass_all, but let us keep it just in case
   deplibs_check_method='file_magic COFF format alpha shared library'
-  file_magic_cmd=/usr/bin/file
   file_magic_test_file=/shlib/libc.so
-  deplibs_check_method='pass_all'
+  deplibs_check_method=pass_all
   sys_lib_search_path_spec="/usr/shlib /usr/ccs/lib /usr/lib/cmplrs/cc /usr/lib /usr/local/lib /var/shlib"
   sys_lib_dlsearch_path_spec="$sys_lib_search_path_spec"
   ;;
@@ -2086,7 +1739,6 @@ solaris*)
   # ldd complains unless libraries are executable
   postinstall_cmds='chmod +x $lib'
   deplibs_check_method=pass_all
-  file_magic_cmd=/usr/bin/file
   file_magic_test_file=/lib/libc.so
   ;;
 
@@ -2109,7 +1761,7 @@ sysv4 | sysv4.2uw2* | sysv4.3* | sysv5*)
   shlibpath_var=LD_LIBRARY_PATH
   case "$host_vendor" in
     ncr)
-      deplibs_check_method='pass_all'
+      deplibs_check_method=pass_all
       ;;
     motorola)
       need_lib_prefix=no
@@ -2117,7 +1769,6 @@ sysv4 | sysv4.2uw2* | sysv4.3* | sysv5*)
       shlibpath_overrides_runpath=no
       sys_lib_search_path_spec='/lib /usr/lib /usr/ccs/lib'
       deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib) M[0-9][0-9]* Version [0-9]'
-      file_magic_cmd=/usr/bin/file
       file_magic_test_file=`echo /usr/lib/libc.so*`
       ;;
   esac
@@ -2221,11 +1872,11 @@ void nm_test_func(){}
 main(){nm_test_var='a';nm_test_func();return(0);}
 EOF
 
-  echo "$progname:2224: checking if global_symbol_pipe works" >&5
-  if { (eval echo $progname:2225: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; } && test -s conftest.$objext; then
+  echo "$progname:1873: checking if global_symbol_pipe works" >&5
+  if { (eval echo $progname:1874: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; } && test -s conftest.$objext; then
     # Now try to grab the symbols.
     nlist=conftest.nm
-    if { echo "$progname:2228: eval \"$NM conftest.$objext | $global_symbol_pipe > $nlist\"" >&5; eval "$NM conftest.$objext | $global_symbol_pipe > $nlist 2>&5"; } && test -s "$nlist"; then
+    if { echo "$progname:1877: eval \"$NM conftest.$objext | $global_symbol_pipe > $nlist\"" >&5; eval "$NM conftest.$objext | $global_symbol_pipe > $nlist 2>&5"; } && test -s "$nlist"; then
 
       # Try sorting and uniquifying the output.
       if sort "$nlist" | uniq > "$nlist"T; then
@@ -2277,7 +1928,7 @@ EOF
 	  save_CFLAGS="$CFLAGS"
 	  LIBS="conftstm.$objext"
 	  CFLAGS="$CFLAGS$no_builtin_flag"
-	  if { (eval echo $progname:2280: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+	  if { (eval echo $progname:1929: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
 	    pipe_works=yes
 	  else
 	    echo "$progname: failed program was:" >&5
@@ -2330,7 +1981,7 @@ cygwin* | mingw* | os2*)
 ;;
 esac
 
-if test -n "$file_magic_test_file" && test -n "$file_magic_cmd"; then
+if test -n "$file_magic_test_file"; then
   case "$deplibs_check_method" in
   "file_magic "*)
     file_magic_regex="`expr \"$deplibs_check_method\" : \"file_magic \(.*\)\"`"
@@ -2410,14 +2061,14 @@ else
 if test "X${lt_cv_dlopen+set}" != Xset; then
   lt_cv_dlopen=no lt_cv_dlopen_libs=
 echo $ac_n "checking for dlopen in -ldl""... $ac_c" 1>&6
-echo "$progname:2413: checking for dlopen in -ldl" >&5
+echo "$progname:2062: checking for dlopen in -ldl" >&5
 if test "X${ac_cv_lib_dl_dlopen+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2420 "ltconfig"
+#line 2069 "ltconfig"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
     builtin and then its argument prototype would still apply.  */
@@ -2427,7 +2078,7 @@ int main() {
 dlopen()
 ; return 0; }
 EOF
-if { (eval echo $progname:2430: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo $progname:2079: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   ac_cv_lib_dl_dlopen=yes
 else
@@ -2446,12 +2097,12 @@ if test "X$ac_cv_lib_dl_dlopen" = Xyes; then
 else
   echo "$ac_t""no" 1>&6
 echo $ac_n "checking for dlopen""... $ac_c" 1>&6
-echo "$progname:2449: checking for dlopen" >&5
+echo "$progname:2098: checking for dlopen" >&5
 if test "X${ac_cv_func_dlopen+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2454 "ltconfig"
+#line 2103 "ltconfig"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char dlopen(); below.  */
 #include <assert.h>
@@ -2473,7 +2124,7 @@ dlopen();
 
 ; return 0; }
 EOF
-if { (eval echo $progname:2476: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo $progname:2125: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   ac_cv_func_dlopen=yes
 else
@@ -2490,14 +2141,14 @@ if test "X$ac_cv_func_dlopen" = Xyes; then
 else
   echo "$ac_t""no" 1>&6
 echo $ac_n "checking for dld_link in -ldld""... $ac_c" 1>&6
-echo "$progname:2493: checking for dld_link in -ldld" >&5
+echo "$progname:2142: checking for dld_link in -ldld" >&5
 if test "X${ac_cv_lib_dld_dld_link+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
 LIBS="-ldld  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2500 "ltconfig"
+#line 2149 "ltconfig"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
     builtin and then its argument prototype would still apply.  */
@@ -2507,7 +2158,7 @@ int main() {
 dld_link()
 ; return 0; }
 EOF
-if { (eval echo $progname:2510: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo $progname:2159: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   ac_cv_lib_dld_dld_link=yes
 else
@@ -2526,12 +2177,12 @@ if test "X$ac_cv_lib_dld_dld_link" = Xyes; then
 else
   echo "$ac_t""no" 1>&6
 echo $ac_n "checking for shl_load""... $ac_c" 1>&6
-echo "$progname:2529: checking for shl_load" >&5
+echo "$progname:2178: checking for shl_load" >&5
 if test "X${ac_cv_func_shl_load+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2534 "ltconfig"
+#line 2183 "ltconfig"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char shl_load(); below.  */
 #include <assert.h>
@@ -2553,7 +2204,7 @@ shl_load();
 
 ; return 0; }
 EOF
-if { (eval echo $progname:2556: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo $progname:2205: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   ac_cv_func_shl_load=yes
 else
@@ -2571,14 +2222,14 @@ if test "X$ac_cv_func_shl_load" = Xyes; then
 else
   echo "$ac_t""no" 1>&6
 echo $ac_n "checking for shl_load in -ldld""... $ac_c" 1>&6
-echo "$progname:2574: checking for shl_load in -ldld" >&5
+echo "$progname:2223: checking for shl_load in -ldld" >&5
 if test "X${ac_cv_lib_dld_shl_load+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
 LIBS="-ldld  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2581 "ltconfig"
+#line 2230 "ltconfig"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2589,7 +2240,7 @@ int main() {
 shl_load()
 ; return 0; }
 EOF
-if { (eval echo $progname:2592: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo $progname:2241: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   ac_cv_lib_dld_shl_load=yes
 else
@@ -2632,17 +2283,17 @@ fi
 for ac_hdr in dlfcn.h; do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "$progname:2635: checking for $ac_hdr" >&5
+echo "$progname:2284: checking for $ac_hdr" >&5
 if eval "test \"`echo 'X$''{'ac_cv_header_$ac_safe'+set}'`\" = Xset"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2640 "ltconfig"
+#line 2289 "ltconfig"
 #include <$ac_hdr>
 int fnord = 0;
 EOF
 ac_try="$ac_compile conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo $progname:2645: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo $progname:2294: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2670,7 +2321,7 @@ done
     LIBS="$lt_cv_dlopen_libs $LIBS"
 
   echo $ac_n "checking whether a program can dlopen itself""... $ac_c" 1>&6
-echo "$progname:2673: checking whether a program can dlopen itself" >&5
+echo "$progname:2322: checking whether a program can dlopen itself" >&5
 if test "X${lt_cv_dlopen_self+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2678,7 +2329,7 @@ else
     lt_cv_dlopen_self=cross
   else
     cat > conftest.c <<EOF
-#line 2681 "ltconfig"
+#line 2330 "ltconfig"
 
 #if HAVE_DLFCN_H
 #include <dlfcn.h>
@@ -2724,7 +2375,7 @@ main() { void *self, *ptr1, *ptr2; self=dlopen(0,LTDL_GLOBAL|LTDL_LAZY_OR_NOW);
 	       if(ptr1 || ptr2) { dlclose(self); exit(0); } } exit(1); } 
 
 EOF
-if { (eval echo $progname:2727: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
+if { (eval echo $progname:2376: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
 then
   lt_cv_dlopen_self=yes
 else
@@ -2743,7 +2394,7 @@ echo "$ac_t""$lt_cv_dlopen_self" 1>&6
   if test "$lt_cv_dlopen_self" = yes; then
     LDFLAGS="$LDFLAGS $link_static_flag"
   echo $ac_n "checking whether a statically linked program can dlopen itself""... $ac_c" 1>&6
-echo "$progname:2746: checking whether a statically linked program can dlopen itself" >&5
+echo "$progname:2395: checking whether a statically linked program can dlopen itself" >&5
 if test "X${lt_cv_dlopen_self_static+set}" = Xset; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2751,7 +2402,7 @@ else
     lt_cv_dlopen_self_static=cross
   else
     cat > conftest.c <<EOF
-#line 2754 "ltconfig"
+#line 2403 "ltconfig"
 
 #if HAVE_DLFCN_H
 #include <dlfcn.h>
@@ -2797,7 +2448,7 @@ main() { void *self, *ptr1, *ptr2; self=dlopen(0,LTDL_GLOBAL|LTDL_LAZY_OR_NOW);
     if(ptr1 || ptr2) { dlclose(self); exit(0); } } exit(1); } 
 
 EOF
-if { (eval echo $progname:2800: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
+if { (eval echo $progname:2449: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
 then
   lt_cv_dlopen_self_static=yes
 else
@@ -2892,7 +2543,7 @@ case "$ltmain" in
 # NOTE: Changes made to this file will be lost: look at ltconfig or ltmain.sh.
 #
 # Copyright (C) 1996-1999 Free Software Foundation, Inc.
-# Gordon Matzigkeit <gord@gnu.ai.mit.edu>, 1996
+# Originally by Gordon Matzigkeit <gord@gnu.ai.mit.edu>, 1996
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -55,7 +55,7 @@ modename="$progname"
 PROGRAM=ltmain.sh
 PACKAGE=libtool
 VERSION=1.3c
-TIMESTAMP=" (1.612 1999/09/30 00:26:50)"
+TIMESTAMP=" (1.620 1999/10/07 15:40:07)"
 
 default_mode=
 help="Try \`$progname --help' for more information."
@@ -682,6 +682,7 @@ compiler."
     libobjs=
     ltlibs=
     module=no
+    no_install=no
     objs=
     prefer_static_libs=no
     preload=no
@@ -963,6 +964,22 @@ compiler."
 	continue
 	;;
 
+      -no-install)
+	case "$host" in
+	*-*-cygwin* | *-*-mingw* | *-*-os2*)
+	  # The PATH hackery in wrapper scripts is required on Windows
+	  # in order for the loader to find any dlls it needs.
+	  $echo "$modename: warning: \`-no-install' is ignored for $host" 1>&2
+	  $echo "$modename: warning: assuming \`-no-fast-install' instead" 1>&2
+	  fast_install=no
+	  ;;
+	*)
+	  no_install=yes
+	  ;;
+	esac
+	continue
+	;;
+
       -no-undefined)
 	allow_undefined=no
 	continue
@@ -1240,24 +1257,23 @@ compiler."
       linkmode=prog ;;
     esac
     
-    if test $linkmode = lib || test $linkmode = prog; then
-      output_objdir=`$echo "X$output" | $Xsed -e 's%/[^/]*$%%'`
-      if test "X$output_objdir" = "X$output"; then
-	output_objdir="$objdir"
-      else
-	output_objdir="$output_objdir/$objdir"
-      fi
+    output_objdir=`$echo "X$output" | $Xsed -e 's%/[^/]*$%%'`
+    if test "X$output_objdir" = "X$output"; then
+      output_objdir="$objdir"
+    else
+      output_objdir="$output_objdir/$objdir"
+    fi
 
-      # Create the object directory.
-      if test ! -d $output_objdir; then
-	$show "$mkdir $output_objdir"
-	$run $mkdir $output_objdir
-	status=$?
-	if test $status -ne 0 && test ! -d $output_objdir; then
-	  exit $status
-	fi
+    # Create the object directory.
+    if test ! -d $output_objdir; then
+      $show "$mkdir $output_objdir"
+      $run $mkdir $output_objdir
+      status=$?
+      if test $status -ne 0 && test ! -d $output_objdir; then
+	exit $status
       fi
-    else 
+    fi
+    if test $linkmode != lib && test $linkmode != prog; then
       # Find libtool convenience libraries
       for deplib in $deplibs; do
 	case "$deplib" in
@@ -3381,6 +3397,19 @@ static const void *lt_preloaded_setup() {
 	fi
       fi
 
+      if test "$no_install" = yes; then
+	# We don't need to create a wrapper script.
+	link_command="$compile_var$compile_command$compile_rpath"
+	# Replace the output file specification.
+	link_command=`$echo "X$link_command" | $Xsed -e 's%@OUTPUT@%'"$output"'%g'`
+	# Delete the old output file.
+	$run $rm $output
+	# Link the executable and exit
+	$show "$link_command"
+	$run eval "$link_command" || exit $?
+	exit 0
+      fi
+
       if test "$hardcode_action" = relink || test "$hardcode_into_libs" = yes; then
 	# Fast installation is not supported
 	link_command="$compile_var$compile_command$compile_rpath"
@@ -3549,7 +3578,7 @@ else
   fi"
 	else
 	  echo >> $output "\
-  program='$outputname$exeext'
+  program='$outputname'
   progdir=\"\$thisdir/$objdir\"
 "
 	fi
@@ -4754,6 +4783,8 @@ The following components of LINK-COMMAND are treated specially:
   -LLIBDIR          search LIBDIR for required installed libraries
   -lNAME            OUTPUT-FILE requires the installed library libNAME
   -module           build a library that can dlopened
+  -no-fast-install  disable the fast-install mode
+  -no-install       link a not-installable executable
   -no-undefined     declare that a library does not refer to external symbols
   -o OUTPUT-FILE    create OUTPUT-FILE from the specified objects
   -release RELEASE  specify package release information
