@@ -130,18 +130,18 @@ main(int argc, char *argv[])
 			audio_format = AUDIO_U8;
 		} else {
 			Usage(argv[0]);
-			exit(1);
+			return(1);
 		}
 	}
 	if ( ! argv[i] ) {
 		Usage(argv[0]);
-		exit(1);
+		return(1);
 	}
 
 	/* Initialize the SDL library */
 	if ( SDL_Init(SDL_INIT_AUDIO) < 0 ) {
 		fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
-		exit(255);
+		return(255);
 	}
 	atexit(CleanUp);
 	signal(SIGINT, IntHandler);
@@ -150,7 +150,7 @@ main(int argc, char *argv[])
 	/* Open the audio device */
 	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
 		fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
-		exit(2);
+		return(2);
 	} else {
 		Mix_QuerySpec(&audio_rate, &audio_format, &audio_channels);
 		printf("Opened audio at %d Hz %d bit %s, %d bytes audio buffer\n", audio_rate,
@@ -171,7 +171,7 @@ main(int argc, char *argv[])
 		if ( music == NULL ) {
 			fprintf(stderr, "Couldn't load %s: %s\n",
 				argv[i], SDL_GetError());
-			exit(2);
+			return(2);
 		}
 		
 		/* Play and then exit */
@@ -191,5 +191,5 @@ main(int argc, char *argv[])
 		
 		i++;
 	}
-	exit(0);
+	return(0);
 }

@@ -34,7 +34,7 @@ endif
 EXTRA_DIST =			\
 	CHANGES			\
 	VisualC.zip		\
-	MPWmake.sea.hqx		\
+	MPWmake.sea.bin		\
 	CWprojects.sea.hqx	\
 	autogen.sh
 

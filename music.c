@@ -61,7 +61,7 @@
 #include "music_ogg.h"
 #endif
 #ifdef MP3_MUSIC
-#include <smpeg/smpeg.h>
+#include "smpeg.h"
 
 static SDL_AudioSpec used_mixer;
 #endif
@@ -546,7 +546,7 @@ static int lowlevel_play(Mix_Music *music)
 		case MUS_MP3:
 			SMPEG_enableaudio(music->data.mp3,1);
 			SMPEG_enablevideo(music->data.mp3,0);
-			SMPEG_setvolume(music->data.mp3,((float)music_volume/(float)MIX_MAX_VOLUME)*100.0);
+			SMPEG_setvolume(music->data.mp3,(int)(((float)music_volume/(float)MIX_MAX_VOLUME)*100.0));
 			SMPEG_play(music->data.mp3);
 			break;
 #endif
@@ -639,7 +639,7 @@ int Mix_VolumeMusic(int volume)
 #endif
 #ifdef MP3_MUSIC
 		case MUS_MP3:
-			SMPEG_setvolume(music_playing->data.mp3,((float)music_volume/(float)MIX_MAX_VOLUME)*100.0);
+			SMPEG_setvolume(music_playing->data.mp3,(int)(((float)music_volume/(float)MIX_MAX_VOLUME)*100.0));
 			break;
 #endif
 		default:
