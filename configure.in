@@ -37,7 +37,7 @@ AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 
 dnl Setup for automake
-AM_INIT_AUTOMAKE(SDLmixer, $VERSION)
+AM_INIT_AUTOMAKE(SDL_mixer, $VERSION)
 
 dnl Check for tools
 

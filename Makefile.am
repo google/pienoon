@@ -1,15 +1,15 @@
 # Makefile.am for the SDL sample mixer library and players
 
-lib_LTLIBRARIES = libSDLmixer.la
+lib_LTLIBRARIES = libSDL_mixer.la
 
 SUBDIRS = @MUSIC_SUBDIRS@
 DIST_SUBIDRS = mikmod timidity
 
-libSDLmixerincludedir = $(includedir)/SDL
-libSDLmixerinclude_HEADERS =	\
+libSDL_mixerincludedir = $(includedir)/SDL
+libSDL_mixerinclude_HEADERS =	\
 	SDL_mixer.h
 
-libSDLmixer_la_SOURCES =	\
+libSDL_mixer_la_SOURCES =	\
 	mixer.c			\
 	music.c			\
 	music_cmd.c		\
@@ -29,12 +29,12 @@ else
 TIMIDITY_LIB =
 endif
 
-libSDLmixer_la_LDFLAGS = 		\
+libSDL_mixer_la_LDFLAGS = 		\
         -release $(LT_RELEASE)	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
-libSDLmixer_la_LIBADD = $(MIKMOD_LIB) $(TIMIDITY_LIB)
+libSDL_mixer_la_LIBADD = $(MIKMOD_LIB) $(TIMIDITY_LIB)
 
 bin_PROGRAMS = playwave playmus
 
-playwave_LDADD = libSDLmixer.la
-playmus_LDADD = libSDLmixer.la
+playwave_LDADD = libSDL_mixer.la
+playmus_LDADD = libSDL_mixer.la

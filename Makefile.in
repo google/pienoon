@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4a from Makefile.am
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -48,10 +48,9 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
-INSTALL_STRIP_FLAG =
 transform = @program_transform_name@
 
 NORMAL_INSTALL = :
@@ -88,30 +87,30 @@ SDL_CONFIG = @SDL_CONFIG@
 SDL_LIBS = @SDL_LIBS@
 VERSION = @VERSION@
 
-lib_LTLIBRARIES = libSDLmixer.la
+lib_LTLIBRARIES = libSDL_mixer.la
 
 SUBDIRS = @MUSIC_SUBDIRS@
 DIST_SUBIDRS = mikmod timidity
 
-libSDLmixerincludedir = $(includedir)/SDL
-libSDLmixerinclude_HEADERS =  	SDL_mixer.h
+libSDL_mixerincludedir = $(includedir)/SDL
+libSDL_mixerinclude_HEADERS =  	SDL_mixer.h
 
 
-libSDLmixer_la_SOURCES =  	mixer.c				music.c				music_cmd.c			music_cmd.h			wave.h				wavestream.c			wavestream.h
+libSDL_mixer_la_SOURCES =  	mixer.c				music.c				music_cmd.c			music_cmd.h			wave.h				wavestream.c			wavestream.h
 
 @USE_MIKMOD_TRUE@MIKMOD_LIB = mikmod/libmikmod.la
 @USE_MIKMOD_FALSE@MIKMOD_LIB = 
 @USE_TIMIDITY_TRUE@TIMIDITY_LIB = timidity/libtimidity.la
 @USE_TIMIDITY_FALSE@TIMIDITY_LIB = 
 
-libSDLmixer_la_LDFLAGS =          -release $(LT_RELEASE)		-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+libSDL_mixer_la_LDFLAGS =          -release $(LT_RELEASE)		-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-libSDLmixer_la_LIBADD = $(MIKMOD_LIB) $(TIMIDITY_LIB)
+libSDL_mixer_la_LIBADD = $(MIKMOD_LIB) $(TIMIDITY_LIB)
 
 bin_PROGRAMS = playwave playmus
 
-playwave_LDADD = libSDLmixer.la
-playmus_LDADD = libSDLmixer.la
+playwave_LDADD = libSDL_mixer.la
+playmus_LDADD = libSDL_mixer.la
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -122,31 +121,31 @@ DEFS = @DEFS@ -I. -I$(srcdir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-@USE_TIMIDITY_FALSE@@USE_MIKMOD_FALSE@libSDLmixer_la_DEPENDENCIES = 
-@USE_TIMIDITY_TRUE@@USE_MIKMOD_TRUE@libSDLmixer_la_DEPENDENCIES =  \
+@USE_TIMIDITY_FALSE@@USE_MIKMOD_FALSE@libSDL_mixer_la_DEPENDENCIES = 
+@USE_TIMIDITY_TRUE@@USE_MIKMOD_TRUE@libSDL_mixer_la_DEPENDENCIES =  \
 @USE_TIMIDITY_TRUE@@USE_MIKMOD_TRUE@mikmod/libmikmod.la \
 @USE_TIMIDITY_TRUE@@USE_MIKMOD_TRUE@timidity/libtimidity.la
-@USE_TIMIDITY_TRUE@@USE_MIKMOD_FALSE@libSDLmixer_la_DEPENDENCIES =  \
+@USE_TIMIDITY_TRUE@@USE_MIKMOD_FALSE@libSDL_mixer_la_DEPENDENCIES =  \
 @USE_TIMIDITY_TRUE@@USE_MIKMOD_FALSE@timidity/libtimidity.la
-@USE_TIMIDITY_FALSE@@USE_MIKMOD_TRUE@libSDLmixer_la_DEPENDENCIES =  \
+@USE_TIMIDITY_FALSE@@USE_MIKMOD_TRUE@libSDL_mixer_la_DEPENDENCIES =  \
 @USE_TIMIDITY_FALSE@@USE_MIKMOD_TRUE@mikmod/libmikmod.la
-libSDLmixer_la_OBJECTS =  mixer.lo music.lo music_cmd.lo wavestream.lo
+libSDL_mixer_la_OBJECTS =  mixer.lo music.lo music_cmd.lo wavestream.lo
 PROGRAMS =  $(bin_PROGRAMS)
 
 playwave_SOURCES = playwave.c
 playwave_OBJECTS =  playwave.o
-playwave_DEPENDENCIES =  libSDLmixer.la
+playwave_DEPENDENCIES =  libSDL_mixer.la
 playwave_LDFLAGS = 
 playmus_SOURCES = playmus.c
 playmus_OBJECTS =  playmus.o
-playmus_DEPENDENCIES =  libSDLmixer.la
+playmus_DEPENDENCIES =  libSDL_mixer.la
 playmus_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-HEADERS =  $(libSDLmixerinclude_HEADERS)
+HEADERS =  $(libSDL_mixerinclude_HEADERS)
 
 DIST_COMMON =  README COPYING Makefile.am Makefile.in acinclude.m4 \
 aclocal.m4 config.guess config.sub configure configure.in install-sh \
@@ -159,8 +158,8 @@ TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/mixer.P .deps/music.P .deps/music_cmd.P \
 .deps/playmus.P .deps/playwave.P .deps/wavestream.P
-SOURCES = $(libSDLmixer_la_SOURCES) playwave.c playmus.c
-OBJECTS = $(libSDLmixer_la_OBJECTS) playwave.o playmus.o
+SOURCES = $(libSDL_mixer_la_SOURCES) playwave.c playmus.c
+OBJECTS = $(libSDL_mixer_la_OBJECTS) playwave.o playmus.o
 
 all: all-redirect
 .SUFFIXES:
@@ -237,8 +236,8 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-libSDLmixer.la: $(libSDLmixer_la_OBJECTS) $(libSDLmixer_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(libSDLmixer_la_LDFLAGS) $(libSDLmixer_la_OBJECTS) $(libSDLmixer_la_LIBADD) $(LIBS)
+libSDL_mixer.la: $(libSDL_mixer_la_OBJECTS) $(libSDL_mixer_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libSDL_mixer_la_LDFLAGS) $(libSDL_mixer_la_OBJECTS) $(libSDL_mixer_la_LIBADD) $(LIBS)
 
 mostlyclean-binPROGRAMS:
 
@@ -254,8 +253,8 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	@list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	  else :; fi; \
 	done
 
@@ -273,19 +272,19 @@ playmus: $(playmus_OBJECTS) $(playmus_DEPENDENCIES)
 	@rm -f playmus
 	$(LINK) $(playmus_LDFLAGS) $(playmus_OBJECTS) $(playmus_LDADD) $(LIBS)
 
-install-libSDLmixerincludeHEADERS: $(libSDLmixerinclude_HEADERS)
+install-libSDL_mixerincludeHEADERS: $(libSDL_mixerinclude_HEADERS)
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libSDLmixerincludedir)
-	@list='$(libSDLmixerinclude_HEADERS)'; for p in $$list; do \
+	$(mkinstalldirs) $(DESTDIR)$(libSDL_mixerincludedir)
+	@list='$(libSDL_mixerinclude_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
-	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(libSDLmixerincludedir)/$$p"; \
-	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(libSDLmixerincludedir)/$$p; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(libSDL_mixerincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(libSDL_mixerincludedir)/$$p; \
 	done
 
-uninstall-libSDLmixerincludeHEADERS:
+uninstall-libSDL_mixerincludeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	list='$(libSDLmixerinclude_HEADERS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(libSDLmixerincludedir)/$$p; \
+	list='$(libSDL_mixerinclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(libSDL_mixerincludedir)/$$p; \
 	done
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -423,7 +422,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -483,23 +482,23 @@ installcheck: installcheck-recursive
 install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
 install-exec: install-exec-recursive
 
-install-data-am: install-libSDLmixerincludeHEADERS
+install-data-am: install-libSDL_mixerincludeHEADERS
 install-data: install-data-recursive
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-recursive
 uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
-		uninstall-libSDLmixerincludeHEADERS
+		uninstall-libSDL_mixerincludeHEADERS
 uninstall: uninstall-recursive
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
 all-redirect: all-recursive
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs: installdirs-recursive
 installdirs-am:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(libSDLmixerincludedir)
+		$(DESTDIR)$(libSDL_mixerincludedir)
 
 
 mostlyclean-generic:
@@ -549,8 +548,8 @@ distclean-compile clean-compile maintainer-clean-compile \
 mostlyclean-libtool distclean-libtool clean-libtool \
 maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
 clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
-install-binPROGRAMS uninstall-libSDLmixerincludeHEADERS \
-install-libSDLmixerincludeHEADERS install-data-recursive \
+install-binPROGRAMS uninstall-libSDL_mixerincludeHEADERS \
+install-libSDL_mixerincludeHEADERS install-data-recursive \
 uninstall-data-recursive install-exec-recursive \
 uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
