@@ -45,5 +45,5 @@ $(PACKAGE)-$(VERSION).tar.gz: dist
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz
 	cp $(PACKAGE)-$(VERSION).tar.gz /usr/src/redhat/SOURCES
-	rpm -ba SDL_mixer.spec
+	rpm -ba $(PACKAGE).spec
 
