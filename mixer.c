@@ -69,7 +69,7 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 	Uint32 sdl_ticks;
 
 	/* Mix the music (must be done before the channels are added) */
-	if ( music_active ) {
+	if ( music_active || (mix_music != music_mixer) ) {
 		mix_music(music_data, stream, len);
 	}
 
