@@ -65,6 +65,87 @@
 
 static long _mm_iobase=0,temp_iobase=0;
 
+
+/*
+
+  This section is added to use SDL_rwops for IO
+
+  -Matt Campbell (matt@campbellhome.dhs.org) April 2000
+
+*/
+
+#ifdef USE_RWOPS
+
+typedef struct MRWOPSREADER {
+	MREADER core;
+	SDL_RWops* rw;
+	int end;
+} MRWOPSREADER;
+
+static BOOL _mm_RWopsReader_Eof(MREADER* reader)
+{
+	if ( ((MRWOPSREADER*)reader)->end ==
+			SDL_RWtell(((MRWOPSREADER*)reader)->rw) ) return 1;
+	else return 0;
+}
+
+static BOOL _mm_RWopsReader_Read(MREADER* reader,void* ptr,size_t size)
+{
+	return SDL_RWread(((MRWOPSREADER*)reader)->rw, ptr, size, 1);
+}
+
+static int _mm_RWopsReader_Get(MREADER* reader)
+{
+	char buf;
+	if ( SDL_RWread(((MRWOPSREADER*)reader)->rw, &buf, 1, 1) != 1 ) return EOF;
+	else return (int)buf;
+}
+
+static BOOL _mm_RWopsReader_Seek(MREADER* reader,long offset,int whence)
+{
+	return SDL_RWseek(((MRWOPSREADER*)reader)->rw,
+			(whence==SEEK_SET)?offset+_mm_iobase:offset,whence);
+}
+
+static long _mm_RWopsReader_Tell(MREADER* reader)
+{
+	return SDL_RWtell(((MRWOPSREADER*)reader)->rw) - _mm_iobase;
+}
+
+MREADER *_mm_new_rwops_reader(SDL_RWops * rw)
+{
+	int here;
+	MRWOPSREADER* reader=(MRWOPSREADER*)_mm_malloc(sizeof(MRWOPSREADER));
+	if (reader) {
+		reader->core.Eof =&_mm_RWopsReader_Eof;
+		reader->core.Read=&_mm_RWopsReader_Read;
+		reader->core.Get =&_mm_RWopsReader_Get;
+		reader->core.Seek=&_mm_RWopsReader_Seek;
+		reader->core.Tell=&_mm_RWopsReader_Tell;
+		reader->rw=rw;
+
+		/* RWops does not explicitly support an eof check, so we shall find
+		   the end manually - this requires seek support for the RWop */
+		here = SDL_RWtell(rw);
+		reader->end = SDL_RWseek(rw, 0, SEEK_END);
+		SDL_RWseek(rw, here, SEEK_SET);   /* Move back */
+	}
+	return (MREADER*)reader;
+}
+
+void _mm_delete_rwops_reader (MREADER* reader)
+{
+	if(reader) free(reader);
+}
+
+#endif /* USE_RWOPS */
+
+/*
+
+  End SDL_rwops section
+
+*/
+
 FILE* _mm_fopen(CHAR* fname,CHAR* attrib)
 {
 	FILE *fp;

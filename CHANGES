@@ -1,4 +1,8 @@
 
+1.0.6:
+Matt - Wed, 12 Apr 2000 15:36:13 -0700
+ * Added SDL_RWops support for mikmod loading (not hooked into music.c yet)
+
 1.0.5:
 Paul Furber - Fri Mar  3 14:58:50 PST 2000
  * Fixed MP3 detection with compilers that use signed char datatypes

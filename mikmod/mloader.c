@@ -525,4 +525,24 @@ MODULE* Player_Load(CHAR* filename,int maxchan,BOOL curious)
 	return mf;
 }
 
+/* SDL_RWops compatability */
+#ifdef USE_RWOPS
+
+/* Open a module via an SDL_rwop.  The loader will initialize the specified
+   song-player 'player'. */
+MODULE* Player_LoadRW(SDL_RWops *rw,int maxchan,BOOL curious)
+{
+	MODULE* result=NULL;
+	struct MREADER* reader=_mm_new_rwops_reader (rw);
+
+	if (reader) {
+		result=Player_LoadGeneric(reader,maxchan,curious);
+		_mm_delete_rwops_reader(reader);
+	}
+	return result;
+}
+
+#endif /* USE_RWOPS */
+/* End SDL_RWops compatability */
+
 /* ex:set ts=4: */

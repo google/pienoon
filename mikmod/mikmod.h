@@ -519,6 +519,12 @@ MIKMODAPI extern struct MLOADER load_xm;  /* FastTracker 2 (by Triton) */
  *	========== Module player
  */
 
+/* SDL_RWops compatability */
+#ifdef USE_RWOPS
+#include "SDL_rwops.h"
+MIKMODAPI extern MODULE* Player_LoadRW(SDL_RWops*,int,BOOL);
+#endif /* USE_RWOPS */
+/* End SDL_RWops compatability */
 MIKMODAPI extern MODULE* Player_Load(CHAR*,int,BOOL);
 MIKMODAPI extern MODULE* Player_LoadFP(FILE*,int,BOOL);
 MIKMODAPI extern MODULE* Player_LoadGeneric(MREADER*,int,BOOL);
