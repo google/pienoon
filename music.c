@@ -157,6 +157,9 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 				}
 			}
 		}
+		if ( music_volume <= 0 ) { /* Don't mix if volume is null */
+			return;
+		}
 		switch (music_playing->type) {
 #ifdef CMD_MUSIC
 			case MUS_CMD:
