@@ -1,5 +1,7 @@
 
 1.0.6:
+Sam Lantinga - Sun Jul  2 14:16:44 PDT 2000
+ * Added support for the Ogg Vorbis music format: http://www.vorbis.org/
 Darrell Walisser - Wed Jun 28 11:59:40 PDT 2000
  * Added Codewarrior projects for MacOS
 Sam Lantinga - Mon Jun 26 12:01:11 PDT 2000

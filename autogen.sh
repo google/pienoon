@@ -4,4 +4,5 @@ aclocal
 automake --foreign
 autoconf
 
-./configure $*
+#./configure $*
+echo "Now you are ready to run ./configure"

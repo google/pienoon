@@ -57,6 +57,9 @@
 #ifdef MID_MUSIC
 #include "timidity.h"
 #endif
+#ifdef OGG_MUSIC
+#include "music_ogg.h"
+#endif
 #ifdef MP3_MUSIC
 #include <smpeg/smpeg.h>
 
@@ -79,6 +82,7 @@ struct _Mix_Music {
 		MUS_WAV,
 		MUS_MOD,
 		MUS_MID,
+		MUS_OGG,
 		MUS_MP3
 	} type;
 	union {
@@ -93,6 +97,9 @@ struct _Mix_Music {
 #endif
 #ifdef MID_MUSIC
 		MidiSong *midi;
+#endif
+#ifdef OGG_MUSIC
+		OGG_music *ogg;
 #endif
 #ifdef MP3_MUSIC
 		SMPEG *mp3;
@@ -186,7 +193,7 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 #endif
 #ifdef WAV_MUSIC
 			case MUS_WAV:
-				WAVStream_PlaySome(stream, len);
+				WAVStream_PlaySome(music_playing->data.wave, stream, len);
 				break;
 #endif
 #ifdef MOD_MUSIC
@@ -218,6 +225,11 @@ void music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef MID_MUSIC
 			case MUS_MID:
 				Timidity_PlaySome(stream, len/samplesize);
+				break;
+#endif
+#ifdef OGG_MUSIC
+			case MUS_OGG:
+				OGG_playAudio(music_playing->data.ogg, stream, len);
 				break;
 #endif
 #ifdef MP3_MUSIC
@@ -308,6 +320,11 @@ int open_music(SDL_AudioSpec *mixer)
 		timidity_ok = 0;
 	}
 #endif
+#ifdef OGG_MUSIC
+	if ( OGG_init(mixer) < 0 ) {
+		++music_error;
+	}
+#endif
 #ifdef MP3_MUSIC
 	/* Keep a copy of the mixer */
 	used_mixer = *mixer;
@@ -391,6 +408,16 @@ Mix_Music *Mix_LoadMUS(const char *file)
 		}
 	} else
 #endif
+#ifdef OGG_MUSIC
+	/* Ogg Vorbis files have the magic four bytes "OggS" */
+	if ( strcmp(magic, "OggS") == 0 ) {
+		music->type = MUS_OGG;
+		music->data.ogg = OGG_new(file);
+		if ( music->data.ogg == NULL ) {
+			music->error = 1;
+		}
+	} else
+#endif
 #ifdef MP3_MUSIC
 	if ( magic[0]==0xFF && (magic[1]&0xF0)==0xF0) {
 		SMPEG_Info info;
@@ -460,6 +487,11 @@ void Mix_FreeMusic(Mix_Music *music)
 				Timidity_FreeSong(music->data.midi);
 				break;
 #endif
+#ifdef OGG_MUSIC
+			case MUS_OGG:
+				OGG_delete(music->data.ogg);
+				break;
+#endif
 #ifdef MP3_MUSIC
 			case MUS_MP3:
 				SMPEG_delete(music->data.mp3);
@@ -502,6 +534,12 @@ static int lowlevel_play(Mix_Music *music)
 		case MUS_MID:
 			Timidity_SetVolume(music_volume);
 			Timidity_Start(music->data.midi);
+			break;
+#endif
+#ifdef OGG_MUSIC
+		case MUS_OGG:
+			OGG_setvolume(music->data.ogg, music_volume);
+			OGG_play(music->data.ogg);
 			break;
 #endif
 #ifdef MP3_MUSIC
@@ -594,6 +632,11 @@ int Mix_VolumeMusic(int volume)
 			Timidity_SetVolume(music_volume);
 			break;
 #endif
+#ifdef OGG_MUSIC
+		case MUS_OGG:
+			OGG_setvolume(music_playing->data.ogg, music_volume);
+			break;
+#endif
 #ifdef MP3_MUSIC
 		case MUS_MP3:
 			SMPEG_setvolume(music_playing->data.mp3,((float)music_volume/(float)MIX_MAX_VOLUME)*100.0);
@@ -628,6 +671,11 @@ static void lowlevel_halt(void)
 #ifdef MID_MUSIC
 	case MUS_MID:
 		Timidity_Stop();
+		break;
+#endif
+#ifdef OGG_MUSIC
+	case MUS_OGG:
+		OGG_stop(music_playing->data.ogg);
 		break;
 #endif
 #ifdef MP3_MUSIC
@@ -740,7 +788,7 @@ int Mix_PlayingMusic(void)
 #endif
 #ifdef WAV_MUSIC
 			case MUS_WAV:
-				if ( ! WAVStream_Active() ) {
+				if ( ! WAVStream_Active(music_playing->data.wave) ) {
 					return(0);
 				}
 				break;
@@ -755,6 +803,13 @@ int Mix_PlayingMusic(void)
 #ifdef MID_MUSIC
 			case MUS_MID:
 				if ( ! Timidity_Active() ) {
+					return(0);
+				}
+				break;
+#endif
+#ifdef OGG_MUSIC
+			case MUS_OGG:
+				if ( ! OGG_playing(music_playing->data.ogg) ) {
 					return(0);
 				}
 				break;

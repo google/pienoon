@@ -22,39 +22,46 @@
     slouken@devolution.com
 */
 
-/* This file supports streaming WAV files, without volume adjustment */
+#ifdef OGG_MUSIC
 
-#include <stdio.h>
+/* This file supports Ogg Vorbis music streams */
+
+#include <vorbis/vorbisfile.h>
 
 typedef struct {
-	FILE *wavefp;
-	long  start;
-	long  stop;
+	int playing;
+	int volume;
+	OggVorbis_File vf;
+	int section;
 	SDL_AudioCVT cvt;
-} WAVStream;
+	int len_available;
+	Uint8 *snd_available;
+} OGG_music;
 
-/* Initialize the WAVStream player, with the given mixer settings
+/* Initialize the Ogg Vorbis player, with the given mixer settings
    This function returns 0, or -1 if there was an error.
  */
-extern int WAVStream_Init(SDL_AudioSpec *mixer);
+extern int OGG_init(SDL_AudioSpec *mixer);
 
-/* Unimplemented */
-extern void WAVStream_SetVolume(int volume);
+/* Set the volume for an OGG stream */
+extern void OGG_setvolume(OGG_music *music, int volume);
 
-/* Load a WAV stream from the given file */
-extern WAVStream *WAVStream_LoadSong(const char *file, const char *magic);
+/* Load an OGG stream from the given file */
+extern OGG_music *OGG_new(const char *file);
 
-/* Start playback of a given WAV stream */
-extern void WAVStream_Start(WAVStream *wave);
-
-/* Play some of a stream previously started with WAVStream_Start() */
-extern void WAVStream_PlaySome(WAVStream *wave, Uint8 *stream, int len);
-
-/* Stop playback of a stream previously started with WAVStream_Start() */
-extern void WAVStream_Stop(void);
-
-/* Close the given WAV stream */
-extern void WAVStream_FreeSong(WAVStream *wave);
+/* Start playback of a given OGG stream */
+extern void OGG_play(OGG_music *music);
 
 /* Return non-zero if a stream is currently playing */
-extern int WAVStream_Active(WAVStream *wave);
+extern int OGG_playing(OGG_music *music);
+
+/* Play some of a stream previously started with OGG_play() */
+extern void OGG_playAudio(OGG_music *music, Uint8 *stream, int len);
+
+/* Stop playback of a stream previously started with OGG_play() */
+extern void OGG_stop(OGG_music *music);
+
+/* Close the given OGG stream */
+extern void OGG_delete(OGG_music *music);
+
+#endif /* OGG_MUSIC */

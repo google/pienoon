@@ -14,6 +14,8 @@ libSDL_mixer_la_SOURCES =	\
 	music.c			\
 	music_cmd.c		\
 	music_cmd.h		\
+	music_ogg.c		\
+	music_ogg.h		\
 	wave.h			\
 	wavestream.c		\
 	wavestream.h
