@@ -281,7 +281,7 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 	/* Make sure audio has been opened */
 	if ( ! audio_opened ) {
 		SDL_SetError("Audio device hasn't been opened");
-		if ( freesrc ) {
+		if ( freesrc && src ) {
 			SDL_RWclose(src);
 		}
 		return(NULL);
@@ -645,24 +645,27 @@ int Mix_FadeOutChannel(int which, int ms)
 	int status;
 
 	status = 0;
-	if ( which == -1 ) {
-		int i;
+	if ( audio_opened ) {
+		if ( which == -1 ) {
+			int i;
 
-		for ( i=0; i<num_channels; ++i ) {
-			status += Mix_FadeOutChannel(i,ms);
-		}
-	} else {
-		SDL_mutexP(mixer_lock);
-		if ( mix_channel[which].playing && mix_channel[which].volume>0 &&
-			 mix_channel[which].fading!=MIX_FADING_OUT ) {
+			for ( i=0; i<num_channels; ++i ) {
+				status += Mix_FadeOutChannel(i, ms);
+			}
+		} else {
+			SDL_mutexP(mixer_lock);
+			if ( mix_channel[which].playing && 
+			    (mix_channel[which].volume > 0) &&
+			    (mix_channel[which].fading != MIX_FADING_OUT) ) {
 
-			mix_channel[which].fading = MIX_FADING_OUT;
-			mix_channel[which].fade_volume = mix_channel[which].volume;
-			mix_channel[which].fade_length = ms;
-			mix_channel[which].ticks_fade = SDL_GetTicks();
-			++ status;
+				mix_channel[which].fading = MIX_FADING_OUT;
+				mix_channel[which].fade_volume = mix_channel[which].volume;
+				mix_channel[which].fade_length = ms;
+				mix_channel[which].ticks_fade = SDL_GetTicks();
+				++status;
+			}
+			SDL_mutexV(mixer_lock);
 		}
-		SDL_mutexV(mixer_lock);
 	}
 	return(status);
 }

@@ -1,5 +1,7 @@
 
 1.2.1:
+Guillaume Cottenceau - Thu May 10 11:17:55 PDT 2001
+ * Fixed crashes when API used with audio not initialized
 Paul Jenner - Sat, 14 Apr 2001 09:20:38 -0700 (PDT)
  * Added support for building RPM directly from tar archive
 
