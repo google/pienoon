@@ -19,7 +19,7 @@
 
 /* This is for use with the SDL library */
 #define SDL
-#if defined(WIN32) || defined(_WIN32)
+#if (defined(WIN32) || defined(_WIN32)) && !defined(__WIN32__)
 #define __WIN32__
 #endif
 

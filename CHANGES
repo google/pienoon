@@ -1,4 +1,8 @@
 
+1.0.7:
+Ray Kelm - Fri, 04 Aug 2000 20:58:00 -0400
+ * Added support for cross-compiling Windows DLL from Linux
+
 1.0.6:
 Sam Lantinga - Sun Jul  2 14:16:44 PDT 2000
  * Added support for the Ogg Vorbis music format: http://www.vorbis.org/
