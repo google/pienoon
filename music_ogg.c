@@ -77,7 +77,7 @@ OGG_music *OGG_new(const char *file)
 			return(NULL);
 		}
 	} else {
-		SDL_OutOfMemory();
+		SDL_SetError("Out of memory");
 	}
 	return(music);
 }
@@ -133,7 +133,7 @@ static void OGG_getsome(OGG_music *music)
 		music->len_available = music->cvt.len_cvt;
 		music->snd_available = music->cvt.buf;
 	} else {
-		SDL_OutOfMemory();
+		SDL_SetError("Out of memory");
 		music->playing = 0;
 	}
 }
