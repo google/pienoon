@@ -49,11 +49,11 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/bin/playmus
 %{prefix}/bin/playwave
 %{prefix}/lib/lib*.so.*
-%{prefix}/lib/lib*.so
 
 %files devel
 %defattr(-,root,root)
-%{prefix}/lib/*a
+%{prefix}/lib/lib*.a
+%{prefix}/lib/lib*.so
 %{prefix}/include/SDL/
 
 %changelog
