@@ -364,9 +364,10 @@ Mix_Music *Mix_LoadMUS(const char *file)
 	/* WAVE files have the magic four bytes "RIFF"
 	   AIFF files have the magic 12 bytes "FORM" XXXX "AIFF"
 	 */
-	if ( (strcmp(magic, "RIFF") == 0) || (strcmp(magic, "FORM") == 0) ) {
+	if ( (strcmp((char *)magic, "RIFF") == 0) ||
+	     (strcmp((char *)magic, "FORM") == 0) ) {
 		music->type = MUS_WAV;
-		music->data.wave = WAVStream_LoadSong(file, magic);
+		music->data.wave = WAVStream_LoadSong(file, (char *)magic);
 		if ( music->data.wave == NULL ) {
 			music->error = 1;
 		}
