@@ -46,6 +46,7 @@ static struct _Mix_Channel {
 	int looping;
 	int tag;
 	int expire;
+	Uint32 start_time;
 	Mix_Fading fading;
 	int fade_volume;
 	int fade_length;
@@ -74,44 +75,46 @@ static void mix_channels(void *udata, Uint8 *stream, int len)
 	mixed_channels = 0;
 	sdl_ticks = SDL_GetTicks();
 	for ( i=0; i<num_channels; ++i ) {
-		if ( channel[i].expire > 0 && channel[i].expire < sdl_ticks ) {
-			/* Expiration delay for that channel is reached */
-			channel[i].playing = 0;
-			channel[i].fading = MIX_NO_FADING;
-			channel[i].expire = -1;
-		} else if ( channel[i].fading != MIX_NO_FADING ) {
-			Uint32 ticks = sdl_ticks - channel[i].ticks_fade;
-			if( ticks > channel[i].fade_length ) {
-				if( channel[i].fading == MIX_FADING_OUT ) {
-					channel[i].playing = 0;
-					channel[i].expire = -1;
-					Mix_Volume(i, channel[i].fading); /* Restore the volume */
-				}
+		if( ! channel[i].paused ) {
+			if ( channel[i].expire > 0 && channel[i].expire < sdl_ticks ) {
+				/* Expiration delay for that channel is reached */
+				channel[i].playing = 0;
 				channel[i].fading = MIX_NO_FADING;
-			} else {
-				if( channel[i].fading == MIX_FADING_OUT ) {
-					Mix_Volume(i, (channel[i].fade_volume * (channel[i].fade_length-ticks))
-							   / channel[i].fade_length );
+				channel[i].expire = -1;
+			} else if ( channel[i].fading != MIX_NO_FADING ) {
+				Uint32 ticks = sdl_ticks - channel[i].ticks_fade;
+				if( ticks > channel[i].fade_length ) {
+					if( channel[i].fading == MIX_FADING_OUT ) {
+						channel[i].playing = 0;
+						channel[i].expire = -1;
+						Mix_Volume(i, channel[i].fading); /* Restore the volume */
+					}
+					channel[i].fading = MIX_NO_FADING;
 				} else {
-					Mix_Volume(i, (channel[i].fade_volume * ticks) / channel[i].fade_length );
+					if( channel[i].fading == MIX_FADING_OUT ) {
+						Mix_Volume(i, (channel[i].fade_volume * (channel[i].fade_length-ticks))
+								   / channel[i].fade_length );
+					} else {
+						Mix_Volume(i, (channel[i].fade_volume * ticks) / channel[i].fade_length );
+					}
 				}
 			}
-		}
-		if ( channel[i].playing && !channel[i].paused ) {
-		    ++ mixed_channels;
-			mixable = channel[i].playing;
-			if ( mixable > len ) {
-				mixable = len;
-			}
-			volume = (channel[i].volume*channel[i].chunk->volume) /
-								MIX_MAX_VOLUME;
-			SDL_MixAudio(stream,channel[i].samples,mixable,volume);
-			channel[i].samples += mixable;
-			channel[i].playing -= mixable;
-			if ( ! channel[i].playing && channel[i].looping ) {
-				if ( --channel[i].looping ) {
-				    channel[i].samples = channel[i].chunk->abuf;
-				    channel[i].playing = channel[i].chunk->alen;
+			if ( channel[i].playing > 0 ) {
+				++ mixed_channels;
+				mixable = channel[i].playing;
+				if ( mixable > len ) {
+					mixable = len;
+				}
+				volume = (channel[i].volume*channel[i].chunk->volume) /
+					MIX_MAX_VOLUME;
+				SDL_MixAudio(stream,channel[i].samples,mixable,volume);
+				channel[i].samples += mixable;
+				channel[i].playing -= mixable;
+				if ( ! channel[i].playing && channel[i].looping ) {
+					if ( --channel[i].looping ) {
+						channel[i].samples = channel[i].chunk->abuf;
+						channel[i].playing = channel[i].chunk->alen;
+					}
 				}
 			}
 		}
@@ -439,13 +442,15 @@ int Mix_PlayChannelTimed(int which, Mix_Chunk *chunk, int loops, int ticks)
 
 		/* Queue up the audio data for this channel */
 		if ( which >= 0 ) {
+			Uint32 sdl_ticks = SDL_GetTicks();
 			channel[which].samples = chunk->abuf;
 			channel[which].playing = chunk->alen;
 			channel[which].looping = loops;
 			channel[which].chunk = chunk;
 			channel[which].paused = 0;
 			channel[which].fading = MIX_NO_FADING;
-			channel[which].expire = (ticks>0) ? (SDL_GetTicks() + ticks) : -1;
+			channel[which].start_time = sdl_ticks;
+			channel[which].expire = (ticks>0) ? (sdl_ticks + ticks) : -1;
 		}
 	}
 	SDL_mutexV(mixer_lock);
@@ -501,6 +506,7 @@ int Mix_FadeInChannelTimed(int which, Mix_Chunk *chunk, int loops, int ms, int t
 
 		/* Queue up the audio data for this channel */
 		if ( which >= 0 ) {
+			Uint32 sdl_ticks = SDL_GetTicks();
 			channel[which].samples = chunk->abuf;
 			channel[which].playing = chunk->alen;
 			channel[which].looping = loops;
@@ -510,8 +516,8 @@ int Mix_FadeInChannelTimed(int which, Mix_Chunk *chunk, int loops, int ms, int t
 			channel[which].fade_volume = channel[which].volume;
 			channel[which].volume = 0;
 			channel[which].fade_length = ms;
-			channel[which].ticks_fade = SDL_GetTicks();
-			channel[which].expire = (ticks > 0) ? (SDL_GetTicks()+ticks) : -1;
+			channel[which].start_time = channel[which].ticks_fade = sdl_ticks;
+			channel[which].expire = (ticks > 0) ? (sdl_ticks+ticks) : -1;
 		}
 	}
 	SDL_mutexV(mixer_lock);
@@ -672,6 +678,7 @@ void Mix_CloseAudio(void)
 			Mix_HaltChannel(-1);
 			SDL_CloseAudio();
 			SDL_DestroyMutex(mixer_lock);
+			free(channel);
 			channel = NULL;
 		}
 		--audio_opened;
@@ -681,18 +688,18 @@ void Mix_CloseAudio(void)
 /* Pause a particular channel (or all) */
 void Mix_Pause(int which)
 {
-	/* TODO: Handle properly expiring samples */
+	Uint32 sdl_ticks = SDL_GetTicks();
 	if ( which == -1 ) {
 		int i;
 
 		for ( i=0; i<num_channels; ++i ) {
 			if ( channel[i].playing > 0 ) {
-				channel[i].paused = 1;
+				channel[i].paused = sdl_ticks;
 			}
 		}
 	} else {
 		if ( channel[which].playing > 0 ) {
-			channel[which].paused = 1;
+			channel[which].paused = sdl_ticks;
 		}
 	}
 }
@@ -700,18 +707,27 @@ void Mix_Pause(int which)
 /* Resume a paused channel */
 void Mix_Resume(int which)
 {
+	Uint32 sdl_ticks = SDL_GetTicks();
 	if ( which == -1 ) {
 		int i;
 
+		SDL_mutexP(mixer_lock);
 		for ( i=0; i<num_channels; ++i ) {
 			if ( channel[i].playing > 0 ) {
+				if(channel[i].expire > 0)
+					channel[i].expire += sdl_ticks - channel[i].paused;
 				channel[i].paused = 0;
 			}
 		}
+		SDL_mutexV(mixer_lock);
 	} else {
+		SDL_mutexP(mixer_lock);
 		if ( channel[which].playing > 0 ) {
+			if(channel[which].expire > 0)
+				channel[which].expire += sdl_ticks - channel[which].paused;
 			channel[which].paused = 0;
 		}
+		SDL_mutexV(mixer_lock);
 	}
 }
 
@@ -757,4 +773,36 @@ int Mix_GroupCount(int tag)
 			++ count;
 	}
 	return(count);
+}
+
+/* Finds the "oldest" sample playing in a group of channels */
+int Mix_GroupOldest(int tag)
+{
+	int chan = -1;
+	Uint32 mintime = SDL_GetTicks();
+	int i;
+	for( i=0; i < num_channels; i ++ ) {
+		if ( (channel[i].tag==tag || tag==-1) && channel[i].playing > 0 
+			 && channel[i].start_time <= mintime ) {
+			mintime = channel[i].start_time;
+			chan = i;
+		}
+	}
+	return(chan);
+}
+
+/* Finds the "most recent" (i.e. last) sample playing in a group of channels */
+int Mix_GroupNewer(int tag)
+{
+	int chan = -1;
+	Uint32 maxtime = 0;
+	int i;
+	for( i=0; i < num_channels; i ++ ) {
+		if ( (channel[i].tag==tag || tag==-1) && channel[i].playing > 0 
+			 && channel[i].start_time >= maxtime ) {
+			maxtime = channel[i].start_time;
+			chan = i;
+		}
+	}
+	return(chan);
 }

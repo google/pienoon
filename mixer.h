@@ -120,6 +120,10 @@ extern int Mix_GroupAvailable(int tag);
    way to get the total number of channels when 'tag' is -1
  */
 extern int Mix_GroupCount(int tag);
+/* Finds the "oldest" sample playing in a group of channels */
+extern int Mix_GroupOldest(int tag);
+/* Finds the "most recent" (i.e. last) sample playing in a group of channels */
+extern int Mix_GroupNewer(int tag);
 
 /* Play an audio chunk on a specific channel.
    If the specified channel is -1, play on the first free channel.
