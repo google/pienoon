@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
-#ifndef WIN32
+#ifdef unix
 #include <unistd.h>
 #endif
 
@@ -83,7 +83,7 @@ void Menu(void)
 
 main(int argc, char *argv[])
 {
-	Uint32 audio_rate;
+	int audio_rate;
 	Uint16 audio_format;
 	int audio_channels;
 	int audio_buffers;

@@ -185,11 +185,13 @@ int Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize)
 
 	/* Create the channel lock mutex */
 	mixer_lock = SDL_CreateMutex();
+#ifndef macintosh /* Hmm.. what implications does this have? */
 	if ( mixer_lock == NULL ) {
 		SDL_CloseAudio();
 		SDL_SetError("Unable to create mixer lock");
 		return(-1);
 	}
+#endif
 
 	/* Initialize the music players */
 	if ( open_music(&mixer) < 0 ) {

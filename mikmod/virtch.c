@@ -38,10 +38,11 @@
 #include "config.h"
 #endif
 
-#include "mikmod_internals.h"
-
 #include <stddef.h>
 #include <string.h>
+
+#include "mikmod_internals.h"
+
 
 /*
    Constant definitions
@@ -524,7 +525,6 @@ static void AddChannel(SLONG* ptr,NATIVE todo)
 	   reached the end of the sample */
 	while(todo>0) {
 		SLONGLONG endpos;
-
 		if(vnf->flags & SF_REVERSE) {
 			/* The sample is playing in reverse */
 			if((vnf->flags&SF_LOOP)&&(vnf->current<idxlpos)) {
@@ -640,12 +640,20 @@ static void AddChannel(SLONG* ptr,NATIVE todo)
 					vnf->current=MixMonoNormal
 					                   (s,ptr,vnf->current,vnf->increment,done);
 			}
+
 		} else
 			/* update sample position */
 			vnf->current=endpos;
 
 		todo-=done;
+#if 1
+		if ( vc_mode & DMODE_STEREO )
+			ptr += done*2;
+		else
+			ptr += done;
+#else
 		ptr +=(vc_mode & DMODE_STEREO)?(done<<1):done;
+#endif
 	}
 }
 

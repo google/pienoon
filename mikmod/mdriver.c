@@ -39,12 +39,13 @@
 #include <sys/stat.h>
 #endif
 
-#include "mikmod_internals.h"
-
 #include <string.h>
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+
+#include "mikmod_internals.h"
+
 
 static	MDRIVER *firstdriver=NULL;
 		MDRIVER *md_driver=NULL;

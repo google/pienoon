@@ -29,10 +29,6 @@
 #ifndef _MIKMOD_INTERNALS_H
 #define _MIKMOD_INTERNALS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -43,9 +39,27 @@ extern "C" {
 
 #include <mikmod_build.h>
 
+#ifdef macintosh
+#define __STDC__=1
+static char *strdup(const char *str)
+{
+	char *newstr;
+	
+	newstr = (char *)malloc(strlen(str)+1);
+	if ( newstr != NULL ) {
+		strcpy(newstr, str);
+	}
+	return(newstr);
+}
+#endif
+
 #ifdef WIN32
 #define __STDC__
 #pragma warning(disable:4761)
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /*========== More type definitions */

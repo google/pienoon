@@ -33,10 +33,10 @@
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif
+#include <string.h>
 
 #include "mikmod_internals.h"
 
-#include <string.h>
 
 		MREADER *modreader;
 		MODULE of;

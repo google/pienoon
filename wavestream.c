@@ -57,9 +57,11 @@ int WAVStream_Init(SDL_AudioSpec *mixerfmt)
 {
 	/* FIXME: clean up the mutex, or move it into music.c */
 	music_lock = SDL_CreateMutex();
+#ifndef macintosh /* Hmm.. */
 	if ( music_lock == NULL ) {
 		return(-1);
 	}
+#endif
 	mixer = *mixerfmt;
 	return(0);
 }

@@ -30,9 +30,10 @@
 #include "config.h"
 #endif
 
+#include <string.h>
+
 #include "mikmod_internals.h"
 
-#include <string.h>
 
 /* Unibuffer chunk size */
 #define BUFPAGE  128

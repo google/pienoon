@@ -1,24 +1,26 @@
 
 1.0.4:
-* Markus Oberhumer Wed Feb  2 13:16:17 PST 2000
-- Fixed problem with short looping sounds
-* Sam Lantinga Tue Feb  1 13:25:44 PST 2000
-- Added Visual C++ project file
-* Markus Oberhumer Tue Feb  1 13:23:11 PST 2000
-- Cleaned up code for compiling with Visual C++
-- Don't hang in Mix_HaltMusic() if the music is paused
-* Sam Lantinga Fri Jan 28 08:54:56 PST 2000
-- Fixed looping WAVE chunks that are not aligned on sample boundaries
+Sam Lantinga - Thu Feb 10 19:42:03 PST 2000
+ * Ported the base mixer and mikmod libraries to MacOS
+Markus Oberhumer - Wed Feb  2 13:16:17 PST 2000
+ * Fixed problem with short looping sounds
+Sam Lantinga - Tue Feb  1 13:25:44 PST 2000
+ * Added Visual C++ project file
+Markus Oberhumer - Tue Feb  1 13:23:11 PST 2000
+ * Cleaned up code for compiling with Visual C++
+ * Don't hang in Mix_HaltMusic() if the music is paused
+Sam Lantinga - Fri Jan 28 08:54:56 PST 2000
+ * Fixed looping WAVE chunks that are not aligned on sample boundaries
 
 1.0.3:
-* Sam Lantinga Mon Jan 17 19:48:09 PST 2000
-- Changed the name of the library from "mixer" to "SDL_mixer"
-- Instead of including "mixer.h", include "SDL_mixer.h",
-- Instead of linking with libmixer.a, link with libSDL_mixer.a
+Sam Lantinga - Mon Jan 17 19:48:09 PST 2000
+ * Changed the name of the library from "mixer" to "SDL_mixer"
+ * Instead of including "mixer.h", include "SDL_mixer.h",
+ * Instead of linking with libmixer.a, link with libSDL_mixer.a
 
 1.0.2:
-* Sam Lantinga Fri Jan 14 11:06:56 PST 2000
-- Made the CHANGELOG entries Y2K compliant. :)
+Sam Lantinga - Fri Jan 14 11:06:56 PST 2000
+ * Made the CHANGELOG entries Y2K compliant. :)
 MFX -	Updated the mikmod support to MikMod 3.1.8
 MFX -	Added Mix_HookMusicFinished() API function
 

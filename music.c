@@ -328,7 +328,7 @@ int open_music(SDL_AudioSpec *mixer)
 Mix_Music *Mix_LoadMUS(const char *file)
 {
 	FILE *fp;
-	unsigned char magic[5];
+	char magic[5];
 	Mix_Music *music;
 
 	/* Figure out what kind of file this is */
