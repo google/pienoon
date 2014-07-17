@@ -1,0 +1,89 @@
+/*
+* Copyright 2014 Google Inc. All rights reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+// This is a gradle build file.
+// Run `gradle tasks` for a list of things that can be executed
+// Run `gradle releaseTestbedExecutable` for a build of Testbed
+// Run `gradle buildAllTests` for a build of Unittests
+// Supported Platforms: x86
+apply plugin: 'cpp'
+apply from: 'config.gradle'
+
+// Source files required to build an executable for the host platform.
+sources {
+  splat {
+    cpp {
+      source {
+        srcDir 'src'
+        include '**/*.cpp'
+      }
+      exportedHeaders {
+        srcDir 'src'
+        include '**/*.h'
+      }
+    }
+  }
+}
+
+// Build an executable for the host platform.
+executables {
+  splat {}
+}
+
+class BuildApk extends Exec {
+  // Properties for this task.
+  // Whether to build a debug project.
+  // * -1: Release project that is *not* debuggable if it's an APK.
+  // * 0:  Relase project that is debuggable if it's an APK.
+  // * 1:  Debug project that is debuggable if it's an APK.
+  int apk_debug = -1
+  // Serial number of Android device to deploy a built APK to.
+  String adb_device = ''
+
+  // Get the command line required to build a native Android project using
+  // ndk-build, generating an APK.
+  def buildApkCommandLine() {
+    String ndk_debug = apk_debug >= 0 ? sprintf('NDK_DEBUG=%1$s ',
+                                                [apk_debug]) : ''
+    int launch = adb_device.length() > 0 ? 1 : 0
+    int deploy = launch
+    return (['../../libs/liquidfun/Box2D/AndroidUtil/build_apk.sh'] <<
+            sprintf('%1$sLAUNCH=%2$s DEPLOY=%3$s ADB_DEVICE=%4$s',
+                    [ndk_debug, launch, deploy,
+                     adb_device]).tokenize()).flatten()
+  }
+}
+
+
+// Task which builds a debug APK in the current directory.
+task debugApk(type: BuildApk) {
+  apk_debug = 1
+  commandLine buildApkCommandLine()
+}
+
+// Task which builds a release debuggable APK in the current directory.
+task releaseApk(type: BuildApk) {
+  apk_debug = 0
+  commandLine buildApkCommandLine()
+}
+
+// Task which builds a release non-debuggable APK in the current directory.
+task releaseNonDebuggableApk(type: BuildApk) {
+  commandLine buildApkCommandLine()
+}
+
+task getHomeDir << {
+  println gradle.gradleHomeDir
+}
