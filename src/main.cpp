@@ -19,7 +19,7 @@
 #include <AndroidUtil/AndroidLogPrint.h>
 #endif // __ANDROID__
 
-int main(int argc, char *argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
   printf("Now we *just* need to write a game.\n");
   return 0;
 }

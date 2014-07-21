@@ -13,9 +13,30 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 2.8.7)
 
-set(PROJECT_NAME splat)
 project(splat)
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
+set(FLATBUFFER_PROJECT_DIR ${CMAKE_SOURCE_DIR}/../../libs/flatbuffers)
 
+set(FLATBUFFER_GENERERATED_INCLUDES
+    ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include/)
+file(MAKE_DIRECTORY ${FLATBUFFER_GENERERATED_INCLUDES})
+
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${FLATBUFFER_PROJECT_DIR}/include)
+include_directories(${FLATBUFFER_GENERERATED_INCLUDES})
+
+file(GLOB_RECURSE FLATBUFFER_SCHEMAS ${CMAKE_SOURCE_DIR}/src *.fbs)
+add_custom_target(
+    generate_flatbuffers
+    ${CMAKE_SOURCE_DIR}/flatbuffers/flatc -o ${FLATBUFFER_GENERERATED_INCLUDES}
+        -c ${FLATBUFFER_SCHEMAS}
+    SOURCES ${FLATBUFFER_SCHEMAS})
+
+add_subdirectory(${FLATBUFFER_PROJECT_DIR} flatbuffers)
+
+add_definitions(-std=c++11 -pedantic -Werror -Wall -Wextra)
 add_executable(splat src/main.cpp)
+
+add_dependencies(splat generate_flatbuffers)
+add_dependencies(generate_flatbuffers flatc)
+
