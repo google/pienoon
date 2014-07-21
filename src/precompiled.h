@@ -14,10 +14,15 @@
 * limitations under the License.
 */
 
-#include "precompiled.h"
+#ifndef SPLAT_SRC_PRECOMPILED_H
+#define SPLAT_SRC_PRECOMPILED_H
 
-int main(int argc, char *argv[]) {
-  (void) argc; (void) argv;
-  printf("Now we *just* need to write a game.\n");
-  return 0;
-}
+#include <stdio.h>
+#ifdef __ANDROID__
+#include <AndroidUtil/AndroidMainWrapper.h>
+#include <AndroidUtil/AndroidLogPrint.h>
+#endif // __ANDROID__
+
+#pragma hdrstop
+
+#endif // SPLAT_SRC_PRECOMPILED_H

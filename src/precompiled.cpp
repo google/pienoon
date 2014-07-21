@@ -14,10 +14,8 @@
 * limitations under the License.
 */
 
+// This file recreates the precompiled-header file (precompiled.pch) whenever
+// a file referenced by precompiled.h is touched. The precompiled header file
+// speeds compilation significantly by eliminating the to compile stable source
+// files over-and-over.
 #include "precompiled.h"
-
-int main(int argc, char *argv[]) {
-  (void) argc; (void) argv;
-  printf("Now we *just* need to write a game.\n");
-  return 0;
-}
