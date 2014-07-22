@@ -28,7 +28,9 @@ CharacterStateMachine::CharacterStateMachine(
 }
 
 void CharacterStateMachine::Update(uint16_t conditions) {
-  for (const auto transition : *current_state_->transitions()) {
+  for (auto it = current_state_->transitions()->begin();
+       it != current_state_->transitions()->end(); ++it) {
+    auto transition = *it;
     if ((transition->conditions() & conditions) == transition->conditions()) {
       current_state_ = state_machine_def_->states()->Get(
           transition->target_state());

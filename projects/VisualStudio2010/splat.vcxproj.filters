@@ -5,16 +5,22 @@
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\precompiled.cpp" />
     <ClCompile Include="..\..\src\renderer.cpp" />
+    <ClCompile Include="..\..\src\character_state_machine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\glplatform.h" />
     <ClInclude Include="..\..\src\input.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\renderer.h" />
+    <ClInclude Include="..\..\src\character_state_machine.h" />
+    <ClInclude Include="..\..\src\character_state_machine_def_generated.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
       <UniqueIdentifier>{3f563d6c-52c6-420b-be8d-4ca25baa63a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="flatbufferschemas">
+      <UniqueIdentifier>{3d4c108b-0ac2-45af-bde2-ccd6e2e125b0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,5 +36,10 @@
     <None Include="..\..\assets\shaders\textured.glslv">
       <Filter>shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\src\flatbufferschemas\character_state_machine_def.fbs">
+      <Filter>flatbufferschemas</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

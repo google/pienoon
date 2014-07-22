@@ -42,6 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>..\..\build\splat\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\build\splat\$(Platform)\$(Configuration)\bin\</OutDir>
@@ -59,10 +60,21 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\build\sdl_main\$(Configuration)\bin\;..\..\build\sdl\$(Configuration)\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\build\$(Configuration)\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;SDL2main.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+      <Message>Compiling FlatBuffer in project...</Message>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -76,12 +88,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\build\sdl_main\$(Configuration)\bin\;..\..\build\sdl\$(Configuration)\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\build\$(Configuration)\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;SDL2main.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\character_state_machine.cpp" />
     <ClCompile Include="..\..\src\input.cpp" />
     <ClCompile Include="..\..\src\main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -94,6 +107,8 @@
     <ClCompile Include="..\..\src\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\character_state_machine.h" />
+    <ClInclude Include="..\..\src\character_state_machine_def_generated.h" />
     <ClInclude Include="..\..\src\glplatform.h" />
     <ClInclude Include="..\..\src\input.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
@@ -104,6 +119,13 @@
     <None Include="..\..\assets\shaders\color.glslv" />
     <None Include="..\..\assets\shaders\textured.glslf" />
     <None Include="..\..\assets\shaders\textured.glslv" />
+    <CustomBuild Include="..\..\src\flatbufferschemas\character_state_machine_def.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\..\libs\flatbuffers\build\VS2010\x64\Release\flatc.exe -o ..\..\src\ -c ..\..\src\flatbufferschemas\character_state_machine_def.fbs</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling FlatBuffer schema: character_state_machine_def.fbs</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\src\character_state_machine_def_generated.h</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\src\flatbufferschemas\character_state_machine_def.fbs</AdditionalInputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

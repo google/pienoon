@@ -20,8 +20,8 @@
 namespace fpl {
 namespace splat {
 
-class CharacterStateMachineDef;
-class CharacterState;
+struct CharacterStateMachineDef;
+struct CharacterState;
 
 class CharacterStateMachine {
  public:
@@ -40,6 +40,9 @@ class CharacterStateMachine {
   const CharacterState* current_state() const;
 
  private:
+  // Disallow assignment.
+  CharacterStateMachine& operator=(const CharacterStateMachine&);
+
   const CharacterStateMachineDef* const state_machine_def_;
   const CharacterState* current_state_;
 };
