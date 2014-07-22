@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\input.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\precompiled.cpp" />
+    <ClCompile Include="..\..\src\renderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\glplatform.h" />
+    <ClInclude Include="..\..\src\input.h" />
+    <ClInclude Include="..\..\src\precompiled.h" />
+    <ClInclude Include="..\..\src\renderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{3f563d6c-52c6-420b-be8d-4ca25baa63a6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\assets\shaders\color.glslv">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\color.glslf">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\textured.glslf">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\textured.glslv">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

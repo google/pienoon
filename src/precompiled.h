@@ -18,10 +18,22 @@
 #define SPLAT_SRC_PRECOMPILED_H
 
 #include <stdio.h>
+#include <string.h>
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+#include "matrices/Matrix.h"
+
 #ifdef __ANDROID__
 #include <AndroidUtil/AndroidMainWrapper.h>
 #include <AndroidUtil/AndroidLogPrint.h>
 #endif // __ANDROID__
+
+#include <SDL.h>
+
+#include "glplatform.h"
 
 #ifdef _WIN32
 #pragma hdrstop

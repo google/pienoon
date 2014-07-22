@@ -16,8 +16,88 @@
 
 #include "precompiled.h"
 
+#include "renderer.h"
+#include "input.h"
+
+using namespace fpl;
+
+// TODO: move elsewhere
+char *LoadFile(const char *filename, size_t *length_ptr = nullptr)
+{
+    auto handle = SDL_RWFromFile(filename, "rb");
+    if (!handle) return nullptr;
+    auto len = static_cast<size_t>(SDL_RWseek(handle, 0, RW_SEEK_END));
+    SDL_RWseek(handle, 0, RW_SEEK_SET);
+    auto buf = reinterpret_cast<char *>(malloc(len + 1));
+    if (!buf) {
+      SDL_RWclose(handle);
+      return nullptr;
+    }
+    buf[len] = 0;
+    size_t rlen = static_cast<size_t>(SDL_RWread(handle, buf, 1, len));
+    SDL_RWclose(handle);
+    if (len != rlen || len <= 0) { free(buf); return NULL; }
+    if (length_ptr) *length_ptr = len;
+    return buf;
+}
+
+
 int main(int argc, char *argv[]) {
   (void) argc; (void) argv;
-  printf("Now we *just* need to write a game.\n");
+  printf("Splat initializing..\n");
+
+  InputSystem input;
+
+  Renderer renderer;
+  renderer.Initialize("my amazing game!");
+
+  // This code will be inside a future material manager instead.
+  auto vs_source = LoadFile("shaders/textured.glslv");
+  auto ps_source = LoadFile("shaders/textured.glslf");
+  auto texture_tga = LoadFile("textures/mover_s.tga");
+  if (!vs_source || !ps_source || !texture_tga) {
+    printf("can't load assets\n");
+    return 1;
+  }
+
+  auto shader = renderer.CompileAndLinkShader(vs_source, ps_source);
+  if (!shader) {
+    printf("shader error: %s\n", renderer.glsl_error_.c_str());
+    return 1;
+  }
+
+  auto texture_id = renderer.CreateTextureFromTGAMemory(texture_tga);
+  if (!texture_id) {
+    printf("can't create texture from tga\n");
+    return 1;
+  }
+
+  renderer.camera.model_view_projection_ =
+    mat4::Ortho(-2.0f, 2.0f, -2.0f, 2.0f, -1.0f, 10.0f);
+
+  renderer.color = vec4(1, 1, 1, 1);
+
+  Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
+  int indices[] = { 0, 1, 2 };
+  float vertices[] = { 0, 0, 0,   0, 0,
+                       1, 1, 0,   1, 1,
+                       1, -1, 0,  1, 0 };
+
+  while (!input.exit_requested_) {
+    renderer.AdvanceFrame(input.minimized_);
+    input.AdvanceFrame();
+
+    shader->Set(renderer);
+    glBindTexture(GL_TEXTURE_2D, texture_id);  // FIXME
+    Mesh::RenderArray(GL_TRIANGLES, 3, format, sizeof(float) * 5,
+                         reinterpret_cast<const char *>(vertices), indices);
+  }
+
+  // Temp resource cleanup:
+  free(vs_source);
+  free(ps_source);
+  free(texture_tga);
+
   return 0;
 }
+
