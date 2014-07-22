@@ -14,6 +14,7 @@
     <ClInclude Include="..\..\src\renderer.h" />
     <ClInclude Include="..\..\src\character_state_machine.h" />
     <ClInclude Include="..\..\src\character_state_machine_def_generated.h" />
+    <ClInclude Include="..\..\src\timeline_generated.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
@@ -38,6 +39,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="..\..\src\flatbufferschemas\timeline.fbs">
+      <Filter>flatbufferschemas</Filter>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\flatbufferschemas\character_state_machine_def.fbs">
       <Filter>flatbufferschemas</Filter>
     </CustomBuild>
