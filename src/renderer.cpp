@@ -59,8 +59,13 @@ Renderer::RendererError Renderer::Initialize(const char *window_title) {
 
   #if !defined(RENDERER_MOBILE) && !defined(__APPLE__)
   #define GLEXT(type, name) \
-    name = (type)SDL_GL_GetProcAddress(#name); \
-    if (!name) return kMissingEntrypoint;
+    union { \
+      void* data; \
+      type function; \
+    } data_function_union_##name; \
+    data_function_union_##name.data = SDL_GL_GetProcAddress(#name); \
+    if (!data_function_union_##name.data) return kMissingEntrypoint; \
+    name = data_function_union_##name.function;
       GLBASEEXTS GLEXTS
   #undef GLEXT
   #endif

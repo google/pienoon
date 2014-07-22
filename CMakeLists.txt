@@ -20,6 +20,7 @@ set(THIRD_PARTY_ROOT ${CMAKE_SOURCE_DIR}/../../../../external)
 # Directory which contains source for FPL libraries.
 set(FPL_ROOT ${CMAKE_SOURCE_DIR}/../../libs)
 
+set(GOOGLETEST_PROJECT_DIR ${FPL_ROOT}/googletest)
 set(FLATBUFFERS_PROJECT_DIR ${FPL_ROOT}/flatbuffers)
 set(MATHFU_PROJECT_DIR ${FPL_ROOT}/mathfu)
 
@@ -57,21 +58,31 @@ endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 
 # Splat source files.
-set(Splat_SRCS
+set(splat_SRCS
     src/main.cpp
     src/precompiled.cpp
     src/renderer.cpp
-    src/input.cpp)
+    src/input.cpp
+    src/character_state_machine.cpp)
+
 # Includes for this project.
 include_directories(src)
 include_directories(${FLATBUFFERS_PROJECT_DIR}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${MATHFU_PROJECT_DIR})
+
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
+
 # Executable target.
-add_definitions(-g -std=c++0x -Werror -Wall -Wextra -DCOMPILE_WITHOUT_SIMD_SUPPORT)
-add_executable(splat ${Splat_SRCS})
+add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra
+                -DCOMPILE_WITHOUT_SIMD_SUPPORT)
+add_executable(splat ${splat_SRCS})
 # Dependencies for the executable target.
 add_dependencies(splat generated_includes)
 target_link_libraries(splat SDL2-static)
+
+# Include GoogleTest in this project.
+add_subdirectory(${GOOGLETEST_PROJECT_DIR} googletest)
+add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+
