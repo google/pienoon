@@ -23,6 +23,8 @@
 #include <AndroidUtil/AndroidLogPrint.h>
 #endif // __ANDROID__
 
+#ifdef _WIN32
 #pragma hdrstop
+#endif //  _WIN32
 
 #endif // SPLAT_SRC_PRECOMPILED_H
