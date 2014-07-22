@@ -15,28 +15,57 @@ cmake_minimum_required(VERSION 2.8.7)
 
 project(splat)
 
-set(FLATBUFFER_PROJECT_DIR ${CMAKE_SOURCE_DIR}/../../libs/flatbuffers)
+# Directory which contains the source for 3rd party libraries.
+set(THIRD_PARTY_ROOT ${CMAKE_SOURCE_DIR}/../../../../external)
+# Directory which contains source for FPL libraries.
+set(FPL_ROOT ${CMAKE_SOURCE_DIR}/../../libs)
 
-set(FLATBUFFER_GENERERATED_INCLUDES
-    ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include/)
-file(MAKE_DIRECTORY ${FLATBUFFER_GENERERATED_INCLUDES})
+set(FLATBUFFERS_PROJECT_DIR ${FPL_ROOT}/flatbuffers)
+set(MATHFU_PROJECT_DIR ${FPL_ROOT}/mathfu)
 
+# Include SDL in this project while working around SDL requirement of out of
+# tree builds.
+set(BIN_DIR ${CMAKE_BINARY_DIR})
+set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
+add_subdirectory(${THIRD_PARTY_ROOT}/sdl sdl)
+set(CMAKE_BINARY_DIR ${BIN_DIR})
+
+# Include FlatBuffers in this project.
+add_subdirectory(${FLATBUFFERS_PROJECT_DIR} flatbuffers)
+
+# Generate source files for all FlatBuffers schema files under the src
+# directory.
+set(FLATBUFFERS_GENERATED_INCLUDES_DIR
+    ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
+file(MAKE_DIRECTORY ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src *.fbs)
+get_target_property(FLATBUFFERS_FLATC flatc LOCATION)
+# Generate rules to build the set of output files from the set of input
+# schema files.
+foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
+  get_filename_component(filename ${flatbuffers_schema} NAME_WE)
+  set(flatbuffers_include
+      ${FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
+  add_custom_command(
+    OUTPUT ${flatbuffers_include}
+    COMMAND ${FLATBUFFERS_FLATC} -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
+        -c ${flatbuffers_schema}
+    DEPENDS ${flatbuffers_schema} ${FLATBUFFERS_FLATC}
+        ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+  list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
+endforeach()
+add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
+
+# Includes for this project.
 include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${FLATBUFFER_PROJECT_DIR}/include)
-include_directories(${FLATBUFFER_GENERERATED_INCLUDES})
-
-file(GLOB_RECURSE FLATBUFFER_SCHEMAS ${CMAKE_SOURCE_DIR}/src *.fbs)
-add_custom_target(
-    generate_flatbuffers
-    ${CMAKE_SOURCE_DIR}/flatbuffers/flatc -o ${FLATBUFFER_GENERERATED_INCLUDES}
-        -c ${FLATBUFFER_SCHEMAS}
-    SOURCES ${FLATBUFFER_SCHEMAS})
-
-add_subdirectory(${FLATBUFFER_PROJECT_DIR} flatbuffers)
-
-add_definitions(-std=c++11 -pedantic -Werror -Wall -Wextra)
+include_directories(${FLATBUFFERS_PROJECT_DIR}/include)
+include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+# SDL includes.
+include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
+# Executable target.
+add_definitions(-std=c++0x -pedantic -Werror -Wall -Wextra)
 add_executable(splat src/main.cpp)
-
-add_dependencies(splat generate_flatbuffers)
-add_dependencies(generate_flatbuffers flatc)
+# Dependencies for the executable target.
+add_dependencies(splat generated_includes)
+target_link_libraries(splat SDL2main)
 
