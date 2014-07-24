@@ -57,7 +57,7 @@ Renderer::RendererError Renderer::Initialize(const char *window_title) {
       !strstr(exts, "GL_ARB_fragment_program")) return kMissingExtensions;
   #endif
 
-  #ifdef WIN32
+  #if !defined(RENDERER_MOBILE) && !defined(__APPLE__)
   #define GLEXT(type, name) \
     name = (type)SDL_GL_GetProcAddress(#name); \
     if (!name) return kMissingEntrypoint;
@@ -328,8 +328,8 @@ void Mesh::RenderArray(GLenum primitive, int index_count,
 }  // namespace fpl
 
 
-#ifdef WIN32
-  #define GLEXT(type, name) type name = NULL;
+#if !defined(RENDERER_MOBILE) && !defined(__APPLE__)
+  #define GLEXT(type, name) type name = nullptr;
     GLBASEEXTS GLEXTS
   #undef GLEXT
 #endif

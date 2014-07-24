@@ -20,5 +20,5 @@ class InputSystem {
 
 }  // namespace fpl
 
-#endif INPUT_SYSTEM_H
+#endif  // INPUT_SYSTEM_H
 

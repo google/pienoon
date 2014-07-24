@@ -60,15 +60,17 @@ add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 set(Splat_SRCS
     src/main.cpp
     src/precompiled.cpp
-    src/renderer.cpp)
+    src/renderer.cpp
+    src/input.cpp)
 # Includes for this project.
 include_directories(src)
 include_directories(${FLATBUFFERS_PROJECT_DIR}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${MATHFU_PROJECT_DIR})
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 # Executable target.
-add_definitions(-std=c++0x -Werror -Wall -Wextra)
+add_definitions(-g -std=c++0x -Werror -Wall -Wextra -DCOMPILE_WITHOUT_SIMD_SUPPORT)
 add_executable(splat ${Splat_SRCS})
 # Dependencies for the executable target.
 add_dependencies(splat generated_includes)

@@ -142,7 +142,7 @@ class Renderer {
   // not understood.
   GLuint CreateTextureFromTGAMemory(const void *tga_buf);
 
-  Renderer() : window_(nullptr), context_(nullptr), color(1) {}
+  Renderer() : color(1), window_(nullptr), context_(nullptr) {}
   ~Renderer() { ShutDown(); }
 
  private:
