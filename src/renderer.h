@@ -1,14 +1,12 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#if defined(__IOS__) || defined(__ANDROID__)
-  #define RENDERER_MOBILE
-#endif
-
 namespace fpl {
 
-typedef mathfu::Matrix<float, 4, 4> mat4;
-typedef mathfu::Vector<float, 4> vec4;
+using mathfu::vec2i;
+using mathfu::vec3;
+using mathfu::vec4;
+using mathfu::mat4;
 
 class Renderer;
 
@@ -119,13 +117,17 @@ class Renderer {
   };
 
   // Creates the window + OpenGL context.
-  RendererError Initialize(const char *window_title = "");
+  RendererError Initialize(const vec2i &window_size = vec2i(800, 600),
+                           const char *window_title = "");
 
   // Swaps frames. Call this once per frame inside your main loop.
   void AdvanceFrame(bool minimized);
 
   // Cleans up whatever Initialize creates.
   void ShutDown();
+
+  // Clears the framebuffer. Call this after AdvanceFrame if desired.
+  void ClearFrameBuffer(const vec4 &color);
 
   // Create a shader object from two strings containing glsl code.
   // Returns NULL upon error, with a descriptive message in glsl_error_.
@@ -135,14 +137,15 @@ class Renderer {
 
   // Create a texture from a memory buffer containing xsize * ysize RGBA pixels.
   // Does not fail.
-  GLuint CreateTexture(const uint8_t *buffer, int xsize, int ysize);
+  GLuint CreateTexture(const uint8_t *buffer, const vec2i &size);
 
   // Create a texture from a memory buffer containing a TGA format file.
   // May only be uncompressed RGB or RGBA data. Returns 0 if the format is
   // not understood.
   GLuint CreateTextureFromTGAMemory(const void *tga_buf);
 
-  Renderer() : color(1), window_(nullptr), context_(nullptr) {}
+  Renderer() : color(1), window_size_(vec2i(0)), window_(nullptr),
+               context_(nullptr) {}
   ~Renderer() { ShutDown(); }
 
  private:
@@ -151,6 +154,7 @@ class Renderer {
  public:
   Camera camera;
   vec4 color;
+  vec2i window_size_;
   std::string glsl_error_;
 
  private:

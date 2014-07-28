@@ -10,7 +10,8 @@ enum {
   kAttributeColor
 };
 
-Renderer::RendererError Renderer::Initialize(const char *window_title) {
+Renderer::RendererError Renderer::Initialize(const vec2i &window_size,
+                                             const char *window_title) {
   // Basic SDL initialization, does not actually initialize a Window or OpenGL,
   // typically should not fail.
   if (SDL_Init(SDL_INIT_VIDEO)) {
@@ -18,7 +19,7 @@ Renderer::RendererError Renderer::Initialize(const char *window_title) {
   }
 
   // Force OpenGL ES 2 on mobile.
-  #ifdef RENDERER_MOBILE
+  #ifdef PLATFORM_MOBILE
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
   #endif
 
@@ -29,26 +30,33 @@ Renderer::RendererError Renderer::Initialize(const char *window_title) {
   window_ = SDL_CreateWindow(
     window_title,
     SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    1280, 800, // FIXME
+    window_size.x(), window_size.y(),
     SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN |
-      #ifdef RENDERER_MOBILE
+      #ifdef PLATFORM_MOBILE
         SDL_WINDOW_BORDERLESS
       #else
         SDL_WINDOW_RESIZABLE
+        #ifndef _DEBUG
+          | SDL_WINDOW_FULLSCREEN_DESKTOP
+        #endif
       #endif
     );
   if (!window_) return kFailedToOpenWindow;
+
+  // Get the size we actually got, which typically is native res for
+  // any fullscreen display:
+  SDL_GetWindowSize(window_, &window_size_.x(), &window_size_.y());
 
   // Create the OpenGL context:
   context_ = SDL_GL_CreateContext(window_);
   if (!context_) return kCouldNotCreateOpenGLContext;
 
   // Enable Vsync on desktop
-  #ifndef RENDERER_MOBILE
+  #ifndef PLATFORM_MOBILE
     SDL_GL_SetSwapInterval(1);
   #endif
 
-  #ifndef RENDERER_MOBILE
+  #ifndef PLATFORM_MOBILE
   auto exts = (char *)glGetString(GL_EXTENSIONS);
 
   if (!strstr(exts, "GL_ARB_vertex_buffer_object") ||
@@ -57,7 +65,7 @@ Renderer::RendererError Renderer::Initialize(const char *window_title) {
       !strstr(exts, "GL_ARB_fragment_program")) return kMissingExtensions;
   #endif
 
-  #if !defined(RENDERER_MOBILE) && !defined(__APPLE__)
+  #if !defined(PLATFORM_MOBILE) && !defined(__APPLE__)
   #define GLEXT(type, name) \
     union { \
       void* data; \
@@ -80,6 +88,7 @@ void Renderer::AdvanceFrame(bool minimized) {
   } else {
     SDL_GL_SwapWindow(window_);
   }
+  glViewport(0, 0, window_size_.x(), window_size_.y());
 }
 
 void Renderer::ShutDown() {
@@ -93,10 +102,16 @@ void Renderer::ShutDown() {
   }
 }
 
+void Renderer::ClearFrameBuffer(const vec4 &color) {
+    glClearColor(color.x(), color.y(), color.z(), color.w());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
 GLuint Renderer::CompileShader(GLenum stage, GLuint program,
                                const GLchar *source) {
   std::string platform_source =
-  #ifdef RENDERER_MOBILE
+  #ifdef PLATFORM_MOBILE
     "#ifdef GL_ES\nprecision highp float;\n#endif\n";
   #else
     "#version 120\n";
@@ -153,7 +168,7 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
   return nullptr;
 }
 
-GLuint Renderer::CreateTexture(const uint8_t *buffer, int xsize, int ysize) {
+GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   // TODO: support default args for mipmap/wrap
   GLuint texture_id;
   glGenTextures(1, &texture_id);
@@ -164,7 +179,7 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, int xsize, int ysize) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                   GL_LINEAR_MIPMAP_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xsize, ysize, 0, GL_RGBA,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0, GL_RGBA,
                GL_UNSIGNED_BYTE, buffer);
   glEnable(GL_TEXTURE_2D);
   glGenerateMipmap(GL_TEXTURE_2D);
@@ -202,7 +217,7 @@ GLuint Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
       p[3] = header->bpp == 32 ? *pixels++ : 255;
     }
   }
-  auto id = CreateTexture(rgba, header->width, header->height);
+  auto id = CreateTexture(rgba, vec2i(header->width, header->height));
   delete[] rgba;
   return id;
 }
@@ -333,7 +348,7 @@ void Mesh::RenderArray(GLenum primitive, int index_count,
 }  // namespace fpl
 
 
-#if !defined(RENDERER_MOBILE) && !defined(__APPLE__)
+#if !defined(PLATFORM_MOBILE) && !defined(__APPLE__)
   #define GLEXT(type, name) type name = nullptr;
     GLBASEEXTS GLEXTS
   #undef GLEXT

@@ -24,23 +24,22 @@ using namespace fpl;
 // TODO: move elsewhere
 char *LoadFile(const char *filename, size_t *length_ptr = nullptr)
 {
-    auto handle = SDL_RWFromFile(filename, "rb");
-    if (!handle) return nullptr;
-    auto len = static_cast<size_t>(SDL_RWseek(handle, 0, RW_SEEK_END));
-    SDL_RWseek(handle, 0, RW_SEEK_SET);
-    auto buf = reinterpret_cast<char *>(malloc(len + 1));
-    if (!buf) {
-      SDL_RWclose(handle);
-      return nullptr;
-    }
-    buf[len] = 0;
-    size_t rlen = static_cast<size_t>(SDL_RWread(handle, buf, 1, len));
+  auto handle = SDL_RWFromFile(filename, "rb");
+  if (!handle) return nullptr;
+  auto len = static_cast<size_t>(SDL_RWseek(handle, 0, RW_SEEK_END));
+  SDL_RWseek(handle, 0, RW_SEEK_SET);
+  auto buf = reinterpret_cast<char *>(malloc(len + 1));
+  if (!buf) {
     SDL_RWclose(handle);
-    if (len != rlen || len <= 0) { free(buf); return NULL; }
-    if (length_ptr) *length_ptr = len;
-    return buf;
+    return nullptr;
+  }
+  buf[len] = 0;
+  size_t rlen = static_cast<size_t>(SDL_RWread(handle, buf, 1, len));
+  SDL_RWclose(handle);
+  if (len != rlen || len <= 0) { free(buf); return NULL; }
+  if (length_ptr) *length_ptr = len;
+  return buf;
 }
-
 
 int main(int argc, char *argv[]) {
   (void) argc; (void) argv;
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
   InputSystem input;
 
   Renderer renderer;
-  renderer.Initialize("my amazing game!");
+  renderer.Initialize(vec2i(1280, 800), "my amazing game!");
 
   // This code will be inside a future material manager instead.
   auto vs_source = LoadFile("shaders/textured.glslv");
@@ -83,9 +82,16 @@ int main(int argc, char *argv[]) {
                        1, 1, 0,   1, 1,
                        1, -1, 0,  1, 0 };
 
-  while (!input.exit_requested_) {
+  while (!input.exit_requested_ &&
+         !input.GetButton(SDLK_ESCAPE).went_down()) {
     renderer.AdvanceFrame(input.minimized_);
-    input.AdvanceFrame();
+    renderer.ClearFrameBuffer(vec4(0.0f));
+    input.AdvanceFrame(&renderer.window_size_);
+
+    // Some random "interactivity"
+    if (input.GetButton(SDLK_POINTER1).is_down()) {
+      vertices[0] += input.pointers_[0].mousedelta.x() / 100.0f;
+    }
 
     shader->Set(renderer);
     glBindTexture(GL_TEXTURE_2D, texture_id);  // FIXME

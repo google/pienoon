@@ -23,8 +23,11 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "matrices/Matrix.h"
+#include "vectors/Vector_4D.h"
+#include "vectors/GLSL_Mappings.h"
 
 #ifdef __ANDROID__
 #include <AndroidUtil/AndroidMainWrapper.h>
@@ -34,6 +37,12 @@
 #include <SDL.h>
 
 #include "glplatform.h"
+
+// TODO: renderer & input system both rely on this define,
+// move elsewhere?
+#if defined(__IOS__) || defined(__ANDROID__)
+  #define PLATFORM_MOBILE
+#endif
 
 #ifdef _WIN32
 #pragma hdrstop
