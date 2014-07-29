@@ -1,5 +1,6 @@
 # Binary
 splat
+*.bin
 
 # CMake files
 CMakeCache.txt

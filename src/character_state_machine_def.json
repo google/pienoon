@@ -1,0 +1,125 @@
+{
+  "states": [
+    {
+      "id": "Idling",
+      "transitions": [
+        {
+          "target_state": "Aiming",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Aiming",
+      "transitions": [
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Blocking",
+      "transitions": [
+        {
+          "target_state": "KO",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "KO",
+      "transitions": [
+        {
+          "target_state": "HitWithPie",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "HitWithPie",
+      "transitions": [
+        {
+          "target_state": "Loading",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Loading",
+      "transitions": [
+        {
+          "target_state": "Throwing",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Throwing",
+      "transitions": [
+        {
+          "target_state": "IdleToBlock",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "IdleToBlock",
+      "transitions": [
+        {
+          "target_state": "BlockToIdle",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BlockToIdle",
+      "transitions": [
+        {
+          "target_state": "Deflecting",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Deflecting",
+      "transitions": [
+        {
+          "target_state": "AimToBlock",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "AimToBlock",
+      "transitions": [
+        {
+          "target_state": "Idling",
+          "condition": {
+            "logical_inputs": "ConfirmPressed"
+          }
+        }
+      ]
+    }
+  ]
+}

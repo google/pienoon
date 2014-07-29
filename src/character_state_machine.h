@@ -23,6 +23,15 @@ namespace splat {
 struct CharacterStateMachineDef;
 struct CharacterState;
 
+struct TransitionInputs {
+  // A set of bits that the state machine will compare against when following
+  // transitions.
+  int32_t logical_inputs;
+
+  // The elapsed time of the animation.
+  int animation_time;
+};
+
 class CharacterStateMachine {
  public:
   // Initializes a state machine with the given state machine definition.
@@ -32,9 +41,9 @@ class CharacterStateMachine {
 
   // Updates the current state of the state machine.
   //
-  // conditions is a bitfield of enum values from the Conditions enum defined in
-  // the flatbuffer definition.
-  void Update(uint16_t conditions);
+  // inputs is a structure containing the game data that can affect whether or
+  // not a state transition occurs
+  void Update(const TransitionInputs& inputs);
 
   // Retrieves the current state of the state machine.
   const CharacterState* current_state() const;

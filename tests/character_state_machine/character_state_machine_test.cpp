@@ -88,7 +88,7 @@ TEST(CharacterStateMachineTests, FollowTransitions) {
   for (int i = 0; i < sp::StateId_Count; i++) {
     std::vector<flatbuffers::Offset<sp::Transition>> trans_vec;
     uint8_t target_id = (i + 1) % sp::StateId_Count;
-    uint16_t conditions = sp::Condition_UpPressed;
+    uint16_t conditions = sp::LogicalInputs_UpPressed;
     trans_vec.push_back(sp::CreateTransition(builder, target_id, conditions));
 
     auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(
@@ -105,12 +105,22 @@ TEST(CharacterStateMachineTests, FollowTransitions) {
   CharacterStateMachineDef_Validate(def);
 
   sp::CharacterStateMachine state_machine(def);
+  sp::TransitionInputs correct_input1;
+  correct_input1.logical_inputs = sp::LogicalInputs_UpPressed;
+
+  sp::TransitionInputs correct_input2;
+  correct_input2.logical_inputs =
+      sp::LogicalInputs_UpPressed | sp::LogicalInputs_DownPressed;
+
+  sp::TransitionInputs incorrect_input;
+  incorrect_input.logical_inputs = sp::LogicalInputs_DownPressed;
+
   ASSERT_EQ(state_machine.current_state()->id(), 0);
-  state_machine.Update(sp::Condition_UpPressed);
+  state_machine.Update(correct_input1);
   ASSERT_EQ(state_machine.current_state()->id(), 1);
-  state_machine.Update(sp::Condition_DownPressed);
-  ASSERT_EQ(state_machine.current_state()->id(), 1);
-  state_machine.Update(sp::Condition_UpPressed | sp::Condition_DownPressed);
+  state_machine.Update(correct_input2);
+  ASSERT_EQ(state_machine.current_state()->id(), 2);
+  state_machine.Update(incorrect_input);
   ASSERT_EQ(state_machine.current_state()->id(), 2);
 }
 

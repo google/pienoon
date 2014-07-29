@@ -27,15 +27,20 @@ CharacterStateMachine::CharacterStateMachine(
           state_machine_def_->initial_state())) {
 }
 
-void CharacterStateMachine::Update(uint16_t conditions) {
+void CharacterStateMachine::Update(const TransitionInputs& inputs) {
   for (auto it = current_state_->transitions()->begin();
        it != current_state_->transitions()->end(); ++it) {
-    auto transition = *it;
-    if ((transition->conditions() & conditions) == transition->conditions()) {
-      current_state_ = state_machine_def_->states()->Get(
-          transition->target_state());
-      return;
+    const TransitionCondition* condition = it->condition();
+    if ((condition->logical_inputs() & inputs.logical_inputs) !=
+        condition->logical_inputs()) {
+      continue;
     }
+    if (inputs.animation_time < condition->time_begin() ||
+        condition->time_end() < inputs.animation_time) {
+      continue;
+    }
+    current_state_ = state_machine_def_->states()->Get(it->target_state());
+    return;
   }
 }
 

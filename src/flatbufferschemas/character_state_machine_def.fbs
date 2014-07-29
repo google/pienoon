@@ -30,26 +30,26 @@ enum StateId:byte {
   Count // Must be last
 }
 
-enum Condition:short (bit_flags) {
-  // Animation state
-  AnimationEnd,
-
-  // Controller state
+enum LogicalInputs:byte (bit_flags) {
   UpPressed,
   DownPressed,
   Leftpressed,
   RightPressed,
   ConfirmPressed,
   CancelPressed,
-
-  // Character state
-  HitByPie,
+  JustHit,
   NoHealth
+}
+
+table TransitionCondition {
+  logical_inputs:LogicalInputs;
+  time_begin:int = 0;
+  time_end:int = 2147483647; // MAX_INT
 }
 
 table Transition {
   target_state:StateId;
-  conditions:Condition;
+  condition:TransitionCondition;
 }
 
 table CharacterState {

@@ -16,8 +16,10 @@
 
 #include "precompiled.h"
 
-#include "renderer.h"
+#include "character_state_machine.h"
+#include "character_state_machine_def_generated.h"
 #include "input.h"
+#include "renderer.h"
 
 using namespace fpl;
 
@@ -82,6 +84,16 @@ int main(int argc, char *argv[]) {
                        1, 1, 0,   1, 1,
                        1, -1, 0,  1, 0 };
 
+  auto state_machine_source = LoadFile("character_state_machine_def.bin");
+  if (!state_machine_source) {
+    printf("can't load character state machines\n");
+    return 1;
+  }
+
+  auto state_machine_def =
+      splat::GetCharacterStateMachineDef(state_machine_source);
+  CharacterStateMachineDef_Validate(state_machine_def);
+
   while (!input.exit_requested_ &&
          !input.GetButton(SDLK_ESCAPE).went_down()) {
     renderer.AdvanceFrame(input.minimized_);
@@ -100,6 +112,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Temp resource cleanup:
+  free(state_machine_source);
   free(vs_source);
   free(ps_source);
   free(texture_tga);
