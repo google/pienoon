@@ -13,8 +13,12 @@
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\renderer.h" />
     <ClInclude Include="..\..\src\character_state_machine.h" />
-    <ClInclude Include="..\..\src\character_state_machine_def_generated.h" />
-    <ClInclude Include="..\..\src\timeline_generated.h" />
+    <ClInclude Include="..\..\build\splat\generated\character_state_machine_def_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\build\splat\generated\timeline_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
@@ -22,6 +26,9 @@
     </Filter>
     <Filter Include="flatbufferschemas">
       <UniqueIdentifier>{3d4c108b-0ac2-45af-bde2-ccd6e2e125b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="generated">
+      <UniqueIdentifier>{7b6e835f-dc67-48e9-a6a3-0f71a7ec17c9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
