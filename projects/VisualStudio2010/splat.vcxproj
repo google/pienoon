@@ -57,6 +57,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalIncludeDirectories>..\..\build\splat\include;..\..\..\..\libs\flatbuffers\include;..\..\..\..\libs\liquidfun\Box2D;..\..\..\..\libs\mathfu;..\..\..\..\..\..\external\sdl\include;..\..\external\include\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
