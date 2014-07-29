@@ -7,7 +7,7 @@ enum {
   kAttributePosition,
   kAttributeNormal,
   kAttributeTexCoord,
-  kAttributeColor,
+  kAttributeColor
 };
 
 Renderer::RendererError Renderer::Initialize(const char *window_title) {

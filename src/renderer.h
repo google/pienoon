@@ -115,7 +115,7 @@ class Renderer {
     kFailedToOpenWindow,
     kCouldNotCreateOpenGLContext,
     kMissingExtensions,
-    kMissingEntrypoint,
+    kMissingEntrypoint
   };
 
   // Creates the window + OpenGL context.
