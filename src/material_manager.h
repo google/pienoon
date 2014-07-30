@@ -12,8 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file recreates the precompiled-header file (precompiled.pch) whenever
-// a file referenced by precompiled.h is touched. The precompiled header file
-// speeds compilation significantly by eliminating the to compile stable source
-// files over-and-over.
-#include "precompiled.h"
+#ifndef MATERIAL_MANAGER_H
+#define MATERIAL_MANAGER_H
+
+#include "renderer.h"
+
+namespace fpl {
+
+struct Material {
+  Shader *shader;
+  std::vector<GLuint> textures;
+};
+
+class MaterialManager {
+ public:
+  MaterialManager(Renderer &renderer) : renderer_(renderer) {}
+
+  Shader *LoadShader(const char *basename);
+  GLuint LoadTGATexture(const char *filename);
+
+  Material *LoadMaterial(const char *filename);
+
+  static bool LoadFile(const char *filename, std::string *dest);
+
+ private:
+  Renderer &renderer_;
+};
+
+}  // namespace fpl
+
+#endif // MATERIAL_MANAGER_H

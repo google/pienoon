@@ -12,8 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file recreates the precompiled-header file (precompiled.pch) whenever
-// a file referenced by precompiled.h is touched. The precompiled header file
-// speeds compilation significantly by eliminating the to compile stable source
-// files over-and-over.
-#include "precompiled.h"
+// Definitions for the material system.
+
+namespace matdef;
+
+enum BlendMode:ubyte {
+  OFF,
+  ALPHA,
+  ADD,
+  ADDALPHA,
+  MULTIPLY
+}
+
+table Material {
+  shader_basename:string;
+  texture_filenames:[string];
+  blendmode:BlendMode;
+}
+
+root_type Material;

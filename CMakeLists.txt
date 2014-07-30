@@ -63,6 +63,7 @@ set(splat_SRCS
     src/precompiled.cpp
     src/renderer.cpp
     src/input.cpp
+    src/material_manager.cpp
     src/character_state_machine.cpp)
 
 # Includes for this project.

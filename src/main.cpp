@@ -1,47 +1,27 @@
-/*
-* Copyright 2014 Google Inc. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "precompiled.h"
 
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
+#include "renderer.h"
+#include "material_manager.h"
 #include "input.h"
 #include "renderer.h"
 
 using namespace fpl;
-
-// TODO: move elsewhere
-char *LoadFile(const char *filename, size_t *length_ptr = nullptr)
-{
-  auto handle = SDL_RWFromFile(filename, "rb");
-  if (!handle) return nullptr;
-  auto len = static_cast<size_t>(SDL_RWseek(handle, 0, RW_SEEK_END));
-  SDL_RWseek(handle, 0, RW_SEEK_SET);
-  auto buf = reinterpret_cast<char *>(malloc(len + 1));
-  if (!buf) {
-    SDL_RWclose(handle);
-    return nullptr;
-  }
-  buf[len] = 0;
-  size_t rlen = static_cast<size_t>(SDL_RWread(handle, buf, 1, len));
-  SDL_RWclose(handle);
-  if (len != rlen || len <= 0) { free(buf); return NULL; }
-  if (length_ptr) *length_ptr = len;
-  return buf;
-}
 
 int main(int argc, char *argv[]) {
   (void) argc; (void) argv;
@@ -50,26 +30,19 @@ int main(int argc, char *argv[]) {
   InputSystem input;
 
   Renderer renderer;
+  MaterialManager matman(renderer);
+
   renderer.Initialize(vec2i(1280, 800), "my amazing game!");
 
-  // This code will be inside a future material manager instead.
-  auto vs_source = LoadFile("shaders/textured.glslv");
-  auto ps_source = LoadFile("shaders/textured.glslf");
-  auto texture_tga = LoadFile("textures/mover_s.tga");
-  if (!vs_source || !ps_source || !texture_tga) {
-    printf("can't load assets\n");
-    return 1;
-  }
-
-  auto shader = renderer.CompileAndLinkShader(vs_source, ps_source);
+  auto shader = matman.LoadShader("shaders/textured");
   if (!shader) {
-    printf("shader error: %s\n", renderer.glsl_error_.c_str());
+    printf("shader load error: %s\n", renderer.last_error_.c_str());
     return 1;
   }
 
-  auto texture_id = renderer.CreateTextureFromTGAMemory(texture_tga);
+  auto texture_id = matman.LoadTGATexture("textures/mover_s.tga");
   if (!texture_id) {
-    printf("can't create texture from tga\n");
+    printf("can't load texture from tga\n");
     return 1;
   }
 
@@ -84,15 +57,16 @@ int main(int argc, char *argv[]) {
                        1, 1, 0,   1, 1,
                        1, -1, 0,  1, 0 };
 
-  auto state_machine_source = LoadFile("character_state_machine_def.bin");
-  if (!state_machine_source) {
+  std::string state_machine_source;
+  if (!MaterialManager::LoadFile("character_state_machine_def.bin",
+                                 &state_machine_source)) {
     printf("can't load character state machines\n");
-    return 1;
+    //return 1;
   }
 
-  auto state_machine_def =
-      splat::GetCharacterStateMachineDef(state_machine_source);
-  CharacterStateMachineDef_Validate(state_machine_def);
+  //auto state_machine_def =
+  //    splat::GetCharacterStateMachineDef(state_machine_source.c_str());
+  //CharacterStateMachineDef_Validate(state_machine_def);
 
   while (!input.exit_requested_ &&
          !input.GetButton(SDLK_ESCAPE).went_down()) {
@@ -110,12 +84,6 @@ int main(int argc, char *argv[]) {
     Mesh::RenderArray(GL_TRIANGLES, 3, format, sizeof(float) * 5,
                          reinterpret_cast<const char *>(vertices), indices);
   }
-
-  // Temp resource cleanup:
-  free(state_machine_source);
-  free(vs_source);
-  free(ps_source);
-  free(texture_tga);
 
   return 0;
 }
