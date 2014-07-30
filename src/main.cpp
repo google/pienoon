@@ -34,15 +34,9 @@ int main(int argc, char *argv[]) {
 
   renderer.Initialize(vec2i(1280, 800), "my amazing game!");
 
-  auto shader = matman.LoadShader("shaders/textured");
-  if (!shader) {
-    printf("shader load error: %s\n", renderer.last_error_.c_str());
-    return 1;
-  }
-
-  auto texture_id = matman.LoadTGATexture("textures/mover_s.tga");
-  if (!texture_id) {
-    printf("can't load texture from tga\n");
+  auto mat = matman.LoadMaterial("materials/example.bin");
+  if (!mat) {
+    printf("load error: %s\n", renderer.last_error_.c_str());
     return 1;
   }
 
@@ -79,8 +73,7 @@ int main(int argc, char *argv[]) {
       vertices[0] += input.pointers_[0].mousedelta.x() / 100.0f;
     }
 
-    shader->Set(renderer);
-    glBindTexture(GL_TEXTURE_2D, texture_id);  // FIXME
+    mat->Set(renderer);
     Mesh::RenderArray(GL_TRIANGLES, 3, format, sizeof(float) * 5,
                          reinterpret_cast<const char *>(vertices), indices);
   }

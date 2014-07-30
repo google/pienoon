@@ -18,6 +18,12 @@
 
 namespace fpl {
 
+template<typename T> T FindInMap(const std::map<std::string, T> &map,
+                                  const char *name) {
+  auto it = map.find(name);
+  return it != map.end() ? it->second : 0;
+}
+
 bool MaterialManager::LoadFile(const char *filename, std::string *dest) {
   auto handle = SDL_RWFromFile(filename, "rb");
   if (!handle) return false;
@@ -29,40 +35,84 @@ bool MaterialManager::LoadFile(const char *filename, std::string *dest) {
   return len == rlen && len > 0;
 }
 
+Shader *MaterialManager::FindShader(const char *basename) {
+  return FindInMap(shader_map_, basename);
+}
+
 Shader *MaterialManager::LoadShader(const char *basename) {
+  auto shader = FindShader(basename);
+  if (shader) return shader;
   std::string vs_file, ps_file;
   std::string filename = std::string(basename) + ".glslv";
   if (LoadFile(filename.c_str(), &vs_file)) {
     filename = std::string(basename) + ".glslf";
     if (LoadFile(filename.c_str(), &ps_file)) {
-      return renderer_.CompileAndLinkShader(vs_file.c_str(), ps_file.c_str());
+      shader = renderer_.CompileAndLinkShader(vs_file.c_str(),
+                                              ps_file.c_str());
+      shader_map_[basename] = shader;
+      return shader;
     }
   }
   renderer_.last_error_ = "Couldn\'t load: " + filename;
   return nullptr;
 }
 
-GLuint MaterialManager::LoadTGATexture(const char *filename) {
+GLuint MaterialManager::FindTexture(const char *filename) {
+  return FindInMap(texture_map_, filename);
+}
+
+GLuint MaterialManager::LoadTexture(const char *filename) {
+  auto id = FindTexture(filename);
+  if (id) return id;
   std::string tga;
   if (LoadFile(filename, &tga)) {
-    return renderer_.CreateTextureFromTGAMemory(tga.c_str());
+    id = renderer_.CreateTextureFromTGAMemory(tga.c_str());
+    texture_map_[filename] = id;
+    return id;
   }
+  renderer_.last_error_ = std::string("Couldn\'t load: ") + filename;
   return 0;
 }
 
+Material *MaterialManager::FindMaterial(const char *filename) {
+  return FindInMap(material_map_, filename);
+}
+
 Material *MaterialManager::LoadMaterial(const char *filename) {
+  auto mat = FindMaterial(filename);
+  if (mat) return mat;
   std::string flatbuf;
   if (LoadFile(filename, &flatbuf)) {
+    assert(matdef::VerifyMaterialBuffer(flatbuffers::Verifier(
+      reinterpret_cast<const uint8_t *>(flatbuf.c_str()), flatbuf.length())));
     auto matdef = matdef::GetMaterial(flatbuf.c_str());
-    auto shader = LoadShader(matdef->shader_basename()->c_str());
-    // TODO: load textures, and register all in a map.
-    auto mat = new Material();
-    mat->shader = shader;
+    auto shadername = matdef->shader_basename();
+    auto shader = LoadShader(shadername->c_str());
+    if (!shader) return nullptr;
+    mat = new Material();
+    mat->shader_ = shader;
+    for (auto it = matdef->texture_filenames()->begin();
+             it != matdef->texture_filenames()->end(); ++it) {
+      auto texid = LoadTexture(it->c_str());
+      if (!texid) {
+        delete mat;
+        return nullptr;
+      }
+      mat->textures_.push_back(texid);
+    }
     return mat;
+    material_map_[filename] = mat;
   }
+  renderer_.last_error_ = std::string("Couldn\'t load: ") + filename;
   return nullptr;
 }
 
+void Material::Set(const Renderer &renderer) {
+  shader_->Set(renderer);
+  for (auto it = textures_.begin(); it != textures_.end(); ++it) {
+    glBindTexture(GL_TEXTURE_2D, *it);
+  }
+}
 
 
 }  // namespace fpl
