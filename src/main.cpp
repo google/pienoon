@@ -16,12 +16,13 @@
 
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
-#include "timeline_generated.h"
-#include "renderer.h"
-#include "material_manager.h"
+#include "game_state.h"
 #include "input.h"
-#include "renderer.h"
+#include "material_manager.h"
 #include "render_scene.h"
+#include "renderer.h"
+#include "sdl_controller.h"
+#include "timeline_generated.h"
 
 namespace fpl
 {
@@ -143,7 +144,7 @@ int MainLoop() {
   }
 
   renderer.camera.model_view_projection_ =
-    mat4::Ortho(-2.0f, 2.0f, -2.0f, 2.0f, -1.0f, 10.0f);
+      mat4::Ortho(-2.0f, 2.0f, -2.0f, 2.0f, -1.0f, 10.0f);
 
   renderer.color = vec4(1, 1, 1, 1);
 
@@ -154,15 +155,38 @@ int MainLoop() {
                        1, -1, 0,  1, 0 };
 
   std::string state_machine_source;
-  if (!MaterialManager::LoadFile("character_state_machine_def.bin",
-                                 &state_machine_source)) {
-    fprintf(stderr, "can't load character state machines\n");
+  if (!flatbuffers::LoadFile("character_state_machine_def.bin",
+                             true,
+                             &state_machine_source)) {
+    printf("can't load character state machines\n");
     return 1;
   }
 
-  //auto state_machine_def =
-  //    splat::GetCharacterStateMachineDef(state_machine_source.c_str());
-  //CharacterStateMachineDef_Validate(state_machine_def);
+  auto state_machine_def =
+     splat::GetCharacterStateMachineDef(state_machine_source.c_str());
+  CharacterStateMachineDef_Validate(state_machine_def);
+
+  splat::GameState game_state;
+
+  // TODO: Move this to a data file at some point, or make it configurable
+  // in-game
+  const int DEFAULT_HEALTH = 10;
+  const int PLAYER_COUNT = 4;
+
+  splat::SdlController* controllers[PLAYER_COUNT];
+  for (int i = 0; i < PLAYER_COUNT; i++) {
+    controllers[i] = new splat::SdlController(
+        &input, splat::ControlScheme::GetDefaultControlScheme(i));
+  }
+  for (int i = 0; i < PLAYER_COUNT; i++) {
+    game_state.AddCharacter(DEFAULT_HEALTH, controllers[i], state_machine_def);
+  }
+  // TODO: Remove this block and the one in the main loop that prints the
+  // current state.
+  // This is just for development. It keeps track of when a state machine
+  // transitions so that we can print the change. Printing every frame would be
+  // spammy.
+  std::vector<int> previous_states(PLAYER_COUNT, -1);
 
   RenderScene scene;
   while (!input.exit_requested_ &&
@@ -170,6 +194,18 @@ int MainLoop() {
     renderer.AdvanceFrame(input.minimized_);
     renderer.ClearFrameBuffer(vec4(0.0f));
     input.AdvanceFrame(&renderer.window_size_);
+    game_state.AdvanceFrame();
+
+    // Display the state changes, at least until we get real rendering up.
+    for (int i = 0; i < PLAYER_COUNT; i++) {
+      auto& player = game_state.characters()->at(i);
+      int id = player.state_machine()->current_state()->id();
+      if (previous_states[i] != id) {
+        printf("Player %d - Health %2d, State %s [%d]\n",
+               i, player.health(), splat::EnumNameStateId(id), id);
+        previous_states[i] = id;
+      }
+    }
 
     // Some random "interactivity"
     if (input.GetButton(SDLK_POINTER1).is_down()) {
@@ -178,7 +214,7 @@ int MainLoop() {
 
     materials[0]->Set(renderer);
     Mesh::RenderArray(GL_TRIANGLES, 3, format, sizeof(float) * 5,
-                         reinterpret_cast<const char *>(vertices), indices);
+                      reinterpret_cast<const char *>(vertices), indices);
 
     // Populate 'scene' from the game state--all the positions, orientations,
     // and renderable-ids (which specify materials) of the characters and props.

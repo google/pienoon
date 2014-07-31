@@ -64,12 +64,15 @@ endif()
 
 # Splat source files.
 set(splat_SRCS
+    src/character.cpp
+    src/character_state_machine.cpp
+    src/game_state.cpp
+    src/input.cpp
     src/main.cpp
+    src/material_manager.cpp
     src/precompiled.cpp
     src/renderer.cpp
-    src/input.cpp
-    src/material_manager.cpp
-    src/character_state_machine.cpp)
+    src/sdl_controller.cpp)
 
 # Includes for this project.
 include_directories(src)

@@ -6,7 +6,7 @@
         {
           "target_state": "Aiming",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -17,7 +17,7 @@
         {
           "target_state": "Blocking",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -28,7 +28,7 @@
         {
           "target_state": "KO",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -39,7 +39,7 @@
         {
           "target_state": "HitWithPie",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -50,7 +50,7 @@
         {
           "target_state": "Loading",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -61,7 +61,7 @@
         {
           "target_state": "Throwing",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -72,7 +72,7 @@
         {
           "target_state": "IdleToBlock",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -83,7 +83,7 @@
         {
           "target_state": "BlockToIdle",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -94,7 +94,7 @@
         {
           "target_state": "Deflecting",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -105,7 +105,7 @@
         {
           "target_state": "AimToBlock",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]
@@ -116,7 +116,7 @@
         {
           "target_state": "Idling",
           "condition": {
-            "logical_inputs": "ConfirmPressed"
+            "logical_inputs": "ThrowPie"
           }
         }
       ]

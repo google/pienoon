@@ -50,8 +50,6 @@ class CharacterStateMachine {
   const CharacterState* current_state() const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CharacterStateMachine);
-
   const CharacterStateMachineDef* const state_machine_def_;
   const CharacterState* current_state_;
 };

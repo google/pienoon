@@ -31,12 +31,10 @@ enum StateId:byte {
 }
 
 enum LogicalInputs:byte (bit_flags) {
-  UpPressed,
-  DownPressed,
-  Leftpressed,
-  RightPressed,
-  ConfirmPressed,
-  CancelPressed,
+  ThrowPie,
+  Deflect,
+  Left,
+  Right,
   JustHit,
   NoHealth
 }
