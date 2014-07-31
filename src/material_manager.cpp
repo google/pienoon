@@ -100,8 +100,8 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
       }
       mat->textures_.push_back(texid);
     }
-    return mat;
     material_map_[filename] = mat;
+    return mat;
   }
   renderer_.last_error_ = std::string("Couldn\'t load: ") + filename;
   return nullptr;

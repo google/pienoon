@@ -57,6 +57,8 @@ class MaterialManager {
   static bool LoadFile(const char *filename, std::string *dest);
 
  private:
+  DISALLOW_COPY_AND_ASSIGN(MaterialManager);
+
   Renderer &renderer_;
   std::map<std::string, Shader *> shader_map_;
   std::map<std::string, GLuint> texture_map_;

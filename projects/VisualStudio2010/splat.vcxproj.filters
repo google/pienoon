@@ -6,6 +6,7 @@
     <ClCompile Include="..\..\src\precompiled.cpp" />
     <ClCompile Include="..\..\src\renderer.cpp" />
     <ClCompile Include="..\..\src\character_state_machine.cpp" />
+    <ClCompile Include="..\..\src\material_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\glplatform.h" />
@@ -19,6 +20,10 @@
     <ClInclude Include="..\..\build\splat\generated\timeline_generated.h">
       <Filter>generated</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\build\splat\include\materials_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\common.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
@@ -50,6 +55,9 @@
       <Filter>flatbufferschemas</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\src\flatbufferschemas\character_state_machine_def.fbs">
+      <Filter>flatbufferschemas</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\flatbufferschemas\materials.fbs">
       <Filter>flatbufferschemas</Filter>
     </CustomBuild>
   </ItemGroup>

@@ -16,6 +16,7 @@
 #define CHARACTER_STATE_MACHINE_
 
 #include <cstdint>
+#include "common.h"
 
 namespace fpl {
 namespace splat {
@@ -49,8 +50,7 @@ class CharacterStateMachine {
   const CharacterState* current_state() const;
 
  private:
-  // Disallow assignment.
-  CharacterStateMachine& operator=(const CharacterStateMachine&);
+  DISALLOW_COPY_AND_ASSIGN(CharacterStateMachine);
 
   const CharacterStateMachineDef* const state_machine_def_;
   const CharacterState* current_state_;
