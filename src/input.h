@@ -73,7 +73,8 @@ struct Pointer {
 
 class InputSystem {
  public:
-  InputSystem() : exit_requested_(false), minimized_(false) {
+  InputSystem() : exit_requested_(false), minimized_(false),
+    frame_time_(0), last_millis_(0), frames_(0), start_time_(0) {
     const int kMaxSimultanuousPointers = 10;  // All current touch screens.
     pointers_.assign(kMaxSimultanuousPointers, Pointer());
   }
@@ -86,6 +87,10 @@ class InputSystem {
   // state. The window_size argument may get updated whenever the window
   // resizes.
   void AdvanceFrame(vec2i *window_size);
+
+  // Get time in second since the start of the game, or since the last frame.
+  float Time() const;
+  float DeltaTime() const;
 
   // Get a Button object describing the current input state (see SDLK_ enum
   // above.
@@ -110,9 +115,16 @@ class InputSystem {
 
  private:
   std::map<int, Button> button_map_;
+
+  // Frame timing related, all in milliseconds.
+  // records the most recent frame delta, most recent time since start,
+  // number of frames so far, and start time.
+  int frame_time_, last_millis_, frames_, start_time_;
+
+ public:
+  static const int kMillisecondsPerSecond = 1000;
 };
 
 }  // namespace fpl
 
 #endif  // INPUT_SYSTEM_H
-

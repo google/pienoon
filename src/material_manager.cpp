@@ -49,7 +49,7 @@ Shader *MaterialManager::LoadShader(const char *basename) {
     if (LoadFile(filename.c_str(), &ps_file)) {
       shader = renderer_.CompileAndLinkShader(vs_file.c_str(),
                                               ps_file.c_str());
-      shader_map_[basename] = shader;
+      if (shader) shader_map_[basename] = shader;
       return shader;
     }
   }
@@ -67,7 +67,7 @@ GLuint MaterialManager::LoadTexture(const char *filename) {
   std::string tga;
   if (LoadFile(filename, &tga)) {
     id = renderer_.CreateTextureFromTGAMemory(tga.c_str());
-    texture_map_[filename] = id;
+    if (id) texture_map_[filename] = id;
     return id;
   }
   renderer_.last_error_ = std::string("Couldn\'t load: ") + filename;

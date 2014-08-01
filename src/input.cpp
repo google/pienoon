@@ -20,6 +20,11 @@ namespace fpl {
 void InputSystem::Initialize() {
   // Set callback to hear about lifecycle events on mobile devices.
   SDL_SetEventFilter(HandleAppEvents, this);
+
+  // Initialize time.
+  start_time_ = SDL_GetTicks();
+  // Ensure first frame doesn't get a crazy delta.
+  last_millis_ = start_time_ - 16;
 }
 
 int InputSystem::HandleAppEvents(void *userdata, SDL_Event *event) {
@@ -45,12 +50,21 @@ int InputSystem::HandleAppEvents(void *userdata, SDL_Event *event) {
 }
 
 void InputSystem::AdvanceFrame(vec2i *window_size) {
+  // Update timing.
+  int millis = SDL_GetTicks();
+  frame_time_ = millis - last_millis_;
+  last_millis_ = millis;
+  frames_++;
+
+  // Reset our per-frame input state.
   for (auto it = button_map_.begin(); it != button_map_.end(); ++it) {
     it->second.Reset();
   }
   for (auto it = pointers_.begin(); it != pointers_.end(); ++it) {
     it->mousedelta = vec2i(0);
   }
+
+  // Poll events until Q is empty.
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch(event.type) {
@@ -98,6 +112,16 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
         break;
     }
   }
+}
+
+float InputSystem::Time() const {
+  return (last_millis_ - start_time_) /
+      static_cast<float>(kMillisecondsPerSecond);
+}
+
+float InputSystem::DeltaTime() const {
+  return frame_time_ /
+      static_cast<float>(kMillisecondsPerSecond);
 }
 
 Button &InputSystem::GetButton(int button) {

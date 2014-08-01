@@ -120,18 +120,9 @@ class Mesh {
 // such as shaders, textures, and geometry.
 class Renderer {
  public:
-  // Possible errors returned by Initialize()
-  enum RendererError {
-    kSuccess,
-    kSDLFailedToInitialize,
-    kFailedToOpenWindow,
-    kCouldNotCreateOpenGLContext,
-    kMissingExtensions,
-    kMissingEntrypoint
-  };
-
   // Creates the window + OpenGL context.
-  RendererError Initialize(const vec2i &window_size = vec2i(800, 600),
+  // A descriptive error is in last_error_ if it returns false.
+  bool Initialize(const vec2i &window_size = vec2i(800, 600),
                            const char *window_title = "");
 
   // Swaps frames. Call this once per frame inside your main loop.

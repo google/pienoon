@@ -68,7 +68,11 @@ SplatGame::SplatGame()
 // Initialize the 'renderer_' member. No other members have been initialized at
 // this point.
 bool SplatGame::InitializeRenderer() {
-  renderer_.Initialize(vec2i(1280, 800), "Splat!");
+  if (!renderer_.Initialize(vec2i(1280, 800), "Splat!")) {
+    fprintf(stderr, "Renderer initialization error: %s\n",
+            renderer_.last_error_.c_str());
+    return false;
+  }
 
   const vec3 cameraPosition = vec3(0, 0, -25);
 

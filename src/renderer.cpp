@@ -24,17 +24,23 @@ enum {
   kAttributeColor
 };
 
-Renderer::RendererError Renderer::Initialize(const vec2i &window_size,
+bool Renderer::Initialize(const vec2i &window_size,
                                              const char *window_title) {
   // Basic SDL initialization, does not actually initialize a Window or OpenGL,
   // typically should not fail.
   if (SDL_Init(SDL_INIT_VIDEO)) {
-    return kSDLFailedToInitialize;
+    last_error_ = std::string("SDL_Init fail: ") + SDL_GetError();
+    return false;
   }
 
   // Force OpenGL ES 2 on mobile.
   #ifdef PLATFORM_MOBILE
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  #else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                        SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
   #endif
 
   // Always double buffer.
@@ -51,19 +57,24 @@ Renderer::RendererError Renderer::Initialize(const vec2i &window_size,
       #else
         SDL_WINDOW_RESIZABLE
         #ifndef _DEBUG
-          | SDL_WINDOW_FULLSCREEN_DESKTOP
+          //| SDL_WINDOW_FULLSCREEN_DESKTOP
         #endif
       #endif
     );
-  if (!window_) return kFailedToOpenWindow;
-
+  if (!window_) {
+    last_error_ = std::string("SDL_CreateWindow fail: ") + SDL_GetError();
+    return false;
+  }
   // Get the size we actually got, which typically is native res for
   // any fullscreen display:
   SDL_GetWindowSize(window_, &window_size_.x(), &window_size_.y());
 
   // Create the OpenGL context:
   context_ = SDL_GL_CreateContext(window_);
-  if (!context_) return kCouldNotCreateOpenGLContext;
+  if (!context_) {
+    last_error_ = std::string("SDL_GL_CreateContext fail: ") + SDL_GetError();
+    return false;
+  }
 
   // Enable Vsync on desktop
   #ifndef PLATFORM_MOBILE
@@ -76,7 +87,11 @@ Renderer::RendererError Renderer::Initialize(const vec2i &window_size,
   if (!strstr(exts, "GL_ARB_vertex_buffer_object") ||
       !strstr(exts, "GL_ARB_multitexture") ||
       !strstr(exts, "GL_ARB_vertex_program") ||
-      !strstr(exts, "GL_ARB_fragment_program")) return kMissingExtensions;
+      !strstr(exts, "GL_ARB_fragment_program")) {
+    last_error_ = "missing GL extensions";
+    return false;
+  }
+
   #endif
 
   #if !defined(PLATFORM_MOBILE) && !defined(__APPLE__)
@@ -86,13 +101,16 @@ Renderer::RendererError Renderer::Initialize(const vec2i &window_size,
       type function; \
     } data_function_union_##name; \
     data_function_union_##name.data = SDL_GL_GetProcAddress(#name); \
-    if (!data_function_union_##name.data) return kMissingEntrypoint; \
+    if (!data_function_union_##name.data) { \
+      last_error_ = "could not retrieve GL function pointer " #name; \
+      return false; \
+    } \
     name = data_function_union_##name.function;
       GLBASEEXTS GLEXTS
   #undef GLEXT
   #endif
 
-  return kSuccess;
+  return true;
 }
 
 void Renderer::AdvanceFrame(bool minimized) {
