@@ -15,6 +15,8 @@
 #ifndef SPLAT_COMMON_H
 #define SPLAT_COMMON_H
 
+#include "mathfu/quaternion.h"
+
 namespace fpl {
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
@@ -24,6 +26,8 @@ namespace fpl {
 #if defined(__IOS__) || defined(__ANDROID__)
   #define PLATFORM_MOBILE
 #endif
+
+typedef mathfu::Quaternion<float> Quat;
 
 }  // namespace fpl
 

@@ -17,24 +17,32 @@ namespace fpl;
 // TODO: These Splat-specific enums should be defined in their own .fbs file
 // Once FlatBuffers supports using an arbitrary enum to set a ushort field,
 // we should pull these out and change TimelineTexture to use a ushort instead.
-enum TextureId : ushort {
-  kCardboard,
-  kIdle,
-  kThrow,
-  kAim,
-  kHit,
-  kKnockedOut
+enum RenderableId : ushort {
+  CharacterIdle,
+  CharacterThrow,
+  CharacterAim,
+  CharacterHit,
+  CharacterKnockedOut,
+  EnvironmentCloud,
+  EnvironmentSun,
+  EnvironmentStageFront,
+  EnvironmentMaskingTape,
+  EnvironmentTree,
+  EnvironmentStoreFrontLeft,
+  EnvironmentStoreSide,
+  EnvironmentStoreFrontRight,
+  Num
 }
 
 // TODO: Same as TextureId.
 enum SoundId : ushort {
-  kThrowPie,
-  kHitWithPie
+  ThrowPie,
+  HitWithPie
 }
 
-table TimelineTexture {
+table TimelineRenderable {
   time:ushort;
-  texture:TextureId; // TODO: change to ushort. See TODO above.
+  renderable:RenderableId; // TODO: change to ushort. See TODO above.
 }
 
 table TimelineSound {
@@ -44,7 +52,7 @@ table TimelineSound {
 
 table Timeline {
   end_time:ushort;
-  animation_textures:[TimelineTexture];
+  renderables:[TimelineRenderable];
   sounds:[TimelineSound];
 }
 

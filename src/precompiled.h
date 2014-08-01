@@ -28,6 +28,7 @@
 #include "mathfu/matrix.h"
 #include "mathfu/vector_4.h"
 #include "mathfu/glsl_mappings.h"
+#include "mathfu/quaternion.h"
 
 #ifdef __ANDROID__
 #include <AndroidUtil/AndroidMainWrapper.h>

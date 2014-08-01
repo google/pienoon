@@ -16,12 +16,40 @@
 
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
+#include "timeline_generated.h"
 #include "renderer.h"
 #include "material_manager.h"
 #include "input.h"
 #include "renderer.h"
+#include "render_scene.h"
 
-using namespace fpl;
+namespace fpl
+{
+
+// TODO: Make this function a member of GameState, once that class has been
+// submitted to git. Then populate from the values in GameState.
+void PopulateSceneFromGameState(RenderScene* scene) {
+  const Quat identityQuaternion(1.0f, 0.0f, 0.0f, 0.0f);
+  scene->set_camera(mathfu::mat4::FromTranslationVector(
+                      mathfu::vec3(0.0f, 5.0f, -10.0f)));
+  scene->renderables().push_back(Renderable(RenderableId_CharacterIdle,
+                                            mathfu::mat4::Identity()));
+  scene->lights().push_back(mathfu::vec3(10.0f, 10.0f, 10.0f));
+}
+
+void RenderSceneFromDescription(Renderer& renderer,
+                                const std::vector<Material*> materials,
+                                const RenderScene& scene)
+{
+  for (size_t i = 0; i < scene.renderables().size(); ++i) {
+    const Renderable& renderable = scene.renderables()[i];
+    const Material* mat = materials[renderable.id()];
+    (void)mat;
+    (void)renderer;
+    // TODO: Draw carboard with texture from 'mat' at location
+    // renderable.matrix_
+  }
+}
 
 // Try to change into the assets directory when running the executable from
 // the build path.
@@ -56,8 +84,41 @@ static bool ChangeToAssetsDir() {
   return true;
 }
 
-int main(int argc, char *argv[]) {
-  (void) argc; (void) argv;
+static inline bool IsUpperCase(const char c) {
+  return c == toupper(c);
+}
+
+static std::string CamelCaseToSnakeCase(const char* const camel) {
+  // Replace capitals with underbar + lowercase.
+  std::string snake;
+  for (const char* c = camel; *c != '\0'; ++c) {
+    if (IsUpperCase(*c)) {
+      const bool is_start_or_end = c == camel || *(c + 1) == '\0';
+      if (!is_start_or_end) {
+        snake += '_';
+      }
+      snake += static_cast<char>(tolower(*c));
+    } else {
+      snake += *c;
+    }
+  }
+  return snake;
+}
+
+static std::string FileNameFromEnumName(const char* const enum_name,
+                                        const char* const prefix,
+                                        const char* const suffix) {
+  // Skip over the initial 'k', if it exists.
+  const bool starts_with_k = enum_name[0] == 'k' && IsUpperCase(enum_name[1]);
+  const char* const camel_case_name = starts_with_k ? enum_name + 1 : enum_name;
+
+  // Assemble file name.
+  return std::string(prefix)
+       + CamelCaseToSnakeCase(camel_case_name)
+       + std::string(suffix);
+}
+
+int MainLoop() {
   printf("Splat initializing..\n");
   if (!ChangeToAssetsDir()) return 1;
 
@@ -68,10 +129,17 @@ int main(int argc, char *argv[]) {
 
   renderer.Initialize(vec2i(1280, 800), "my amazing game!");
 
-  auto mat = matman.LoadMaterial("materials/example.bin");
-  if (!mat) {
-    fprintf(stderr, "load error: %s\n", renderer.last_error_.c_str());
-    return 1;
+  std::vector<Material*> materials;
+  for (int i = 0; i < RenderableId_Num; ++i) {
+    const std::string material_file_name = FileNameFromEnumName(
+                                              EnumNameRenderableId(i),
+                                              "materials/", ".bin");
+    Material* mat = matman.LoadMaterial(material_file_name.c_str());
+    if (!mat) {
+      fprintf(stderr, "load error: %s\n", renderer.last_error_.c_str());
+      return 1;
+    }
+    materials.push_back(mat);
   }
 
   renderer.camera.model_view_projection_ =
@@ -96,6 +164,7 @@ int main(int argc, char *argv[]) {
   //    splat::GetCharacterStateMachineDef(state_machine_source.c_str());
   //CharacterStateMachineDef_Validate(state_machine_def);
 
+  RenderScene scene;
   while (!input.exit_requested_ &&
          !input.GetButton(SDLK_ESCAPE).went_down()) {
     renderer.AdvanceFrame(input.minimized_);
@@ -107,11 +176,25 @@ int main(int argc, char *argv[]) {
       vertices[0] += input.pointers_[0].mousedelta.x() / 100.0f;
     }
 
-    mat->Set(renderer);
+    materials[0]->Set(renderer);
     Mesh::RenderArray(GL_TRIANGLES, 3, format, sizeof(float) * 5,
                          reinterpret_cast<const char *>(vertices), indices);
-  }
 
+    // Populate 'scene' from the game state--all the positions, orientations,
+    // and renderable-ids (which specify materials) of the characters and props.
+    // Also specify the camera matrix.
+    PopulateSceneFromGameState(&scene);
+
+    // Issue draw calls for the 'scene'.
+    RenderSceneFromDescription(renderer, materials, scene);
+  }
   return 0;
+}
+
+} // namespace fpl
+
+int main(int argc, char *argv[]) {
+  (void) argc; (void) argv;
+  return fpl::MainLoop();
 }
 
