@@ -59,6 +59,7 @@ add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 
 if(APPLE)
   find_library(OPENGL_LIBRARIES NAMES GL GLU)
+  SET(CMAKE_CXX_LINK_FLAGS "-framework OpenGL")
 endif()
 
 # Splat source files.
