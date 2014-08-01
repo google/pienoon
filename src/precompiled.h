@@ -23,6 +23,10 @@
 #include <unistd.h>
 #endif // _WIN32
 
+#if defined(_WIN32) && !defined(_USE_MATH_DEFINES)
+  #define _USE_MATH_DEFINES
+#endif // defined(_WIN32)
+#include <math.h>
 #include <cstdint>
 #include <string>
 #include <vector>

@@ -32,11 +32,7 @@ void SdlController::AdvanceFrame() {
   for (auto it = scheme_->keybinds.begin();
        it != scheme_->keybinds.end(); ++it) {
     bool pressed = input_system_->GetButton(it->physical_input).went_down();
-    if (pressed) {
-      logical_inputs_ |= it->logical_input;
-    } else {
-      logical_inputs_ &= ~it->logical_input;
-    }
+    SetLogicalInputs(it->logical_input, pressed);
   }
 }
 

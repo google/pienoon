@@ -34,26 +34,40 @@ enum RenderableId : ushort {
   Num
 }
 
-// TODO: Same as TextureId.
+// TODO: Same as RenderableId.
 enum SoundId : ushort {
   ThrowPie,
   HitWithPie
 }
 
+enum EventId : ushort {
+  TakeDamage,
+  ReleasePie,
+  LoadPie
+}
+
+// TODO: RenderableId to ushort. See TODO above.
 table TimelineRenderable {
-  time:ushort;
-  renderable:RenderableId; // TODO: change to ushort. See TODO above.
+  time:ushort;        // Time of event. Time 0 is start of timeline.
+  renderable:RenderableId; // Identify the item to render.
 }
 
 table TimelineSound {
-  time:ushort;
-  sound:SoundId;
+  time:ushort;        // Time of event. Time 0 is start of timeline.
+  sound:SoundId;      // Identify the sound to start playing at 'time'.
+}
+
+table TimelineEvent {
+  time:ushort;        // Time of event. Time 0 is start of timeline.
+  event:EventId;      // Identify what is happening in the event.
+  modifier:ushort;    // Meaning depends on 'event'. e.g. amount of damage.
 }
 
 table Timeline {
   end_time:ushort;
   renderables:[TimelineRenderable];
   sounds:[TimelineSound];
+  events:[TimelineEvent];
 }
 
 root_type Timeline;

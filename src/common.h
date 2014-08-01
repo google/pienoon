@@ -86,6 +86,13 @@ namespace fpl {
 
 typedef mathfu::Quaternion<float> Quat;
 
+// 1 WorldTime = 1/60s.
+// That is, for a 60Hz game, WorldTime increments by one every frame.
+// For a 30Hz game, WorldTime increments by two every frame.
+typedef int WorldTime;
+
+static const float kTwoPi = static_cast<float>(2.0 * M_PI);
+
 }  // namespace fpl
 
 #endif  // SPLAT_COMMON_H

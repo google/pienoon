@@ -26,6 +26,12 @@
 namespace fpl
 {
 
+// TODO: Move this to a data file at some point, or make it configurable
+// in-game
+static const int DEFAULT_HEALTH = 10;
+static const int PLAYER_COUNT = 4;
+
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void PopulateSceneFromGameState(RenderScene* scene) {
@@ -54,13 +60,13 @@ void RenderSceneFromDescription(Renderer& renderer,
 // Try to change into the assets directory when running the executable from
 // the build path.
 #if defined(_WIN32)
-  inline char* getcwd(char *buffer, int maxlen) {
-    return _getcwd(buffer, maxlen);
-  }
-  
-  inline int chdir(const char *dirname) {
-    return _chdir(dirname);
-  }
+inline char* getcwd(char *buffer, int maxlen) {
+  return _getcwd(buffer, maxlen);
+}
+
+inline int chdir(const char *dirname) {
+  return _chdir(dirname);
+}
 #endif  // defined(_WIN32)
 
 static bool ChangeToAssetsDir() {
@@ -127,6 +133,19 @@ static std::string FileNameFromEnumName(const char* const enum_name,
        + std::string(suffix);
 }
 
+// Calculate a character's target at the start of the game. We want the
+// characters to aim at the character directly opposite them.
+static inline splat::CharacterId InitialTargetId(const splat::CharacterId id) {
+  return static_cast<splat::CharacterId>(
+      (id + PLAYER_COUNT / 2) % PLAYER_COUNT);
+}
+
+// Calculate the direction a character is facing at the start of the game.
+// We want the characters to face their initial target.
+static inline float InitialFaceAngle(const splat::CharacterId id) {
+  return static_cast<float>(id) * kTwoPi / PLAYER_COUNT;
+}
+
 int MainLoop() {
   printf("Splat initializing..\n");
   if (!ChangeToAssetsDir()) return 1;
@@ -186,9 +205,12 @@ int MainLoop() {
     controllers[i] = new splat::SdlController(
         &input, splat::ControlScheme::GetDefaultControlScheme(i));
   }
-  for (int i = 0; i < PLAYER_COUNT; i++) {
-    game_state.AddCharacter(DEFAULT_HEALTH, controllers[i], state_machine_def);
+  for (splat::CharacterId id = 0; id < PLAYER_COUNT; id++) {
+    game_state.characters().push_back(splat::Character(
+        id, InitialTargetId(id), DEFAULT_HEALTH, InitialFaceAngle(id),
+        controllers[id], state_machine_def));
   }
+
   // TODO: Remove this block and the one in the main loop that prints the
   // current state.
   // This is just for development. It keeps track of when a state machine
@@ -206,7 +228,7 @@ int MainLoop() {
 
     // Display the state changes, at least until we get real rendering up.
     for (int i = 0; i < PLAYER_COUNT; i++) {
-      auto& player = game_state.characters()->at(i);
+      auto& player = game_state.characters()[i];
       int id = player.state_machine()->current_state()->id();
       if (previous_states[i] != id) {
         printf("Player %d - Health %2d, State %s [%d]\n",

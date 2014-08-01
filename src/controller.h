@@ -28,6 +28,14 @@ class Controller {
   // Returns the current set of active logical input bits.
   uint32_t logical_inputs() const { return logical_inputs_; }
 
+  // Updates a one or more bits.
+  void SetLogicalInputs(uint32_t bitmap, bool set) {
+    if (set) {
+      logical_inputs_ |= bitmap;
+    } else {
+      logical_inputs_ &= ~bitmap;
+    }
+  }
  protected:
   // A bitfield of currently active logical input bits.
   uint32_t logical_inputs_;

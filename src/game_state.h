@@ -26,18 +26,23 @@ namespace splat {
 
 class GameState {
  public:
-  // Add a player to the game with the given initial state.
-  void AddCharacter(int health, Controller* controller,
-                    const CharacterStateMachineDef* state_machine_def);
-
   // Update all players' controller and state machinel.
   void AdvanceFrame();
 
   // Return the list of players in the game.
-  const std::vector<Character>* characters() const { return &characters_; }
+  std::vector<Character>& characters() { return characters_; }
+  const std::vector<Character>& characters() const { return characters_; }
 
- private:
+private:
+  // Time consumed when AdvanceFrame is called.
+  static const WorldTime kDeltaTime = 1;
+
+  WorldTime GetAnimationTime(const Character& c) const;
+  void ProcessEvents(Character& c);
+
+  WorldTime time_;
   std::vector<Character> characters_;
+  std::vector<AirbornePie> pies_;
 };
 
 }  // splat

@@ -49,9 +49,14 @@ class CharacterStateMachine {
   // Retrieves the current state of the state machine.
   const CharacterState* current_state() const;
 
+  WorldTime current_state_start_time() const {
+    return current_state_start_time_;
+  }
+
  private:
   const CharacterStateMachineDef* state_machine_def_;
   const CharacterState* current_state_;
+  WorldTime current_state_start_time_;
 };
 
 // Returns true if the state machine is valid. A valid state machine contains
