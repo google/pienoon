@@ -23,9 +23,43 @@
 
 using namespace fpl;
 
+// Try to change into the assets directory when running the executable from
+// the build path.
+static bool ChangeToAssetsDir() {
+#if !defined(__ANDROID__)
+  {
+    static const char kAssetsDir[] = "assets";
+    static const char *kBuildPaths[] = {"Debug", "Release"};
+    char path[256];
+    char *dir = getcwd(path, sizeof(path));
+    assert(dir);
+    dir = strrchr(path, flatbuffers::kPathSeparator);
+    dir = dir ? dir + 1 : path;
+    if (strcmp(dir, kAssetsDir) != 0) {
+      int success;
+      for (size_t i = 0; i < sizeof(kBuildPaths) / sizeof(kBuildPaths[0]);
+           ++i) {
+        if (strcmp(dir, kBuildPaths[i]) == 0) {
+          success = chdir("..");
+          assert(success == 0);
+          break;
+        }
+      }
+      success = chdir(kAssetsDir);
+      if (success != 0) {
+        fprintf(stderr, "Unable to change into %s dir\n", kAssetsDir);
+        return false;
+      }
+    }
+  }
+#endif // !defined(__ANDROID__)
+  return true;
+}
+
 int main(int argc, char *argv[]) {
   (void) argc; (void) argv;
   printf("Splat initializing..\n");
+  if (!ChangeToAssetsDir()) return 1;
 
   InputSystem input;
 
@@ -36,7 +70,7 @@ int main(int argc, char *argv[]) {
 
   auto mat = matman.LoadMaterial("materials/example.bin");
   if (!mat) {
-    printf("load error: %s\n", renderer.last_error_.c_str());
+    fprintf(stderr, "load error: %s\n", renderer.last_error_.c_str());
     return 1;
   }
 
@@ -54,8 +88,8 @@ int main(int argc, char *argv[]) {
   std::string state_machine_source;
   if (!MaterialManager::LoadFile("character_state_machine_def.bin",
                                  &state_machine_source)) {
-    printf("can't load character state machines\n");
-    //return 1;
+    fprintf(stderr, "can't load character state machines\n");
+    return 1;
   }
 
   //auto state_machine_def =

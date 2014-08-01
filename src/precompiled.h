@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <cstdint>
 #include <string>
@@ -26,6 +27,7 @@
 #include "matrices/Matrix.h"
 #include "vectors/Vector_4D.h"
 #include "vectors/GLSL_Mappings.h"
+#include "flatbuffers/util.h"
 
 #ifdef __ANDROID__
 #include <AndroidUtil/AndroidMainWrapper.h>
