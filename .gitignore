@@ -5,11 +5,18 @@ splat
 # CMake files
 CMakeCache.txt
 CMakeFiles/
+CMakeLists.txt
+CMakeScripts/
 Makefile
 cmake_install.cmake
 flatbuffers/
 googletest/
 sdl/
+splat.build/
+splat.xcodeproj/
+tests/Debug/
+tests/Release/
+tests/splat.build/
 
 # Visual Studio files
 build/

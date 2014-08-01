@@ -57,6 +57,10 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
 endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 
+if(APPLE)
+  find_library(OPENGL_LIBRARIES NAMES GL GLU)
+endif()
+
 # Splat source files.
 set(splat_SRCS
     src/main.cpp
@@ -81,9 +85,10 @@ add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra
 add_executable(splat ${splat_SRCS})
 # Dependencies for the executable target.
 add_dependencies(splat generated_includes)
-target_link_libraries(splat SDL2-static)
+target_link_libraries(splat
+  SDL2-static
+  ${OPENGL_LIBRARIES})
 
 # Include GoogleTest in this project.
 add_subdirectory(${GOOGLETEST_PROJECT_DIR} googletest)
 add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
-
