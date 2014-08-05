@@ -10,11 +10,13 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := SDL2
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+SDL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
+SDL_C_INCLUDES := $(SDL_EXPORT_C_INCLUDES)
 
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
+LOCAL_C_INCLUDES := $(SDL_C_INCLUDES)
+LOCAL_EXPORT_C_INCLUDES := $(SDL_EXPORT_C_INCLUDES)
 
-LOCAL_SRC_FILES := \
+SDL_SRC_FILES := \
 	$(subst $(LOCAL_PATH)/,, \
 	$(wildcard $(LOCAL_PATH)/src/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/audio/*.c) \
@@ -45,8 +47,10 @@ LOCAL_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/src/video/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/video/android/*.c) \
     $(wildcard $(LOCAL_PATH)/src/test/*.c))
+LOCAL_SRC_FILES := $(SDL_SRC_FILES)
 
-LOCAL_CFLAGS += -DGL_GLEXT_PROTOTYPES
+SDL_CFLAGS := -DGL_GLEXT_PROTOTYPES
+LOCAL_CFLAGS += $(SDL_CFLAGS)
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -llog -landroid
 
 include $(BUILD_SHARED_LIBRARY)
@@ -57,13 +61,20 @@ include $(BUILD_SHARED_LIBRARY)
 #
 ###########################
 
+include $(CLEAR_VARS)
+
 LOCAL_MODULE := SDL2_static
 
 LOCAL_MODULE_FILENAME := libSDL2
 
-LOCAL_SRC_FILES += $(LOCAL_PATH)/src/main/android/SDL_android_main.c
+LOCAL_C_INCLUDES := $(SDL_C_INCLUDES)
+LOCAL_EXPORT_C_INCLUDES := $(SDL_EXPORT_C_INCLUDES)
 
-LOCAL_LDLIBS := 
+LOCAL_SRC_FILES += \
+	$(SDL_SRC_FILES) \
+	$(LOCAL_PATH)/src/main/android/SDL_android_main.c
+
+LOCAL_CFLAGS += $(SDL_CFLAGS)
 LOCAL_EXPORT_LDLIBS := -Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit -ldl -lGLESv1_CM -lGLESv2 -llog -landroid
 
 include $(BUILD_STATIC_LIBRARY)
