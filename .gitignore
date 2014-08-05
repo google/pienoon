@@ -1,5 +1,6 @@
 # Binary
 splat
+tests/character_state_machine_test
 *.bin
 
 # CMake files

@@ -24,10 +24,10 @@
 #include <vector>
 #include <map>
 
-#include "matrices/Matrix.h"
-#include "vectors/Vector_4D.h"
-#include "vectors/GLSL_Mappings.h"
 #include "flatbuffers/util.h"
+#include "mathfu/matrix.h"
+#include "mathfu/vector_4.h"
+#include "mathfu/glsl_mappings.h"
 
 #ifdef __ANDROID__
 #include <AndroidUtil/AndroidMainWrapper.h>

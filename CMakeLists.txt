@@ -75,7 +75,7 @@ set(splat_SRCS
 include_directories(src)
 include_directories(${FLATBUFFERS_PROJECT_DIR}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
-include_directories(${MATHFU_PROJECT_DIR})
+include_directories(${MATHFU_PROJECT_DIR}/include)
 
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
