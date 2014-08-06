@@ -17,6 +17,7 @@
 #include "common.h"
 #include "controller.h"
 #include "sdl_controller.h"
+#include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 
 namespace fpl {

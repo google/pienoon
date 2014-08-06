@@ -46,8 +46,7 @@ class CharacterStateMachine {
   // not a state transition occurs
   void Update(const TransitionInputs& inputs);
 
-  // Retrieves the current state of the state machine.
-  const CharacterState* current_state() const;
+  const CharacterState* current_state() const { return current_state_; }
 
   WorldTime current_state_start_time() const {
     return current_state_start_time_;

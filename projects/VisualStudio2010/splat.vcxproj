@@ -136,12 +136,18 @@
     <ClInclude Include="..\..\build\splat\generated\character_state_machine_def_generated.h" />
     <ClInclude Include="..\..\build\splat\generated\timeline_generated.h" />
     <ClInclude Include="..\..\build\splat\include\materials_generated.h" />
+    <ClInclude Include="..\..\src\character.h" />
     <ClInclude Include="..\..\src\character_state_machine.h" />
     <ClInclude Include="..\..\src\common.h" />
+    <ClInclude Include="..\..\src\controller.h" />
+    <ClInclude Include="..\..\src\game_state.h" />
     <ClInclude Include="..\..\src\glplatform.h" />
     <ClInclude Include="..\..\src\input.h" />
+    <ClInclude Include="..\..\src\material_manager.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\renderer.h" />
+    <ClInclude Include="..\..\src\render_scene.h" />
+    <ClInclude Include="..\..\src\sdl_controller.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\shaders\color.glslf" />
@@ -150,7 +156,7 @@
     <None Include="..\..\assets\shaders\textured.glslv" />
     <CustomBuild Include="..\..\src\flatbufferschemas\character_state_machine_def.fbs">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\..\libs\flatbuffers\build\VS2010\Release\flatc.exe -o ..\..\build\splat\include\ -c ..\..\src\flatbufferschemas\character_state_machine_def.fbs</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\..\libs\flatbuffers\build\VS2010\Release\flatc.exe -o ..\..\build\splat\include\ -c ..\..\src\flatbufferschemas\timeline.fbs ..\..\src\flatbufferschemas\character_state_machine_def.fbs</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling FlatBuffer schema: character_state_machine_def.fbs</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\build\splat\include\character_state_machine_def_generated.h</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\src\flatbufferschemas\character_state_machine_def.fbs</AdditionalInputs>

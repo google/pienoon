@@ -15,8 +15,8 @@
 #include "precompiled.h"
 #include "game_state.h"
 #include "character_state_machine.h"
-#include "character_state_machine_def_generated.h"
 #include "timeline_generated.h"
+#include "character_state_machine_def_generated.h"
 #include "controller.h"
 
 namespace fpl {
@@ -25,6 +25,8 @@ namespace splat {
 template<class T>
 static inline int GetFirstIndexAfterTime(
     const T& arr, const int start_index, const WorldTime t) {
+  if (!arr)
+    return 0;
 
   // Assume that T is a flatbuffer::Vector type.
   for (int i = start_index; i < static_cast<int>(arr->Length()); ++i) {
@@ -41,12 +43,15 @@ WorldTime GameState::GetAnimationTime(const Character& c) const {
 void GameState::ProcessEvents(Character& c) {
   // Process events in timeline.
   const Timeline* const timeline =
-      GetTimeline(c.state_machine()->current_state());
+      c.state_machine()->current_state()->timeline();
+  if (!timeline)
+    return;
+
   const WorldTime animTime = GetAnimationTime(c);
   const auto events = timeline->events();
   const int start_index = GetFirstIndexAfterTime(events, 0, animTime);
   const int end_index = GetFirstIndexAfterTime(events, start_index,
-                                             animTime + kDeltaTime);
+                                               animTime + kDeltaTime);
 
   for (int i = start_index; i < end_index; ++i) {
     const TimelineEvent& timeline_event = *events->Get(i);

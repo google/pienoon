@@ -53,7 +53,7 @@ table Transition {
 table CharacterState {
   id:StateId;
   transitions:[Transition];
-  animation:string;
+  timeline:Timeline;
 }
 
 table CharacterStateMachineDef {

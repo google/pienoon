@@ -14,6 +14,7 @@
 
 #include "precompiled.h"
 #include "character_state_machine.h"
+#include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "game_state.h"
 #include "input.h"
@@ -73,26 +74,39 @@ static bool ChangeToAssetsDir() {
 #if !defined(__ANDROID__)
   {
     static const char kAssetsDir[] = "assets";
-    static const char *kBuildPaths[] = {"Debug", "Release"};
+    static const char *kBuildPaths[] = {
+        "Debug", "Release", "projects\\VisualStudio2010", "build\\Debug\\bin",
+        "build\\Release\\bin"};
     char path[256];
     char *dir = getcwd(path, sizeof(path));
     assert(dir);
-    dir = strrchr(path, flatbuffers::kPathSeparator);
-    dir = dir ? dir + 1 : path;
-    if (strcmp(dir, kAssetsDir) != 0) {
-      int success;
-      for (size_t i = 0; i < ARRAYSIZE(kBuildPaths); ++i) {
-        if (strcmp(dir, kBuildPaths[i]) == 0) {
-          success = chdir("..");
-          assert(success == 0);
-          break;
-        }
-      }
-      success = chdir(kAssetsDir);
-      if (success != 0) {
-        fprintf(stderr, "Unable to change into %s dir\n", kAssetsDir);
-        return false;
-      }
+
+    // Return if we're already in the assets directory.
+    const char* last_slash = strrchr(path, flatbuffers::kPathSeparator);
+    const char* last_dir = last_slash ? last_slash + 1 : path;
+    if (strcmp(last_dir, kAssetsDir) == 0)
+      return true;
+
+    // Change to the directory one above the assets directory.
+    const size_t len_dir = strlen(dir);
+    int success;
+    for (size_t i = 0; i < ARRAYSIZE(kBuildPaths); ++i) {
+      const size_t len_build_path = strlen(kBuildPaths[i]);
+      char* beyond_base = &dir[len_dir - len_build_path];
+      if (strcmp(beyond_base, kBuildPaths[i]) != 0)
+        continue;
+
+      *beyond_base = '\0';
+      success = chdir(dir);
+      assert(success == 0);
+      break;
+    }
+
+    // Change into assets directory.
+    success = chdir(kAssetsDir);
+    if (success != 0) {
+      fprintf(stderr, "Unable to change into %s dir\n", kAssetsDir);
+      return false;
     }
   }
 #endif // !defined(__ANDROID__)
@@ -158,7 +172,7 @@ int MainLoop() {
   renderer.Initialize(vec2i(1280, 800), "my amazing game!");
 
   std::vector<Material*> materials;
-  for (int i = 0; i < RenderableId_Num; ++i) {
+  for (int i = 0; i < RenderableId_Count; ++i) {
     const std::string material_file_name = FileNameFromEnumName(
                                               EnumNameRenderableId(i),
                                               "materials/", ".bin");

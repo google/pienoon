@@ -27,6 +27,12 @@
       <Filter>generated</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\common.h" />
+    <ClInclude Include="..\..\src\character.h" />
+    <ClInclude Include="..\..\src\controller.h" />
+    <ClInclude Include="..\..\src\game_state.h" />
+    <ClInclude Include="..\..\src\material_manager.h" />
+    <ClInclude Include="..\..\src\render_scene.h" />
+    <ClInclude Include="..\..\src\sdl_controller.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
