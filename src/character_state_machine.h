@@ -50,7 +50,7 @@ class CharacterStateMachine {
   const CharacterState* current_state() const;
 
  private:
-  const CharacterStateMachineDef* const state_machine_def_;
+  const CharacterStateMachineDef* state_machine_def_;
   const CharacterState* current_state_;
 };
 

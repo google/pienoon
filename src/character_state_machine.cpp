@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "precompiled.h"
 #include <algorithm>
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"

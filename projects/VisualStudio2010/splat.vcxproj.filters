@@ -7,6 +7,9 @@
     <ClCompile Include="..\..\src\renderer.cpp" />
     <ClCompile Include="..\..\src\character_state_machine.cpp" />
     <ClCompile Include="..\..\src\material_manager.cpp" />
+    <ClCompile Include="..\..\src\character.cpp" />
+    <ClCompile Include="..\..\src\game_state.cpp" />
+    <ClCompile Include="..\..\src\sdl_controller.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\glplatform.h" />

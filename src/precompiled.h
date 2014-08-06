@@ -17,7 +17,11 @@
 
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32
+#include <direct.h>
+#else
 #include <unistd.h>
+#endif // _WIN32
 
 #include <cstdint>
 #include <string>
@@ -38,7 +42,6 @@
 #include <SDL.h>
 
 #include "glplatform.h"
-#include "common.h"
 
 #ifdef _WIN32
 #pragma hdrstop

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "precompiled.h"
 #include "game_state.h"
 #include "character_state_machine.h"
 #include "controller.h"
@@ -22,7 +23,7 @@ namespace splat {
 void GameState::AddCharacter(
     int health, Controller* controller,
     const CharacterStateMachineDef* state_machine_def) {
-  characters_.emplace_back(health, controller, state_machine_def);
+  characters_.push_back(Character(health, controller, state_machine_def));
 }
 
 void GameState::AdvanceFrame() {

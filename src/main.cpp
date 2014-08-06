@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "precompiled.h"
-
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "game_state.h"
@@ -54,6 +53,16 @@ void RenderSceneFromDescription(Renderer& renderer,
 
 // Try to change into the assets directory when running the executable from
 // the build path.
+#if defined(_WIN32)
+  inline char* getcwd(char *buffer, int maxlen) {
+    return _getcwd(buffer, maxlen);
+  }
+  
+  inline int chdir(const char *dirname) {
+    return _chdir(dirname);
+  }
+#endif  // defined(_WIN32)
+
 static bool ChangeToAssetsDir() {
 #if !defined(__ANDROID__)
   {
@@ -66,8 +75,7 @@ static bool ChangeToAssetsDir() {
     dir = dir ? dir + 1 : path;
     if (strcmp(dir, kAssetsDir) != 0) {
       int success;
-      for (size_t i = 0; i < sizeof(kBuildPaths) / sizeof(kBuildPaths[0]);
-           ++i) {
+      for (size_t i = 0; i < ARRAYSIZE(kBuildPaths); ++i) {
         if (strcmp(dir, kBuildPaths[i]) == 0) {
           success = chdir("..");
           assert(success == 0);

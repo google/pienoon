@@ -16,6 +16,7 @@
 #define MATERIAL_MANAGER_H
 
 #include "renderer.h"
+#include "common.h"
 
 namespace fpl {
 
