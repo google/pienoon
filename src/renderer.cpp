@@ -215,14 +215,24 @@ GLuint Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   auto header = reinterpret_cast<const TGA *>(tga_buf);
   if (header->color_map_type != 0 // no color map
    || header->image_type != 2 // RGB or RGBA only
-   || (header->bpp != 32 && header->bpp != 24)
-   || header->image_descriptor != 0x20) // Y flipped only
+   || (header->bpp != 32 && header->bpp != 24))
     return 0;
   auto pixels = reinterpret_cast<const unsigned char *>(header + 1);
   pixels += header->id_len;
   int size = header->width * header->height;
   auto rgba = new unsigned char[size * 4];
-  for (int y = header->height - 1; y >= 0; y--) {  // TGA's default Y-flipped
+  int start_y, end_y, y_direction;
+  if (header->image_descriptor & 0x20)  // y is flipped
+  {
+      start_y = header->height - 1;
+      end_y = -1;
+      y_direction = -1;
+  }else{    // y is not flipped.
+      start_y = 0;
+      end_y = header->height;
+      y_direction = 1;
+  }
+  for (int y = start_y; y != end_y; y += y_direction) {
     for (int x = 0; x < header->width; x++) {
       auto p = rgba + (y * header->width + x) * 4;
       p[2] = *pixels++;    // BGR -> RGB
