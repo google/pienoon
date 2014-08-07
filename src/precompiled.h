@@ -27,6 +27,7 @@
   #define _USE_MATH_DEFINES
 #endif // defined(_WIN32)
 #include <math.h>
+#include <assert.h>
 #include <cstdint>
 #include <string>
 #include <vector>

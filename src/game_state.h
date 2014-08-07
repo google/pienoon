@@ -25,10 +25,14 @@ class RenderScene;
 
 namespace splat {
 
+// TODO: Move this to a data file.
+static const int kDefaultHealth = 10;
+static const int kPlayerCount = 4;
+
 class GameState {
  public:
   // Update all players' controller and state machinel.
-  void AdvanceFrame();
+  void AdvanceFrame(WorldTime delta_time);
 
   // Fill in the position of the characters and pies.
   void PopulateScene(RenderScene* scene) const;
@@ -40,12 +44,11 @@ class GameState {
   const std::vector<AirbornePie>& pies() const { return pies_; }
 
 private:
-  // Time consumed when AdvanceFrame is called.
-  static const WorldTime kDeltaTime = 1;
-
   WorldTime GetAnimationTime(const Character& c) const;
-  void ProcessEvents(Character& c);
+  void ProcessEvents(Character& c, WorldTime delta_time);
   void UpdatePiePosition(AirbornePie& pie) const;
+  float CalculateCharacterFacingAngleVelocity(
+    const Character& c, WorldTime delta_time) const;
 
   WorldTime time_;
   std::vector<Character> characters_;

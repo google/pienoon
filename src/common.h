@@ -92,26 +92,6 @@ typedef mathfu::Quaternion<float> Quat;
 // For a 30Hz game, WorldTime increments by two every frame.
 typedef int WorldTime;
 
-static const float kTwoPi = static_cast<float>(2.0 * M_PI);
-
-// Returns point on unit circle corresponding to a sweep of 'angle' degrees
-// from the x-axis.
-//   0     ==> ( 1,  0)
-//   pi/2  ==> ( 0,  1)
-//   pi    ==> (-1,  0)
-//   3pi/2 ==> ( 0, -1)
-static inline mathfu::vec3 AngleToXZVector(const float angle) {
-  return mathfu::vec3(cos(angle), 0.0f, sin(angle));
-}
-
-static inline mathfu::mat3 AngleToXZRotationMatrix(const float angle) {
-  const float sin_angle = sin(angle);
-  const float cos_angle = cos(angle);
-  return mathfu::mat3(cos_angle,  0.0f,  -sin_angle,
-                      0.0f,       1.0f,  0.0f,
-                      sin_angle,  0.0f,  cos_angle);
-}
-
 }  // namespace fpl
 
 #endif  // SPLAT_COMMON_H

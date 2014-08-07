@@ -31,7 +31,7 @@ WorldTime GameState::GetAnimationTime(const Character& c) const {
   return time_ - c.state_machine()->current_state_start_time();
 }
 
-void GameState::ProcessEvents(Character& c) {
+void GameState::ProcessEvents(Character& c, WorldTime delta_time) {
   // Process events in timeline.
   const Timeline* const timeline =
       c.state_machine()->current_state()->timeline();
@@ -42,7 +42,7 @@ void GameState::ProcessEvents(Character& c) {
   const auto events = timeline->events();
   const int start_index = TimelineIndexAfterTime(events, 0, animTime);
   const int end_index = TimelineIndexAfterTime(events, start_index,
-                                               animTime + kDeltaTime);
+                                               animTime + delta_time);
 
   for (int i = start_index; i < end_index; ++i) {
     const TimelineEvent& timeline_event = *events->Get(i);
@@ -97,7 +97,52 @@ void GameState::UpdatePiePosition(AirbornePie& pie) const {
   pie.set_position(pie_position);
 }
 
-void GameState::AdvanceFrame() {
+static CharacterId CalculateCharacterTarget(const Character& c) {
+  const uint32_t logical_inputs = c.controller()->logical_inputs();
+  const int delta = (logical_inputs & LogicalInputs_Left) ? -1
+                  : (logical_inputs & LogicalInputs_Right) ? 1 : 0;
+  const CharacterId target = (c.target() + delta) % kPlayerCount;
+  return target;
+}
+
+// The character's face angle accelerates towards the
+float GameState::CalculateCharacterFacingAngleVelocity(
+    const Character& c, WorldTime delta_time) const {
+  // TODO: Read these constants from a configuration FlatBuffer.
+  static const float kDeltaToAccel = 0.06f / kPi;
+  static const float kWrongDirectionAccelBonus = 3.0f;
+  static const float kMaxVelocity = kPi / 12.0f;
+  static const float kNearTargetAngularVelocity = kPi / 100.0f;
+  static const float kNearTargetAngle = kPi / 60.0f;
+
+  // Calculate the current error in our facing angle.
+  const Character& target = characters_[c.target()];
+  const mathfu::vec3 vector_to_target = target.position() - c.position();
+  const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
+  const Angle delta_angle = angle_to_target - c.face_angle();
+
+  // Increment our current face angle velocity.
+  const bool wrong_direction =
+      c.face_angle_velocity() * delta_angle.angle() < 0.0f;
+  const float angular_acceleration =
+      delta_angle.angle() * kDeltaToAccel *
+      (wrong_direction ? kWrongDirectionAccelBonus : 1.0f);
+  const float angular_velocity_unclamped =
+      c.face_angle_velocity() + delta_time * angular_acceleration;
+  const float angular_velocity =
+      mathfu::Clamp(angular_velocity_unclamped, -kMaxVelocity, kMaxVelocity);
+
+  // If we're close to facing the target, just snap to it.
+  const bool snap_to_target =
+      fabs(angular_velocity) <= kNearTargetAngularVelocity &&
+      fabs(delta_angle.angle()) <= kNearTargetAngle;
+  return snap_to_target
+       ? mathfu::Clamp(delta_angle.angle() / delta_time,
+            -kNearTargetAngularVelocity, kNearTargetAngularVelocity)
+       : angular_velocity;
+}
+
+void GameState::AdvanceFrame(WorldTime delta_time) {
   // Update controller to gather state machine inputs.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
     Controller* controller = it->controller();
@@ -122,17 +167,30 @@ void GameState::AdvanceFrame() {
     }
   }
 
-  // Update the state machines.
+  // Update the character state machines and the facing angles.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
+    // Update state machines.
     TransitionInputs transition_inputs;
     transition_inputs.logical_inputs = it->controller()->logical_inputs();
     transition_inputs.animation_time = GetAnimationTime(*it);
     it->state_machine()->Update(transition_inputs);
+
+    // Update target.
+    const CharacterId target_id = CalculateCharacterTarget(*it);
+    it->set_target(target_id);
+
+    // Update facing angles.
+    const float face_angle_velocity =
+        CalculateCharacterFacingAngleVelocity(*it, delta_time);
+    const Angle face_angle = Angle::FromWithinThreePi(
+         it->face_angle().angle() + delta_time * face_angle_velocity);
+    it->set_face_angle_velocity(face_angle_velocity);
+    it->set_face_angle(face_angle);
   }
 
   // Look to timeline to see what's happening. Make it happen.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    ProcessEvents(*it);
+    ProcessEvents(*it, delta_time);
   }
 }
 

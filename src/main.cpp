@@ -23,14 +23,10 @@
 #include "renderer.h"
 #include "sdl_controller.h"
 #include "timeline_generated.h"
+#include "angle.h"
 
 namespace fpl
 {
-
-// TODO: Move this to a data file at some point, or make it configurable
-// in-game
-static const int DEFAULT_HEALTH = 10;
-static const int PLAYER_COUNT = 4;
 
 void RenderSceneFromDescription(Renderer& renderer,
                                 const std::vector<Material*> materials,
@@ -137,26 +133,33 @@ static std::string FileNameFromEnumName(const char* const enum_name,
 
 // Calculate a character's target at the start of the game. We want the
 // characters to aim at the character directly opposite them.
-static inline splat::CharacterId InitialTargetId(const splat::CharacterId id) {
+static splat::CharacterId InitialTargetId(const splat::CharacterId id) {
   return static_cast<splat::CharacterId>(
-      (id + PLAYER_COUNT / 2) % PLAYER_COUNT);
+      (id + splat::kPlayerCount / 2) % splat::kPlayerCount);
+}
+
+// The position of a character is at the start of the game.
+static mathfu::vec3 InitialPosition(const splat::CharacterId id) {
+  static const float kCharacterDistFromCenter = 10.0f;
+  const Angle angle_to_position = Angle::FromWithinThreePi(
+      static_cast<float>(id) * kTwoPi / splat::kPlayerCount);
+  return kCharacterDistFromCenter * angle_to_position.ToXZVector();
 }
 
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
-static inline float InitialFaceAngle(const splat::CharacterId id) {
-  return static_cast<float>(id) * kTwoPi / PLAYER_COUNT;
-}
-
-// The position of a character is at the start of the game.
-static inline mathfu::vec3 InitialPosition(const splat::CharacterId id) {
-  static const float kCharacterDistFromCenter = 10.0f;
-  const float angle_to_position = -static_cast<float>(id) * kTwoPi / PLAYER_COUNT;
-  return kCharacterDistFromCenter * AngleToXZVector(angle_to_position);
+static Angle InitialFaceAngle(const splat::CharacterId id) {
+  const mathfu::vec3 characterPosition = InitialPosition(id);
+  const mathfu::vec3 targetPosition = InitialPosition(InitialTargetId(id));
+  return Angle::FromXZVector(targetPosition - characterPosition);
 }
 
 
 int MainLoop() {
+  // Time consumed when GameState::AdvanceFrame is called.
+  // At some point this might be variable.
+  static const WorldTime kDeltaTime = 1;
+
   printf("Splat initializing..\n");
   if (!ChangeToAssetsDir()) return 1;
 
@@ -205,19 +208,14 @@ int MainLoop() {
 
   splat::GameState game_state;
 
-  // TODO: Move this to a data file at some point, or make it configurable
-  // in-game
-  const int DEFAULT_HEALTH = 10;
-  const int PLAYER_COUNT = 4;
-
-  splat::SdlController* controllers[PLAYER_COUNT];
-  for (int i = 0; i < PLAYER_COUNT; i++) {
+  splat::SdlController* controllers[splat::kPlayerCount];
+  for (int i = 0; i < splat::kPlayerCount; i++) {
     controllers[i] = new splat::SdlController(
         &input, splat::ControlScheme::GetDefaultControlScheme(i));
   }
-  for (splat::CharacterId id = 0; id < PLAYER_COUNT; id++) {
+  for (splat::CharacterId id = 0; id < splat::kPlayerCount; id++) {
     game_state.characters().push_back(splat::Character(
-        id, InitialTargetId(id), DEFAULT_HEALTH, InitialFaceAngle(id),
+        id, InitialTargetId(id), splat::kDefaultHealth, InitialFaceAngle(id),
         InitialPosition(id), controllers[id], state_machine_def));
   }
 
@@ -226,7 +224,7 @@ int MainLoop() {
   // This is just for development. It keeps track of when a state machine
   // transitions so that we can print the change. Printing every frame would be
   // spammy.
-  std::vector<int> previous_states(PLAYER_COUNT, -1);
+  std::vector<int> previous_states(splat::kPlayerCount, -1);
 
   RenderScene scene;
   while (!input.exit_requested_ &&
@@ -234,10 +232,10 @@ int MainLoop() {
     renderer.AdvanceFrame(input.minimized_);
     renderer.ClearFrameBuffer(vec4(0.0f));
     input.AdvanceFrame(&renderer.window_size_);
-    game_state.AdvanceFrame();
+    game_state.AdvanceFrame(kDeltaTime);
 
     // Display the state changes, at least until we get real rendering up.
-    for (int i = 0; i < PLAYER_COUNT; i++) {
+    for (int i = 0; i < splat::kPlayerCount; i++) {
       auto& player = game_state.characters()[i];
       int id = player.state_machine()->current_state()->id();
       if (previous_states[i] != id) {

@@ -17,6 +17,7 @@
 
 #include "character_state_machine.h"
 #include "sdl_controller.h"
+#include "angle.h"
 
 namespace fpl {
 namespace splat {
@@ -35,7 +36,7 @@ class Character {
   // The Character does not take ownership of the controller or
   // character_state_machine_def pointers.
   Character(CharacterId id, CharacterId target, CharacterHealth health,
-            float face_angle, const mathfu::vec3& position,
+            Angle face_angle, const mathfu::vec3& position,
             Controller* controller,
             const CharacterStateMachineDef* character_state_machine_def);
 
@@ -56,7 +57,10 @@ class Character {
   CharacterHealth pie_damage() const { return pie_damage_; }
   void set_pie_damage(CharacterHealth pie_damage) { pie_damage_ = pie_damage; }
 
-  float face_angle() const { return face_angle_; }
+  Angle face_angle() const { return face_angle_; }
+  void set_face_angle(const Angle& angle) { face_angle_ = angle; }
+  float face_angle_velocity() const { return face_angle_velocity_; }
+  void set_face_angle_velocity(float vel) { face_angle_velocity_ = vel; }
   mathfu::vec3 position() const { return position_; }
 
   const Controller* controller() const { return controller_; }
@@ -80,7 +84,11 @@ class Character {
   CharacterHealth pie_damage_;
 
   // World angle. Will eventually settle on the angle towards target_.
-  float face_angle_;
+  Angle face_angle_;
+
+  // Rate at which face_angle_ is changing. Acceleration changes instantly, but
+  // face angle has some momentum.
+  float face_angle_velocity_;
 
   // Position of the character in world space.
   mathfu::vec3 position_;

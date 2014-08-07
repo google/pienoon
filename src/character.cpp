@@ -24,22 +24,22 @@ namespace splat {
 
 Character::Character(
     CharacterId id, CharacterId target, CharacterHealth health,
-    float face_angle, const mathfu::vec3& position, Controller* controller,
+    Angle face_angle, const mathfu::vec3& position, Controller* controller,
     const CharacterStateMachineDef* character_state_machine_def)
   : id_(id),
     target_(target),
     health_(health),
     pie_damage_(0),
     face_angle_(face_angle),
+    face_angle_velocity_(0.0f),
     position_(position),
     controller_(controller),
     state_machine_(character_state_machine_def)
 {}
 
 mathfu::mat4 Character::CalculateMatrix() const {
-  return
-    mathfu::mat4::FromRotationMatrix(AngleToXZRotationMatrix(face_angle_)) +
-    mathfu::mat4::FromTranslationVector(position_);
+  return mathfu::mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix()) +
+         mathfu::mat4::FromTranslationVector(position_);
 }
 
 uint16_t Character::RenderableId(WorldTime anim_time) const {
