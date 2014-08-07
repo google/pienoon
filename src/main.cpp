@@ -32,18 +32,6 @@ namespace fpl
 static const int DEFAULT_HEALTH = 10;
 static const int PLAYER_COUNT = 4;
 
-
-// TODO: Make this function a member of GameState, once that class has been
-// submitted to git. Then populate from the values in GameState.
-void PopulateSceneFromGameState(RenderScene* scene) {
-  const Quat identityQuaternion(1.0f, 0.0f, 0.0f, 0.0f);
-  scene->set_camera(mathfu::mat4::FromTranslationVector(
-                      mathfu::vec3(0.0f, 5.0f, -10.0f)));
-  scene->renderables().push_back(Renderable(RenderableId_CharacterIdle,
-                                            mathfu::mat4::Identity()));
-  scene->lights().push_back(mathfu::vec3(10.0f, 10.0f, 10.0f));
-}
-
 void RenderSceneFromDescription(Renderer& renderer,
                                 const std::vector<Material*> materials,
                                 const RenderScene& scene)
@@ -160,6 +148,14 @@ static inline float InitialFaceAngle(const splat::CharacterId id) {
   return static_cast<float>(id) * kTwoPi / PLAYER_COUNT;
 }
 
+// The position of a character is at the start of the game.
+static inline mathfu::vec3 InitialPosition(const splat::CharacterId id) {
+  static const float kCharacterDistFromCenter = 10.0f;
+  const float angle_to_position = -static_cast<float>(id) * kTwoPi / PLAYER_COUNT;
+  return kCharacterDistFromCenter * AngleToXZVector(angle_to_position);
+}
+
+
 int MainLoop() {
   printf("Splat initializing..\n");
   if (!ChangeToAssetsDir()) return 1;
@@ -222,7 +218,7 @@ int MainLoop() {
   for (splat::CharacterId id = 0; id < PLAYER_COUNT; id++) {
     game_state.characters().push_back(splat::Character(
         id, InitialTargetId(id), DEFAULT_HEALTH, InitialFaceAngle(id),
-        controllers[id], state_machine_def));
+        InitialPosition(id), controllers[id], state_machine_def));
   }
 
   // TODO: Remove this block and the one in the main loop that prints the
@@ -263,7 +259,7 @@ int MainLoop() {
     // Populate 'scene' from the game state--all the positions, orientations,
     // and renderable-ids (which specify materials) of the characters and props.
     // Also specify the camera matrix.
-    PopulateSceneFromGameState(&scene);
+    game_state.PopulateScene(&scene);
 
     // Issue draw calls for the 'scene'.
     RenderSceneFromDescription(renderer, materials, scene);

@@ -35,8 +35,15 @@ class Character {
   // The Character does not take ownership of the controller or
   // character_state_machine_def pointers.
   Character(CharacterId id, CharacterId target, CharacterHealth health,
-            float face_angle, Controller* controller,
+            float face_angle, const mathfu::vec3& position,
+            Controller* controller,
             const CharacterStateMachineDef* character_state_machine_def);
+
+  // Convert the position and face angle into a matrix for rendering.
+  mathfu::mat4 CalculateMatrix() const;
+
+  // Calculate the renderable id for the character at 'anim_time'.
+  uint16_t RenderableId(WorldTime anim_time) const;
 
   CharacterHealth health() const { return health_; }
   void set_health(CharacterHealth health) { health_ = health; }
@@ -50,6 +57,7 @@ class Character {
   void set_pie_damage(CharacterHealth pie_damage) { pie_damage_ = pie_damage; }
 
   float face_angle() const { return face_angle_; }
+  mathfu::vec3 position() const { return position_; }
 
   const Controller* controller() const { return controller_; }
   Controller* controller() { return controller_; }
@@ -88,29 +96,57 @@ class Character {
 class AirbornePie {
  public:
   AirbornePie(CharacterId source, CharacterId target, WorldTime start_time,
-              CharacterHealth damage)
-    : source_(source),
-      target_(target),
-      start_time_(start_time),
-      damage_(damage)
-  {}
+              CharacterHealth damage);
 
   CharacterId source() const { return source_; }
   CharacterId target() const { return target_; }
   WorldTime start_time() const { return start_time_; }
   CharacterHealth damage() const { return damage_; }
-  WorldTime ContactTime() const { return start_time_ + kFlightTime; }
+  Quat orientation() const { return orientation_; }
+  void set_orientation(const Quat& orientation) { orientation_ = orientation; }
+  mathfu::vec3 position() const { return position_; }
+  void set_position(const mathfu::vec3& position) { position_ = position; }
+  mathfu::mat4 CalculateMatrix() const;
 
  private:
-  // Time between pie being launched and hitting target.
-  // TODO: This should be in a configuration file.
-  static const WorldTime kFlightTime = 30;
-
   CharacterId source_;
   CharacterId target_;
   WorldTime start_time_;
   CharacterHealth damage_;
+  Quat orientation_;
+  mathfu::vec3 position_;
 };
+
+
+// Return index of first item with time >= t.
+// T is a flatbuffer::Vector; one of the Timeline members.
+template<class T>
+inline int TimelineIndexAfterTime(
+    const T& arr, const int start_index, const WorldTime t) {
+  if (!arr)
+    return 0;
+
+  for (int i = start_index; i < static_cast<int>(arr->Length()); ++i) {
+    if (arr->Get(i)->time() >= t)
+      return i;
+  }
+  return arr->Length();
+}
+
+// Return index of last item with time <= t.
+// T is a flatbuffer::Vector; one of the Timeline members.
+template<class T>
+inline int TimelineIndexBeforeTime(const T& arr, const WorldTime t) {
+  if (!arr || arr->Length() == 0)
+    return 0;
+
+  for (int i = 1; i < static_cast<int>(arr->Length()); ++i) {
+    if (arr->Get(i)->time() > t)
+      return i - 1;
+  }
+  return arr->Length() - 1;
+}
+
 
 }  // splat
 }  // fpl

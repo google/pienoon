@@ -18,23 +18,14 @@
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "controller.h"
+#include "render_scene.h"
 
 namespace fpl {
 namespace splat {
 
-template<class T>
-static inline int GetFirstIndexAfterTime(
-    const T& arr, const int start_index, const WorldTime t) {
-  if (!arr)
-    return 0;
-
-  // Assume that T is a flatbuffer::Vector type.
-  for (int i = start_index; i < static_cast<int>(arr->Length()); ++i) {
-    if (arr->Get(i)->time() >= t)
-      return i;
-  }
-  return arr->Length();
-}
+// Time between pie being launched and hitting target.
+// TODO: This should be in a configuration file.
+static const WorldTime kPieFlightTime = 30;
 
 WorldTime GameState::GetAnimationTime(const Character& c) const {
   return time_ - c.state_machine()->current_state_start_time();
@@ -49,8 +40,8 @@ void GameState::ProcessEvents(Character& c) {
 
   const WorldTime animTime = GetAnimationTime(c);
   const auto events = timeline->events();
-  const int start_index = GetFirstIndexAfterTime(events, 0, animTime);
-  const int end_index = GetFirstIndexAfterTime(events, start_index,
+  const int start_index = TimelineIndexAfterTime(events, 0, animTime);
+  const int end_index = TimelineIndexAfterTime(events, start_index,
                                                animTime + kDeltaTime);
 
   for (int i = start_index; i < end_index; ++i) {
@@ -77,6 +68,35 @@ void GameState::ProcessEvents(Character& c) {
   }
 }
 
+static Quat CalculatePieOrientation(const Character& source,
+    const Character& target, WorldTime time_since_launch) {
+  (void)source; (void)target; (void)time_since_launch;
+
+  // TODO: Make pie spin about axis of rotation.
+  return Quat(0.0f, mathfu::vec3(0.0f, 1.0f, 0.0f));
+}
+
+static mathfu::vec3 CalculatePiePosition(const Character& source,
+    const Character& target, WorldTime time_since_launch) {
+  // TODO: Make the pie follow a trajectory.
+  const float percent = static_cast<float>(time_since_launch) / kPieFlightTime;
+  return mathfu::vec3::Lerp(source.position(), target.position(), percent);
+}
+
+void GameState::UpdatePiePosition(AirbornePie& pie) const {
+  const WorldTime time_since_launch = time_ - pie.start_time();
+  const Character& source = characters_[pie.source()];
+  const Character& target = characters_[pie.target()];
+
+  const Quat pie_orientation = CalculatePieOrientation(source, target,
+                                                       time_since_launch);
+  const mathfu::vec3 pie_position = CalculatePiePosition(source, target,
+                                                         time_since_launch);
+
+  pie.set_orientation(pie_orientation);
+  pie.set_position(pie_position);
+}
+
 void GameState::AdvanceFrame() {
   // Update controller to gather state machine inputs.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
@@ -91,12 +111,15 @@ void GameState::AdvanceFrame() {
 
   // Update pies. Modify state machine input when character hit by pie.
   for (auto it = pies_.begin(); it != pies_.end(); ++it) {
-    if (it->ContactTime() < time_)
-      continue;
+    UpdatePiePosition(*it);
 
-    Character& c = characters_[it->target()];
-    c.controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
-    it = pies_.erase(it);
+    // Remove pies that have made contact.
+    const WorldTime time_since_launch = time_ - it->start_time();
+    if (time_since_launch >= kPieFlightTime) {
+      Character& c = characters_[it->target()];
+      c.controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
+      it = pies_.erase(it);
+    }
   }
 
   // Update the state machines.
@@ -112,6 +135,41 @@ void GameState::AdvanceFrame() {
     ProcessEvents(*it);
   }
 }
+
+static uint16_t RenderableIdForPieDamage(CharacterHealth damage) {
+  const int kMaxDamageForRenderable =
+    RenderableId_PieLarge - RenderableId_PieEmpty;
+  const int clamped_damage = std::min(damage, kMaxDamageForRenderable);
+  return static_cast<uint16_t>(RenderableId_PieEmpty + clamped_damage);
+}
+
+// TODO: Make this function a member of GameState, once that class has been
+// submitted to git. Then populate from the values in GameState.
+void GameState::PopulateScene(RenderScene* scene) const {
+  // Camera.
+  scene->set_camera(mathfu::mat4::FromTranslationVector(
+                        mathfu::vec3(0.0f, 5.0f, -10.0f)));
+
+  // Characters.
+  for (auto c = characters_.begin(); c != characters_.end(); ++c) {
+    const WorldTime anim_time = GetAnimationTime(*c);
+    scene->renderables().push_back(
+        Renderable(c->RenderableId(anim_time), c->CalculateMatrix()));
+  }
+
+  // Pies.
+  for (auto it = pies_.begin(); it != pies_.end(); ++it) {
+    const AirbornePie& pie = *it;
+    scene->renderables().push_back(
+        Renderable(RenderableIdForPieDamage(pie.damage()),
+                                            pie.CalculateMatrix()));
+  }
+
+  // Lights.
+  scene->lights().push_back(mathfu::vec3(-20.0f, 20.0f, -20.0f));
+}
+
+
 
 }  // splat
 }  // fpl

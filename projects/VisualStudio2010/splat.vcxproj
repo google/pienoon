@@ -133,9 +133,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\build\splat\generated\character_state_machine_def_generated.h" />
-    <ClInclude Include="..\..\build\splat\generated\timeline_generated.h" />
+    <ClInclude Include="..\..\build\splat\include\character_state_machine_def_generated.h" />
     <ClInclude Include="..\..\build\splat\include\materials_generated.h" />
+    <ClInclude Include="..\..\build\splat\include\timeline_generated.h" />
     <ClInclude Include="..\..\src\character.h" />
     <ClInclude Include="..\..\src\character_state_machine.h" />
     <ClInclude Include="..\..\src\common.h" />

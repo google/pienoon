@@ -17,12 +17,6 @@
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\renderer.h" />
     <ClInclude Include="..\..\src\character_state_machine.h" />
-    <ClInclude Include="..\..\build\splat\generated\character_state_machine_def_generated.h">
-      <Filter>generated</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\build\splat\generated\timeline_generated.h">
-      <Filter>generated</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\build\splat\include\materials_generated.h">
       <Filter>generated</Filter>
     </ClInclude>
@@ -33,6 +27,12 @@
     <ClInclude Include="..\..\src\material_manager.h" />
     <ClInclude Include="..\..\src\render_scene.h" />
     <ClInclude Include="..\..\src\sdl_controller.h" />
+    <ClInclude Include="..\..\build\splat\include\character_state_machine_def_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\build\splat\include\timeline_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

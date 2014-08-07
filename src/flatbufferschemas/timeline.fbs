@@ -18,11 +18,16 @@ namespace fpl;
 // Once FlatBuffers supports using an arbitrary enum to set a ushort field,
 // we should pull these out and change TimelineTexture to use a ushort instead.
 enum RenderableId : ushort {
+  CharacterInvalid,
   CharacterIdle,
   CharacterThrow,
   CharacterAim,
   CharacterHit,
   CharacterKnockedOut,
+  PieEmpty,
+  PieSmall,
+  PieMedium,
+  PieLarge,
   EnvironmentCloud,
   EnvironmentSun,
   EnvironmentStageFront,
