@@ -80,10 +80,13 @@ void GameState::ProcessEvents(Character& c) {
 void GameState::AdvanceFrame() {
   // Update controller to gather state machine inputs.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    it->controller()->AdvanceFrame();
-    it->controller()->SetLogicalInputs(LogicalInputs_JustHit, false);
-    it->controller()->SetLogicalInputs(LogicalInputs_NoHealth,
-                                       it->health() <= 0);
+    Controller* controller = it->controller();
+    controller->AdvanceFrame();
+    controller->SetLogicalInputs(LogicalInputs_JustHit, false);
+    controller->SetLogicalInputs(LogicalInputs_NoHealth, it->health() <= 0);
+    const Timeline* timeline = it->state_machine()->current_state()->timeline();
+    controller->SetLogicalInputs(LogicalInputs_AnimationEnd,
+        timeline && (GetAnimationTime(*it) >= timeline->end_time()));
   }
 
   // Update pies. Modify state machine input when character hit by pie.

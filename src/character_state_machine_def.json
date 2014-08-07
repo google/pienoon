@@ -4,64 +4,102 @@
       "id": "Idling",
       "transitions": [
         {
-          "target_state": "Aiming",
+          "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "logical_inputs": "JustHit"
+          }
+        },
+        {
+          "target_state": "Loading_1",
+          "condition": {
+            "logical_inputs": "AnimationEnd"
           }
         }
       ]
     },
     {
-      "id": "Aiming",
+      "id": "Loading_1",
       "transitions": [
         {
-          "target_state": "Blocking",
+          "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "logical_inputs": "JustHit"
           }
-        }
-      ]
-    },
-    {
-      "id": "Blocking",
-      "transitions": [
-        {
-          "target_state": "KO",
-          "condition": {
-            "logical_inputs": "ThrowPie"
-          }
-        }
-      ]
-    },
-    {
-      "id": "KO",
-      "transitions": [
-        {
-          "target_state": "HitWithPie",
-          "condition": {
-            "logical_inputs": "ThrowPie"
-          }
-        }
-      ]
-    },
-    {
-      "id": "HitWithPie",
-      "transitions": [
-        {
-          "target_state": "Loading",
-          "condition": {
-            "logical_inputs": "ThrowPie"
-          }
-        }
-      ]
-    },
-    {
-      "id": "Loading",
-      "transitions": [
+        },
         {
           "target_state": "Throwing",
           "condition": {
             "logical_inputs": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "logical_inputs": "Deflect"
+          }
+        },
+        {
+          "target_state": "Loading_2",
+          "condition": {
+            "logical_inputs": "AnimationEnd"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Loading_2",
+      "transitions": [
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "logical_inputs": "JustHit"
+          }
+        },
+        {
+          "target_state": "Throwing",
+          "condition": {
+            "logical_inputs": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "logical_inputs": "Deflect"
+          }
+        },
+        {
+          "target_state": "Loading_3",
+          "condition": {
+            "logical_inputs": "AnimationEnd"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Loading_3",
+      "transitions": [
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "logical_inputs": "JustHit"
+          }
+        },
+        {
+          "target_state": "Throwing",
+          "condition": {
+            "logical_inputs": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "logical_inputs": "Deflect"
+          }
+        },
+        {
+          "target_state": "Loading_3",
+          "condition": {
+            "logical_inputs": "AnimationEnd"
           }
         }
       ]
@@ -70,56 +108,55 @@
       "id": "Throwing",
       "transitions": [
         {
-          "target_state": "IdleToBlock",
+          "target_state": "Idling",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "logical_inputs": "AnimationEnd"
           }
-        }
-      ]
-    },
-    {
-      "id": "IdleToBlock",
-      "transitions": [
+        },
         {
-          "target_state": "BlockToIdle",
+          "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "logical_inputs": "JustHit"
           }
         }
       ]
     },
     {
-      "id": "BlockToIdle",
-      "transitions": [
-        {
-          "target_state": "Deflecting",
-          "condition": {
-            "logical_inputs": "ThrowPie"
-          }
-        }
-      ]
-    },
-    {
-      "id": "Deflecting",
-      "transitions": [
-        {
-          "target_state": "AimToBlock",
-          "condition": {
-            "logical_inputs": "ThrowPie"
-          }
-        }
-      ]
-    },
-    {
-      "id": "AimToBlock",
+      "id": "Blocking",
       "transitions": [
         {
           "target_state": "Idling",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "logical_inputs": "AnimationEnd"
           }
         }
       ]
+    },
+    {
+      "id": "HitByPie",
+      "transitions": [
+        {
+          "target_state": "KO",
+          "condition": {
+            "logical_inputs": "NoHealth"
+          }
+        },
+        {
+          "target_state": "Idling",
+          "condition": {
+            "logical_inputs": "AnimationEnd"
+          }
+        },
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "logical_inputs": "JustHit"
+          }
+        }
+      ]
+    },
+    {
+      "id": "KO"
     }
   ]
 }

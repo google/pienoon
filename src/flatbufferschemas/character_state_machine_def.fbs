@@ -16,17 +16,13 @@ namespace fpl.splat;
 
 enum StateId:byte {
   Idling,
-  Aiming,
-  Blocking,
-  KO,
-  HitWithPie,
-  Loading,
+  Loading_1,
+  Loading_2,
+  Loading_3,
   Throwing,
-  IdleToBlock,
-  BlockToIdle,
-  Deflecting,
-  AimToBlock,
-
+  Blocking,
+  HitByPie,
+  KO,
   Count // Must be last
 }
 
@@ -36,7 +32,8 @@ enum LogicalInputs:byte (bit_flags) {
   Left,
   Right,
   JustHit,
-  NoHealth
+  NoHealth,
+  AnimationEnd
 }
 
 table TransitionCondition {

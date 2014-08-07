@@ -30,9 +30,15 @@ CharacterStateMachine::CharacterStateMachine(
 }
 
 void CharacterStateMachine::Update(const TransitionInputs& inputs) {
+  if (!current_state_->transitions()) {
+    return;
+  }
   for (auto it = current_state_->transitions()->begin();
        it != current_state_->transitions()->end(); ++it) {
     const TransitionCondition* condition = it->condition();
+    if (!condition) {
+      continue;
+    }
     if ((condition->logical_inputs() & inputs.logical_inputs) !=
         condition->logical_inputs()) {
       continue;
