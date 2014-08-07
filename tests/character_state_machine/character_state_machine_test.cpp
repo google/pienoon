@@ -18,6 +18,7 @@
 
 #include <string>
 #include "character_state_machine.h"
+#include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/idl.h"
@@ -33,8 +34,8 @@ TEST(CharacterStateMachineTests, NotAllStatesUsedDeathTest) {
   // Omit the final state
   for (int i = 0; i < sp::StateId_Count - 1; i++) {
     auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
-    auto anims = builder.CreateString("");
-    states.push_back(sp::CreateCharacterState(builder, i, trans, anims));
+    auto timeline = fpl::CreateTimeline(builder);
+    states.push_back(sp::CreateCharacterState(builder, i, trans, timeline));
   }
   auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
       builder.CreateVector<fb::Offset<sp::CharacterState>>(
@@ -51,9 +52,9 @@ TEST(CharacterStateMachineTests, StatesOutOfOrderDeathTest) {
   std::vector<flatbuffers::Offset<sp::CharacterState>> states;
   for (int i = 0; i < sp::StateId_Count; i++) {
     auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
-    auto anims = builder.CreateString("");
+    auto timeline = fpl::CreateTimeline(builder);
     // Set all state id's to 0
-    states.push_back(sp::CreateCharacterState(builder, 0, trans, anims));
+    states.push_back(sp::CreateCharacterState(builder, 0, trans, timeline));
   }
   auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
       builder.CreateVector<fb::Offset<sp::CharacterState>>(
@@ -70,8 +71,8 @@ TEST(CharacterStateMachineTests, AllStatesPass) {
   std::vector<flatbuffers::Offset<sp::CharacterState>> states;
   for (int i = 0; i < sp::StateId_Count; i++) {
     auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
-    auto anims = builder.CreateString("");
-    states.push_back(sp::CreateCharacterState(builder, i, trans, anims));
+    auto timeline = fpl::CreateTimeline(builder);
+    states.push_back(sp::CreateCharacterState(builder, i, trans, timeline));
   }
   auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
       builder.CreateVector<fb::Offset<sp::CharacterState>>(
@@ -93,8 +94,8 @@ TEST(CharacterStateMachineTests, FollowTransitions) {
 
     auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(
       &trans_vec.front(), trans_vec.size());
-    auto anims = builder.CreateString("");
-    states.push_back(sp::CreateCharacterState(builder, i, trans, anims));
+    auto timeline = fpl::CreateTimeline(builder);
+    states.push_back(sp::CreateCharacterState(builder, i, trans, timeline));
   }
   auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
       builder.CreateVector<fb::Offset<sp::CharacterState>>(

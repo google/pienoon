@@ -41,7 +41,8 @@ mkdir -p assets/materials
 # loading certain game assets
 ${flatc_exe} \
   -o assets/ \
-  -b src/flatbufferschemas/character_state_machine_def.fbs \
+  -b src/flatbufferschemas/timeline.fbs \
+  src/flatbufferschemas/character_state_machine_def.fbs \
   src/character_state_machine_def.json
 
 for filename in src/materials/*.json; do
