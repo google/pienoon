@@ -54,6 +54,10 @@ class MaterialManager {
   // If this returns NULL, the error can be found in Renderer::last_error_.
   Material *LoadMaterial(const char *filename);
 
+  // Handy accessors, so you don't have to pass the renderer around too.
+  Renderer &renderer() { return renderer_; }
+  const Renderer &renderer() const { return renderer_; }
+
   // Utility function for any file loading.
   static bool LoadFile(const char *filename, std::string *dest);
 

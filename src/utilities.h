@@ -12,18 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "precompiled.h"
+#ifndef SPLAT_UTILITIES_H
+#define SPLAT_UTILITIES_H
 
-#include "splat_game.h"
+#include <string>
 
-int main(int argc, char *argv[]) {
-  (void) argc; (void) argv;
+namespace fpl
+{
 
-  fpl::splat::SplatGame game;
-  if (!game.Initialize())
-    return 1;
+bool ChangeToUpstreamDir(const char* const target_dir,
+                         const char* const suffix_dirs[],
+                         size_t num_suffixes);
 
-  game.Run();
-  return 0;
-}
+std::string CamelCaseToSnakeCase(const char* const camel);
 
+std::string FileNameFromEnumName(const char* const enum_name,
+                                 const char* const prefix,
+                                 const char* const suffix);
+
+} // namespace fpl
+
+#endif // SPLAT_UTILITIES_H

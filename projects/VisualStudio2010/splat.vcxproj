@@ -131,12 +131,19 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\..\src\splat_game.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utilities.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\build\splat\generated\character_state_machine_def_generated.h" />
-    <ClInclude Include="..\..\build\splat\generated\timeline_generated.h" />
+    <ClInclude Include="..\..\build\splat\include\character_state_machine_def_generated.h" />
     <ClInclude Include="..\..\build\splat\include\materials_generated.h" />
-    <ClInclude Include="..\..\src\angle.h" />
+    <ClInclude Include="..\..\build\splat\include\timeline_generated.h" />
     <ClInclude Include="..\..\src\character.h" />
     <ClInclude Include="..\..\src\character_state_machine.h" />
     <ClInclude Include="..\..\src\common.h" />
@@ -149,6 +156,8 @@
     <ClInclude Include="..\..\src\renderer.h" />
     <ClInclude Include="..\..\src\render_scene.h" />
     <ClInclude Include="..\..\src\sdl_controller.h" />
+    <ClInclude Include="..\..\src\splat_game.h" />
+    <ClInclude Include="..\..\src\utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\shaders\color.glslf" />
@@ -176,6 +185,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\build\splat\include\materials_generated.h</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\src\flatbufferschemas\materials.fbs</AdditionalInputs>
     </CustomBuild>
+    <None Include="..\..\src\character_state_machine_def.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

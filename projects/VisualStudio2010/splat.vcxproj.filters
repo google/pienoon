@@ -10,6 +10,8 @@
     <ClCompile Include="..\..\src\character.cpp" />
     <ClCompile Include="..\..\src\game_state.cpp" />
     <ClCompile Include="..\..\src\sdl_controller.cpp" />
+    <ClCompile Include="..\..\src\splat_game.cpp" />
+    <ClCompile Include="..\..\src\utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\glplatform.h" />
@@ -17,12 +19,6 @@
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\renderer.h" />
     <ClInclude Include="..\..\src\character_state_machine.h" />
-    <ClInclude Include="..\..\build\splat\generated\character_state_machine_def_generated.h">
-      <Filter>generated</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\build\splat\generated\timeline_generated.h">
-      <Filter>generated</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\build\splat\include\materials_generated.h">
       <Filter>generated</Filter>
     </ClInclude>
@@ -33,7 +29,14 @@
     <ClInclude Include="..\..\src\material_manager.h" />
     <ClInclude Include="..\..\src\render_scene.h" />
     <ClInclude Include="..\..\src\sdl_controller.h" />
-    <ClInclude Include="..\..\src\angle.h" />
+    <ClInclude Include="..\..\build\splat\include\character_state_machine_def_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\build\splat\include\timeline_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\splat_game.h" />
+    <ClInclude Include="..\..\src\utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
@@ -59,6 +62,7 @@
     <None Include="..\..\assets\shaders\textured.glslv">
       <Filter>shaders</Filter>
     </None>
+    <None Include="..\..\src\character_state_machine_def.json" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\src\flatbufferschemas\timeline.fbs">

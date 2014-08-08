@@ -31,6 +31,8 @@ static const int kPlayerCount = 4;
 
 class GameState {
  public:
+  GameState() : time_(0) {}
+
   // Update all players' controller and state machinel.
   void AdvanceFrame(WorldTime delta_time);
 

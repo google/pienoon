@@ -76,9 +76,10 @@ set(splat_SRCS
     src/input.cpp
     src/main.cpp
     src/material_manager.cpp
-    src/precompiled.cpp
     src/renderer.cpp
-    src/sdl_controller.cpp)
+    src/sdl_controller.cpp
+    src/splat_game.cpp
+    src/utilities.cpp)
 
 # Includes for this project.
 include_directories(src)
