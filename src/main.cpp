@@ -28,6 +28,16 @@
 namespace fpl
 {
 
+static const float kViewportAngle = 55.0;
+static const float kViewportAspectRatio = 1280.0/800.0;
+static const float kViewportNearPlane =10;
+static const float kViewportFarPlane = 50;
+
+static const mat4 kRotate180AroundZ =  mat4(-1, 0, 0, 0,
+                                             0,-1, 0, 0,
+                                             0, 0, 1, 0,
+                                             0, 0, 0, 1);
+
 void RenderSceneFromDescription(Renderer& renderer,
                                 const std::vector<Material*> materials,
                                 const RenderScene& scene)
@@ -154,7 +164,6 @@ static Angle InitialFaceAngle(const splat::CharacterId id) {
   return Angle::FromXZVector(targetPosition - characterPosition);
 }
 
-
 int MainLoop() {
   // Time consumed when GameState::AdvanceFrame is called.
   // At some point this might be variable.
@@ -183,16 +192,24 @@ int MainLoop() {
     materials.push_back(mat);
   }
 
+  vec3 cameraPosition = vec3(0, 0, -25);
+
   renderer.camera.model_view_projection_ =
-      mat4::Ortho(-2.0f, 2.0f, -2.0f, 2.0f, -1.0f, 10.0f);
+      mat4::Perspective(kViewportAngle,
+                        kViewportAspectRatio,
+                        kViewportNearPlane,
+                        kViewportFarPlane) *
+      kRotate180AroundZ *
+      mat4::FromTranslationVector(cameraPosition);
 
   renderer.color = vec4(1, 1, 1, 1);
 
   Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
-  int indices[] = { 0, 1, 2 };
-  float vertices[] = { 0, 0, 0,   0, 0,
-                       1, 1, 0,   1, 1,
-                       1, -1, 0,  1, 0 };
+  int indices[] = { 0, 1, 2, 3};
+  float vertices[] = { -1, 0, 0,   0, 0,
+                        1, 0, 0,   1, 0,
+                       -1, 3, 0,   0, 1,
+                        1, 3, 0,   1, 1};
 
   std::string state_machine_source;
   if (!flatbuffers::LoadFile("character_state_machine_def.bin",
@@ -250,8 +267,10 @@ int MainLoop() {
       vertices[0] += input.pointers_[0].mousedelta.x() / 100.0f;
     }
 
-    materials[0]->Set(renderer);
-    Mesh::RenderArray(GL_TRIANGLES, 3, format, sizeof(float) * 5,
+    Material *idle_character =
+            matman.FindMaterial("materials/character_idle.bin");
+    idle_character->Set(renderer);
+    Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
                       reinterpret_cast<const char *>(vertices), indices);
 
     // Populate 'scene' from the game state--all the positions, orientations,

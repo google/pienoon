@@ -196,6 +196,9 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0, GL_RGBA,
                GL_UNSIGNED_BYTE, buffer);
   glEnable(GL_TEXTURE_2D);
+  glEnable(GL_ALPHA);
+  glEnable(GL_BLEND);
+  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glGenerateMipmap(GL_TEXTURE_2D);
   return texture_id;
 }
@@ -227,7 +230,7 @@ GLuint Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
       start_y = header->height - 1;
       end_y = -1;
       y_direction = -1;
-  }else{    // y is not flipped.
+  } else {    // y is not flipped.
       start_y = 0;
       end_y = header->height;
       y_direction = 1;
