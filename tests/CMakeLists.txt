@@ -59,4 +59,5 @@ function(test_executable name additional_srcs)
 endfunction()
 
 test_executable(character_state_machine ../src/character_state_machine.cpp)
+test_executable(angle ../src/angle.h)
 
