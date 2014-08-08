@@ -65,6 +65,8 @@ SplatGame::SplatGame()
   , debug_previous_states_(kPlayerCount, -1)
 {}
 
+// Initialize the 'renderer_' member. No other members have been initialized at
+// this point.
 bool SplatGame::InitializeRenderer() {
   renderer_.Initialize(vec2i(1280, 800), "Splat!");
 
@@ -83,6 +85,8 @@ bool SplatGame::InitializeRenderer() {
   return true;
 }
 
+// Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
+// members have been initialized at this point.
 bool SplatGame::InitializeMaterials() {
   for (int i = 0; i < RenderableId_Count; ++i) {
     const std::string material_file_name = FileNameFromEnumName(
@@ -116,12 +120,14 @@ static mathfu::vec3 InitialPosition(const splat::CharacterId id) {
 
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
-static Angle InitialFaceAngle(const splat::CharacterId id) {
+static Angle InitialFaceAngle(const CharacterId id) {
   const mathfu::vec3 characterPosition = InitialPosition(id);
   const mathfu::vec3 targetPosition = InitialPosition(InitialTargetId(id));
   return Angle::FromXZVector(targetPosition - characterPosition);
 }
 
+// Create state matchines, characters, controllers, etc. present in
+// 'gamestate_'.
 bool SplatGame::InitializeGameState() {
   // Load flatbuffer into buffer.
   if (!flatbuffers::LoadFile("character_state_machine_def.bin",
@@ -132,28 +138,31 @@ bool SplatGame::InitializeGameState() {
 
   // Grab the state machine from the buffer.
   auto state_machine_def =
-     splat::GetCharacterStateMachineDef(state_machine_source_.c_str());
+     GetCharacterStateMachineDef(state_machine_source_.c_str());
   if (!CharacterStateMachineDef_Validate(state_machine_def)) {
     fprintf(stderr, "State machine is invalid.\n");
     return false;
   }
 
   // Create controllers.
-  for (int i = 0; i < splat::kPlayerCount; i++) {
-    controllers_[i] = new splat::SdlController(
-        &input_, splat::ControlScheme::GetDefaultControlScheme(i));
+  for (CharacterId id = 0; id < kPlayerCount; id++) {
+    controllers_.push_back(SdlController(
+        &input_, ControlScheme::GetDefaultControlScheme(id)));
   }
 
   // Create characters.
-  for (splat::CharacterId id = 0; id < splat::kPlayerCount; id++) {
-    game_state_.characters().push_back(splat::Character(
-        id, InitialTargetId(id), splat::kDefaultHealth, InitialFaceAngle(id),
-        InitialPosition(id), controllers_[id], state_machine_def));
+  for (CharacterId id = 0; id < kPlayerCount; id++) {
+    game_state_.characters().push_back(Character(
+        id, InitialTargetId(id), kDefaultHealth, InitialFaceAngle(id),
+        InitialPosition(id), &controllers_[id], state_machine_def));
   }
 
   return true;
 }
 
+// Initialize each member in turn. This is logically just one function, since
+// the order of initialization cannot be changed. However, it's nice for
+// debugging and readability to have each section lexographically separate.
 bool SplatGame::Initialize() {
   printf("Splat initializing...\n");
 
@@ -185,25 +194,24 @@ void SplatGame::Render(const RenderScene& scene) {
   }
 }
 
+// Debug function to write out state machine transitions.
 // TODO: Remove this block and the one in the main loop that prints the
 // current state.
-// This is just for development. It keeps track of when a state machine
-// transitions so that we can print the change. Printing every frame would be
-// spammy.
 void SplatGame::DebugPlayerStates() {
   // Display the state changes, at least until we get real rendering up.
-  for (int i = 0; i < splat::kPlayerCount; i++) {
+  for (int i = 0; i < kPlayerCount; i++) {
     auto& player = game_state_.characters()[i];
     int id = player.state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
       printf("Player %d - Health %2d, State %s [%d]\n",
-              i, player.health(), splat::EnumNameStateId(id), id);
+              i, player.health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
     }
   }
 }
 
-// TODO: Remove. This is just and example of how to use the renderer.
+// Debug function providing an example of how to use the renderer.
+// TODO: Remove after SplatGame::Render has been implemented.
 void SplatGame::DebugRenderExampleTriangle() {
   static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
   static int indices[] = { 0, 1, 2, 3};
@@ -225,31 +233,28 @@ void SplatGame::DebugRenderExampleTriangle() {
                     reinterpret_cast<const char *>(vertices), indices);
 }
 
+// Main game loop.
 void SplatGame::Run() {
-  // Initialize so that we don't sleep the first time through the loop.
-  prev_world_time_ = CurrentWorldTime() - kMinUpdateTime;
+  // Time consumed when GameState::AdvanceFrame is called.
+  // TODO: change WorldTime to be in milliseconds instead of 1/60s increments.
+  // TODO: tie into real world-clock and update at variable rate.
+  static const WorldTime kDeltaTime = 1;
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
-    // Milliseconds elapsed since last update. To avoid burning through the CPU,
-    // enforce a minimum time between updates. For example, if kMinUpdateTime
-    // is 1, we will not exceed 1000Hz update time.
-    const WorldTime world_time = CurrentWorldTime();
-    const WorldTime delta_time = std::min(world_time - prev_world_time_,
-                                          kMaxUpdateTime);
-    if (delta_time < kMinUpdateTime) {
-      SleepForMilliseconds(kMinUpdateTime - delta_time);
-      continue;
-    }
 
     // TODO: Can we move these to 'Render'?
     renderer_.AdvanceFrame(input_.minimized_);
     renderer_.ClearFrameBuffer(vec4(0.0f));
+
+    // Process input device messages since the last game loop.
+    // Update render window size.
     input_.AdvanceFrame(&renderer_.window_size_);
 
     // Update game logic by a variable number of milliseconds.
     game_state_.AdvanceFrame(delta_time);
 
+    // Output debug information.
     DebugPlayerStates();
     DebugRenderExampleTriangle();
 

@@ -39,13 +39,30 @@ class SplatGame {
   void DebugPlayerStates();
   void DebugRenderExampleTriangle();
 
+  // Report touches, button presses, keyboard presses.
   InputSystem input_;
+
+  // Hold rendering context.
   Renderer renderer_;
+
+  // Load and own rendering resources.
   MaterialManager matman_;
+
+  // Map RenderableId to material.
   std::vector<Material*> materials_;
+
+  // Hold state machine binary data.
   std::string state_machine_source_;
-  splat::GameState game_state_;
-  splat::SdlController* controllers_[splat::kPlayerCount];
+
+  // Hold characters, pies, camera state.
+  GameState game_state_;
+
+  // Maps physical inputs (from input_) to logical inputs that the state
+  // machines can use. For example, "up" maps to "throw pie".
+  std::vector<SdlController> controllers_;
+
+  // Description of the scene to be rendered. Isolates gameplay and rendering
+  // code with a type-light structure. Recreated every frame.
   RenderScene scene_;
 
   // World time of previous update. We use this to calculate the delta_time
