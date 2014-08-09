@@ -47,6 +47,15 @@ class SplatGame {
   splat::GameState game_state_;
   splat::SdlController* controllers_[splat::kPlayerCount];
   RenderScene scene_;
+
+  // World time of previous update. We use this to calculate the delta_time
+  // of the current update. This value is tied to the real-world clock.
+  // Note that it is distict from game_state_.time_, which is *not* tied to the
+  // real-world clock. If the game is paused, game_state.time_ will pause, but
+  // prev_world_time_ will keep chugging.
+  WorldTime prev_world_time_;
+
+  // Debug data. For displaying when a character's state has changed.
   std::vector<int> debug_previous_states_;
 };
 

@@ -26,7 +26,8 @@ CharacterStateMachine::CharacterStateMachine(
     const CharacterStateMachineDef* const state_machine_def)
     : state_machine_def_(state_machine_def),
       current_state_(state_machine_def->states()->Get(
-          state_machine_def_->initial_state())) {
+          state_machine_def_->initial_state())),
+      current_state_start_time_(0) {
 }
 
 void CharacterStateMachine::Update(const TransitionInputs& inputs) {

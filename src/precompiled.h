@@ -15,23 +15,24 @@
 #ifndef SPLAT_SRC_PRECOMPILED_H
 #define SPLAT_SRC_PRECOMPILED_H
 
-#include <stdio.h>
-#include <string.h>
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif // _WIN32
-
-#if defined(_WIN32) && !defined(_USE_MATH_DEFINES)
-  #define _USE_MATH_DEFINES
-#endif // defined(_WIN32)
-#include <math.h>
 #include <assert.h>
 #include <cstdint>
-#include <string>
-#include <vector>
 #include <map>
+#if defined(_WIN32) && !defined(_USE_MATH_DEFINES)
+#define _USE_MATH_DEFINES
+#endif // defined(_WIN32) && !defined(_USE_MATH_DEFINES)
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+#include <vector>
+
+#if defined(_WIN32)
+#include <direct.h> // for _chdir
+#define NOMINMAX
+#include <windows.h> // for Sleep
+#else // !defined(_WIN32)
+#include <unistd.h> // for chdir, usleep
+#endif // !defined(_WIN32)
 
 #include "flatbuffers/util.h"
 #include "mathfu/matrix.h"

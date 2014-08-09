@@ -14,6 +14,8 @@
 
 #include "precompiled.h"
 
+#include "SDL_timer.h"
+
 #include "angle.h"
 #include "character_state_machine.h"
 // TODO: move to alphabetical order once FlatBuffer include dependency fixed
@@ -24,6 +26,16 @@
 
 namespace fpl {
 namespace splat {
+
+// Don't let our game go faster than 100Hz. The game won't look much smoother
+// or play better at faster frame rates. We'll just be hogging the CPU.
+static const WorldTime kMinUpdateTime = 10;
+
+// Don't let us jump more than 100ms in one simulation update. If we're
+// debugging, or a task switch happens, we could get super-large update times
+// that we'd rather just ignore.
+static const WorldTime kMaxUpdateTime = 100;
+
 
 static const float kViewportAngle = 55.0f;
 static const float kViewportAspectRatio = 1280.0f / 800.0f;
@@ -40,10 +52,18 @@ static const char *kBuildPaths[] = {
     "Debug", "Release", "projects\\VisualStudio2010", "build\\Debug\\bin",
     "build\\Release\\bin"};
 
-SplatGame::SplatGame()
-  : matman_(renderer_),
-    debug_previous_states_(splat::kPlayerCount, -1) {
+// Return the elapsed milliseconds since the start of the program. This number
+// will loop back to 0 after about 49 days; always take the difference to
+// properly handle the wrap-around case.
+static inline WorldTime CurrentWorldTime() {
+  return SDL_GetTicks();
 }
+
+SplatGame::SplatGame()
+  : matman_(renderer_)
+  , prev_world_time_(0)
+  , debug_previous_states_(kPlayerCount, -1)
+{}
 
 bool SplatGame::InitializeRenderer() {
   renderer_.Initialize(vec2i(1280, 800), "Splat!");
@@ -130,6 +150,7 @@ bool SplatGame::InitializeGameState() {
         id, InitialTargetId(id), splat::kDefaultHealth, InitialFaceAngle(id),
         InitialPosition(id), controllers_[id], state_machine_def));
   }
+
   return true;
 }
 
@@ -205,16 +226,29 @@ void SplatGame::DebugRenderExampleTriangle() {
 }
 
 void SplatGame::Run() {
-  // Time consumed when GameState::AdvanceFrame is called.
-  // At some point this might be variable.
-  static const WorldTime kDeltaTime = 1;
+  // Initialize so that we don't sleep the first time through the loop.
+  prev_world_time_ = CurrentWorldTime() - kMinUpdateTime;
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
+    // Milliseconds elapsed since last update. To avoid burning through the CPU,
+    // enforce a minimum time between updates. For example, if kMinUpdateTime
+    // is 1, we will not exceed 1000Hz update time.
+    const WorldTime world_time = CurrentWorldTime();
+    const WorldTime delta_time = std::min(world_time - prev_world_time_,
+                                          kMaxUpdateTime);
+    if (delta_time < kMinUpdateTime) {
+      SleepForMilliseconds(kMinUpdateTime - delta_time);
+      continue;
+    }
+
+    // TODO: Can we move these to 'Render'?
     renderer_.AdvanceFrame(input_.minimized_);
     renderer_.ClearFrameBuffer(vec4(0.0f));
     input_.AdvanceFrame(&renderer_.window_size_);
-    game_state_.AdvanceFrame(kDeltaTime);
+
+    // Update game logic by a variable number of milliseconds.
+    game_state_.AdvanceFrame(delta_time);
 
     DebugPlayerStates();
     DebugRenderExampleTriangle();
@@ -226,6 +260,9 @@ void SplatGame::Run() {
 
     // Issue draw calls for the 'scene'.
     Render(scene_);
+
+    // Remember the real-world time from this frame.
+    prev_world_time_ = world_time;
   }
 }
 

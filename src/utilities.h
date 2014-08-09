@@ -30,6 +30,8 @@ std::string FileNameFromEnumName(const char* const enum_name,
                                  const char* const prefix,
                                  const char* const suffix);
 
+void SleepForMilliseconds(const uint32_t milliseconds);
+
 } // namespace fpl
 
 #endif // SPLAT_UTILITIES_H

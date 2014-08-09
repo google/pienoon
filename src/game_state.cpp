@@ -143,6 +143,12 @@ float GameState::CalculateCharacterFacingAngleVelocity(
 }
 
 void GameState::AdvanceFrame(WorldTime delta_time) {
+  // Increment the world time counter. This happens at the start of the function
+  // so that functions that reference the current world time will include the
+  // delta_time. For example, GetAnimationTime needs to compare against the
+  // time for *this* frame, not last frame.
+  time_ += delta_time;
+
   // Update controller to gather state machine inputs.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
     Controller* controller = it->controller();
