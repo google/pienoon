@@ -235,13 +235,21 @@ void SplatGame::DebugRenderExampleTriangle() {
 
 // Main game loop.
 void SplatGame::Run() {
-  // Time consumed when GameState::AdvanceFrame is called.
-  // TODO: change WorldTime to be in milliseconds instead of 1/60s increments.
-  // TODO: tie into real world-clock and update at variable rate.
-  static const WorldTime kDeltaTime = 1;
+   // Initialize so that we don't sleep the first time through the loop.
+  prev_world_time_ = CurrentWorldTime() - kMinUpdateTime;
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
+    // Milliseconds elapsed since last update. To avoid burning through the CPU,
+    // enforce a minimum time between updates. For example, if kMinUpdateTime
+    // is 1, we will not exceed 1000Hz update time.
+    const WorldTime world_time = CurrentWorldTime();
+    const WorldTime delta_time = std::min(world_time - prev_world_time_,
+                                          kMaxUpdateTime);
+    if (delta_time < kMinUpdateTime) {
+      SleepForMilliseconds(kMinUpdateTime - delta_time);
+      continue;
+    }
 
     // TODO: Can we move these to 'Render'?
     renderer_.AdvanceFrame(input_.minimized_);
