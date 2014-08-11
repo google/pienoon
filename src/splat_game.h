@@ -25,7 +25,7 @@
 namespace fpl {
 namespace splat {
 
-class Config;
+struct Config;
 class CharacterStateMachine;
 
 class SplatGame {
@@ -41,7 +41,7 @@ class SplatGame {
   bool InitializeGameState();
   void Render(const SceneDescription& scene);
   void DebugCharacterStates();
-  void DebugRenderExampleTriangle();
+  void DebugCamera();
   const Config* GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
 

@@ -63,7 +63,7 @@ const ControlScheme* ControlScheme::GetDefaultControlScheme(int i) {
   static const Keybind kKeyBinds3[] = {
     { SDLK_KP_8, LogicalInputs_ThrowPie },
     { SDLK_KP_5, LogicalInputs_Deflect },
-    { SDLK_KP_3, LogicalInputs_Left },
+    { SDLK_KP_4, LogicalInputs_Left },
     { SDLK_KP_6, LogicalInputs_Right }
   };
 

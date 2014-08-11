@@ -99,15 +99,35 @@ void GameState::UpdatePiePosition(AirbornePie& pie) const {
 
 static CharacterId CalculateCharacterTarget(const Character& c,
                                             const int character_count) {
+  // Check the inputs to see how requests for target change.
   const uint32_t logical_inputs = c.controller()->logical_inputs();
+  const int target_delta = (logical_inputs & LogicalInputs_Left) ? -1 :
+                           (logical_inputs & LogicalInputs_Right) ? 1 : 0;
+  const CharacterId current_target = c.target();
+  if (target_delta == 0)
+    return current_target;
 
-  if (logical_inputs & LogicalInputs_Left)
-    return c.target() == 0 ? character_count - 1 : c.target() - 1;
+  for (CharacterId id = current_target + target_delta;; id += target_delta) {
+    // Wrap around.
+    if (id >= character_count) {
+      id = 0;
+    } else if (id <= 0) {
+      id = character_count - 1;
+    }
 
-  if (logical_inputs & LogicalInputs_Right)
-    return c.target() == character_count - 1 ? 0 : c.target() + 1;
+    // If we've looped around, no one else to target.
+    if (id == current_target)
+      return id;
 
-  return c.target();
+    // Avoid targeting yourself.
+    if (id == c.id())
+      continue;
+
+    // TODO: Don't target KO'd characters.
+
+    // All targetting criteria satisfied.
+    return id;
+  }
 }
 
 // Angle to the character's target.
@@ -191,7 +211,7 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
       it = pies_.erase(it);
     }
   }
-  int index = 0;
+
   // Update the character state machines and the facing angles.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
     // Update state machines.
@@ -199,10 +219,6 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     transition_inputs.logical_inputs = it->controller()->logical_inputs();
     transition_inputs.animation_time = GetAnimationTime(*it);
     it->state_machine()->Update(transition_inputs);
-
-    //  hack to give them different locations.
-    it->set_position(mathfu::vec3((index - 2) * 10, 0, (index - 2) * 10));
-    index++;
 
     // Update target.
     const CharacterId target_id = CalculateCharacterTarget(*it,
@@ -234,10 +250,10 @@ static uint16_t RenderableIdForPieDamage(CharacterHealth damage) {
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
-  // Camera.
   scene->Clear();
-  scene->set_camera(mathfu::mat4::FromTranslationVector(
-                        mathfu::vec3(0.0f, 5.0f, -10.0f)));
+
+  // Camera.
+  scene->set_camera(mathfu::mat4::FromTranslationVector(camera_position_));
 
   // Characters.
   for (auto c = characters_.begin(); c != characters_.end(); ++c) {

@@ -44,7 +44,7 @@ static const float kViewportNearPlane = 10.0f;
 static const float kViewportFarPlane = 100.0f;
 
 // Offset for rendering cardboard backing
-static const vec3 kCardboardOffset = vec3(0, 0, -0.3);
+static const vec3 kCardboardOffset = vec3(0.0f, 0.0f, -0.3f);
 
 
 static const char kAssetsDir[] = "assets";
@@ -61,7 +61,6 @@ static inline WorldTime CurrentWorldTime() {
 
 SplatGame::SplatGame()
     : matman_(renderer_),
-      camera_position(mathfu::vec3(0, 5, -25)),
       prev_world_time_(0),
       debug_previous_states_(),
       debug_previous_angles_() {
@@ -203,14 +202,12 @@ bool SplatGame::Initialize() {
 
 void SplatGame::Render(const SceneDescription& scene) {
   // TODO: Implement draw calls here.
-  // TODO - honor the scene's actual camera
-  mat4 camera_transform =
+  const mat4 camera_transform =
       mat4::Perspective(kViewportAngle,
                        kViewportAspectRatio,
                        kViewportNearPlane,
                        kViewportFarPlane) *
-      mat4::FromTranslationVector(camera_position);
-
+      scene.camera();
 
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
@@ -220,14 +217,7 @@ void SplatGame::Render(const SceneDescription& scene) {
     // TODO: Draw carboard with texture from 'mat' at location
     // renderable.matrix_
 
-    mat4 mvp = camera_transform * renderable.world_matrix();
-
-    // Some random "interactivity".
-    if (input_.GetButton(SDLK_POINTER1).is_down()) {
-        camera_position.x() += input_.pointers_[0].mousedelta.x() / 200.0f;
-        camera_position.z() += input_.pointers_[0].mousedelta.y() / 200.0f;
-    }
-
+    const mat4 mvp = camera_transform * renderable.world_matrix();
 
     renderer_.camera.model_view_projection_ = mvp;
     static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
@@ -292,6 +282,19 @@ const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
   return fpl::splat::GetCharacterStateMachineDef(state_machine_source_.c_str());
 }
 
+// Debug function to move the camera if the mouse button is down.
+void SplatGame::DebugCamera() {
+  // Translate the camera in the XZ plane.
+  if (input_.GetButton(SDLK_POINTER1).is_down()) {
+    static const float kMouseToCameraScale = 0.005f;
+    const vec2i mouse_delta = input_.pointers_[0].mousedelta;
+    const vec3 camera_delta = vec3(mouse_delta.x() * kMouseToCameraScale, 0.0f,
+                                   mouse_delta.y() * kMouseToCameraScale);
+    game_state_.set_camera_position(game_state_.camera_position() +
+                                    camera_delta);
+  }
+}
+
 void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   prev_world_time_ = CurrentWorldTime() - kMinUpdateTime;
@@ -322,6 +325,7 @@ void SplatGame::Run() {
 
     // Output debug information.
     DebugCharacterStates();
+    DebugCamera();
 
     // Populate 'scene' from the game state--all the positions, orientations,
     // and renderable-ids (which specify materials) of the characters and props.
