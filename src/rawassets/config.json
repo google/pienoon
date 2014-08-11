@@ -1,0 +1,6 @@
+{
+  "character_count": 4,
+  "character_health": 10,
+  "window_size": { "x": 1280, "y": 800 },
+  "window_title": "Splat!"
+}

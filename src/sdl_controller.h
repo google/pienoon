@@ -53,10 +53,10 @@ class ControlScheme {
 // physical inputs that map to logical actions.
 class SdlController : public Controller {
  public:
-  // Create a controller using the given input system and control scheme.
+  // Set up a controller using the given input system and control scheme.
   // The input_system and scheme pointers are unowned and must outlive this
   // object.
-  SdlController(InputSystem* input_system, const ControlScheme* scheme);
+  void Initialize(InputSystem* input_system, const ControlScheme* scheme);
 
   // Map the input from the physical inputs to logical game inputs.
   virtual void AdvanceFrame();

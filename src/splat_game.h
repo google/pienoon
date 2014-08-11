@@ -32,12 +32,16 @@ class SplatGame {
   void Run();
 
  private:
+  bool InitializeConfig();
   bool InitializeRenderer();
   bool InitializeMaterials();
   bool InitializeGameState();
   void Render(const SceneDescription& scene);
   void DebugCharacterStates();
   void DebugRenderExampleTriangle();
+
+  // Hold configuration binary data.
+  std::string config_source_;
 
   // Report touches, button presses, keyboard presses.
   InputSystem input_;

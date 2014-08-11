@@ -23,6 +23,7 @@ namespace splat {
 class Controller {
  public:
   Controller() : logical_inputs_(0u) {}
+  virtual ~Controller() {}
 
   // Update the current state of this controller.
   virtual void AdvanceFrame() = 0;

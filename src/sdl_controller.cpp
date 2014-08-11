@@ -23,10 +23,10 @@
 namespace fpl {
 namespace splat {
 
-SdlController::SdlController(InputSystem* input_system,
-                             const ControlScheme* scheme)
-    : input_system_(input_system),
-      scheme_(scheme) {
+void SdlController::Initialize(InputSystem* input_system,
+                               const ControlScheme* scheme) {
+  input_system_ = input_system;
+  scheme_ = scheme;
 }
 
 void SdlController::AdvanceFrame() {

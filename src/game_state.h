@@ -25,10 +25,6 @@ class SceneDescription;
 
 namespace splat {
 
-// TODO: Move this to a data file.
-static const int kDefaultHealth = 10;
-static const int kCharacterCount = 4;
-
 class GameState {
  public:
   GameState() : time_(0) {}

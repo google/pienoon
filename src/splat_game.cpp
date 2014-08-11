@@ -21,6 +21,7 @@
 // TODO: move to alphabetical order once FlatBuffer include dependency fixed
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
+#include "config_generated.h"
 #include "splat_game.h"
 #include "utilities.h"
 
@@ -59,17 +60,28 @@ static inline WorldTime CurrentWorldTime() {
 }
 
 SplatGame::SplatGame()
-  : matman_(renderer_),
-    camera_position(mathfu::vec3(0, 5, -25)),
-    prev_world_time_(0),
-    debug_previous_states_(kCharacterCount, -1),
-    debug_previous_angles_(kCharacterCount, Angle(0.0f))
-{}
+    : matman_(renderer_),
+      camera_position(mathfu::vec3(0, 5, -25)),
+      prev_world_time_(0),
+      debug_previous_states_(),
+      debug_previous_angles_() {
+}
+
+bool SplatGame::InitializeConfig() {
+  if (!flatbuffers::LoadFile("config.bin", true, &config_source_)) {
+    fprintf(stderr, "can't load config.bin\n");
+    return false;
+  }
+  return true;
+}
 
 // Initialize the 'renderer_' member. No other members have been initialized at
 // this point.
 bool SplatGame::InitializeRenderer() {
-  if (!renderer_.Initialize(vec2i(1280, 800), "Splat!")) {
+  const Config* config = GetConfig(config_source_.c_str());
+  if (!renderer_.Initialize(vec2i(config->window_size()->x(),
+                                  config->window_size()->y()),
+                            config->window_title()->c_str())) {
     fprintf(stderr, "Renderer initialization error: %s\n",
             renderer_.last_error_.c_str());
     return false;
@@ -98,30 +110,35 @@ bool SplatGame::InitializeMaterials() {
 
 // Calculate a character's target at the start of the game. We want the
 // characters to aim at the character directly opposite them.
-static CharacterId InitialTargetId(const CharacterId id) {
+static CharacterId InitialTargetId(const CharacterId id,
+                                   const int character_count) {
   return static_cast<CharacterId>(
-      (id + kCharacterCount / 2) % kCharacterCount);
+      (id + character_count / 2) % character_count);
 }
 
 // The position of a character is at the start of the game.
-static mathfu::vec3 InitialPosition(const CharacterId id) {
+static mathfu::vec3 InitialPosition(const CharacterId id,
+                                    const int character_count) {
   static const float kCharacterDistFromCenter = 10.0f;
   const Angle angle_to_position = Angle::FromWithinThreePi(
-      static_cast<float>(id) * kTwoPi / kCharacterCount);
+      static_cast<float>(id) * kTwoPi / character_count);
   return kCharacterDistFromCenter * angle_to_position.ToXZVector();
 }
 
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
-static Angle InitialFaceAngle(const CharacterId id) {
-  const mathfu::vec3 characterPosition = InitialPosition(id);
-  const mathfu::vec3 targetPosition = InitialPosition(InitialTargetId(id));
+static Angle InitialFaceAngle(const CharacterId id, const int character_count) {
+  const mathfu::vec3 characterPosition = InitialPosition(id, character_count);
+  const mathfu::vec3 targetPosition =
+      InitialPosition(InitialTargetId(id, character_count), character_count);
   return Angle::FromXZVector(targetPosition - characterPosition);
 }
 
 // Create state matchines, characters, controllers, etc. present in
 // 'gamestate_'.
 bool SplatGame::InitializeGameState() {
+  const Config* config = GetConfig(config_source_.c_str());
+
   // Load flatbuffer into buffer.
   if (!flatbuffers::LoadFile("character_state_machine_def.bin",
                              true, &state_machine_source_)) {
@@ -138,17 +155,24 @@ bool SplatGame::InitializeGameState() {
   }
 
   // Create controllers.
-  for (CharacterId id = 0; id < kCharacterCount; id++) {
-    controllers_.push_back(SdlController(
-        &input_, ControlScheme::GetDefaultControlScheme(id)));
+  controllers_.resize(config->character_count());
+  for (CharacterId id = 0; id < config->character_count(); ++id) {
+    controllers_[id].Initialize(
+        &input_, ControlScheme::GetDefaultControlScheme(id));
   }
 
   // Create characters.
-  for (CharacterId id = 0; id < kCharacterCount; id++) {
+  for (CharacterId id = 0; id < config->character_count(); ++id) {
     game_state_.characters().push_back(Character(
-        id, InitialTargetId(id), kDefaultHealth, InitialFaceAngle(id),
-        InitialPosition(id), &controllers_[id], state_machine_def));
+        id, InitialTargetId(id, config->character_count()),
+        config->character_health(),
+        InitialFaceAngle(id, config->character_count()),
+        InitialPosition(id, config->character_count()),
+        &controllers_[id], state_machine_def));
   }
+
+  debug_previous_states_.resize(config->character_count(), -1);
+  debug_previous_angles_.resize(config->character_count(), Angle(0.0f));
 
   return true;
 }
@@ -160,6 +184,9 @@ bool SplatGame::Initialize() {
   printf("Splat initializing...\n");
 
   if (!ChangeToUpstreamDir(kAssetsDir, kBuildPaths, ARRAYSIZE(kBuildPaths)))
+    return false;
+
+  if (!InitializeConfig())
     return false;
 
   if (!InitializeRenderer())
@@ -235,10 +262,8 @@ void SplatGame::Render(const SceneDescription& scene) {
 // current state.
 void SplatGame::DebugCharacterStates() {
   // Display the state changes, at least until we get real rendering up.
-  for (int i = 0; i < kCharacterCount; i++) {
+  for (unsigned int i = 0; i < game_state_.characters().size(); ++i) {
     auto& character = game_state_.characters()[i];
-
-    // Report state changes.
     int id = character.state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
       printf("character %d - Health %2d, State %s [%d]\n",
@@ -306,3 +331,4 @@ void SplatGame::Run() {
 
 }  // splat
 }  // fpl
+

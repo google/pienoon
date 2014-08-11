@@ -43,9 +43,14 @@ ${flatc_exe} \
   -o assets/ \
   -b src/flatbufferschemas/timeline.fbs \
   src/flatbufferschemas/character_state_machine_def.fbs \
-  src/character_state_machine_def.json
+  src/rawassets/character_state_machine_def.json
 
-for filename in src/materials/*.json; do
+${flatc_exe} \
+  -o assets/ \
+  -b src/flatbufferschemas/config.fbs \
+  src/rawassets/config.json
+
+for filename in src/rawassets/materials/*.json; do
   ${flatc_exe} -o assets/materials/ \
     -b src/flatbufferschemas/materials.fbs \
     "$filename"

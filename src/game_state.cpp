@@ -97,14 +97,15 @@ void GameState::UpdatePiePosition(AirbornePie& pie) const {
   pie.set_position(pie_position);
 }
 
-static CharacterId CalculateCharacterTarget(const Character& c) {
+static CharacterId CalculateCharacterTarget(const Character& c,
+                                            const int character_count) {
   const uint32_t logical_inputs = c.controller()->logical_inputs();
 
   if (logical_inputs & LogicalInputs_Left)
-    return c.target() == 0 ? kCharacterCount - 1 : c.target() - 1;
+    return c.target() == 0 ? character_count - 1 : c.target() - 1;
 
   if (logical_inputs & LogicalInputs_Right)
-    return c.target() == kCharacterCount - 1 ? 0 : c.target() + 1;
+    return c.target() == character_count - 1 ? 0 : c.target() + 1;
 
   return c.target();
 }
@@ -204,7 +205,8 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     index++;
 
     // Update target.
-    const CharacterId target_id = CalculateCharacterTarget(*it);
+    const CharacterId target_id = CalculateCharacterTarget(*it,
+                                                           characters_.size());
     it->set_target(target_id);
 
     // Update facing angles.
@@ -255,8 +257,6 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   // Lights.
   scene->lights().push_back(mathfu::vec3(-20.0f, 20.0f, -20.0f));
 }
-
-
 
 }  // splat
 }  // fpl
