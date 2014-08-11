@@ -15,7 +15,10 @@
             "logical_inputs": "AnimationEnd"
           }
         }
-      ]
+      ],
+      "timeline": {
+        "end_time": 1000
+      }
     },
     {
       "id": "Loading_1",
@@ -44,7 +47,17 @@
             "logical_inputs": "AnimationEnd"
           }
         }
-      ]
+      ],
+      "timeline": {
+        "end_time": 1000,
+        "events": [
+          {
+            "time": 0,
+            "event": "LoadPie",
+            "modifier": 1
+          }
+        ]
+      }
     },
     {
       "id": "Loading_2",
@@ -73,7 +86,17 @@
             "logical_inputs": "AnimationEnd"
           }
         }
-      ]
+      ],
+      "timeline": {
+        "end_time": 1000,
+        "events": [
+          {
+            "time": 0,
+            "event": "LoadPie",
+            "modifier": 2
+          }
+        ]
+      }
     },
     {
       "id": "Loading_3",
@@ -102,7 +125,17 @@
             "logical_inputs": "AnimationEnd"
           }
         }
-      ]
+      ],
+      "timeline": {
+        "end_time": 1000,
+        "events": [
+          {
+            "time": 0,
+            "event": "LoadPie",
+            "modifier": 3
+          }
+        ]
+      }
     },
     {
       "id": "Throwing",
@@ -119,7 +152,17 @@
             "logical_inputs": "JustHit"
           }
         }
-      ]
+      ],
+      "timeline": {
+        "end_time": 1000,
+        "events": [
+          {
+            "time": 500,
+            "event": "ReleasePie",
+            "modifier": 0
+          }
+        ]
+      }
     },
     {
       "id": "Blocking",
@@ -130,7 +173,10 @@
             "logical_inputs": "AnimationEnd"
           }
         }
-      ]
+      ],
+      "timeline": {
+        "end_time": 2000
+      }
     },
     {
       "id": "HitByPie",
@@ -153,10 +199,23 @@
             "logical_inputs": "JustHit"
           }
         }
-      ]
+      ],
+      "timeline": {
+        "events": [
+          {
+            "time": 0,
+            "event": "TakeDamage",
+            "modifier": 0
+          }
+        ],
+        "end_time": 2000
+      }
     },
     {
-      "id": "KO"
+      "id": "KO",
+      "timeline": {
+        "end_time": 1000
+      }
     }
   ]
 }

@@ -25,7 +25,7 @@ namespace splat {
 
 // Time between pie being launched and hitting target.
 // TODO: This should be in a configuration file.
-static const WorldTime kPieFlightTime = 30;
+static const WorldTime kPieFlightTime = 500;
 
 GameState::GameState()
   : time_(0),
@@ -38,18 +38,19 @@ GameState::GameState()
                    0.11235f, -1.23366f, -10.66262f, 1.00000f) {
 }
 
-WorldTime GameState::GetAnimationTime(const Character& c) const {
-  return time_ - c.state_machine()->current_state_start_time();
+WorldTime GameState::GetAnimationTime(const Character& character) const {
+  return time_ - character.state_machine()->current_state_start_time();
 }
 
-void GameState::ProcessEvents(Character& c, WorldTime delta_time) {
+void GameState::ProcessEvents(Character* character, WorldTime delta_time,
+                              int queued_damage) {
   // Process events in timeline.
   const Timeline* const timeline =
-      c.state_machine()->current_state()->timeline();
+      character->state_machine()->current_state()->timeline();
   if (!timeline)
     return;
 
-  const WorldTime animTime = GetAnimationTime(c);
+  const WorldTime animTime = GetAnimationTime(*character);
   const auto events = timeline->events();
   const int start_index = TimelineIndexAfterTime(events, 0, animTime);
   const int end_index = TimelineIndexAfterTime(events, start_index,
@@ -60,17 +61,16 @@ void GameState::ProcessEvents(Character& c, WorldTime delta_time) {
     switch (timeline_event.event())
     {
       case EventId_TakeDamage:
-        c.set_health(std::max(c.health() + timeline_event.modifier(), 0));
+        character->set_health(character->health() - queued_damage);
         break;
 
       case EventId_ReleasePie:
-        pies_.push_back(AirbornePie(c.id(), c.target(), time_,
-                                    c.pie_damage()));
+        pies_.push_back(AirbornePie(character->id(), character->target(),
+                                    time_, character->pie_damage()));
         break;
 
       case EventId_LoadPie:
-        c.set_pie_damage(std::max(c.pie_damage() + timeline_event.modifier(),
-                                  0));
+        character->set_pie_damage(timeline_event.modifier());
         break;
 
       default:
@@ -90,22 +90,23 @@ static Quat CalculatePieOrientation(const Character& source,
 static mathfu::vec3 CalculatePiePosition(const Character& source,
     const Character& target, WorldTime time_since_launch) {
   // TODO: Make the pie follow a trajectory.
-  const float percent = static_cast<float>(time_since_launch) / kPieFlightTime;
+  float percent = static_cast<float>(time_since_launch) / kPieFlightTime;
+  percent = mathfu::Clamp(percent, 0.0f, 1.0f);
   return mathfu::vec3::Lerp(source.position(), target.position(), percent);
 }
 
-void GameState::UpdatePiePosition(AirbornePie& pie) const {
-  const WorldTime time_since_launch = time_ - pie.start_time();
-  const Character& source = characters_[pie.source()];
-  const Character& target = characters_[pie.target()];
+void GameState::UpdatePiePosition(AirbornePie* pie) const {
+  const WorldTime time_since_launch = time_ - pie->start_time();
+  const Character& source = characters_[pie->source()];
+  const Character& target = characters_[pie->target()];
 
   const Quat pie_orientation = CalculatePieOrientation(source, target,
                                                        time_since_launch);
   const mathfu::vec3 pie_position = CalculatePiePosition(source, target,
                                                          time_since_launch);
 
-  pie.set_orientation(pie_orientation);
-  pie.set_position(pie_position);
+  pie->set_orientation(pie_orientation);
+  pie->set_position(pie_position);
 }
 
 static CharacterId CalculateCharacterTarget(const Character& c,
@@ -199,6 +200,9 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
   // time for *this* frame, not last frame.
   time_ += delta_time;
 
+  // Damage is queued up per character then applied during event processing.
+  std::vector<int> queued_damage(characters_.size(), 0);
+
   // Update controller to gather state machine inputs.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
     Controller* controller = it->controller();
@@ -211,15 +215,20 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
   }
 
   // Update pies. Modify state machine input when character hit by pie.
-  for (auto it = pies_.begin(); it != pies_.end(); ++it) {
-    UpdatePiePosition(*it);
+  for (auto it = pies_.begin(); it != pies_.end(); ) {
+    AirbornePie& pie = *it;
+    UpdatePiePosition(&pie);
 
     // Remove pies that have made contact.
-    const WorldTime time_since_launch = time_ - it->start_time();
+    const WorldTime time_since_launch = time_ - pie.start_time();
     if (time_since_launch >= kPieFlightTime) {
-      Character& c = characters_[it->target()];
-      c.controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
+      Character& character = characters_[pie.target()];
+      queued_damage[character.id()] += pie.damage();
+      character.controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
       it = pies_.erase(it);
+    }
+    else {
+      ++it;
     }
   }
 
@@ -229,6 +238,7 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     TransitionInputs transition_inputs;
     transition_inputs.logical_inputs = it->controller()->logical_inputs();
     transition_inputs.animation_time = GetAnimationTime(*it);
+    transition_inputs.current_time = time_;
     it->state_machine()->Update(transition_inputs);
 
     // Update target.
@@ -246,8 +256,8 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
   }
 
   // Look to timeline to see what's happening. Make it happen.
-  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    ProcessEvents(*it, delta_time);
+  for (unsigned int i = 0; i < characters_.size(); ++i) {
+    ProcessEvents(&characters_[i], delta_time, queued_damage[i]);
   }
 }
 

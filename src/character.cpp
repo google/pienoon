@@ -26,16 +26,16 @@ Character::Character(
     CharacterId id, CharacterId target, CharacterHealth health,
     Angle face_angle, const mathfu::vec3& position, Controller* controller,
     const CharacterStateMachineDef* character_state_machine_def)
-  : id_(id),
-    target_(target),
-    health_(health),
-    pie_damage_(0),
-    face_angle_(face_angle),
-    face_angle_velocity_(0.0f),
-    position_(position),
-    controller_(controller),
-    state_machine_(character_state_machine_def)
-{}
+    : id_(id),
+      target_(target),
+      health_(health),
+      pie_damage_(0),
+      face_angle_(face_angle),
+      face_angle_velocity_(0.0f),
+      position_(position),
+      controller_(controller),
+      state_machine_(character_state_machine_def) {
+}
 
 mathfu::mat4 Character::CalculateMatrix() const {
   return mathfu::mat4::FromTranslationVector(position_) *
@@ -45,7 +45,7 @@ mathfu::mat4 Character::CalculateMatrix() const {
 uint16_t Character::RenderableId(WorldTime anim_time) const {
   // The timeline for the current state has an array of renderable ids.
   const Timeline* timeline = state_machine_.current_state()->timeline();
-  if (!timeline)
+  if (!timeline || !timeline->renderables())
     return RenderableId_CharacterInvalid;
 
   // Grab the TimelineRenderable for 'anim_time', from the timeline.
@@ -63,19 +63,18 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 // orientation_ and position_ are set each frame in GameState::Advance.
 AirbornePie::AirbornePie(CharacterId source, CharacterId target,
                          WorldTime start_time, CharacterHealth damage)
-  : source_(source),
-    target_(target),
-    start_time_(start_time),
-    damage_(damage),
-    orientation_(0.0f, 0.0f, 1.0f, 0.0f),
-    position_(0.0f)
-{}
+    : source_(source),
+      target_(target),
+      start_time_(start_time),
+      damage_(damage),
+      orientation_(0.0f, 0.0f, 1.0f, 0.0f),
+      position_(0.0f) {
+}
 
 mathfu::mat4 AirbornePie::CalculateMatrix() const {
   return mathfu::mat4::FromTranslationVector(position_) *
          mathfu::mat4::FromRotationMatrix(orientation_.ToMatrix());
 }
-
 
 } //  namespace fpl
 } //  namespace splat

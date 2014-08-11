@@ -15,6 +15,9 @@ cmake_minimum_required(VERSION 2.8.7)
 
 project(splat)
 
+# Compile the game with the debug flag
+set(SPLAT_DEBUG ON)
+
 # Directory which contains the source for 3rd party libraries.
 set(THIRD_PARTY_ROOT ${CMAKE_SOURCE_DIR}/../../../../external)
 # Directory which contains source for FPL libraries.
@@ -93,6 +96,10 @@ include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 # Executable target.
 add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra
                 -DCOMPILE_WITHOUT_SIMD_SUPPORT)
+if(SPLAT_DEBUG)
+  add_definitions(-D_DEBUG)
+endif()
+
 add_executable(splat ${splat_SRCS})
 # Dependencies for the executable target.
 add_dependencies(splat generated_includes)

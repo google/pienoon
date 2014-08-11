@@ -49,6 +49,7 @@ void CharacterStateMachine::Update(const TransitionInputs& inputs) {
       continue;
     }
     current_state_ = state_machine_def_->states()->Get(it->target_state());
+    current_state_start_time_ = inputs.current_time;
     return;
   }
 }

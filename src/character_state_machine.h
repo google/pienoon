@@ -31,6 +31,9 @@ struct TransitionInputs {
 
   // The elapsed time of the animation.
   int animation_time;
+
+  // The current world time
+  WorldTime current_time;
 };
 
 class CharacterStateMachine {

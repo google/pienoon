@@ -273,6 +273,13 @@ void SplatGame::DebugCharacterStates() {
       debug_previous_angles_[i] = character.face_angle();
     }
   }
+
+  for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
+    AirbornePie& pie = game_state_.pies()[i];
+    printf("Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
+           pie.source(), pie.target(), pie.damage(),
+           pie.position().x(), pie.position().y(), pie.position().z());
+  }
 }
 
 const Config* SplatGame::GetConfig() const {

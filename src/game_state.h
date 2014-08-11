@@ -55,11 +55,13 @@ class GameState {
   }
 
 private:
-  WorldTime GetAnimationTime(const Character& c) const;
-  void ProcessEvents(Character& c, WorldTime delta_time);
-  void UpdatePiePosition(AirbornePie& pie) const;
-  float CalculateCharacterFacingAngleVelocity(
-      const Character& c, WorldTime delta_time) const;
+  WorldTime GetAnimationTime(const Character& character) const;
+  void ProcessEvents(Character* character,
+                     WorldTime delta_time,
+                     int queued_damage);
+  void UpdatePiePosition(AirbornePie* pie) const;
+  float CalculateCharacterFacingAngleVelocity(const Character& character,
+                                              WorldTime delta_time) const;
 
   WorldTime time_;
   mathfu::mat4 camera_matrix_;
