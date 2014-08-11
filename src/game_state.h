@@ -27,23 +27,31 @@ namespace splat {
 
 // TODO: Move this to a data file.
 static const int kDefaultHealth = 10;
-static const int kPlayerCount = 4;
+static const int kCharacterCount = 4;
 
 class GameState {
  public:
   GameState() : time_(0) {}
 
-  // Update all players' controller and state machinel.
+  // Update controller and state machine for each character.
   void AdvanceFrame(WorldTime delta_time);
 
   // Fill in the position of the characters and pies.
   void PopulateScene(SceneDescription* scene) const;
+
+  // Angle to the character's target.
+  Angle TargetFaceAngle(CharacterId id) const;
+
+  // Difference between target face angle and current face angle.
+  Angle FaceAngleError(CharacterId id) const;
 
   std::vector<Character>& characters() { return characters_; }
   const std::vector<Character>& characters() const { return characters_; }
 
   std::vector<AirbornePie>& pies() { return pies_; }
   const std::vector<AirbornePie>& pies() const { return pies_; }
+
+  WorldTime time() const { return time_; }
 
 private:
   WorldTime GetAnimationTime(const Character& c) const;

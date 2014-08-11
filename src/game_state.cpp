@@ -99,27 +99,45 @@ void GameState::UpdatePiePosition(AirbornePie& pie) const {
 
 static CharacterId CalculateCharacterTarget(const Character& c) {
   const uint32_t logical_inputs = c.controller()->logical_inputs();
-  const int delta = (logical_inputs & LogicalInputs_Left) ? -1
-                  : (logical_inputs & LogicalInputs_Right) ? 1 : 0;
-  const CharacterId target = (c.target() + delta) % kPlayerCount;
-  return target;
+
+  if (logical_inputs & LogicalInputs_Left)
+    return c.target() == 0 ? kCharacterCount - 1 : c.target() - 1;
+
+  if (logical_inputs & LogicalInputs_Right)
+    return c.target() == kCharacterCount - 1 ? 0 : c.target() + 1;
+
+  return c.target();
+}
+
+// Angle to the character's target.
+Angle GameState::TargetFaceAngle(CharacterId id) const {
+  const Character& c = characters_[id];
+  const Character& target = characters_[c.target()];
+  const mathfu::vec3 vector_to_target = target.position() - c.position();
+  const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
+  return angle_to_target;
+}
+
+// Difference between target face angle and current face angle.
+Angle GameState::FaceAngleError(CharacterId id) const {
+  const Character& c = characters_[id];
+  const Angle angle_to_target = TargetFaceAngle(id);
+  const Angle face_angle_error = angle_to_target - c.face_angle();
+  return face_angle_error;
 }
 
 // The character's face angle accelerates towards the
 float GameState::CalculateCharacterFacingAngleVelocity(
     const Character& c, WorldTime delta_time) const {
   // TODO: Read these constants from a configuration FlatBuffer.
-  static const float kDeltaToAccel = 0.06f / kPi;
+  static const float kDeltaToAccel = 0.001f / kPi;
   static const float kWrongDirectionAccelBonus = 3.0f;
-  static const float kMaxVelocity = kPi / 12.0f;
-  static const float kNearTargetAngularVelocity = kPi / 100.0f;
+  static const float kMaxVelocity = kPi / 200.0f;
+  static const float kNearTargetAngularVelocity = kPi / 1500.0f;
   static const float kNearTargetAngle = kPi / 60.0f;
 
   // Calculate the current error in our facing angle.
-  const Character& target = characters_[c.target()];
-  const mathfu::vec3 vector_to_target = target.position() - c.position();
-  const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
-  const Angle delta_angle = angle_to_target - c.face_angle();
+  const Angle delta_angle = FaceAngleError(c.id());
 
   // Increment our current face angle velocity.
   const bool wrong_direction =
@@ -193,7 +211,7 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     const float face_angle_velocity =
         CalculateCharacterFacingAngleVelocity(*it, delta_time);
     const Angle face_angle = Angle::FromWithinThreePi(
-         it->face_angle().angle() + delta_time * face_angle_velocity);
+        it->face_angle().angle() + delta_time * face_angle_velocity);
     it->set_face_angle_velocity(face_angle_velocity);
     it->set_face_angle(face_angle);
   }

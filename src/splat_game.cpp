@@ -59,10 +59,11 @@ static inline WorldTime CurrentWorldTime() {
 }
 
 SplatGame::SplatGame()
-  : matman_(renderer_)
-  , camera_position(mathfu::vec3(0, 5, -25))
-  , prev_world_time_(0)
-  , debug_previous_states_(kPlayerCount, -1)
+  : matman_(renderer_),
+    camera_position(mathfu::vec3(0, 5, -25)),
+    prev_world_time_(0),
+    debug_previous_states_(kCharacterCount, -1),
+    debug_previous_angles_(kCharacterCount, Angle(0.0f))
 {}
 
 // Initialize the 'renderer_' member. No other members have been initialized at
@@ -99,14 +100,14 @@ bool SplatGame::InitializeMaterials() {
 // characters to aim at the character directly opposite them.
 static CharacterId InitialTargetId(const CharacterId id) {
   return static_cast<CharacterId>(
-      (id + kPlayerCount / 2) % kPlayerCount);
+      (id + kCharacterCount / 2) % kCharacterCount);
 }
 
 // The position of a character is at the start of the game.
 static mathfu::vec3 InitialPosition(const CharacterId id) {
   static const float kCharacterDistFromCenter = 10.0f;
   const Angle angle_to_position = Angle::FromWithinThreePi(
-      static_cast<float>(id) * kTwoPi / kPlayerCount);
+      static_cast<float>(id) * kTwoPi / kCharacterCount);
   return kCharacterDistFromCenter * angle_to_position.ToXZVector();
 }
 
@@ -137,13 +138,13 @@ bool SplatGame::InitializeGameState() {
   }
 
   // Create controllers.
-  for (CharacterId id = 0; id < kPlayerCount; id++) {
+  for (CharacterId id = 0; id < kCharacterCount; id++) {
     controllers_.push_back(SdlController(
         &input_, ControlScheme::GetDefaultControlScheme(id)));
   }
 
   // Create characters.
-  for (CharacterId id = 0; id < kPlayerCount; id++) {
+  for (CharacterId id = 0; id < kCharacterCount; id++) {
     game_state_.characters().push_back(Character(
         id, InitialTargetId(id), kDefaultHealth, InitialFaceAngle(id),
         InitialPosition(id), &controllers_[id], state_machine_def));
@@ -232,15 +233,29 @@ void SplatGame::Render(const SceneDescription& scene) {
 // Debug function to write out state machine transitions.
 // TODO: Remove this block and the one in the main loop that prints the
 // current state.
-void SplatGame::DebugPlayerStates() {
+void SplatGame::DebugCharacterStates() {
   // Display the state changes, at least until we get real rendering up.
-  for (int i = 0; i < kPlayerCount; i++) {
-    auto& player = game_state_.characters()[i];
-    int id = player.state_machine()->current_state()->id();
+  for (int i = 0; i < kCharacterCount; i++) {
+    auto& character = game_state_.characters()[i];
+
+    // Report state changes.
+    int id = character.state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
-      printf("Player %d - Health %2d, State %s [%d]\n",
-              i, player.health(), EnumNameStateId(id), id);
+      printf("character %d - Health %2d, State %s [%d]\n",
+              i, character.health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
+    }
+
+    // Report face angle changes.
+    if (debug_previous_angles_[i] != character.face_angle()) {
+      printf("character %d - face error %.0f = %.0f - %.0f,"
+          " velocity %.5f, time %d\n",
+          i, game_state_.FaceAngleError(i).ToDegrees(),
+          game_state_.TargetFaceAngle(i).ToDegrees(),
+          character.face_angle().ToDegrees(),
+          character.face_angle_velocity() * kRadiansToDegrees,
+          game_state_.time());
+      debug_previous_angles_[i] = character.face_angle();
     }
   }
 }
@@ -274,7 +289,7 @@ void SplatGame::Run() {
     game_state_.AdvanceFrame(delta_time);
 
     // Output debug information.
-    DebugPlayerStates();
+    DebugCharacterStates();
 
     // Populate 'scene' from the game state--all the positions, orientations,
     // and renderable-ids (which specify materials) of the characters and props.

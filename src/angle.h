@@ -33,6 +33,7 @@ static const float kTwoPi = static_cast<float>(2.0 * M_PI);
 static const float kThreePi = static_cast<float>(3.0 * M_PI);
 static const float kHalfPi = static_cast<float>(M_PI_2);
 static const float kDegreesToRadians = static_cast<float>(M_PI / 180.0);
+static const float kRadiansToDegrees = static_cast<float>(180.0 / M_PI);
 static const float kMaxUniqueAngle = kPi;
 
 // The biggest floating point number > -pi.
@@ -91,6 +92,10 @@ class Angle {
   float angle() const { return angle_; }
 
   Angle Abs() const { return Angle(fabs(angle_)); }
+
+  float ToDegrees() const {
+    return kRadiansToDegrees * angle_;
+  }
 
   mathfu::vec3 ToXZVector() const {
     float x, z;

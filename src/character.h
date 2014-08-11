@@ -28,8 +28,8 @@ typedef int CharacterHealth;
 typedef int CharacterId;
 typedef int WorldTime;
 
-// The current state of the game player. This class tracks information external
-// to the state machine, like player health.
+// The current state of the character. This class tracks information external
+// to the state machine, like health.
 class Character {
  public:
   // Creates a character with the given initial values.

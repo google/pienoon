@@ -36,7 +36,7 @@ class SplatGame {
   bool InitializeMaterials();
   bool InitializeGameState();
   void Render(const SceneDescription& scene);
-  void DebugPlayerStates();
+  void DebugCharacterStates();
   void DebugRenderExampleTriangle();
 
   // Report touches, button presses, keyboard presses.
@@ -75,6 +75,7 @@ class SplatGame {
 
   // Debug data. For displaying when a character's state has changed.
   std::vector<int> debug_previous_states_;
+  std::vector<Angle> debug_previous_angles_;
 };
 
 }  // splat
