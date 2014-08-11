@@ -25,6 +25,9 @@
 namespace fpl {
 namespace splat {
 
+class Config;
+class CharacterStateMachine;
+
 class SplatGame {
  public:
   SplatGame();
@@ -39,6 +42,8 @@ class SplatGame {
   void Render(const SceneDescription& scene);
   void DebugCharacterStates();
   void DebugRenderExampleTriangle();
+  const Config* GetConfig() const;
+  const CharacterStateMachineDef* GetStateMachine() const;
 
   // Hold configuration binary data.
   std::string config_source_;

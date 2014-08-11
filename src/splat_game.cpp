@@ -78,7 +78,7 @@ bool SplatGame::InitializeConfig() {
 // Initialize the 'renderer_' member. No other members have been initialized at
 // this point.
 bool SplatGame::InitializeRenderer() {
-  const Config* config = GetConfig(config_source_.c_str());
+  const Config* config = GetConfig();
   if (!renderer_.Initialize(vec2i(config->window_size()->x(),
                                   config->window_size()->y()),
                             config->window_title()->c_str())) {
@@ -137,7 +137,7 @@ static Angle InitialFaceAngle(const CharacterId id, const int character_count) {
 // Create state matchines, characters, controllers, etc. present in
 // 'gamestate_'.
 bool SplatGame::InitializeGameState() {
-  const Config* config = GetConfig(config_source_.c_str());
+  const Config* config = GetConfig();
 
   // Load flatbuffer into buffer.
   if (!flatbuffers::LoadFile("character_state_machine_def.bin",
@@ -147,8 +147,7 @@ bool SplatGame::InitializeGameState() {
   }
 
   // Grab the state machine from the buffer.
-  auto state_machine_def =
-     GetCharacterStateMachineDef(state_machine_source_.c_str());
+  auto state_machine_def = GetStateMachine();
   if (!CharacterStateMachineDef_Validate(state_machine_def)) {
     fprintf(stderr, "State machine is invalid.\n");
     return false;
@@ -283,6 +282,14 @@ void SplatGame::DebugCharacterStates() {
       debug_previous_angles_[i] = character.face_angle();
     }
   }
+}
+
+const Config* SplatGame::GetConfig() const {
+  return fpl::splat::GetConfig(config_source_.c_str());
+}
+
+const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
+  return fpl::splat::GetCharacterStateMachineDef(state_machine_source_.c_str());
 }
 
 void SplatGame::Run() {
