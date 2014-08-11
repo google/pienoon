@@ -18,7 +18,7 @@
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "controller.h"
-#include "render_scene.h"
+#include "scene_description.h"
 
 namespace fpl {
 namespace splat {
@@ -209,7 +209,7 @@ static uint16_t RenderableIdForPieDamage(CharacterHealth damage) {
 
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
-void GameState::PopulateScene(RenderScene* scene) const {
+void GameState::PopulateScene(SceneDescription* scene) const {
   // Camera.
   scene->set_camera(mathfu::mat4::FromTranslationVector(
                         mathfu::vec3(0.0f, 5.0f, -10.0f)));

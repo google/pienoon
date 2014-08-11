@@ -105,16 +105,16 @@ bool SplatGame::InitializeMaterials() {
 
 // Calculate a character's target at the start of the game. We want the
 // characters to aim at the character directly opposite them.
-static splat::CharacterId InitialTargetId(const splat::CharacterId id) {
-  return static_cast<splat::CharacterId>(
-      (id + splat::kPlayerCount / 2) % splat::kPlayerCount);
+static CharacterId InitialTargetId(const CharacterId id) {
+  return static_cast<CharacterId>(
+      (id + kPlayerCount / 2) % kPlayerCount);
 }
 
 // The position of a character is at the start of the game.
-static mathfu::vec3 InitialPosition(const splat::CharacterId id) {
+static mathfu::vec3 InitialPosition(const CharacterId id) {
   static const float kCharacterDistFromCenter = 10.0f;
   const Angle angle_to_position = Angle::FromWithinThreePi(
-      static_cast<float>(id) * kTwoPi / splat::kPlayerCount);
+      static_cast<float>(id) * kTwoPi / kPlayerCount);
   return kCharacterDistFromCenter * angle_to_position.ToXZVector();
 }
 
@@ -182,7 +182,7 @@ bool SplatGame::Initialize() {
   return true;
 }
 
-void SplatGame::Render(const RenderScene& scene) {
+void SplatGame::Render(const SceneDescription& scene) {
   // TODO: Implement draw calls here.
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
@@ -235,7 +235,7 @@ void SplatGame::DebugRenderExampleTriangle() {
 
 // Main game loop.
 void SplatGame::Run() {
-   // Initialize so that we don't sleep the first time through the loop.
+  // Initialize so that we don't sleep the first time through the loop.
   prev_world_time_ = CurrentWorldTime() - kMinUpdateTime;
 
   while (!input_.exit_requested_ &&

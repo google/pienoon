@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_RENDER_SCENE_H
-#define SPLAT_RENDER_SCENE_H
+#ifndef SPLAT_SCENE_DESCRIPTION_H
+#define SPLAT_SCENE_DESCRIPTION_H
 
 #include "mathfu/glsl_mappings.h"
 #include <vector>
@@ -42,7 +42,7 @@ class Renderable {
   mathfu::mat4 world_matrix_;
 };
 
-class RenderScene {
+class SceneDescription {
  public:
   const mathfu::mat4& camera() const { return camera_; }
   void set_camera(const mathfu::mat4& camera) { camera_ = camera; }
@@ -66,4 +66,4 @@ class RenderScene {
 
 } // namespace fpl
 
-#endif // SPLAT_RENDER_SCENE_H
+#endif // SPLAT_SCENE_DESCRIPTION_H

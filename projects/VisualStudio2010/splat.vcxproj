@@ -154,7 +154,7 @@
     <ClInclude Include="..\..\src\material_manager.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\renderer.h" />
-    <ClInclude Include="..\..\src\render_scene.h" />
+    <ClInclude Include="..\..\src\scene_description.h" />
     <ClInclude Include="..\..\src\sdl_controller.h" />
     <ClInclude Include="..\..\src\splat_game.h" />
     <ClInclude Include="..\..\src\utilities.h" />

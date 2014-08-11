@@ -21,7 +21,7 @@
 namespace fpl {
 
 class InputSystem;
-class RenderScene;
+class SceneDescription;
 
 namespace splat {
 
@@ -37,7 +37,7 @@ class GameState {
   void AdvanceFrame(WorldTime delta_time);
 
   // Fill in the position of the characters and pies.
-  void PopulateScene(RenderScene* scene) const;
+  void PopulateScene(SceneDescription* scene) const;
 
   std::vector<Character>& characters() { return characters_; }
   const std::vector<Character>& characters() const { return characters_; }

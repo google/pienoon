@@ -18,7 +18,7 @@
 #include "game_state.h"
 #include "input.h"
 #include "material_manager.h"
-#include "render_scene.h"
+#include "scene_description.h"
 #include "renderer.h"
 #include "sdl_controller.h"
 
@@ -35,7 +35,7 @@ class SplatGame {
   bool InitializeRenderer();
   bool InitializeMaterials();
   bool InitializeGameState();
-  void Render(const RenderScene& scene);
+  void Render(const SceneDescription& scene);
   void DebugPlayerStates();
   void DebugRenderExampleTriangle();
 
@@ -63,7 +63,7 @@ class SplatGame {
 
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.
-  RenderScene scene_;
+  SceneDescription scene_;
 
   // World time of previous update. We use this to calculate the delta_time
   // of the current update. This value is tied to the real-world clock.
