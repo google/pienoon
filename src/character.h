@@ -62,6 +62,7 @@ class Character {
   float face_angle_velocity() const { return face_angle_velocity_; }
   void set_face_angle_velocity(float vel) { face_angle_velocity_ = vel; }
   mathfu::vec3 position() const { return position_; }
+  void set_position(const mathfu::vec3& position) { position_ = position; }
 
   const Controller* controller() const { return controller_; }
   Controller* controller() { return controller_; }

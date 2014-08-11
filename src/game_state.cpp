@@ -172,7 +172,7 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
       it = pies_.erase(it);
     }
   }
-
+  int index = 0;
   // Update the character state machines and the facing angles.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
     // Update state machines.
@@ -180,6 +180,10 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     transition_inputs.logical_inputs = it->controller()->logical_inputs();
     transition_inputs.animation_time = GetAnimationTime(*it);
     it->state_machine()->Update(transition_inputs);
+
+    //  hack to give them different locations.
+    it->set_position(mathfu::vec3((index - 2) * 10, 0, (index - 2) * 10));
+    index++;
 
     // Update target.
     const CharacterId target_id = CalculateCharacterTarget(*it);
@@ -211,6 +215,7 @@ static uint16_t RenderableIdForPieDamage(CharacterHealth damage) {
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
   // Camera.
+  scene->Clear();
   scene->set_camera(mathfu::mat4::FromTranslationVector(
                         mathfu::vec3(0.0f, 5.0f, -10.0f)));
 

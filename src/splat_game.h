@@ -64,6 +64,7 @@ class SplatGame {
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.
   SceneDescription scene_;
+  mathfu::vec3 camera_position;
 
   // World time of previous update. We use this to calculate the delta_time
   // of the current update. This value is tied to the real-world clock.

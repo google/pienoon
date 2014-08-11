@@ -53,6 +53,12 @@ class SceneDescription {
   std::vector<mathfu::vec3>& lights() { return lights_; }
   const std::vector<mathfu::vec3>& lights() const { return lights_; }
 
+  // Clear out the render list. Should be called once per frame.
+  void Clear() {
+    renderables_.clear();
+    lights_.clear();
+  }
+
  private:
   // The camera position, orientation, fov.
   mathfu::mat4 camera_;

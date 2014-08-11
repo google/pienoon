@@ -1,0 +1,7 @@
+{
+  shader_basename: "shaders/textured",
+  texture_filenames: [
+    "textures/idleback.tga"
+  ]
+}
+

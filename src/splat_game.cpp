@@ -37,15 +37,14 @@ static const WorldTime kMinUpdateTime = 10;
 static const WorldTime kMaxUpdateTime = 100;
 
 
-static const float kViewportAngle = 55.0f;
+static const float kViewportAngle = 30.0f;
 static const float kViewportAspectRatio = 1280.0f / 800.0f;
 static const float kViewportNearPlane = 10.0f;
-static const float kViewportFarPlane = 50.0f;
+static const float kViewportFarPlane = 100.0f;
 
-static const mat4 kRotate180AroundZ = mat4(-1, 0, 0, 0,
-                                            0,-1, 0, 0,
-                                            0, 0, 1, 0,
-                                            0, 0, 0, 1);
+// Offset for rendering cardboard backing
+static const vec3 kCardboardOffset = vec3(0, 0, -0.3);
+
 
 static const char kAssetsDir[] = "assets";
 static const char *kBuildPaths[] = {
@@ -61,6 +60,7 @@ static inline WorldTime CurrentWorldTime() {
 
 SplatGame::SplatGame()
   : matman_(renderer_)
+  , camera_position(mathfu::vec3(0, 5, -25))
   , prev_world_time_(0)
   , debug_previous_states_(kPlayerCount, -1)
 {}
@@ -73,19 +73,7 @@ bool SplatGame::InitializeRenderer() {
             renderer_.last_error_.c_str());
     return false;
   }
-
-  const vec3 cameraPosition = vec3(0, 0, -25);
-
-  renderer_.camera.model_view_projection_ =
-      mat4::Perspective(kViewportAngle,
-                        kViewportAspectRatio,
-                        kViewportNearPlane,
-                        kViewportFarPlane) *
-      kRotate180AroundZ *
-      mat4::FromTranslationVector(cameraPosition);
-
   renderer_.color = vec4(1, 1, 1, 1);
-
   return true;
 }
 
@@ -188,6 +176,15 @@ bool SplatGame::Initialize() {
 
 void SplatGame::Render(const SceneDescription& scene) {
   // TODO: Implement draw calls here.
+  // TODO - honor the scene's actual camera
+  mat4 camera_transform =
+      mat4::Perspective(kViewportAngle,
+                       kViewportAspectRatio,
+                       kViewportNearPlane,
+                       kViewportFarPlane) *
+      mat4::FromTranslationVector(camera_position);
+
+
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
     const Material* mat = materials_[renderable.id()];
@@ -195,6 +192,40 @@ void SplatGame::Render(const SceneDescription& scene) {
     (void)renderer_;
     // TODO: Draw carboard with texture from 'mat' at location
     // renderable.matrix_
+
+    mat4 mvp = camera_transform * renderable.world_matrix();
+
+    // Some random "interactivity".
+    if (input_.GetButton(SDLK_POINTER1).is_down()) {
+        camera_position.x() += input_.pointers_[0].mousedelta.x() / 200.0f;
+        camera_position.z() += input_.pointers_[0].mousedelta.y() / 200.0f;
+    }
+
+
+    renderer_.camera.model_view_projection_ = mvp;
+    static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
+    static int indices[] = { 0, 1, 2, 3 };
+    // vertext format is [x, y, z] [u, v]:
+    static float vertices[] = { -1, 0, 0,   0, 1,
+                                 1, 0, 0,   1, 1,
+                                -1, 3, 0,   0, 0,
+                                 1, 3, 0,   1, 0};
+
+    // Draw example render data.
+    Material *idle_character_front =
+            matman_.FindMaterial("materials/character_idle.bin");
+    Material *idle_character_back =
+            matman_.FindMaterial("materials/character_idle_back.bin");
+    idle_character_front->Set(renderer_);
+    Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
+                      reinterpret_cast<const char *>(vertices), indices);
+
+    renderer_.camera.model_view_projection_ =
+        mvp * mat4::FromTranslationVector(kCardboardOffset);
+    idle_character_back->Set(renderer_);
+    Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
+                      reinterpret_cast<const char *>(vertices), indices);
+
   }
 }
 
@@ -214,30 +245,6 @@ void SplatGame::DebugPlayerStates() {
   }
 }
 
-// Debug function providing an example of how to use the renderer.
-// TODO: Remove after SplatGame::Render has been implemented.
-void SplatGame::DebugRenderExampleTriangle() {
-  static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
-  static int indices[] = { 0, 1, 2, 3};
-  static float vertices[] = { -1, 0, 0,   0, 0,
-                               1, 0, 0,   1, 0,
-                              -1, 3, 0,   0, 1,
-                               1, 3, 0,   1, 1};
-
-  // Some random "interactivity".
-  if (input_.GetButton(SDLK_POINTER1).is_down()) {
-    vertices[0] += input_.pointers_[0].mousedelta.x() / 100.0f;
-  }
-
-  // Draw example render data.
-  Material *idle_character =
-          matman_.FindMaterial("materials/character_idle.bin");
-  idle_character->Set(renderer_);
-  Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
-                    reinterpret_cast<const char *>(vertices), indices);
-}
-
-// Main game loop.
 void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   prev_world_time_ = CurrentWorldTime() - kMinUpdateTime;
@@ -268,7 +275,6 @@ void SplatGame::Run() {
 
     // Output debug information.
     DebugPlayerStates();
-    DebugRenderExampleTriangle();
 
     // Populate 'scene' from the game state--all the positions, orientations,
     // and renderable-ids (which specify materials) of the characters and props.

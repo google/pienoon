@@ -217,6 +217,10 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   glEnable(GL_ALPHA);
   glEnable(GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glAlphaFunc(GL_GREATER, 0.5);
+  glEnable(GL_ALPHA_TEST);
   glGenerateMipmap(GL_TEXTURE_2D);
   return texture_id;
 }
