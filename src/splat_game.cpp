@@ -42,6 +42,11 @@ static const float kViewportAngle = 30.0f;
 static const float kViewportAspectRatio = 1280.0f / 800.0f;
 static const float kViewportNearPlane = 1.0f;
 static const float kViewportFarPlane = 100.0f;
+static const mat4 kViewportPerspective(
+                      mat4::Perspective(kViewportAngle,
+                                        kViewportAspectRatio,
+                                        kViewportNearPlane,
+                                        kViewportFarPlane));
 
 // Offset for rendering cardboard backing
 static const vec3 kCardboardOffset = vec3(0.0f, 0.0f, -0.15f);
@@ -97,12 +102,14 @@ bool SplatGame::InitializeMaterials() {
                                               EnumNameRenderableId(i),
                                               "materials/", ".bin");
     Material* mat = matman_.LoadMaterial(material_file_name.c_str());
-    if (!mat) {
-      fprintf(stderr, "Error loading material %s: %s\n", EnumNameRenderableId(i),
-              renderer_.last_error_.c_str());
-      return false;
-    }
-    materials_.push_back(mat);
+    cardboard_fronts_.push_back(mat);
+  }
+  for (int i = 0; i < RenderableId_Count; ++i) {
+    const std::string material_file_name = FileNameFromEnumName(
+                                              EnumNameRenderableId(i),
+                                              "materials/", "_back.bin");
+    Material* mat = matman_.LoadMaterial(material_file_name.c_str());
+    cardboard_backs_.push_back(mat);
   }
   return true;
 }
@@ -204,25 +211,14 @@ bool SplatGame::Initialize() {
 }
 
 void SplatGame::Render(const SceneDescription& scene) {
-  // TODO: Implement draw calls here.
-  const mat4 camera_transform =
-      mat4::Perspective(kViewportAngle,
-                       kViewportAspectRatio,
-                       kViewportNearPlane,
-                       kViewportFarPlane) *
-      scene.camera();
+  const mat4 camera_transform = kViewportPerspective * scene.camera();
 
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
-    const Material* mat = materials_[renderable.id()];
-    (void)mat;
-    (void)renderer_;
-    // TODO: Draw carboard with texture from 'mat' at location
-    // renderable.matrix_
 
     const mat4 mvp = camera_transform * renderable.world_matrix();
-
     renderer_.camera.model_view_projection_ = mvp;
+
     static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
     static int indices[] = { 0, 1, 2, 3 };
     // vertext format is [x, y, z] [u, v]:
@@ -231,21 +227,24 @@ void SplatGame::Render(const SceneDescription& scene) {
                                 -1, 3, 0,   0, 0,
                                  1, 3, 0,   1, 0};
 
-    // Draw example render data.
-    Material *idle_character_front =
-            matman_.FindMaterial("materials/character_idle.bin");
-    Material *idle_character_back =
-            matman_.FindMaterial("materials/character_idle_back.bin");
-    idle_character_front->Set(renderer_);
+    // Draw the front of the character, if we have it.
+    // If we don't have it, draw the pajama material for "Invalid".
+    Material* front = !cardboard_fronts_[renderable.id()] ?
+                      cardboard_fronts_[RenderableId_Invalid] :
+                      cardboard_fronts_[renderable.id()];
+    front->Set(renderer_);
     Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
                       reinterpret_cast<const char *>(vertices), indices);
 
-    renderer_.camera.model_view_projection_ =
-        mvp * mat4::FromTranslationVector(kCardboardOffset);
-    idle_character_back->Set(renderer_);
-    Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
-                      reinterpret_cast<const char *>(vertices), indices);
-
+    // If we have a back, draw the back too, slightly offset.
+    Material* back = cardboard_backs_[renderable.id()];
+    if (back) {
+      renderer_.camera.model_view_projection_ =
+          mvp * mat4::FromTranslationVector(kCardboardOffset);
+      back->Set(renderer_);
+      Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
+                        reinterpret_cast<const char *>(vertices), indices);
+    }
   }
 }
 

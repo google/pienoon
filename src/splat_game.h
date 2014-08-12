@@ -58,7 +58,8 @@ class SplatGame {
   MaterialManager matman_;
 
   // Map RenderableId to material.
-  std::vector<Material*> materials_;
+  std::vector<Material*> cardboard_fronts_;
+  std::vector<Material*> cardboard_backs_;
 
   // Hold state machine binary data.
   std::string state_machine_source_;

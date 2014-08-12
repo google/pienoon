@@ -46,7 +46,7 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
   // The timeline for the current state has an array of renderable ids.
   const Timeline* timeline = state_machine_.current_state()->timeline();
   if (!timeline || !timeline->renderables())
-    return RenderableId_CharacterInvalid;
+    return RenderableId_Invalid;
 
   // Grab the TimelineRenderable for 'anim_time', from the timeline.
   const int renderable_index =
@@ -54,7 +54,7 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
   const TimelineRenderable* renderable =
       timeline->renderables()->Get(renderable_index);
   if (!renderable)
-    return RenderableId_CharacterInvalid;
+    return RenderableId_Invalid;
 
   // Return the renderable id for 'anim_time'.
   return renderable->renderable();

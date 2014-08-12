@@ -1,7 +1,7 @@
 {
   shader_basename: "shaders/textured",
   texture_filenames: [
-    "textures/pie_L03.tga"
+    "textures/loaded01.tga"
   ]
 }
 

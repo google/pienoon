@@ -17,7 +17,13 @@
         }
       ],
       "timeline": {
-        "end_time": 1000
+        "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterIdle"
+          }
+        ]
       }
     },
     {
@@ -50,6 +56,12 @@
       ],
       "timeline": {
         "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterLoad1"
+          }
+        ],
         "events": [
           {
             "time": 0,
@@ -89,6 +101,12 @@
       ],
       "timeline": {
         "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterLoad2"
+          }
+        ],
         "events": [
           {
             "time": 0,
@@ -128,6 +146,12 @@
       ],
       "timeline": {
         "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterLoad3"
+          }
+        ],
         "events": [
           {
             "time": 0,
@@ -155,6 +179,12 @@
       ],
       "timeline": {
         "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterThrow"
+          }
+        ],
         "events": [
           {
             "time": 500,
@@ -175,7 +205,13 @@
         }
       ],
       "timeline": {
-        "end_time": 2000
+        "end_time": 2000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterBlock"
+          }
+        ]
       }
     },
     {
@@ -201,20 +237,32 @@
         }
       ],
       "timeline": {
+        "end_time": 2000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterHitByPie"
+          }
+        ],
         "events": [
           {
             "time": 0,
             "event": "TakeDamage",
             "modifier": 0
           }
-        ],
-        "end_time": 2000
+        ]
       }
     },
     {
       "id": "KO",
       "timeline": {
-        "end_time": 1000
+        "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "CharacterKnockedOut"
+          }
+        ]
       }
     }
   ]
