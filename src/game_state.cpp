@@ -32,10 +32,10 @@ GameState::GameState()
     // This camera position and orientation looks alright. Just found these
     // values by moving the camera around with the mouse.
     // TODO: load initial camera position and orientation from a config file.
-    camera_matrix_(0.87689f, -0.14842f, -0.45719f, 0.00000f,
-                   0.06964f, 0.98032f, -0.18468f, 0.00000f,
-                   0.47561f, 0.13011f, 0.86998f, 0.00000f,
-                   0.67165f, -2.29329f, -7.37654f, 1.00000f) {
+    camera_matrix_(0.67638f, -0.26152f, -0.68855f, 0.00000f,
+                   0.02095f, 0.94128f, -0.33693f, 0.00000f,
+                   0.73625f, 0.21347f, 0.64215f, 0.00000f,
+                   0.11235f, -1.23366f, -10.66262f, 1.00000f) {
 }
 
 WorldTime GameState::GetAnimationTime(const Character& c) const {

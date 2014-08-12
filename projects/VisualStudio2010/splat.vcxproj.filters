@@ -37,6 +37,9 @@
     <ClInclude Include="..\..\src\splat_game.h" />
     <ClInclude Include="..\..\src\utilities.h" />
     <ClInclude Include="..\..\src\scene_description.h" />
+    <ClInclude Include="..\..\build\splat\include\config_generated.h">
+      <Filter>generated</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
@@ -72,6 +75,9 @@
       <Filter>flatbufferschemas</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\src\flatbufferschemas\materials.fbs">
+      <Filter>flatbufferschemas</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\flatbufferschemas\config.fbs">
       <Filter>flatbufferschemas</Filter>
     </CustomBuild>
   </ItemGroup>

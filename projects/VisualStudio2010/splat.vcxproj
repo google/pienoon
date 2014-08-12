@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\build\splat\include\character_state_machine_def_generated.h" />
+    <ClInclude Include="..\..\build\splat\include\config_generated.h" />
     <ClInclude Include="..\..\build\splat\include\materials_generated.h" />
     <ClInclude Include="..\..\build\splat\include\timeline_generated.h" />
     <ClInclude Include="..\..\src\character.h" />
@@ -186,6 +187,13 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\src\flatbufferschemas\materials.fbs</AdditionalInputs>
     </CustomBuild>
     <None Include="..\..\src\character_state_machine_def.json" />
+    <CustomBuild Include="..\..\src\flatbufferschemas\config.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\..\libs\flatbuffers\build\VS2010\Release\flatc.exe -o ..\..\build\splat\include\ -c ..\..\src\flatbufferschemas\config.fbs</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling FlatBuffer schema: config.fbs</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\build\splat\include\config_generated.h</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\src\flatbufferschemas\config.fbs</AdditionalInputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

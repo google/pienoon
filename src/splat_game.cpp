@@ -118,7 +118,7 @@ static CharacterId InitialTargetId(const CharacterId id,
 // The position of a character is at the start of the game.
 static mathfu::vec3 InitialPosition(const CharacterId id,
                                     const int character_count) {
-  static const float kCharacterDistFromCenter = 10.0f;
+  static const float kCharacterDistFromCenter = 7.0f;
   const Angle angle_to_position = Angle::FromWithinThreePi(
       static_cast<float>(id) * kTwoPi / character_count);
   return kCharacterDistFromCenter * angle_to_position.ToXZVector();
@@ -127,6 +127,7 @@ static mathfu::vec3 InitialPosition(const CharacterId id,
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
 static Angle InitialFaceAngle(const CharacterId id, const int character_count) {
+  return Angle::FromWithinThreePi(kTwoPi * id / character_count);
   const mathfu::vec3 characterPosition = InitialPosition(id, character_count);
   const mathfu::vec3 targetPosition =
       InitialPosition(InitialTargetId(id, character_count), character_count);

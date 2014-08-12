@@ -38,8 +38,8 @@ Character::Character(
 {}
 
 mathfu::mat4 Character::CalculateMatrix() const {
-  return mathfu::mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix()) +
-         mathfu::mat4::FromTranslationVector(position_);
+  return mathfu::mat4::FromTranslationVector(position_) *
+         mathfu::mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix());
 }
 
 uint16_t Character::RenderableId(WorldTime anim_time) const {
@@ -72,8 +72,8 @@ AirbornePie::AirbornePie(CharacterId source, CharacterId target,
 {}
 
 mathfu::mat4 AirbornePie::CalculateMatrix() const {
-  return mathfu::mat4::FromRotationMatrix(orientation_.ToMatrix()) +
-         mathfu::mat4::FromTranslationVector(position_);
+  return mathfu::mat4::FromTranslationVector(position_) *
+         mathfu::mat4::FromRotationMatrix(orientation_.ToMatrix());
 }
 
 
