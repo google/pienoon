@@ -44,7 +44,7 @@ static const float kViewportNearPlane = 1.0f;
 static const float kViewportFarPlane = 100.0f;
 
 // Offset for rendering cardboard backing
-static const vec3 kCardboardOffset = vec3(0.0f, 0.0f, -0.3f);
+static const vec3 kCardboardOffset = vec3(0.0f, 0.0f, -0.15f);
 
 
 static const char kAssetsDir[] = "assets";
@@ -263,13 +263,10 @@ void SplatGame::DebugCharacterStates() {
 
     // Report face angle changes.
     if (debug_previous_angles_[i] != character.face_angle()) {
-      printf("character %d - face error %.0f = %.0f - %.0f,"
-          " velocity %.5f, time %d\n",
+      printf("character %d - face error %.0f(%.0f) - target %d\n",
           i, game_state_.FaceAngleError(i).ToDegrees(),
           game_state_.TargetFaceAngle(i).ToDegrees(),
-          character.face_angle().ToDegrees(),
-          character.face_angle_velocity() * kRadiansToDegrees,
-          game_state_.time());
+          character.target());
       debug_previous_angles_[i] = character.face_angle();
     }
   }

@@ -123,7 +123,7 @@ static CharacterId CalculateCharacterTarget(const Character& c,
     // Wrap around.
     if (id >= character_count) {
       id = 0;
-    } else if (id <= 0) {
+    } else if (id < 0) {
       id = character_count - 1;
     }
 
@@ -164,10 +164,10 @@ float GameState::CalculateCharacterFacingAngleVelocity(
     const Character& c, WorldTime delta_time) const {
   // TODO: Read these constants from a configuration FlatBuffer.
   static const float kDeltaToAccel = 0.001f / kPi;
-  static const float kWrongDirectionAccelBonus = 3.0f;
-  static const float kMaxVelocity = kPi / 200.0f;
-  static const float kNearTargetAngularVelocity = kPi / 1500.0f;
-  static const float kNearTargetAngle = kPi / 60.0f;
+  static const float kWrongDirectionAccelBonus = 4.0f;
+  static const float kMaxVelocity = kPi / 250.0f;
+  static const float kNearTargetAngularVelocity = kPi / 5000.0f;
+  static const float kNearTargetAngle = kPi / 120.0f;
 
   // Calculate the current error in our facing angle.
   const Angle delta_angle = FaceAngleError(c.id());
