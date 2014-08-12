@@ -23,6 +23,8 @@ table Config {
   character_count:int;
   character_health:int;
   pie_flight_time:int;
+  pie_height:float;
+  pie_height_variance:float;
 
   window_size:Vec2i;
   window_title:string;

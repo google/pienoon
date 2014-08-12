@@ -20,6 +20,7 @@
 #include "config_generated.h"
 #include "controller.h"
 #include "scene_description.h"
+#include "mathfu/utilities.h"
 
 namespace fpl {
 namespace splat {
@@ -60,20 +61,23 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
     const TimelineEvent& timeline_event = *events->Get(i);
     switch (timeline_event.event())
     {
-      case EventId_TakeDamage:
+      case EventId_TakeDamage: {
         character->set_health(character->health() - queued_damage);
         break;
-
-      case EventId_ReleasePie:
+      }
+      case EventId_ReleasePie: {
+        float height = config_->pie_height();
+        height += config_->pie_height_variance() *
+                  (mathfu::Random<float>() * 2 - 1);
         pies_.push_back(AirbornePie(character->id(), character->target(),
-                                    time_, config_->pie_flight_time(),
+                                    time_, config_->pie_flight_time(), height,
                                     character->pie_damage()));
         break;
-
-      case EventId_LoadPie:
+      }
+      case EventId_LoadPie: {
         character->set_pie_damage(timeline_event.modifier());
         break;
-
+      }
       default:
         assert(0);
     }
@@ -90,11 +94,22 @@ static Quat CalculatePieOrientation(const Character& source,
 
 static mathfu::vec3 CalculatePiePosition(const Character& source,
     const Character& target, WorldTime time_since_launch,
-    WorldTime flight_time) {
-  // TODO: Make the pie follow a trajectory.
+    WorldTime flight_time, float pie_height) {
   float percent = static_cast<float>(time_since_launch) / flight_time;
   percent = mathfu::Clamp(percent, 0.0f, 1.0f);
-  return mathfu::vec3::Lerp(source.position(), target.position(), percent);
+  mathfu::vec3 result =
+      mathfu::vec3::Lerp(source.position(), target.position(), percent);
+
+  // Pie height follows a parabola such that y = 4a * (x)(x-1)
+  //
+  // (x)(x-1) gives a parabola with the x intercepts at 0 and 1 (where 0
+  // represents the origin, and 1 represents the target). The height of the pie
+  // would only be .25 units maximum, so we multiply by 4 to make the peak 1
+  // unit. Finally, we multiply by an arbitrary coeffecient supplied in a config
+  // file to make the pies fly higher or lower.
+  result.y() += 4 * pie_height * (percent * (percent - 1.0f));
+
+  return result;
 }
 
 void GameState::UpdatePiePosition(AirbornePie* pie) const {
@@ -106,7 +121,8 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
                                                        time_since_launch);
   const mathfu::vec3 pie_position = CalculatePiePosition(source, target,
                                                          time_since_launch,
-                                                         pie->flight_time());
+                                                         pie->flight_time(),
+                                                         pie->height());
 
   pie->set_orientation(pie_orientation);
   pie->set_position(pie_position);

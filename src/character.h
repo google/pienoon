@@ -105,13 +105,14 @@ class Character {
 class AirbornePie {
  public:
   AirbornePie(CharacterId source, CharacterId target, WorldTime start_time,
-              WorldTime flight_time, CharacterHealth damage);
+              WorldTime flight_time, CharacterHealth damage, float height);
 
   CharacterId source() const { return source_; }
   CharacterId target() const { return target_; }
   WorldTime start_time() const { return start_time_; }
   WorldTime flight_time() const { return flight_time_; }
   CharacterHealth damage() const { return damage_; }
+  float height() const { return height_; }
   Quat orientation() const { return orientation_; }
   void set_orientation(const Quat& orientation) { orientation_ = orientation; }
   mathfu::vec3 position() const { return position_; }
@@ -123,6 +124,7 @@ class AirbornePie {
   CharacterId target_;
   WorldTime start_time_;
   WorldTime flight_time_;
+  float height_;
   CharacterHealth damage_;
   Quat orientation_;
   mathfu::vec3 position_;

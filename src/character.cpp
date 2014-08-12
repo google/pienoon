@@ -63,11 +63,12 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 // orientation_ and position_ are set each frame in GameState::Advance.
 AirbornePie::AirbornePie(CharacterId source, CharacterId target,
                          WorldTime start_time, WorldTime flight_time,
-                         CharacterHealth damage)
+                         CharacterHealth damage, float height)
     : source_(source),
       target_(target),
       start_time_(start_time),
       flight_time_(flight_time),
+      height_(height),
       damage_(damage),
       orientation_(0.0f, 0.0f, 1.0f, 0.0f),
       position_(0.0f) {

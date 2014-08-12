@@ -2,6 +2,8 @@
   "character_count": 4,
   "character_health": 10,
   "pie_flight_time": 500,
+  "pie_height": 16,
+  "pie_height_variance": 2,
   "window_size": { "x": 1280, "y": 800 },
   "window_title": "Splat!"
 }
