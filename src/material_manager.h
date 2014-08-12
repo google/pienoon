@@ -20,15 +20,6 @@
 
 namespace fpl {
 
-class Material {
- public:
-  Material() : shader_(nullptr) {}
-
-  void Set(const Renderer &renderer);
-
-  Shader *shader_;
-  std::vector<GLuint> textures_;
-};
 
 class MaterialManager {
  public:

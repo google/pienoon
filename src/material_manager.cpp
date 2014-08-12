@@ -90,7 +90,7 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
     auto shader = LoadShader(shadername->c_str());
     if (!shader) return nullptr;
     mat = new Material();
-    mat->shader_ = shader;
+    mat->set_shader(shader);
     for (auto it = matdef->texture_filenames()->begin();
              it != matdef->texture_filenames()->end(); ++it) {
       auto texid = LoadTexture(it->c_str());
@@ -98,7 +98,7 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
         delete mat;
         return nullptr;
       }
-      mat->textures_.push_back(texid);
+      mat->get_textures()->push_back(texid);
     }
     material_map_[filename] = mat;
     return mat;

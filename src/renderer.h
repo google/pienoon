@@ -68,6 +68,21 @@ class Shader {
   GLint uniform_texture_unit_0;
 };
 
+class Material {
+private:
+  Shader *shader_;
+  std::vector<GLuint> textures_;
+ public:
+  Material() : shader_(nullptr) {}
+
+  void Set(const Renderer &renderer);
+
+  Shader * get_shader() { return shader_; }
+  std::vector<GLuint> * get_textures() { return &textures_; }
+  void set_shader(Shader * s) { shader_ = s; }
+  void set_textures(std::vector<GLuint> t) { textures_ = t; }
+};
+
 // An array of these enums defines the format of vertex data.
 enum Attribute {
   kEND = 0,     // The array must always be terminated by one of these.
@@ -86,11 +101,11 @@ class Mesh {
   ~Mesh();
 
   // Create one IBO to be part of this mesh. May be called more than once.
-  void AddIndices(const int *indices, int count, GLuint texture_id);
+  void AddIndices(const int *indices, int count, Material *mat);
 
   // Render itself. A matching shader (and its uniforms) must have been set
   // before calling this.
-  void Render();
+  void Render(Renderer &renderer);
 
   // Renders primatives using vertex and index data directly in local memory.
   // This is a convenient alternative to creating a Mesh instance for small
@@ -107,7 +122,7 @@ class Mesh {
   struct Indices {
     int count;
     GLuint ibo;
-    GLuint texture_id;  // TODO: generalize
+    Material *mat;
   };
   std::vector<Indices> indices_;
   size_t vertex_size_;

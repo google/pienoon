@@ -364,7 +364,7 @@ Mesh::~Mesh() {
   }
 }
 
-void Mesh::AddIndices(const int *index_data, int count, GLuint texture_id) {
+void Mesh::AddIndices(const int *index_data, int count, Material *mat) {
   indices_.push_back(Indices());
   auto &idxs = indices_.back();
   idxs.count = count;
@@ -372,13 +372,13 @@ void Mesh::AddIndices(const int *index_data, int count, GLuint texture_id) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxs.ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(int), index_data,
                GL_STATIC_DRAW);
-  idxs.texture_id = texture_id;
+  idxs.mat = mat;
 }
 
-void Mesh::Render() {
+void Mesh::Render(Renderer &renderer) {
   SetAttributes(vbo_, format_, vertex_size_, nullptr);
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
-    // FIXME: bind textures.
+    it->mat->Set(renderer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo);
     glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0);
   }
