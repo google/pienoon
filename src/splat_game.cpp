@@ -40,7 +40,7 @@ static const WorldTime kMaxUpdateTime = 100;
 
 static const float kViewportAngle = 30.0f;
 static const float kViewportAspectRatio = 1280.0f / 800.0f;
-static const float kViewportNearPlane = 10.0f;
+static const float kViewportNearPlane = 1.0f;
 static const float kViewportFarPlane = 100.0f;
 
 // Offset for rendering cardboard backing
@@ -284,14 +284,53 @@ const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
 
 // Debug function to move the camera if the mouse button is down.
 void SplatGame::DebugCamera() {
+  const vec2i mouse_delta = input_.pointers_[0].mousedelta;
+
   // Translate the camera in the XZ plane.
   if (input_.GetButton(SDLK_POINTER1).is_down()) {
-    static const float kMouseToCameraScale = 0.005f;
-    const vec2i mouse_delta = input_.pointers_[0].mousedelta;
-    const vec3 camera_delta = vec3(mouse_delta.x() * kMouseToCameraScale, 0.0f,
-                                   mouse_delta.y() * kMouseToCameraScale);
-    game_state_.set_camera_position(game_state_.camera_position() +
-                                    camera_delta);
+    static const float kMouseToXZTranslationScale = 0.005f;
+    const vec3 camera_delta = vec3(
+        mouse_delta.x() * kMouseToXZTranslationScale, 0.0f,
+        mouse_delta.y() * kMouseToXZTranslationScale);
+    const mat4 translation = mat4::FromTranslationVector(camera_delta);
+    game_state_.set_camera_matrix(game_state_.camera_matrix() * translation);
+  }
+
+  // Translate the camera along the Y axis.
+  if (input_.GetButton(SDLK_POINTER2).is_down()) {
+    static const float kMouseToYTranslationScale = 0.0025f;
+    const vec3 camera_delta = vec3(
+        0.0f, mouse_delta.x() * kMouseToYTranslationScale, 0.0f);
+    const mat4 translation = mat4::FromTranslationVector(camera_delta);
+    game_state_.set_camera_matrix(game_state_.camera_matrix() * translation);
+  }
+
+  // Rotate the camera about the X an Y axes.
+  if (input_.GetButton(SDLK_POINTER3).is_down()) {
+    static const float kMouseToEulerScale = kPi / 1300.0f;
+    const vec3 euler_angles = vec3(mouse_delta.y() * kMouseToEulerScale,
+                                   mouse_delta.x() * kMouseToEulerScale, 0.0f);
+    const Quat rotation_quat = Quat::FromEulerAngles(euler_angles);
+    const mat4 rotation = mat4::FromRotationMatrix(rotation_quat.ToMatrix());
+    const mat4& current_camera = game_state_.camera_matrix();
+    const vec3 camera_position = current_camera.TranslationVector();
+    const mat4 new_camera = current_camera *
+                            mat4::FromTranslationVector(-camera_position) *
+                            rotation *
+                            mat4::FromTranslationVector(camera_position);
+    game_state_.set_camera_matrix(new_camera);
+
+    // Debug output. Let's us cut-and-paste when we find a better default
+    // camera matrix.
+    printf("camera matrix "
+           "(%.5ff, %.5ff, %.5ff, %.5ff,"
+           " %.5ff, %.5ff, %.5ff, %.5ff,"
+           " %.5ff, %.5ff, %.5ff, %.5ff,"
+           " %.5ff, %.5ff, %.5ff, %.5f)\n",
+           new_camera[0], new_camera[1], new_camera[2], new_camera[3],
+           new_camera[4], new_camera[5], new_camera[6], new_camera[7],
+           new_camera[8], new_camera[9], new_camera[10], new_camera[11],
+           new_camera[12], new_camera[13], new_camera[14], new_camera[15]);
   }
 }
 

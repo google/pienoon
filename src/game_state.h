@@ -27,10 +27,7 @@ namespace splat {
 
 class GameState {
  public:
-  GameState()
-    : time_(0),
-      camera_position_(mathfu::vec3(-1.0f, 3.0f, -15.0f)) {
-  }
+  GameState();
 
   // Update controller and state machine for each character.
   void AdvanceFrame(WorldTime delta_time);
@@ -52,9 +49,9 @@ class GameState {
 
   WorldTime time() const { return time_; }
 
-  const mathfu::vec3& camera_position() const { return camera_position_; }
-  void set_camera_position(const mathfu::vec3& position) {
-    camera_position_ = position;
+  const mathfu::mat4& camera_matrix() const { return camera_matrix_; }
+  void set_camera_matrix(const mathfu::mat4& matrix) {
+    camera_matrix_ = matrix;
   }
 
 private:
@@ -65,7 +62,7 @@ private:
       const Character& c, WorldTime delta_time) const;
 
   WorldTime time_;
-  mathfu::vec3 camera_position_;
+  mathfu::mat4 camera_matrix_;
   std::vector<Character> characters_;
   std::vector<AirbornePie> pies_;
 };

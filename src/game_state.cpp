@@ -27,6 +27,17 @@ namespace splat {
 // TODO: This should be in a configuration file.
 static const WorldTime kPieFlightTime = 30;
 
+GameState::GameState()
+  : time_(0),
+    // This camera position and orientation looks alright. Just found these
+    // values by moving the camera around with the mouse.
+    // TODO: load initial camera position and orientation from a config file.
+    camera_matrix_(0.87689f, -0.14842f, -0.45719f, 0.00000f,
+                   0.06964f, 0.98032f, -0.18468f, 0.00000f,
+                   0.47561f, 0.13011f, 0.86998f, 0.00000f,
+                   0.67165f, -2.29329f, -7.37654f, 1.00000f) {
+}
+
 WorldTime GameState::GetAnimationTime(const Character& c) const {
   return time_ - c.state_machine()->current_state_start_time();
 }
@@ -253,7 +264,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   scene->Clear();
 
   // Camera.
-  scene->set_camera(mathfu::mat4::FromTranslationVector(camera_position_));
+  scene->set_camera(camera_matrix_);
 
   // Characters.
   for (auto c = characters_.begin(); c != characters_.end(); ++c) {
