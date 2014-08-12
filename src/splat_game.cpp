@@ -139,6 +139,8 @@ static Angle InitialFaceAngle(const CharacterId id, const int character_count) {
 bool SplatGame::InitializeGameState() {
   const Config* config = GetConfig();
 
+  game_state_.set_config(config);
+
   // Load flatbuffer into buffer.
   if (!flatbuffers::LoadFile("character_state_machine_def.bin",
                              true, &state_machine_source_)) {

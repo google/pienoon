@@ -17,15 +17,12 @@
 #include "character_state_machine.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
+#include "config_generated.h"
 #include "controller.h"
 #include "scene_description.h"
 
 namespace fpl {
 namespace splat {
-
-// Time between pie being launched and hitting target.
-// TODO: This should be in a configuration file.
-static const WorldTime kPieFlightTime = 500;
 
 GameState::GameState()
   : time_(0),
@@ -35,7 +32,10 @@ GameState::GameState()
     camera_matrix_(0.67638f, -0.26152f, -0.68855f, 0.00000f,
                    0.02095f, 0.94128f, -0.33693f, 0.00000f,
                    0.73625f, 0.21347f, 0.64215f, 0.00000f,
-                   0.11235f, -1.23366f, -10.66262f, 1.00000f) {
+                   0.11235f, -1.23366f, -10.66262f, 1.00000f),
+    characters_(),
+    pies_(),
+    config_() {
 }
 
 WorldTime GameState::GetAnimationTime(const Character& character) const {
@@ -66,7 +66,8 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
 
       case EventId_ReleasePie:
         pies_.push_back(AirbornePie(character->id(), character->target(),
-                                    time_, character->pie_damage()));
+                                    time_, config_->pie_flight_time(),
+                                    character->pie_damage()));
         break;
 
       case EventId_LoadPie:
@@ -88,9 +89,10 @@ static Quat CalculatePieOrientation(const Character& source,
 }
 
 static mathfu::vec3 CalculatePiePosition(const Character& source,
-    const Character& target, WorldTime time_since_launch) {
+    const Character& target, WorldTime time_since_launch,
+    WorldTime flight_time) {
   // TODO: Make the pie follow a trajectory.
-  float percent = static_cast<float>(time_since_launch) / kPieFlightTime;
+  float percent = static_cast<float>(time_since_launch) / flight_time;
   percent = mathfu::Clamp(percent, 0.0f, 1.0f);
   return mathfu::vec3::Lerp(source.position(), target.position(), percent);
 }
@@ -103,7 +105,8 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
   const Quat pie_orientation = CalculatePieOrientation(source, target,
                                                        time_since_launch);
   const mathfu::vec3 pie_position = CalculatePiePosition(source, target,
-                                                         time_since_launch);
+                                                         time_since_launch,
+                                                         pie->flight_time());
 
   pie->set_orientation(pie_orientation);
   pie->set_position(pie_position);
@@ -221,7 +224,7 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
 
     // Remove pies that have made contact.
     const WorldTime time_since_launch = time_ - pie.start_time();
-    if (time_since_launch >= kPieFlightTime) {
+    if (time_since_launch >= pie.flight_time()) {
       Character& character = characters_[pie.target()];
       queued_damage[character.id()] += pie.damage();
       character.controller()->SetLogicalInputs(LogicalInputs_JustHit, true);

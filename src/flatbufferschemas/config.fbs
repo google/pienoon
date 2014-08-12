@@ -22,6 +22,7 @@ struct Vec2i {
 table Config {
   character_count:int;
   character_health:int;
+  pie_flight_time:int;
 
   window_size:Vec2i;
   window_title:string;

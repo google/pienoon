@@ -25,6 +25,8 @@ class SceneDescription;
 
 namespace splat {
 
+class Config;
+
 class GameState {
  public:
   GameState();
@@ -49,6 +51,8 @@ class GameState {
 
   WorldTime time() const { return time_; }
 
+  void set_config(const Config* config) { config_ = config; }
+
   const mathfu::mat4& camera_matrix() const { return camera_matrix_; }
   void set_camera_matrix(const mathfu::mat4& matrix) {
     camera_matrix_ = matrix;
@@ -67,6 +71,7 @@ private:
   mathfu::mat4 camera_matrix_;
   std::vector<Character> characters_;
   std::vector<AirbornePie> pies_;
+  const Config* config_;
 };
 
 }  // splat
