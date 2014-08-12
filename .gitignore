@@ -24,5 +24,8 @@ build/
 *.user
 *.suo
 
+# qt creator
+*.cbp
+
 # Misc generated files
 tags
