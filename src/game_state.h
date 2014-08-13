@@ -25,7 +25,7 @@ class SceneDescription;
 
 namespace splat {
 
-class Config;
+struct Config;
 
 class GameState {
  public:

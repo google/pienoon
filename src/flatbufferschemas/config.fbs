@@ -25,6 +25,7 @@ table Config {
   pie_flight_time:int;
   pie_height:float;
   pie_height_variance:float;
+  draw_debug_axes:bool;
 
   window_size:Vec2i;
   window_title:string;

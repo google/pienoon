@@ -133,8 +133,8 @@ static CharacterId CalculateCharacterTarget(const Character& c,
                                             const int character_count) {
   // Check the inputs to see how requests for target change.
   const uint32_t logical_inputs = c.controller()->logical_inputs();
-  const int target_delta = (logical_inputs & LogicalInputs_Left) ? -1 :
-                           (logical_inputs & LogicalInputs_Right) ? 1 : 0;
+  const int target_delta = (logical_inputs & LogicalInputs_Left) ? 1 :
+                           (logical_inputs & LogicalInputs_Right) ? -1 : 0;
   const CharacterId current_target = c.target();
   if (target_delta == 0)
     return current_target;
@@ -309,6 +309,23 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     scene->renderables().push_back(
         Renderable(RenderableIdForPieDamage(pie.damage()),
                                             pie.CalculateMatrix()));
+  }
+
+  // Axes.
+  if (config_->draw_debug_axes()) {
+    // TODO: add an arrow renderable instead of drawing with pies.
+    for (int i = 0; i < 8; ++i) {
+      const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
+          mathfu::vec3(static_cast<float>(i), 0.0f, 0.0f));
+      scene->renderables().push_back(
+          Renderable(RenderableId_PieSmall, axis_dot));
+    }
+    for (int i = 0; i < 4; ++i) {
+      const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
+          mathfu::vec3(0.0f, 0.0f, static_cast<float>(i)));
+      scene->renderables().push_back(
+          Renderable(RenderableId_PieSmall, axis_dot));
+    }
   }
 
   // Lights.

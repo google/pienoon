@@ -106,9 +106,9 @@ class Angle {
   mathfu::mat3 ToXZRotationMatrix() const {
     float x, z;
     ToVector(&x, &z);
-    return mathfu::mat3(   x, 0.0f,   -z,
+    return mathfu::mat3(   x, 0.0f,    z,
                         0.0f, 1.0f, 0.0f,
-                           z, 0.0f,    x);
+                          -z, 0.0f,    x);
   }
 
   Angle operator-() const {
