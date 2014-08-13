@@ -70,8 +70,9 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
         height += config_->pie_height_variance() *
                   (mathfu::Random<float>() * 2 - 1);
         pies_.push_back(AirbornePie(character->id(), character->target(),
-                                    time_, config_->pie_flight_time(), height,
-                                    character->pie_damage()));
+                                    time_, config_->pie_flight_time(),
+                                    character->pie_damage(), height));
+        UpdatePiePosition(&pies_.back());
         break;
       }
       case EventId_LoadPie: {
