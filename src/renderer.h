@@ -68,19 +68,26 @@ class Shader {
   GLint uniform_texture_unit_0;
 };
 
+struct Texture {
+  Texture(GLuint _id, const vec2i &_size) : id(_id), size(_size) {}
+
+  GLuint id;
+  vec2i size;
+};
+
 class Material {
-private:
-  Shader *shader_;
-  std::vector<GLuint> textures_;
  public:
   Material() : shader_(nullptr) {}
 
   void Set(const Renderer &renderer);
 
-  Shader * get_shader() { return shader_; }
-  std::vector<GLuint> * get_textures() { return &textures_; }
+  Shader *get_shader() { return shader_; }
   void set_shader(Shader * s) { shader_ = s; }
-  void set_textures(std::vector<GLuint> t) { textures_ = t; }
+  std::vector<Texture *> &get_textures() { return textures_; }
+
+ private:
+  Shader *shader_;
+  std::vector<Texture *> textures_;
 };
 
 // An array of these enums defines the format of vertex data.
@@ -157,12 +164,12 @@ class Renderer {
 
   // Create a texture from a memory buffer containing xsize * ysize RGBA pixels.
   // Does not fail.
-  GLuint CreateTexture(const uint8_t *buffer, const vec2i &size);
+  Texture *CreateTexture(const uint8_t *buffer, const vec2i &size);
 
   // Create a texture from a memory buffer containing a TGA format file.
-  // May only be uncompressed RGB or RGBA data. Returns 0 if the format is
+  // May only be uncompressed RGB or RGBA data. Returns NULL if the format is
   // not understood.
-  GLuint CreateTextureFromTGAMemory(const void *tga_buf);
+  Texture *CreateTextureFromTGAMemory(const void *tga_buf);
 
   Renderer() : color(1), window_size_(vec2i(0)), window_(nullptr),
                context_(nullptr) {}

@@ -32,11 +32,11 @@ class MaterialManager {
   // If this returns NULL, the error can be found in Renderer::last_error_.
   Shader *LoadShader(const char *basename);
 
-  // Returns a previously loaded texture id, or 0.
-  GLuint FindTexture(const char *filename);
+  // Returns a previously loaded texture, or NULL.
+  Texture *FindTexture(const char *filename);
   // Loads a texture if it hasn't been loaded already. Currently only supports
-  // TGA format files. 0 if the file couldn't be read.
-  GLuint LoadTexture(const char *filename);
+  // TGA format files. NULL if the file couldn't be read.
+  Texture *LoadTexture(const char *filename);
 
   // Returns a previously loaded material, or NULL.
   Material *FindMaterial(const char *filename);
@@ -57,7 +57,7 @@ class MaterialManager {
 
   Renderer &renderer_;
   std::map<std::string, Shader *> shader_map_;
-  std::map<std::string, GLuint> texture_map_;
+  std::map<std::string, Texture *> texture_map_;
   std::map<std::string, Material *> material_map_;
 };
 

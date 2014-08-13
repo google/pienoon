@@ -200,7 +200,7 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
   return nullptr;
 }
 
-GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
+Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   // TODO: support default args for mipmap/wrap
   GLuint texture_id;
   glGenTextures(1, &texture_id);
@@ -222,10 +222,10 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   glAlphaFunc(GL_GREATER, 0.5);
   glEnable(GL_ALPHA_TEST);
   glGenerateMipmap(GL_TEXTURE_2D);
-  return texture_id;
+  return new Texture(texture_id, size);
 }
 
-GLuint Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
+Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   struct TGA {
     unsigned char id_len, color_map_type, image_type, color_map_data[5];
     unsigned short x_origin, y_origin, width, height;
@@ -241,7 +241,7 @@ GLuint Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   if (header->color_map_type != 0 // no color map
    || header->image_type != 2 // RGB or RGBA only
    || (header->bpp != 32 && header->bpp != 24))
-    return 0;
+    return nullptr;
   auto pixels = reinterpret_cast<const unsigned char *>(header + 1);
   pixels += header->id_len;
   int size = header->width * header->height;
@@ -266,9 +266,9 @@ GLuint Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
       p[3] = header->bpp == 32 ? *pixels++ : 255;
     }
   }
-  auto id = CreateTexture(rgba, vec2i(header->width, header->height));
+  auto tex = CreateTexture(rgba, vec2i(header->width, header->height));
   delete[] rgba;
-  return id;
+  return tex;
 }
 
 void Mesh::SetAttributes(GLuint vbo, const Attribute *attributes, int stride,
