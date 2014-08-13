@@ -38,7 +38,7 @@ static const WorldTime kMinUpdateTime = 10;
 static const WorldTime kMaxUpdateTime = 100;
 
 
-static const float kViewportAngle = 30.0f;
+static const float kViewportAngle = kHalfPi * 0.5f;
 static const float kViewportAspectRatio = 1280.0f / 800.0f;
 static const float kViewportNearPlane = 1.0f;
 static const float kViewportFarPlane = 100.0f;
@@ -46,7 +46,7 @@ static const mat4 kViewportPerspective(
                       mat4::Perspective(kViewportAngle,
                                         kViewportAspectRatio,
                                         kViewportNearPlane,
-                                        kViewportFarPlane));
+                                        kViewportFarPlane, -1.0f));
 
 // Offset for rendering cardboard backing
 static const vec3 kCardboardOffset = vec3(0.0f, 0.0f, -0.15f);
@@ -66,6 +66,8 @@ static inline WorldTime CurrentWorldTime() {
 
 SplatGame::SplatGame()
     : matman_(renderer_),
+      cardboard_fronts_(RenderableId_Count, NULL),
+      cardboard_backs_(RenderableId_Count, NULL),
       prev_world_time_(0),
       debug_previous_states_(),
       debug_previous_angles_() {
@@ -97,19 +99,22 @@ bool SplatGame::InitializeRenderer() {
 // Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
 // members have been initialized at this point.
 bool SplatGame::InitializeMaterials() {
+  // Load cardboard fronts.
   for (int i = 0; i < RenderableId_Count; ++i) {
     const std::string material_file_name = FileNameFromEnumName(
                                               EnumNameRenderableId(i),
                                               "materials/", ".bin");
     Material* mat = matman_.LoadMaterial(material_file_name.c_str());
-    cardboard_fronts_.push_back(mat);
+    cardboard_fronts_[i] = mat;
   }
+
+  // Load cardboard backs.
   for (int i = 0; i < RenderableId_Count; ++i) {
     const std::string material_file_name = FileNameFromEnumName(
                                               EnumNameRenderableId(i),
                                               "materials/", "_back.bin");
     Material* mat = matman_.LoadMaterial(material_file_name.c_str());
-    cardboard_backs_.push_back(mat);
+    cardboard_backs_[i] = mat;
   }
   return true;
 }
@@ -210,6 +215,14 @@ bool SplatGame::Initialize() {
   return true;
 }
 
+Material* SplatGame::GetCardboardFront(int renderable_id) {
+  const bool is_valid_id = 0 <= renderable_id &&
+                           renderable_id < RenderableId_Count &&
+                           cardboard_fronts_[renderable_id] != NULL;
+  return is_valid_id ? cardboard_fronts_[renderable_id]
+                     : cardboard_fronts_[RenderableId_Invalid];
+}
+
 void SplatGame::Render(const SceneDescription& scene) {
   const mat4 camera_transform = kViewportPerspective * scene.camera();
 
@@ -222,16 +235,14 @@ void SplatGame::Render(const SceneDescription& scene) {
     static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
     static int indices[] = { 0, 1, 2, 3 };
     // vertext format is [x, y, z] [u, v]:
-    static float vertices[] = { -1, 0, 0,   0, 1,
-                                 1, 0, 0,   1, 1,
-                                -1, 3, 0,   0, 0,
-                                 1, 3, 0,   1, 0};
+    static float vertices[] = { -1, 0, 0,   0, 0,
+                                 1, 0, 0,   1, 0,
+                                -1, 3, 0,   0, 1,
+                                 1, 3, 0,   1, 1};
 
     // Draw the front of the character, if we have it.
     // If we don't have it, draw the pajama material for "Invalid".
-    Material* front = !cardboard_fronts_[renderable.id()] ?
-                      cardboard_fronts_[RenderableId_Invalid] :
-                      cardboard_fronts_[renderable.id()];
+    Material* front = GetCardboardFront(renderable.id());
     front->Set(renderer_);
     Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
                       reinterpret_cast<const char *>(vertices), indices);
@@ -318,12 +329,7 @@ void SplatGame::DebugCamera() {
                                    mouse_delta.x() * kMouseToEulerScale, 0.0f);
     const Quat rotation_quat = Quat::FromEulerAngles(euler_angles);
     const mat4 rotation = mat4::FromRotationMatrix(rotation_quat.ToMatrix());
-    const mat4& current_camera = game_state_.camera_matrix();
-    const vec3 camera_position = current_camera.TranslationVector();
-    const mat4 new_camera = current_camera *
-                            mat4::FromTranslationVector(-camera_position) *
-                            rotation *
-                            mat4::FromTranslationVector(camera_position);
+    const mat4 new_camera = rotation * game_state_.camera_matrix();
     game_state_.set_camera_matrix(new_camera);
 
     // Debug output. Let's us cut-and-paste when we find a better default

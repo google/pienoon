@@ -44,6 +44,7 @@ class SplatGame {
   void DebugCamera();
   const Config* GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
+  Material* GetCardboardFront(int renderable_id);
 
   // Hold configuration binary data.
   std::string config_source_;

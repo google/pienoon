@@ -30,10 +30,10 @@ GameState::GameState()
     // This camera position and orientation looks alright. Just found these
     // values by moving the camera around with the mouse.
     // TODO: load initial camera position and orientation from a config file.
-    camera_matrix_(0.67638f, -0.26152f, -0.68855f, 0.00000f,
-                   0.02095f, 0.94128f, -0.33693f, 0.00000f,
-                   0.73625f, 0.21347f, 0.64215f, 0.00000f,
-                   0.11235f, -1.23366f, -10.66262f, 1.00000f),
+    camera_matrix_(0.87535f, -0.32390f, -0.35895f, 0.00000f,
+                   0.10759f,  0.85430f, -0.50853f, 0.00000f,
+                   0.47136f,  0.40652f,  0.78266f, 0.00000f,
+                   0.0f,          0.0f,     19.0f, 1.00000f),
     characters_(),
     pies_(),
     config_() {
