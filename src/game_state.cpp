@@ -101,14 +101,14 @@ static mathfu::vec3 CalculatePiePosition(const Character& source,
   mathfu::vec3 result =
       mathfu::vec3::Lerp(source.position(), target.position(), percent);
 
-  // Pie height follows a parabola such that y = 4a * (x)(x-1)
+  // Pie height follows a parabola such that y = 4a * (x)(1 - x)
   //
-  // (x)(x-1) gives a parabola with the x intercepts at 0 and 1 (where 0
+  // (x)(1 - x) gives a parabola with the x intercepts at 0 and 1 (where 0
   // represents the origin, and 1 represents the target). The height of the pie
   // would only be .25 units maximum, so we multiply by 4 to make the peak 1
   // unit. Finally, we multiply by an arbitrary coeffecient supplied in a config
   // file to make the pies fly higher or lower.
-  result.y() += 4 * pie_height * (percent * (percent - 1.0f));
+  result.y() += 4 * pie_height * (percent * (1.0f - percent));
 
   return result;
 }
