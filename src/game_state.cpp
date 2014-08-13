@@ -29,11 +29,9 @@ GameState::GameState()
   : time_(0),
     // This camera position and orientation looks alright. Just found these
     // values by moving the camera around with the mouse.
-    // TODO: load initial camera position and orientation from a config file.
-    camera_matrix_(0.87535f, -0.32390f, -0.35895f, 0.00000f,
-                   0.10759f,  0.85430f, -0.50853f, 0.00000f,
-                   0.47136f,  0.40652f,  0.78266f, 0.00000f,
-                   0.0f,          0.0f,     19.0f, 1.00000f),
+    // TODO: load initial camera position and target from the config file.
+    camera_position_(10.0f, 7.0f, 10.0f),
+    camera_target_(0.0f, 0.0f, 0.0f),
     characters_(),
     pies_(),
     config_() {
@@ -288,13 +286,19 @@ static uint16_t RenderableIdForPieDamage(CharacterHealth damage) {
   return static_cast<uint16_t>(RenderableId_PieEmpty + clamped_damage);
 }
 
+// Get the camera matrix used for rendering.
+mathfu::mat4 GameState::CameraMatrix() const {
+  return mathfu::mat4::LookAt(camera_target_, camera_position_,
+                              mathfu::vec3(0.0f, 1.0f, 0.0f));
+}
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
   scene->Clear();
 
   // Camera.
-  scene->set_camera(camera_matrix_);
+  scene->set_camera(CameraMatrix());
 
   // Characters.
   for (auto c = characters_.begin(); c != characters_.end(); ++c) {

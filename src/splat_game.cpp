@@ -301,48 +301,46 @@ const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
 
 // Debug function to move the camera if the mouse button is down.
 void SplatGame::DebugCamera() {
-  const vec2i mouse_delta = input_.pointers_[0].mousedelta;
+  static const float kMouseToXZTranslationScale = 0.005f;
+  static const float kMouseToYTranslationScale = 0.0025f;
+  static const float kMouseToCameraRotationScale = 0.001f;
 
-  // Translate the camera in the XZ plane.
-  if (input_.GetButton(SDLK_POINTER1).is_down()) {
-    static const float kMouseToXZTranslationScale = 0.005f;
+  const vec2 mouse_delta = vec2(input_.pointers_[0].mousedelta);
+
+  // Translate the camera in world x, y, z coordinates.
+  const bool translate_xz = input_.GetButton(SDLK_POINTER1).is_down();
+  const bool translate_y = input_.GetButton(SDLK_POINTER2).is_down();
+  if (translate_xz || translate_y) {
     const vec3 camera_delta = vec3(
-        mouse_delta.x() * kMouseToXZTranslationScale, 0.0f,
-        mouse_delta.y() * kMouseToXZTranslationScale);
-    const mat4 translation = mat4::FromTranslationVector(camera_delta);
-    game_state_.set_camera_matrix(game_state_.camera_matrix() * translation);
+          translate_xz ? mouse_delta.x() * kMouseToXZTranslationScale : 0.0f,
+          translate_y  ? mouse_delta.x() * kMouseToYTranslationScale  : 0.0f,
+          translate_xz ? mouse_delta.y() * kMouseToXZTranslationScale : 0.0f);
+    const vec3 new_position = game_state_.camera_position() + camera_delta;
+    game_state_.set_camera_position(new_position);
+
+    printf("camera position (%.5ff, %.5ff, %.5ff)\n",
+           new_position[0], new_position[1], new_position[2]);
   }
 
-  // Translate the camera along the Y axis.
-  if (input_.GetButton(SDLK_POINTER2).is_down()) {
-    static const float kMouseToYTranslationScale = 0.0025f;
-    const vec3 camera_delta = vec3(
-        0.0f, mouse_delta.x() * kMouseToYTranslationScale, 0.0f);
-    const mat4 translation = mat4::FromTranslationVector(camera_delta);
-    game_state_.set_camera_matrix(game_state_.camera_matrix() * translation);
-  }
+  // Move the camera target in the camera plane.
+  const bool rotate = input_.GetButton(SDLK_POINTER3).is_down();
+  if (rotate) {
+    // Get axes of camera space.
+    const vec3 up(0.0f, 1.0f, 0.0f);
+    vec3 forward = game_state_.camera_target() - game_state_.camera_position();
+    const float dist = forward.Normalize();
+    const vec3 side = vec3::CrossProduct(up, forward);
 
-  // Rotate the camera about the X an Y axes.
-  if (input_.GetButton(SDLK_POINTER3).is_down()) {
-    static const float kMouseToEulerScale = kPi / 1300.0f;
-    const vec3 euler_angles = vec3(mouse_delta.y() * kMouseToEulerScale,
-                                   mouse_delta.x() * kMouseToEulerScale, 0.0f);
-    const Quat rotation_quat = Quat::FromEulerAngles(euler_angles);
-    const mat4 rotation = mat4::FromRotationMatrix(rotation_quat.ToMatrix());
-    const mat4 new_camera = rotation * game_state_.camera_matrix();
-    game_state_.set_camera_matrix(new_camera);
+    // Apply mouse movement along up and side axes. Scale so that no matter
+    // distance, the same angle is applied.
+    const float scale = dist * kMouseToCameraRotationScale;
+    const vec3 unscaled_delta = mouse_delta.x() * side + mouse_delta.y() * up;
+    const vec3 target_delta = scale * unscaled_delta;
+    const vec3 new_target = game_state_.camera_target() + target_delta;
+    game_state_.set_camera_target(new_target);
 
-    // Debug output. Let's us cut-and-paste when we find a better default
-    // camera matrix.
-    printf("camera matrix "
-           "(%.5ff, %.5ff, %.5ff, %.5ff,"
-           " %.5ff, %.5ff, %.5ff, %.5ff,"
-           " %.5ff, %.5ff, %.5ff, %.5ff,"
-           " %.5ff, %.5ff, %.5ff, %.5f)\n",
-           new_camera[0], new_camera[1], new_camera[2], new_camera[3],
-           new_camera[4], new_camera[5], new_camera[6], new_camera[7],
-           new_camera[8], new_camera[9], new_camera[10], new_camera[11],
-           new_camera[12], new_camera[13], new_camera[14], new_camera[15]);
+    printf("camera target (%.5ff, %.5ff, %.5ff)\n",
+           new_target[0], new_target[1], new_target[2]);
   }
 }
 

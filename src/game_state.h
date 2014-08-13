@@ -43,6 +43,16 @@ class GameState {
   // Difference between target face angle and current face angle.
   Angle FaceAngleError(CharacterId id) const;
 
+  const mathfu::vec3& camera_position() const { return camera_position_; }
+  void set_camera_position(const mathfu::vec3& position) {
+    camera_position_ = position;
+  }
+
+  const mathfu::vec3& camera_target() const { return camera_target_; }
+  void set_camera_target(const mathfu::vec3& target) {
+    camera_target_ = target;
+  }
+
   std::vector<Character>& characters() { return characters_; }
   const std::vector<Character>& characters() const { return characters_; }
 
@@ -53,11 +63,6 @@ class GameState {
 
   void set_config(const Config* config) { config_ = config; }
 
-  const mathfu::mat4& camera_matrix() const { return camera_matrix_; }
-  void set_camera_matrix(const mathfu::mat4& matrix) {
-    camera_matrix_ = matrix;
-  }
-
 private:
   WorldTime GetAnimationTime(const Character& character) const;
   void ProcessEvents(Character* character,
@@ -66,9 +71,11 @@ private:
   void UpdatePiePosition(AirbornePie* pie) const;
   float CalculateCharacterFacingAngleVelocity(const Character& character,
                                               WorldTime delta_time) const;
+  mathfu::mat4 CameraMatrix() const;
 
   WorldTime time_;
-  mathfu::mat4 camera_matrix_;
+  mathfu::vec3 camera_position_;
+  mathfu::vec3 camera_target_;
   std::vector<Character> characters_;
   std::vector<AirbornePie> pies_;
   const Config* config_;
