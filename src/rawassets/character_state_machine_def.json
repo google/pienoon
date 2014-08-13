@@ -241,7 +241,19 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterHitByPie"
+            "renderable": "CharacterHitByPieFrame0"
+          },
+          {
+            "time": 500,
+            "renderable": "CharacterHitByPieFrame1"
+          },
+          {
+            "time": 1500,
+            "renderable": "CharacterHitByPieFrame2"
+          },
+          {
+            "time": 2000,
+            "renderable": "CharacterHitByPieFrame3"
           }
         ],
         "events": [
