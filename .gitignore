@@ -29,3 +29,5 @@ build/
 
 # Misc generated files
 tags
+run.command
+splat.tar.gz

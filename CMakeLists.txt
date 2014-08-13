@@ -49,7 +49,7 @@ get_target_property(FLATBUFFERS_FLATC flatc LOCATION)
 # dependencies in the fbs file itself, like a #include.
 set(FBS_DEPENDENCIES
     ${CMAKE_SOURCE_DIR}/src/flatbufferschemas/timeline.fbs)
-#
+
 # Generate rules to build the set of output files from the set of input
 # schema files.
 foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
@@ -110,3 +110,29 @@ target_link_libraries(splat
 # Include GoogleTest in this project.
 add_subdirectory(${GOOGLETEST_PROJECT_DIR} googletest)
 add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+
+get_target_property(SPLAT_EXECUTABLE splat LOCATION)
+
+# For OSX users, create a simple command script that can be run from Finder that
+# will run the jsontobin.sh script and then run the game
+add_custom_target(runcommand
+  COMMAND echo '\#!/bin/bash -eu' > run.command &&
+          echo './scripts/jsontobin.sh && ${SPLAT_EXECUTABLE}' >> run.command &&
+          chmod +x run.command)
+
+# The set of files and folders to export for non-programmers.
+set(EXPORT_FILES
+    ${CMAKE_SOURCE_DIR}/assets
+    ${CMAKE_SOURCE_DIR}/run.command
+    ${CMAKE_SOURCE_DIR}/scripts/jsontobin.sh
+    ${CMAKE_SOURCE_DIR}/src/flatbufferschemas
+    ${CMAKE_SOURCE_DIR}/src/rawassets
+    ${SPLAT_EXECUTABLE}
+    ${FLATBUFFERS_FLATC})
+
+# Create a zipped tar of all the necessary files to run the game
+add_custom_target(export
+  COMMAND tar -czvf ${CMAKE_SOURCE_DIR}/splat.tar.gz ${EXPORT_FILES}
+  DEPENDS splat runcommand
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..)
+
