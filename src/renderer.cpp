@@ -20,6 +20,7 @@ namespace fpl {
 enum {
   kAttributePosition,
   kAttributeNormal,
+  kAttributeTangent,
   kAttributeTexCoord,
   kAttributeColor
 };
@@ -178,6 +179,7 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
     if (ps) {
       glBindAttribLocation(program, kAttributePosition, "aPosition");
       glBindAttribLocation(program, kAttributeNormal,   "aNormal");
+      glBindAttribLocation(program, kAttributeTangent,  "aTangent");
       glBindAttribLocation(program, kAttributeTexCoord, "aTexCoord");
       glBindAttribLocation(program, kAttributeColor,    "aColor");
       glLinkProgram(program);
@@ -316,8 +318,9 @@ void Material::Set(Renderer &renderer, const Shader *shader) {
 }
 
 void Material::SetTextures() {
-  for (auto it = textures_.begin(); it != textures_.end(); ++it) {
-    glBindTexture(GL_TEXTURE_2D, (*it)->id);
+  for (size_t i = 0; i < textures_.size(); i++) {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, textures_[i]->id);
   }
 }
 
@@ -338,6 +341,12 @@ void Mesh::SetAttributes(GLuint vbo, const Attribute *attributes, int stride,
         glVertexAttribPointer(kAttributeNormal, 3, GL_FLOAT, false,
                               stride, buffer + offset);
         offset += 3 * sizeof(float);
+        break;
+      case kTangent4f:
+        glEnableVertexAttribArray(kAttributeTangent);
+        glVertexAttribPointer(kAttributeTangent, 3, GL_FLOAT, false,
+                              stride, buffer + offset);
+        offset += 4 * sizeof(float);
         break;
       case kTexCoord2f:
         glEnableVertexAttribArray(kAttributeTexCoord);
@@ -366,6 +375,9 @@ void Mesh::UnSetAttributes(const Attribute *attributes) {
       case kNormal3f:
         glDisableVertexAttribArray(kAttributeNormal);
         break;
+      case kTangent4f:
+        glDisableVertexAttribArray(kAttributeTangent);
+        break;
       case kTexCoord2f:
         glDisableVertexAttribArray(kAttributeTexCoord);
         break;
@@ -378,6 +390,19 @@ void Mesh::UnSetAttributes(const Attribute *attributes) {
   }
 }
 
+// Set up the uniforms the shader uses for texture access.
+void Shader::SetTextureUniforms() const {
+    char texture_unit_name[] = "texture_unit_#####";
+    for (int i = 0; i < kMaxTexturesPerShader; i++) {
+      snprintf(texture_unit_name, sizeof(texture_unit_name),
+          "texture_unit_%d", i);
+      uniform_texture_array_[i] =
+          glGetUniformLocation(program_, texture_unit_name);
+      if (uniform_texture_array_[i] >= 0)
+          glUniform1i(uniform_texture_array_[i], i);
+    }
+}
+
 void Shader::Initialize() {
   // Look up variables that are standard, but still optionally present in a
   // shader.
@@ -387,14 +412,17 @@ void Shader::Initialize() {
 
   uniform_color_ = glGetUniformLocation(program_, "color");
 
-  uniform_texture_unit_0 = glGetUniformLocation(program_, "texture_unit_0");
-  if (uniform_texture_unit_0 >= 0) glUniform1i(uniform_texture_unit_0, 0);
+  SetTextureUniforms();
 
   uniform_light_pos_ = glGetUniformLocation(program_, "light_pos");
+  uniform_camera_pos_ = glGetUniformLocation(program_, "camera_pos");
 }
 
 void Shader::Set(const Renderer &renderer) const {
   glUseProgram(program_);
+
+  SetTextureUniforms();
+
   if (uniform_model_view_projection_ >= 0)
     glUniformMatrix4fv(uniform_model_view_projection_, 1, false,
                        &renderer.model_view_projection()[0]);
@@ -403,6 +431,8 @@ void Shader::Set(const Renderer &renderer) const {
   if (uniform_color_ >= 0) glUniform4fv(uniform_color_, 1, &renderer.color()[0]);
   if (uniform_light_pos_ >= 0)
     glUniform3fv(uniform_light_pos_, 1, &renderer.light_pos()[0]);
+  if (uniform_camera_pos_ >= 0)
+    glUniform3fv(uniform_camera_pos_, 1, &renderer.camera_pos()[0]);
 }
 
 Mesh::Mesh(const void *vertex_data, int count, int vertex_size,

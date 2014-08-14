@@ -32,6 +32,7 @@ enum BlendMode {
 
   kBlendModeCount // Must be at end.
 };
+static const int kMaxTexturesPerShader = 8;
 
 // Represents a shader consisting of a vertex and pixel shader. Also stores
 // ids of standard uniforms. Use the Renderer class below to create these.
@@ -45,7 +46,10 @@ class Shader {
       uniform_color_(-1),
       uniform_texture_unit_0(-1),
       uniform_light_pos_(-1)
-    {}
+  {
+    for (int i = 0; i < kMaxTexturesPerShader; i++)
+        uniform_texture_array_[i] = -1;
+  }
 
   ~Shader() {
     if (vs_) glDeleteShader(vs_);
@@ -59,17 +63,26 @@ class Shader {
   void Set(const Renderer &renderer) const;
 
  private:
-  friend class Renderer;
 
-  void Initialize();
+  friend class Renderer;
+  void SetTextureUniforms() const;
+
+  // TODO: Make this not be mutable.
+  // It needs to stay until we can get the call to SetTextureUniforms
+  // to no longer be const.  Which we can't do until we can get the
+  // call to SetTextureUniforms out of the Set() function.
+  mutable GLint uniform_texture_array_[kMaxTexturesPerShader];
 
   GLuint program_, vs_, ps_;
+
+  void Initialize();
 
   GLint uniform_model_view_projection_;
   GLint uniform_model_;
   GLint uniform_color_;
   GLint uniform_texture_unit_0;
   GLint uniform_light_pos_;
+  GLint uniform_camera_pos_;
 };
 
 struct Texture {
@@ -107,6 +120,7 @@ enum Attribute {
   kEND = 0,     // The array must always be terminated by one of these.
   kPosition3f,
   kNormal3f,
+  kTangent4f,
   kTexCoord2f,
   kColor4ub
 };
@@ -215,6 +229,9 @@ class Renderer {
   vec3 &light_pos() { return light_pos_; }
   const vec3 &light_pos() const { return light_pos_; }
 
+  vec3 &camera_pos() { return camera_pos_; }
+  const vec3 &camera_pos() const { return camera_pos_; }
+
   std::string &last_error() { return last_error_; }
   const std::string &last_error() const { return last_error_; }
 
@@ -230,6 +247,7 @@ class Renderer {
   mat4 model_;
   vec4 color_;
   vec3 light_pos_;
+  vec3 camera_pos_;
 
   vec2i window_size_;
 

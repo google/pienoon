@@ -56,7 +56,10 @@ Shader *MaterialManager::LoadShader(const char *basename) {
     if (LoadFile(filename.c_str(), &ps_file)) {
       shader = renderer_.CompileAndLinkShader(vs_file.c_str(),
                                               ps_file.c_str());
-      if (shader) shader_map_[basename] = shader;
+      if (shader)
+        shader_map_[basename] = shader;
+      else
+        fprintf(stderr, "Shader Error:\n%s\n", renderer_.last_error().c_str());
       return shader;
     }
   }

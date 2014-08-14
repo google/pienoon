@@ -93,8 +93,9 @@ static Mesh* CreateCardboardMesh(const char* material_file_name,
   static const unsigned int kCardboardTextureIndex = 0;
   static const float kPixelToWorld = 0.008f;
   static const int kNumVerticesInQuad = 4;
-  static const int kNumFloatsPerVertex = 5;
-  static Attribute kMeshFormat[] = { kPosition3f, kTexCoord2f, kEND };
+  static const int kNumFloatsPerVertex = 12;
+  static Attribute kMeshFormat[] =
+      { kPosition3f, kTexCoord2f, kNormal3f, kTangent4f, kEND };
   static int kMeshIndices[] = { 0, 1, 2, 2, 1, 3 };
 
   // Load the material and check its validity.
@@ -108,11 +109,11 @@ static Mesh* CreateCardboardMesh(const char* material_file_name,
   const vec2 geo_size = im * vec2(kPixelToWorld);
   const float right = geo_size[0] * 0.5f;
   const float vertices[] = {
-      // [x,            y,        z]    [   u,    v]
-      -right,        0.0f, z_offset,     0.0f, 0.0f,
-       right,        0.0f, z_offset,     1.0f, 0.0f,
-      -right, geo_size[1], z_offset,     0.0f, 1.0f,
-       right, geo_size[1], z_offset,     1.0f, 1.0f };
+   // [x,           y,        z]   [ u,    v]  [normal x, y, z]   [tan x, y, z, handedness]
+   -right,        0.0f, z_offset,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
+    right,        0.0f, z_offset,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
+   -right, geo_size[1], z_offset,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
+    right, geo_size[1], z_offset,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f};
   STATIC_ASSERT(ARRAYSIZE(vertices) ==
                 kNumVerticesInQuad * kNumFloatsPerVertex);
 
@@ -324,9 +325,37 @@ void SplatGame::Render(const SceneDescription& scene) {
     }
   }
   renderer_.DepthTest(true);
+  renderer_.SetBlendMode(kBlendModeAlpha);
 
-  // Render all Renderables.
-  RenderCardboard(scene, camera_transform);
+  for (size_t i = 0; i < scene.renderables().size(); ++i) {
+    const Renderable& renderable = scene.renderables()[i];
+
+    //const Material* mat = materials_[renderable.id()];
+    // TODO: Draw carboard with texture from 'mat' at location
+    // renderable.matrix_
+
+    const mat4 mvp = camera_transform * renderable.world_matrix();
+    renderer_.model_view_projection() = mvp;
+
+    renderer_.camera_pos() =
+            renderable.world_matrix().Inverse() *
+            (game_state_.camera_position());
+
+    // TODO: check amount of lights.
+    renderer_.light_pos() =
+            renderable.world_matrix().Inverse() * scene.lights()[0];
+
+    // Draw the front of the character, if we have it.
+    // If we don't have it, draw the pajama material for "Invalid".
+    const int id = renderable.id();
+    Mesh* front = GetCardboardFront(id);
+    front->Render(renderer_);
+
+    // If we have a back, draw the back too, slightly offset.
+    if (cardboard_backs_[id]) {
+      cardboard_backs_[id]->Render(renderer_);
+    }
+  }
 }
 
 // Debug function to write out state machine transitions.
