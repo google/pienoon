@@ -31,6 +31,7 @@ class CharacterStateMachine;
 class SplatGame {
  public:
   SplatGame();
+  ~SplatGame();
   bool Initialize();
   void Run();
 
@@ -44,7 +45,7 @@ class SplatGame {
   void DebugCamera();
   const Config* GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
-  Material* GetCardboardFront(int renderable_id);
+  Mesh* GetCardboardFront(int renderable_id);
 
   // Hold configuration binary data.
   std::string config_source_;
@@ -59,8 +60,8 @@ class SplatGame {
   MaterialManager matman_;
 
   // Map RenderableId to material.
-  std::vector<Material*> cardboard_fronts_;
-  std::vector<Material*> cardboard_backs_;
+  std::vector<Mesh*> cardboard_fronts_;
+  std::vector<Mesh*> cardboard_backs_;
 
   // Hold state machine binary data.
   std::string state_machine_source_;

@@ -48,10 +48,6 @@ static const mat4 kViewportPerspective(
                                         kViewportNearPlane,
                                         kViewportFarPlane, -1.0f));
 
-// Offset for rendering cardboard backing
-static const vec3 kCardboardOffset = vec3(0.0f, 0.0f, -0.15f);
-
-
 static const char kAssetsDir[] = "assets";
 static const char *kBuildPaths[] = {
     "Debug", "Release", "projects\\VisualStudio2010", "build\\Debug\\bin",
@@ -71,6 +67,16 @@ SplatGame::SplatGame()
       prev_world_time_(0),
       debug_previous_states_(),
       debug_previous_angles_() {
+}
+
+SplatGame::~SplatGame() {
+  for (int i = 0; i < RenderableId_Count; ++i) {
+    delete cardboard_fronts_[i];
+    cardboard_fronts_[i] = NULL;
+
+    delete cardboard_backs_[i];
+    cardboard_backs_[i] = NULL;
+  }
 }
 
 bool SplatGame::InitializeConfig() {
@@ -96,26 +102,64 @@ bool SplatGame::InitializeRenderer() {
   return true;
 }
 
+static Mesh* CreateCardboardMesh(const char* material_file_name,
+    MaterialManager* matman, float z_offset) {
+  static const unsigned int kCardboardTextureIndex = 0;
+  static const float kPixelToWorld = 0.008f;
+  static const int kNumVerticesInQuad = 4;
+  static const int kNumFloatsPerVertex = 5;
+  static Attribute kMeshFormat[] = { kPosition3f, kTexCoord2f, kEND };
+  static int kMeshIndices[] = { 0, 1, 2, 2, 1, 3 };
+
+  // Load the material and check its validity.
+  Material* mat = matman->LoadMaterial(material_file_name);
+  if (mat == NULL || mat->textures().size() <= kCardboardTextureIndex)
+    return NULL;
+
+  // Create vertex geometry in proportion to the texture size.
+  const Texture* cardboard_texture = mat->textures()[kCardboardTextureIndex];
+  const vec2 im(cardboard_texture->size);
+  const vec2 geo_size = im * vec2(kPixelToWorld);
+  const float right = geo_size[0] * 0.5f;
+  const float vertices[] = {
+      // [x,            y,        z]    [   u,    v]
+      -right,        0.0f, z_offset,     0.0f, 0.0f,
+       right,        0.0f, z_offset,     1.0f, 0.0f,
+      -right, geo_size[1], z_offset,     0.0f, 1.0f,
+       right, geo_size[1], z_offset,     1.0f, 1.0f };
+  STATIC_ASSERT(ARRAYSIZE(vertices) ==
+                kNumVerticesInQuad * kNumFloatsPerVertex);
+
+  // Create the mesh and add in the material.
+  Mesh* mesh = new Mesh(vertices, kNumVerticesInQuad,
+                        sizeof(float) * kNumFloatsPerVertex,
+                        kMeshFormat);
+  mesh->AddIndices(kMeshIndices, ARRAYSIZE(kMeshIndices), mat);
+  return mesh;
+}
+
 // Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
 // members have been initialized at this point.
 bool SplatGame::InitializeMaterials() {
+  static const float kCardboardFrontZOffset = 0.0f;
+  static const float kCardboardBackZOffset = -0.15f;
+
   // Load cardboard fronts.
   for (int i = 0; i < RenderableId_Count; ++i) {
     const std::string material_file_name = FileNameFromEnumName(
-                                              EnumNameRenderableId(i),
-                                              "materials/", ".bin");
-    Material* mat = matman_.LoadMaterial(material_file_name.c_str());
-    cardboard_fronts_[i] = mat;
+        EnumNameRenderableId(i), "materials/", ".bin");
+    cardboard_fronts_[i] = CreateCardboardMesh(
+        material_file_name.c_str(), &matman_, kCardboardFrontZOffset);
   }
 
   // Load cardboard backs.
   for (int i = 0; i < RenderableId_Count; ++i) {
     const std::string material_file_name = FileNameFromEnumName(
-                                              EnumNameRenderableId(i),
-                                              "materials/", "_back.bin");
-    Material* mat = matman_.LoadMaterial(material_file_name.c_str());
-    cardboard_backs_[i] = mat;
+        EnumNameRenderableId(i), "materials/", "_back.bin");
+    cardboard_backs_[i] = CreateCardboardMesh(
+        material_file_name.c_str(), &matman_, kCardboardBackZOffset);
   }
+
   return true;
 }
 
@@ -215,7 +259,7 @@ bool SplatGame::Initialize() {
   return true;
 }
 
-Material* SplatGame::GetCardboardFront(int renderable_id) {
+Mesh* SplatGame::GetCardboardFront(int renderable_id) {
   const bool is_valid_id = 0 <= renderable_id &&
                            renderable_id < RenderableId_Count &&
                            cardboard_fronts_[renderable_id] != NULL;
@@ -232,29 +276,15 @@ void SplatGame::Render(const SceneDescription& scene) {
     const mat4 mvp = camera_transform * renderable.world_matrix();
     renderer_.camera.model_view_projection_ = mvp;
 
-    static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
-    static int indices[] = { 0, 1, 2, 3 };
-    // vertext format is [x, y, z] [u, v]:
-    static float vertices[] = { -1, 0, 0,   0, 0,
-                                 1, 0, 0,   1, 0,
-                                -1, 3, 0,   0, 1,
-                                 1, 3, 0,   1, 1};
-
     // Draw the front of the character, if we have it.
     // If we don't have it, draw the pajama material for "Invalid".
-    Material* front = GetCardboardFront(renderable.id());
-    front->Set(renderer_);
-    Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
-                      reinterpret_cast<const char *>(vertices), indices);
+    const int id = renderable.id();
+    Mesh* front = GetCardboardFront(id);
+    front->Render(renderer_);
 
     // If we have a back, draw the back too, slightly offset.
-    Material* back = cardboard_backs_[renderable.id()];
-    if (back) {
-      renderer_.camera.model_view_projection_ =
-          mvp * mat4::FromTranslationVector(kCardboardOffset);
-      back->Set(renderer_);
-      Mesh::RenderArray(GL_TRIANGLE_STRIP, 4, format, sizeof(float) * 5,
-                        reinterpret_cast<const char *>(vertices), indices);
+    if (cardboard_backs_[id]) {
+      cardboard_backs_[id]->Render(renderer_);
     }
   }
 }

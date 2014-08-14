@@ -98,7 +98,7 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
         delete mat;
         return nullptr;
       }
-      mat->get_textures().push_back(tex);
+      mat->textures().push_back(tex);
     }
     material_map_[filename] = mat;
     return mat;

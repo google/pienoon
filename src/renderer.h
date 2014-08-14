@@ -82,8 +82,9 @@ class Material {
   void Set(const Renderer &renderer);
 
   Shader *get_shader() { return shader_; }
-  void set_shader(Shader * s) { shader_ = s; }
-  std::vector<Texture *> &get_textures() { return textures_; }
+  void set_shader(Shader *s) { shader_ = s; }
+  std::vector<Texture *> &textures() { return textures_; }
+  const std::vector<Texture *> &textures() const { return textures_; }
 
  private:
   Shader *shader_;
