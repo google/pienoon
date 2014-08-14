@@ -220,7 +220,7 @@
         ],
         "events": [
           {
-            "time": 500,
+            "time": 0,
             "event": "ReleasePie",
             "modifier": 0
           }
