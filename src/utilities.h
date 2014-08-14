@@ -17,8 +17,20 @@
 
 #include <string>
 
+#include "mathfu/utilities.h"
+
+#include "config_generated.h"
+
 namespace fpl
 {
+
+inline const mathfu::vec3& LoadVec3(const splat::Vec3* v) {
+  return union_reinterpret_cast<mathfu::vec3, splat::Vec3>(*v);
+}
+
+inline const mathfu::vec2i& LoadVec2i(const splat::Vec2i* v) {
+  return union_reinterpret_cast<mathfu::vec2i, splat::Vec2i>(*v);
+}
 
 bool ChangeToUpstreamDir(const char* const target_dir,
                          const char* const suffix_dirs[],

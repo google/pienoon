@@ -47,7 +47,8 @@ ${flatc_exe} \
 
 ${flatc_exe} \
   -o assets/ \
-  -b src/flatbufferschemas/config.fbs \
+  -b src/flatbufferschemas/timeline.fbs \
+  src/flatbufferschemas/config.fbs \
   src/rawassets/config.json
 
 for filename in src/rawassets/materials/*.json; do

@@ -1,10 +1,57 @@
 {
+  "character_positions": [
+      { "x":  7.0, "y": 0.0, "z":  0.0 },
+      { "x":  0.0, "y": 0.0, "z":  7.0 },
+      { "x": -7.0, "y": 0.0, "z":  0.0 },
+      { "x":  0.0, "y": 0.0, "z": -7.0 }
+    ],
+  "character_targets": [ 2, 3, 0, 1 ],
+  "camera_position": { "x": 10.0, "y": 7.0, "z": 10.0 },
+  "camera_target": { "x": 0.0, "y": 0.0, "z": 0.0 },
+  "light_positions": [
+      { "x": 20.0, "y": 20.0, "z": 20.0 }
+    ],
   "character_count": 4,
   "character_health": 10,
   "pie_flight_time": 500,
   "pie_height": 5,
   "pie_height_variance": 1,
-  "draw_debug_axes": false,
+
+  // Don't let our game go faster than 100Hz. The game won't look much smoother
+  // or play better at faster frame rates. We'll just be hogging the CPU.
+  "min_update_time": 10,
+
+  // Don't let us jump more than 100ms in one simulation update. If we're
+  // debugging, or a task switch happens, we could get super-large update times
+  // that we'd rather just ignore.
+  "max_update_time": 100,
+
+  "face_delta_to_accel": 0.00031831,
+  "face_wrong_direction_accel_bonus": 4.0,
+  "face_max_velocity": 0.01256636,
+  "face_near_target_angular_velocity": 0.000628318,
+  "face_near_target_angle": 0.026179917,
+  "first_airborne_pie_renderable": "PieEmpty",
+  "last_airborne_pie_renderable": "PieLarge",
+
+
   "window_size": { "x": 1280, "y": 800 },
-  "window_title": "Splat!"
+  "window_title": "Splat!",
+  "viewport_angle": 0.7853975,
+  "viewport_aspect_ratio": 1.6,
+  "viewport_near_plane": 1.0,
+  "viewport_far_plane": 100.0,
+  "pixel_to_world_scale": 0.008,
+  "cardboard_front_z_offset": 0.0,
+  "cardboard_back_z_offset": -0.15,
+  "accessory_z_offset": 0.05,
+
+
+  "draw_fixed_renderable": "Invalid",
+  "draw_characters": true,
+  "draw_pies": true,
+  "draw_axes": false,
+  "mouse_to_ground_scale": 0.005,
+  "mouse_to_height_scale": 0.0025,
+  "mouse_to_camera_rotation_scale": 0.001
 }

@@ -28,26 +28,6 @@
 namespace fpl {
 namespace splat {
 
-// Don't let our game go faster than 100Hz. The game won't look much smoother
-// or play better at faster frame rates. We'll just be hogging the CPU.
-static const WorldTime kMinUpdateTime = 10;
-
-// Don't let us jump more than 100ms in one simulation update. If we're
-// debugging, or a task switch happens, we could get super-large update times
-// that we'd rather just ignore.
-static const WorldTime kMaxUpdateTime = 100;
-
-
-static const float kViewportAngle = kHalfPi * 0.5f;
-static const float kViewportAspectRatio = 1280.0f / 800.0f;
-static const float kViewportNearPlane = 1.0f;
-static const float kViewportFarPlane = 100.0f;
-static const mat4 kViewportPerspective(
-                      mat4::Perspective(kViewportAngle,
-                                        kViewportAspectRatio,
-                                        kViewportNearPlane,
-                                        kViewportFarPlane, -1.0f));
-
 static const char kAssetsDir[] = "assets";
 static const char *kBuildPaths[] = {
     "Debug", "Release", "projects\\VisualStudio2010", "build\\Debug\\bin",
@@ -90,10 +70,15 @@ bool SplatGame::InitializeConfig() {
 // Initialize the 'renderer_' member. No other members have been initialized at
 // this point.
 bool SplatGame::InitializeRenderer() {
-  const Config* config = GetConfig();
-  if (!renderer_.Initialize(vec2i(config->window_size()->x(),
-                                  config->window_size()->y()),
-                            config->window_title()->c_str())) {
+  const Config& config = GetConfig();
+
+  perspective_matrix_ = mat4::Perspective(
+      config.viewport_angle(), config.viewport_aspect_ratio(),
+      config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
+
+  if (!renderer_.Initialize(vec2i(config.window_size()->x(),
+                                  config.window_size()->y()),
+                            config.window_title()->c_str())) {
     fprintf(stderr, "Renderer initialization error: %s\n",
             renderer_.last_error().c_str());
     return false;
@@ -141,15 +126,15 @@ static Mesh* CreateCardboardMesh(const char* material_file_name,
 // Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
 // members have been initialized at this point.
 bool SplatGame::InitializeMaterials() {
-  static const float kCardboardFrontZOffset = 0.0f;
-  static const float kCardboardBackZOffset = -0.15f;
+  const Config& config = GetConfig();
 
   // Load cardboard fronts.
   for (int i = 0; i < RenderableId_Count; ++i) {
     const std::string material_file_name = FileNameFromEnumName(
         EnumNameRenderableId(i), "materials/", ".bin");
     cardboard_fronts_[i] = CreateCardboardMesh(
-        material_file_name.c_str(), &matman_, kCardboardFrontZOffset);
+        material_file_name.c_str(), &matman_,
+        config.cardboard_front_z_offset());
   }
 
   // Load cardboard backs.
@@ -157,45 +142,34 @@ bool SplatGame::InitializeMaterials() {
     const std::string material_file_name = FileNameFromEnumName(
         EnumNameRenderableId(i), "materials/", "_back.bin");
     cardboard_backs_[i] = CreateCardboardMesh(
-        material_file_name.c_str(), &matman_, kCardboardBackZOffset);
+        material_file_name.c_str(), &matman_,
+        config.cardboard_back_z_offset());
   }
 
   return true;
 }
 
-// Calculate a character's target at the start of the game. We want the
-// characters to aim at the character directly opposite them.
-static CharacterId InitialTargetId(const CharacterId id,
-                                   const int character_count) {
-  return static_cast<CharacterId>(
-      (id + character_count / 2) % character_count);
-}
-
-// The position of a character is at the start of the game.
-static mathfu::vec3 InitialPosition(const CharacterId id,
-                                    const int character_count) {
-  static const float kCharacterDistFromCenter = 7.0f;
-  const Angle angle_to_position = Angle::FromWithinThreePi(
-      static_cast<float>(id) * kTwoPi / character_count);
-  return kCharacterDistFromCenter * angle_to_position.ToXZVector();
-}
-
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
-static Angle InitialFaceAngle(const CharacterId id, const int character_count) {
-  return Angle::FromWithinThreePi(kTwoPi * id / character_count);
-  const mathfu::vec3 characterPosition = InitialPosition(id, character_count);
-  const mathfu::vec3 targetPosition =
-      InitialPosition(InitialTargetId(id, character_count), character_count);
+static Angle InitialFaceAngle(const CharacterId id, const Config& config) {
+  const vec3 characterPosition =
+      LoadVec3(config.character_positions()->Get(id));
+  const CharacterId target_id = config.character_targets()->Get(id);
+  const vec3 targetPosition =
+      LoadVec3(config.character_positions()->Get(target_id));
   return Angle::FromXZVector(targetPosition - characterPosition);
 }
 
 // Create state matchines, characters, controllers, etc. present in
 // 'gamestate_'.
 bool SplatGame::InitializeGameState() {
-  const Config* config = GetConfig();
+  const Config& config = GetConfig();
+  assert(config.character_count() ==
+            static_cast<int>(config.character_positions()->Length()) &&
+         config.character_count() ==
+            static_cast<int>(config.character_targets()->Length()));
 
-  game_state_.set_config(config);
+  game_state_.set_config(&config);
 
   // Load flatbuffer into buffer.
   if (!flatbuffers::LoadFile("character_state_machine_def.bin",
@@ -212,24 +186,24 @@ bool SplatGame::InitializeGameState() {
   }
 
   // Create controllers.
-  controllers_.resize(config->character_count());
-  for (CharacterId id = 0; id < config->character_count(); ++id) {
+  controllers_.resize(config.character_count());
+  for (CharacterId id = 0; id < config.character_count(); ++id) {
     controllers_[id].Initialize(
         &input_, ControlScheme::GetDefaultControlScheme(id));
   }
 
   // Create characters.
-  for (CharacterId id = 0; id < config->character_count(); ++id) {
+  for (CharacterId id = 0; id < config.character_count(); ++id) {
     game_state_.characters().push_back(Character(
-        id, InitialTargetId(id, config->character_count()),
-        config->character_health(),
-        InitialFaceAngle(id, config->character_count()),
-        InitialPosition(id, config->character_count()),
+        id, config.character_targets()->Get(id),
+        config.character_health(),
+        InitialFaceAngle(id, config),
+        LoadVec3(config.character_positions()->Get(id)),
         &controllers_[id], state_machine_def));
   }
 
-  debug_previous_states_.resize(config->character_count(), -1);
-  debug_previous_angles_.resize(config->character_count(), Angle(0.0f));
+  debug_previous_states_.resize(config.character_count(), -1);
+  debug_previous_angles_.resize(config.character_count(), Angle(0.0f));
 
   return true;
 }
@@ -268,7 +242,7 @@ Mesh* SplatGame::GetCardboardFront(int renderable_id) {
 }
 
 void SplatGame::Render(const SceneDescription& scene) {
-  const mat4 camera_transform = kViewportPerspective * scene.camera();
+  const mat4 camera_transform = perspective_matrix_ * scene.camera();
 
   // Render a ground plane (TODO: needs proper texture)
   renderer_.model_view_projection() = camera_transform;
@@ -344,8 +318,8 @@ void SplatGame::DebugCharacterStates() {
   }
 }
 
-const Config* SplatGame::GetConfig() const {
-  return fpl::splat::GetConfig(config_source_.c_str());
+const Config& SplatGame::GetConfig() const {
+  return *fpl::splat::GetConfig(config_source_.c_str());
 }
 
 const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
@@ -354,10 +328,7 @@ const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
 
 // Debug function to move the camera if the mouse button is down.
 void SplatGame::DebugCamera() {
-  static const float kMouseToXZTranslationScale = 0.005f;
-  static const float kMouseToYTranslationScale = 0.0025f;
-  static const float kMouseToCameraRotationScale = 0.001f;
-
+  const Config& config = GetConfig();
   const vec2 mouse_delta = vec2(input_.pointers_[0].mousedelta);
 
   // Translate the camera in world x, y, z coordinates.
@@ -365,9 +336,9 @@ void SplatGame::DebugCamera() {
   const bool translate_y = input_.GetButton(SDLK_POINTER2).is_down();
   if (translate_xz || translate_y) {
     const vec3 camera_delta = vec3(
-          translate_xz ? mouse_delta.x() * kMouseToXZTranslationScale : 0.0f,
-          translate_y  ? mouse_delta.x() * kMouseToYTranslationScale  : 0.0f,
-          translate_xz ? mouse_delta.y() * kMouseToXZTranslationScale : 0.0f);
+        translate_xz ? mouse_delta.x() * config.mouse_to_ground_scale() : 0.0f,
+        translate_y  ? mouse_delta.x() * config.mouse_to_height_scale() : 0.0f,
+        translate_xz ? mouse_delta.y() * config.mouse_to_ground_scale() : 0.0f);
     const vec3 new_position = game_state_.camera_position() + camera_delta;
     game_state_.set_camera_position(new_position);
 
@@ -386,7 +357,7 @@ void SplatGame::DebugCamera() {
 
     // Apply mouse movement along up and side axes. Scale so that no matter
     // distance, the same angle is applied.
-    const float scale = dist * kMouseToCameraRotationScale;
+    const float scale = dist * config.mouse_to_camera_rotation_scale();
     const vec3 unscaled_delta = mouse_delta.x() * side + mouse_delta.y() * up;
     const vec3 target_delta = scale * unscaled_delta;
     const vec3 new_target = game_state_.camera_target() + target_delta;
@@ -399,18 +370,21 @@ void SplatGame::DebugCamera() {
 
 void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
-  prev_world_time_ = CurrentWorldTime() - kMinUpdateTime;
+  const Config& config = GetConfig();
+  const WorldTime min_update_time = config.min_update_time();
+  const WorldTime max_update_time = config.min_update_time();
+  prev_world_time_ = CurrentWorldTime() - min_update_time;
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
     // Milliseconds elapsed since last update. To avoid burning through the CPU,
-    // enforce a minimum time between updates. For example, if kMinUpdateTime
+    // enforce a minimum time between updates. For example, if min_update_time
     // is 1, we will not exceed 1000Hz update time.
     const WorldTime world_time = CurrentWorldTime();
     const WorldTime delta_time = std::min(world_time - prev_world_time_,
-                                          kMaxUpdateTime);
-    if (delta_time < kMinUpdateTime) {
-      SleepForMilliseconds(kMinUpdateTime - delta_time);
+                                          max_update_time);
+    if (delta_time < min_update_time) {
+      SleepForMilliseconds(min_update_time - delta_time);
       continue;
     }
 

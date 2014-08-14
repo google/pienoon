@@ -43,7 +43,7 @@ class SplatGame {
   void Render(const SceneDescription& scene);
   void DebugCharacterStates();
   void DebugCamera();
-  const Config* GetConfig() const;
+  const Config& GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
 
@@ -63,6 +63,9 @@ class SplatGame {
   std::vector<Mesh*> cardboard_fronts_;
   std::vector<Mesh*> cardboard_backs_;
 
+  // Final matrix that applies the view frustum to bring into screen space.
+  mat4 perspective_matrix_;
+
   // Hold state machine binary data.
   std::string state_machine_source_;
 
@@ -76,7 +79,6 @@ class SplatGame {
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.
   SceneDescription scene_;
-  mathfu::vec3 camera_position;
 
   // World time of previous update. We use this to calculate the delta_time
   // of the current update. This value is tied to the real-world clock.

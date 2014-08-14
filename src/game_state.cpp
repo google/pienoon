@@ -20,7 +20,7 @@
 #include "config_generated.h"
 #include "controller.h"
 #include "scene_description.h"
-#include "mathfu/utilities.h"
+#include "utilities.h"
 
 namespace fpl {
 namespace splat {
@@ -179,12 +179,6 @@ Angle GameState::FaceAngleError(CharacterId id) const {
 // The character's face angle accelerates towards the
 float GameState::CalculateCharacterFacingAngleVelocity(
     const Character& c, WorldTime delta_time) const {
-  // TODO: Read these constants from a configuration FlatBuffer.
-  static const float kDeltaToAccel = 0.001f / kPi;
-  static const float kWrongDirectionAccelBonus = 4.0f;
-  static const float kMaxVelocity = kPi / 250.0f;
-  static const float kNearTargetAngularVelocity = kPi / 5000.0f;
-  static const float kNearTargetAngle = kPi / 120.0f;
 
   // Calculate the current error in our facing angle.
   const Angle delta_angle = FaceAngleError(c.id());
@@ -193,20 +187,23 @@ float GameState::CalculateCharacterFacingAngleVelocity(
   const bool wrong_direction =
       c.face_angle_velocity() * delta_angle.angle() < 0.0f;
   const float angular_acceleration =
-      delta_angle.angle() * kDeltaToAccel *
-      (wrong_direction ? kWrongDirectionAccelBonus : 1.0f);
+      delta_angle.angle() * config_->face_delta_to_accel() *
+      (wrong_direction ? config_->face_wrong_direction_accel_bonus() : 1.0f);
   const float angular_velocity_unclamped =
       c.face_angle_velocity() + delta_time * angular_acceleration;
+  const float max_velocity = config_->face_max_velocity();
   const float angular_velocity =
-      mathfu::Clamp(angular_velocity_unclamped, -kMaxVelocity, kMaxVelocity);
+      mathfu::Clamp(angular_velocity_unclamped, -max_velocity, max_velocity);
 
   // If we're close to facing the target, just snap to it.
+  const float near_target_angular_velocity =
+      config_->face_near_target_angular_velocity();
   const bool snap_to_target =
-      fabs(angular_velocity) <= kNearTargetAngularVelocity &&
-      fabs(delta_angle.angle()) <= kNearTargetAngle;
+      fabs(angular_velocity) <= near_target_angular_velocity &&
+      fabs(delta_angle.angle()) <= config_->face_near_target_angle();
   return snap_to_target
        ? mathfu::Clamp(delta_angle.angle() / delta_time,
-            -kNearTargetAngularVelocity, kNearTargetAngularVelocity)
+            -near_target_angular_velocity, near_target_angular_velocity)
        : angular_velocity;
 }
 
@@ -278,11 +275,13 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
   }
 }
 
-static uint16_t RenderableIdForPieDamage(CharacterHealth damage) {
-  const int kMaxDamageForRenderable =
-    RenderableId_PieLarge - RenderableId_PieEmpty;
-  const int clamped_damage = std::min(damage, kMaxDamageForRenderable);
-  return static_cast<uint16_t>(RenderableId_PieEmpty + clamped_damage);
+static uint16_t RenderableIdForPieDamage(CharacterHealth damage,
+                                         const Config& config) {
+  const int first_id = config.first_airborne_pie_renderable();
+  const int last_id = config.last_airborne_pie_renderable();
+  const int max_damage = last_id - first_id;
+  const int clamped_damage = std::min(damage, max_damage);
+  return static_cast<uint16_t>(first_id + clamped_damage);
 }
 
 // Get the camera matrix used for rendering.
@@ -291,15 +290,18 @@ mathfu::mat4 GameState::CameraMatrix() const {
                               mathfu::vec3(0.0f, 1.0f, 0.0f));
 }
 
-static const float kPixelToWorld = 0.008f;
-static const float kAccessoryZOffset = 0.05f;
 static const mathfu::mat4 CalculateAccessoryMatrix(
-    const TimelineAccessory& accessory, const mathfu::mat4& character_matrix) {
+    const TimelineAccessory& accessory, const mathfu::mat4& character_matrix,
+    const Config& config) {
+
   // Calculate the accessory offset, in character space.
   const mathfu::vec3 offset = mathfu::vec3(
-      static_cast<float>(accessory.offset().x()) * kPixelToWorld,
-      static_cast<float>(accessory.offset().y()) * kPixelToWorld,
-      kAccessoryZOffset);
+      accessory.offset().x() * config.pixel_to_world_scale(),
+      accessory.offset().y() * config.pixel_to_world_scale(),
+      config.accessory_z_offset());
+
+  // Apply the offset to the character matrix to move the object relative to
+  // the character.
   const mathfu::mat4 offset_matrix =
       mathfu::mat4::FromTranslationVector(offset);
   const mathfu::mat4 accessory_matrix = character_matrix * offset_matrix;
@@ -315,42 +317,47 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   scene->set_camera(CameraMatrix());
 
   // Characters and accessories.
-  for (auto c = characters_.begin(); c != characters_.end(); ++c) {
-    // Character.
-    const WorldTime anim_time = GetAnimationTime(*c);
-    const mathfu::mat4 character_matrix = c->CalculateMatrix();
-    scene->renderables().push_back(
-        Renderable(c->RenderableId(anim_time), character_matrix));
-
-    // Accessories.
-    const Timeline* const timeline = c->CurrentTimeline();
-    if (!timeline)
-      continue;
-
-    // Get accessories that are valid for the current time.
-    const std::vector<int> accessory_indices =
-        TimelineIndicesWithTime(timeline->accessories(), anim_time);
-
-    // Create a renderable for each accessory.
-    for (auto it = accessory_indices.begin();
-         it != accessory_indices.end(); ++it) {
-      const TimelineAccessory& accessory = *timeline->accessories()->Get(*it);
+  if (config_->draw_characters()) {
+    for (auto c = characters_.begin(); c != characters_.end(); ++c) {
+      // Character.
+      const WorldTime anim_time = GetAnimationTime(*c);
+      const mathfu::mat4 character_matrix = c->CalculateMatrix();
       scene->renderables().push_back(
-          Renderable(accessory.renderable(),
-              CalculateAccessoryMatrix(accessory, character_matrix)));
+          Renderable(c->RenderableId(anim_time), character_matrix));
+
+      // Accessories.
+      const Timeline* const timeline = c->CurrentTimeline();
+      if (!timeline)
+        continue;
+
+      // Get accessories that are valid for the current time.
+      const std::vector<int> accessory_indices =
+          TimelineIndicesWithTime(timeline->accessories(), anim_time);
+
+      // Create a renderable for each accessory.
+      for (auto it = accessory_indices.begin();
+           it != accessory_indices.end(); ++it) {
+        const TimelineAccessory& accessory = *timeline->accessories()->Get(*it);
+        scene->renderables().push_back(
+            Renderable(accessory.renderable(),
+              CalculateAccessoryMatrix(accessory, character_matrix, *config_)));
+      }
     }
   }
 
   // Pies.
-  for (auto it = pies_.begin(); it != pies_.end(); ++it) {
-    const AirbornePie& pie = *it;
-    scene->renderables().push_back(
-        Renderable(RenderableIdForPieDamage(pie.damage()),
-                                            pie.CalculateMatrix()));
+  if (config_->draw_pies()) {
+    for (auto it = pies_.begin(); it != pies_.end(); ++it) {
+      const AirbornePie& pie = *it;
+      scene->renderables().push_back(
+          Renderable(RenderableIdForPieDamage(pie.damage(), *config_),
+                     pie.CalculateMatrix()));
+    }
   }
 
-  // Axes.
-  if (config_->draw_debug_axes()) {
+  // Axes. Useful for debugging.
+  // Positive x axis is long. Positive z axis is short.
+  if (config_->draw_axes()) {
     // TODO: add an arrow renderable instead of drawing with pies.
     for (int i = 0; i < 8; ++i) {
       const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
@@ -366,8 +373,18 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     }
   }
 
-  // Lights.
-  scene->lights().push_back(mathfu::vec3(-20.0f, 20.0f, -20.0f));
+  // Draw one renderable right in the middle of the world, for debugging.
+  if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
+    scene->renderables().push_back(
+        Renderable(config_->draw_fixed_renderable(), mathfu::mat4::Identity()));
+  }
+
+  // Lights. Push all lights from configuration file.
+  const auto lights = config_->light_positions();
+  for (auto it = lights->begin(); it != lights->end(); ++it) {
+    const mathfu::vec3 light_position = LoadVec3(*it);
+    scene->lights().push_back(light_position);
+  }
 }
 
 }  // splat

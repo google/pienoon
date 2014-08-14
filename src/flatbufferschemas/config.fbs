@@ -19,16 +19,54 @@ struct Vec2i {
   y:int;
 }
 
+struct Vec3 {
+  x:float;
+  y:float;
+  z:float;
+}
+
 table Config {
+  // Gameplay constants
+  character_positions:[Vec3];
+  character_targets:[int];
+  camera_position:Vec3;
+  camera_target:Vec3;
+  light_positions:[Vec3];
   character_count:int;
   character_health:int;
   pie_flight_time:int;
   pie_height:float;
   pie_height_variance:float;
-  draw_debug_axes:bool;
+  min_update_time:int;
+  max_update_time:int;
+  face_delta_to_accel:float;
+  face_wrong_direction_accel_bonus:float;
+  face_max_velocity:float;
+  face_near_target_angular_velocity:float;
+  face_near_target_angle:float;
+  first_airborne_pie_renderable:RenderableId;
+  last_airborne_pie_renderable:RenderableId;
 
+  // Rendering constants
   window_size:Vec2i;
   window_title:string;
+  viewport_angle:float;
+  viewport_aspect_ratio:float;
+  viewport_near_plane:float;
+  viewport_far_plane:float;
+  pixel_to_world_scale:float;
+  cardboard_front_z_offset:float;
+  cardboard_back_z_offset:float;
+  accessory_z_offset:float;
+
+  // Debug options
+  draw_fixed_renderable:RenderableId;
+  draw_characters:bool;
+  draw_pies:bool;
+  draw_axes:bool;
+  mouse_to_ground_scale:float;
+  mouse_to_height_scale:float;
+  mouse_to_camera_rotation_scale:float;
 }
 
 root_type Config;
