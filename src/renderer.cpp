@@ -121,6 +121,15 @@ void Renderer::AdvanceFrame(bool minimized) {
     SDL_GL_SwapWindow(window_);
   }
   glViewport(0, 0, window_size_.x(), window_size_.y());
+  // TODO: this needs to be generalized
+  glEnable(GL_TEXTURE_2D);
+  glEnable(GL_ALPHA);
+  glEnable(GL_BLEND);
+  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glAlphaFunc(GL_GREATER, 0.5);
+  glEnable(GL_ALPHA_TEST);
 }
 
 void Renderer::ShutDown() {
@@ -213,14 +222,6 @@ Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0, GL_RGBA,
                GL_UNSIGNED_BYTE, buffer);
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_ALPHA);
-  glEnable(GL_BLEND);
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glAlphaFunc(GL_GREATER, 0.5);
-  glEnable(GL_ALPHA_TEST);
   glGenerateMipmap(GL_TEXTURE_2D);
   return new Texture(texture_id, size);
 }
@@ -333,19 +334,26 @@ void Shader::Initialize() {
   // shader.
   uniform_model_view_projection_ = glGetUniformLocation(
                                         program_, "model_view_projection");
+  uniform_model_ = glGetUniformLocation(program_, "model");
 
   uniform_color_ = glGetUniformLocation(program_, "color");
 
   uniform_texture_unit_0 = glGetUniformLocation(program_, "texture_unit_0");
   if (uniform_texture_unit_0 >= 0) glUniform1i(uniform_texture_unit_0, 0);
+
+  uniform_light_pos_ = glGetUniformLocation(program_, "light_pos");
 }
 
 void Shader::Set(const Renderer &renderer) const {
   glUseProgram(program_);
   if (uniform_model_view_projection_ >= 0)
     glUniformMatrix4fv(uniform_model_view_projection_, 1, false,
-                       &renderer.camera.model_view_projection_[0]);
-  if (uniform_color_ >= 0) glUniform4fv(uniform_color_, 1, &renderer.color[0]);
+                       &renderer.model_view_projection()[0]);
+  if (uniform_model_ >= 0)
+    glUniformMatrix4fv(uniform_model_, 1, false, &renderer.model()[0]);
+  if (uniform_color_ >= 0) glUniform4fv(uniform_color_, 1, &renderer.color()[0]);
+  if (uniform_light_pos_ >= 0)
+    glUniform3fv(uniform_light_pos_, 1, &renderer.light_pos()[0]);
 }
 
 Mesh::Mesh(const void *vertex_data, int count, int vertex_size,
@@ -392,6 +400,26 @@ void Mesh::RenderArray(GLenum primitive, int index_count,
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   glDrawElements(primitive, index_count, GL_UNSIGNED_INT, indices);
   UnSetAttributes(format);
+}
+
+void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
+                              const vec2 &tex_bottom_left,
+                              const vec2 &tex_top_right) {
+  static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
+  static int indices[] = { 0, 1, 2, 1, 2, 3 };
+  // vertex format is [x, y, z] [u, v]:
+  float vertices[] = {
+    bottom_left.x(), bottom_left.y(), bottom_left.z(),
+    tex_bottom_left.x(), tex_bottom_left.y(),
+    top_right.x(),   bottom_left.y(), bottom_left.z(),
+    tex_top_right.x(), tex_bottom_left.y(),
+    bottom_left.x(), top_right.y(),   top_right.z(),
+    tex_bottom_left.x(), tex_top_right.y(),
+    top_right.x(),   top_right.y(),   top_right.z(),
+    tex_top_right.x(), tex_top_right.y()
+  };
+  Mesh::RenderArray(GL_TRIANGLES, 6, format, sizeof(float) * 5,
+                    reinterpret_cast<const char *>(vertices), indices);
 }
 
 }  // namespace fpl

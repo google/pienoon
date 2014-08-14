@@ -53,7 +53,7 @@ Shader *MaterialManager::LoadShader(const char *basename) {
       return shader;
     }
   }
-  renderer_.last_error_ = "Couldn\'t load: " + filename;
+  renderer_.last_error() = "Couldn\'t load: " + filename;
   return nullptr;
 }
 
@@ -70,7 +70,7 @@ Texture *MaterialManager::LoadTexture(const char *filename) {
     if (tex) texture_map_[filename] = tex;
     return tex;
   }
-  renderer_.last_error_ = std::string("Couldn\'t load: ") + filename;
+  renderer_.last_error() = std::string("Couldn\'t load: ") + filename;
   return 0;
 }
 
@@ -103,7 +103,7 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
     material_map_[filename] = mat;
     return mat;
   }
-  renderer_.last_error_ = std::string("Couldn\'t load: ") + filename;
+  renderer_.last_error() = std::string("Couldn\'t load: ") + filename;
   return nullptr;
 }
 

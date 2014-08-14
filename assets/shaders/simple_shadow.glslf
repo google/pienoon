@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-uniform vec4 color;
+varying vec2 vTexCoord;
+uniform sampler2D texture_unit_0;
+
 void main()
 {
-  gl_FragColor = color;
+  vec4 tex = texture2D(texture_unit_0, vTexCoord);
+  // base the shadow on the alpha of the texture, made somewhat translucent.
+  gl_FragColor = vec4(0.1, 0.1, 0.1, 0.6 * tex.a);
 }

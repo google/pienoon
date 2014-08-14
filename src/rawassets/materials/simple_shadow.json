@@ -1,0 +1,6 @@
+{
+  shader_basename: "shaders/simple_shadow",
+  texture_filenames: []
+}
+
+

@@ -95,10 +95,10 @@ bool SplatGame::InitializeRenderer() {
                                   config->window_size()->y()),
                             config->window_title()->c_str())) {
     fprintf(stderr, "Renderer initialization error: %s\n",
-            renderer_.last_error_.c_str());
+            renderer_.last_error().c_str());
     return false;
   }
-  renderer_.color = vec4(1, 1, 1, 1);
+  renderer_.color() = vec4(1, 1, 1, 1);
   return true;
 }
 
@@ -270,11 +270,34 @@ Mesh* SplatGame::GetCardboardFront(int renderable_id) {
 void SplatGame::Render(const SceneDescription& scene) {
   const mat4 camera_transform = kViewportPerspective * scene.camera();
 
+  // Render a ground plane (TODO: needs proper texture)
+  renderer_.model_view_projection() = camera_transform;
+  auto ground_mat = matman_.LoadMaterial("materials/example.bin");
+  assert(ground_mat);
+  ground_mat->Set(renderer_);
+  const float gs = 50;
+  Mesh::RenderAAQuadAlongX(vec3(-gs, 0, -gs), vec3(gs, 0, gs),
+                           vec2(0, 0), vec2(gs, gs));
+
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
 
+    //const Material* mat = materials_[renderable.id()];
+    // TODO: Draw carboard with texture from 'mat' at location
+    // renderable.matrix_
+
+    if (true /* TODO check if this thing needs a shadow */) {
+      auto shadow_mat = matman_.LoadMaterial("materials/simple_shadow.bin");
+      assert(shadow_mat);
+      renderer_.model_view_projection() = camera_transform;
+      renderer_.model() = renderable.world_matrix();
+      renderer_.light_pos() = vec3(100, 200, 100);  // TODO: get from scene
+      shadow_mat->Set(renderer_);
+      Mesh::RenderAAQuadAlongX(vec3(-1, 0, 0), vec3(1, 3, 0));
+    }
+
     const mat4 mvp = camera_transform * renderable.world_matrix();
-    renderer_.camera.model_view_projection_ = mvp;
+    renderer_.model_view_projection() = mvp;
 
     // Draw the front of the character, if we have it.
     // If we don't have it, draw the pajama material for "Invalid".
@@ -397,7 +420,7 @@ void SplatGame::Run() {
 
     // Process input device messages since the last game loop.
     // Update render window size.
-    input_.AdvanceFrame(&renderer_.window_size_);
+    input_.AdvanceFrame(&renderer_.window_size());
 
     // Update game logic by a variable number of milliseconds.
     game_state_.AdvanceFrame(delta_time);

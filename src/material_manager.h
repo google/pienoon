@@ -29,7 +29,7 @@ class MaterialManager {
   Shader *FindShader(const char *basename);
   // Loads a shader if it hasn't been loaded already, by appending .glslv
   // and .glslf to the basename, compiling and linking them.
-  // If this returns NULL, the error can be found in Renderer::last_error_.
+  // If this returns NULL, the error can be found in Renderer::last_error().
   Shader *LoadShader(const char *basename);
 
   // Returns a previously loaded texture, or NULL.
@@ -42,7 +42,7 @@ class MaterialManager {
   Material *FindMaterial(const char *filename);
   // Loads a material, which is a compiled FlatBuffer file with
   // root Material. This loads all resources contained there-in.
-  // If this returns NULL, the error can be found in Renderer::last_error_.
+  // If this returns NULL, the error can be found in Renderer::last_error().
   Material *LoadMaterial(const char *filename);
 
   // Handy accessors, so you don't have to pass the renderer around too.

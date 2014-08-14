@@ -16,8 +16,22 @@ attribute vec4 aPosition;
 attribute vec2 aTexCoord;
 varying vec2 vTexCoord;
 uniform mat4 model_view_projection;
+uniform mat4 model;  // object to world space transform
+uniform vec3 light_pos;  // in world space
+
 void main()
 {
-  gl_Position = model_view_projection * aPosition;
+  // Transform position to world space, since we need to project it to the
+  // ground plane from the light, both in world space.
+  vec3 world_pos = (model * aPosition).xyz;
+  // Vector towards the the vertex.
+  vec3 to_vert = normalize(world_pos - light_pos);
+  // Project vertex onto the ground by extending the vector by the correct
+  // length:
+  vec3 world_pos_on_ground = world_pos + to_vert * (world_pos.y / -to_vert.y);
+  // Place shadow slightly above ground to avoid Z-fighting:
+  vec3 ground_offset= vec3(0.0, 0.01, 0.1);
+  gl_Position = model_view_projection *
+                vec4(world_pos_on_ground + ground_offset, 1.0);
   vTexCoord = aTexCoord;
 }
