@@ -62,6 +62,17 @@
             "renderable": "CharacterLoad1"
           }
         ],
+        "accessories": [
+          {
+            "time": 0,
+            "end_time": 1000,
+            "renderable": "PieSmall",
+            "offset": {
+              "x": 2,
+              "y": 132
+            }
+          }
+        ],
         "events": [
           {
             "time": 0,
@@ -107,6 +118,17 @@
             "renderable": "CharacterLoad2"
           }
         ],
+        "accessories": [
+          {
+            "time": 0,
+            "end_time": 1000,
+            "renderable": "PieMedium",
+            "offset": {
+              "x": 14,
+              "y": 300
+            }
+          }
+        ],
         "events": [
           {
             "time": 0,
@@ -150,6 +172,17 @@
           {
             "time": 0,
             "renderable": "CharacterLoad3"
+          }
+        ],
+        "accessories": [
+          {
+            "time": 0,
+            "end_time": 1000,
+            "renderable": "PieLarge",
+            "offset": {
+              "x": -100,
+              "y": 240
+            }
           }
         ],
         "events": [
@@ -210,6 +243,17 @@
           {
             "time": 0,
             "renderable": "CharacterBlock"
+          }
+        ],
+        "accessories": [
+          {
+            "time": 0,
+            "end_time": 2000,
+            "renderable": "PieBlock",
+            "offset": {
+              "x": -16,
+              "y": 45
+            }
           }
         ]
       }

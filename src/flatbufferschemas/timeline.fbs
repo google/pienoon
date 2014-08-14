@@ -34,6 +34,7 @@ enum RenderableId : ushort {
   PieSmall,
   PieMedium,
   PieLarge,
+  PieBlock,
   EnvironmentCloud,
   EnvironmentSun,
   EnvironmentStageFront,
@@ -64,6 +65,18 @@ struct TimelineRenderable {
   renderable:RenderableId; // Identify the item to render.
 }
 
+struct PixelOffset {
+  x:short;
+  y:short;
+}
+
+struct TimelineAccessory {
+  time:ushort;        // Time to start displaying accessory.
+  end_time:ushort;    // Time to stop displaying accessory.
+  renderable:RenderableId; // Identify the accessory to render.
+  offset:PixelOffset; // Offset in pixels from bottom left of renderable.
+}
+
 struct TimelineSound {
   time:ushort;        // Time of event. Time 0 is start of timeline.
   sound:SoundId;      // Identify the sound to start playing at 'time'.
@@ -78,6 +91,7 @@ struct TimelineEvent {
 table Timeline {
   end_time:ushort;
   renderables:[TimelineRenderable];
+  accessories:[TimelineAccessory];
   sounds:[TimelineSound];
   events:[TimelineEvent];
 }

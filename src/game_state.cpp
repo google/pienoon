@@ -44,8 +44,7 @@ WorldTime GameState::GetAnimationTime(const Character& character) const {
 void GameState::ProcessEvents(Character* character, WorldTime delta_time,
                               int queued_damage) {
   // Process events in timeline.
-  const Timeline* const timeline =
-      character->state_machine()->current_state()->timeline();
+  const Timeline* const timeline = character->CurrentTimeline();
   if (!timeline)
     return;
 
@@ -292,6 +291,21 @@ mathfu::mat4 GameState::CameraMatrix() const {
                               mathfu::vec3(0.0f, 1.0f, 0.0f));
 }
 
+static const float kPixelToWorld = 0.008f;
+static const float kAccessoryZOffset = 0.05f;
+static const mathfu::mat4 CalculateAccessoryMatrix(
+    const TimelineAccessory& accessory, const mathfu::mat4& character_matrix) {
+  // Calculate the accessory offset, in character space.
+  const mathfu::vec3 offset = mathfu::vec3(
+      static_cast<float>(accessory.offset().x()) * kPixelToWorld,
+      static_cast<float>(accessory.offset().y()) * kPixelToWorld,
+      kAccessoryZOffset);
+  const mathfu::mat4 offset_matrix =
+      mathfu::mat4::FromTranslationVector(offset);
+  const mathfu::mat4 accessory_matrix = character_matrix * offset_matrix;
+  return accessory_matrix;
+}
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -300,11 +314,31 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   // Camera.
   scene->set_camera(CameraMatrix());
 
-  // Characters.
+  // Characters and accessories.
   for (auto c = characters_.begin(); c != characters_.end(); ++c) {
+    // Character.
     const WorldTime anim_time = GetAnimationTime(*c);
+    const mathfu::mat4 character_matrix = c->CalculateMatrix();
     scene->renderables().push_back(
-        Renderable(c->RenderableId(anim_time), c->CalculateMatrix()));
+        Renderable(c->RenderableId(anim_time), character_matrix));
+
+    // Accessories.
+    const Timeline* const timeline = c->CurrentTimeline();
+    if (!timeline)
+      continue;
+
+    // Get accessories that are valid for the current time.
+    const std::vector<int> accessory_indices =
+        TimelineIndicesWithTime(timeline->accessories(), anim_time);
+
+    // Create a renderable for each accessory.
+    for (auto it = accessory_indices.begin();
+         it != accessory_indices.end(); ++it) {
+      const TimelineAccessory& accessory = *timeline->accessories()->Get(*it);
+      scene->renderables().push_back(
+          Renderable(accessory.renderable(),
+              CalculateAccessoryMatrix(accessory, character_matrix)));
+    }
   }
 
   // Pies.

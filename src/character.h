@@ -16,6 +16,8 @@
 #define SPLAT_CHARACTER_H_
 
 #include "character_state_machine.h"
+#include "timeline_generated.h"
+#include "character_state_machine_def_generated.h"
 #include "sdl_controller.h"
 #include "angle.h"
 
@@ -45,6 +47,11 @@ class Character {
 
   // Calculate the renderable id for the character at 'anim_time'.
   uint16_t RenderableId(WorldTime anim_time) const;
+
+  // Returns the timeline of the current state.
+  const Timeline* CurrentTimeline() const {
+    return state_machine_.current_state()->timeline();
+  }
 
   CharacterHealth health() const { return health_; }
   void set_health(CharacterHealth health) { health_ = health; }
@@ -158,6 +165,22 @@ inline int TimelineIndexBeforeTime(const T& arr, const WorldTime t) {
       return i - 1;
   }
   return arr->Length() - 1;
+}
+
+// Return array of indices with time <= t < end_time.
+// T is a flatbuffer::Vector; one of the Timeline members.
+template<class T>
+inline std::vector<int> TimelineIndicesWithTime(const T& arr,
+                                                const WorldTime t) {
+  std::vector<int> ret;
+  if (!arr)
+    return ret;
+
+  for (int i = 0; i < static_cast<int>(arr->Length()); ++i) {
+    if (arr->Get(i)->time() <= t && t < arr->Get(i)->end_time())
+      ret.push_back(i);
+  }
+  return ret;
 }
 
 
