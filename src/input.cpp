@@ -76,6 +76,7 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
           GetButton(event.key.keysym.sym).Update(event.key.state==SDL_PRESSED);
           break;
       }
+#     ifdef PLATFORM_MOBILE
       case SDL_FINGERDOWN: {
         int i = UpdateDragPosition(event.tfinger, event.type, *window_size);
         GetPointerButton(i).Update(true);
@@ -91,6 +92,7 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
         UpdateDragPosition(event.tfinger, event.type, *window_size);
         break;
       }
+#     endif
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP: {
         GetPointerButton(event.button.button - 1).
