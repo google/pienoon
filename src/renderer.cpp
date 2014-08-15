@@ -121,15 +121,7 @@ void Renderer::AdvanceFrame(bool minimized) {
     SDL_GL_SwapWindow(window_);
   }
   glViewport(0, 0, window_size_.x(), window_size_.y());
-  // TODO: this needs to be generalized
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_ALPHA);
-  glEnable(GL_BLEND);
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glAlphaFunc(GL_GREATER, 0.5);
-  glEnable(GL_ALPHA_TEST);
 }
 
 void Renderer::ShutDown() {
@@ -147,7 +139,6 @@ void Renderer::ClearFrameBuffer(const vec4 &color) {
     glClearColor(color.x(), color.y(), color.z(), color.w());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
-
 
 GLuint Renderer::CompileShader(GLenum stage, GLuint program,
                                const GLchar *source) {
@@ -272,6 +263,40 @@ Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   return tex;
 }
 
+void Renderer::AlphaTest(bool on, float amount) {
+  if (on) {
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, amount);
+  } else {
+    glDisable(GL_ALPHA_TEST);
+  }
+}
+
+void Renderer::AlphaBlend(bool on) {
+  if (on) {
+    glEnable(GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  } else {
+    glDisable(GL_BLEND);
+  }
+}
+
+void Renderer::DepthTest(bool on) {
+  if (on) glEnable(GL_DEPTH_TEST);
+  else glDisable(GL_DEPTH_TEST);
+}
+
+void Material::Set(const Renderer &renderer, const Shader *shader) {
+  (shader ? shader : shader_)->Set(renderer);
+  SetTextures();
+}
+
+void Material::SetTextures() {
+  for (auto it = textures_.begin(); it != textures_.end(); ++it) {
+    glBindTexture(GL_TEXTURE_2D, (*it)->id);
+  }
+}
+
 void Mesh::SetAttributes(GLuint vbo, const Attribute *attributes, int stride,
                          const char *buffer) {
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -383,10 +408,10 @@ void Mesh::AddIndices(const int *index_data, int count, Material *mat) {
   idxs.mat = mat;
 }
 
-void Mesh::Render(Renderer &renderer) {
+void Mesh::Render(Renderer &renderer, const Shader *shader) {
   SetAttributes(vbo_, format_, vertex_size_, nullptr);
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
-    it->mat->Set(renderer);
+    it->mat->Set(renderer, shader);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo);
     glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0);
   }

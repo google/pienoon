@@ -9,7 +9,7 @@
   "camera_position": { "x": 10.0, "y": 7.0, "z": 10.0 },
   "camera_target": { "x": 0.0, "y": 0.0, "z": 0.0 },
   "light_positions": [
-      { "x": 20.0, "y": 20.0, "z": 20.0 }
+      { "x": 300.0, "y": 300.0, "z": 300.0 }
     ],
   "character_count": 4,
   "character_health": 10,

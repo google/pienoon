@@ -17,7 +17,18 @@ uniform sampler2D texture_unit_0;
 
 void main()
 {
-  vec4 tex = texture2D(texture_unit_0, vTexCoord);
+  const float offset = 0.015;  // TODO, this should depend on texture size
+  // Sample texture multiple times, to blend their alpha values for simple
+  // edge fuzziness.
+  vec4 tex1 = texture2D(texture_unit_0,
+              clamp(vTexCoord + vec2(offset, offset), 0.0, 1.0));
+  vec4 tex2 = texture2D(texture_unit_0,
+              clamp(vTexCoord + vec2(-offset, -offset), 0.0, 1.0));
+  vec4 tex3 = texture2D(texture_unit_0,
+              clamp(vTexCoord + vec2(-offset, offset), 0.0, 1.0));
+  vec4 tex4 = texture2D(texture_unit_0,
+              clamp(vTexCoord + vec2(offset, -offset), 0.0, 1.0));
   // base the shadow on the alpha of the texture, made somewhat translucent.
-  gl_FragColor = vec4(0.1, 0.1, 0.1, 0.6 * tex.a);
+  gl_FragColor = vec4(0.1, 0.1, 0.1, 0.2 * (tex1.a + tex2.a + tex3.a + tex4.a));
 }
+

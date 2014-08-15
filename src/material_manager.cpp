@@ -107,13 +107,5 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
   return nullptr;
 }
 
-void Material::Set(const Renderer &renderer) {
-  shader_->Set(renderer);
-  for (auto it = textures_.begin(); it != textures_.end(); ++it) {
-    glBindTexture(GL_TEXTURE_2D, (*it)->id);
-  }
-}
-
-
 }  // namespace fpl
 

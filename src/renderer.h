@@ -75,7 +75,8 @@ class Material {
  public:
   Material() : shader_(nullptr) {}
 
-  void Set(const Renderer &renderer);
+  void Set(const Renderer &renderer, const Shader *shader = nullptr);
+  void SetTextures();
 
   Shader *get_shader() { return shader_; }
   void set_shader(Shader *s) { shader_ = s; }
@@ -109,7 +110,7 @@ class Mesh {
 
   // Render itself. A matching shader (and its uniforms) must have been set
   // before calling this.
-  void Render(Renderer &renderer);
+  void Render(Renderer &renderer, const Shader *shader = nullptr);
 
   // Renders primatives using vertex and index data directly in local memory.
   // This is a convenient alternative to creating a Mesh instance for small
@@ -174,6 +175,14 @@ class Renderer {
   // not understood.
   Texture *CreateTextureFromTGAMemory(const void *tga_buf);
 
+  // Set either alpha test (cull pixels with alpha below amount) vs alpha blend
+  // (blend with framebuffer pixel regardedless).
+  void AlphaTest(bool on, float amount = 0.5f);
+  void AlphaBlend(bool on);
+
+  // Set to compare fragment against Z-buffer before writing, or not.
+  void DepthTest(bool on);
+
   Renderer() : model_view_projection_(mat4::Identity()),
                model_(mat4::Identity()), color_(1.0f), light_pos_(vec3(0.0f)),
                window_size_(vec2i(0)), window_(nullptr),
@@ -201,7 +210,6 @@ class Renderer {
  private:
   GLuint CompileShader(GLenum stage, GLuint program, const GLchar *source);
 
- private:
   // The mvp. Use the Ortho() and Perspective() methods in mathfu::Matrix
   // to conveniently change the camera.
   mat4 model_view_projection_;

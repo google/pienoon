@@ -244,14 +244,46 @@ Mesh* SplatGame::GetCardboardFront(int renderable_id) {
 void SplatGame::Render(const SceneDescription& scene) {
   const mat4 camera_transform = perspective_matrix_ * scene.camera();
 
-  // Render a ground plane (TODO: needs proper texture)
+  // Render a ground plane.
+
   renderer_.model_view_projection() = camera_transform;
-  auto ground_mat = matman_.LoadMaterial("materials/example.bin");
+  auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
-  const float gs = 50;
+  const float gs = 64;
+  const float txs = 16;
   Mesh::RenderAAQuadAlongX(vec3(-gs, 0, -gs), vec3(gs, 0, gs),
-                           vec2(0, 0), vec2(gs, gs));
+                           vec2(0, 0), vec2(txs, txs));
+
+  // Render shadows for all Renderables first, with depth testing off so
+  // they blend properly.
+
+  renderer_.DepthTest(false);
+  renderer_.AlphaBlend(true);
+
+  auto shadow_shader = matman_.LoadShader("shaders/simple_shadow");
+  assert(shadow_shader);
+  renderer_.model_view_projection() = camera_transform;
+  renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
+
+  for (size_t i = 0; i < scene.renderables().size(); ++i) {
+    const Renderable& renderable = scene.renderables()[i];
+
+    const int id = renderable.id();
+    Mesh* front = GetCardboardFront(id);
+
+    if (true /* TODO check if this thing needs a shadow */) {
+      renderer_.model() = renderable.world_matrix();
+      front->Render(renderer_, shadow_shader);
+    }
+  }
+
+  renderer_.AlphaBlend(false);
+  renderer_.DepthTest(true);
+
+  // Render all Renderables.
+
+  renderer_.AlphaTest(true);
 
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
@@ -259,16 +291,6 @@ void SplatGame::Render(const SceneDescription& scene) {
     //const Material* mat = materials_[renderable.id()];
     // TODO: Draw carboard with texture from 'mat' at location
     // renderable.matrix_
-
-    if (true /* TODO check if this thing needs a shadow */) {
-      auto shadow_mat = matman_.LoadMaterial("materials/simple_shadow.bin");
-      assert(shadow_mat);
-      renderer_.model_view_projection() = camera_transform;
-      renderer_.model() = renderable.world_matrix();
-      renderer_.light_pos() = vec3(100, 200, 100);  // TODO: get from scene
-      shadow_mat->Set(renderer_);
-      Mesh::RenderAAQuadAlongX(vec3(-1, 0, 0), vec3(1, 3, 0));
-    }
 
     const mat4 mvp = camera_transform * renderable.world_matrix();
     renderer_.model_view_projection() = mvp;
@@ -284,6 +306,8 @@ void SplatGame::Render(const SceneDescription& scene) {
       cardboard_backs_[id]->Render(renderer_);
     }
   }
+
+  renderer_.AlphaTest(false);
 }
 
 // Debug function to write out state machine transitions.
