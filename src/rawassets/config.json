@@ -53,5 +53,48 @@
   "draw_axes": false,
   "mouse_to_ground_scale": 0.005,
   "mouse_to_height_scale": 0.0025,
-  "mouse_to_camera_rotation_scale": 0.001
+  "mouse_to_camera_rotation_scale": 0.001,
+
+  "splatter": [
+    {
+      "location": { "x": 0, "y": 0 },
+      "renderable": "Splatter1"
+    },
+    {
+      "location": { "x": 100, "y": 50},
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": -110, "y": 75 },
+      "renderable": "Splatter3"
+    },
+    {
+      "location": { "x": 120, "y": 0 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": -130, "y": 125 },
+      "renderable": "Splatter1"
+    },
+    {
+      "location": { "x": 75, "y": 150 },
+      "renderable": "Splatter3"
+    },
+    {
+      "location": { "x": -25, "y": 75 },
+      "renderable": "Splatter3"
+    },
+    {
+      "location": { "x": 10, "y": 200 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": -120, "y": 225 },
+      "renderable": "Splatter1"
+    },
+    {
+      "location": { "x": 123, "y": 250 },
+      "renderable": "Splatter3"
+    }
+  ]
 }

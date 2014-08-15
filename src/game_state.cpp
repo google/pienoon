@@ -308,6 +308,20 @@ static const mathfu::mat4 CalculateAccessoryMatrix(
   return accessory_matrix;
 }
 
+static const mathfu::mat4 CalculateSplatterMatrix(
+    const Vec2i* location, const mathfu::mat4& character_matrix,
+    const Config& config) {
+  // Calculate the accessory offset, in character space.
+  const mathfu::vec3 offset = mathfu::vec3(
+      static_cast<float>(location->x()) * config.pixel_to_world_scale(),
+      static_cast<float>(location->y()) * config.pixel_to_world_scale(),
+      config.accessory_z_offset());
+  const mathfu::mat4 offset_matrix =
+      mathfu::mat4::FromTranslationVector(offset);
+  const mathfu::mat4 accessory_matrix = character_matrix * offset_matrix;
+  return accessory_matrix;
+}
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -341,6 +355,18 @@ void GameState::PopulateScene(SceneDescription* scene) const {
         scene->renderables().push_back(
             Renderable(accessory.renderable(),
               CalculateAccessoryMatrix(accessory, character_matrix, *config_)));
+      }
+
+      // Splatter
+      unsigned int damage = config_->character_health() - c->health();
+      for (unsigned int i = 0;
+           i < damage && i < config_->splatter()->Length(); ++i) {
+        const Splatter* splatter = config_->splatter()->Get(i);
+        scene->renderables().push_back(
+            Renderable(splatter->renderable(),
+                CalculateSplatterMatrix(splatter->location(),
+                                        character_matrix,
+                                        *config_)));
       }
     }
   }

@@ -43,6 +43,9 @@ enum RenderableId : ushort {
   EnvironmentStoreFrontLeft,
   EnvironmentStoreSide,
   EnvironmentStoreFrontRight,
+  Splatter1,
+  Splatter2,
+  Splatter3,
 
   Count // Must be last
 }
