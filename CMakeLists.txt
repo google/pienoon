@@ -48,6 +48,7 @@ get_target_property(FLATBUFFERS_FLATC flatc LOCATION)
 # TODO: This is hacky. Preferably, you'd be able to specify these
 # dependencies in the fbs file itself, like a #include.
 set(FBS_DEPENDENCIES
+    ${CMAKE_SOURCE_DIR}/src/flatbufferschemas/splat_common.fbs
     ${CMAKE_SOURCE_DIR}/src/flatbufferschemas/timeline.fbs)
 
 # Generate rules to build the set of output files from the set of input

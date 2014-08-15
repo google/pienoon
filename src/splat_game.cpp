@@ -21,8 +21,10 @@
 // TODO: move to alphabetical order once FlatBuffer include dependency fixed
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
+#include "splat_common_generated.h"
 #include "config_generated.h"
 #include "splat_game.h"
+#include "splat_rendering_assets_generated.h"
 #include "utilities.h"
 
 namespace fpl {
@@ -76,8 +78,7 @@ bool SplatGame::InitializeRenderer() {
       config.viewport_angle(), config.viewport_aspect_ratio(),
       config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
 
-  if (!renderer_.Initialize(vec2i(config.window_size()->x(),
-                                  config.window_size()->y()),
+  if (!renderer_.Initialize(LoadVec2i(config.window_size()),
                             config.window_title()->c_str())) {
     fprintf(stderr, "Renderer initialization error: %s\n",
             renderer_.last_error().c_str());
@@ -125,25 +126,55 @@ static Mesh* CreateCardboardMesh(const char* material_file_name,
 
 // Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
 // members have been initialized at this point.
-bool SplatGame::InitializeMaterials() {
+bool SplatGame::InitializeRenderingAssets() {
   const Config& config = GetConfig();
 
-  // Load cardboard fronts.
-  for (int i = 0; i < RenderableId_Count; ++i) {
-    const std::string material_file_name = FileNameFromEnumName(
-        EnumNameRenderableId(i), "materials/", ".bin");
-    cardboard_fronts_[i] = CreateCardboardMesh(
-        material_file_name.c_str(), &matman_,
-        config.cardboard_front_z_offset());
+  // Load the splat asset file.
+  static const char* kRenderingAssetsFileName = "splat_rendering_assets.bin";
+  if (!flatbuffers::LoadFile(kRenderingAssetsFileName, true,
+                             &rendering_assets_source_)) {
+    fprintf(stderr, "Can't load %s.\n", kRenderingAssetsFileName);
+    return false;
   }
 
-  // Load cardboard backs.
-  for (int i = 0; i < RenderableId_Count; ++i) {
-    const std::string material_file_name = FileNameFromEnumName(
-        EnumNameRenderableId(i), "materials/", "_back.bin");
-    cardboard_backs_[i] = CreateCardboardMesh(
-        material_file_name.c_str(), &matman_,
-        config.cardboard_back_z_offset());
+  // Check data validity.
+  const RenderingAssets& assets = GetRenderingAssets();
+  const bool front_ok = assets.cardboard_fronts()->Length() ==
+                        RenderableId_Count;
+  const bool back_ok = assets.cardboard_backs()->Length() ==
+                       RenderableId_Count;
+  if (!front_ok || !back_ok) {
+    fprintf(stderr, "%s's %s has %d entries, needs %d.\n",
+            kRenderingAssetsFileName,
+            front_ok ? "cardboard_back" : "cardboard_front",
+            front_ok ? assets.cardboard_backs()->Length() :
+                       assets.cardboard_fronts()->Length(),
+            RenderableId_Count);
+    return false;
+  }
+
+  // Create cardboard meshes. First fronts, then backs.
+  auto meshes = &cardboard_fronts_;
+  auto materials = assets.cardboard_fronts();
+  auto z_offset = config.cardboard_front_z_offset();
+  for (int j = 0; j < 2; ++j) {
+
+    // Create a mesh for each renderable (front and back).
+    for (int i = 0; i < RenderableId_Count; ++i) {
+      (*meshes)[i] = CreateCardboardMesh(materials->Get(i)->c_str(),
+                                      &matman_, z_offset);
+    }
+
+    // Then load cardboard backs.
+    meshes = &cardboard_backs_;
+    materials = assets.cardboard_backs();
+    z_offset = config.cardboard_back_z_offset();
+  }
+
+  // We default to the invalid texture, so it has to exist.
+  if (!cardboard_fronts_[RenderableId_Invalid]) {
+    fprintf(stderr, "Can't load backup texture.\n");
+    return false;
   }
 
   return true;
@@ -223,7 +254,7 @@ bool SplatGame::Initialize() {
   if (!InitializeRenderer())
     return false;
 
-  if (!InitializeMaterials())
+  if (!InitializeRenderingAssets())
     return false;
 
   if (!InitializeGameState())
@@ -349,6 +380,11 @@ const Config& SplatGame::GetConfig() const {
 const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
   return fpl::splat::GetCharacterStateMachineDef(state_machine_source_.c_str());
 }
+
+const RenderingAssets& SplatGame::GetRenderingAssets() const {
+  return *fpl::splat::GetRenderingAssets(rendering_assets_source_.c_str());
+}
+
 
 // Debug function to move the camera if the mouse button is down.
 void SplatGame::DebugCamera() {

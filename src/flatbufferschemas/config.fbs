@@ -14,17 +14,6 @@
 
 namespace fpl.splat;
 
-struct Vec2i {
-  x:int;
-  y:int;
-}
-
-struct Vec3 {
-  x:float;
-  y:float;
-  z:float;
-}
-
 table Splatter {
   location:Vec2i;
   renderable:RenderableId;

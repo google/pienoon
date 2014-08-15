@@ -41,19 +41,25 @@ mkdir -p assets/materials
 # loading certain game assets
 ${flatc_exe} \
   -o assets/ \
-  -b src/flatbufferschemas/timeline.fbs \
+  -b src/flatbufferschemas/splat_common.fbs \
+  src/flatbufferschemas/timeline.fbs \
   src/flatbufferschemas/character_state_machine_def.fbs \
   src/rawassets/character_state_machine_def.json
 
 ${flatc_exe} \
   -o assets/ \
-  -b src/flatbufferschemas/timeline.fbs \
+  -b src/flatbufferschemas/splat_common.fbs \
   src/flatbufferschemas/config.fbs \
   src/rawassets/config.json
+
+${flatc_exe} \
+  -o assets/ \
+  -b src/flatbufferschemas/splat_common.fbs \
+  src/flatbufferschemas/splat_rendering_assets.fbs \
+  src/rawassets/splat_rendering_assets.json
 
 for filename in src/rawassets/materials/*.json; do
   ${flatc_exe} -o assets/materials/ \
     -b src/flatbufferschemas/materials.fbs \
     "$filename"
 done
-

@@ -1,0 +1,68 @@
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+namespace fpl.splat;
+
+enum RenderableId : ushort {
+  Invalid,
+  CharacterIdle,
+  CharacterLoad1,
+  CharacterLoad2,
+  CharacterLoad3,
+  CharacterThrow,
+  CharacterBlock,
+  CharacterHitByPieFrame0,
+  CharacterHitByPieFrame1,
+  CharacterHitByPieFrame2,
+  CharacterHitByPieFrame3,
+  CharacterKnockedOut,
+  PieEmpty,
+  PieSmall,
+  PieMedium,
+  PieLarge,
+  PieBlock,
+  EnvironmentCloud,
+  EnvironmentSun,
+  EnvironmentTree,
+  EnvironmentStageFront,
+  EnvironmentStageGround,
+  Splatter1,
+  Splatter2,
+  Splatter3,
+
+  Count // Must be last
+}
+
+enum SoundId : ushort {
+  ThrowPie,
+  HitWithPie
+}
+
+enum EventId : ushort {
+  TakeDamage,
+  ReleasePie,
+  LoadPie
+}
+
+struct Vec2i {
+  x:int;
+  y:int;
+}
+
+struct Vec3 {
+  x:float;
+  y:float;
+  z:float;
+}
+

@@ -21,7 +21,7 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterIdle"
+            "renderable": "RenderableId.CharacterIdle"
           }
         ]
       }
@@ -59,14 +59,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterLoad1"
+            "renderable": "RenderableId.CharacterLoad1"
           }
         ],
         "accessories": [
           {
             "time": 0,
             "end_time": 1000,
-            "renderable": "PieSmall",
+            "renderable": "RenderableId.PieSmall",
             "offset": {
               "x": 2,
               "y": 132
@@ -76,7 +76,7 @@
         "events": [
           {
             "time": 0,
-            "event": "LoadPie",
+            "event": "EventId.LoadPie",
             "modifier": 1
           }
         ]
@@ -115,14 +115,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterLoad2"
+            "renderable": "RenderableId.CharacterLoad2"
           }
         ],
         "accessories": [
           {
             "time": 0,
             "end_time": 1000,
-            "renderable": "PieMedium",
+            "renderable": "RenderableId.PieMedium",
             "offset": {
               "x": 14,
               "y": 300
@@ -132,7 +132,7 @@
         "events": [
           {
             "time": 0,
-            "event": "LoadPie",
+            "event": "EventId.LoadPie",
             "modifier": 2
           }
         ]
@@ -171,14 +171,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterLoad3"
+            "renderable": "RenderableId.CharacterLoad3"
           }
         ],
         "accessories": [
           {
             "time": 0,
             "end_time": 1000,
-            "renderable": "PieLarge",
+            "renderable": "RenderableId.PieLarge",
             "offset": {
               "x": -100,
               "y": 240
@@ -188,7 +188,7 @@
         "events": [
           {
             "time": 0,
-            "event": "LoadPie",
+            "event": "EventId.LoadPie",
             "modifier": 3
           }
         ]
@@ -215,13 +215,13 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterThrow"
+            "renderable": "RenderableId.CharacterThrow"
           }
         ],
         "events": [
           {
             "time": 0,
-            "event": "ReleasePie",
+            "event": "EventId.ReleasePie",
             "modifier": 0
           }
         ]
@@ -242,14 +242,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterBlock"
+            "renderable": "RenderableId.CharacterBlock"
           }
         ],
         "accessories": [
           {
             "time": 0,
             "end_time": 2000,
-            "renderable": "PieBlock",
+            "renderable": "RenderableId.PieBlock",
             "offset": {
               "x": -16,
               "y": 45
@@ -285,25 +285,25 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterHitByPieFrame0"
+            "renderable": "RenderableId.CharacterHitByPieFrame0"
           },
           {
             "time": 500,
-            "renderable": "CharacterHitByPieFrame1"
+            "renderable": "RenderableId.CharacterHitByPieFrame1"
           },
           {
             "time": 1500,
-            "renderable": "CharacterHitByPieFrame2"
+            "renderable": "RenderableId.CharacterHitByPieFrame2"
           },
           {
             "time": 2000,
-            "renderable": "CharacterHitByPieFrame3"
+            "renderable": "RenderableId.CharacterHitByPieFrame3"
           }
         ],
         "events": [
           {
             "time": 0,
-            "event": "TakeDamage",
+            "event": "EventId.TakeDamage",
             "modifier": 0
           }
         ]
@@ -316,7 +316,7 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "CharacterKnockedOut"
+            "renderable": "RenderableId.CharacterKnockedOut"
           }
         ]
       }

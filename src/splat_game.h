@@ -27,6 +27,7 @@ namespace splat {
 
 struct Config;
 class CharacterStateMachine;
+struct RenderingAssets;
 
 class SplatGame {
  public:
@@ -38,12 +39,13 @@ class SplatGame {
  private:
   bool InitializeConfig();
   bool InitializeRenderer();
-  bool InitializeMaterials();
+  bool InitializeRenderingAssets();
   bool InitializeGameState();
   void Render(const SceneDescription& scene);
   void DebugCharacterStates();
   void DebugCamera();
   const Config& GetConfig() const;
+  const RenderingAssets& GetRenderingAssets() const;
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
 
@@ -62,6 +64,9 @@ class SplatGame {
   // Map RenderableId to material.
   std::vector<Mesh*> cardboard_fronts_;
   std::vector<Mesh*> cardboard_backs_;
+
+  // Hold RenderingAssets in binary form.
+  std::string rendering_assets_source_;
 
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_;

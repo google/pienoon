@@ -1,0 +1,156 @@
+{
+  "cardboard_fronts": [
+
+      // Invalid
+      "materials/invalid.bin",
+
+      // CharacterIdle
+      "materials/character_idle.bin",
+
+      // CharacterLoad1
+      "materials/character_load1.bin",
+
+      // CharacterLoad2
+      "materials/character_load2.bin",
+
+      // CharacterLoad3
+      "materials/character_load3.bin",
+
+      // CharacterThrow
+      "materials/character_throw.bin",
+
+      // CharacterBlock
+      "materials/character_block.bin",
+
+      // CharacterHitByPieFrame0
+      "materials/character_hit_by_pie_frame0.bin",
+
+      // CharacterHitByPieFrame1
+      "materials/character_hit_by_pie_frame1.bin",
+
+      // CharacterHitByPieFrame2
+      "materials/character_hit_by_pie_frame2.bin",
+
+      // CharacterHitByPieFrame3
+      "materials/character_hit_by_pie_frame3.bin",
+
+      // CharacterKnockedOut
+      "materials/character_knocked_out.bin",
+
+      // PieEmpty
+      "materials/pie_empty.bin",
+
+      // PieSmall
+      "materials/pie_small.bin",
+
+      // PieMedium
+      "materials/pie_medium.bin",
+
+      // PieLarge
+      "materials/pie_large.bin",
+
+      // PieBlock
+      "materials/pie_block.bin",
+
+      // EnvironmentCloud
+      "materials/environment_cloud.bin",
+
+      // EnvironmentSun
+      "materials/environment_sun.bin",
+
+      // EnvironmentTree
+      "materials/environment_tree.bin",
+
+      // EnvironmentStageFront
+      "materials/environment_stage_front.bin",
+
+      // EnvironmentStageGround
+      "materials/environment_stage_ground.bin",
+
+      // Splatter1
+      "materials/splatter1.bin",
+
+      // Splatter2
+      "materials/splatter2.bin",
+
+      // Splatter3      
+      "materials/splatter3.bin"
+    ],
+
+  "cardboard_backs":[
+      // Invalid
+      "",
+
+      // CharacterIdle
+      "materials/character_idle_back.bin",
+
+      // CharacterLoad1
+      "",
+
+      // CharacterLoad2
+      "",
+
+      // CharacterLoad3
+      "",
+
+      // CharacterThrow
+      "",
+
+      // CharacterBlock
+      "",
+
+      // CharacterHitByPieFrame0
+      "",
+
+      // CharacterHitByPieFrame1
+      "",
+
+      // CharacterHitByPieFrame2
+      "",
+
+      // CharacterHitByPieFrame3
+      "",
+
+      // CharacterKnockedOut
+      "",
+
+      // PieEmpty
+      "",
+
+      // PieSmall
+      "",
+
+      // PieMedium
+      "",
+
+      // PieLarge
+      "",
+
+      // PieBlock
+      "",
+
+      // EnvironmentCloud
+      "",
+
+      // EnvironmentSun
+      "",
+
+      // EnvironmentTree
+      "",
+
+      // EnvironmentStageFront
+      "",
+
+      // EnvironmentStageGround
+      "",
+
+      // Splatter1
+      "",
+
+      // Splatter2
+      "",
+
+      // Splatter3      
+      ""
+    ]
+}
