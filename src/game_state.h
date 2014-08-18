@@ -31,6 +31,9 @@ class GameState {
  public:
   GameState();
 
+  // Return to default configuration.
+  void Reset();
+
   // Update controller and state machine for each character.
   void AdvanceFrame(WorldTime delta_time);
 

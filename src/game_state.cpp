@@ -29,14 +29,39 @@ namespace splat {
 
 GameState::GameState()
   : time_(0),
-    // This camera position and orientation looks alright. Just found these
-    // values by moving the camera around with the mouse.
-    // TODO: load initial camera position and target from the config file.
-    camera_position_(10.0f, 7.0f, 10.0f),
+    camera_position_(0.0f, 0.0f, 0.0f),
     camera_target_(0.0f, 0.0f, 0.0f),
     characters_(),
     pies_(),
     config_() {
+}
+
+// Calculate the direction a character is facing at the start of the game.
+// We want the characters to face their initial target.
+static Angle InitialFaceAngle(const CharacterId id, const Config& config) {
+  const mathfu::vec3 characterPosition =
+      LoadVec3(config.character_positions()->Get(id));
+  const CharacterId target_id = config.character_targets()->Get(id);
+  const mathfu::vec3 targetPosition =
+      LoadVec3(config.character_positions()->Get(target_id));
+  return Angle::FromXZVector(targetPosition - characterPosition);
+}
+
+// Reset the game back to initial configuration.
+void GameState::Reset() {
+  time_ = 0;
+  camera_position_ = LoadVec3(config_->camera_position());
+  camera_target_ = LoadVec3(config_->camera_target());
+  pies_.empty();
+
+  // Reset characters to their initial state.
+  const CharacterId num_ids = static_cast<CharacterId>(characters_.size());
+  for (CharacterId id = 0; id < num_ids; ++id) {
+    characters_[id].Reset(config_->character_targets()->Get(id),
+                          config_->character_health(),
+                          InitialFaceAngle(id, *config_),
+                          LoadVec3(config_->character_positions()->Get(id)));
+  }
 }
 
 WorldTime GameState::GetAnimationTime(const Character& character) const {
@@ -324,6 +349,15 @@ static const mathfu::mat4 CalculateSplatterMatrix(
   return accessory_matrix;
 }
 
+static mathfu::mat4 CalculatePropWorldMatrix(const Prop& prop) {
+  const mathfu::vec3& position = LoadVec3(&prop.position());
+  const Angle rotation = Angle::FromDegrees(prop.rotation());
+  const mathfu::vec3& rotation_axis = LoadVec3(&prop.rotation_axis());
+  const Quat quat = Quat::FromAngleAxis(rotation.angle(), rotation_axis);
+  return mathfu::mat4::FromTranslationVector(position) *
+         mathfu::mat4::FromRotationMatrix(quat.ToMatrix());
+}
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -383,8 +417,20 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     }
   }
 
+  // Populate scene description with environment items.
+  if (config_->draw_props()) {
+    auto props = config_->props();
+    for (size_t i = 0; i < props->Length(); ++i) {
+      const Prop& prop = *props->Get(i);
+      scene->renderables().push_back(
+          Renderable(static_cast<uint16_t>(prop.renderable()),
+                     CalculatePropWorldMatrix(prop)));
+    }
+  }
+
   // Axes. Useful for debugging.
   // Positive x axis is long. Positive z axis is short.
+  // Positive y axis is shortest.
   if (config_->draw_axes()) {
     // TODO: add an arrow renderable instead of drawing with pies.
     for (int i = 0; i < 8; ++i) {
@@ -396,6 +442,12 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     for (int i = 0; i < 4; ++i) {
       const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
           mathfu::vec3(0.0f, 0.0f, static_cast<float>(i)));
+      scene->renderables().push_back(
+          Renderable(RenderableId_PieSmall, axis_dot));
+    }
+    for (int i = 0; i < 2; ++i) {
+      const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
+          mathfu::vec3(0.0f, static_cast<float>(i), 0.0f));
       scene->renderables().push_back(
           Renderable(RenderableId_PieSmall, axis_dot));
     }

@@ -1,15 +1,15 @@
 {
   "character_positions": [
-      { "x":  7.0, "y": 0.0, "z":  0.0 },
-      { "x":  0.0, "y": 0.0, "z":  7.0 },
-      { "x": -7.0, "y": 0.0, "z":  0.0 },
-      { "x":  0.0, "y": 0.0, "z": -7.0 }
+      { "x": -5.0, "y": 0.0, "z":  0.0 },
+      { "x": -3.0, "y": 0.0, "z":  5.0 },
+      { "x":  3.0, "y": 0.0, "z":  5.0 },
+      { "x":  5.0, "y": 0.0, "z":  0.0 }
     ],
   "character_targets": [ 2, 3, 0, 1 ],
-  "camera_position": { "x": 10.0, "y": 7.0, "z": 10.0 },
-  "camera_target": { "x": 0.0, "y": 0.0, "z": 0.0 },
+  "camera_position": { "x": 0.0, "y": 7.0, "z": -10.7 },
+  "camera_target": { "x": 0.0, "y": 3.9, "z": 0.0 },
   "light_positions": [
-      { "x": 300.0, "y": 300.0, "z": 300.0 }
+      { "x": -200.0, "y": 300.0, "z": -200.0 }
     ],
   "character_count": 4,
   "character_health": 10,
@@ -50,6 +50,7 @@
   "draw_fixed_renderable": "Invalid",
   "draw_characters": true,
   "draw_pies": true,
+  "draw_props": true,
   "draw_axes": false,
   "mouse_to_ground_scale": 0.005,
   "mouse_to_height_scale": 0.0025,
@@ -96,5 +97,75 @@
       "location": { "x": 123, "y": 250 },
       "renderable": "Splatter3"
     }
-  ]
+  ],
+
+  "props": [
+      // TODO: add the stage textures properly.
+      // {
+      //   "renderable": "RenderableId.EnvironmentStageFront",
+      //   "position": { "x": 0, "y": 0, "z":0 },
+      //   "rotation": 180,
+      //   "rotation_axis": { "x": 0, "y": 0, "z":1 }
+      // },
+      // {
+      //   "renderable": "RenderableId.EnvironmentStageGround",
+      //   "position": { "x": 0, "y": 0, "z":0 },
+      //   "rotation": 90,
+      //   "rotation_axis": { "x": 1, "y": 0, "z":0 }
+      // },
+      {
+        "renderable": "RenderableId.EnvironmentSky",
+        "position": { "x": 0, "y": 0, "z":8 },
+        "rotation": 0,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentSun",
+        "position": { "x": 4, "y": 6, "z":6.9 },
+        "rotation": 25,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentSunGlow",
+        "position": { "x": 4, "y": 5, "z":7 },
+        "rotation": 25,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentCloud",
+        "position": { "x": -4, "y": 5.5, "z":6.7 },
+        "rotation": -10,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentCloudShadow",
+        "position": { "x": -4, "y": 5.5, "z":6.8 },
+        "rotation": -10,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentTree",
+        "position": { "x": 7.5, "y": 0, "z":4.5 },
+        "rotation": 30,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentTree",
+        "position": { "x": 8.5, "y": 0, "z":2 },
+        "rotation": 60,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentStoreFront",
+        "position": { "x": -8.5, "y": 0, "z":5 },
+        "rotation": -40,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentStoreRoom",
+        "position": { "x": 2.5, "y": -0.3, "z":7.6 },
+        "rotation": 0,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      }
+    ]
 }

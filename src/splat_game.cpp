@@ -180,17 +180,6 @@ bool SplatGame::InitializeRenderingAssets() {
   return true;
 }
 
-// Calculate the direction a character is facing at the start of the game.
-// We want the characters to face their initial target.
-static Angle InitialFaceAngle(const CharacterId id, const Config& config) {
-  const vec3 characterPosition =
-      LoadVec3(config.character_positions()->Get(id));
-  const CharacterId target_id = config.character_targets()->Get(id);
-  const vec3 targetPosition =
-      LoadVec3(config.character_positions()->Get(target_id));
-  return Angle::FromXZVector(targetPosition - characterPosition);
-}
-
 // Create state matchines, characters, controllers, etc. present in
 // 'gamestate_'.
 bool SplatGame::InitializeGameState() {
@@ -226,12 +215,10 @@ bool SplatGame::InitializeGameState() {
   // Create characters.
   for (CharacterId id = 0; id < config.character_count(); ++id) {
     game_state_.characters().push_back(Character(
-        id, config.character_targets()->Get(id),
-        config.character_health(),
-        InitialFaceAngle(id, config),
-        LoadVec3(config.character_positions()->Get(id)),
-        &controllers_[id], state_machine_def));
+        id, &controllers_[id], state_machine_def));
   }
+
+  game_state_.Reset();
 
   debug_previous_states_.resize(config.character_count(), -1);
   debug_previous_angles_.resize(config.character_count(), Angle(0.0f));

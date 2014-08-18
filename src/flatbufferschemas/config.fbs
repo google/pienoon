@@ -19,6 +19,14 @@ table Splatter {
   renderable:RenderableId;
 }
 
+struct Prop {
+  renderable:uint;    // The object to render. See RenderableId enum.
+                      // TODO: change to ushort once padding warning is fixed.
+  position:Vec3;      // Placement of the object.
+  rotation:float;     // Rotation about the vertical axis, in degrees.
+  rotation_axis:Vec3; // Axis about which we perform 'rotation'.
+}
+
 table Config {
   // Gameplay constants
   character_positions:[Vec3];
@@ -54,10 +62,14 @@ table Config {
   accessory_z_offset:float;
   splatter:[Splatter];
 
+  // Initial configuration of stage and environment.
+  props:[Prop];
+
   // Debug options
   draw_fixed_renderable:RenderableId;
   draw_characters:bool;
   draw_pies:bool;
+  draw_props:bool;
   draw_axes:bool;
   mouse_to_ground_scale:float;
   mouse_to_height_scale:float;

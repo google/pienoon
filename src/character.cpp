@@ -24,18 +24,27 @@ namespace fpl {
 namespace splat {
 
 Character::Character(
-    CharacterId id, CharacterId target, CharacterHealth health,
-    Angle face_angle, const mathfu::vec3& position, Controller* controller,
+    CharacterId id, Controller* controller,
     const CharacterStateMachineDef* character_state_machine_def)
     : id_(id),
-      target_(target),
-      health_(health),
+      target_(0),
+      health_(0),
       pie_damage_(0),
-      face_angle_(face_angle),
+      face_angle_(Angle(0.0f)),
       face_angle_velocity_(0.0f),
-      position_(position),
+      position_(mathfu::vec3(0.0f, 0.0f, 0.0f)),
       controller_(controller),
       state_machine_(character_state_machine_def) {
+}
+
+void Character::Reset(CharacterId target, CharacterHealth health,
+                      Angle face_angle, const mathfu::vec3& position) {
+  target_ = target;
+  health_ = health;
+  pie_damage_ = 0;
+  face_angle_ = face_angle;
+  face_angle_velocity_ = 0.0f;
+  position_ = position;
 }
 
 mathfu::mat4 Character::CalculateMatrix() const {

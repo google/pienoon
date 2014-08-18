@@ -34,13 +34,14 @@ typedef int WorldTime;
 // to the state machine, like health.
 class Character {
  public:
-  // Creates a character with the given initial values.
   // The Character does not take ownership of the controller or
   // character_state_machine_def pointers.
-  Character(CharacterId id, CharacterId target, CharacterHealth health,
-            Angle face_angle, const mathfu::vec3& position,
-            Controller* controller,
+  Character(CharacterId id, Controller* controller,
             const CharacterStateMachineDef* character_state_machine_def);
+
+  // Resets the character to the start-of-game state.
+  void Reset(CharacterId target, CharacterHealth health,
+             Angle face_angle, const mathfu::vec3& position);
 
   // Convert the position and face angle into a matrix for rendering.
   mathfu::mat4 CalculateMatrix() const;
