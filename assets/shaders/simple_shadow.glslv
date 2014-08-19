@@ -29,9 +29,6 @@ void main()
   // Project vertex onto the ground by extending the vector by the correct
   // length:
   vec3 world_pos_on_ground = world_pos + to_vert * (world_pos.y / -to_vert.y);
-  // Place shadow slightly above ground to avoid Z-fighting:
-  vec3 ground_offset= vec3(0.0, 0.01, 0.1);
-  gl_Position = model_view_projection *
-                vec4(world_pos_on_ground + ground_offset, 1.0);
+  gl_Position = model_view_projection * vec4(world_pos_on_ground, 1.0);
   vTexCoord = aTexCoord;
 }
