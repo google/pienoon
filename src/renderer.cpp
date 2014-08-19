@@ -110,6 +110,7 @@ bool Renderer::Initialize(const vec2i &window_size,
   #undef GLEXT
   #endif
 
+  blend_mode_ = kBlendModeOff;
   return true;
 }
 
@@ -263,30 +264,53 @@ Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   return tex;
 }
 
-void Renderer::AlphaTest(bool on, float amount) {
-  if (on) {
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, amount);
-  } else {
-    glDisable(GL_ALPHA_TEST);
-  }
-}
-
-void Renderer::AlphaBlend(bool on) {
-  if (on) {
-    glEnable(GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  } else {
-    glDisable(GL_BLEND);
-  }
-}
-
 void Renderer::DepthTest(bool on) {
   if (on) glEnable(GL_DEPTH_TEST);
   else glDisable(GL_DEPTH_TEST);
 }
 
-void Material::Set(const Renderer &renderer, const Shader *shader) {
+void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
+  if (blend_mode == blend_mode_)
+    return;
+
+  // Disable current blend mode.
+  switch (blend_mode_) {
+    case kBlendModeOff:
+      break;
+    case kBlendModeTest:
+      glDisable(GL_ALPHA_TEST);
+      break;
+    case kBlendModeAlpha:
+      glDisable(GL_BLEND);
+      break;
+    default:
+      assert(false); // Not yet implemented
+      break;
+  }
+
+  // Enable new blend mode.
+  switch (blend_mode) {
+    case kBlendModeOff:
+      break;
+    case kBlendModeTest:
+      glEnable(GL_ALPHA_TEST);
+      glAlphaFunc(GL_GREATER, amount);
+      break;
+    case kBlendModeAlpha:
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      break;
+    default:
+      assert(false); // Not yet implemented
+      break;
+  }
+
+  // Remember new mode as the current mode.
+  blend_mode_ = blend_mode;
+}
+
+void Material::Set(Renderer &renderer, const Shader *shader) {
+  renderer.SetBlendMode(blend_mode_);
   (shader ? shader : shader_)->Set(renderer);
   SetTextures();
 }

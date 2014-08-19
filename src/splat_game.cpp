@@ -124,6 +124,16 @@ static Mesh* CreateCardboardMesh(const char* material_file_name,
   return mesh;
 }
 
+static bool CheckLengthOfArray(const char* file_name, const char* array_name,
+                               int length, int correct_length) {
+  if (length == correct_length)
+    return true;
+
+  fprintf(stderr, "%s's %s has %d entries, needs %d.\n",
+          file_name, array_name, length, correct_length);
+  return false;
+}
+
 // Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
 // members have been initialized at this point.
 bool SplatGame::InitializeRenderingAssets() {
@@ -139,19 +149,16 @@ bool SplatGame::InitializeRenderingAssets() {
 
   // Check data validity.
   const RenderingAssets& assets = GetRenderingAssets();
-  const bool front_ok = assets.cardboard_fronts()->Length() ==
-                        RenderableId_Count;
-  const bool back_ok = assets.cardboard_backs()->Length() ==
-                       RenderableId_Count;
-  if (!front_ok || !back_ok) {
-    fprintf(stderr, "%s's %s has %d entries, needs %d.\n",
-            kRenderingAssetsFileName,
-            front_ok ? "cardboard_back" : "cardboard_front",
-            front_ok ? assets.cardboard_backs()->Length() :
-                       assets.cardboard_fronts()->Length(),
-            RenderableId_Count);
+  if (!CheckLengthOfArray(kRenderingAssetsFileName, "cardboard_fronts",
+                          assets.cardboard_fronts()->Length(),
+                          RenderableId_Count) ||
+      !CheckLengthOfArray(kRenderingAssetsFileName, "cardboard_backs",
+                          assets.cardboard_backs()->Length(),
+                          RenderableId_Count) ||
+      !CheckLengthOfArray(kRenderingAssetsFileName, "shadows",
+                          assets.shadows()->Length(),
+                          RenderableId_Count))
     return false;
-  }
 
   // Create cardboard meshes. First fronts, then backs.
   auto meshes = &cardboard_fronts_;
@@ -259,11 +266,33 @@ Mesh* SplatGame::GetCardboardFront(int renderable_id) {
                      : cardboard_fronts_[RenderableId_Invalid];
 }
 
+void SplatGame::RenderCardboard(const SceneDescription& scene,
+                                const mat4& camera_transform) {
+  for (size_t i = 0; i < scene.renderables().size(); ++i) {
+    const Renderable& renderable = scene.renderables()[i];
+    const int id = renderable.id();
+
+    // Set up vertex transformation into projection space.
+    const mat4 mvp = camera_transform * renderable.world_matrix();
+    renderer_.model_view_projection() = mvp;
+
+    // Draw the front of the character, if we have it.
+    // If we don't have it, draw the pajama material for "Invalid".
+    Mesh* front = GetCardboardFront(id);
+    front->Render(renderer_);
+
+    // If we have a back, draw the back too, slightly offset.
+    if (cardboard_backs_[id]) {
+      cardboard_backs_[id]->Render(renderer_);
+    }
+  }
+}
+
 void SplatGame::Render(const SceneDescription& scene) {
+  const RenderingAssets& assets = GetRenderingAssets();
   const mat4 camera_transform = perspective_matrix_ * scene.camera();
 
   // Render a ground plane.
-
   renderer_.model_view_projection() = camera_transform;
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
@@ -275,9 +304,8 @@ void SplatGame::Render(const SceneDescription& scene) {
 
   // Render shadows for all Renderables first, with depth testing off so
   // they blend properly.
-
   renderer_.DepthTest(false);
-  renderer_.AlphaBlend(true);
+  renderer_.SetBlendMode(kBlendModeAlpha);
 
   auto shadow_shader = matman_.LoadShader("shaders/simple_shadow");
   assert(shadow_shader);
@@ -290,42 +318,15 @@ void SplatGame::Render(const SceneDescription& scene) {
     const int id = renderable.id();
     Mesh* front = GetCardboardFront(id);
 
-    if (true /* TODO check if this thing needs a shadow */) {
+    if (assets.shadows()->Get(id)) {
       renderer_.model() = renderable.world_matrix();
       front->Render(renderer_, shadow_shader);
     }
   }
-
-  renderer_.AlphaBlend(false);
   renderer_.DepthTest(true);
 
   // Render all Renderables.
-
-  renderer_.AlphaTest(true);
-
-  for (size_t i = 0; i < scene.renderables().size(); ++i) {
-    const Renderable& renderable = scene.renderables()[i];
-
-    //const Material* mat = materials_[renderable.id()];
-    // TODO: Draw carboard with texture from 'mat' at location
-    // renderable.matrix_
-
-    const mat4 mvp = camera_transform * renderable.world_matrix();
-    renderer_.model_view_projection() = mvp;
-
-    // Draw the front of the character, if we have it.
-    // If we don't have it, draw the pajama material for "Invalid".
-    const int id = renderable.id();
-    Mesh* front = GetCardboardFront(id);
-    front->Render(renderer_);
-
-    // If we have a back, draw the back too, slightly offset.
-    if (cardboard_backs_[id]) {
-      cardboard_backs_[id]->Render(renderer_);
-    }
-  }
-
-  renderer_.AlphaTest(false);
+  RenderCardboard(scene, camera_transform);
 }
 
 // Debug function to write out state machine transitions.

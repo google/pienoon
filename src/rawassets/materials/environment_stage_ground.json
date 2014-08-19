@@ -2,6 +2,7 @@
   shader_basename: "shaders/textured",
   texture_filenames: [
     "textures/shelf_top.tga"
-  ]
+  ],
+  "blendmode": "TEST"
 }
 

@@ -18,6 +18,13 @@
 
 namespace fpl {
 
+static_assert(kBlendModeOff == static_cast<BlendMode>(matdef::BlendMode_OFF) &&
+              kBlendModeTest == static_cast<BlendMode>(matdef::BlendMode_TEST) &&
+              kBlendModeAlpha == static_cast<BlendMode>(matdef::BlendMode_ALPHA),
+              "BlendMode enums in renderer.h and material.fbs must match.");
+static_assert(kBlendModeCount == kBlendModeAlpha + 1,
+              "Please update static_assert above with new enum values.");
+
 template<typename T> T FindInMap(const std::map<std::string, T> &map,
                                   const char *name) {
   auto it = map.find(name);
@@ -91,6 +98,7 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
     if (!shader) return nullptr;
     mat = new Material();
     mat->set_shader(shader);
+    mat->set_blend_mode(static_cast<BlendMode>(matdef->blendmode()));
     for (auto it = matdef->texture_filenames()->begin();
              it != matdef->texture_filenames()->end(); ++it) {
       auto tex = LoadTexture(it->c_str());

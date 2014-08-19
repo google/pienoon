@@ -25,6 +25,14 @@ using mathfu::mat4;
 
 class Renderer;
 
+enum BlendMode {
+  kBlendModeOff,
+  kBlendModeTest,
+  kBlendModeAlpha,
+
+  kBlendModeCount // Must be at end.
+};
+
 // Represents a shader consisting of a vertex and pixel shader. Also stores
 // ids of standard uniforms. Use the Renderer class below to create these.
 class Shader {
@@ -73,19 +81,25 @@ struct Texture {
 
 class Material {
  public:
-  Material() : shader_(nullptr) {}
+  Material() : shader_(nullptr), blend_mode_(kBlendModeOff) {}
 
-  void Set(const Renderer &renderer, const Shader *shader = nullptr);
+  void Set(Renderer &renderer, const Shader *shader = nullptr);
   void SetTextures();
 
   Shader *get_shader() { return shader_; }
   void set_shader(Shader *s) { shader_ = s; }
   std::vector<Texture *> &textures() { return textures_; }
   const std::vector<Texture *> &textures() const { return textures_; }
+  int blend_mode() const { return blend_mode_; }
+  void set_blend_mode(BlendMode blend_mode) {
+    assert(0 <= blend_mode && blend_mode < kBlendModeCount);
+    blend_mode_ = blend_mode;
+  }
 
  private:
   Shader *shader_;
   std::vector<Texture *> textures_;
+  BlendMode blend_mode_;
 };
 
 // An array of these enums defines the format of vertex data.
@@ -175,10 +189,10 @@ class Renderer {
   // not understood.
   Texture *CreateTextureFromTGAMemory(const void *tga_buf);
 
-  // Set either alpha test (cull pixels with alpha below amount) vs alpha blend
+  // Set alpha test (cull pixels with alpha below amount) vs alpha blend
   // (blend with framebuffer pixel regardedless).
-  void AlphaTest(bool on, float amount = 0.5f);
-  void AlphaBlend(bool on);
+  // blend_mode: see materials.fbs for valid enum values.
+  void SetBlendMode(BlendMode blend_mode, float amount = 0.5f);
 
   // Set to compare fragment against Z-buffer before writing, or not.
   void DepthTest(bool on);
@@ -223,6 +237,8 @@ class Renderer {
 
   SDL_Window *window_;
   SDL_GLContext context_;
+
+  BlendMode blend_mode_;
 };
 
 }  // namespace fpl

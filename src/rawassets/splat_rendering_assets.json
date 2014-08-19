@@ -182,5 +182,97 @@
 
       // Splatter3
       ""
+    ],
+
+  "shadows":[
+      // Invalid
+      false,
+
+      // CharacterIdle
+      true,
+
+      // CharacterLoad1
+      true,
+
+      // CharacterLoad2
+      true,
+
+      // CharacterLoad3
+      true,
+
+      // CharacterThrow
+      true,
+
+      // CharacterBlock
+      true,
+
+      // CharacterHitByPieFrame0
+      true,
+
+      // CharacterHitByPieFrame1
+      true,
+
+      // CharacterHitByPieFrame2
+      true,
+
+      // CharacterHitByPieFrame3
+      true,
+
+      // CharacterKnockedOut
+      true,
+
+      // PieEmpty
+      true,
+
+      // PieSmall
+      true,
+
+      // PieMedium
+      true,
+
+      // PieLarge
+      true,
+
+      // PieBlock
+      true,
+
+      // EnvironmentSky
+      false,
+
+      // EnvironmentCloud
+      false,
+
+      // EnvironmentCloudShadow
+      false,
+
+      // EnvironmentSun
+      false,
+
+      // EnvironmentSunGlow
+      false,
+
+      // EnvironmentTree
+      true,
+
+      // EnvironmentStageFront
+      false,
+
+      // EnvironmentStageGround
+      false,
+
+      // EnvironmentStoreFront
+      false,
+
+      // EnvironmentStoreRoom
+      false,
+
+      // Splatter1
+      true,
+
+      // Splatter2
+      true,
+
+      // Splatter3
+      true
     ]
 }

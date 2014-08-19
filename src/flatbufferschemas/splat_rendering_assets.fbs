@@ -19,6 +19,10 @@ table RenderingAssets {
   // Arrays of length RenderableId_Count.
   cardboard_fronts:[string];
   cardboard_backs:[string];
+
+  // True if the renderable should cast shadows.
+  // Array of length RenderableId_Count.
+  shadows:[bool];
 }
 
 root_type RenderingAssets;

@@ -2,6 +2,7 @@
   shader_basename: "shaders/textured",
   texture_filenames: [
     "textures/cloud_shadow.tga"
-  ]
+  ],
+  "blendmode": "ALPHA"
 }
 

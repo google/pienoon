@@ -18,6 +18,7 @@ namespace matdef;
 
 enum BlendMode:ubyte {
   OFF,
+  TEST,
   ALPHA,
   ADD,
   ADDALPHA,

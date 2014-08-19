@@ -41,6 +41,8 @@ class SplatGame {
   bool InitializeRenderer();
   bool InitializeRenderingAssets();
   bool InitializeGameState();
+  void RenderCardboard(const SceneDescription& scene,
+                       const mat4& camera_transform);
   void Render(const SceneDescription& scene);
   void DebugCharacterStates();
   void DebugCamera();

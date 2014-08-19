@@ -124,9 +124,15 @@
         "rotation_axis": { "x": 0, "y": 1, "z":0 }
       },
       {
-        "renderable": "RenderableId.EnvironmentSun",
-        "position": { "x": 4, "y": 6, "z":6.9 },
-        "rotation": 25,
+        "renderable": "RenderableId.EnvironmentStoreFront",
+        "position": { "x": -8.5, "y": 0, "z":5 },
+        "rotation": -40,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentStoreRoom",
+        "position": { "x": 2.5, "y": -0.3, "z":7.6 },
+        "rotation": 0,
         "rotation_axis": { "x": 0, "y": 1, "z":0 }
       },
       {
@@ -136,14 +142,20 @@
         "rotation_axis": { "x": 0, "y": 1, "z":0 }
       },
       {
-        "renderable": "RenderableId.EnvironmentCloud",
-        "position": { "x": -4, "y": 5.5, "z":6.7 },
-        "rotation": -10,
+        "renderable": "RenderableId.EnvironmentSun",
+        "position": { "x": 4, "y": 6, "z":6.9 },
+        "rotation": 25,
         "rotation_axis": { "x": 0, "y": 1, "z":0 }
       },
       {
         "renderable": "RenderableId.EnvironmentCloudShadow",
-        "position": { "x": -4, "y": 5.5, "z":6.8 },
+        "position": { "x": -3.5, "y": 4.0, "z":6.8 },
+        "rotation": -10,
+        "rotation_axis": { "x": 0, "y": 1, "z":0 }
+      },
+      {
+        "renderable": "RenderableId.EnvironmentCloud",
+        "position": { "x": -4, "y": 5.5, "z":6.7 },
         "rotation": -10,
         "rotation_axis": { "x": 0, "y": 1, "z":0 }
       },
@@ -157,18 +169,6 @@
         "renderable": "RenderableId.EnvironmentTree",
         "position": { "x": 8.5, "y": 0, "z":2 },
         "rotation": 60,
-        "rotation_axis": { "x": 0, "y": 1, "z":0 }
-      },
-      {
-        "renderable": "RenderableId.EnvironmentStoreFront",
-        "position": { "x": -8.5, "y": 0, "z":5 },
-        "rotation": -40,
-        "rotation_axis": { "x": 0, "y": 1, "z":0 }
-      },
-      {
-        "renderable": "RenderableId.EnvironmentStoreRoom",
-        "position": { "x": 2.5, "y": -0.3, "z":7.6 },
-        "rotation": 0,
         "rotation_axis": { "x": 0, "y": 1, "z":0 }
       }
     ]
