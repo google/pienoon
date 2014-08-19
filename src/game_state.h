@@ -46,6 +46,9 @@ class GameState {
   // Difference between target face angle and current face angle.
   Angle FaceAngleError(CharacterId id) const;
 
+  // Returns one of the RenderableId enums.
+  uint16_t CharacterState(CharacterId id) const;
+
   const mathfu::vec3& camera_position() const { return camera_position_; }
   void set_camera_position(const mathfu::vec3& position) {
     camera_position_ = position;
@@ -72,6 +75,7 @@ private:
                      WorldTime delta_time,
                      int queued_damage);
   void UpdatePiePosition(AirbornePie* pie) const;
+  CharacterId CalculateCharacterTarget(CharacterId id) const;
   float CalculateCharacterFacingAngleVelocity(const Character& character,
                                               WorldTime delta_time) const;
   mathfu::mat4 CameraMatrix() const;

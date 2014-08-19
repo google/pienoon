@@ -153,36 +153,55 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
   pie->set_position(pie_position);
 }
 
-static CharacterId CalculateCharacterTarget(const Character& c,
-                                            const int character_count) {
+uint16_t GameState::CharacterState(CharacterId id) const {
+  assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));
+  return characters_[id].state_machine()->current_state()->id();
+}
+
+CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
+  assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));
+  const Character& c = characters_[id];
+  const CharacterId current_target = c.target();
+
+  // If you yourself are KO'd, then you can't change target.
+  const int target_state = CharacterState(id);
+  if (target_state == StateId_KO)
+    return current_target;
+
   // Check the inputs to see how requests for target change.
   const uint32_t logical_inputs = c.controller()->logical_inputs();
-  const int target_delta = (logical_inputs & LogicalInputs_Left) ? 1 :
-                           (logical_inputs & LogicalInputs_Right) ? -1 : 0;
-  const CharacterId current_target = c.target();
+  const int target_delta = (logical_inputs & LogicalInputs_Left) ? -1 :
+                           (logical_inputs & LogicalInputs_Right) ? 1 : 0;
   if (target_delta == 0)
     return current_target;
 
-  for (CharacterId id = current_target + target_delta;; id += target_delta) {
+  const CharacterId character_count =
+      static_cast<CharacterId>(characters_.size());
+  for (CharacterId target_id = current_target + target_delta;;
+       target_id += target_delta) {
     // Wrap around.
-    if (id >= character_count) {
-      id = 0;
-    } else if (id < 0) {
-      id = character_count - 1;
+    if (target_id >= character_count) {
+      target_id = 0;
+    } else if (target_id < 0) {
+      target_id = character_count - 1;
     }
 
     // If we've looped around, no one else to target.
-    if (id == current_target)
-      return id;
+    if (target_id == current_target)
+      return current_target;
 
     // Avoid targeting yourself.
-    if (id == c.id())
+    // Avoid looping around to the other side.
+    if (target_id == id)
+      return current_target;
+
+    // Don't target KO'd characters.
+    const int target_state = CharacterState(target_id);
+    if (target_state == StateId_KO)
       continue;
 
-    // TODO: Don't target KO'd characters.
-
     // All targetting criteria satisfied.
-    return id;
+    return target_id;
   }
 }
 
@@ -283,8 +302,7 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     it->state_machine()->Update(transition_inputs);
 
     // Update target.
-    const CharacterId target_id = CalculateCharacterTarget(*it,
-                                                           characters_.size());
+    const CharacterId target_id = CalculateCharacterTarget(it->id());
     it->set_target(target_id);
 
     // Update facing angles.
