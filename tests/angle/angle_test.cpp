@@ -117,6 +117,18 @@ TEST_F(AngleTests, Subtraction) {
   EXPECT_NEAR(diff.angle(), fpl::kPi, kAnglePrecision);
 }
 
+// Addition should use modular arithmetic.
+TEST_F(AngleTests, Multiplication) {
+  const fpl::Angle product = half_pi_ * 3.f;
+  EXPECT_NEAR(product.angle(), -half_pi_.angle(), kAnglePrecision);
+}
+
+// Subtraction should use modular arithmetic.
+TEST_F(AngleTests, Division) {
+  const fpl::Angle quotient = fpl::Angle::FromWithinThreePi(fpl::kPi) / 2.0f;
+  EXPECT_NEAR(quotient.angle(), fpl::kHalfPi, kAnglePrecision);
+}
+
 // Unary negate should change the sign.
 TEST_F(AngleTests, Negate) {
   const fpl::Angle a = fpl::Angle(fpl::kHalfPi);
@@ -128,6 +140,29 @@ TEST_F(AngleTests, NegatePi) {
   const fpl::Angle a = fpl::Angle(fpl::kPi);
   const fpl::Angle negative_a = -a;
   EXPECT_FLOAT_EQ(negative_a.angle(), fpl::kPi);
+}
+
+// Ensure wrapping produces angles in the range (-pi, pi].
+TEST_F(AngleTests, WrapAngleTest) {
+  const float a1 = fpl::Angle::WrapAngle(
+      static_cast<float>(-M_PI - M_2_PI - M_2_PI));
+  EXPECT_TRUE(fpl::Angle::IsAngleInRange(a1));
+
+  const float a2 = fpl::Angle::WrapAngle(static_cast<float>(-M_PI - M_2_PI));
+  EXPECT_TRUE(fpl::Angle::IsAngleInRange(a2));
+
+  const float a3 = fpl::Angle::WrapAngle(static_cast<float>(-M_PI));
+  EXPECT_TRUE(fpl::Angle::IsAngleInRange(a3));
+
+  const float a4 = fpl::Angle::WrapAngle(0.f);
+  EXPECT_TRUE(fpl::Angle::IsAngleInRange(a4));
+
+  const float a5 = fpl::Angle::WrapAngle(static_cast<float>(M_PI + M_2_PI));
+  EXPECT_TRUE(fpl::Angle::IsAngleInRange(a5));
+
+  const float a6 = fpl::Angle::WrapAngle(
+      static_cast<float>(M_PI + M_2_PI + M_2_PI));
+  EXPECT_TRUE(fpl::Angle::IsAngleInRange(a6));
 }
 
 int main(int argc, char **argv) {

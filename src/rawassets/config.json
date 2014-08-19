@@ -14,8 +14,12 @@
   "character_count": 4,
   "character_health": 10,
   "pie_flight_time": 500,
+  "pie_rotations": 0,
+  "pie_rotation_variance": 1,
+  "pie_initial_angle": 45,
+  "pie_target_angle": 135,
   "pie_height": 5,
-  "pie_height_variance": 1,
+  "pie_height_variance": 2,
 
   // Don't let our game go faster than 100Hz. The game won't look much smoother
   // or play better at faster frame rates. We'll just be hogging the CPU.

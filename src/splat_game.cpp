@@ -447,7 +447,9 @@ void SplatGame::Run() {
     game_state_.AdvanceFrame(delta_time);
 
     // Output debug information.
-    DebugCharacterStates();
+    if (config.debug_character_states()) {
+      DebugCharacterStates();
+    }
     DebugCamera();
 
     // Populate 'scene' from the game state--all the positions, orientations,

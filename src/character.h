@@ -113,7 +113,8 @@ class Character {
 class AirbornePie {
  public:
   AirbornePie(CharacterId source, CharacterId target, WorldTime start_time,
-              WorldTime flight_time, CharacterHealth damage, float height);
+              WorldTime flight_time, CharacterHealth damage, float height,
+              int rotations);
 
   CharacterId source() const { return source_; }
   CharacterId target() const { return target_; }
@@ -121,6 +122,7 @@ class AirbornePie {
   WorldTime flight_time() const { return flight_time_; }
   CharacterHealth damage() const { return damage_; }
   float height() const { return height_; }
+  int rotations() const { return rotations_; }
   Quat orientation() const { return orientation_; }
   void set_orientation(const Quat& orientation) { orientation_ = orientation; }
   mathfu::vec3 position() const { return position_; }
@@ -132,8 +134,9 @@ class AirbornePie {
   CharacterId target_;
   WorldTime start_time_;
   WorldTime flight_time_;
-  float height_;
   CharacterHealth damage_;
+  float height_;
+  int rotations_;
   Quat orientation_;
   mathfu::vec3 position_;
 };
@@ -183,7 +186,6 @@ inline std::vector<int> TimelineIndicesWithTime(const T& arr,
   }
   return ret;
 }
-
 
 }  // splat
 }  // fpl

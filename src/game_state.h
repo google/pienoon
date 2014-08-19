@@ -40,6 +40,10 @@ class GameState {
   // Fill in the position of the characters and pies.
   void PopulateScene(SceneDescription* scene) const;
 
+  // Angle between two characters.
+  Angle AngleBetweenCharacters(CharacterId source_id,
+                               CharacterId target_id) const;
+
   // Angle to the character's target.
   Angle TargetFaceAngle(CharacterId id) const;
 

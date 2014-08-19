@@ -61,7 +61,7 @@ static const float kMinUniqueAngle = -3.1415925f;
 // as 0, internally. This unique representation allows for comparison and
 // precise arithmetic.
 //
-// Operators for + and - keep the angle values in the valid range.
+// All operators keep the angle values in the valid range.
 //
 //    Conversions to and from vectors and matrices
 //    ============================================
@@ -87,11 +87,38 @@ class Angle {
   Angle() : angle_(0.0f) {}
 
   // Create from 'angle', which is already in the valid range (-pi,pi].
+  // If your angle is outside that range, construct the Angle with the
+  // slower FromRadians function to automatically wrap it.
   explicit Angle(float angle) : angle_(angle) { assert(IsValid()); }
 
   float angle() const { return angle_; }
 
   Angle Abs() const { return Angle(fabs(angle_)); }
+
+  Angle& operator=(const Angle& rhs) {
+    angle_ = rhs.angle_;
+    return *this;
+  }
+
+  Angle& operator+=(const Angle& rhs) {
+    angle_ = ModWithinThreePi(angle_ + rhs.angle_);
+    return *this;
+  }
+
+  Angle& operator-=(const Angle& rhs) {
+    angle_ = ModWithinThreePi(angle_ - rhs.angle_);
+    return *this;
+  }
+
+  Angle& operator*=(float rhs) {
+    angle_ = WrapAngle(angle_ * rhs);
+    return *this;
+  }
+
+  Angle& operator/=(float rhs) {
+    angle_ = WrapAngle(angle_ / rhs);
+    return *this;
+  }
 
   float ToDegrees() const {
     return kRadiansToDegrees * angle_;
@@ -121,14 +148,28 @@ class Angle {
     return IsAngleInRange(angle_);
   }
 
+  // Wraps an angle to the range (-pi, pi].
+  static float WrapAngle(float angle) {
+    angle -= (floor(angle / kTwoPi) + 1.f) * kTwoPi;
+    if (angle <= -kPi) {
+      angle += kTwoPi;
+    }
+    return angle;
+  }
+
   // Create from 'angle', which is in the range (-3pi,3pi].
   static Angle FromWithinThreePi(const float angle) {
     return Angle(ModWithinThreePi(angle));
   }
 
-  // Create from 'degrees', which is in the range [-180, 180]
+  // Create from 'radians', which is converted to the range (-pi, pi].
+  static Angle FromRadians(const float radians) {
+    return Angle(WrapAngle(radians));
+  }
+
+  // Create from 'degrees', which is converted to the range (-pi, pi].
   static Angle FromDegrees(const float degrees) {
-    return Angle(ModIfNegativePi(degrees * kDegreesToRadians));
+    return FromRadians(degrees * kDegreesToRadians);
   }
 
   // Create from the x,z coordinates of a vector, as described in the
@@ -144,13 +185,13 @@ class Angle {
   }
 
  private:
-  friend Angle operator+(const Angle& a, const Angle& b);
-  friend Angle operator-(const Angle& a, const Angle& b);
+  friend Angle operator+(Angle a, const Angle& b);
+  friend Angle operator-(Angle a, const Angle& b);
+  friend Angle operator*(Angle a, float b);
+  friend Angle operator/(Angle a, float b);
   friend bool operator==(const Angle& a, const Angle& b);
   friend bool operator!=(const Angle& a, const Angle& b);
 #ifdef FPL_ANGLE_UNIT_TESTS
-  FRIEND_TEST(AngleTests, RangeExtremes);
-  FRIEND_TEST(AngleTests, IsAngleInRange);
   FRIEND_TEST(AngleTests, ModWithinThreePi);
   FRIEND_TEST(AngleTests, ModIfNegativePi);
 #endif // FPL_ANGLE_UNIT_TESTS
@@ -180,12 +221,24 @@ class Angle {
   float angle_; // Angle in radians, in range (-pi, pi]
 };
 
-inline Angle operator+(const Angle& a, const Angle& b) {
-  return Angle(Angle::ModWithinThreePi(a.angle_ + b.angle_));
+inline Angle operator+(Angle lhs, const Angle& rhs) {
+  lhs += rhs;
+  return lhs;
 }
 
-inline Angle operator-(const Angle& a, const Angle& b) {
-  return Angle(Angle::ModWithinThreePi(a.angle_ - b.angle_));
+inline Angle operator-(Angle lhs, const Angle& rhs) {
+  lhs -= rhs;
+  return lhs;
+}
+
+inline Angle operator*(Angle lhs, float rhs) {
+  lhs *= rhs;
+  return lhs;
+}
+
+inline Angle operator/(Angle lhs, float rhs) {
+  lhs /= rhs;
+  return lhs;
 }
 
 inline bool operator==(const Angle& a, const Angle& b) {

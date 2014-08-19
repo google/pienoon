@@ -37,8 +37,26 @@ table Config {
   character_count:int;
   character_health:int;
   pie_flight_time:int;
+
+  // The height of the pie when thrown.
   pie_height:float;
+
+  // Randomly adjusts how high the pie is thrown.
   pie_height_variance:float;
+
+  // The number of in-air spins the pie should have.
+  pie_rotations:int;
+
+  // Randomly adjusts how much the pie spins in air. e.g. a value of 2 would
+  // mean there would be pie_rotations +/- 2 spins.
+  pie_rotation_variance:int;
+
+  // The initial angle of the pie when thrown, in degrees.
+  pie_initial_angle:float;
+
+  // The target angle of the pie when landing, in degrees.
+  pie_target_angle:float;
+
   min_update_time:int;
   max_update_time:int;
   face_delta_to_accel:float;
@@ -74,6 +92,7 @@ table Config {
   mouse_to_ground_scale:float;
   mouse_to_height_scale:float;
   mouse_to_camera_rotation_scale:float;
+  debug_character_states:bool;
 }
 
 root_type Config;

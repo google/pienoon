@@ -28,12 +28,12 @@ namespace fpl {
 namespace splat {
 
 GameState::GameState()
-  : time_(0),
-    camera_position_(0.0f, 0.0f, 0.0f),
-    camera_target_(0.0f, 0.0f, 0.0f),
-    characters_(),
-    pies_(),
-    config_() {
+    : time_(0),
+      camera_position_(0.0f, 0.0f, 0.0f),
+      camera_target_(0.0f, 0.0f, 0.0f),
+      characters_(),
+      pies_(),
+      config_() {
 }
 
 // Calculate the direction a character is facing at the start of the game.
@@ -93,9 +93,13 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
         float height = config_->pie_height();
         height += config_->pie_height_variance() *
                   (mathfu::Random<float>() * 2 - 1);
+        int rotations = config_->pie_rotations();
+        int variance = config_->pie_rotation_variance();
+        rotations += variance ? (rand() % (variance * 2)) - variance : 0;
         pies_.push_back(AirbornePie(character->id(), character->target(),
                                     time_, config_->pie_flight_time(),
-                                    character->pie_damage(), height));
+                                    character->pie_damage(), height,
+                                    rotations));
         UpdatePiePosition(&pies_.back());
         break;
       }
@@ -109,19 +113,26 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
   }
 }
 
-static Quat CalculatePieOrientation(const Character& source,
-    const Character& target, WorldTime time_since_launch) {
-  (void)source; (void)target; (void)time_since_launch;
+static Quat CalculatePieOrientation(Angle pie_angle, float percent,
+                                    int rotations, const Config* config) {
+  // These are floats instead of Angles because they may need to rotate more
+  // than 360 degrees. Values are negative so that they rotate in the correct
+  // direction.
+  float initial_angle = -config->pie_initial_angle();
+  float target_angle = -config->pie_target_angle() + (rotations * -360);
+  float delta = target_angle - initial_angle;
 
-  // TODO: Make pie spin about axis of rotation.
-  return Quat(0.0f, mathfu::vec3(0.0f, 1.0f, 0.0f));
+  Angle rotation_angle = Angle::FromDegrees(initial_angle + (delta * percent));
+  Quat pie_direction = Quat::FromAngleAxis(pie_angle.angle(),
+                                           mathfu::vec3(0.0f, 1.0f, 0.0f));
+  Quat pie_rotation = Quat::FromAngleAxis(rotation_angle.angle(),
+                                          mathfu::vec3(0.0f, 0.0f, 1.0f));
+  return pie_direction * pie_rotation;
 }
 
 static mathfu::vec3 CalculatePiePosition(const Character& source,
-    const Character& target, WorldTime time_since_launch,
-    WorldTime flight_time, float pie_height) {
-  float percent = static_cast<float>(time_since_launch) / flight_time;
-  percent = mathfu::Clamp(percent, 0.0f, 1.0f);
+                                         const Character& target,
+                                         float percent, float pie_height) {
   mathfu::vec3 result =
       mathfu::vec3::Lerp(source.position(), target.position(), percent);
 
@@ -138,16 +149,19 @@ static mathfu::vec3 CalculatePiePosition(const Character& source,
 }
 
 void GameState::UpdatePiePosition(AirbornePie* pie) const {
-  const WorldTime time_since_launch = time_ - pie->start_time();
   const Character& source = characters_[pie->source()];
   const Character& target = characters_[pie->target()];
 
-  const Quat pie_orientation = CalculatePieOrientation(source, target,
-                                                       time_since_launch);
-  const mathfu::vec3 pie_position = CalculatePiePosition(source, target,
-                                                         time_since_launch,
-                                                         pie->flight_time(),
-                                                         pie->height());
+  const float time_since_launch = static_cast<float>(time_ - pie->start_time());
+  float percent = time_since_launch / config_->pie_flight_time();
+  percent = mathfu::Clamp(percent, 0.0f, 1.0f);
+
+  Angle pie_angle = -AngleBetweenCharacters(pie->source(), pie->target());
+
+  const Quat pie_orientation = CalculatePieOrientation(
+      pie_angle, percent, pie->rotations(), config_);
+  const mathfu::vec3 pie_position = CalculatePiePosition(
+      source, target, percent, pie->height());
 
   pie->set_orientation(pie_orientation);
   pie->set_position(pie_position);
@@ -205,13 +219,20 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
   }
 }
 
+// The angle between two characters.
+Angle GameState::AngleBetweenCharacters(CharacterId source_id,
+                                        CharacterId target_id) const {
+  const Character& source = characters_[source_id];
+  const Character& target = characters_[target_id];
+  const mathfu::vec3 vector_to_target = target.position() - source.position();
+  const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
+  return angle_to_target;
+}
+
 // Angle to the character's target.
 Angle GameState::TargetFaceAngle(CharacterId id) const {
   const Character& c = characters_[id];
-  const Character& target = characters_[c.target()];
-  const mathfu::vec3 vector_to_target = target.position() - c.position();
-  const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
-  return angle_to_target;
+  return AngleBetweenCharacters(id, c.target());
 }
 
 // Difference between target face angle and current face angle.
