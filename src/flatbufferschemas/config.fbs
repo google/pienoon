@@ -15,40 +15,73 @@
 namespace fpl.splat;
 
 table Splatter {
+  // Location for the splatter texture to appear.
   location:Vec2i;
+
+  // Which renderable should be used for this splotch.
   renderable:RenderableId;
 }
 
 struct Prop {
-  renderable:uint;    // The object to render. See RenderableId enum.
-                      // TODO: change to ushort once padding warning is fixed.
-  position:Vec3;      // Placement of the object.
-  rotation:float;     // Rotation about the vertical axis, in degrees.
-  rotation_axis:Vec3; // Axis about which we perform 'rotation'.
+  // The object to render. See RenderableId enum.
+  // TODO: change to ushort once padding warning is fixed.
+  renderable:uint;
+
+  // Placement of the object.
+  position:Vec3;
+
+  // Rotation about the vertical axis, in degrees.
+  rotation:float;
+
+  // Axis about which we perform 'rotation'.
+  rotation_axis:Vec3;
+}
+
+struct CharacterData {
+  // Where the character should be placed in the world.
+  position:Vec3;
+
+  // Who this character should initially target.
+  initial_target_id:int;
+
+  // TODO: Add color here?
 }
 
 table Config {
   // Gameplay constants
-  character_positions:[Vec3];
-  character_targets:[int];
+  character_data:[CharacterData];
+
+  // Where the camera should be positioned.
   camera_position:Vec3;
+
+  // Where the camera should be pointed at.
   camera_target:Vec3;
+
+  // The positions of the light sources.
   light_positions:[Vec3];
-  character_count:int;
+
+  // How much health a player has. Some pies may do more damage than others.
   character_health:int;
+
+  // How long it takes for a pie to reach it's target. Note that this is not
+  // the same as speed; throwing a pie at someone diagonal to you will take the
+  // same amount of time as throwing a pie at someone adjacent to you.
   pie_flight_time:int;
 
   // The height of the pie when thrown.
   pie_height:float;
 
-  // Randomly adjusts how high the pie is thrown.
+  // Randomly adjusts how high the pie is thrown. e.g. A value of 2 would mean
+  // the pie could have any height between `pie_height - 2` to `pie_height + 2`
+  // with equal probability.
   pie_height_variance:float;
 
   // The number of in-air spins the pie should have.
   pie_rotations:int;
 
-  // Randomly adjusts how much the pie spins in air. e.g. a value of 2 would
-  // mean there would be pie_rotations +/- 2 spins.
+  // Randomly adjusts how much the pie spins in the air. e.g. A value of 2
+  // would mean the pie could have any whole number of rotations between
+  // `pie_rotations - 2` to `pie_rotations + 2` with equal probability.
   pie_rotation_variance:int;
 
   // The initial angle of the pie when thrown, in degrees.
@@ -57,13 +90,20 @@ table Config {
   // The target angle of the pie when landing, in degrees.
   pie_target_angle:float;
 
+  // The maximum and minimum duration a frame can last.
   min_update_time:int;
   max_update_time:int;
+
+  // These values can be tuned to adjust the turning speed and wobble when
+  // changing targets.
   face_delta_to_accel:float;
   face_wrong_direction_accel_bonus:float;
   face_max_velocity:float;
   face_near_target_angular_velocity:float;
   face_near_target_angle:float;
+
+  // The id of the first pie and last pie. Intermediate pie material id's are
+  // assumed to be in between these two ids.
   first_airborne_pie_renderable:RenderableId;
   last_airborne_pie_renderable:RenderableId;
 
@@ -78,6 +118,9 @@ table Config {
   cardboard_front_z_offset:float;
   cardboard_back_z_offset:float;
   accessory_z_offset:float;
+
+  // Where splatter splotches should appear on a character. One splotch appears
+  // per point of damage taken.
   splatter:[Splatter];
 
   // Initial configuration of stage and environment.
@@ -92,7 +135,8 @@ table Config {
   mouse_to_ground_scale:float;
   mouse_to_height_scale:float;
   mouse_to_camera_rotation_scale:float;
-  debug_character_states:bool;
+  print_character_states:bool;
+  print_pie_states:bool;
 }
 
 root_type Config;

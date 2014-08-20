@@ -192,10 +192,6 @@ bool SplatGame::InitializeRenderingAssets() {
 // 'gamestate_'.
 bool SplatGame::InitializeGameState() {
   const Config& config = GetConfig();
-  assert(config.character_count() ==
-            static_cast<int>(config.character_positions()->Length()) &&
-         config.character_count() ==
-            static_cast<int>(config.character_targets()->Length()));
 
   game_state_.set_config(&config);
 
@@ -214,22 +210,22 @@ bool SplatGame::InitializeGameState() {
   }
 
   // Create controllers.
-  controllers_.resize(config.character_count());
-  for (CharacterId id = 0; id < config.character_count(); ++id) {
-    controllers_[id].Initialize(
-        &input_, ControlScheme::GetDefaultControlScheme(id));
+  controllers_.resize(config.character_data()->Length());
+  for (unsigned int i = 0; i < config.character_data()->Length(); ++i) {
+    controllers_[i].Initialize(
+        &input_, ControlScheme::GetDefaultControlScheme(i));
   }
 
   // Create characters.
-  for (CharacterId id = 0; id < config.character_count(); ++id) {
+  for (unsigned int i = 0; i < config.character_data()->Length(); ++i) {
     game_state_.characters().push_back(Character(
-        id, &controllers_[id], state_machine_def));
+        i, &controllers_[i], state_machine_def));
   }
 
   game_state_.Reset();
 
-  debug_previous_states_.resize(config.character_count(), -1);
-  debug_previous_angles_.resize(config.character_count(), Angle(0.0f));
+  debug_previous_states_.resize(config.character_data()->Length(), -1);
+  debug_previous_angles_.resize(config.character_data()->Length(), Angle(0.0f));
 
   return true;
 }
@@ -358,10 +354,8 @@ void SplatGame::Render(const SceneDescription& scene) {
   }
 }
 
-// Debug function to write out state machine transitions.
-// TODO: Remove this block and the one in the main loop that prints the
-// current state.
-void SplatGame::DebugCharacterStates() {
+// Debug function to print out state machine transitions.
+void SplatGame::DebugPrintCharacterStates() {
   // Display the state changes, at least until we get real rendering up.
   for (unsigned int i = 0; i < game_state_.characters().size(); ++i) {
     auto& character = game_state_.characters()[i];
@@ -381,7 +375,10 @@ void SplatGame::DebugCharacterStates() {
       debug_previous_angles_[i] = character.face_angle();
     }
   }
+}
 
+// Debug function to print out the state of each AirbornePie.
+void SplatGame::DebugPrintPieStates() {
   for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
     AirbornePie& pie = game_state_.pies()[i];
     printf("Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
@@ -477,8 +474,11 @@ void SplatGame::Run() {
     game_state_.AdvanceFrame(delta_time);
 
     // Output debug information.
-    if (config.debug_character_states()) {
-      DebugCharacterStates();
+    if (config.print_character_states()) {
+      DebugPrintCharacterStates();
+    }
+    if (config.print_pie_states()) {
+      DebugPrintPieStates();
     }
     DebugCamera();
 

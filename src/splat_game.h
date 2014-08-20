@@ -44,7 +44,8 @@ class SplatGame {
   void RenderCardboard(const SceneDescription& scene,
                        const mat4& camera_transform);
   void Render(const SceneDescription& scene);
-  void DebugCharacterStates();
+  void DebugPrintCharacterStates();
+  void DebugPrintPieStates();
   void DebugCamera();
   const Config& GetConfig() const;
   const RenderingAssets& GetRenderingAssets() const;

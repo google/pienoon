@@ -40,10 +40,11 @@ GameState::GameState()
 // We want the characters to face their initial target.
 static Angle InitialFaceAngle(const CharacterId id, const Config& config) {
   const mathfu::vec3 characterPosition =
-      LoadVec3(config.character_positions()->Get(id));
-  const CharacterId target_id = config.character_targets()->Get(id);
+      LoadVec3(&config.character_data()->Get(id)->position());
+  const CharacterId target_id =
+      config.character_data()->Get(id)->initial_target_id();
   const mathfu::vec3 targetPosition =
-      LoadVec3(config.character_positions()->Get(target_id));
+      LoadVec3(&config.character_data()->Get(target_id)->position());
   return Angle::FromXZVector(targetPosition - characterPosition);
 }
 
@@ -57,10 +58,11 @@ void GameState::Reset() {
   // Reset characters to their initial state.
   const CharacterId num_ids = static_cast<CharacterId>(characters_.size());
   for (CharacterId id = 0; id < num_ids; ++id) {
-    characters_[id].Reset(config_->character_targets()->Get(id),
-                          config_->character_health(),
-                          InitialFaceAngle(id, *config_),
-                          LoadVec3(config_->character_positions()->Get(id)));
+    characters_[id].Reset(
+        config_->character_data()->Get(id)->initial_target_id(),
+        config_->character_health(),
+        InitialFaceAngle(id, *config_),
+        LoadVec3(&config_->character_data()->Get(id)->position()));
   }
 }
 
