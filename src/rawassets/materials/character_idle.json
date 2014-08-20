@@ -1,9 +1,8 @@
 {
   shader_basename: "shaders/lit_textured_normal",
   texture_filenames: [
-    "textures/loadeing.tga",
+    "textures/loading.tga",
     "textures/cardboard-normal.tga"
   ],
   "blendmode": "TEST"
 }
-
