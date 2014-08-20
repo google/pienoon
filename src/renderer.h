@@ -44,7 +44,6 @@ class Shader {
       uniform_model_view_projection_(-1),
       uniform_model_(-1),
       uniform_color_(-1),
-      uniform_texture_unit_0(-1),
       uniform_light_pos_(-1)
   {
     for (int i = 0; i < kMaxTexturesPerShader; i++)
@@ -80,7 +79,6 @@ class Shader {
   GLint uniform_model_view_projection_;
   GLint uniform_model_;
   GLint uniform_color_;
-  GLint uniform_texture_unit_0;
   GLint uniform_light_pos_;
   GLint uniform_camera_pos_;
 };
