@@ -1,7 +1,8 @@
 {
-  shader_basename: "shaders/textured",
+  shader_basename: "shaders/lit_textured_normal",
   texture_filenames: [
-    "textures/hit04.tga"
+    "textures/hit04.tga",
+    "textures/cardboard-normal.tga"
   ],
   "blendmode": "TEST"
 }

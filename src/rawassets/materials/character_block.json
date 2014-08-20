@@ -1,7 +1,8 @@
 {
-  shader_basename: "shaders/textured",
+  shader_basename: "lit_textured_normal",
   texture_filenames: [
-    "textures/shield_dude.tga"
+    "textures/shield_dude.tga",
+    "textures/cardboard-normal.tga"
   ],
   "blendmode": "TEST"
 }

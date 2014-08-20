@@ -1,7 +1,8 @@
 {
-  shader_basename: "shaders/textured",
+  shader_basename: "shaders/lit_textured_normal",
   texture_filenames: [
-    "textures/firing.tga"
+    "textures/firing.tga",
+    "textures/cardboard-normal.tga"
   ],
   "blendmode": "TEST"
 }
