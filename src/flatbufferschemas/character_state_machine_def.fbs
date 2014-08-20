@@ -38,8 +38,8 @@ enum LogicalInputs:byte (bit_flags) {
 
 table TransitionCondition {
   logical_inputs:LogicalInputs;
-  time_begin:int = 0;
-  time_end:int = 2147483647; // MAX_INT
+  time:int = 0;
+  end_time:int = 2147483647; // MAX_INT
 }
 
 table Transition {

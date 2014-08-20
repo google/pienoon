@@ -44,8 +44,8 @@ void CharacterStateMachine::Update(const TransitionInputs& inputs) {
         condition->logical_inputs()) {
       continue;
     }
-    if (inputs.animation_time < condition->time_begin() ||
-        condition->time_end() < inputs.animation_time) {
+    if (inputs.animation_time < condition->time() ||
+        condition->end_time() < inputs.animation_time) {
       continue;
     }
     current_state_ = state_machine_def_->states()->Get(it->target_state());
