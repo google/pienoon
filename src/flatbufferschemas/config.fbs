@@ -119,6 +119,12 @@ table Config {
   cardboard_back_z_offset:float;
   accessory_z_offset:float;
 
+  // Offset of UI arrow from the character. Z is forward. X is side. Y is up.
+  ui_arrow_offset:Vec3;
+
+  // Scale of UI arrow from it's authored size. Z is length. X is width.
+  ui_arrow_scale:Vec3;
+
   // Where splatter splotches should appear on a character. One splotch appears
   // per point of damage taken.
   splatter:[Splatter];
@@ -129,6 +135,7 @@ table Config {
   // Debug options
   draw_fixed_renderable:RenderableId;
   draw_characters:bool;
+  draw_ui_arrows:bool;
   draw_pies:bool;
   draw_props:bool;
   draw_axes:bool;

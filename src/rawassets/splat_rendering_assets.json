@@ -89,7 +89,10 @@
       "materials/splatter2.bin",
 
       // Splatter3
-      "materials/splatter3.bin"
+      "materials/splatter3.bin",
+
+      // UiArrow
+      "materials/arrow.bin"
     ],
 
   "cardboard_backs":[
@@ -181,6 +184,9 @@
       "",
 
       // Splatter3
+      "",
+
+      // UiArrow
       ""
     ],
 
@@ -273,6 +279,9 @@
       true,
 
       // Splatter3
-      true
+      true,
+
+      // UiArrow
+      false
     ]
 }

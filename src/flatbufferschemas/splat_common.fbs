@@ -45,6 +45,7 @@ enum RenderableId : ushort {
   Splatter1,
   Splatter2,
   Splatter3,
+  UiArrow,
 
   Count // Must be last
 }

@@ -60,10 +60,12 @@
   "cardboard_front_z_offset": 0.0,
   "cardboard_back_z_offset": -0.15,
   "accessory_z_offset": 0.05,
-
+  "ui_arrow_offset": { "x": 0.3, "y": 0.01, "z": -0.5 },
+  "ui_arrow_scale": { "x": 0.6, "y": 1, "z": 0.6 },
 
   "draw_fixed_renderable": "Invalid",
   "draw_characters": true,
+  "draw_ui_arrows": true,
   "draw_pies": true,
   "draw_props": true,
   "draw_axes": false,

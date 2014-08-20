@@ -400,6 +400,22 @@ static mathfu::mat4 CalculatePropWorldMatrix(const Prop& prop) {
          mathfu::mat4::FromRotationMatrix(quat.ToMatrix());
 }
 
+static mathfu::mat4 CalculateUiArrowOffsetMatrix(
+    const mathfu::vec3& offset, const mathfu::vec3& scale) {
+  // First rotate to horizontal, then scale to correct size, then center and
+  // translate forward slightly.
+  // TODO: Call mathfu::mat4::FromScaleVector(scale) when it's submitted.
+  mathfu::mat4 scale_matrix(mathfu::mat4::Identity());
+  scale_matrix(0, 0) = scale[0];
+  scale_matrix(1, 1) = scale[1];
+  scale_matrix(2, 2) = scale[2];
+  return mathfu::mat4::FromTranslationVector(offset) *
+         scale_matrix *
+         mathfu::mat4::FromRotationMatrix(
+            Quat::FromAngleAxis(kHalfPi,
+                                mathfu::vec3(1.0f, 0.0f, 0.0f)).ToMatrix());
+}
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -410,6 +426,11 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
   // Characters and accessories.
   if (config_->draw_characters()) {
+    // Constant conversion from character matrix to UI arrow matrix.
+    const mathfu::mat4 ui_arrow_offset_matrix =
+        CalculateUiArrowOffsetMatrix(LoadVec3(config_->ui_arrow_offset()),
+                                     LoadVec3(config_->ui_arrow_scale()));
+
     for (auto c = characters_.begin(); c != characters_.end(); ++c) {
       // Character.
       const WorldTime anim_time = GetAnimationTime(*c);
@@ -445,6 +466,14 @@ void GameState::PopulateScene(SceneDescription* scene) const {
                 CalculateSplatterMatrix(splatter->location(),
                                         character_matrix,
                                         *config_)));
+      }
+
+      // UI arrow
+      if (config_->draw_ui_arrows()) {
+        const mathfu::mat4 ui_arrow_matrix = character_matrix *
+                                             ui_arrow_offset_matrix;
+        scene->renderables().push_back(
+            Renderable(RenderableId_UiArrow, ui_arrow_matrix));
       }
     }
   }
