@@ -294,35 +294,34 @@ void SplatGame::Render(const SceneDescription& scene) {
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
-  const float gs = 64;
-  const float txs = 16;
+  const float gs = 16;
+  const float txs = 1;
   Mesh::RenderAAQuadAlongX(vec3(-gs, 0, -gs), vec3(gs, 0, gs),
                            vec2(0, 0), vec2(txs, txs));
+  renderer_.scale_bias() = vec2(gs / txs * 2, -0.5f);
 
   // Render shadows for all Renderables first, with depth testing off so
   // they blend properly.
   renderer_.DepthTest(false);
-  renderer_.SetBlendMode(kBlendModeAlpha);
-
-  auto shadow_shader = matman_.LoadShader("shaders/simple_shadow");
-  assert(shadow_shader);
+  auto shadow_mat = matman_.LoadMaterial("materials/floor_shadows.bin");
+  assert(shadow_mat);
   renderer_.model_view_projection() = camera_transform;
   renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
-
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
-
     const int id = renderable.id();
     Mesh* front = GetCardboardFront(id);
-
     if (assets.shadows()->Get(id)) {
       renderer_.model() = renderable.world_matrix();
-      front->Render(renderer_, shadow_shader);
+      // The first texture of the shadow shader has to be that of the billboard.
+      shadow_mat->textures()[0] = front->GetMaterial(0)->textures()[0];
+      shadow_mat->Set(renderer_);
+      front->Render(renderer_, true);
     }
   }
   renderer_.DepthTest(true);
-  renderer_.SetBlendMode(kBlendModeAlpha);
 
+  // Now render the Renderables normally, on top of the shadows.
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
 

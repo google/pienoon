@@ -1,0 +1,9 @@
+{
+  shader_basename: "shaders/simple_shadow",
+  texture_filenames: [
+    "textures/ShelfTop.tga",
+    "textures/ShelfTopShadow.tga"
+  ],
+  "blendmode": "ALPHA"
+}
+

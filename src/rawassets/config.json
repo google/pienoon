@@ -21,8 +21,8 @@
   "camera_position": { "x": 0.0, "y": 7.0, "z": -10.7 },
   "camera_target": { "x": 0.0, "y": 3.9, "z": 0.0 },
   "light_positions": [
-    { "x": -200.0, "y": 300.0, "z": -200.0 }
-  ],
+      { "x": -50.0, "y": 300.0, "z": -200.0 }
+    ],
   "character_health": 10,
   "pie_flight_time": 500,
   "pie_rotations": 0,

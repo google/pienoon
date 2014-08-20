@@ -13,7 +13,9 @@
 // limitations under the License.
 
 varying vec2 vTexCoord;
-uniform sampler2D texture_unit_0;
+varying vec2 vTexCoordGround;
+uniform sampler2D texture_unit_0;  // The billboard we're shadowing.
+uniform sampler2D texture_unit_1;  // The shadow texture to apply.
 
 void main()
 {
@@ -28,7 +30,7 @@ void main()
               clamp(vTexCoord + vec2(-offset, offset), 0.0, 1.0));
   vec4 tex4 = texture2D(texture_unit_0,
               clamp(vTexCoord + vec2(offset, -offset), 0.0, 1.0));
-  // base the shadow on the alpha of the texture, made somewhat translucent.
-  gl_FragColor = vec4(0.1, 0.1, 0.1, 0.2 * (tex1.a + tex2.a + tex3.a + tex4.a));
+  vec4 shadow = texture2D(texture_unit_1, vTexCoordGround);
+  gl_FragColor = vec4(shadow.rgb, (tex1.a + tex2.a + tex3.a + tex4.a) * 0.25);
 }
 

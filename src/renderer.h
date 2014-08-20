@@ -44,7 +44,9 @@ class Shader {
       uniform_model_view_projection_(-1),
       uniform_model_(-1),
       uniform_color_(-1),
-      uniform_light_pos_(-1)
+      uniform_light_pos_(-1),
+      uniform_camera_pos_(-1),
+      uniform_scale_bias_(-1)
   {
     for (int i = 0; i < kMaxTexturesPerShader; i++)
         uniform_texture_array_[i] = -1;
@@ -81,6 +83,7 @@ class Shader {
   GLint uniform_color_;
   GLint uniform_light_pos_;
   GLint uniform_camera_pos_;
+  GLint uniform_scale_bias_;
 };
 
 struct Texture {
@@ -94,7 +97,7 @@ class Material {
  public:
   Material() : shader_(nullptr), blend_mode_(kBlendModeOff) {}
 
-  void Set(Renderer &renderer, const Shader *shader = nullptr);
+  void Set(Renderer &renderer);
   void SetTextures();
 
   Shader *get_shader() { return shader_; }
@@ -134,9 +137,11 @@ class Mesh {
   // Create one IBO to be part of this mesh. May be called more than once.
   void AddIndices(const int *indices, int count, Material *mat);
 
-  // Render itself. A matching shader (and its uniforms) must have been set
-  // before calling this.
-  void Render(Renderer &renderer, const Shader *shader = nullptr);
+  // Render itself. Uniforms must have been set before calling this.
+  void Render(Renderer &renderer, bool ignore_material = false);
+
+  // TODO: should not need this method
+  Material *GetMaterial(int i) { return indices_[i].mat; }
 
   // Renders primatives using vertex and index data directly in local memory.
   // This is a convenient alternative to creating a Mesh instance for small
@@ -211,6 +216,7 @@ class Renderer {
 
   Renderer() : model_view_projection_(mat4::Identity()),
                model_(mat4::Identity()), color_(1.0f), light_pos_(vec3(0.0f)),
+               camera_pos_(vec3(0.0f)), scale_bias_(1, 0),
                window_size_(vec2i(0)), window_(nullptr),
                context_(nullptr) {}
   ~Renderer() { ShutDown(); }
@@ -230,6 +236,9 @@ class Renderer {
   vec3 &camera_pos() { return camera_pos_; }
   const vec3 &camera_pos() const { return camera_pos_; }
 
+  vec2 &scale_bias() { return scale_bias_; }
+  const vec2 &scale_bias() const { return scale_bias_; }
+
   std::string &last_error() { return last_error_; }
   const std::string &last_error() const { return last_error_; }
 
@@ -246,6 +255,7 @@ class Renderer {
   vec4 color_;
   vec3 light_pos_;
   vec3 camera_pos_;
+  vec2 scale_bias_;
 
   vec2i window_size_;
 

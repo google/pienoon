@@ -15,6 +15,7 @@
 attribute vec4 aPosition;
 attribute vec2 aTexCoord;
 varying vec2 vTexCoord;
+varying vec2 vTexCoordGround;
 uniform mat4 model_view_projection;
 uniform mat4 model;  // object to world space transform
 uniform vec3 light_pos;  // in world space
@@ -31,4 +32,7 @@ void main()
   vec3 world_pos_on_ground = world_pos + to_vert * (world_pos.y / -to_vert.y);
   gl_Position = model_view_projection * vec4(world_pos_on_ground, 1.0);
   vTexCoord = aTexCoord;
+  // Derive the ground texcoord from the world position
+  vTexCoordGround = world_pos_on_ground.xz / 32.0 - 0.5;  // TODO: de-hardcode
 }
+

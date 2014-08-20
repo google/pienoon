@@ -25,8 +25,7 @@ enum {
   kAttributeColor
 };
 
-bool Renderer::Initialize(const vec2i &window_size,
-                                             const char *window_title) {
+bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
   // Basic SDL initialization, does not actually initialize a Window or OpenGL,
   // typically should not fail.
   if (SDL_Init(SDL_INIT_VIDEO)) {
@@ -311,9 +310,9 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
   blend_mode_ = blend_mode;
 }
 
-void Material::Set(Renderer &renderer, const Shader *shader) {
+void Material::Set(Renderer &renderer) {
   renderer.SetBlendMode(blend_mode_);
-  (shader ? shader : shader_)->Set(renderer);
+  shader_->Set(renderer);
   SetTextures();
 }
 
@@ -416,6 +415,7 @@ void Shader::Initialize() {
 
   uniform_light_pos_ = glGetUniformLocation(program_, "light_pos");
   uniform_camera_pos_ = glGetUniformLocation(program_, "camera_pos");
+  uniform_scale_bias_ = glGetUniformLocation(program_, "scale_bias");
 }
 
 void Shader::Set(const Renderer &renderer) const {
@@ -433,6 +433,8 @@ void Shader::Set(const Renderer &renderer) const {
     glUniform3fv(uniform_light_pos_, 1, &renderer.light_pos()[0]);
   if (uniform_camera_pos_ >= 0)
     glUniform3fv(uniform_camera_pos_, 1, &renderer.camera_pos()[0]);
+  if (uniform_scale_bias_ >= 0)
+    glUniform3fv(uniform_scale_bias_, 1, &renderer.scale_bias()[0]);
 }
 
 Mesh::Mesh(const void *vertex_data, int count, int vertex_size,
@@ -462,10 +464,10 @@ void Mesh::AddIndices(const int *index_data, int count, Material *mat) {
   idxs.mat = mat;
 }
 
-void Mesh::Render(Renderer &renderer, const Shader *shader) {
+void Mesh::Render(Renderer &renderer, bool ignore_material) {
   SetAttributes(vbo_, format_, vertex_size_, nullptr);
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
-    it->mat->Set(renderer, shader);
+    if (!ignore_material) it->mat->Set(renderer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo);
     glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0);
   }
