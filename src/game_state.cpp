@@ -119,7 +119,8 @@ static Quat CalculatePieOrientation(Angle pie_angle, float percent,
   // than 360 degrees. Values are negative so that they rotate in the correct
   // direction.
   float initial_angle = -config->pie_initial_angle();
-  float target_angle = -config->pie_target_angle() + (rotations * -360);
+  float target_angle = -(config->pie_target_angle() +
+                         rotations * kDegreesPerCircle);
   float delta = target_angle - initial_angle;
 
   Angle rotation_angle = Angle::FromDegrees(initial_angle + (delta * percent));

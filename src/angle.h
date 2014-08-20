@@ -35,6 +35,7 @@ static const float kHalfPi = static_cast<float>(M_PI_2);
 static const float kDegreesToRadians = static_cast<float>(M_PI / 180.0);
 static const float kRadiansToDegrees = static_cast<float>(180.0 / M_PI);
 static const float kMaxUniqueAngle = kPi;
+static const float kDegreesPerCircle = 360.0f;
 
 // The biggest floating point number > -pi.
 // That is, there are no floats x s.t. -pi < x < kMinUniqueAngle.
@@ -110,12 +111,12 @@ class Angle {
     return *this;
   }
 
-  Angle& operator*=(float rhs) {
+  Angle& operator*=(const float rhs) {
     angle_ = WrapAngle(angle_ * rhs);
     return *this;
   }
 
-  Angle& operator/=(float rhs) {
+  Angle& operator/=(const float rhs) {
     angle_ = WrapAngle(angle_ / rhs);
     return *this;
   }
@@ -185,12 +186,6 @@ class Angle {
   }
 
  private:
-  friend Angle operator+(Angle a, const Angle& b);
-  friend Angle operator-(Angle a, const Angle& b);
-  friend Angle operator*(Angle a, float b);
-  friend Angle operator/(Angle a, float b);
-  friend bool operator==(const Angle& a, const Angle& b);
-  friend bool operator!=(const Angle& a, const Angle& b);
 #ifdef FPL_ANGLE_UNIT_TESTS
   FRIEND_TEST(AngleTests, ModWithinThreePi);
   FRIEND_TEST(AngleTests, ModIfNegativePi);
@@ -242,7 +237,7 @@ inline Angle operator/(Angle lhs, float rhs) {
 }
 
 inline bool operator==(const Angle& a, const Angle& b) {
-  return a.angle_ == b.angle_;
+  return a.angle() == b.angle();
 }
 
 inline bool operator!=(const Angle& a, const Angle& b) {
