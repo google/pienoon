@@ -114,13 +114,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 
 get_target_property(SPLAT_EXECUTABLE splat LOCATION)
 
-# For OSX users, create a simple command script that can be run from Finder that
-# will run the jsontobin.sh script and then run the game
-add_custom_target(runcommand
-  COMMAND echo '\#!/bin/bash -eu' > run.command &&
-          echo './scripts/jsontobin.sh && ${SPLAT_EXECUTABLE}' >> run.command &&
-          chmod +x run.command)
-
 # The set of files and folders to export for non-programmers.
 set(EXPORT_FILES
     ${CMAKE_SOURCE_DIR}/assets
@@ -134,6 +127,6 @@ set(EXPORT_FILES
 # Create a zipped tar of all the necessary files to run the game
 add_custom_target(export
   COMMAND tar -czvf ${CMAKE_SOURCE_DIR}/splat.tar.gz ${EXPORT_FILES}
-  DEPENDS splat runcommand
+  DEPENDS splat
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..)
 
