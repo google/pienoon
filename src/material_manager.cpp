@@ -93,8 +93,9 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
   if (mat) return mat;
   std::string flatbuf;
   if (LoadFile(filename, &flatbuf)) {
-    assert(matdef::VerifyMaterialBuffer(flatbuffers::Verifier(
-      reinterpret_cast<const uint8_t *>(flatbuf.c_str()), flatbuf.length())));
+    flatbuffers::Verifier verifier(
+        reinterpret_cast<const uint8_t *>(flatbuf.c_str()), flatbuf.length());
+    assert(matdef::VerifyMaterialBuffer(verifier));
     auto matdef = matdef::GetMaterial(flatbuf.c_str());
     auto shadername = matdef->shader_basename();
     auto shader = LoadShader(shadername->c_str());

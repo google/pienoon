@@ -84,7 +84,9 @@ bool SplatGame::InitializeRenderer() {
       config.viewport_angle(), config.viewport_aspect_ratio(),
       config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
 
-  if (!renderer_.Initialize(LoadVec2i(config.window_size()),
+  auto window_size = config.window_size();
+  assert(window_size);
+  if (!renderer_.Initialize(LoadVec2i(window_size),
                             config.window_title()->c_str())) {
     fprintf(stderr, "Renderer initialization error: %s\n",
             renderer_.last_error().c_str());
@@ -313,7 +315,7 @@ void SplatGame::Render(const SceneDescription& scene) {
   assert(shadow_mat);
   renderer_.model_view_projection() = camera_transform;
   renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
-  shadow_mat->get_shader()->Set("scale_bias", scale_bias);
+  shadow_mat->get_shader()->SetUniform("scale_bias", scale_bias);
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
     const int id = renderable.id();
@@ -422,8 +424,10 @@ void SplatGame::DebugCamera() {
     const vec3 new_position = game_state_.camera_position() + camera_delta;
     game_state_.set_camera_position(new_position);
 
-    printf("camera position (%.5ff, %.5ff, %.5ff)\n",
-           new_position[0], new_position[1], new_position[2]);
+#   ifdef SPLAT_DEBUG_CAMERA
+      printf("camera position (%.5ff, %.5ff, %.5ff)\n",
+             new_position[0], new_position[1], new_position[2]);
+#   endif
   }
 
   // Move the camera target in the camera plane.
@@ -443,8 +447,10 @@ void SplatGame::DebugCamera() {
     const vec3 new_target = game_state_.camera_target() + target_delta;
     game_state_.set_camera_target(new_target);
 
-    printf("camera target (%.5ff, %.5ff, %.5ff)\n",
-           new_target[0], new_target[1], new_target[2]);
+#   ifdef SPLAT_DEBUG_CAMERA
+      printf("camera target (%.5ff, %.5ff, %.5ff)\n",
+             new_target[0], new_target[1], new_target[2]);
+#   endif
   }
 }
 

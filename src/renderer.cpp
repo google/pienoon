@@ -401,6 +401,7 @@ void Shader::Initialize() {
   uniform_light_pos_ = glGetUniformLocation(program_, "light_pos");
   uniform_camera_pos_ = glGetUniformLocation(program_, "camera_pos");
 
+  // Set up the uniforms the shader uses for texture access.
   char texture_unit_name[] = "texture_unit_#####";
   for (int i = 0; i < kMaxTexturesPerShader; i++) {
     snprintf(texture_unit_name, sizeof(texture_unit_name),
