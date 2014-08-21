@@ -24,6 +24,12 @@
 #include "scene_description.h"
 #include "utilities.h"
 
+using mathfu::vec2i;
+using mathfu::vec2;
+using mathfu::vec3;
+using mathfu::vec4;
+using mathfu::mat4;
+
 namespace fpl {
 namespace splat {
 
@@ -39,11 +45,11 @@ GameState::GameState()
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
 static Angle InitialFaceAngle(const CharacterId id, const Config& config) {
-  const mathfu::vec3 characterPosition =
+  const vec3 characterPosition =
       LoadVec3(&config.character_data()->Get(id)->position());
   const CharacterId target_id =
       config.character_data()->Get(id)->initial_target_id();
-  const mathfu::vec3 targetPosition =
+  const vec3 targetPosition =
       LoadVec3(&config.character_data()->Get(target_id)->position());
   return Angle::FromXZVector(targetPosition - characterPosition);
 }
@@ -127,17 +133,17 @@ static Quat CalculatePieOrientation(Angle pie_angle, float percent,
 
   Angle rotation_angle = Angle::FromDegrees(initial_angle + (delta * percent));
   Quat pie_direction = Quat::FromAngleAxis(pie_angle.angle(),
-                                           mathfu::vec3(0.0f, 1.0f, 0.0f));
+                                           vec3(0.0f, 1.0f, 0.0f));
   Quat pie_rotation = Quat::FromAngleAxis(rotation_angle.angle(),
-                                          mathfu::vec3(0.0f, 0.0f, 1.0f));
+                                          vec3(0.0f, 0.0f, 1.0f));
   return pie_direction * pie_rotation;
 }
 
-static mathfu::vec3 CalculatePiePosition(const Character& source,
+static vec3 CalculatePiePosition(const Character& source,
                                          const Character& target,
                                          float percent, float pie_height) {
-  mathfu::vec3 result =
-      mathfu::vec3::Lerp(source.position(), target.position(), percent);
+  vec3 result =
+      vec3::Lerp(source.position(), target.position(), percent);
 
   // Pie height follows a parabola such that y = -4a * (x)(x - 1)
   //
@@ -163,7 +169,7 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
 
   const Quat pie_orientation = CalculatePieOrientation(
       pie_angle, percent, pie->rotations(), config_);
-  const mathfu::vec3 pie_position = CalculatePiePosition(
+  const vec3 pie_position = CalculatePiePosition(
       source, target, percent, pie->height());
 
   pie->set_orientation(pie_orientation);
@@ -227,7 +233,7 @@ Angle GameState::AngleBetweenCharacters(CharacterId source_id,
                                         CharacterId target_id) const {
   const Character& source = characters_[source_id];
   const Character& target = characters_[target_id];
-  const mathfu::vec3 vector_to_target = target.position() - source.position();
+  const vec3 vector_to_target = target.position() - source.position();
   const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
   return angle_to_target;
 }
@@ -354,50 +360,50 @@ static uint16_t RenderableIdForPieDamage(CharacterHealth damage,
 }
 
 // Get the camera matrix used for rendering.
-mathfu::mat4 GameState::CameraMatrix() const {
-  return mathfu::mat4::LookAt(camera_target_, camera_position_,
-                              mathfu::vec3(0.0f, 1.0f, 0.0f));
+mat4 GameState::CameraMatrix() const {
+  return mat4::LookAt(camera_target_, camera_position_,
+                              vec3(0.0f, 1.0f, 0.0f));
 }
 
-static const mathfu::mat4 CalculateAccessoryMatrix(
-    const TimelineAccessory& accessory, const mathfu::mat4& character_matrix,
+static const mat4 CalculateAccessoryMatrix(
+    const TimelineAccessory& accessory, const mat4& character_matrix,
     const Config& config) {
 
   // Calculate the accessory offset, in character space.
-  const mathfu::vec3 offset = mathfu::vec3(
+  const vec3 offset = vec3(
       accessory.offset().x() * config.pixel_to_world_scale(),
       accessory.offset().y() * config.pixel_to_world_scale(),
       config.accessory_z_offset());
 
   // Apply the offset to the character matrix to move the object relative to
   // the character.
-  const mathfu::mat4 offset_matrix =
-      mathfu::mat4::FromTranslationVector(offset);
-  const mathfu::mat4 accessory_matrix = character_matrix * offset_matrix;
+  const mat4 offset_matrix =
+      mat4::FromTranslationVector(offset);
+  const mat4 accessory_matrix = character_matrix * offset_matrix;
   return accessory_matrix;
 }
 
-static const mathfu::mat4 CalculateSplatterMatrix(
-    const Vec2i* location, const mathfu::mat4& character_matrix,
+static const mat4 CalculateSplatterMatrix(
+    const Vec2i* location, const mat4& character_matrix,
     const Config& config) {
   // Calculate the accessory offset, in character space.
-  const mathfu::vec3 offset = mathfu::vec3(
+  const vec3 offset = vec3(
       static_cast<float>(location->x()) * config.pixel_to_world_scale(),
       static_cast<float>(location->y()) * config.pixel_to_world_scale(),
       config.accessory_z_offset());
-  const mathfu::mat4 offset_matrix =
-      mathfu::mat4::FromTranslationVector(offset);
-  const mathfu::mat4 accessory_matrix = character_matrix * offset_matrix;
+  const mat4 offset_matrix =
+      mat4::FromTranslationVector(offset);
+  const mat4 accessory_matrix = character_matrix * offset_matrix;
   return accessory_matrix;
 }
 
-static mathfu::mat4 CalculatePropWorldMatrix(const Prop& prop) {
-  const mathfu::vec3& position = LoadVec3(&prop.position());
+static mat4 CalculatePropWorldMatrix(const Prop& prop) {
+  const vec3& position = LoadVec3(&prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
-  const mathfu::vec3& rotation_axis = LoadVec3(&prop.rotation_axis());
+  const vec3& rotation_axis = LoadVec3(&prop.rotation_axis());
   const Quat quat = Quat::FromAngleAxis(rotation.angle(), rotation_axis);
-  return mathfu::mat4::FromTranslationVector(position) *
-         mathfu::mat4::FromRotationMatrix(quat.ToMatrix());
+  return mat4::FromTranslationVector(position) *
+         mat4::FromRotationMatrix(quat.ToMatrix());
 }
 
 static mathfu::mat4 CalculateUiArrowOffsetMatrix(
@@ -434,7 +440,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     for (auto c = characters_.begin(); c != characters_.end(); ++c) {
       // Character.
       const WorldTime anim_time = GetAnimationTime(*c);
-      const mathfu::mat4 character_matrix = c->CalculateMatrix();
+      const mat4 character_matrix = c->CalculateMatrix();
       scene->renderables().push_back(
           Renderable(c->RenderableId(anim_time), character_matrix));
 
@@ -505,20 +511,20 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   if (config_->draw_axes()) {
     // TODO: add an arrow renderable instead of drawing with pies.
     for (int i = 0; i < 8; ++i) {
-      const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
-          mathfu::vec3(static_cast<float>(i), 0.0f, 0.0f));
+      const mat4 axis_dot = mat4::FromTranslationVector(
+          vec3(static_cast<float>(i), 0.0f, 0.0f));
       scene->renderables().push_back(
           Renderable(RenderableId_PieSmall, axis_dot));
     }
     for (int i = 0; i < 4; ++i) {
-      const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
-          mathfu::vec3(0.0f, 0.0f, static_cast<float>(i)));
+      const mat4 axis_dot = mat4::FromTranslationVector(
+          vec3(0.0f, 0.0f, static_cast<float>(i)));
       scene->renderables().push_back(
           Renderable(RenderableId_PieSmall, axis_dot));
     }
     for (int i = 0; i < 2; ++i) {
-      const mathfu::mat4 axis_dot = mathfu::mat4::FromTranslationVector(
-          mathfu::vec3(0.0f, static_cast<float>(i), 0.0f));
+      const mat4 axis_dot = mat4::FromTranslationVector(
+          vec3(0.0f, static_cast<float>(i), 0.0f));
       scene->renderables().push_back(
           Renderable(RenderableId_PieSmall, axis_dot));
     }
@@ -527,13 +533,13 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   // Draw one renderable right in the middle of the world, for debugging.
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
     scene->renderables().push_back(
-        Renderable(config_->draw_fixed_renderable(), mathfu::mat4::Identity()));
+        Renderable(config_->draw_fixed_renderable(), mat4::Identity()));
   }
 
   // Lights. Push all lights from configuration file.
   const auto lights = config_->light_positions();
   for (auto it = lights->begin(); it != lights->end(); ++it) {
-    const mathfu::vec3 light_position = LoadVec3(*it);
+    const vec3 light_position = LoadVec3(*it);
     scene->lights().push_back(light_position);
   }
 }

@@ -20,6 +20,12 @@
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
 
+using mathfu::vec2i;
+using mathfu::vec2;
+using mathfu::vec3;
+using mathfu::vec4;
+using mathfu::mat4;
+
 namespace fpl {
 namespace splat {
 
@@ -32,13 +38,13 @@ Character::Character(
       pie_damage_(0),
       face_angle_(Angle(0.0f)),
       face_angle_velocity_(0.0f),
-      position_(mathfu::vec3(0.0f, 0.0f, 0.0f)),
+      position_(vec3(0.0f, 0.0f, 0.0f)),
       controller_(controller),
       state_machine_(character_state_machine_def) {
 }
 
 void Character::Reset(CharacterId target, CharacterHealth health,
-                      Angle face_angle, const mathfu::vec3& position) {
+                      Angle face_angle, const vec3& position) {
   target_ = target;
   health_ = health;
   pie_damage_ = 0;
@@ -47,9 +53,9 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   position_ = position;
 }
 
-mathfu::mat4 Character::CalculateMatrix() const {
-  return mathfu::mat4::FromTranslationVector(position_) *
-         mathfu::mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix());
+mat4 Character::CalculateMatrix() const {
+  return mat4::FromTranslationVector(position_) *
+         mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix());
 }
 
 uint16_t Character::RenderableId(WorldTime anim_time) const {
@@ -85,9 +91,9 @@ AirbornePie::AirbornePie(CharacterId source, CharacterId target,
       position_(0.0f) {
 }
 
-mathfu::mat4 AirbornePie::CalculateMatrix() const {
-  return mathfu::mat4::FromTranslationVector(position_) *
-         mathfu::mat4::FromRotationMatrix(orientation_.ToMatrix());
+mat4 AirbornePie::CalculateMatrix() const {
+  return mat4::FromTranslationVector(position_) *
+         mat4::FromRotationMatrix(orientation_.ToMatrix());
 }
 
 } //  namespace fpl

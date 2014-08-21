@@ -27,6 +27,12 @@
 #include "splat_rendering_assets_generated.h"
 #include "utilities.h"
 
+using mathfu::vec2i;
+using mathfu::vec2;
+using mathfu::vec3;
+using mathfu::vec4;
+using mathfu::mat4;
+
 namespace fpl {
 namespace splat {
 
