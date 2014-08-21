@@ -46,10 +46,7 @@ class Shader {
       uniform_color_(-1),
       uniform_light_pos_(-1),
       uniform_camera_pos_(-1)
-  {
-    for (int i = 0; i < kMaxTexturesPerShader; i++)
-        uniform_texture_array_[i] = -1;
-  }
+  {}
 
   ~Shader() {
     if (vs_) glDeleteShader(vs_);
@@ -88,13 +85,6 @@ class Shader {
  private:
 
   friend class Renderer;
-  void SetTextureUniforms() const;
-
-  // TODO: Make this not be mutable.
-  // It needs to stay until we can get the call to SetTextureUniforms
-  // to no longer be const.  Which we can't do until we can get the
-  // call to SetTextureUniforms out of the Set() function.
-  mutable GLint uniform_texture_array_[kMaxTexturesPerShader];
 
   GLuint program_, vs_, ps_;
 
@@ -161,7 +151,7 @@ class Mesh {
   // Render itself. Uniforms must have been set before calling this.
   void Render(Renderer &renderer, bool ignore_material = false);
 
-  // TODO: should not need this method
+  // Get the material associated with the Nth IBO.
   Material *GetMaterial(int i) { return indices_[i].mat; }
 
   // Renders primatives using vertex and index data directly in local memory.

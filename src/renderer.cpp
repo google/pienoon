@@ -186,8 +186,8 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
       glGetProgramiv(program, GL_LINK_STATUS, &status);
       if (status == GL_TRUE) {
         auto shader = new Shader(program, vs, ps);
-        shader->Initialize();
         glUseProgram(program);
+        shader->Initialize();
         return shader;
       }
       GLint length = 0;
@@ -389,19 +389,6 @@ void Mesh::UnSetAttributes(const Attribute *attributes) {
   }
 }
 
-// Set up the uniforms the shader uses for texture access.
-void Shader::SetTextureUniforms() const {
-    char texture_unit_name[] = "texture_unit_#####";
-    for (int i = 0; i < kMaxTexturesPerShader; i++) {
-      snprintf(texture_unit_name, sizeof(texture_unit_name),
-          "texture_unit_%d", i);
-      uniform_texture_array_[i] =
-          glGetUniformLocation(program_, texture_unit_name);
-      if (uniform_texture_array_[i] >= 0)
-          glUniform1i(uniform_texture_array_[i], i);
-    }
-}
-
 void Shader::Initialize() {
   // Look up variables that are standard, but still optionally present in a
   // shader.
@@ -411,16 +398,20 @@ void Shader::Initialize() {
 
   uniform_color_ = glGetUniformLocation(program_, "color");
 
-  SetTextureUniforms();
-
   uniform_light_pos_ = glGetUniformLocation(program_, "light_pos");
   uniform_camera_pos_ = glGetUniformLocation(program_, "camera_pos");
+
+  char texture_unit_name[] = "texture_unit_#####";
+  for (int i = 0; i < kMaxTexturesPerShader; i++) {
+    snprintf(texture_unit_name, sizeof(texture_unit_name),
+        "texture_unit_%d", i);
+    auto loc = glGetUniformLocation(program_, texture_unit_name);
+    if (loc >= 0) glUniform1i(loc, i);
+  }
 }
 
 void Shader::Set(const Renderer &renderer) const {
   glUseProgram(program_);
-
-  SetTextureUniforms();
 
   if (uniform_model_view_projection_ >= 0)
     glUniformMatrix4fv(uniform_model_view_projection_, 1, false,
