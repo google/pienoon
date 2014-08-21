@@ -70,17 +70,26 @@
       // EnvironmentTree
       "materials/environment_tree.bin",
 
+      // EnvironmentString
+      "materials/environment_string.bin",
+
       // EnvironmentStageFront
       "materials/environment_stage_front.bin",
 
       // EnvironmentStageGround
       "materials/environment_stage_ground.bin",
 
+      // EnvironmentStageEdge
+      "materials/environment_stage_edge.bin",
+
       // EnvironmentStoreFront
       "materials/environment_store_front.bin",
 
       // EnvironmentStoreRoom
       "materials/environment_store_room.bin",
+
+      // EnvironmentAmbientOcclusionShadow
+      "materials/environment_ambient_occlusion_shadow.bin",
 
       // Splatter1
       "materials/splatter1.bin",
@@ -165,16 +174,25 @@
       // EnvironmentTree
       "",
 
+      // EnvironmentString
+      "",
+
       // EnvironmentStageFront
       "",
 
       // EnvironmentStageGround
       "",
 
+      // EnvironmentStageEdge
+      "",
+
       // EnvironmentStoreFront
       "",
 
       // EnvironmentStoreRoom
+      "",
+
+      // EnvironmentAmbientOcclusionShadow
       "",
 
       // Splatter1
@@ -260,16 +278,25 @@
       // EnvironmentTree
       true,
 
+      // EnvironmentString
+      false,
+
       // EnvironmentStageFront
       false,
 
       // EnvironmentStageGround
       false,
 
+      // EnvironmentStageEdge
+      false,
+
       // EnvironmentStoreFront
       false,
 
       // EnvironmentStoreRoom
+      false,
+
+      // EnvironmentAmbientOcclusionShadow
       false,
 
       // Splatter1

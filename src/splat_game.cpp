@@ -298,15 +298,17 @@ void SplatGame::Render(const SceneDescription& scene) {
   const mat4 camera_transform = perspective_matrix_ * scene.camera();
 
   // Render a ground plane.
+  // TODO: Replace with a regular environment prop. Calculate scale_bias from
+  // environment prop size.
   renderer_.model_view_projection() = camera_transform;
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
-  const float gs = 16;
+  const float gs = 16.4;
   const float txs = 1;
-  Mesh::RenderAAQuadAlongX(vec3(-gs, 0, -gs), vec3(gs, 0, gs),
+  Mesh::RenderAAQuadAlongX(vec3(-gs, 0, 0), vec3(gs, 0, 8),
                            vec2(0, 0), vec2(txs, txs));
-  vec2 scale_bias(txs / gs / 2, -0.5f);
+  vec2 scale_bias(txs / gs, -0.5f);
 
   // Render shadows for all Renderables first, with depth testing off so
   // they blend properly.

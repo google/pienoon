@@ -33,6 +33,11 @@ using mathfu::mat4;
 namespace fpl {
 namespace splat {
 
+static const mat4 kRotate90DegreesAboutXAxis(1,  0, 0, 0,
+                                             0,  0, 1, 0,
+                                             0, -1, 0, 0,
+                                             0,  0, 0, 1);
+
 GameState::GameState()
     : time_(0),
       camera_position_(0.0f, 0.0f, 0.0f),
@@ -410,12 +415,18 @@ static const mat4 CalculateSplatterMatrix(
 }
 
 static mat4 CalculatePropWorldMatrix(const Prop& prop) {
+  const vec3& scale = LoadVec3(&prop.scale());
   const vec3& position = LoadVec3(&prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
-  const vec3& rotation_axis = LoadVec3(&prop.rotation_axis());
-  const Quat quat = Quat::FromAngleAxis(rotation.angle(), rotation_axis);
-  return mat4::FromTranslationVector(position) *
-         mat4::FromRotationMatrix(quat.ToMatrix());
+  const Quat quat = Quat::FromAngleAxis(rotation.angle(),
+                                        vec3(0.0f, 1.0f, 0.0f));
+  const mat4 vertical_orientation_matrix =
+      mat4::FromTranslationVector(position) *
+      mat4::FromRotationMatrix(quat.ToMatrix()) *
+      mat4::FromScaleVector(scale);
+  return prop.orientation() == Orientation_Horizontal ?
+         vertical_orientation_matrix * kRotate90DegreesAboutXAxis :
+         vertical_orientation_matrix;
 }
 
 static mathfu::mat4 CalculateUiArrowOffsetMatrix(

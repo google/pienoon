@@ -14,6 +14,11 @@
 
 namespace fpl.splat;
 
+enum Orientation : ushort {
+  Verticle,
+  Horizontal
+}
+
 table Splatter {
   // Location for the splatter texture to appear.
   location:Vec2i;
@@ -33,8 +38,11 @@ struct Prop {
   // Rotation about the vertical axis, in degrees.
   rotation:float;
 
-  // Axis about which we perform 'rotation'.
-  rotation_axis:Vec3;
+  // Initial rotation we should apply, before performing 'rotation'.
+  orientation:Orientation;
+
+  // Scale along each axis. Scale is performed before rotation.
+  scale:Vec3;
 }
 
 struct CharacterData {
