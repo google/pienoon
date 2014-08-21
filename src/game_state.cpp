@@ -98,8 +98,8 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
         break;
       }
       case EventId_ReleasePie: {
-        float height = config_->pie_height();
-        height += config_->pie_height_variance() *
+        float height = config_->pie_arc_height();
+        height += config_->pie_arc_height_variance() *
                   (mathfu::Random<float>() * 2 - 1);
         int rotations = config_->pie_rotations();
         int variance = config_->pie_rotation_variance();
@@ -141,7 +141,8 @@ static Quat CalculatePieOrientation(Angle pie_angle, float percent,
 
 static vec3 CalculatePiePosition(const Character& source,
                                          const Character& target,
-                                         float percent, float pie_height) {
+                                         float percent, float pie_height,
+                                         const Config* config) {
   vec3 result =
       vec3::Lerp(source.position(), target.position(), percent);
 
@@ -153,6 +154,7 @@ static vec3 CalculatePiePosition(const Character& source,
   // unit. Finally, we multiply by an arbitrary coeffecient supplied in a config
   // file to make the pies fly higher or lower.
   result.y() += -4 * pie_height * (percent * (percent - 1.0f));
+  result.y() += config->pie_initial_height();
 
   return result;
 }
@@ -170,7 +172,7 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
   const Quat pie_orientation = CalculatePieOrientation(
       pie_angle, percent, pie->rotations(), config_);
   const vec3 pie_position = CalculatePiePosition(
-      source, target, percent, pie->height());
+      source, target, percent, pie->height(), config_);
 
   pie->set_orientation(pie_orientation);
   pie->set_position(pie_position);

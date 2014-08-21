@@ -68,13 +68,16 @@ table Config {
   // same amount of time as throwing a pie at someone adjacent to you.
   pie_flight_time:int;
 
-  // The height of the pie when thrown.
-  pie_height:float;
+  // The height of the pie arc when thrown.
+  pie_arc_height:float;
 
   // Randomly adjusts how high the pie is thrown. e.g. A value of 2 would mean
   // the pie could have any height between `pie_height - 2` to `pie_height + 2`
   // with equal probability.
-  pie_height_variance:float;
+  pie_arc_height_variance:float;
+
+  // The height of the pie at the start (and end) of it's arc.
+  pie_initial_height:float;
 
   // The number of in-air spins the pie should have.
   pie_rotations:int;
