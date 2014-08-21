@@ -415,7 +415,6 @@ void Shader::Initialize() {
 
   uniform_light_pos_ = glGetUniformLocation(program_, "light_pos");
   uniform_camera_pos_ = glGetUniformLocation(program_, "camera_pos");
-  uniform_scale_bias_ = glGetUniformLocation(program_, "scale_bias");
 }
 
 void Shader::Set(const Renderer &renderer) const {
@@ -433,8 +432,6 @@ void Shader::Set(const Renderer &renderer) const {
     glUniform3fv(uniform_light_pos_, 1, &renderer.light_pos()[0]);
   if (uniform_camera_pos_ >= 0)
     glUniform3fv(uniform_camera_pos_, 1, &renderer.camera_pos()[0]);
-  if (uniform_scale_bias_ >= 0)
-    glUniform3fv(uniform_scale_bias_, 1, &renderer.scale_bias()[0]);
 }
 
 Mesh::Mesh(const void *vertex_data, int count, int vertex_size,

@@ -298,7 +298,7 @@ void SplatGame::Render(const SceneDescription& scene) {
   const float txs = 1;
   Mesh::RenderAAQuadAlongX(vec3(-gs, 0, -gs), vec3(gs, 0, gs),
                            vec2(0, 0), vec2(txs, txs));
-  renderer_.scale_bias() = vec2(gs / txs * 2, -0.5f);
+  vec2 scale_bias(txs / gs / 2, -0.5f);
 
   // Render shadows for all Renderables first, with depth testing off so
   // they blend properly.
@@ -307,6 +307,7 @@ void SplatGame::Render(const SceneDescription& scene) {
   assert(shadow_mat);
   renderer_.model_view_projection() = camera_transform;
   renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
+  shadow_mat->get_shader()->Set("scale_bias", scale_bias);
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
     const int id = renderable.id();

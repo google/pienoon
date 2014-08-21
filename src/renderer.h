@@ -45,8 +45,7 @@ class Shader {
       uniform_model_(-1),
       uniform_color_(-1),
       uniform_light_pos_(-1),
-      uniform_camera_pos_(-1),
-      uniform_scale_bias_(-1)
+      uniform_camera_pos_(-1)
   {
     for (int i = 0; i < kMaxTexturesPerShader; i++)
         uniform_texture_array_[i] = -1;
@@ -59,9 +58,32 @@ class Shader {
   }
 
   // Will make this shader active for any subsequent draw calls, and sets
-  // uniforms (e.g. mvp matrix) based on current values in Renderer, if this
-  // shader refers to them.
+  // all standard uniforms (e.g. mvp matrix) based on current values in
+  // Renderer, if this shader refers to them.
   void Set(const Renderer &renderer) const;
+
+  // Find a non-standard uniform by name, -1 means not found.
+  GLint Lookup(const char *uniform_name) {
+    return glGetUniformLocation(program_, uniform_name);
+  }
+  // Set an non-standard uniform to a vec2/3/4 value. Call this
+  // before Set() above
+  template<int N> void Set(GLint uniform_loc,
+                           const mathfu::Vector<float, N> &value) {
+    // This should amount to a compile-time if-then.
+    if (N == 2) glUniform2fv(uniform_loc, 1, &value[0]);
+    else if(N == 3) glUniform3fv(uniform_loc, 1, &value[0]);
+    else if(N == 4) glUniform4fv(uniform_loc, 1, &value[0]);
+    else assert(0);
+  }
+  // Convenience call that does a Lookup and a Set if found.
+  template<int N> bool Set(const char *uniform_name,
+                           const mathfu::Vector<float, N> &value) {
+    auto loc = Lookup(uniform_name);
+    if (loc < 0) return false;
+    Set(loc, value);
+    return true;
+  }
 
  private:
 
@@ -83,7 +105,6 @@ class Shader {
   GLint uniform_color_;
   GLint uniform_light_pos_;
   GLint uniform_camera_pos_;
-  GLint uniform_scale_bias_;
 };
 
 struct Texture {
@@ -216,7 +237,7 @@ class Renderer {
 
   Renderer() : model_view_projection_(mat4::Identity()),
                model_(mat4::Identity()), color_(1.0f), light_pos_(vec3(0.0f)),
-               camera_pos_(vec3(0.0f)), scale_bias_(1, 0),
+               camera_pos_(vec3(0.0f)),
                window_size_(vec2i(0)), window_(nullptr),
                context_(nullptr) {}
   ~Renderer() { ShutDown(); }
@@ -236,9 +257,6 @@ class Renderer {
   vec3 &camera_pos() { return camera_pos_; }
   const vec3 &camera_pos() const { return camera_pos_; }
 
-  vec2 &scale_bias() { return scale_bias_; }
-  const vec2 &scale_bias() const { return scale_bias_; }
-
   std::string &last_error() { return last_error_; }
   const std::string &last_error() const { return last_error_; }
 
@@ -255,7 +273,6 @@ class Renderer {
   vec4 color_;
   vec3 light_pos_;
   vec3 camera_pos_;
-  vec2 scale_bias_;
 
   vec2i window_size_;
 
