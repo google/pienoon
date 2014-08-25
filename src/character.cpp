@@ -53,9 +53,10 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   position_ = position;
 }
 
-mat4 Character::CalculateMatrix() const {
+mat4 Character::CalculateMatrix(bool facing_camera) const {
   return mat4::FromTranslationVector(position_) *
-         mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix());
+         mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix()) *
+         mat4::FromScaleVector(vec3(1.0f, 1.0f, facing_camera ? 1.0f : -1.0f));
 }
 
 uint16_t Character::RenderableId(WorldTime anim_time) const {

@@ -374,44 +374,22 @@ mat4 GameState::CameraMatrix() const {
                               vec3(0.0f, 1.0f, 0.0f));
 }
 
-// Ensure accessories don't z-fight by rendering them at slightly different z
-// depths.
-static float CalculateAccessoryZOffset(int num_accessories,
-                                       const Config& config) {
-  return config.accessory_z_offset() +
-         num_accessories * config.accessory_z_increment();
-}
-
 static const mat4 CalculateAccessoryMatrix(
-    const TimelineAccessory& accessory, const mat4& character_matrix,
-    float z_sign, int num_accessories, const Config& config) {
-
+    const vec2& location, const mat4& character_matrix,
+    int num_accessories, const Config& config) {
   // Calculate the accessory offset, in character space.
-  const float z_offset = CalculateAccessoryZOffset(num_accessories, config);
+  // Ensure accessories don't z-fight by rendering them at slightly different z
+  // depths. Note that the character_matrix has it's z axis oriented so that
+  // it is always pointing towards the camera. Therefore, our z-offset should
+  // always be positive here.
   const vec3 offset = vec3(
-      accessory.offset().x() * config.pixel_to_world_scale(),
-      accessory.offset().y() * config.pixel_to_world_scale(),
-      z_sign * z_offset);
+      location.x() * config.pixel_to_world_scale(),
+      location.y() * config.pixel_to_world_scale(),
+      config.accessory_z_offset() +
+          num_accessories * config.accessory_z_increment());
 
-  // Apply the offset to the character matrix to move the object relative to
-  // the character.
-  const mat4 offset_matrix =
-      mat4::FromTranslationVector(offset);
-  const mat4 accessory_matrix = character_matrix * offset_matrix;
-  return accessory_matrix;
-}
-
-static const mat4 CalculateSplatterMatrix(
-    const Vec2i* location, const mat4& character_matrix,
-    float z_sign, int num_accessories, const Config& config) {
-  // Calculate the accessory offset, in character space.
-  const float z_offset = CalculateAccessoryZOffset(num_accessories, config);
-  const vec3 offset = vec3(
-      static_cast<float>(location->x()) * config.pixel_to_world_scale(),
-      static_cast<float>(location->y()) * config.pixel_to_world_scale(),
-      z_sign * z_offset);
-  const mat4 offset_matrix =
-      mat4::FromTranslationVector(offset);
+  // Apply offset to character matrix.
+  const mat4 offset_matrix = mat4::FromTranslationVector(offset);
   const mat4 accessory_matrix = character_matrix * offset_matrix;
   return accessory_matrix;
 }
@@ -431,20 +409,14 @@ static mat4 CalculatePropWorldMatrix(const Prop& prop) {
          vertical_orientation_matrix;
 }
 
-static mathfu::mat4 CalculateUiArrowOffsetMatrix(
-    const mathfu::vec3& offset, const mathfu::vec3& scale) {
+static mat4 CalculateUiArrowOffsetMatrix(
+    const vec3& offset, const vec3& scale) {
   // First rotate to horizontal, then scale to correct size, then center and
   // translate forward slightly.
-  // TODO: Call mathfu::mat4::FromScaleVector(scale) when it's submitted.
-  mathfu::mat4 scale_matrix(mathfu::mat4::Identity());
-  scale_matrix(0, 0) = scale[0];
-  scale_matrix(1, 1) = scale[1];
-  scale_matrix(2, 2) = scale[2];
-  return mathfu::mat4::FromTranslationVector(offset) *
-         scale_matrix *
-         mathfu::mat4::FromRotationMatrix(
-            Quat::FromAngleAxis(kHalfPi,
-                                mathfu::vec3(1.0f, 0.0f, 0.0f)).ToMatrix());
+  return mat4::FromTranslationVector(offset) *
+         mat4::FromScaleVector(scale) *
+         mat4::FromRotationMatrix(
+            Quat::FromAngleAxis(kHalfPi, vec3(1.0f, 0.0f, 0.0f)).ToMatrix());
 }
 
 // TODO: Make this function a member of GameState, once that class has been
@@ -458,21 +430,21 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   // Characters and accessories.
   if (config_->draw_characters()) {
     // Constant conversion from character matrix to UI arrow matrix.
-    const mathfu::mat4 ui_arrow_offset_matrix =
+    const mat4 ui_arrow_offset_matrix =
         CalculateUiArrowOffsetMatrix(LoadVec3(config_->ui_arrow_offset()),
                                      LoadVec3(config_->ui_arrow_scale()));
 
     for (auto c = characters_.begin(); c != characters_.end(); ++c) {
       // Render accessories and splatters on the camera-facing side
       // of the character.
-      const Angle towards_camera = Angle::FromXZVector(camera_position_ -
+      const Angle towards_camera_angle = Angle::FromXZVector(camera_position_ -
                                                        c->position());
-      const Angle face_to_camera = c->face_angle() - towards_camera;
-      const float z_sign = face_to_camera.angle() < 0.0f ? 1.0f : -1.0f;
+      const Angle face_to_camera_angle = c->face_angle() - towards_camera_angle;
+      const bool facing_camera = face_to_camera_angle.angle() < 0.0f;
 
       // Character.
       const WorldTime anim_time = GetAnimationTime(*c);
-      const mat4 character_matrix = c->CalculateMatrix();
+      const mat4 character_matrix = c->CalculateMatrix(facing_camera);
       scene->renderables().push_back(
           Renderable(c->RenderableId(anim_time), character_matrix));
 
@@ -490,10 +462,11 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       for (auto it = accessory_indices.begin();
            it != accessory_indices.end(); ++it) {
         const TimelineAccessory& accessory = *timeline->accessories()->Get(*it);
+        const vec2 location(accessory.offset().x(), accessory.offset().y());
         scene->renderables().push_back(
             Renderable(accessory.renderable(),
-              CalculateAccessoryMatrix(accessory, character_matrix, z_sign,
-                                       num_accessories, *config_)));
+                CalculateAccessoryMatrix(location, character_matrix,
+                                         num_accessories, *config_)));
         num_accessories++;
       }
 
@@ -502,16 +475,17 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       for (unsigned int i = 0;
            i < damage && i < config_->splatter()->Length(); ++i) {
         const Splatter* splatter = config_->splatter()->Get(i);
+        const vec2 location(LoadVec2i(splatter->location()));
         scene->renderables().push_back(
             Renderable(splatter->renderable(),
-                CalculateSplatterMatrix(splatter->location(), character_matrix,
-                                        z_sign, num_accessories, *config_)));
+                CalculateAccessoryMatrix(location, character_matrix,
+                                         num_accessories, *config_)));
         num_accessories++;
       }
 
       // UI arrow
       if (config_->draw_ui_arrows()) {
-        const mathfu::mat4 ui_arrow_matrix = character_matrix *
+        const mat4 ui_arrow_matrix = character_matrix *
                                              ui_arrow_offset_matrix;
         scene->renderables().push_back(
             Renderable(RenderableId_UiArrow, ui_arrow_matrix));
@@ -566,9 +540,12 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   }
 
   // Draw one renderable right in the middle of the world, for debugging.
+  // Rotate about z-axis so that it faces the camera.
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
     scene->renderables().push_back(
-        Renderable(config_->draw_fixed_renderable(), mat4::Identity()));
+        Renderable(config_->draw_fixed_renderable(),
+                   mat4::FromRotationMatrix(Quat::FromAngleAxis(kPi,
+                                vec3(0.0f, 1.0f, 0.0f)).ToMatrix())));
   }
 
   // Lights. Push all lights from configuration file.

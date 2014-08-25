@@ -44,7 +44,7 @@ class Character {
              Angle face_angle, const mathfu::vec3& position);
 
   // Convert the position and face angle into a matrix for rendering.
-  mathfu::mat4 CalculateMatrix() const;
+  mathfu::mat4 CalculateMatrix(bool facing_camera) const;
 
   // Calculate the renderable id for the character at 'anim_time'.
   uint16_t RenderableId(WorldTime anim_time) const;
