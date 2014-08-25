@@ -28,10 +28,13 @@ enum {
 bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
   // Basic SDL initialization, does not actually initialize a Window or OpenGL,
   // typically should not fail.
+  SDL_SetMainReady();
   if (SDL_Init(SDL_INIT_VIDEO)) {
     last_error_ = std::string("SDL_Init fail: ") + SDL_GetError();
     return false;
   }
+
+  SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
 
   // Force OpenGL ES 2 on mobile.
   #ifdef PLATFORM_MOBILE
@@ -279,8 +282,10 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
     case kBlendModeOff:
       break;
     case kBlendModeTest:
+#     ifndef PLATFORM_MOBILE  // Alpha test not supported in ES 2.
       glDisable(GL_ALPHA_TEST);
       break;
+#     endif
     case kBlendModeAlpha:
       glDisable(GL_BLEND);
       break;
@@ -294,9 +299,11 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
     case kBlendModeOff:
       break;
     case kBlendModeTest:
+#     ifndef PLATFORM_MOBILE
       glEnable(GL_ALPHA_TEST);
       glAlphaFunc(GL_GREATER, amount);
       break;
+#     endif
     case kBlendModeAlpha:
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -68,8 +68,8 @@ SplatGame::~SplatGame() {
 }
 
 bool SplatGame::InitializeConfig() {
-  if (!flatbuffers::LoadFile("config.bin", true, &config_source_)) {
-    fprintf(stderr, "can't load config.bin\n");
+  if (!LoadFile("config.bin", &config_source_)) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load config.bin\n");
     return false;
   }
   return true;
@@ -88,7 +88,7 @@ bool SplatGame::InitializeRenderer() {
   assert(window_size);
   if (!renderer_.Initialize(LoadVec2i(window_size),
                             config.window_title()->c_str())) {
-    fprintf(stderr, "Renderer initialization error: %s\n",
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Renderer initialization error: %s\n",
             renderer_.last_error().c_str());
     return false;
   }
@@ -138,7 +138,7 @@ static bool CheckLengthOfArray(const char* file_name, const char* array_name,
   if (length == correct_length)
     return true;
 
-  fprintf(stderr, "%s's %s has %d entries, needs %d.\n",
+  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "%s's %s has %d entries, needs %d.\n",
           file_name, array_name, length, correct_length);
   return false;
 }
@@ -150,9 +150,9 @@ bool SplatGame::InitializeRenderingAssets() {
 
   // Load the splat asset file.
   static const char* kRenderingAssetsFileName = "splat_rendering_assets.bin";
-  if (!flatbuffers::LoadFile(kRenderingAssetsFileName, true,
-                             &rendering_assets_source_)) {
-    fprintf(stderr, "Can't load %s.\n", kRenderingAssetsFileName);
+  if (!LoadFile(kRenderingAssetsFileName, &rendering_assets_source_)) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Can't load %s.\n", kRenderingAssetsFileName);
     return false;
   }
 
@@ -177,8 +177,9 @@ bool SplatGame::InitializeRenderingAssets() {
 
     // Create a mesh for each renderable (front and back).
     for (int i = 0; i < RenderableId_Count; ++i) {
-      (*meshes)[i] = CreateCardboardMesh(materials->Get(i)->c_str(),
-                                      &matman_, z_offset);
+      (*meshes)[i] = materials->Get(i)->Length() ?
+                       CreateCardboardMesh(materials->Get(i)->c_str(),
+                                      &matman_, z_offset) : nullptr;
     }
 
     // Then load cardboard backs.
@@ -189,7 +190,7 @@ bool SplatGame::InitializeRenderingAssets() {
 
   // We default to the invalid texture, so it has to exist.
   if (!cardboard_fronts_[RenderableId_Invalid]) {
-    fprintf(stderr, "Can't load backup texture.\n");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't load backup texture.\n");
     return false;
   }
 
@@ -204,16 +205,16 @@ bool SplatGame::InitializeGameState() {
   game_state_.set_config(&config);
 
   // Load flatbuffer into buffer.
-  if (!flatbuffers::LoadFile("character_state_machine_def.bin",
-                             true, &state_machine_source_)) {
-    fprintf(stderr, "Error loading character state machine.\n");
+  if (!LoadFile("character_state_machine_def.bin", &state_machine_source_)) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Error loading character state machine.\n");
     return false;
   }
 
   // Grab the state machine from the buffer.
   auto state_machine_def = GetStateMachine();
   if (!CharacterStateMachineDef_Validate(state_machine_def)) {
-    fprintf(stderr, "State machine is invalid.\n");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "State machine is invalid.\n");
     return false;
   }
 
@@ -242,7 +243,7 @@ bool SplatGame::InitializeGameState() {
 // the order of initialization cannot be changed. However, it's nice for
 // debugging and readability to have each section lexographically separate.
 bool SplatGame::Initialize() {
-  printf("Splat initializing...\n");
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Splat initializing...\n");
 
   if (!ChangeToUpstreamDir(kAssetsDir, kBuildPaths, ARRAYSIZE(kBuildPaths)))
     return false;
@@ -259,7 +260,7 @@ bool SplatGame::Initialize() {
   if (!InitializeGameState())
     return false;
 
-  printf("Splat initialization complete\n");
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Splat initialization complete\n");
   return true;
 }
 
@@ -351,14 +352,16 @@ void SplatGame::DebugPrintCharacterStates() {
     auto& character = game_state_.characters()[i];
     int id = character.state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
-      printf("character %d - Health %2d, State %s [%d]\n",
+      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                   "character %d - Health %2d, State %s [%d]\n",
               i, character.health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
     }
 
     // Report face angle changes.
     if (debug_previous_angles_[i] != character.face_angle()) {
-      printf("character %d - face error %.0f(%.0f) - target %d\n",
+      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                   "character %d - face error %.0f(%.0f) - target %d\n",
           i, game_state_.FaceAngleError(i).ToDegrees(),
           game_state_.TargetFaceAngle(i).ToDegrees(),
           character.target());
@@ -371,7 +374,8 @@ void SplatGame::DebugPrintCharacterStates() {
 void SplatGame::DebugPrintPieStates() {
   for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
     AirbornePie& pie = game_state_.pies()[i];
-    printf("Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
            pie.source(), pie.target(), pie.damage(),
            pie.position().x(), pie.position().y(), pie.position().z());
   }
@@ -407,7 +411,7 @@ void SplatGame::DebugCamera() {
     game_state_.set_camera_position(new_position);
 
 #   ifdef SPLAT_DEBUG_CAMERA
-      printf("camera position (%.5ff, %.5ff, %.5ff)\n",
+      SDL_LogDebug("camera position (%.5ff, %.5ff, %.5ff)\n",
              new_position[0], new_position[1], new_position[2]);
 #   endif
   }
@@ -430,7 +434,7 @@ void SplatGame::DebugCamera() {
     game_state_.set_camera_target(new_target);
 
 #   ifdef SPLAT_DEBUG_CAMERA
-      printf("camera target (%.5ff, %.5ff, %.5ff)\n",
+      SDL_LogDebug("camera target (%.5ff, %.5ff, %.5ff)\n",
              new_target[0], new_target[1], new_target[2]);
 #   endif
   }

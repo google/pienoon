@@ -17,7 +17,6 @@
 #include "character_state_machine.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
-#include "SDL_log.h"
 
 namespace fpl {
 namespace splat {

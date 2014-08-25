@@ -19,6 +19,20 @@
 namespace fpl
 {
 
+bool LoadFile(const char *filename, std::string *dest) {
+  auto handle = SDL_RWFromFile(filename, "rb");
+  if (!handle) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "LoadFile fail on %s", filename);
+    return false;
+  }
+  auto len = static_cast<size_t>(SDL_RWseek(handle, 0, RW_SEEK_END));
+  SDL_RWseek(handle, 0, RW_SEEK_SET);
+  dest->assign(len + 1, 0);
+  size_t rlen = static_cast<size_t>(SDL_RWread(handle, &(*dest)[0], 1, len));
+  SDL_RWclose(handle);
+  return len == rlen && len > 0;
+}
+
 #if defined(_WIN32)
 inline char* getcwd(char *buffer, int maxlen) {
   return _getcwd(buffer, maxlen);
@@ -71,7 +85,8 @@ bool ChangeToUpstreamDir(const char* const target_dir,
     // Change into assets directory.
     success = chdir(target_dir);
     if (success != 0) {
-      fprintf(stderr, "Unable to change into %s dir\n", target_dir);
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                   "Unable to change into %s dir\n", target_dir);
       return false;
     }
   }

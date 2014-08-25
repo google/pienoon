@@ -49,9 +49,6 @@ class MaterialManager {
   Renderer &renderer() { return renderer_; }
   const Renderer &renderer() const { return renderer_; }
 
-  // Utility function for any file loading.
-  static bool LoadFile(const char *filename, std::string *dest);
-
  private:
   DISALLOW_COPY_AND_ASSIGN(MaterialManager);
 

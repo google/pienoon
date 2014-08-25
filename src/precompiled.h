@@ -40,12 +40,8 @@
 #include "mathfu/glsl_mappings.h"
 #include "mathfu/quaternion.h"
 
-#ifdef __ANDROID__
-#include <AndroidUtil/AndroidMainWrapper.h>
-#include <AndroidUtil/AndroidLogPrint.h>
-#endif // __ANDROID__
-
 #include <SDL.h>
+#include "SDL_log.h"
 
 #include "glplatform.h"
 

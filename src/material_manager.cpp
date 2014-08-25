@@ -15,6 +15,7 @@
 #include "precompiled.h"
 #include "material_manager.h"
 #include "materials_generated.h"
+#include "utilities.h"
 
 namespace fpl {
 
@@ -31,22 +32,12 @@ template<typename T> T FindInMap(const std::map<std::string, T> &map,
   return it != map.end() ? it->second : 0;
 }
 
-bool MaterialManager::LoadFile(const char *filename, std::string *dest) {
-  auto handle = SDL_RWFromFile(filename, "rb");
-  if (!handle) return false;
-  auto len = static_cast<size_t>(SDL_RWseek(handle, 0, RW_SEEK_END));
-  SDL_RWseek(handle, 0, RW_SEEK_SET);
-  dest->assign(len + 1, 0);
-  size_t rlen = static_cast<size_t>(SDL_RWread(handle, &(*dest)[0], 1, len));
-  SDL_RWclose(handle);
-  return len == rlen && len > 0;
-}
-
 Shader *MaterialManager::FindShader(const char *basename) {
   return FindInMap(shader_map_, basename);
 }
 
 Shader *MaterialManager::LoadShader(const char *basename) {
+  //if (strcmp(basename, "shaders/lit_textured_normal") == 0) basename = "shaders/textured";
   auto shader = FindShader(basename);
   if (shader) return shader;
   std::string vs_file, ps_file;
@@ -56,13 +47,19 @@ Shader *MaterialManager::LoadShader(const char *basename) {
     if (LoadFile(filename.c_str(), &ps_file)) {
       shader = renderer_.CompileAndLinkShader(vs_file.c_str(),
                                               ps_file.c_str());
-      if (shader)
+      if (shader) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "Shader loaded: %s", basename);
         shader_map_[basename] = shader;
-      else
-        fprintf(stderr, "Shader Error:\n%s\n", renderer_.last_error().c_str());
+      } else {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                     "Shader Error:\n%s\n", renderer_.last_error().c_str());
+      }
       return shader;
     }
   }
+  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can\'t load shader: %s",
+               filename.c_str());
   renderer_.last_error() = "Couldn\'t load: " + filename;
   return nullptr;
 }
@@ -77,9 +74,15 @@ Texture *MaterialManager::LoadTexture(const char *filename) {
   std::string tga;
   if (LoadFile(filename, &tga)) {
     tex = renderer_.CreateTextureFromTGAMemory(tga.c_str());
-    if (tex) texture_map_[filename] = tex;
+    if (tex) {
+      texture_map_[filename] = tex;
+    } else {
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR, "TGA format problem: %s", filename);
+    }
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Texture loaded: %s", filename);
     return tex;
   }
+  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Couldn\'t load: %s", filename);
   renderer_.last_error() = std::string("Couldn\'t load: ") + filename;
   return 0;
 }

@@ -26,6 +26,8 @@
 namespace fpl
 {
 
+bool LoadFile(const char *filename, std::string *dest);
+
 inline const mathfu::vec3& LoadVec3(const splat::Vec3* v) {
   return union_reinterpret_cast<mathfu::vec3, splat::Vec3>(*v);
 }

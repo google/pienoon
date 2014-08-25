@@ -20,6 +20,7 @@
 #ifdef __APPLE__
     #include "TargetConditionals.h"
     #ifdef __IOS__
+        #define PLATFORM_MOBILE
         //#include <SDL_opengles2.h>
         #include <OpenGLES/ES2/gl.h>
         #include <OpenGLES/ES2/glext.h>
@@ -28,6 +29,7 @@
     #endif
 #else
     #ifdef __ANDROID__
+        #define PLATFORM_MOBILE
         #include <GLES2/gl2.h>
         #include <GLES2/gl2ext.h>
     #else   // WIN32 & Linux

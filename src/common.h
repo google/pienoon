@@ -20,10 +20,6 @@
 
 namespace fpl {
 
-#if defined(__IOS__) || defined(__ANDROID__)
-  #define PLATFORM_MOBILE
-#endif
-
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
 //
