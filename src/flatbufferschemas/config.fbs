@@ -121,6 +121,7 @@ table Config {
   cardboard_front_z_offset:float;
   cardboard_back_z_offset:float;
   accessory_z_offset:float;
+  accessory_z_increment:float;
 
   // Offset of UI arrow from the character. Z is forward. X is side. Y is up.
   ui_arrow_offset:Vec3;

@@ -367,15 +367,24 @@ mat4 GameState::CameraMatrix() const {
                               vec3(0.0f, 1.0f, 0.0f));
 }
 
+// Ensure accessories don't z-fight by rendering them at slightly different z
+// depths.
+static float CalculateAccessoryZOffset(int num_accessories,
+                                       const Config& config) {
+  return config.accessory_z_offset() +
+         num_accessories * config.accessory_z_increment();
+}
+
 static const mat4 CalculateAccessoryMatrix(
     const TimelineAccessory& accessory, const mat4& character_matrix,
-    const Config& config) {
+    float z_sign, int num_accessories, const Config& config) {
 
   // Calculate the accessory offset, in character space.
+  const float z_offset = CalculateAccessoryZOffset(num_accessories, config);
   const vec3 offset = vec3(
       accessory.offset().x() * config.pixel_to_world_scale(),
       accessory.offset().y() * config.pixel_to_world_scale(),
-      config.accessory_z_offset());
+      z_sign * z_offset);
 
   // Apply the offset to the character matrix to move the object relative to
   // the character.
@@ -387,12 +396,13 @@ static const mat4 CalculateAccessoryMatrix(
 
 static const mat4 CalculateSplatterMatrix(
     const Vec2i* location, const mat4& character_matrix,
-    const Config& config) {
+    float z_sign, int num_accessories, const Config& config) {
   // Calculate the accessory offset, in character space.
+  const float z_offset = CalculateAccessoryZOffset(num_accessories, config);
   const vec3 offset = vec3(
       static_cast<float>(location->x()) * config.pixel_to_world_scale(),
       static_cast<float>(location->y()) * config.pixel_to_world_scale(),
-      config.accessory_z_offset());
+      z_sign * z_offset);
   const mat4 offset_matrix =
       mat4::FromTranslationVector(offset);
   const mat4 accessory_matrix = character_matrix * offset_matrix;
@@ -440,6 +450,13 @@ void GameState::PopulateScene(SceneDescription* scene) const {
                                      LoadVec3(config_->ui_arrow_scale()));
 
     for (auto c = characters_.begin(); c != characters_.end(); ++c) {
+      // Render accessories and splatters on the camera-facing side
+      // of the character.
+      const Angle towards_camera = Angle::FromXZVector(camera_position_ -
+                                                       c->position());
+      const Angle face_to_camera = c->face_angle() - towards_camera;
+      const float z_sign = face_to_camera.angle() < 0.0f ? 1.0f : -1.0f;
+
       // Character.
       const WorldTime anim_time = GetAnimationTime(*c);
       const mat4 character_matrix = c->CalculateMatrix();
@@ -456,12 +473,15 @@ void GameState::PopulateScene(SceneDescription* scene) const {
           TimelineIndicesWithTime(timeline->accessories(), anim_time);
 
       // Create a renderable for each accessory.
+      int num_accessories = 0;
       for (auto it = accessory_indices.begin();
            it != accessory_indices.end(); ++it) {
         const TimelineAccessory& accessory = *timeline->accessories()->Get(*it);
         scene->renderables().push_back(
             Renderable(accessory.renderable(),
-              CalculateAccessoryMatrix(accessory, character_matrix, *config_)));
+              CalculateAccessoryMatrix(accessory, character_matrix, z_sign,
+                                       num_accessories, *config_)));
+        num_accessories++;
       }
 
       // Splatter
@@ -471,9 +491,9 @@ void GameState::PopulateScene(SceneDescription* scene) const {
         const Splatter* splatter = config_->splatter()->Get(i);
         scene->renderables().push_back(
             Renderable(splatter->renderable(),
-                CalculateSplatterMatrix(splatter->location(),
-                                        character_matrix,
-                                        *config_)));
+                CalculateSplatterMatrix(splatter->location(), character_matrix,
+                                        z_sign, num_accessories, *config_)));
+        num_accessories++;
       }
 
       // UI arrow
