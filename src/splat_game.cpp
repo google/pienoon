@@ -281,6 +281,14 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
     const mat4 mvp = camera_transform * renderable.world_matrix();
     renderer_.model_view_projection() = mvp;
 
+    // Set the camera and light positions in object space.
+    const mat4 world_matrix_inverse = renderable.world_matrix().Inverse();
+    renderer_.camera_pos() =
+        world_matrix_inverse * game_state_.camera_position();
+
+    // TODO: check amount of lights.
+    renderer_.light_pos() = world_matrix_inverse * scene.lights()[0];
+
     // Draw the front of the character, if we have it.
     // If we don't have it, draw the pajama material for "Invalid".
     Mesh* front = GetCardboardFront(id);
@@ -333,35 +341,7 @@ void SplatGame::Render(const SceneDescription& scene) {
   renderer_.DepthTest(true);
 
   // Now render the Renderables normally, on top of the shadows.
-  for (size_t i = 0; i < scene.renderables().size(); ++i) {
-    const Renderable& renderable = scene.renderables()[i];
-
-    //const Material* mat = materials_[renderable.id()];
-    // TODO: Draw carboard with texture from 'mat' at location
-    // renderable.matrix_
-
-    const mat4 mvp = camera_transform * renderable.world_matrix();
-    renderer_.model_view_projection() = mvp;
-
-    renderer_.camera_pos() =
-            renderable.world_matrix().Inverse() *
-            (game_state_.camera_position());
-
-    // TODO: check amount of lights.
-    renderer_.light_pos() =
-            renderable.world_matrix().Inverse() * scene.lights()[0];
-
-    // Draw the front of the character, if we have it.
-    // If we don't have it, draw the pajama material for "Invalid".
-    const int id = renderable.id();
-    Mesh* front = GetCardboardFront(id);
-    front->Render(renderer_);
-
-    // If we have a back, draw the back too, slightly offset.
-    if (cardboard_backs_[id]) {
-      cardboard_backs_[id]->Render(renderer_);
-    }
-  }
+  RenderCardboard(scene, camera_transform);
 }
 
 // Debug function to print out state machine transitions.
