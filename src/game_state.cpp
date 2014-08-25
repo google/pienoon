@@ -200,8 +200,10 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
 
   // Check the inputs to see how requests for target change.
   const uint32_t logical_inputs = c.controller()->logical_inputs();
-  const int target_delta = (logical_inputs & LogicalInputs_Left) ? -1 :
-                           (logical_inputs & LogicalInputs_Right) ? 1 : 0;
+  const int left_jump = config_->character_data()->Get(id)->left_jump();
+  const int target_delta = (logical_inputs & LogicalInputs_Left) ? left_jump :
+                           (logical_inputs & LogicalInputs_Right) ? -left_jump :
+                           0;
   if (target_delta == 0)
     return current_target;
 

@@ -52,6 +52,10 @@ struct CharacterData {
   // Who this character should initially target.
   initial_target_id:int;
 
+  // 1 if left turns clockwise, -1 if left turns counter-clockwise.
+  // Intuitive controls depend on layout of surrounding characters.
+  left_jump:int;
+
   // TODO: Add color here?
 }
 

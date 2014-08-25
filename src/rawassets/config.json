@@ -2,19 +2,23 @@
   "character_data": [
     {
       "position": { "x": -5.0, "y": 0.0, "z":  0.0 },
-      "initial_target_id": 2
+      "initial_target_id": 2,
+      "left_jump": -1
     },
     {
       "position": { "x": -3.0, "y": 0.0, "z":  5.0 },
-      "initial_target_id": 3
+      "initial_target_id": 3,
+      "left_jump": 1
     },
     {
       "position": { "x":  3.0, "y": 0.0, "z":  5.0 },
-      "initial_target_id": 0
+      "initial_target_id": 0,
+      "left_jump": 1
     },
     {
       "position": { "x":  5.0, "y": 0.0, "z":  0.0 },
-      "initial_target_id": 1
+      "initial_target_id": 1,
+      "left_jump": -1
     }
   ],
 
@@ -254,6 +258,6 @@
     }
   ],
 
-  "print_character_states": false,
+  "print_character_states": true,
   "print_pie_states": false
 }
