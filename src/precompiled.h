@@ -39,6 +39,7 @@
 #include "mathfu/vector_4.h"
 #include "mathfu/glsl_mappings.h"
 #include "mathfu/quaternion.h"
+#include "mathfu/constants.h"
 
 #include <SDL.h>
 #include "SDL_log.h"

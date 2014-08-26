@@ -38,7 +38,7 @@ Character::Character(
       pie_damage_(0),
       face_angle_(Angle(0.0f)),
       face_angle_velocity_(0.0f),
-      position_(vec3(0.0f, 0.0f, 0.0f)),
+      position_(mathfu::kZeros3f),
       controller_(controller),
       state_machine_(character_state_machine_def) {
 }

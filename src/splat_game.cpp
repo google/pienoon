@@ -92,7 +92,7 @@ bool SplatGame::InitializeRenderer() {
             renderer_.last_error().c_str());
     return false;
   }
-  renderer_.color() = vec4(1, 1, 1, 1);
+  renderer_.color() = mathfu::kOnes4f;
   return true;
 }
 
@@ -462,7 +462,7 @@ void SplatGame::Run() {
 
     // TODO: Can we move these to 'Render'?
     renderer_.AdvanceFrame(input_.minimized_);
-    renderer_.ClearFrameBuffer(vec4(0.0f));
+    renderer_.ClearFrameBuffer(mathfu::kZeros4f);
 
     // Process input device messages since the last game loop.
     // Update render window size.

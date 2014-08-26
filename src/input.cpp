@@ -61,7 +61,7 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
     it->second.Reset();
   }
   for (auto it = pointers_.begin(); it != pointers_.end(); ++it) {
-    it->mousedelta = vec2i(0);
+    it->mousedelta = mathfu::kZeros2i;
   }
 
   // Poll events until Q is empty.

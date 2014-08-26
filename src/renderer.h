@@ -226,9 +226,9 @@ class Renderer {
   void DepthTest(bool on);
 
   Renderer() : model_view_projection_(mat4::Identity()),
-               model_(mat4::Identity()), color_(1.0f), light_pos_(vec3(0.0f)),
-               camera_pos_(vec3(0.0f)),
-               window_size_(vec2i(0)), window_(nullptr),
+               model_(mat4::Identity()), color_(mathfu::kOnes4f),
+               light_pos_(mathfu::kZeros3f), camera_pos_(mathfu::kZeros3f),
+               window_size_(mathfu::kZeros2i), window_(nullptr),
                context_(nullptr) {}
   ~Renderer() { ShutDown(); }
 

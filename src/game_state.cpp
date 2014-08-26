@@ -162,10 +162,9 @@ static Quat CalculatePieOrientation(Angle pie_angle, float percent,
   float delta = target_angle - initial_angle;
 
   Angle rotation_angle = Angle::FromDegrees(initial_angle + (delta * percent));
-  Quat pie_direction = Quat::FromAngleAxis(pie_angle.angle(),
-                                           vec3(0.0f, 1.0f, 0.0f));
+  Quat pie_direction = Quat::FromAngleAxis(pie_angle.angle(), mathfu::kAxisY3f);
   Quat pie_rotation = Quat::FromAngleAxis(rotation_angle.angle(),
-                                          vec3(0.0f, 0.0f, 1.0f));
+                                          mathfu::kAxisZ3f);
   return pie_direction * pie_rotation;
 }
 
@@ -395,8 +394,7 @@ static uint16_t RenderableIdForPieDamage(CharacterHealth damage,
 
 // Get the camera matrix used for rendering.
 mat4 GameState::CameraMatrix() const {
-  return mat4::LookAt(camera_target_, camera_position_,
-                              vec3(0.0f, 1.0f, 0.0f));
+  return mat4::LookAt(camera_target_, camera_position_, mathfu::kAxisY3f);
 }
 
 static const mat4 CalculateAccessoryMatrix(
@@ -423,8 +421,7 @@ static mat4 CalculatePropWorldMatrix(const Prop& prop) {
   const vec3& scale = LoadVec3(&prop.scale());
   const vec3& position = LoadVec3(&prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
-  const Quat quat = Quat::FromAngleAxis(rotation.angle(),
-                                        vec3(0.0f, 1.0f, 0.0f));
+  const Quat quat = Quat::FromAngleAxis(rotation.angle(), mathfu::kAxisY3f);
   const mat4 vertical_orientation_matrix =
       mat4::FromTranslationVector(position) *
       mat4::FromRotationMatrix(quat.ToMatrix()) *
@@ -575,8 +572,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
     scene->renderables().push_back(
         Renderable(config_->draw_fixed_renderable(),
-                   mat4::FromRotationMatrix(Quat::FromAngleAxis(kPi,
-                                vec3(0.0f, 1.0f, 0.0f)).ToMatrix())));
+                   mat4::FromRotationMatrix(Quat::FromAngleAxis(
+                       kPi, mathfu::kAxisY3f).ToMatrix())));
   }
 
   // Lights. Push all lights from configuration file.
