@@ -16,8 +16,6 @@
 
 #include "splat_game.h"
 
-#include "SDL_mixer.h"
-
 int main(int argc, char *argv[]) {
   (void) argc; (void) argv;
 
@@ -25,8 +23,43 @@ int main(int argc, char *argv[]) {
   if (!game.Initialize())
     return 1;
 
+# ifdef __ANDROID__
+  // Temp.. probably move this somewhere else once working
+  gpg::AndroidPlatformConfiguration platform_configuration;
+  platform_configuration.SetActivity((jobject)SDL_AndroidGetActivity());
+
+  // Creates a games_services object that has lambda callbacks.
+  bool is_auth_in_progress = false;
+  auto game_services =
+    gpg::GameServices::Builder()
+      .SetDefaultOnLog(gpg::LogLevel::VERBOSE)
+      .SetOnAuthActionStarted([&is_auth_in_progress](gpg::AuthOperation op) {
+        is_auth_in_progress = true;
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "GPG: Sign in started!");
+      })
+      .SetOnAuthActionFinished([&is_auth_in_progress](gpg::AuthOperation op,
+                                                      gpg::AuthStatus status) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "GPG: Sign in finished with a result of %d", status);
+        is_auth_in_progress = false;
+      })
+      .Create(platform_configuration);
+
+  if (!game_services) {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "GPG: failed to create GameServices!");
+  } else {
+    // Submit a high score
+    game_services->Leaderboards().SubmitScore("myid", 0);
+
+    // Show the default Achievements UI
+    game_services->Achievements().ShowAllUI();
+  }
+# endif
+
   Mix_OpenAudio(48000, AUDIO_U8, 2, 2048);
-  Mix_Chunk* sample = Mix_LoadWAV("./sounds/whoosh01.wav");
+  Mix_Chunk* sample = Mix_LoadWAV("sounds/whoosh01.wav");
   if (!sample) {
     SDL_LogCritical(SDL_LOG_CATEGORY_ERROR, "Failed to load wav file\n");
   }

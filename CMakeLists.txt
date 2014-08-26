@@ -66,7 +66,7 @@ add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 
 # Build rule that uses make to build the assets.
 add_custom_target(assets
-  COMMAND make -f scripts/build_assets.mk
+  COMMAND make -f ${CMAKE_SOURCE_DIR}/scripts/build_assets.mk
   DEPENDS flatc)
 
 if(APPLE)

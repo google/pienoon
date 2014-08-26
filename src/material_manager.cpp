@@ -37,7 +37,6 @@ Shader *MaterialManager::FindShader(const char *basename) {
 }
 
 Shader *MaterialManager::LoadShader(const char *basename) {
-  //if (strcmp(basename, "shaders/lit_textured_normal") == 0) basename = "shaders/textured";
   auto shader = FindShader(basename);
   if (shader) return shader;
   std::string vs_file, ps_file;
@@ -48,8 +47,6 @@ Shader *MaterialManager::LoadShader(const char *basename) {
       shader = renderer_.CompileAndLinkShader(vs_file.c_str(),
                                               ps_file.c_str());
       if (shader) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Shader loaded: %s", basename);
         shader_map_[basename] = shader;
       } else {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -79,7 +76,6 @@ Texture *MaterialManager::LoadTexture(const char *filename) {
     } else {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR, "TGA format problem: %s", filename);
     }
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Texture loaded: %s", filename);
     return tex;
   }
   SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Couldn\'t load: %s", filename);

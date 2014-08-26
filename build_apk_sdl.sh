@@ -366,7 +366,7 @@ launch_package() {
     (
       adb ${adb_device} logcat \
         SDL:V SDL/APP:V SDL/ERROR:V SDL/SYSTEM:V SDL/AUDIO:V SDL/VIDEO:V \
-        SDL/RENDER:V SDL/INPUT:V *:F | \
+        SDL/RENDER:V SDL/INPUT:V Games:V *:I | \
         awk "
           {
             print \$0

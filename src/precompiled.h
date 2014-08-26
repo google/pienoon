@@ -41,8 +41,13 @@
 #include "mathfu/quaternion.h"
 #include "mathfu/constants.h"
 
-#include <SDL.h>
+#include "SDL.h"
 #include "SDL_log.h"
+#include "SDL_mixer.h"
+
+#ifdef __ANDROID__
+#include "gpg/gpg.h"
+#endif
 
 #include "glplatform.h"
 

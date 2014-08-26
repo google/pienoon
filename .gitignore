@@ -31,3 +31,14 @@ build/
 # Misc generated files
 tags
 splat.tar.gz
+
+# android build files
+bin/
+build.xml
+gen/
+libs/
+local.properties
+obj/
+proguard-project.txt
+project.properties
+
