@@ -409,14 +409,25 @@ static mat4 CalculatePropWorldMatrix(const Prop& prop) {
          vertical_orientation_matrix;
 }
 
-static mat4 CalculateUiArrowOffsetMatrix(
-    const vec3& offset, const vec3& scale) {
+static mat4 CalculateUiArrowMatrix(const vec3& position, const Angle& angle,
+                                   const Config& config) {
   // First rotate to horizontal, then scale to correct size, then center and
   // translate forward slightly.
-  return mat4::FromTranslationVector(offset) *
+  const vec3 offset = LoadVec3(config.ui_arrow_offset());
+  const vec3 scale = LoadVec3(config.ui_arrow_scale());
+  return mat4::FromTranslationVector(position) *
+         mat4::FromRotationMatrix(angle.ToXZRotationMatrix()) *
+         mat4::FromTranslationVector(offset) *
          mat4::FromScaleVector(scale) *
-         mat4::FromRotationMatrix(
-            Quat::FromAngleAxis(kHalfPi, vec3(1.0f, 0.0f, 0.0f)).ToMatrix());
+         kRotate90DegreesAboutXAxis;
+}
+
+Angle GameState::CalculateUiArrowAngle(CharacterId id) const {
+  const Angle target_angle = TargetFaceAngle(id);
+  const Angle max_diff =
+      Angle::FromDegrees(config_->ui_arrow_max_diff_from_target());
+  const Angle face_angle = characters_[id].face_angle();
+  return face_angle.Clamp(target_angle, max_diff);
 }
 
 // TODO: Make this function a member of GameState, once that class has been
@@ -429,11 +440,6 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
   // Characters and accessories.
   if (config_->draw_characters()) {
-    // Constant conversion from character matrix to UI arrow matrix.
-    const mat4 ui_arrow_offset_matrix =
-        CalculateUiArrowOffsetMatrix(LoadVec3(config_->ui_arrow_offset()),
-                                     LoadVec3(config_->ui_arrow_scale()));
-
     for (auto c = characters_.begin(); c != characters_.end(); ++c) {
       // Render accessories and splatters on the camera-facing side
       // of the character.
@@ -485,10 +491,10 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
       // UI arrow
       if (config_->draw_ui_arrows()) {
-        const mat4 ui_arrow_matrix = character_matrix *
-                                             ui_arrow_offset_matrix;
+        const Angle arrow_angle = CalculateUiArrowAngle(c->id());
         scene->renderables().push_back(
-            Renderable(RenderableId_UiArrow, ui_arrow_matrix));
+            Renderable(RenderableId_UiArrow,
+                CalculateUiArrowMatrix(c->position(), arrow_angle, *config_)));
       }
     }
   }

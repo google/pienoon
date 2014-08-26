@@ -82,6 +82,7 @@ private:
   CharacterId CalculateCharacterTarget(CharacterId id) const;
   float CalculateCharacterFacingAngleVelocity(const Character& character,
                                               WorldTime delta_time) const;
+  Angle CalculateUiArrowAngle(CharacterId id) const;
   mathfu::mat4 CameraMatrix() const;
 
   WorldTime time_;

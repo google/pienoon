@@ -135,6 +135,11 @@ table Config {
   accessory_z_offset:float;
   accessory_z_increment:float;
 
+  // The UI arrow points at the character's target. We allow it to follow the
+  // face angle, too, but only up to a small deviation from the target angle.
+  // In degrees.
+  ui_arrow_max_diff_from_target:float;
+
   // Offset of UI arrow from the character. Z is forward. X is side. Y is up.
   ui_arrow_offset:Vec3;
 

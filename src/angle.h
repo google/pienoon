@@ -149,6 +149,10 @@ class Angle {
     return IsAngleInRange(angle_);
   }
 
+  // Clamps the angle to the range [center - max_diff, center + max_diff].
+  // max_diff must be in the range [0~pi].
+  Angle Clamp(const Angle& center, const Angle& max_diff) const;
+
   // Wraps an angle to the range (-pi, pi].
   static float WrapAngle(float angle) {
     angle -= (floor(angle / kTwoPi) + 1.f) * kTwoPi;
@@ -158,7 +162,12 @@ class Angle {
     return angle;
   }
 
-  // Create from 'angle', which is in the range (-3pi,3pi].
+  // Create from 'angle', in radians, which is in the range (-3pi,3pi].
+  // This function is significantly faster than FromRadians since it avoids
+  // division. It's also more precise for the same reason. The range may seem
+  // strange at first glance; it's a consequence of the implementation. Just
+  // know that any two sums of normalized angles will still be in the range
+  // (-3pi,3pi].
   static Angle FromWithinThreePi(const float angle) {
     return Angle(ModWithinThreePi(angle));
   }
@@ -242,6 +251,22 @@ inline bool operator==(const Angle& a, const Angle& b) {
 
 inline bool operator!=(const Angle& a, const Angle& b) {
   return !operator==(a, b);
+}
+
+inline Angle Angle::Clamp(const Angle& center, const Angle& max_diff) const {
+  assert(0 <= max_diff.angle() && max_diff.angle() <= kPi);
+
+  // Get difference from 'center'. We know this will be a value in the range
+  // (-pi, pi].
+  const Angle diff = (*this) - center;
+
+  // Clamp the difference to the valid range.
+  const Angle diff_clamped(mathfu::Clamp(diff.angle(), -max_diff.angle(),
+                                         max_diff.angle()));
+
+  // Add the difference onto the center. Note that, if no clamping happened,
+  // we're left with *this.
+  return center + diff_clamped;
 }
 
 }  // namespace fpl
