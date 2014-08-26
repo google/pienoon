@@ -1,24 +1,74 @@
 {
-  "character_data": [
+  "character_count": 4,
+
+  "character_arrangements": [
     {
-      "position": { "x": -5.0, "y": 0.0, "z":  0.0 },
-      "initial_target_id": 2,
-      "left_jump": -1
+      "character_data": [
+        {
+          "position": { "x": -4.0, "y": 0.0, "z":  2.5 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": 4.0, "y": 0.0, "z":  2.5 },
+          "left_jump": 1
+        }
+      ]
     },
     {
-      "position": { "x": -3.0, "y": 0.0, "z":  5.0 },
-      "initial_target_id": 3,
-      "left_jump": 1
+      "character_data": [
+        {
+          "position": { "x": -5.0, "y": 0.0, "z":  0.0 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -3.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  3.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  0.0 },
+          "left_jump": -1
+        }
+      ]
     },
     {
-      "position": { "x":  3.0, "y": 0.0, "z":  5.0 },
-      "initial_target_id": 0,
-      "left_jump": 1
-    },
-    {
-      "position": { "x":  5.0, "y": 0.0, "z":  0.0 },
-      "initial_target_id": 1,
-      "left_jump": -1
+      "character_data": [
+        {
+          "position": { "x": -2.5, "y": 0.0, "z":  0.0 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -5.0, "y": 0.0, "z":  2.5 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -5.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": -2.5, "y": 0.0, "z":  6.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  2.5, "y": 0.0, "z":  6.0 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  2.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  2.5, "y": 0.0, "z":  0.0 },
+          "left_jump": -1
+        }
+      ]
     }
   ],
 

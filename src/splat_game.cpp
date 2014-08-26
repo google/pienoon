@@ -218,22 +218,22 @@ bool SplatGame::InitializeGameState() {
   }
 
   // Create controllers.
-  controllers_.resize(config.character_data()->Length());
-  for (unsigned int i = 0; i < config.character_data()->Length(); ++i) {
+  controllers_.resize(config.character_count());
+  for (unsigned int i = 0; i < config.character_count(); ++i) {
     controllers_[i].Initialize(
         &input_, ControlScheme::GetDefaultControlScheme(i));
   }
 
   // Create characters.
-  for (unsigned int i = 0; i < config.character_data()->Length(); ++i) {
+  for (unsigned int i = 0; i < config.character_count(); ++i) {
     game_state_.characters().push_back(Character(
         i, &controllers_[i], state_machine_def));
   }
 
   game_state_.Reset();
 
-  debug_previous_states_.resize(config.character_data()->Length(), -1);
-  debug_previous_angles_.resize(config.character_data()->Length(), Angle(0.0f));
+  debug_previous_states_.resize(config.character_count(), -1);
+  debug_previous_angles_.resize(config.character_count(), Angle(0.0f));
 
   return true;
 }

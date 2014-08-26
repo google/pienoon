@@ -51,9 +51,6 @@ struct CharacterData {
   // Where the character should be placed in the world.
   position:Vec3;
 
-  // Who this character should initially target.
-  initial_target_id:int;
-
   // 1 if left turns clockwise, -1 if left turns counter-clockwise.
   // Intuitive controls depend on layout of surrounding characters.
   left_jump:int;
@@ -61,9 +58,19 @@ struct CharacterData {
   // TODO: Add color here?
 }
 
-table Config {
-  // Gameplay constants
+// Each arrangement should have it a unique number of players How many people
+// are playing determines the arrangement to use.
+table CharacterArrangement {
   character_data:[CharacterData];
+}
+
+table Config {
+  // Temporary variable to control number of players until we can configure it
+  // from in the game
+  character_count:uint;
+
+  // Different configurations of players.
+  character_arrangements:[CharacterArrangement];
 
   // Where the camera should be positioned.
   camera_position:Vec3;

@@ -44,19 +44,40 @@ GameState::GameState()
       camera_target_(0.0f, 0.0f, 0.0f),
       characters_(),
       pies_(),
-      config_() {
+      config_(),
+      arrangement_() {
 }
 
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
-static Angle InitialFaceAngle(const CharacterId id, const Config& config) {
+static Angle InitialFaceAngle(const CharacterArrangement* arrangement,
+                              const CharacterId id,
+                              const CharacterId target_id) {
   const vec3 characterPosition =
-      LoadVec3(&config.character_data()->Get(id)->position());
-  const CharacterId target_id =
-      config.character_data()->Get(id)->initial_target_id();
+      LoadVec3(&arrangement->character_data()->Get(id)->position());
   const vec3 targetPosition =
-      LoadVec3(&config.character_data()->Get(target_id)->position());
+      LoadVec3(&arrangement->character_data()->Get(target_id)->position());
   return Angle::FromXZVector(targetPosition - characterPosition);
+}
+
+// Find the character arrangement that has room for enough characters with the
+// least wasted space.
+static const CharacterArrangement* GetBestArrangement(const Config* config,
+                                                      unsigned int count) {
+  unsigned int num_arrangements = config->character_arrangements()->Length();
+  const CharacterArrangement* best_arrangement = nullptr;
+  unsigned int best_character_slots = std::numeric_limits<unsigned int>::max();
+  for (unsigned int i = 0; i < num_arrangements; ++i) {
+    const CharacterArrangement* arrangement =
+        config->character_arrangements()->Get(i);
+    unsigned int character_slots = arrangement->character_data()->Length();
+    if (character_slots >= count && character_slots < best_character_slots) {
+      best_arrangement = arrangement;
+      best_character_slots = character_slots;
+    }
+  }
+  assert(best_arrangement);
+  return best_arrangement;
 }
 
 // Reset the game back to initial configuration.
@@ -65,15 +86,19 @@ void GameState::Reset() {
   camera_position_ = LoadVec3(config_->camera_position());
   camera_target_ = LoadVec3(config_->camera_target());
   pies_.empty();
+  arrangement_ = GetBestArrangement(config_, characters_.size());
 
   // Reset characters to their initial state.
   const CharacterId num_ids = static_cast<CharacterId>(characters_.size());
+  // Initially, everyone targets the character across from themself.
+  const unsigned int target_step = num_ids / 2;
   for (CharacterId id = 0; id < num_ids; ++id) {
+    CharacterId target_id = (id + target_step) % num_ids;
     characters_[id].Reset(
-        config_->character_data()->Get(id)->initial_target_id(),
+        target_id,
         config_->character_health(),
-        InitialFaceAngle(id, *config_),
-        LoadVec3(&config_->character_data()->Get(id)->position()));
+        InitialFaceAngle(arrangement_, id, target_id),
+        LoadVec3(&arrangement_->character_data()->Get(id)->position()));
   }
 }
 
@@ -200,7 +225,7 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
 
   // Check the inputs to see how requests for target change.
   const uint32_t logical_inputs = c.controller()->logical_inputs();
-  const int left_jump = config_->character_data()->Get(id)->left_jump();
+  const int left_jump = arrangement_->character_data()->Get(id)->left_jump();
   const int target_delta = (logical_inputs & LogicalInputs_Left) ? left_jump :
                            (logical_inputs & LogicalInputs_Right) ? -left_jump :
                            0;

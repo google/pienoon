@@ -26,6 +26,7 @@ class SceneDescription;
 namespace splat {
 
 struct Config;
+struct CharacterArrangement;
 
 class GameState {
  public:
@@ -91,6 +92,7 @@ private:
   std::vector<Character> characters_;
   std::vector<AirbornePie> pies_;
   const Config* config_;
+  const CharacterArrangement* arrangement_;
 };
 
 }  // splat
