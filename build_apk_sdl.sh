@@ -151,6 +151,10 @@ android() {
               "${ANDROID_SDK_HOME}/sdk/tools/${android_executable}" \
               "${android_root}/prebuilts/sdk/tools/${android_executable}"; do
     if [[ -e "${path}" ]]; then
+      if [[ -z "${ANDROID_SDK_HOME}" && \
+            -n "$(echo "${path}" | grep sdk/tools/)" ]]; then
+        ANDROID_SDK_HOME=$(echo "${path}" | sed 's@/sdk/tools/.*@@')
+      fi
       android_path="${path}"
       break
     fi
@@ -234,7 +238,8 @@ select_android_build_target() {
     awk -F'"' '/^id:.*android/ { print $2 }')
   local android_build_target=
   for android_target in $(echo "${android_targets_installed}" | \
-                          awk -F- '{ print $2 }' | sort -n); do
+                          awk -F- '{ print $2 }' | grep -E '[0-9]+' | \
+                          sort -n); do
     if [[ $((android_target)) -ge \
           $((BUILDAPK_ANDROID_TARGET_MINVERSION)) ]]; then
       android_build_target="android-${android_target}"
@@ -452,6 +457,22 @@ $(adb devices -l)
   fi
 
   if [[ $((disable_build)) -eq 0 ]]; then
+     # Temporary hack to configure the C++ Google Play Games Services SDK.
+    android -h >/dev/null || true # Find ANDROID_SDK_HOME.
+    if [[ -n "${ANDROID_SDK_HOME}" ]]; then
+      declare -r play_services_dir="${ANDROID_SDK_HOME}/sdk/extras/google/\
+google_play_services/libproject/google-play-services_lib"
+      if [[ ! -e "${play_services_dir}" ]]; then
+        echo "Google Play Services must be installed in the Android SDK." >&2
+        echo "Use the android SDK manager to install this package." >&2
+        exit 1
+      fi
+      pushd "${play_services_dir}" >/dev/null
+      android update project -p . -t $(select_android_build_target)
+      popd >/dev/null
+      ln -s ${play_services_dir} google-play-services_lib
+    fi
+
     # Build the native target.
     build_native_targets "$@"
   fi

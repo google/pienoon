@@ -42,4 +42,6 @@ local.properties
 obj/
 proguard-project.txt
 
+# symlink to the Google Play Services library.
+google-play-services_lib
 
