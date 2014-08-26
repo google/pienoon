@@ -1,11 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := main
-
 # relative to this file
-SPLAT_PATH := ../..
+SPLAT_PATH := $(realpath $(LOCAL_PATH)/../..)
 
 # relative to project root
 SDL_PATH := ../../../../external/sdl
@@ -13,14 +9,71 @@ MIXER_PATH := ../../../../external/sdl_mixer
 FLATBUFFERS_PATH := ../../libs/flatbuffers
 MATHFU_PATH := ../../libs/mathfu
 GPG_PATH := ../../../../prebuilts/gpg-cpp-sdk/android
-# FIXME relies on cmake to run before this
-GENERATED_FILES := CMakeFiles
+
+# Empty static library which causes headers to be rebuilt from
+# flatbuffers schemas.
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := generated_includes
+
+# Directory that contains the FlatBuffers compiler.
+FLATBUFFERS_PATH?=$(realpath $(SPLAT_PATH)/flatbuffers)
+
+# Location of FlatBuffers compiler.
+FLATC?=$(realpath $(firstword \
+            $(wildcard $(FLATBUFFERS_PATH)/flatc*) \
+            $(wildcard $(FLATBUFFERS_PATH)/Release/flatc*) \
+            $(wildcard $(FLATBUFFERS_PATH)/Debug/flatc*)))
+
+# Generated includes directory (relative to SPLAT_PATH).
+GENERATED_INCLUDES_PATH := gen/include
+# Flatbuffers schemas used to generate includes.
+FLATBUFFERS_SCHEMAS := $(wildcard $(SPLAT_PATH)/src/flatbufferschemas/*.fbs)
+
+# Convert the specified fbs path to a Flatbuffers generated header path.
+# For example: src/flatbuffers/schemas/config.fbs will be converted to
+# gen/include/config.h.
+define flatbuffers_fbs_to_h
+$(subst src/flatbufferschemas,$(GENERATED_INCLUDES_PATH),\
+	$(patsubst %.fbs,%_generated.h,$(1)))
+endef
+
+# Generate a build rule that will convert a Flatbuffers schema to a generated
+# header derived from the schema filename using flatbuffers_fbs_to_h.
+define flatbuffers_header_build_rule
+$(eval \
+  $(call flatbuffers_fbs_to_h,$(1)): $(1)
+	$(call host-echo-build-step,generic,Generate) \
+		$(subst $(SPLAT_PATH)/,,$(call flatbuffers_fbs_to_h,$(1)))
+	$(hide) $(FLATC) -o $$(dir $$@) -c $$<)
+endef
+
+# Create the list of generated headers.
+GENERATED_INCLUDES := \
+	$(foreach schema,$(FLATBUFFERS_SCHEMAS),\
+		$(call flatbuffers_fbs_to_h,$(schema)))
+
+# Generate a build rule for each header.
+$(foreach schema,$(FLATBUFFERS_SCHEMAS),\
+	$(call flatbuffers_header_build_rule,$(schema)))
+
+# Build includes as a side effect of this empty library.
+$(LOCAL_MODULE): $(GENERATED_INCLUDES)
+
+# Intentionally empty.
+LOCAL_SRC_FILES :=
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := main
 
 LOCAL_C_INCLUDES := $(SDL_PATH)/include \
                     $(MIXER_PATH) \
                     $(FLATBUFFERS_PATH)/include \
                     $(MATHFU_PATH)/include \
-                    $(GENERATED_FILES)/include \
+                    $(GENERATED_INCLUDES_PATH) \
                     $(GPG_PATH)/include \
                     src
 
@@ -41,7 +94,7 @@ LOCAL_SRC_FILES := \
 	$(SPLAT_PATH)/src/audio_engine.cpp \
 	$(SPLAT_PATH)/src/sound.cpp
 
-LOCAL_STATIC_LIBRARIES := libgpg
+LOCAL_STATIC_LIBRARIES := libgpg libgenerated_includes
 
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_mixer
 
