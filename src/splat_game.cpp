@@ -122,8 +122,8 @@ static Mesh* CreateCardboardMesh(const char* material_file_name,
     right,        0.0f, z_offset,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
    -right, geo_size[1], z_offset,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
     right, geo_size[1], z_offset,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f};
-  STATIC_ASSERT(ARRAYSIZE(vertices) ==
-                kNumVerticesInQuad * kNumFloatsPerVertex);
+  MATHFU_STATIC_ASSERT(ARRAYSIZE(vertices) ==
+                       kNumVerticesInQuad * kNumFloatsPerVertex);
 
   // Create the mesh and add in the material.
   Mesh* mesh = new Mesh(vertices, kNumVerticesInQuad,
@@ -491,4 +491,3 @@ void SplatGame::Run() {
 
 }  // splat
 }  // fpl
-

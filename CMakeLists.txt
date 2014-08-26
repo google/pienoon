@@ -95,7 +95,7 @@ include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 
 # Executable target.
 add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra
-                -DCOMPILE_WITHOUT_SIMD_SUPPORT)
+                -DMATHFU_COMPILE_WITHOUT_SIMD_SUPPORT)
 if(SPLAT_DEBUG)
   add_definitions(-D_DEBUG)
 endif()
