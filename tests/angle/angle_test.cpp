@@ -91,12 +91,12 @@ TEST_F(AngleTests, AboveNegativePi) {
 
 // -pi should be represented as pi.
 TEST_F(AngleTests, ModFromNegativePi) {
-  EXPECT_FLOAT_EQ(Angle::FromWithinThreePi(-kPi).angle(), kPi);
+  EXPECT_FLOAT_EQ(Angle::FromWithinThreePi(-kPi).ToRadians(), kPi);
 }
 
 // pi should be represented as pi.
 TEST_F(AngleTests, ModFromPositivePi) {
-  EXPECT_FLOAT_EQ(Angle::FromWithinThreePi(kPi).angle(), kPi);
+  EXPECT_FLOAT_EQ(Angle::FromWithinThreePi(kPi).ToRadians(), kPi);
 }
 
 // Slightly below -pi should mod to near pi.
@@ -114,38 +114,38 @@ TEST_F(AngleTests, ModAbovePi) {
 // Addition should use modular arithmetic.
 TEST_F(AngleTests, Addition) {
   const Angle sum = half_pi_ + half_pi_ + half_pi_ + half_pi_;
-  EXPECT_NEAR(sum.angle(), 0.0f, kAnglePrecision);
+  EXPECT_NEAR(sum.ToRadians(), 0.0f, kAnglePrecision);
 }
 
 // Subtraction should use modular arithmetic.
 TEST_F(AngleTests, Subtraction) {
   const Angle diff = half_pi_ - half_pi_ - half_pi_ - half_pi_;
-  EXPECT_NEAR(diff.angle(), kPi, kAnglePrecision);
+  EXPECT_NEAR(diff.ToRadians(), kPi, kAnglePrecision);
 }
 
 // Addition should use modular arithmetic.
 TEST_F(AngleTests, Multiplication) {
   const Angle product = half_pi_ * 3.f;
-  EXPECT_NEAR(product.angle(), -half_pi_.angle(), kAnglePrecision);
+  EXPECT_NEAR(product.ToRadians(), -half_pi_.ToRadians(), kAnglePrecision);
 }
 
 // Subtraction should use modular arithmetic.
 TEST_F(AngleTests, Division) {
   const Angle quotient = Angle::FromWithinThreePi(kPi) / 2.0f;
-  EXPECT_NEAR(quotient.angle(), kHalfPi, kAnglePrecision);
+  EXPECT_NEAR(quotient.ToRadians(), kHalfPi, kAnglePrecision);
 }
 
 // Unary negate should change the sign.
 TEST_F(AngleTests, Negate) {
   const Angle a = Angle(kHalfPi);
-  EXPECT_FLOAT_EQ(-a.angle(), -kHalfPi);
+  EXPECT_FLOAT_EQ(-a.ToRadians(), -kHalfPi);
 }
 
 // Unary negate should send pi to pi, because -pi is not in range.
 TEST_F(AngleTests, NegatePi) {
   const Angle a = Angle(kPi);
   const Angle negative_a = -a;
-  EXPECT_FLOAT_EQ(negative_a.angle(), kPi);
+  EXPECT_FLOAT_EQ(negative_a.ToRadians(), kPi);
 }
 
 // Ensure wrapping produces angles in the range (-pi, pi].
@@ -176,7 +176,7 @@ TEST_F(AngleTests, ClampInside) {
   const Angle a(kHalfPi + 0.1f);
   const Angle center(kHalfPi);
   const Angle max_diff(0.2f);
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(), a.angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(), a.ToRadians());
 }
 
 // Clamping a value that's above the range should clamp to the top boundary.
@@ -184,8 +184,8 @@ TEST_F(AngleTests, ClampAbove) {
   const Angle a(kHalfPi + 0.2f);
   const Angle center(kHalfPi);
   const Angle max_diff(0.1f);
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(),
-                  (center + max_diff).angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(),
+                  (center + max_diff).ToRadians());
 }
 
 // Clamping a value that's below the range should clamp to the bottom boundary.
@@ -193,8 +193,8 @@ TEST_F(AngleTests, ClampBelow) {
   const Angle a(-kHalfPi - 0.2f);
   const Angle center(-kHalfPi);
   const Angle max_diff(0.1f);
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(),
-                  (center - max_diff).angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(),
+                  (center - max_diff).ToRadians());
 }
 
 // Clamping to a range that strattles pi should wrap to the boundary that's
@@ -204,8 +204,8 @@ TEST_F(AngleTests, ClampModularAtPositiveCenterPositiveAngle) {
   const Angle center(kPi);
   const Angle max_diff(0.1f);
   // This tests a positive number clamped to the range.
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(),
-                  (center - max_diff).angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(),
+                  (center - max_diff).ToRadians());
 }
 
 // Clamping to a range that strattles pi should wrap to the boundary that's
@@ -215,8 +215,8 @@ TEST_F(AngleTests, ClampModularAtPositiveCenterNegativeAngle) {
   const Angle center(kPi);
   const Angle max_diff(0.1f);
   // This tests a negative number clamped to the range.
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(),
-                  (center + max_diff).angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(),
+                  (center + max_diff).ToRadians());
 }
 
 // Clamping to a range that strattles pi should wrap to the boundary that's
@@ -227,8 +227,8 @@ TEST_F(AngleTests, ClampModularAtNegativeCenterPositiveAngle) {
   const Angle max_diff(0.1f);
   // This tests a positive number clamped to a range centered about a negative
   // number.
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(),
-                  (center - max_diff).angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(),
+                  (center - max_diff).ToRadians());
 }
 
 // Clamping to a range that strattles pi should wrap to the boundary that's
@@ -238,8 +238,8 @@ TEST_F(AngleTests, ClampModularAtNegativeCenterNegativeAngle) {
   const Angle center(kMinUniqueAngle);
   const Angle max_diff(0.1f);
   // This tests a negative number clamped to the range.
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(),
-                  (center + max_diff).angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(),
+                  (center + max_diff).ToRadians());
 }
 
 // Clamping with zero diff should return the center.
@@ -248,7 +248,7 @@ TEST_F(AngleTests, ClampWithZeroDiff) {
   const Angle center(kPi - 2.1f);
   const Angle max_diff(0.0f);
   // This tests a negative number clamped to the range.
-  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).angle(), center.angle());
+  EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(), center.ToRadians());
 }
 
 int main(int argc, char **argv) {

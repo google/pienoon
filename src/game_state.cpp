@@ -162,18 +162,18 @@ static Quat CalculatePieOrientation(Angle pie_angle, float percent,
   float delta = target_angle - initial_angle;
 
   Angle rotation_angle = Angle::FromDegrees(initial_angle + (delta * percent));
-  Quat pie_direction = Quat::FromAngleAxis(pie_angle.angle(), mathfu::kAxisY3f);
-  Quat pie_rotation = Quat::FromAngleAxis(rotation_angle.angle(),
+  Quat pie_direction = Quat::FromAngleAxis(pie_angle.ToRadians(),
+                                           mathfu::kAxisY3f);
+  Quat pie_rotation = Quat::FromAngleAxis(rotation_angle.ToRadians(),
                                           mathfu::kAxisZ3f);
   return pie_direction * pie_rotation;
 }
 
 static vec3 CalculatePiePosition(const Character& source,
-                                         const Character& target,
-                                         float percent, float pie_height,
-                                         const Config* config) {
-  vec3 result =
-      vec3::Lerp(source.position(), target.position(), percent);
+                                 const Character& target,
+                                 float percent, float pie_height,
+                                 const Config* config) {
+  vec3 result = vec3::Lerp(source.position(), target.position(), percent);
 
   // Pie height follows a parabola such that y = -4a * (x)(x - 1)
   //
@@ -294,9 +294,9 @@ float GameState::CalculateCharacterFacingAngleVelocity(
 
   // Increment our current face angle velocity.
   const bool wrong_direction =
-      c.face_angle_velocity() * delta_angle.angle() < 0.0f;
+      c.face_angle_velocity() * delta_angle.ToRadians() < 0.0f;
   const float angular_acceleration =
-      delta_angle.angle() * config_->face_delta_to_accel() *
+      delta_angle.ToRadians() * config_->face_delta_to_accel() *
       (wrong_direction ? config_->face_wrong_direction_accel_bonus() : 1.0f);
   const float angular_velocity_unclamped =
       c.face_angle_velocity() + delta_time * angular_acceleration;
@@ -309,9 +309,9 @@ float GameState::CalculateCharacterFacingAngleVelocity(
       config_->face_near_target_angular_velocity();
   const bool snap_to_target =
       fabs(angular_velocity) <= near_target_angular_velocity &&
-      fabs(delta_angle.angle()) <= config_->face_near_target_angle();
+      fabs(delta_angle.ToRadians()) <= config_->face_near_target_angle();
   return snap_to_target
-       ? mathfu::Clamp(delta_angle.angle() / delta_time,
+       ? mathfu::Clamp(delta_angle.ToRadians() / delta_time,
             -near_target_angular_velocity, near_target_angular_velocity)
        : angular_velocity;
 }
@@ -372,7 +372,7 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     const float face_angle_velocity =
         CalculateCharacterFacingAngleVelocity(*it, delta_time);
     const Angle face_angle = Angle::FromWithinThreePi(
-        it->face_angle().angle() + delta_time * face_angle_velocity);
+        it->face_angle().ToRadians() + delta_time * face_angle_velocity);
     it->set_face_angle_velocity(face_angle_velocity);
     it->set_face_angle(face_angle);
   }
@@ -421,7 +421,7 @@ static mat4 CalculatePropWorldMatrix(const Prop& prop) {
   const vec3& scale = LoadVec3(&prop.scale());
   const vec3& position = LoadVec3(&prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
-  const Quat quat = Quat::FromAngleAxis(rotation.angle(), mathfu::kAxisY3f);
+  const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(), mathfu::kAxisY3f);
   const mat4 vertical_orientation_matrix =
       mat4::FromTranslationVector(position) *
       mat4::FromRotationMatrix(quat.ToMatrix()) *
@@ -468,7 +468,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       const Angle towards_camera_angle = Angle::FromXZVector(camera_position_ -
                                                        c->position());
       const Angle face_to_camera_angle = c->face_angle() - towards_camera_angle;
-      const bool facing_camera = face_to_camera_angle.angle() < 0.0f;
+      const bool facing_camera = face_to_camera_angle.ToRadians() < 0.0f;
 
       // Character.
       const WorldTime anim_time = GetAnimationTime(*c);

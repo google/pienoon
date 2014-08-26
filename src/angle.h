@@ -92,8 +92,6 @@ class Angle {
   // slower FromRadians function to automatically wrap it.
   explicit Angle(float angle) : angle_(angle) { assert(IsValid()); }
 
-  float angle() const { return angle_; }
-
   Angle Abs() const { return Angle(fabs(angle_)); }
 
   Angle& operator=(const Angle& rhs) {
@@ -119,6 +117,10 @@ class Angle {
   Angle& operator/=(const float rhs) {
     angle_ = WrapAngle(angle_ / rhs);
     return *this;
+  }
+
+  float ToRadians() const {
+    return angle_;
   }
 
   float ToDegrees() const {
@@ -195,6 +197,8 @@ class Angle {
   }
 
  private:
+  friend bool operator==(const Angle& a, const Angle& b);
+
 #ifdef FPL_ANGLE_UNIT_TESTS
   FRIEND_TEST(AngleTests, ModWithinThreePi);
   FRIEND_TEST(AngleTests, ModIfNegativePi);
@@ -246,7 +250,7 @@ inline Angle operator/(Angle lhs, float rhs) {
 }
 
 inline bool operator==(const Angle& a, const Angle& b) {
-  return a.angle() == b.angle();
+  return a.angle_ == b.angle_;
 }
 
 inline bool operator!=(const Angle& a, const Angle& b) {
@@ -254,15 +258,15 @@ inline bool operator!=(const Angle& a, const Angle& b) {
 }
 
 inline Angle Angle::Clamp(const Angle& center, const Angle& max_diff) const {
-  assert(0 <= max_diff.angle() && max_diff.angle() <= kPi);
+  assert(0 <= max_diff.angle_ && max_diff.angle_ <= kPi);
 
   // Get difference from 'center'. We know this will be a value in the range
   // (-pi, pi].
   const Angle diff = (*this) - center;
 
   // Clamp the difference to the valid range.
-  const Angle diff_clamped(mathfu::Clamp(diff.angle(), -max_diff.angle(),
-                                         max_diff.angle()));
+  const Angle diff_clamped(mathfu::Clamp(diff.angle_, -max_diff.angle_,
+                                         max_diff.angle_));
 
   // Add the difference onto the center. Note that, if no clamping happened,
   // we're left with *this.
