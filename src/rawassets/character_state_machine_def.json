@@ -14,10 +14,17 @@
           "condition": {
             "logical_inputs": "AnimationEnd"
           }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "logical_inputs": "Deflect",
+            "time": 100
+          }
         }
       ],
       "timeline": {
-        "end_time": 750,
+        "end_time": 400,
         "renderables": [
           {
             "time": 0,
@@ -237,19 +244,9 @@
           }
         },
         {
-          "target_state": "HitByPie",
+          "target_state": "Loading_1",
           "condition": {
-            "logical_inputs": "JustHit",
-            "time": 0,
-            "end_time": 250
-          }
-        },
-        {
-          "target_state": "HitByPie",
-          "condition": {
-            "logical_inputs": "JustHit",
-            "time": 750,
-            "end_time": 1000
+            "logical_inputs": "ThrowPie"
           }
         }
       ],
@@ -263,8 +260,8 @@
         ],
         "accessories": [
           {
-            "time": 250,
-            "end_time": 750,
+            "time": 50,
+            "end_time": 1000,
             "renderable": "RenderableId.PieBlock",
             "offset": {
               "x": -16,
