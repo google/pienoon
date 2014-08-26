@@ -85,6 +85,7 @@ private:
                                               WorldTime delta_time) const;
   Angle CalculateUiArrowAngle(CharacterId id) const;
   mathfu::mat4 CameraMatrix() const;
+  Angle TiltTowardsStageFront(const Angle angle) const;
 
   WorldTime time_;
   mathfu::vec3 camera_position_;

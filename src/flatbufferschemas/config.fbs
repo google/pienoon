@@ -143,6 +143,7 @@ table Config {
   cardboard_back_z_offset:float;
   accessory_z_offset:float;
   accessory_z_increment:float;
+  cardboard_bias_towards_stage_front:float;
 
   // The UI arrow points at the character's target. We allow it to follow the
   // face angle, too, but only up to a small deviation from the target angle.

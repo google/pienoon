@@ -69,6 +69,8 @@ class Character {
   void set_face_angle(const Angle& angle) { face_angle_ = angle; }
   float face_angle_velocity() const { return face_angle_velocity_; }
   void set_face_angle_velocity(float vel) { face_angle_velocity_ = vel; }
+  Angle aim_angle() const { return aim_angle_; }
+  void set_aim_angle(const Angle& angle) { aim_angle_ = angle; }
   mathfu::vec3 position() const { return position_; }
   void set_position(const mathfu::vec3& position) { position_ = position; }
 
@@ -98,6 +100,9 @@ class Character {
   // Rate at which face_angle_ is changing. Acceleration changes instantly, but
   // face angle has some momentum.
   float face_angle_velocity_;
+
+  // World Angle that the character's aim-pointer should point.
+  Angle aim_angle_;
 
   // Position of the character in world space.
   mathfu::vec3 position_;

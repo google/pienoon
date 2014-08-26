@@ -277,10 +277,21 @@ Angle GameState::TargetFaceAngle(CharacterId id) const {
   return AngleBetweenCharacters(id, c.target());
 }
 
+Angle GameState::TiltTowardsStageFront(const Angle angle) const
+{
+    // Bias characters to face towards the camera.
+    vec3 angle_vec = angle.ToXZVector();
+    angle_vec.x() *= config_->cardboard_bias_towards_stage_front();
+    angle_vec.Normalize();
+    Angle result = Angle::FromXZVector(angle_vec);
+    return result;
+}
+
 // Difference between target face angle and current face angle.
 Angle GameState::FaceAngleError(CharacterId id) const {
   const Character& c = characters_[id];
-  const Angle angle_to_target = TargetFaceAngle(id);
+  Angle angle_to_target = TiltTowardsStageFront(TargetFaceAngle(id));
+
   const Angle face_angle_error = angle_to_target - c.face_angle();
   return face_angle_error;
 }
@@ -368,13 +379,14 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
     const CharacterId target_id = CalculateCharacterTarget(it->id());
     it->set_target(target_id);
 
-    // Update facing angles.
+    // Update facing/aiming angles.
     const float face_angle_velocity =
         CalculateCharacterFacingAngleVelocity(*it, delta_time);
     const Angle face_angle = Angle::FromWithinThreePi(
         it->face_angle().ToRadians() + delta_time * face_angle_velocity);
     it->set_face_angle_velocity(face_angle_velocity);
     it->set_face_angle(face_angle);
+    it->set_aim_angle(face_angle);
   }
 
   // Look to timeline to see what's happening. Make it happen.
