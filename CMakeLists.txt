@@ -34,6 +34,9 @@ set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
 add_subdirectory(${THIRD_PARTY_ROOT}/sdl sdl)
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
+# Include SDL Mixer. This must come after SDL is included.
+add_subdirectory(${THIRD_PARTY_ROOT}/sdl_mixer sdl_mixer)
+
 # Include FlatBuffers in this project.
 add_subdirectory(${FLATBUFFERS_PROJECT_DIR} flatbuffers)
 
@@ -93,6 +96,9 @@ include_directories(${MATHFU_PROJECT_DIR}/include)
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 
+# SDL Mixer includes.
+include_directories(${sdl_mixer_SOURCE_DIR})
+
 # Executable target.
 add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra
                 -DMATHFU_COMPILE_WITHOUT_SIMD_SUPPORT)
@@ -105,6 +111,7 @@ add_executable(splat ${splat_SRCS})
 add_dependencies(splat generated_includes assets)
 target_link_libraries(splat
   SDL2-static
+  sdl_mixer
   ${OPENGL_LIBRARIES})
 
 # Include GoogleTest in this project.

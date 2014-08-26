@@ -13,6 +13,7 @@ cmake_install.cmake
 flatbuffers/
 googletest/
 sdl/
+sdl_mixer/
 splat.build/
 splat.xcodeproj/
 tests/Debug/
