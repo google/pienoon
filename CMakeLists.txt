@@ -44,12 +44,6 @@ set(FLATBUFFERS_GENERATED_INCLUDES_DIR
 file(MAKE_DIRECTORY ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src *.fbs)
 get_target_property(FLATBUFFERS_FLATC flatc LOCATION)
-# Manually specify fbs files upon which other fbs files depend.
-# TODO: This is hacky. Preferably, you'd be able to specify these
-# dependencies in the fbs file itself, like a #include.
-set(FBS_DEPENDENCIES
-    ${CMAKE_SOURCE_DIR}/src/flatbufferschemas/splat_common.fbs
-    ${CMAKE_SOURCE_DIR}/src/flatbufferschemas/timeline.fbs)
 
 # Generate rules to build the set of output files from the set of input
 # schema files.
@@ -60,12 +54,17 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
   add_custom_command(
     OUTPUT ${flatbuffers_include}
     COMMAND ${FLATBUFFERS_FLATC} -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        -c ${FBS_DEPENDENCIES} ${flatbuffers_schema}
+        -c ${flatbuffers_schema}
     DEPENDS ${flatbuffers_schema} ${FLATBUFFERS_FLATC}
         ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
+
+# Build rule that uses make to build the assets.
+add_custom_target(assets
+  COMMAND make -f scripts/build_assets.mk
+  DEPENDS ${FLATBUFFERS_FLATC})
 
 if(APPLE)
   find_library(OPENGL_LIBRARIES NAMES GL GLU)
@@ -103,7 +102,7 @@ endif()
 
 add_executable(splat ${splat_SRCS})
 # Dependencies for the executable target.
-add_dependencies(splat generated_includes)
+add_dependencies(splat generated_includes assets)
 target_link_libraries(splat
   SDL2-static
   ${OPENGL_LIBRARIES})
