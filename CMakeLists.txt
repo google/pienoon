@@ -22,7 +22,6 @@ set(SDL_MIXER_SRCS
     dynamic_fluidsynth.c
     dynamic_mod.c
     dynamic_modplug.c
-    dynamic_mp3.c
     dynamic_ogg.c
     effect_position.c
     effects_internal.c
@@ -30,7 +29,6 @@ set(SDL_MIXER_SRCS
     fluidsynth.c
     load_aiff.c
     load_flac.c
-    load_mp3.c
     load_ogg.c
     load_voc.c
     mixer.c
