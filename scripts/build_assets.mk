@@ -99,6 +99,9 @@ flatbuffers_binary=\
 # Top level build rule for all assets.
 all: $(flatbuffers_binary)
 
+clean:
+	rm -f $(flatbuffers_binary)
+
 # Create a build rule for each FlatBuffer binary file that will be built from
 # a .json files using a schema that is derived form the source json filename.
 $(foreach flatbuffers_json_file,$(flatbuffers_single_schema_json),\
