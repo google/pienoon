@@ -22,7 +22,7 @@
 cd `dirname $0`
 
 # Process .json files.
-./scripts/jsontobin.sh
+make -f ./scripts/build_assets.mk
 
 # Run the game.
 for exe in ./splat ./Release/splat ./Debug/splat; do

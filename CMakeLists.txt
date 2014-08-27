@@ -124,7 +124,7 @@ get_target_property(SPLAT_EXECUTABLE splat LOCATION)
 set(EXPORT_FILES
     ${CMAKE_SOURCE_DIR}/assets
     ${CMAKE_SOURCE_DIR}/run.command
-    ${CMAKE_SOURCE_DIR}/scripts/jsontobin.sh
+    ${CMAKE_SOURCE_DIR}/scripts/build_assets.mk
     ${CMAKE_SOURCE_DIR}/src/flatbufferschemas
     ${CMAKE_SOURCE_DIR}/src/rawassets
     ${SPLAT_EXECUTABLE}
