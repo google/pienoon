@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(splat)
 
@@ -58,7 +58,7 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
     OUTPUT ${flatbuffers_include}
     COMMAND ${FLATBUFFERS_FLATC} -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -c ${flatbuffers_schema}
-    DEPENDS ${flatbuffers_schema} ${FLATBUFFERS_FLATC}
+    DEPENDS flatc ${flatbuffers_schema} ${FLATBUFFERS_FLATC}
         ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
@@ -67,7 +67,7 @@ add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 # Build rule that uses make to build the assets.
 add_custom_target(assets
   COMMAND make -f scripts/build_assets.mk
-  DEPENDS ${FLATBUFFERS_FLATC})
+  DEPENDS flatc)
 
 if(APPLE)
   find_library(OPENGL_LIBRARIES NAMES GL GLU)
