@@ -317,6 +317,6 @@
     }
   ],
 
-  "print_character_states": true,
+  "print_character_states": false,
   "print_pie_states": false
 }

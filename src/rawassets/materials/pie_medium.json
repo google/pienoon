@@ -1,7 +1,7 @@
 {
   shader_basename: "shaders/lit_textured_normal",
   texture_filenames: [
-    "textures/pie_L02.tga",
+    "textures/pie_level02.tga",
     "textures/cardboard-normal.tga"
   ],
   "blendmode": "TEST"
