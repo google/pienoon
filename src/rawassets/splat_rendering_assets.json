@@ -70,6 +70,9 @@
       // EnvironmentTree
       "materials/environment_tree.bin",
 
+      // EnvironmentBush
+      "materials/environment_bush.bin",
+
       // EnvironmentString
       "materials/environment_string.bin",
 
@@ -174,6 +177,9 @@
       // EnvironmentTree
       "",
 
+      // EnvironmentBush
+      "",
+
       // EnvironmentString
       "",
 
@@ -276,6 +282,9 @@
       false,
 
       // EnvironmentTree
+      true,
+
+      // EnvironmentBush
       true,
 
       // EnvironmentString

@@ -288,25 +288,32 @@
       "scale": { "x": 1, "y": 1, "z": 1 }
     },
     {
-      "renderable": "RenderableId.EnvironmentTree",
-      "position": { "x": -8, "y": -1.8, "z":1.5 },
-      "rotation": 0,
+      "renderable": "RenderableId.EnvironmentBush",
+      "position": { "x": -9, "y": 0, "z":1.5 },
+      "rotation": -20,
       "orientation": "Verticle",
-      "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
+      "scale": { "x": 1, "y": 1, "z": 1 }
     },
     {
-      "renderable": "RenderableId.EnvironmentTree",
-      "position": { "x": -4, "y": -1.8, "z":3 },
-      "rotation": 0,
+      "renderable": "RenderableId.EnvironmentBush",
+      "position": { "x": -5.5, "y": 0, "z":4 },
+      "rotation": -20,
       "orientation": "Verticle",
-      "scale": { "x": 0.4, "y": 0.4, "z": 0.4 }
+      "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }
     },
     {
-      "renderable": "RenderableId.EnvironmentTree",
-      "position": { "x": -6, "y": -1.8, "z":5.5 },
+      "renderable": "RenderableId.EnvironmentBush",
+      "position": { "x": -5, "y": 0, "z":5.5 },
+      "rotation": 20,
+      "orientation": "Verticle",
+      "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }
+    },
+    {
+      "renderable": "RenderableId.EnvironmentBush",
+      "position": { "x": -2.8, "y": -0.1, "z":7.3 },
       "rotation": 0,
       "orientation": "Verticle",
-      "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
+      "scale": { "x": 1, "y": 1, "z": 1 }
     }
   ],
 

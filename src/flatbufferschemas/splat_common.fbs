@@ -38,6 +38,7 @@ enum RenderableId : ushort {
   EnvironmentSun,
   EnvironmentSunGlow,
   EnvironmentTree,
+  EnvironmentBush,
   EnvironmentString,
   EnvironmentStageFront,
   EnvironmentStageGround,
