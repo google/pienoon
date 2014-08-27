@@ -112,34 +112,34 @@
       "materials/character_idle_back.bin",
 
       // CharacterLoad1
-      "",
+      "materials/character_load1_back.bin",
 
       // CharacterLoad2
-      "",
+      "materials/character_load2_back.bin",
 
       // CharacterLoad3
-      "",
+      "materials/character_load3_back.bin",
 
       // CharacterThrow
-      "",
+      "materials/character_throw_back.bin",
 
       // CharacterBlock
-      "",
+      "materials/character_block_back.bin",
 
       // CharacterHitByPieFrame0
-      "",
+      "materials/character_hit_by_pie_frame0_back.bin",
 
       // CharacterHitByPieFrame1
-      "",
+      "materials/character_hit_by_pie_frame1_back.bin",
 
       // CharacterHitByPieFrame2
-      "",
+      "materials/character_hit_by_pie_frame2_back.bin",
 
       // CharacterHitByPieFrame3
-      "",
+      "materials/character_hit_by_pie_frame3_back.bin",
 
       // CharacterKnockedOut
-      "",
+      "materials/character_knocked_out_back.bin",
 
       // PieEmpty
       "",

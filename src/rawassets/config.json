@@ -113,7 +113,7 @@
   "viewport_far_plane": 100.0,
   "pixel_to_world_scale": 0.008,
   "cardboard_front_z_offset": 0.0,
-  "cardboard_back_z_offset": -0.15,
+  "cardboard_back_z_offset": -0.1,
   "accessory_z_offset": 0.06,
   "accessory_z_increment": 0.02,
   "cardboard_bias_towards_stage_front": 4.0,
