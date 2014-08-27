@@ -59,6 +59,31 @@ struct CharacterData {
   // TODO: Add color here?
 }
 
+table RenderableDef {
+  // The id used around the game to describe what needs to be rendered.
+  // The things we render in our scene are simple. They all can be described
+  // by the data structure here.
+  id:RenderableId;
+
+  // Texture for the front of the cardboard cutout.
+  cardboard_front:string;
+
+  // Texture for the inside surface of the cardboard cutout. That is, showing
+  // the corrugations.
+  cardboard_back:string;
+
+  // Horizontal displacement of the renderable. Used to keep the characters
+  // centered around the stick that props them up, while keeping the stick
+  // stationary.
+  offset:Vec3;
+
+  // True if the renderable should have a popsicle stick propping it up.
+  stick:bool = false;
+
+  // True if the renderable should cast shadows.
+  shadow:bool = false;
+}
+
 // Each arrangement should have it a unique number of players How many people
 // are playing determines the arrangement to use.
 table CharacterArrangement {
@@ -142,12 +167,43 @@ table Config {
   viewport_aspect_ratio:float;
   viewport_near_plane:float;
   viewport_far_plane:float;
+
+  // Constant conversion from texture to world space.
   pixel_to_world_scale:float;
+
+  // The depth of the front plane. Negative means nearer.
   cardboard_front_z_offset:float;
+
+  // The depth of the back plane (with the corrugations).
   cardboard_back_z_offset:float;
+
+  // The distance in front of the character of the first accessory.
   accessory_z_offset:float;
+
+  // The distance added to each successive accessory, so that the accessories
+  // don't overlap.
   accessory_z_increment:float;
+
+  // ??
   cardboard_bias_towards_stage_front:float;
+
+  // The vertical offset of the popsicle stick prop.
+  stick_y_offset:float;
+
+  // The depth of the front of the popsicle stick from the front of the
+  // cardboard.
+  stick_front_z_offset:float;
+
+  // The depth of the back of the popsicle stick from the back of the cardboard.
+  // Should be bigger than stick_z_offset, and smaller than
+  // cardboard_back_z_offset.
+  stick_back_z_offset:float;
+
+  // Texture for the front of the stick. The cutouts are mounted on the stick.
+  stick_front:string;
+
+  // Texture for the inside of the stick. Rendered similar to 'cardboard_back'.
+  stick_back:string;
 
   // The UI arrow points at the character's target. We allow it to follow the
   // face angle, too, but only up to a small deviation from the target angle.
@@ -166,6 +222,10 @@ table Config {
 
   // Initial configuration of stage and environment.
   props:[Prop];
+
+  // Describe the model for each item that can be rendered.
+  // Array of length RenderableId_Count.
+  renderables:[RenderableDef];
 
   // Debug options
   draw_fixed_renderable:RenderableId;

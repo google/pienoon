@@ -17,7 +17,7 @@
     {
       "character_data": [
         {
-          "position": { "x": -5.0, "y": 0.0, "z":  0.0 },
+          "position": { "x": -5.0, "y": 0.0, "z":  0.5 },
           "left_jump": -1
         },
         {
@@ -29,7 +29,7 @@
           "left_jump": 1
         },
         {
-          "position": { "x":  5.0, "y": 0.0, "z":  0.0 },
+          "position": { "x":  5.0, "y": 0.0, "z":  0.5 },
           "left_jump": -1
         }
       ]
@@ -80,7 +80,7 @@
     "mixer_channels": 16
   },
 
-  "camera_position": { "x": 0.0, "y": 3.4, "z": -11 },
+  "camera_position": { "x": 0.0, "y": 3.4, "z": -11.5 },
   "camera_target": { "x": 0.0, "y": 3.5, "z": 0.0 },
   "light_positions": [
       { "x": -50.0, "y": 300.0, "z": -200.0 }
@@ -125,6 +125,12 @@
   "accessory_z_offset": 0.06,
   "accessory_z_increment": 0.02,
   "cardboard_bias_towards_stage_front": 2.0,
+  "stick_y_offset": -4.0,
+  "stick_front_z_offset": -0.01,
+  "stick_back_z_offset": -0.09,
+  "stick_front": "materials/stick.bin",
+  "stick_back": "materials/stick_back.bin",
+
   "ui_arrow_max_diff_from_target": 6,
   "ui_arrow_offset": { "x": 1, "y": 0.1, "z": -2 },
   "ui_arrow_scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
@@ -322,6 +328,202 @@
       "rotation": 0,
       "orientation": "Verticle",
       "scale": { "x": 1, "y": 1, "z": 1 }
+    }
+  ],
+
+  "renderables": [
+    {
+      "id": "Invalid",
+      "cardboard_front": "materials/invalid.bin"
+    },
+    {
+      "id": "CharacterIdle",
+      "cardboard_front": "materials/character_idle.bin",
+      "cardboard_back": "materials/character_idle_back.bin",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterLoad1",
+      "cardboard_front": "materials/character_load1.bin",
+      "cardboard_back": "materials/character_load1_back.bin",
+      "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterLoad2",
+      "cardboard_front": "materials/character_load2.bin",
+      "cardboard_back": "materials/character_load2_back.bin",
+      "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterLoad3",
+      "cardboard_front": "materials/character_load3.bin",
+      "cardboard_back": "materials/character_load3_back.bin",
+      "offset": { "x": -0.9, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterThrow",
+      "cardboard_front": "materials/character_throw.bin",
+      "cardboard_back": "materials/character_throw_back.bin",
+      "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterBlock",
+      "cardboard_front": "materials/character_block.bin",
+      "cardboard_back": "materials/character_block_back.bin",
+      "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterHitByPieFrame0",
+      "cardboard_front": "materials/character_hit_by_pie_frame0.bin",
+      "cardboard_back": "materials/character_hit_by_pie_frame0_back.bin",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterHitByPieFrame1",
+      "cardboard_front": "materials/character_hit_by_pie_frame1.bin",
+      "cardboard_back": "materials/character_hit_by_pie_frame1_back.bin",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterHitByPieFrame2",
+      "cardboard_front": "materials/character_hit_by_pie_frame2.bin",
+      "cardboard_back": "materials/character_hit_by_pie_frame2_back.bin",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterHitByPieFrame3",
+      "cardboard_front": "materials/character_hit_by_pie_frame3.bin",
+      "cardboard_back": "materials/character_hit_by_pie_frame3_back.bin",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "CharacterKnockedOut",
+      "cardboard_front": "materials/character_knocked_out.bin",
+      "cardboard_back": "materials/character_knocked_out_back.bin",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
+      "id": "PieEmpty",
+      "cardboard_front": ""
+    },
+    {
+      "id": "PieSmall",
+      "cardboard_front": "materials/pie_small.bin",
+      "shadow": true
+    },
+    {
+      "id": "PieMedium",
+      "cardboard_front": "materials/pie_medium.bin",
+      "shadow": true
+    },
+    {
+      "id": "PieLarge",
+      "cardboard_front": "materials/pie_large.bin",
+      "shadow": true
+    },
+    {
+      "id": "PieBlock",
+      "cardboard_front": "materials/pie_block.bin",
+      "shadow": true
+    },
+    {
+      "id": "EnvironmentSky",
+      "cardboard_front": "materials/environment_sky.bin"
+    },
+    {
+      "id": "EnvironmentCloud",
+      "cardboard_front": "materials/environment_cloud.bin"
+    },
+    {
+      "id": "EnvironmentCloudShadow",
+      "cardboard_front": "materials/environment_cloud_shadow.bin"
+    },
+    {
+      "id": "EnvironmentSun",
+      "cardboard_front": "materials/environment_sun.bin"
+    },
+    {
+      "id": "EnvironmentSunGlow",
+      "cardboard_front": "materials/environment_sun_glow.bin"
+    },
+    {
+      "id": "EnvironmentTree",
+      "cardboard_front": "materials/environment_tree.bin",
+      "shadow": true
+    },
+    {
+      "id": "EnvironmentBush",
+      "cardboard_front": "materials/environment_bush.bin",
+      "shadow": true
+    },
+    {
+      "id": "EnvironmentString",
+      "cardboard_front": "materials/environment_string.bin"
+    },
+    {
+      "id": "EnvironmentStageFront",
+      "cardboard_front": "materials/environment_stage_front.bin"
+    },
+    {
+      "id": "EnvironmentStageGround",
+      "cardboard_front": "materials/environment_stage_ground.bin"
+    },
+    {
+      "id": "EnvironmentStageEdge",
+      "cardboard_front": "materials/environment_stage_edge.bin"
+    },
+    {
+      "id": "EnvironmentStoreFront",
+      "cardboard_front": "materials/environment_store_front.bin"
+    },
+    {
+      "id": "EnvironmentStoreRoom",
+      "cardboard_front": "materials/environment_store_room.bin"
+    },
+    {
+      "id": "EnvironmentAmbientOcclusionShadow",
+      "cardboard_front": "materials/environment_ambient_occlusion_shadow.bin"
+    },
+    {
+      "id": "Splatter1",
+      "cardboard_front": "materials/splatter1.bin",
+      "shadow": true
+    },
+    {
+      "id": "Splatter2",
+      "cardboard_front": "materials/splatter2.bin",
+      "shadow": true
+    },
+    {
+      "id": "Splatter3",
+      "cardboard_front": "materials/splatter3.bin",
+      "shadow": true
+    },
+    {
+      "id": "UiArrow",
+      "cardboard_front": "materials/arrow.bin"
     }
   ],
 

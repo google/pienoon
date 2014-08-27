@@ -25,7 +25,6 @@
 #include "audio_config_generated.h"
 #include "config_generated.h"
 #include "splat_game.h"
-#include "rendering_assets_generated.h"
 #include "utilities.h"
 #include "audio_engine.h"
 
@@ -38,10 +37,42 @@ using mathfu::mat4;
 namespace fpl {
 namespace splat {
 
+struct CardboardVertex {
+  float x, y, z;
+  float u, v;
+  float normal_x, normal_y, normal_z;
+  float tangent_x, tangent_y, tangent_z;
+  float handedness;
+
+  void SetPosition(float position_x, float position_y, float position_z) {
+    x = position_x;
+    y = position_y;
+    z = position_z;
+  }
+};
+
+static const int kQuadNumVertices = 4;
+static const int kQuadNumIndices = 6;
+
+static const CardboardVertex kQuadUnpositionedVertices[] = {
+    // [x,   y,   z]    [ u,    v]   [normal x, y, z]  [tan x, y, z, handedness]
+    {0.0f, 0.0f, 0.0f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
+};
+
+static const int kQuadIndices[] = { 0, 1, 2, 2, 1, 3 };
+
+static const Attribute kQuadMeshFormat[] =
+    { kPosition3f, kTexCoord2f, kNormal3f, kTangent4f, kEND };
+
 static const char kAssetsDir[] = "assets";
 static const char *kBuildPaths[] = {
     "Debug", "Release", "projects\\VisualStudio2010", "build\\Debug\\bin",
     "build\\Release\\bin"};
+
+static const char kConfigFileName[] = "config.bin";
 
 // Return the elapsed milliseconds since the start of the program. This number
 // will loop back to 0 after about 49 days; always take the difference to
@@ -52,8 +83,10 @@ static inline WorldTime CurrentWorldTime() {
 
 SplatGame::SplatGame()
     : matman_(renderer_),
-      cardboard_fronts_(RenderableId_Count, NULL),
-      cardboard_backs_(RenderableId_Count, NULL),
+      cardboard_fronts_(RenderableId_Count, nullptr),
+      cardboard_backs_(RenderableId_Count, nullptr),
+      stick_front_(nullptr),
+      stick_back_(nullptr),
       prev_world_time_(0),
       debug_previous_states_(),
       debug_previous_angles_() {
@@ -62,15 +95,23 @@ SplatGame::SplatGame()
 SplatGame::~SplatGame() {
   for (int i = 0; i < RenderableId_Count; ++i) {
     delete cardboard_fronts_[i];
-    cardboard_fronts_[i] = NULL;
+    cardboard_fronts_[i] = nullptr;
 
     delete cardboard_backs_[i];
-    cardboard_backs_[i] = NULL;
+    cardboard_backs_[i] = nullptr;
   }
+
+  Mix_CloseAudio();
+
+  delete stick_front_;
+  stick_front_ = nullptr;
+
+  delete stick_back_;
+  stick_back_ = nullptr;
 }
 
 bool SplatGame::InitializeConfig() {
-  if (!LoadFile("config.bin", &config_source_)) {
+  if (!LoadFile(kConfigFileName, &config_source_)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load config.bin\n");
     return false;
   }
@@ -98,51 +139,58 @@ bool SplatGame::InitializeRenderer() {
   return true;
 }
 
-static Mesh* CreateCardboardMesh(const char* material_file_name,
-    MaterialManager* matman, float z_offset) {
-  static const unsigned int kCardboardTextureIndex = 0;
-  static const float kPixelToWorld = 0.008f;
-  static const int kNumVerticesInQuad = 4;
-  static const int kNumFloatsPerVertex = 12;
-  static Attribute kMeshFormat[] =
-      { kPosition3f, kTexCoord2f, kNormal3f, kTangent4f, kEND };
-  static int kMeshIndices[] = { 0, 1, 2, 2, 1, 3 };
-
-  // Load the material and check its validity.
-  Material* mat = matman->LoadMaterial(material_file_name);
-  if (mat == NULL || mat->textures().size() <= kCardboardTextureIndex)
-    return NULL;
-
-  // Create vertex geometry in proportion to the texture size.
-  const Texture* cardboard_texture = mat->textures()[kCardboardTextureIndex];
-  const vec2 im(cardboard_texture->size);
-  const vec2 geo_size = im * vec2(kPixelToWorld);
-  const float right = geo_size[0] * 0.5f;
-  const float vertices[] = {
-   // [x,           y,        z]   [ u,    v]  [normal x, y, z]   [tan x, y, z, handedness]
-   -right,        0.0f, z_offset,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-    right,        0.0f, z_offset,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-   -right, geo_size[1], z_offset,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-    right, geo_size[1], z_offset,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f};
-  MATHFU_STATIC_ASSERT(ARRAYSIZE(vertices) ==
-                       kNumVerticesInQuad * kNumFloatsPerVertex);
-
-  // Create the mesh and add in the material.
-  Mesh* mesh = new Mesh(vertices, kNumVerticesInQuad,
-                        sizeof(float) * kNumFloatsPerVertex,
-                        kMeshFormat);
-  mesh->AddIndices(kMeshIndices, ARRAYSIZE(kMeshIndices), mat);
-  return mesh;
+// Initializes 'vertices' at the specified position, aligned up-and-down.
+// 'vertices' must be an array of length kQuadNumVertices.
+static void CreateVerticalQuad(float left, float right, float bottom, float top,
+                               float depth, CardboardVertex* vertices) {
+  MATHFU_STATIC_ASSERT(ARRAYSIZE(kQuadUnpositionedVertices) ==
+                       kQuadNumVertices);
+  memcpy(vertices, kQuadUnpositionedVertices,
+         sizeof(kQuadUnpositionedVertices));
+  vertices[0].SetPosition(left, bottom, depth);
+  vertices[1].SetPosition(right, bottom, depth);
+  vertices[2].SetPosition(left, top, depth);
+  vertices[3].SetPosition(right, top, depth);
 }
 
-static bool CheckLengthOfArray(const char* file_name, const char* array_name,
-                               int length, int correct_length) {
-  if (length == correct_length)
-    return true;
+// Creates a mesh of a single quad (two triangles) vertically upright.
+// The quad's has x and y size determined by the size of the texture.
+// The quad is offset in (x,y,z) space by the 'offset' variable.
+// Returns a mesh with the quad and texture, or nullptr if anything went wrong.
+Mesh* SplatGame::CreateVerticalQuadMesh(
+    const flatbuffers::String* material_name, const vec3& offset) {
+  const Config& config = GetConfig();
 
-  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "%s's %s has %d entries, needs %d.\n",
-          file_name, array_name, length, correct_length);
-  return false;
+  // Don't try to load obviously invalid materials. Suppresses error logs from
+  // the material manager.
+  if (material_name == nullptr || material_name->c_str()[0] == '\0')
+    return nullptr;
+
+  // Load the material from file, and check validity.
+  Material* material = matman_.LoadMaterial(material_name->c_str());
+  bool material_valid = material != nullptr && material->textures().size() > 0;
+  if (!material_valid)
+    return nullptr;
+
+  // Create vertex geometry in proportion to the texture size.
+  // This is nice for the artist since everything is at the scale of the
+  // original artwork.
+  const Texture* front_texture = material->textures()[0];
+  const vec2 im(front_texture->size);
+  const vec2 geo_size = im * vec2(config.pixel_to_world_scale());
+  const float half_width = geo_size[0] * 0.5f;
+
+  // Initialize a vertex array in the requested position.
+  CardboardVertex vertices[kQuadNumVertices];
+  CreateVerticalQuad(offset[0] - half_width, offset[0] + half_width,
+                     offset[1], offset[1] + geo_size[1],
+                     offset[2], vertices);
+
+  // Create mesh and add in quad indices.
+  Mesh* mesh = new Mesh(vertices, kQuadNumVertices, sizeof(CardboardVertex),
+                        kQuadMeshFormat);
+  mesh->AddIndices(kQuadIndices, kQuadNumIndices, material);
+  return mesh;
 }
 
 // Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
@@ -150,44 +198,30 @@ static bool CheckLengthOfArray(const char* file_name, const char* array_name,
 bool SplatGame::InitializeRenderingAssets() {
   const Config& config = GetConfig();
 
-  // Load the splat asset file.
-  static const char* kRenderingAssetsFileName = "rendering_assets.bin";
-  if (!LoadFile(kRenderingAssetsFileName, &rendering_assets_source_)) {
+  // Check data validity.
+  if (config.renderables()->Length() != RenderableId_Count) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                 "Can't load %s.\n", kRenderingAssetsFileName);
+                 "%s's 'renderables' array has %d entries, needs %d.\n",
+                 kConfigFileName, config.renderables()->Length(),
+                 RenderableId_Count);
     return false;
   }
 
-  // Check data validity.
-  const RenderingAssets& assets = GetRenderingAssets();
-  if (!CheckLengthOfArray(kRenderingAssetsFileName, "cardboard_fronts",
-                          assets.cardboard_fronts()->Length(),
-                          RenderableId_Count) ||
-      !CheckLengthOfArray(kRenderingAssetsFileName, "cardboard_backs",
-                          assets.cardboard_backs()->Length(),
-                          RenderableId_Count) ||
-      !CheckLengthOfArray(kRenderingAssetsFileName, "shadows",
-                          assets.shadows()->Length(),
-                          RenderableId_Count))
-    return false;
+  // Create a mesh for the front and back of each cardboard cutout.
+  const vec3 front_z_offset(0.0f, 0.0f, config.cardboard_front_z_offset());
+  const vec3 back_z_offset(0.0f, 0.0f, config.cardboard_back_z_offset());
+  for (int id = 0; id < RenderableId_Count; ++id) {
+    auto renderable = config.renderables()->Get(id);
+    const vec3 offset = renderable->offset() == nullptr ? mathfu::kZeros3f :
+                        LoadVec3(renderable->offset());
+    const vec3 front_offset = offset + front_z_offset;
+    const vec3 back_offset = offset + back_z_offset;
 
-  // Create cardboard meshes. First fronts, then backs.
-  auto meshes = &cardboard_fronts_;
-  auto materials = assets.cardboard_fronts();
-  auto z_offset = config.cardboard_front_z_offset();
-  for (int j = 0; j < 2; ++j) {
+    cardboard_fronts_[id] = CreateVerticalQuadMesh(
+        renderable->cardboard_front(), front_offset);
 
-    // Create a mesh for each renderable (front and back).
-    for (int i = 0; i < RenderableId_Count; ++i) {
-      (*meshes)[i] = materials->Get(i)->Length() ?
-                       CreateCardboardMesh(materials->Get(i)->c_str(),
-                                      &matman_, z_offset) : nullptr;
-    }
-
-    // Then load cardboard backs.
-    meshes = &cardboard_backs_;
-    materials = assets.cardboard_backs();
-    z_offset = config.cardboard_back_z_offset();
+    cardboard_backs_[id] = CreateVerticalQuadMesh(
+        renderable->cardboard_back(), back_offset);
   }
 
   // We default to the invalid texture, so it has to exist.
@@ -195,6 +229,15 @@ bool SplatGame::InitializeRenderingAssets() {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't load backup texture.\n");
     return false;
   }
+
+  // Create stick front and back meshes.
+  const vec3 stick_front_offset(0.0f, config.stick_y_offset(),
+                                config.stick_front_z_offset());
+  const vec3 stick_back_offset(0.0f, config.stick_y_offset(),
+                               config.stick_back_z_offset());
+  stick_front_ = CreateVerticalQuadMesh(config.stick_front(),
+                                        stick_front_offset);
+  stick_back_ = CreateVerticalQuadMesh(config.stick_back(), stick_back_offset);
 
   return true;
 }
@@ -269,6 +312,8 @@ bool SplatGame::Initialize() {
   return true;
 }
 
+// Returns the mesh for renderable_id, if we have one, or the pajama mesh
+// (a mesh with a texture that's obviously wrong), if we don't.
 Mesh* SplatGame::GetCardboardFront(int renderable_id) {
   const bool is_valid_id = 0 <= renderable_id &&
                            renderable_id < RenderableId_Count &&
@@ -279,6 +324,8 @@ Mesh* SplatGame::GetCardboardFront(int renderable_id) {
 
 void SplatGame::RenderCardboard(const SceneDescription& scene,
                                 const mat4& camera_transform) {
+  const Config& config = GetConfig();
+
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
     const int id = renderable.id();
@@ -289,26 +336,33 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
 
     // Set the camera and light positions in object space.
     const mat4 world_matrix_inverse = renderable.world_matrix().Inverse();
-    renderer_.camera_pos() =
-        world_matrix_inverse * game_state_.camera_position();
+    renderer_.camera_pos() = world_matrix_inverse *
+                             game_state_.camera_position();
 
     // TODO: check amount of lights.
     renderer_.light_pos() = world_matrix_inverse * scene.lights()[0];
 
-    // Draw the front of the character, if we have it.
-    // If we don't have it, draw the pajama material for "Invalid".
+    // Draw the front of the cardboard.
     Mesh* front = GetCardboardFront(id);
     front->Render(renderer_);
 
     // If we have a back, draw the back too, slightly offset.
+    // The back is the *inside* of the cardboard, representing corrugation.
     if (cardboard_backs_[id]) {
       cardboard_backs_[id]->Render(renderer_);
+    }
+
+    // Draw the popsicle stick that props up the cardboard.
+    if (config.renderables()->Get(id)->stick() && stick_front_ != nullptr &&
+        stick_back_ != nullptr) {
+      stick_front_->Render(renderer_);
+      stick_back_->Render(renderer_);
     }
   }
 }
 
 void SplatGame::Render(const SceneDescription& scene) {
-  const RenderingAssets& assets = GetRenderingAssets();
+  const Config& config = GetConfig();
   const mat4 camera_transform = perspective_matrix_ * scene.camera();
 
   // Render a ground plane.
@@ -336,7 +390,7 @@ void SplatGame::Render(const SceneDescription& scene) {
     const Renderable& renderable = scene.renderables()[i];
     const int id = renderable.id();
     Mesh* front = GetCardboardFront(id);
-    if (assets.shadows()->Get(id)) {
+    if (config.renderables()->Get(id)->shadow()) {
       renderer_.model() = renderable.world_matrix();
       // The first texture of the shadow shader has to be that of the billboard.
       shadow_mat->textures()[0] = front->GetMaterial(0)->textures()[0];
@@ -393,11 +447,6 @@ const Config& SplatGame::GetConfig() const {
 const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
   return fpl::splat::GetCharacterStateMachineDef(state_machine_source_.c_str());
 }
-
-const RenderingAssets& SplatGame::GetRenderingAssets() const {
-  return *fpl::splat::GetRenderingAssets(rendering_assets_source_.c_str());
-}
-
 
 // Debug function to move the camera if the mouse button is down.
 void SplatGame::DebugCamera() {

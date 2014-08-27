@@ -435,20 +435,28 @@ mat4 GameState::CameraMatrix() const {
 }
 
 static const mat4 CalculateAccessoryMatrix(
-    const vec2& location, const mat4& character_matrix,
+    const vec2& location, const mat4& character_matrix, uint16_t renderable_id,
     int num_accessories, const Config& config) {
+  // Grab the offset of the base renderable. The renderable's texture is moved
+  // by this amount, so we have to move the same to match.
+  auto renderable = config.renderables()->Get(renderable_id);
+  const vec3 renderable_offset = renderable->offset() == nullptr ?
+                                 mathfu::kZeros3f :
+                                 LoadVec3(renderable->offset());
+
   // Calculate the accessory offset, in character space.
   // Ensure accessories don't z-fight by rendering them at slightly different z
   // depths. Note that the character_matrix has it's z axis oriented so that
   // it is always pointing towards the camera. Therefore, our z-offset should
   // always be positive here.
-  const vec3 offset = vec3(
+  const vec3 accessory_offset = vec3(
       location.x() * config.pixel_to_world_scale(),
       location.y() * config.pixel_to_world_scale(),
       config.accessory_z_offset() +
           num_accessories * config.accessory_z_increment());
 
   // Apply offset to character matrix.
+  const vec3 offset = renderable_offset + accessory_offset;
   const mat4 offset_matrix = mat4::FromTranslationVector(offset);
   const mat4 accessory_matrix = character_matrix * offset_matrix;
   return accessory_matrix;
@@ -530,9 +538,10 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
       // Character.
       const WorldTime anim_time = GetAnimationTime(*c);
+      const uint16_t renderable_id = c->RenderableId(anim_time);
       const mat4 character_matrix = c->CalculateMatrix(facing_camera);
       scene->renderables().push_back(
-          Renderable(c->RenderableId(anim_time), character_matrix));
+          Renderable(renderable_id, character_matrix));
 
       // Accessories.
       const Timeline* const timeline = c->CurrentTimeline();
@@ -552,7 +561,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
         scene->renderables().push_back(
             Renderable(accessory.renderable(),
                 CalculateAccessoryMatrix(location, character_matrix,
-                                         num_accessories, *config_)));
+                                         renderable_id, num_accessories,
+                                         *config_)));
         num_accessories++;
       }
 
@@ -565,7 +575,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
         scene->renderables().push_back(
             Renderable(splatter->renderable(),
                 CalculateAccessoryMatrix(location, character_matrix,
-                                         num_accessories, *config_)));
+                                         renderable_id, num_accessories,
+                                         *config_)));
         num_accessories++;
       }
 

@@ -40,6 +40,8 @@ class SplatGame {
  private:
   bool InitializeConfig();
   bool InitializeRenderer();
+  Mesh* CreateVerticalQuadMesh(const flatbuffers::String* material_name,
+                               const vec3& offset);
   bool InitializeRenderingAssets();
   bool InitializeGameState();
   void RenderCardboard(const SceneDescription& scene,
@@ -49,7 +51,6 @@ class SplatGame {
   void DebugPrintPieStates();
   void DebugCamera();
   const Config& GetConfig() const;
-  const RenderingAssets& GetRenderingAssets() const;
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
 
@@ -68,12 +69,13 @@ class SplatGame {
   // Manage ownership and playing of audio assets.
   AudioEngine audio_engine_;
 
-  // Map RenderableId to material.
+  // Map RenderableId to rendering mesh.
   std::vector<Mesh*> cardboard_fronts_;
   std::vector<Mesh*> cardboard_backs_;
 
-  // Hold RenderingAssets in binary form.
-  std::string rendering_assets_source_;
+  // Rendering mesh for front and back of the stick that props cardboard.
+  Mesh* stick_front_;
+  Mesh* stick_back_;
 
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_;
