@@ -203,7 +203,7 @@ class Renderer {
   void ClearFrameBuffer(const vec4 &color);
 
   // Create a shader object from two strings containing glsl code.
-  // Returns NULL upon error, with a descriptive message in glsl_error().
+  // Returns nullptr upon error, with a descriptive message in glsl_error().
   // Attribute names in the vertex shader should be aPosition, aNormal,
   // aTexCoord and aColor to match whatever attributes your vertex data has.
   Shader *CompileAndLinkShader(const char *vs_source, const char *ps_source);
@@ -213,7 +213,7 @@ class Renderer {
   Texture *CreateTexture(const uint8_t *buffer, const vec2i &size);
 
   // Create a texture from a memory buffer containing a TGA format file.
-  // May only be uncompressed RGB or RGBA data. Returns NULL if the format is
+  // May only be uncompressed RGB or RGBA data. Returns nullptr if the format is
   // not understood.
   Texture *CreateTextureFromTGAMemory(const void *tga_buf);
 

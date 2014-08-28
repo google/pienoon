@@ -317,7 +317,7 @@ bool SplatGame::Initialize() {
 Mesh* SplatGame::GetCardboardFront(int renderable_id) {
   const bool is_valid_id = 0 <= renderable_id &&
                            renderable_id < RenderableId_Count &&
-                           cardboard_fronts_[renderable_id] != NULL;
+                           cardboard_fronts_[renderable_id] != nullptr;
   return is_valid_id ? cardboard_fronts_[renderable_id]
                      : cardboard_fronts_[RenderableId_Invalid];
 }
