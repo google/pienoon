@@ -16,15 +16,36 @@
 
 #include "splat_game.h"
 
+#ifdef __ANDROID__
+jint JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "main: JNI_OnLoad called");
+
+  gpg::AndroidInitialization::JNI_OnLoad(vm);
+
+  return JNI_VERSION_1_4;
+}
+#endif
+
 int main(int argc, char *argv[]) {
   (void) argc; (void) argv;
 
   fpl::splat::SplatGame game;
-  if (!game.Initialize())
+  if (!game.Initialize()) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Splat: init failed, exiting!");
     return 1;
+  }
 
 # ifdef __ANDROID__
   // Temp.. probably move this somewhere else once working
+
+  /*
+  auto env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  JavaVM *vm = nullptr;
+  auto ret = env->GetJavaVM(&vm);
+  assert(ret >= 0);
+  gpg::AndroidInitialization::JNI_OnLoad(vm);
+  */
   gpg::AndroidPlatformConfiguration platform_configuration;
   platform_configuration.SetActivity((jobject)SDL_AndroidGetActivity());
 
@@ -47,9 +68,11 @@ int main(int argc, char *argv[]) {
       .Create(platform_configuration);
 
   if (!game_services) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                 "GPG: failed to create GameServices!");
   } else {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: created GameServices");
+
     // Submit a high score
     game_services->Leaderboards().SubmitScore("myid", 0);
 

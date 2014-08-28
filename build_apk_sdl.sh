@@ -366,19 +366,7 @@ launch_package() {
     (
       adb ${adb_device} logcat \
         SDL:V SDL/APP:V SDL/ERROR:V SDL/SYSTEM:V SDL/AUDIO:V SDL/VIDEO:V \
-        SDL/RENDER:V SDL/INPUT:V Games:V *:I | \
-        awk "
-          {
-            print \$0
-          }
-
-          /ActivityManager.*: ${finished_msg}/ {
-            exit 0
-          }
-
-          /ActivityManager.*: ${timeout_msg}/ {
-            exit 0
-          }" &
+        SDL/RENDER:V SDL/INPUT:V GamesNativeSDK:V SDL_android:V *:F &
       adb_logcat_pid=$!;
       if [[ $((launch_timeout)) -gt 0 ]]; then
         sleep $((launch_timeout));
