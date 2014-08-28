@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef SPLAT_SOUND_H_
+#define SPLAT_SOUND_H_
+
 #include <vector>
 #include <string>
 
@@ -26,22 +29,36 @@ class Sample {
   Sample() : chunk_(nullptr) {}
   ~Sample();
 
+  // Load the given .wav file.
   bool LoadSample(const char* filename);
+
+  Mix_Chunk* chunk() { return chunk_; }
 
  private:
 
   Mix_Chunk* chunk_;
 };
 
+// Sounds represent an abstract sound (like a 'whoosh'). The Sound object
+// contains a number of samples with weighted probabilities to choose between
+// randomly when played.
 class Sound {
  public:
+  // Load the given flatbuffer binary file containing a SoundDef.
   bool LoadSound(const char* filename);
+
+  // Return the SoundDef.
   const SoundDef* GetSoundDef() const;
+
+  // Return a random Mix_Chunk from the set of samples for this sound.
+  Mix_Chunk* SelectChunk();
 
  private:
   std::string source_;
   std::vector<Sample> samples_;
+  float sum_of_probabilities_;
 };
 
 }  // namespace fpl
 
+#endif  // SPLAT_SOUND_H_

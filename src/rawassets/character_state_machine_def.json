@@ -231,6 +231,12 @@
             "event": "EventId.ReleasePie",
             "modifier": 0
           }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "SoundId.ThrowPie"
+          }
         ]
       }
     },
@@ -318,6 +324,12 @@
             "time": 0,
             "event": "EventId.TakeDamage",
             "modifier": 0
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "SoundId.HitWithPie"
           }
         ]
       }

@@ -23,6 +23,7 @@
 #include "controller.h"
 #include "scene_description.h"
 #include "utilities.h"
+#include "audio_engine.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -106,6 +107,24 @@ WorldTime GameState::GetAnimationTime(const Character& character) const {
   return time_ - character.state_machine()->current_state_start_time();
 }
 
+void GameState::ProcessSounds(Character* character, WorldTime delta_time,
+                              AudioEngine* audio_engine) const {
+  // Process sounds in timeline.
+  const Timeline* const timeline = character->CurrentTimeline();
+  if (!timeline)
+    return;
+
+  const WorldTime anim_time = GetAnimationTime(*character);
+  const auto sounds = timeline->sounds();
+  const int start_index = TimelineIndexAfterTime(sounds, 0, anim_time);
+  const int end_index = TimelineIndexAfterTime(sounds, start_index,
+                                               anim_time + delta_time);
+  for (int i = start_index; i < end_index; ++i) {
+    const TimelineSound& timeline_sound = *sounds->Get(i);
+    audio_engine->PlaySound(timeline_sound.sound());
+  }
+}
+
 void GameState::ProcessEvents(Character* character, WorldTime delta_time,
                               int queued_damage) {
   // Process events in timeline.
@@ -113,11 +132,11 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
   if (!timeline)
     return;
 
-  const WorldTime animTime = GetAnimationTime(*character);
+  const WorldTime anim_time = GetAnimationTime(*character);
   const auto events = timeline->events();
-  const int start_index = TimelineIndexAfterTime(events, 0, animTime);
+  const int start_index = TimelineIndexAfterTime(events, 0, anim_time);
   const int end_index = TimelineIndexAfterTime(events, start_index,
-                                               animTime + delta_time);
+                                               anim_time + delta_time);
 
   for (int i = start_index; i < end_index; ++i) {
     const TimelineEvent& timeline_event = *events->Get(i);
@@ -327,7 +346,7 @@ float GameState::CalculateCharacterFacingAngleVelocity(
        : angular_velocity;
 }
 
-void GameState::AdvanceFrame(WorldTime delta_time) {
+void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // Increment the world time counter. This happens at the start of the function
   // so that functions that reference the current world time will include the
   // delta_time. For example, GetAnimationTime needs to compare against the
@@ -392,6 +411,11 @@ void GameState::AdvanceFrame(WorldTime delta_time) {
   // Look to timeline to see what's happening. Make it happen.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
     ProcessEvents(&characters_[i], delta_time, queued_damage[i]);
+  }
+
+  // Play the sounds that need to be played at this point in time.
+  for (unsigned int i = 0; i < characters_.size(); ++i) {
+    ProcessSounds(&characters_[i], delta_time, audio_engine);
   }
 }
 

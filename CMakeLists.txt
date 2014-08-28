@@ -76,6 +76,7 @@ endif()
 
 # Splat source files.
 set(splat_SRCS
+    src/audio_engine.cpp
     src/character.cpp
     src/character_state_machine.cpp
     src/game_state.cpp

@@ -50,6 +50,7 @@ bool Sound::LoadSound(const char* filename) {
     if (!samples_[i].LoadSample(entry->audio_sample()->filename()->c_str())) {
       return false;
     }
+    sum_of_probabilities_ += entry->playback_probability();
   }
 
   return true;
@@ -58,6 +59,26 @@ bool Sound::LoadSound(const char* filename) {
 const SoundDef* Sound::GetSoundDef() const {
   assert(source_.size());
   return fpl::GetSoundDef(source_.c_str());
+}
+
+Mix_Chunk* Sound::SelectChunk() {
+  const SoundDef* sound_def = GetSoundDef();
+
+  // Choose a random number between 0 and the sum of the probabilities, then
+  // iterate over the list, subtracting the weight of each entry until 0 is
+  // reached.
+  float selection = mathfu::Random<float>() * sum_of_probabilities_;
+  for (unsigned int i = 0; i < samples_.size(); ++i) {
+    const AudioSampleSetEntry* entry = sound_def->audio_sample_set()->Get(i);
+    selection -= entry->playback_probability();
+    if (selection <= 0) {
+      return samples_[i].chunk();
+    }
+  }
+
+  // If we've reached here and didn't return a sound, assume there was some
+  // floating point rounding error and just return the last one.
+  return samples_.back().chunk();
 }
 
 }  // namespace fpl

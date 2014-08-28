@@ -12,13 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace fpl;
+#ifndef SPLAT_AUDIO_ENGINE_H_
+#define SPLAT_AUDIO_ENGINE_H_
 
-table SoundAssets {
-  // The list of all SoundDef flatbuffers to load, ordered by SoundId.
-  // See splat_common.fbs for the SoundId enum.
-  sounds:[string];
-}
+#include "sound.h"
+#include "splat_common_generated.h"
 
-root_type SoundAssets;
+namespace fpl {
 
+class AudioEngine {
+ public:
+  ~AudioEngine();
+
+  bool Initialize();
+
+  // Play a sound associated with the given sound_id.
+  void PlaySound(int sound_id);
+
+  // TODO: Update audio volume per channel each frame. b/17316699
+  // void AdvanceFrame();
+
+ private:
+  // Hold the audio bus list.
+  std::string buses_source_;
+
+  // Hold the sounds.
+  std::vector<Sound> sounds_;
+};
+
+}  // namespace fpl
+
+#endif  // SPLAT_AUDIO_ENGINE_H_

@@ -21,7 +21,7 @@
 #include "scene_description.h"
 #include "renderer.h"
 #include "sdl_controller.h"
-#include "sound.h"
+#include "audio_engine.h"
 
 namespace fpl {
 namespace splat {
@@ -41,7 +41,6 @@ class SplatGame {
   bool InitializeConfig();
   bool InitializeRenderer();
   bool InitializeRenderingAssets();
-  bool InitializeAudio();
   bool InitializeGameState();
   void RenderCardboard(const SceneDescription& scene,
                        const mat4& camera_transform);
@@ -66,6 +65,9 @@ class SplatGame {
   // Load and own rendering resources.
   MaterialManager matman_;
 
+  // Manage ownership and playing of audio assets.
+  AudioEngine audio_engine_;
+
   // Map RenderableId to material.
   std::vector<Mesh*> cardboard_fronts_;
   std::vector<Mesh*> cardboard_backs_;
@@ -78,12 +80,6 @@ class SplatGame {
 
   // Hold state machine binary data.
   std::string state_machine_source_;
-
-  // Hold the audio bus list.
-  std::string buses_source_;
-
-  // Hold the sounds.
-  std::vector<Sound> sounds_;
 
   // Hold characters, pies, camera state.
   GameState game_state_;

@@ -20,6 +20,7 @@
 
 namespace fpl {
 
+class AudioEngine;
 class InputSystem;
 class SceneDescription;
 
@@ -36,7 +37,7 @@ class GameState {
   void Reset();
 
   // Update controller and state machine for each character.
-  void AdvanceFrame(WorldTime delta_time);
+  void AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine);
 
   // Fill in the position of the characters and pies.
   void PopulateScene(SceneDescription* scene) const;
@@ -76,6 +77,9 @@ class GameState {
 
 private:
   WorldTime GetAnimationTime(const Character& character) const;
+  void ProcessSounds(Character* character,
+                     WorldTime delta_time,
+                     AudioEngine* audio_engine) const;
   void ProcessEvents(Character* character,
                      WorldTime delta_time,
                      int queued_damage);
