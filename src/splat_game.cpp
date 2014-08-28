@@ -310,6 +310,11 @@ bool SplatGame::Initialize() {
   if (!InitializeGameState())
     return false;
 
+# ifdef PLATFORM_MOBILE
+  if (!gpg_manager.Initialize())
+    return false;
+# endif
+
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Splat initialization complete\n");
   return true;
 }
@@ -546,6 +551,10 @@ void SplatGame::Run() {
 
     // Remember the real-world time from this frame.
     prev_world_time_ = world_time;
+
+#   ifdef PLATFORM_MOBILE
+    gpg_manager.Update();
+#   endif
   }
 }
 

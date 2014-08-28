@@ -36,7 +36,10 @@ LOCAL_SRC_FILES := \
 	$(SPLAT_PATH)/src/precompiled.cpp \
 	$(SPLAT_PATH)/src/renderer.cpp \
 	$(SPLAT_PATH)/src/splat_game.cpp \
-	$(SPLAT_PATH)/src/utilities.cpp
+	$(SPLAT_PATH)/src/utilities.cpp \
+	$(SPLAT_PATH)/src/gpg_manager.cpp \
+	$(SPLAT_PATH)/src/audio_engine.cpp \
+	$(SPLAT_PATH)/src/sound.cpp
 
 LOCAL_STATIC_LIBRARIES := libgpg
 

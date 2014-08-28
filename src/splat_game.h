@@ -22,6 +22,9 @@
 #include "renderer.h"
 #include "player_controller.h"
 #include "audio_engine.h"
+#ifdef PLATFORM_MOBILE
+#include "gpg_manager.h"
+#endif
 
 namespace fpl {
 namespace splat {
@@ -104,6 +107,10 @@ class SplatGame {
   // Debug data. For displaying when a character's state has changed.
   std::vector<int> debug_previous_states_;
   std::vector<Angle> debug_previous_angles_;
+
+# ifdef PLATFORM_MOBILE
+  GPGManager gpg_manager;
+# endif
 };
 
 }  // splat

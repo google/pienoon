@@ -264,7 +264,8 @@ sign_apk() {
   local signed_apk="${2}"
   if [[ $(stat_mtime "${unsigned_apk}") -gt \
           $(stat_mtime "${signed_apk}") ]]; then
-    local -r key_alias=$(basename ${signed_apk} .apk)
+    #local -r key_alias=$(basename ${signed_apk} .apk)
+    local -r key_alias=androiddebugkey
     local keystore="${3}"
     local key_password="${4}"
     [[ "${keystore}" == "" ]] && keystore="${unsigned_apk}.keystore"
@@ -309,7 +310,7 @@ build_apk() {
   # redistributed.
   local unsigned_apk="bin/${package_filename}-${ant_target}-unsigned.apk"
   if [[ "${ant_target}" == "release" ]]; then
-    sign_apk "${unsigned_apk}" "${output_apk}" "" ""
+    sign_apk "${unsigned_apk}" "${output_apk}" "debug.keystore" "android"
   fi
 }
 
@@ -366,7 +367,8 @@ launch_package() {
     (
       adb ${adb_device} logcat \
         SDL:V SDL/APP:V SDL/ERROR:V SDL/SYSTEM:V SDL/AUDIO:V SDL/VIDEO:V \
-        SDL/RENDER:V SDL/INPUT:V GamesNativeSDK:V SDL_android:V *:F &
+        SDL/RENDER:V SDL/INPUT:V GamesNativeSDK:V SDL_android:V \
+        ValidateServiceOp:E AndroidRuntime:E *:E &
       adb_logcat_pid=$!;
       if [[ $((launch_timeout)) -gt 0 ]]; then
         sleep $((launch_timeout));
@@ -387,7 +389,7 @@ launch_package() {
 
     # Launch the activity and wait for it to complete.
     adb ${adb_device} shell am start ${adb_stop_activity} -n \
-      ${package_name}/.SDLActivity
+      ${package_name}/.FPLActivity
 
     wait "${logcat_pid}"
   )
