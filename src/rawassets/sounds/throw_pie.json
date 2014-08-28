@@ -1,0 +1,30 @@
+{
+  "id": "ThrowPie",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/whoosh01.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/whoosh02.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/whoosh03.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/whoosh04.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/whoosh05.wav"
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "HitWithPie",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/smack01.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/smack02.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/smack03.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/smack04.wav"
+      }
+    }
+  ]
+}
+

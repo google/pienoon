@@ -81,17 +81,7 @@ int main(int argc, char *argv[]) {
   }
 # endif
 
-  Mix_OpenAudio(48000, AUDIO_U8, 2, 2048);
-  Mix_Chunk* sample = Mix_LoadWAV("sounds/whoosh01.wav");
-  if (!sample) {
-    SDL_LogCritical(SDL_LOG_CATEGORY_ERROR, "Failed to load wav file\n");
-  }
-  Mix_AllocateChannels(1);
-  Mix_PlayChannel(0, sample, 0);
-
   game.Run();
-
-  Mix_CloseAudio();
 
   return 0;
 }

@@ -24,8 +24,10 @@
 #include "splat_common_generated.h"
 #include "config_generated.h"
 #include "splat_game.h"
-#include "splat_rendering_assets_generated.h"
+#include "rendering_assets_generated.h"
 #include "utilities.h"
+#include "sound_assets_generated.h"
+#include "SDL_mixer.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -52,6 +54,7 @@ SplatGame::SplatGame()
     : matman_(renderer_),
       cardboard_fronts_(RenderableId_Count, NULL),
       cardboard_backs_(RenderableId_Count, NULL),
+      sounds_(SoundId_Count),
       prev_world_time_(0),
       debug_previous_states_(),
       debug_previous_angles_() {
@@ -65,6 +68,8 @@ SplatGame::~SplatGame() {
     delete cardboard_backs_[i];
     cardboard_backs_[i] = NULL;
   }
+
+  Mix_CloseAudio();
 }
 
 bool SplatGame::InitializeConfig() {
@@ -149,7 +154,7 @@ bool SplatGame::InitializeRenderingAssets() {
   const Config& config = GetConfig();
 
   // Load the splat asset file.
-  static const char* kRenderingAssetsFileName = "splat_rendering_assets.bin";
+  static const char* kRenderingAssetsFileName = "rendering_assets.bin";
   if (!LoadFile(kRenderingAssetsFileName, &rendering_assets_source_)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't load %s.\n", kRenderingAssetsFileName);
@@ -192,6 +197,43 @@ bool SplatGame::InitializeRenderingAssets() {
   if (!cardboard_fronts_[RenderableId_Invalid]) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't load backup texture.\n");
     return false;
+  }
+
+  return true;
+}
+
+bool SplatGame::InitializeAudio() {
+
+  // Initialize SDL_mixer.
+  if (Mix_OpenAudio(48000, AUDIO_U8, 2, 2048) != 0) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't open audio stream\n");
+    return false;
+  }
+
+  // Load the audio buses.
+  if (!LoadFile("buses.bin", &buses_source_)) {
+    return false;
+  }
+
+  // Load the list of assets.
+  std::string sound_assets_source;
+  if (!LoadFile("sound_assets.bin", &sound_assets_source)) {
+    return false;
+  }
+
+  // Ensure that there is a 1:1 mapping of sound ids to sound assets.
+  const SoundAssets* sound_assets = GetSoundAssets(sound_assets_source.c_str());
+  if (sound_assets->sounds()->Length() != SoundId_Count) {
+    SDL_LogError(
+        SDL_LOG_CATEGORY_ERROR,
+        "Incorrect number of sound assets loaded. Expected %d, got %d\n",
+        SoundId_Count, sound_assets->sounds()->Length());
+    return false;
+  }
+
+  // Create a Sound for each sound def
+  for (int i = 0; i < SoundId_Count; ++i) {
+    sounds_[i].LoadSound(sound_assets->sounds()->Get(i)->c_str());
   }
 
   return true;
@@ -255,6 +297,9 @@ bool SplatGame::Initialize() {
     return false;
 
   if (!InitializeRenderingAssets())
+    return false;
+
+  if (!InitializeAudio())
     return false;
 
   if (!InitializeGameState())

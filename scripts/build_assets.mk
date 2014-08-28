@@ -62,23 +62,39 @@ $(eval \
 	$(FLATC) -o $$(dir $$@) -b $(TOP)/src/flatbufferschemas/materials.fbs $$<)
 endef
 
+# Generate a build rule that will convert a json FlatBuffer to a binary
+# FlatBuffer using the sounds schema.
+define flatbuffers_sound_build_rule
+$(eval \
+  $(call flatbuffers_json_to_binary,$(1)): $(1)
+	$(FLATC) -o $$(dir $$@) -b $(TOP)/src/flatbufferschemas/sound.fbs $$<)
+endef
+
 # json describing FlatBuffers data that will be converted to FlatBuffers binary
 # files.
 flatbuffers_single_schema_json:=\
 	$(TOP)/src/rawassets/config.json \
+	$(TOP)/src/rawassets/buses.json \
 	$(TOP)/src/rawassets/character_state_machine_def.json \
-	$(TOP)/src/rawassets/splat_rendering_assets.json
+	$(TOP)/src/rawassets/rendering_assets.json \
+	$(TOP)/src/rawassets/sound_assets.json
 
 # json describing FlatBuffers material data (using the material.fbs schema)
 # that will be converted to FlatBuffers binary files.
 flatbuffers_material_json:=\
 	$(wildcard $(TOP)/src/rawassets/materials/*.json)
 
+# json describing FlatBuffers sound data (using the sound.fbs schema)
+# that will be converted to FlatBuffers binary files.
+flatbuffers_sound_json:=\
+	$(wildcard $(TOP)/src/rawassets/sounds/*.json)
+
 # All binary FlatBuffers that should be built.
 flatbuffers_binary=\
 	$(call flatbuffers_json_to_binary,\
 		$(flatbuffers_single_schema_json) \
-		$(flatbuffers_material_json))
+		$(flatbuffers_material_json) \
+		$(flatbuffers_sound_json))
 
 # Top level build rule for all assets.
 all: $(flatbuffers_binary)
@@ -92,3 +108,8 @@ $(foreach flatbuffers_json_file,$(flatbuffers_single_schema_json),\
 # built from a .json material file.
 $(foreach flatbuffers_json_file,$(flatbuffers_material_json),\
 	$(call flatbuffers_material_build_rule,$(flatbuffers_json_file)))
+
+# Create build rules for each FlatBuffer binary file that will be
+# built from a .json sound file.
+$(foreach flatbuffers_json_file,$(flatbuffers_sound_json),\
+	$(call flatbuffers_sound_build_rule,$(flatbuffers_json_file)))

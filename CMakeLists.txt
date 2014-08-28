@@ -84,6 +84,7 @@ set(splat_SRCS
     src/material_manager.cpp
     src/renderer.cpp
     src/sdl_controller.cpp
+    src/sound.cpp
     src/splat_game.cpp
     src/utilities.cpp)
 

@@ -51,12 +51,14 @@ enum RenderableId : ushort {
   Splatter3,
   UiArrow,
 
-  Count // Must be last
+  Count  // Must be last
 }
 
 enum SoundId : ushort {
   ThrowPie,
-  HitWithPie
+  HitWithPie,
+
+  Count  // Must be last
 }
 
 enum EventId : ushort {
