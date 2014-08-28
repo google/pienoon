@@ -149,10 +149,26 @@ table Config {
 
   // These values can be tuned to adjust the turning speed and wobble when
   // changing targets.
+  //
+  // Acceleration is a multiple of the face angle error. Bigger values make
+  // the character accellerate faster. In (radians/tick/tick) / radians.
   face_delta_to_accel:float;
+
+  // When accelerating away from the target, we multiply our acceleration by
+  // this amount. We need counter-acceleration to be stronger so that the
+  // amplitude eventually dies down.
   face_wrong_direction_accel_bonus:float;
+
+  // Maximum angular velocity that the character can spin.
   face_max_velocity:float;
+
+  // Cutoff to determine if the character face angle is pretty well at target.
+  // Once below the cutoff, the character's face angle is clamped to target.
+  // In radians/tick.
   face_near_target_angular_velocity:float;
+
+  // Cutoff to determine if the chracter's face angle is pretty well at target.
+  // In radians.
   face_near_target_angle:float;
 
   // The id of the first pie and last pie. Intermediate pie material id's are
@@ -160,12 +176,25 @@ table Config {
   first_airborne_pie_renderable:RenderableId;
   last_airborne_pie_renderable:RenderableId;
 
-  // Rendering constants
+  // Rendering constants.
+  //
+  // Size of the target screen. In pixels.
   window_size:Vec2i;
+
+  // Name of the target window. Used on desktop platforms.
   window_title:string;
+
+  // Field of view angle for the camera.
   viewport_angle:float;
+
+  // Aspect ratio of the camera. Should match the window_size aspect ratio for
+  // proper rendering.
   viewport_aspect_ratio:float;
+
+  // Objects closer than the near plane are clipped.
   viewport_near_plane:float;
+
+  // Object farther than the far plane are culled.
   viewport_far_plane:float;
 
   // Constant conversion from texture to world space.
@@ -184,7 +213,8 @@ table Config {
   // don't overlap.
   accessory_z_increment:float;
 
-  // ??
+  // Keep the cardboard cutouts facing the stage front.
+  // Bigger numbers increase the effect. A number of 1 eliminates all effect.
   cardboard_bias_towards_stage_front:float;
 
   // The vertical offset of the popsicle stick prop.
@@ -228,16 +258,39 @@ table Config {
   renderables:[RenderableDef];
 
   // Debug options
+  //
+  // Continuously draw this renderable at the origin. Useful for debugging one
+  // renderable.
   draw_fixed_renderable:RenderableId;
+
+  // Put the characters into the scene description.
   draw_characters:bool;
+
+  // Put the targeting arrows into the scene description.
   draw_ui_arrows:bool;
+
+  // Put the airborne pies into the scene description.
   draw_pies:bool;
+
+  // Put the environment into the scene description.
   draw_props:bool;
+
+  // Put a series of objects along the positive x, y, and z axes.
   draw_axes:bool;
+
+  // Translate mouse movement to camera xz movement in the world.
   mouse_to_ground_scale:float;
+
+  // Translate mouse movement to camera y movement in the world.
   mouse_to_height_scale:float;
+
+  // Translate mouse movement to camera rotation in the world.
   mouse_to_camera_rotation_scale:float;
+
+  // Print out character states whenever a transition happens.
   print_character_states:bool;
+
+  // Print out pie movement when they are airborne.
   print_pie_states:bool;
 }
 
