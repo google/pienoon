@@ -496,6 +496,27 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   // Camera.
   scene->set_camera(CameraMatrix());
 
+  // Pies.
+  if (config_->draw_pies()) {
+    for (auto it = pies_.begin(); it != pies_.end(); ++it) {
+      const AirbornePie& pie = *it;
+      scene->renderables().push_back(
+          Renderable(RenderableIdForPieDamage(pie.damage(), *config_),
+                     pie.CalculateMatrix()));
+    }
+  }
+
+  // Populate scene description with environment items.
+  if (config_->draw_props()) {
+    auto props = config_->props();
+    for (size_t i = 0; i < props->Length(); ++i) {
+      const Prop& prop = *props->Get(i);
+      scene->renderables().push_back(
+          Renderable(static_cast<uint16_t>(prop.renderable()),
+                     CalculatePropWorldMatrix(prop)));
+    }
+  }
+
   // Characters and accessories.
   if (config_->draw_characters()) {
     for (auto c = characters_.begin(); c != characters_.end(); ++c) {
@@ -554,27 +575,6 @@ void GameState::PopulateScene(SceneDescription* scene) const {
             Renderable(RenderableId_UiArrow,
                 CalculateUiArrowMatrix(c->position(), arrow_angle, *config_)));
       }
-    }
-  }
-
-  // Pies.
-  if (config_->draw_pies()) {
-    for (auto it = pies_.begin(); it != pies_.end(); ++it) {
-      const AirbornePie& pie = *it;
-      scene->renderables().push_back(
-          Renderable(RenderableIdForPieDamage(pie.damage(), *config_),
-                     pie.CalculateMatrix()));
-    }
-  }
-
-  // Populate scene description with environment items.
-  if (config_->draw_props()) {
-    auto props = config_->props();
-    for (size_t i = 0; i < props->Length(); ++i) {
-      const Prop& prop = *props->Get(i);
-      scene->renderables().push_back(
-          Renderable(static_cast<uint16_t>(prop.renderable()),
-                     CalculatePropWorldMatrix(prop)));
     }
   }
 

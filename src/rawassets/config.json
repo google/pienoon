@@ -116,10 +116,10 @@
   "cardboard_back_z_offset": -0.1,
   "accessory_z_offset": 0.06,
   "accessory_z_increment": 0.02,
-  "cardboard_bias_towards_stage_front": 4.0,
+  "cardboard_bias_towards_stage_front": 2.0,
   "ui_arrow_max_diff_from_target": 6,
-  "ui_arrow_offset": { "x": 0.3, "y": 0.01, "z": -0.5 },
-  "ui_arrow_scale": { "x": 0.6, "y": 1, "z": 0.6 },
+  "ui_arrow_offset": { "x": 1, "y": 0.1, "z": -2 },
+  "ui_arrow_scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
 
   "draw_fixed_renderable": "Invalid",
   "draw_characters": true,
