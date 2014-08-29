@@ -302,8 +302,10 @@ bool SplatGame::Initialize() {
   if (!InitializeRenderingAssets())
     return false;
 
-  if (!audio_engine_.Initialize(GetConfig().audio()))
-    return false;
+  // Some people are having trouble loading the audio engine, and it's not
+  // strictly necessary for gameplay, so don't die if the audio engine fails to
+  // initialize.
+  audio_engine_.Initialize(GetConfig().audio());
 
   if (!InitializeGameState())
     return false;

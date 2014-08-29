@@ -29,7 +29,7 @@ class AudioEngine {
   bool Initialize(const AudioConfig* config);
 
   // Play a sound associated with the given sound_id.
-  void PlaySound(int sound_id);
+  void PlaySound(unsigned int sound_id);
 
   // TODO: Update audio volume per channel each frame. b/17316699
   // void AdvanceFrame();

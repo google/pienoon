@@ -76,8 +76,13 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   return true;
 }
 
-void AudioEngine::PlaySound(int sound_id) {
+void AudioEngine::PlaySound(unsigned int sound_id) {
   const int kPlayChannelError = -1;
+  if (sound_id >= sounds_.size()) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Can't play audio sample: invalid sound_id\n");
+    return;
+  }
   Sound& sound = sounds_[sound_id];
   if (Mix_PlayChannel(-1, sound.SelectChunk(), 0) == kPlayChannelError) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
