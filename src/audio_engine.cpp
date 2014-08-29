@@ -14,6 +14,7 @@
 
 #include "precompiled.h"
 
+#include "audio_config_generated.h"
 #include "audio_engine.h"
 #include "sound.h"
 #include "sound_assets_generated.h"
@@ -26,17 +27,20 @@ AudioEngine::~AudioEngine() {
   Mix_CloseAudio();
 }
 
-bool AudioEngine::Initialize() {
+
+
+bool AudioEngine::Initialize(const AudioConfig* config) {
   // Initialize audio engine.
-  // TODO: Move these magic numbers to a config file. b/17320600
-  if (Mix_OpenAudio(48000, AUDIO_U8, 2, 2048) != 0) {
+  if (Mix_OpenAudio(config->output_frequency(),
+                    AUDIO_S16LSB,
+                    config->output_channels(),
+                    config->output_buffer_size()) != 0) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't open audio stream\n");
     return false;
   }
 
   // Number of sound that can be played simutaniously.
-  // TODO: Move this magic numbers to a config file. b/17320600
-  Mix_AllocateChannels(16);
+  Mix_AllocateChannels(config->mixer_channels());
 
   // Load the audio buses.
   if (!LoadFile("buses.bin", &buses_source_)) {

@@ -21,6 +21,7 @@
 
 // TODO: put in alphabetical order when FlatBuffers predeclare bug fixed.
 #include "splat_common_generated.h"
+#include "audio_config_generated.h"
 #include "config_generated.h"
 
 namespace fpl

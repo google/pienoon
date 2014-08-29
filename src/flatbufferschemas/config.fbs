@@ -13,6 +13,7 @@
 // limitations under the License.
 
 include "splat_common.fbs";
+include "audio_config.fbs";
 
 namespace fpl.splat;
 
@@ -71,6 +72,9 @@ table Config {
 
   // Different configurations of players.
   character_arrangements:[CharacterArrangement];
+
+  // Audio engine configuration.
+  audio:AudioConfig;
 
   // Where the camera should be positioned.
   camera_position:Vec3;

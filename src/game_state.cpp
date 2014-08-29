@@ -19,6 +19,7 @@
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h" // TODO: put in alphabetical order when
                                     // FlatBuffers predeclare bug fixed.
+#include "audio_config_generated.h"
 #include "config_generated.h"
 #include "controller.h"
 #include "scene_description.h"

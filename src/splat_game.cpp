@@ -22,6 +22,7 @@
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
+#include "audio_config_generated.h"
 #include "config_generated.h"
 #include "splat_game.h"
 #include "rendering_assets_generated.h"
@@ -258,7 +259,7 @@ bool SplatGame::Initialize() {
   if (!InitializeRenderingAssets())
     return false;
 
-  if (!audio_engine_.Initialize())
+  if (!audio_engine_.Initialize(GetConfig().audio()))
     return false;
 
   if (!InitializeGameState())

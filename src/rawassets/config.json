@@ -72,6 +72,14 @@
     }
   ],
 
+  // Audio engine configuration.
+  "audio": {
+    "output_frequency": 48000,
+    "output_channels": "Stereo",
+    "output_buffer_size": 2048,
+    "mixer_channels": 16
+  },
+
   "camera_position": { "x": 0.0, "y": 3.4, "z": -11 },
   "camera_target": { "x": 0.0, "y": 3.5, "z": 0.0 },
   "light_positions": [

@@ -12,36 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_AUDIO_ENGINE_H_
-#define SPLAT_AUDIO_ENGINE_H_
+namespace fpl;
 
-#include "sound.h"
-#include "splat_common_generated.h"
+enum OutputChannels : ushort {
+  Mono = 1,
+  Stereo = 2
+}
 
-namespace fpl {
+table AudioConfig {
+  // Output sampling frequency in samples per second.
+  output_frequency:uint;
 
-class AudioConfig;
+  // The number of output channels to support.
+  output_channels:OutputChannels;
 
-class AudioEngine {
- public:
-  ~AudioEngine();
+  // Bytes used per output sample.
+  output_buffer_size:uint;
 
-  bool Initialize(const AudioConfig* config);
+  // Number of channels to allocate for mixing.
+  mixer_channels:uint;
+}
 
-  // Play a sound associated with the given sound_id.
-  void PlaySound(int sound_id);
-
-  // TODO: Update audio volume per channel each frame. b/17316699
-  // void AdvanceFrame();
-
- private:
-  // Hold the audio bus list.
-  std::string buses_source_;
-
-  // Hold the sounds.
-  std::vector<Sound> sounds_;
-};
-
-}  // namespace fpl
-
-#endif  // SPLAT_AUDIO_ENGINE_H_
