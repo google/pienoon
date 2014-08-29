@@ -18,7 +18,7 @@
 #include "character_state_machine.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
-#include "sdl_controller.h"
+#include "player_controller.h"
 #include "angle.h"
 
 namespace fpl {

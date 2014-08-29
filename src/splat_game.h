@@ -20,7 +20,7 @@
 #include "material_manager.h"
 #include "scene_description.h"
 #include "renderer.h"
-#include "sdl_controller.h"
+#include "player_controller.h"
 #include "audio_engine.h"
 
 namespace fpl {
@@ -88,7 +88,7 @@ class SplatGame {
 
   // Maps physical inputs (from input_) to logical inputs that the state
   // machines can use. For example, "up" maps to "throw pie".
-  std::vector<SdlController> controllers_;
+  std::vector<PlayerController> controllers_;
 
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.

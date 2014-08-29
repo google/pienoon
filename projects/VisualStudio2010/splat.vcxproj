@@ -119,15 +119,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\..\src\player_controller.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="..\..\src\precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\..\src\renderer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\src\sdl_controller.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -153,10 +153,10 @@
     <ClInclude Include="..\..\src\glplatform.h" />
     <ClInclude Include="..\..\src\input.h" />
     <ClInclude Include="..\..\src\material_manager.h" />
+    <ClInclude Include="..\..\src\player_controller.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\renderer.h" />
     <ClInclude Include="..\..\src\scene_description.h" />
-    <ClInclude Include="..\..\src\sdl_controller.h" />
     <ClInclude Include="..\..\src\splat_game.h" />
     <ClInclude Include="..\..\src\utilities.h" />
   </ItemGroup>

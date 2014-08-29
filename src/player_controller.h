@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SDL_CONTROLLER_H_
-#define SDL_CONTROLLER_H_
+#ifndef PLAYER_CONTROLLER_H_
+#define PLAYER_CONTROLLER_H_
 
 #include <vector>
 
@@ -48,10 +48,10 @@ class ControlScheme {
   static const ControlScheme* GetDefaultControlScheme(int i);
 };
 
-// An SdlController tracks the current state of a human player's logical inputs.
-// It is responsible for polling the InputSystem for the current state of the
-// physical inputs that map to logical actions.
-class SdlController : public Controller {
+// A PlayerController tracks the current state of a human player's logical
+// inputs. It is responsible for polling the InputSystem for the current state
+// of the physical inputs that map to logical actions.
+class PlayerController : public Controller {
  public:
   // Set up a controller using the given input system and control scheme.
   // The input_system and scheme pointers are unowned and must outlive this
@@ -72,5 +72,5 @@ class SdlController : public Controller {
 }  // splat
 }  // fpl
 
-#endif  // SDL_CONTROLLER_H_
+#endif  // PLAYER_CONTROLLER_H_
 

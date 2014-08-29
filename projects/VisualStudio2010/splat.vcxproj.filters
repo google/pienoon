@@ -9,7 +9,7 @@
     <ClCompile Include="..\..\src\material_manager.cpp" />
     <ClCompile Include="..\..\src\character.cpp" />
     <ClCompile Include="..\..\src\game_state.cpp" />
-    <ClCompile Include="..\..\src\sdl_controller.cpp" />
+    <ClCompile Include="..\..\src\player_controller.cpp" />
     <ClCompile Include="..\..\src\splat_game.cpp" />
     <ClCompile Include="..\..\src\utilities.cpp" />
   </ItemGroup>
@@ -27,7 +27,7 @@
     <ClInclude Include="..\..\src\controller.h" />
     <ClInclude Include="..\..\src\game_state.h" />
     <ClInclude Include="..\..\src\material_manager.h" />
-    <ClInclude Include="..\..\src\sdl_controller.h" />
+    <ClInclude Include="..\..\src\player_controller.h" />
     <ClInclude Include="..\..\build\splat\include\character_state_machine_def_generated.h">
       <Filter>generated</Filter>
     </ClInclude>

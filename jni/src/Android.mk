@@ -32,9 +32,9 @@ LOCAL_SRC_FILES := \
 	$(SPLAT_PATH)/src/input.cpp \
 	$(SPLAT_PATH)/src/main.cpp \
 	$(SPLAT_PATH)/src/material_manager.cpp \
+	$(SPLAT_PATH)/src/player_controller.cpp \
 	$(SPLAT_PATH)/src/precompiled.cpp \
 	$(SPLAT_PATH)/src/renderer.cpp \
-	$(SPLAT_PATH)/src/sdl_controller.cpp \
 	$(SPLAT_PATH)/src/splat_game.cpp \
 	$(SPLAT_PATH)/src/utilities.cpp
 

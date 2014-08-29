@@ -16,20 +16,20 @@
 #include <vector>
 #include "common.h"
 #include "controller.h"
-#include "sdl_controller.h"
+#include "player_controller.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 
 namespace fpl {
 namespace splat {
 
-void SdlController::Initialize(InputSystem* input_system,
+void PlayerController::Initialize(InputSystem* input_system,
                                const ControlScheme* scheme) {
   input_system_ = input_system;
   scheme_ = scheme;
 }
 
-void SdlController::AdvanceFrame() {
+void PlayerController::AdvanceFrame() {
   for (auto it = scheme_->keybinds.begin();
        it != scheme_->keybinds.end(); ++it) {
     bool pressed = input_system_->GetButton(it->physical_input).went_down();
