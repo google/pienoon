@@ -292,8 +292,15 @@
     },
     {
       "renderable": "RenderableId.EnvironmentCloudShadow",
-      "position": { "x": -1.5, "y": 5.0, "z":6.8 },
+      "position": { "x": -2.5, "y": 5.5, "z":6.8 },
       "rotation": -10,
+      "orientation": "Verticle",
+      "scale": { "x": 1, "y": 1, "z": 1 }
+    },
+    {
+      "renderable": "RenderableId.EnvironmentBush",
+      "position": { "x": 9, "y": 0, "z":1 },
+      "rotation": 20,
       "orientation": "Verticle",
       "scale": { "x": 1, "y": 1, "z": 1 }
     },
@@ -305,30 +312,30 @@
       "scale": { "x": 1, "y": 1, "z": 1 }
     },
     {
+      "renderable": "RenderableId.EnvironmentBush",
+      "position": { "x": 7, "y": -0.1, "z":6.5 },
+      "rotation": 0,
+      "orientation": "Verticle",
+      "scale": { "x": 1, "y": 1, "z": 1 }
+    },
+    {
       "renderable": "RenderableId.EnvironmentTree",
-      "position": { "x": 8.5, "y": 0, "z":2 },
-      "rotation": 60,
+      "position": { "x": -8.5, "y": 0, "z":0.7 },
+      "rotation": -60,
       "orientation": "Verticle",
-      "scale": { "x": 1, "y": 1, "z": 1 }
+      "scale": { "x": -0.8, "y": 0.7, "z": 1 }
     },
     {
       "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -9, "y": 0, "z":1.5 },
+      "position": { "x": -8, "y": 0, "z":0.5 },
+      "rotation": -40,
+      "orientation": "Verticle",
+      "scale": { "x": 0.7, "y": 0.7, "z": 0.7 }
+    },
+    {
+      "renderable": "RenderableId.EnvironmentBush",
+      "position": { "x": -4.5, "y": 0, "z":6 },
       "rotation": -20,
-      "orientation": "Verticle",
-      "scale": { "x": 1, "y": 1, "z": 1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -5.5, "y": 0, "z":4 },
-      "rotation": -20,
-      "orientation": "Verticle",
-      "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -5, "y": 0, "z":5.5 },
-      "rotation": 20,
       "orientation": "Verticle",
       "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }
     },
