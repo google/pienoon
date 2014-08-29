@@ -72,6 +72,11 @@ struct Vec2i {
   y:int;
 }
 
+struct Vec2 {
+  x:float;
+  y:float;
+}
+
 struct Vec3 {
   x:float;
   y:float;

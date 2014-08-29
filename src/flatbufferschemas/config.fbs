@@ -26,6 +26,10 @@ table Splatter {
   // Location for the splatter texture to appear.
   location:Vec2i;
 
+  // Size of the splatter texture. 1 is size as authored, >1 is bigger, <1 is
+  // smaller.
+  scale:Vec2;
+
   // Which renderable should be used for this splotch.
   renderable:RenderableId;
 }

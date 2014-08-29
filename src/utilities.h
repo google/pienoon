@@ -37,6 +37,10 @@ inline const mathfu::vec2i& LoadVec2i(const splat::Vec2i* v) {
   return union_reinterpret_cast<mathfu::vec2i, splat::Vec2i>(*v);
 }
 
+inline const mathfu::vec2& LoadVec2(const splat::Vec2* v) {
+  return union_reinterpret_cast<mathfu::vec2, splat::Vec2>(*v);
+}
+
 bool ChangeToUpstreamDir(const char* const target_dir,
                          const char* const suffix_dirs[],
                          size_t num_suffixes);

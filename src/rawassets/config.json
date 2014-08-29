@@ -148,42 +148,52 @@
   "splatter": [
     {
       "location": { "x": 0, "y": 0 },
+      "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter1"
     },
     {
       "location": { "x": 100, "y": 50},
+      "scale": {"x": 0.4, "y": 0.4 },
       "renderable": "Splatter2"
     },
     {
       "location": { "x": -110, "y": 75 },
+      "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter3"
     },
     {
       "location": { "x": 120, "y": 0 },
+      "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter2"
     },
     {
       "location": { "x": -130, "y": 125 },
+      "scale": {"x": 0.4, "y": 0.4 },
       "renderable": "Splatter1"
     },
     {
       "location": { "x": 75, "y": 150 },
+      "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter3"
     },
     {
       "location": { "x": -25, "y": 75 },
+      "scale": {"x": 0.4, "y": 0.4 },
       "renderable": "Splatter3"
     },
     {
       "location": { "x": 10, "y": 200 },
+      "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter2"
     },
     {
       "location": { "x": -120, "y": 225 },
+      "scale": {"x": 0.4, "y": 0.4 },
       "renderable": "Splatter1"
     },
     {
       "location": { "x": 123, "y": 250 },
+      "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter3"
     }
   ],

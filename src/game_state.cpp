@@ -435,8 +435,8 @@ mat4 GameState::CameraMatrix() const {
 }
 
 static const mat4 CalculateAccessoryMatrix(
-    const vec2& location, const mat4& character_matrix, uint16_t renderable_id,
-    int num_accessories, const Config& config) {
+    const vec2& location, const vec2& scale, const mat4& character_matrix,
+    uint16_t renderable_id, int num_accessories, const Config& config) {
   // Grab the offset of the base renderable. The renderable's texture is moved
   // by this amount, so we have to move the same to match.
   auto renderable = config.renderables()->Get(renderable_id);
@@ -457,8 +457,10 @@ static const mat4 CalculateAccessoryMatrix(
 
   // Apply offset to character matrix.
   const vec3 offset = renderable_offset + accessory_offset;
+  const vec3 scale3d(scale[0], scale[1], 1.0f);
   const mat4 offset_matrix = mat4::FromTranslationVector(offset);
-  const mat4 accessory_matrix = character_matrix * offset_matrix;
+  const mat4 scale_matrix = mat4::FromScaleVector(scale3d);
+  const mat4 accessory_matrix = character_matrix * offset_matrix * scale_matrix;
   return accessory_matrix;
 }
 
@@ -560,9 +562,9 @@ void GameState::PopulateScene(SceneDescription* scene) const {
         const vec2 location(accessory.offset().x(), accessory.offset().y());
         scene->renderables().push_back(
             Renderable(accessory.renderable(),
-                CalculateAccessoryMatrix(location, character_matrix,
-                                         renderable_id, num_accessories,
-                                         *config_)));
+                CalculateAccessoryMatrix(location, mathfu::kOnes2f,
+                                         character_matrix, renderable_id,
+                                         num_accessories, *config_)));
         num_accessories++;
       }
 
@@ -572,9 +574,10 @@ void GameState::PopulateScene(SceneDescription* scene) const {
            i < damage && i < config_->splatter()->Length(); ++i) {
         const Splatter* splatter = config_->splatter()->Get(i);
         const vec2 location(LoadVec2i(splatter->location()));
+        const vec2 scale(LoadVec2(splatter->scale()));
         scene->renderables().push_back(
             Renderable(splatter->renderable(),
-                CalculateAccessoryMatrix(location, character_matrix,
+                CalculateAccessoryMatrix(location, scale, character_matrix,
                                          renderable_id, num_accessories,
                                          *config_)));
         num_accessories++;
