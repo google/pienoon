@@ -131,7 +131,6 @@
   "stick_front": "materials/stick.bin",
   "stick_back": "materials/stick_back.bin",
 
-  "ui_arrow_max_diff_from_target": 6,
   "ui_arrow_offset": { "x": 1, "y": 0.1, "z": -2 },
   "ui_arrow_scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
 

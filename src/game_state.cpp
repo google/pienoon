@@ -491,14 +491,6 @@ static mat4 CalculateUiArrowMatrix(const vec3& position, const Angle& angle,
          kRotate90DegreesAboutXAxis;
 }
 
-Angle GameState::CalculateUiArrowAngle(CharacterId id) const {
-  const Angle target_angle = TargetFaceAngle(id);
-  const Angle max_diff =
-      Angle::FromDegrees(config_->ui_arrow_max_diff_from_target());
-  const Angle face_angle = characters_[id].face_angle();
-  return face_angle.Clamp(target_angle, max_diff);
-}
-
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -585,7 +577,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
       // UI arrow
       if (config_->draw_ui_arrows()) {
-        const Angle arrow_angle = CalculateUiArrowAngle(c->id());
+        const Angle arrow_angle = TargetFaceAngle(c->id());
         scene->renderables().push_back(
             Renderable(RenderableId_UiArrow,
                 CalculateUiArrowMatrix(c->position(), arrow_angle, *config_)));
