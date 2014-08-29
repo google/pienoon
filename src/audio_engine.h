@@ -20,7 +20,7 @@
 
 namespace fpl {
 
-class AudioConfig;
+struct AudioConfig;
 
 class AudioEngine {
  public:
