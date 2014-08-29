@@ -74,7 +74,7 @@
 
   // Audio engine configuration.
   "audio": {
-    "output_frequency": 48000,
+    "output_frequency": 44100,
     "output_channels": "Stereo",
     "output_buffer_size": 2048,
     "mixer_channels": 16
