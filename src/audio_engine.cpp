@@ -24,10 +24,11 @@
 namespace fpl {
 
 AudioEngine::~AudioEngine() {
+  for (unsigned int i = 0; i < sounds_.size(); ++i) {
+    sounds_[i].Unload();
+  }
   Mix_CloseAudio();
 }
-
-
 
 bool AudioEngine::Initialize(const AudioConfig* config) {
   // Initialize audio engine.

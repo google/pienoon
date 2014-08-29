@@ -22,7 +22,7 @@ struct Mix_Chunk;
 
 namespace fpl {
 
-class SoundDef;
+struct SoundDef;
 
 class Sample {
  public:
@@ -46,6 +46,9 @@ class Sound {
  public:
   // Load the given flatbuffer binary file containing a SoundDef.
   bool LoadSound(const char* filename);
+
+  // Unload the data associated with this Sound.
+  void Unload();
 
   // Return the SoundDef.
   const SoundDef* GetSoundDef() const;

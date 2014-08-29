@@ -56,6 +56,12 @@ bool Sound::LoadSound(const char* filename) {
   return true;
 }
 
+void Sound::Unload() {
+  source_.clear();
+  samples_.clear();
+  sum_of_probabilities_ = 0;
+}
+
 const SoundDef* Sound::GetSoundDef() const {
   assert(source_.size());
   return fpl::GetSoundDef(source_.c_str());
