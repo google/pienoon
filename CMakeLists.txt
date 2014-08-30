@@ -90,6 +90,7 @@ endif()
 
 # Splat source files.
 set(splat_SRCS
+    src/ai_controller.cpp
     src/audio_engine.cpp
     src/character.cpp
     src/character_state_machine.cpp

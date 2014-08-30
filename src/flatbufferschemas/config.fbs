@@ -297,6 +297,13 @@ table Config {
   // Array of length RenderableId_Count.
   renderables:[RenderableDef];
 
+  // AI options
+  ai_minimum_time_between_actions:int;
+  ai_maximum_time_between_actions:int;
+  ai_chance_to_block:float;
+  ai_chance_to_change_aim:float;
+  ai_chance_to_throw:float;
+
   // Debug options
   //
   // Continuously draw this renderable at the origin. Useful for debugging one

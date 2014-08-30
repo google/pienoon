@@ -27,8 +27,6 @@ namespace splat {
 class Controller;
 
 typedef int CharacterHealth;
-typedef int CharacterId;
-typedef int WorldTime;
 
 // The different kinds of statistics we're gathering for each player:
 enum PlayerStats {

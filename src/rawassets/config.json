@@ -131,6 +131,12 @@
   "ui_arrow_offset": { "x": 1, "y": 0.1, "z": -2 },
   "ui_arrow_scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
 
+  "ai_minimum_time_between_actions": 100,
+  "ai_maximum_time_between_actions": 500,
+  "ai_chance_to_block": 0.75,
+  "ai_chance_to_change_aim": 0.4,
+  "ai_chance_to_throw": 0.2,
+
   "draw_fixed_renderable": "Invalid",
   "draw_characters": true,
   "draw_ui_arrows": true,

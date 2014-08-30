@@ -16,6 +16,7 @@
 #define SPLAT_CONTROLLER_H_
 
 #include <cstdint>
+#include "common.h"
 
 namespace fpl {
 namespace splat {
@@ -26,7 +27,7 @@ class Controller {
   virtual ~Controller() {}
 
   // Update the current state of this controller.
-  virtual void AdvanceFrame() = 0;
+  virtual void AdvanceFrame(WorldTime delta_time) = 0;
 
   // Returns the current set of active logical input bits.
   uint32_t logical_inputs() const { return logical_inputs_; }
@@ -39,6 +40,12 @@ class Controller {
       logical_inputs_ &= ~bitmap;
     }
   }
+
+  // Clear all the currently set logical inputs.
+  void ClearLogicalInputs() {
+      logical_inputs_ = 0;
+  }
+
  protected:
   // A bitfield of currently active logical input bits.
   uint32_t logical_inputs_;

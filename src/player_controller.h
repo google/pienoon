@@ -59,7 +59,7 @@ class PlayerController : public Controller {
   void Initialize(InputSystem* input_system, const ControlScheme* scheme);
 
   // Map the input from the physical inputs to logical game inputs.
-  virtual void AdvanceFrame();
+  virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
   // A pointer to the object to query for the current input state.

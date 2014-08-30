@@ -29,7 +29,7 @@ void PlayerController::Initialize(InputSystem* input_system,
   scheme_ = scheme;
 }
 
-void PlayerController::AdvanceFrame() {
+void PlayerController::AdvanceFrame(WorldTime /*delta_time*/) {
   for (auto it = scheme_->keybinds.begin();
        it != scheme_->keybinds.end(); ++it) {
     bool pressed = input_system_->GetButton(it->physical_input).went_down();

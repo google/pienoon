@@ -84,7 +84,9 @@ namespace fpl {
 typedef mathfu::Quaternion<float> Quat;
 
 // 1 WorldTime = 1 millisecond.
-typedef uint32_t WorldTime;
+typedef int WorldTime;
+
+typedef int CharacterId;
 
 }  // namespace fpl
 

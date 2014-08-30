@@ -267,15 +267,21 @@ bool SplatGame::InitializeGameState() {
 
   // Create controllers.
   controllers_.resize(config.character_count());
+  ai_controllers_.resize(config.character_count());
   for (unsigned int i = 0; i < config.character_count(); ++i) {
     controllers_[i].Initialize(
         &input_, ControlScheme::GetDefaultControlScheme(i));
+    ai_controllers_[i].Initialize(&game_state_, &config, i);
   }
 
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
-    game_state_.characters().push_back(Character(
-        i, &controllers_[i], state_machine_def));
+    if (i<1) // TODO(ccornell) Make this better once we get drop-in joining.
+      game_state_.characters().push_back(Character(i, &controllers_[i],
+                                                   state_machine_def));
+    else
+      game_state_.characters().push_back(Character(i, &ai_controllers_[i],
+                                                   state_machine_def));
   }
 
   debug_previous_states_.resize(config.character_count(), -1);

@@ -547,7 +547,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     Controller* controller = character.controller();
     const Timeline* timeline =
         character.state_machine()->current_state()->timeline();
-    controller->AdvanceFrame();
+    controller->AdvanceFrame(delta_time);
     controller->SetLogicalInputs(LogicalInputs_JustHit, false);
     controller->SetLogicalInputs(LogicalInputs_NoHealth,
                                  character.health() <= 0);
