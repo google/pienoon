@@ -232,6 +232,28 @@ uint16_t GameState::CharacterState(CharacterId id) const {
   return characters_[id].state_machine()->current_state()->id();
 }
 
+int GameState::NumActiveCharacters() const {
+  int num_active = 0;
+  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
+    if (CharacterState(it->id()) != StateId_KO)
+      num_active++;
+  }
+  return num_active;
+}
+
+// Determine which direction the user wants to turn.
+// Returns 0 if no turn requested. 1 if requesting we target the next character
+// id. -1 if requesting we target the previous character id.
+int GameState::RequestedTurn(CharacterId id) const {
+  const Character& c = characters_[id];
+  const uint32_t logical_inputs = c.controller()->logical_inputs();
+  const int left_jump = arrangement_->character_data()->Get(id)->left_jump();
+  const int target_delta = (logical_inputs & LogicalInputs_Left) ? left_jump :
+                           (logical_inputs & LogicalInputs_Right) ? -left_jump :
+                           0;
+  return target_delta;
+}
+
 CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
   assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));
   const Character& c = characters_[id];
@@ -243,18 +265,14 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
     return current_target;
 
   // Check the inputs to see how requests for target change.
-  const uint32_t logical_inputs = c.controller()->logical_inputs();
-  const int left_jump = arrangement_->character_data()->Get(id)->left_jump();
-  const int target_delta = (logical_inputs & LogicalInputs_Left) ? left_jump :
-                           (logical_inputs & LogicalInputs_Right) ? -left_jump :
-                           0;
-  if (target_delta == 0)
+  const int requested_turn = RequestedTurn(id);
+  if (requested_turn == 0)
     return current_target;
 
   const CharacterId character_count =
       static_cast<CharacterId>(characters_.size());
-  for (CharacterId target_id = current_target + target_delta;;
-       target_id += target_delta) {
+  for (CharacterId target_id = current_target + requested_turn;;
+       target_id += requested_turn) {
     // Wrap around.
     if (target_id >= character_count) {
       target_id = 0;
@@ -310,10 +328,48 @@ Angle GameState::TiltTowardsStageFront(const Angle angle) const
 // Difference between target face angle and current face angle.
 Angle GameState::FaceAngleError(CharacterId id) const {
   const Character& c = characters_[id];
-  Angle angle_to_target = TiltTowardsStageFront(TargetFaceAngle(id));
-
-  const Angle face_angle_error = angle_to_target - c.face_angle();
+  const Angle target_angle = TargetFaceAngle(id);
+  const Angle tilted_angle = TiltTowardsStageFront(target_angle);
+  const Angle face_angle_error = tilted_angle - c.face_angle();
   return face_angle_error;
+}
+
+// Return true if the character cannot turn left or right.
+bool GameState::IsImmobile(CharacterId id) const {
+  return CharacterState(id) == StateId_KO || NumActiveCharacters() <= 2;
+}
+
+// Calculate if we should fake turning this frame. We fake a turn to ensure that
+// we provide feedback to a user's turn request, even if the game state forbids
+// turning at this moment.
+// Returns 0 if we should not fake a turn. 1 if we should fake turn towards the
+// next character id. -1 if we should fake turn towards the previous character
+// id.
+int GameState::FakeResponseToTurn(CharacterId id, Angle delta_angle,
+                                  float angular_velocity) const {
+  // We only want to fake the turn response when the character is immobile.
+  // If the character can move, we'll just let the move happen normally.
+  if (!IsImmobile(id))
+    return 0;
+
+  // If the user has not requested any movement, then no need to move.
+  const int requested_turn = RequestedTurn(id);
+  if (requested_turn == 0)
+    return 0;
+
+  // Only fake a movement if we're mostly stopped, and already facing the
+  // target.
+  const float stopped_velocity =
+      config_->face_fake_response_angular_velocity() * kDegreesToRadians;
+  const Angle stopped_angle =
+      Angle::FromDegrees(config_->face_fake_response_angle());
+  const bool still_moving = fabs(angular_velocity) > stopped_velocity &&
+                            delta_angle.Abs() > stopped_angle;
+  if (still_moving)
+    return 0;
+
+  // Return 1 or -1, representing the direction we want to turn.
+  return requested_turn;
 }
 
 // The character's face angle accelerates towards the
@@ -335,16 +391,34 @@ float GameState::CalculateCharacterFacingAngleVelocity(
   const float angular_velocity =
       mathfu::Clamp(angular_velocity_unclamped, -max_velocity, max_velocity);
 
-  // If we're close to facing the target, just snap to it.
-  const float near_target_angular_velocity =
-      config_->face_near_target_angular_velocity();
-  const bool snap_to_target =
-      fabs(angular_velocity) <= near_target_angular_velocity &&
-      fabs(delta_angle.ToRadians()) <= config_->face_near_target_angle();
-  return snap_to_target
-       ? mathfu::Clamp(delta_angle.ToRadians() / delta_time,
-            -near_target_angular_velocity, near_target_angular_velocity)
-       : angular_velocity;
+  // We're close to facing the target, so check to see if we're immobile
+  // and requesting motion. If so, give a motion push in the requested
+  // direction. This ensures that the character is always respecting turn
+  // inputs, which is important for input feedback.
+  const int fake_response = FakeResponseToTurn(c.id(), delta_angle,
+                                               angular_velocity);
+  if (fake_response != 0) {
+    const float boost_velocity =
+        config_->face_fake_response_boost_angular_velocity() *
+        kDegreesToRadians;
+    return fake_response < 0 ? -boost_velocity : boost_velocity;
+  }
+
+  // If we're far from facing the target, use the velocity calculated above.
+  const float snap_velocity =
+      config_->face_snap_to_target_angular_velocity() * kDegreesToRadians;
+  const Angle snap_angle =
+      Angle::FromDegrees(config_->face_snap_to_target_angle());
+  const bool snap_to_target = fabs(angular_velocity) <= snap_velocity &&
+                              delta_angle.Abs() <= snap_angle;
+  if (!snap_to_target)
+    return angular_velocity;
+
+  // Set the velocity so that next time through we're exactly on the target
+  // angle. Note that if we're already on the target angle, the velocity will
+  // be zero.
+  return mathfu::Clamp(delta_angle.ToRadians() / delta_time,
+                       -snap_velocity, snap_velocity);
 }
 
 void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {

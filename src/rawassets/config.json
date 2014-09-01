@@ -1,5 +1,5 @@
 {
-  "character_count": 4,
+  "character_count": 2,
 
   "character_arrangements": [
     {
@@ -106,9 +106,12 @@
 
   "face_delta_to_accel": 0.00031831,
   "face_wrong_direction_accel_bonus": 4.0,
-  "face_max_velocity": 0.01256636,
-  "face_near_target_angular_velocity": 0.000628318,
-  "face_near_target_angle": 0.026179917,
+  "face_max_velocity": 0.72,
+  "face_snap_to_target_angular_velocity": 0.034,
+  "face_snap_to_target_angle": 1.5,
+  "face_fake_response_angular_velocity": 0.06,
+  "face_fake_response_angle": 5,
+  "face_fake_response_boost_angular_velocity": 0.3,
   "first_airborne_pie_renderable": "PieEmpty",
   "last_airborne_pie_renderable": "PieLarge",
 

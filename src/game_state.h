@@ -88,7 +88,12 @@ private:
   float CalculateCharacterFacingAngleVelocity(const Character& character,
                                               WorldTime delta_time) const;
   mathfu::mat4 CameraMatrix() const;
+  int NumActiveCharacters() const;
+  bool IsImmobile(CharacterId id) const;
+  int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
+  int FakeResponseToTurn(CharacterId id, Angle delta_angle,
+                         float angular_velocity) const;
 
   WorldTime time_;
   mathfu::vec3 camera_position_;

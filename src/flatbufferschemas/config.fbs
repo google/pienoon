@@ -163,17 +163,21 @@ table Config {
   // amplitude eventually dies down.
   face_wrong_direction_accel_bonus:float;
 
-  // Maximum angular velocity that the character can spin.
+  // Maximum angular velocity that the character can spin. In degrees/tick.
   face_max_velocity:float;
 
   // Cutoff to determine if the character face angle is pretty well at target.
   // Once below the cutoff, the character's face angle is clamped to target.
-  // In radians/tick.
-  face_near_target_angular_velocity:float;
+  // In degrees/tick.
+  face_snap_to_target_angular_velocity:float;
 
   // Cutoff to determine if the chracter's face angle is pretty well at target.
-  // In radians.
-  face_near_target_angle:float;
+  // In degrees.
+  face_snap_to_target_angle:float;
+
+  face_fake_response_angular_velocity:float;
+  face_fake_response_angle:float;
+  face_fake_response_boost_angular_velocity:float;
 
   // The id of the first pie and last pie. Intermediate pie material id's are
   // assumed to be in between these two ids.

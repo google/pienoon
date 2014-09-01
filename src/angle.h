@@ -198,6 +198,8 @@ class Angle {
 
  private:
   friend bool operator==(const Angle& a, const Angle& b);
+  friend bool operator<(const Angle& a, const Angle& b);
+  friend bool operator<=(const Angle& a, const Angle& b);
 
 #ifdef FPL_ANGLE_UNIT_TESTS
   FRIEND_TEST(AngleTests, ModWithinThreePi);
@@ -255,6 +257,22 @@ inline bool operator==(const Angle& a, const Angle& b) {
 
 inline bool operator!=(const Angle& a, const Angle& b) {
   return !operator==(a, b);
+}
+
+inline bool operator<(const Angle& a, const Angle& b) {
+  return a.angle_ < b.angle_;
+}
+
+inline bool operator>=(const Angle& a, const Angle& b) {
+  return !operator<(a, b);
+}
+
+inline bool operator<=(const Angle& a, const Angle& b) {
+  return a.angle_ <= b.angle_;
+}
+
+inline bool operator>(const Angle& a, const Angle& b) {
+  return !operator<=(a, b);
 }
 
 inline Angle Angle::Clamp(const Angle& center, const Angle& max_diff) const {
