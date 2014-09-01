@@ -4,6 +4,6 @@
     "textures/bush.tga",
     "textures/cardboard-normal.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

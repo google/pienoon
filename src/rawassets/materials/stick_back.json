@@ -3,6 +3,6 @@
   texture_filenames: [
     "textures/popcicle_stick_back.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

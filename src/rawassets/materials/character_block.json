@@ -4,6 +4,6 @@
     "textures/shield_dude.tga",
     "textures/cardboard-normal.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

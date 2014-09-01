@@ -3,6 +3,6 @@
   texture_filenames: [
     "textures/shelf_side.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

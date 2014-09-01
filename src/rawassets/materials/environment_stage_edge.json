@@ -3,6 +3,6 @@
   texture_filenames: [
     "textures/shelf_edge.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

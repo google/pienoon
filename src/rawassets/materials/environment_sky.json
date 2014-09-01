@@ -3,6 +3,6 @@
   texture_filenames: [
     "textures/sky.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

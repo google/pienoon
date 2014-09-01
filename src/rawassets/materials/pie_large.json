@@ -4,6 +4,6 @@
     "textures/pie_level03.tga",
     "textures/cardboard-normal.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

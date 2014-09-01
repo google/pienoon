@@ -4,6 +4,6 @@
     "textures/splat02.tga",
     "textures/cardboard-normal.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

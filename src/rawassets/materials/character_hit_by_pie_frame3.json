@@ -4,6 +4,6 @@
     "textures/hit04.tga",
     "textures/cardboard-normal.tga"
   ],
-  "blendmode": "TEST"
+  "blendmode": "ALPHA"
 }
 

@@ -565,6 +565,23 @@ static mat4 CalculateUiArrowMatrix(const vec3& position, const Angle& angle,
          kRotate90DegreesAboutXAxis;
 }
 
+// Helper class for std::sort. Sorts Characters by distance from camera.
+class CharacterDepthComparer {
+public:
+  CharacterDepthComparer(const vec3& camera_position) :
+    camera_position_(camera_position) {
+  }
+
+  bool operator()(const Character& a, const Character& b) const {
+    const float a_dist_sq = (camera_position_ - a.position()).LengthSquared();
+    const float b_dist_sq = (camera_position_ - b.position()).LengthSquared();
+    return a_dist_sq > b_dist_sq;
+  }
+
+private:
+  vec3 camera_position_;
+};
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -572,16 +589,6 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
   // Camera.
   scene->set_camera(CameraMatrix());
-
-  // Pies.
-  if (config_->draw_pies()) {
-    for (auto it = pies_.begin(); it != pies_.end(); ++it) {
-      const AirbornePie& pie = *it;
-      scene->renderables().push_back(
-          Renderable(RenderableIdForPieDamage(pie.damage(), *config_),
-                     pie.CalculateMatrix()));
-    }
-  }
 
   // Populate scene description with environment items.
   if (config_->draw_props()) {
@@ -594,9 +601,25 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     }
   }
 
+  // Pies.
+  if (config_->draw_pies()) {
+    for (auto it = pies_.begin(); it != pies_.end(); ++it) {
+      const AirbornePie& pie = *it;
+      scene->renderables().push_back(
+          Renderable(RenderableIdForPieDamage(pie.damage(), *config_),
+                     pie.CalculateMatrix()));
+    }
+  }
+
   // Characters and accessories.
   if (config_->draw_characters()) {
-    for (auto c = characters_.begin(); c != characters_.end(); ++c) {
+    // Sort characters by farthest-to-closest to the camera.
+    std::vector<Character> sorted_characters(characters_);
+    const CharacterDepthComparer comparer(camera_position_);
+    std::sort(sorted_characters.begin(), sorted_characters.end(), comparer);
+
+    for (auto c = sorted_characters.begin(); c != sorted_characters.end();
+         ++c) {
       // Render accessories and splatters on the camera-facing side
       // of the character.
       const Angle towards_camera_angle = Angle::FromXZVector(camera_position_ -
