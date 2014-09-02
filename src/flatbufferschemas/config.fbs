@@ -147,8 +147,18 @@ table Config {
   // The target angle of the pie when landing, in degrees.
   pie_target_angle:float;
 
-  // The maximum and minimum duration a frame can last.
+  // The minimum duration a frame can last regardless of how fast the
+  // processor is. In ms.
+  // For example, if 10ms, game cannot go faster than 100Hz. The game won't
+  // look much smoother or play better at faster frame rates. We'll just be
+  // hogging the CPU.
   min_update_time:int;
+
+  // The maximum duration a frame can last regardless of how slow the
+  // processor is. In ms.
+  // For example, if 100ms, game cannot jump more than 100ms in one simulation
+  // update. If we're debugging, or a task switch happens, we'll get
+  // super-large update times that we'd rather just ignore.
   max_update_time:int;
 
   // These values can be tuned to adjust the turning speed and wobble when
@@ -164,7 +174,7 @@ table Config {
   face_wrong_direction_accel_bonus:float;
 
   // Maximum angular velocity that the character can spin. In degrees/tick.
-  face_max_velocity:float;
+  face_max_angular_velocity:float;
 
   // Cutoff to determine if the character face angle is pretty well at target.
   // Once below the cutoff, the character's face angle is clamped to target.

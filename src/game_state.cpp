@@ -412,7 +412,8 @@ float GameState::CalculateCharacterFacingAngleVelocity(
       (wrong_direction ? config_->face_wrong_direction_accel_bonus() : 1.0f);
   const float angular_velocity_unclamped =
       c.face_angle_velocity() + delta_time * angular_acceleration;
-  const float max_velocity = config_->face_max_velocity();
+  const float max_velocity = config_->face_max_angular_velocity() *
+                             kDegreesToRadians;
   const float angular_velocity =
       mathfu::Clamp(angular_velocity_unclamped, -max_velocity, max_velocity);
 

@@ -1,5 +1,5 @@
 {
-  "character_count": 2,
+  "character_count": 4,
 
   "character_arrangements": [
     {
@@ -94,19 +94,11 @@
   "pie_initial_height": 1.5,
   "pie_arc_height": 5,
   "pie_arc_height_variance": 2,
-
-  // Don't let our game go faster than 100Hz. The game won't look much smoother
-  // or play better at faster frame rates. We'll just be hogging the CPU.
   "min_update_time": 10,
-
-  // Don't let us jump more than 100ms in one simulation update. If we're
-  // debugging, or a task switch happens, we could get super-large update times
-  // that we'd rather just ignore.
   "max_update_time": 100,
-
   "face_delta_to_accel": 0.00031831,
   "face_wrong_direction_accel_bonus": 4.0,
-  "face_max_velocity": 0.72,
+  "face_max_angular_velocity": 1.2,
   "face_snap_to_target_angular_velocity": 0.034,
   "face_snap_to_target_angle": 1.5,
   "face_fake_response_angular_velocity": 0.06,
