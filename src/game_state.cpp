@@ -40,6 +40,18 @@ static const mat4 kRotate90DegreesAboutXAxis(1,  0, 0, 0,
                                              0, -1, 0, 0,
                                              0,  0, 0, 1);
 
+// The data on a pie that just hit a player this frame
+struct ReceivedPie {
+  CharacterId source_id;
+  CharacterId target_id;
+  int damage;
+};
+
+struct EventData {
+  std::vector<ReceivedPie> received_pies;
+  int pie_damage;
+};
+
 GameState::GameState()
     : time_(0),
       camera_position_(0.0f, 0.0f, 0.0f),
@@ -126,8 +138,46 @@ void GameState::ProcessSounds(Character* character, WorldTime delta_time,
   }
 }
 
-void GameState::ProcessEvents(Character* character, WorldTime delta_time,
-                              int queued_damage) {
+void GameState::CreatePie(CharacterId source_id, CharacterId target_id, int damage) {
+  float height = config_->pie_arc_height();
+  height += config_->pie_arc_height_variance() *
+            (mathfu::Random<float>() * 2 - 1);
+  int rotations = config_->pie_rotations();
+  int variance = config_->pie_rotation_variance();
+  rotations += variance ? (rand() % (variance * 2)) - variance : 0;
+  pies_.push_back(AirbornePie(source_id, target_id,
+                              time_, config_->pie_flight_time(),
+                              damage, height, rotations));
+  UpdatePiePosition(&pies_.back());
+}
+
+void GameState::ProcessEvent(Character* character,
+                             unsigned int event,
+                             EventData* event_data) {
+  switch (event) {
+    case EventId_TakeDamage: {
+      for (unsigned int i = 0; i < event_data->received_pies.size(); ++i) {
+        character->set_health(character->health() -
+                              event_data->received_pies[i].damage);
+      }
+      break;
+    }
+    case EventId_ReleasePie: {
+      CreatePie(character->id(), character->target(), character->pie_damage());
+      break;
+    }
+    case EventId_LoadPie: {
+      character->set_pie_damage(event_data->pie_damage);
+      break;
+    }
+    default: {
+      assert(0);
+    }
+  }
+}
+
+void GameState::ProcessEvents(Character* character, EventData* event_data,
+                              WorldTime delta_time) {
   // Process events in timeline.
   const Timeline* const timeline = character->CurrentTimeline();
   if (!timeline)
@@ -140,34 +190,9 @@ void GameState::ProcessEvents(Character* character, WorldTime delta_time,
                                                anim_time + delta_time);
 
   for (int i = start_index; i < end_index; ++i) {
-    const TimelineEvent& timeline_event = *events->Get(i);
-    switch (timeline_event.event())
-    {
-      case EventId_TakeDamage: {
-        character->set_health(character->health() - queued_damage);
-        break;
-      }
-      case EventId_ReleasePie: {
-        float height = config_->pie_arc_height();
-        height += config_->pie_arc_height_variance() *
-                  (mathfu::Random<float>() * 2 - 1);
-        int rotations = config_->pie_rotations();
-        int variance = config_->pie_rotation_variance();
-        rotations += variance ? (rand() % (variance * 2)) - variance : 0;
-        pies_.push_back(AirbornePie(character->id(), character->target(),
-                                    time_, config_->pie_flight_time(),
-                                    character->pie_damage(), height,
-                                    rotations));
-        UpdatePiePosition(&pies_.back());
-        break;
-      }
-      case EventId_LoadPie: {
-        character->set_pie_damage(timeline_event.modifier());
-        break;
-      }
-      default:
-        assert(0);
-    }
+    const TimelineEvent* event = events->Get(i);
+    event_data->pie_damage = event->modifier();
+    ProcessEvent(character, event->event(), event_data);
   }
 }
 
@@ -429,7 +454,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   time_ += delta_time;
 
   // Damage is queued up per character then applied during event processing.
-  std::vector<int> queued_damage(characters_.size(), 0);
+  std::vector<EventData> event_data(characters_.size());
 
   // Update controller to gather state machine inputs.
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
@@ -451,7 +476,10 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     const WorldTime time_since_launch = time_ - pie.start_time();
     if (time_since_launch >= pie.flight_time()) {
       Character& character = characters_[pie.target()];
-      queued_damage[character.id()] += pie.damage();
+      ReceivedPie received_pie = {
+        pie.source(), pie.target(), pie.damage()
+      };
+      event_data[pie.target()].received_pies.push_back(received_pie);
       character.controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
       it = pies_.erase(it);
     }
@@ -485,7 +513,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
 
   // Look to timeline to see what's happening. Make it happen.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessEvents(&characters_[i], delta_time, queued_damage[i]);
+    ProcessEvents(&characters_[i], &event_data[i], delta_time);
   }
 
   // Play the sounds that need to be played at this point in time.

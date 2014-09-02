@@ -28,6 +28,7 @@ namespace splat {
 
 struct Config;
 struct CharacterArrangement;
+struct EventData;
 
 class GameState {
  public:
@@ -80,9 +81,13 @@ private:
   void ProcessSounds(Character* character,
                      WorldTime delta_time,
                      AudioEngine* audio_engine) const;
+  void CreatePie(CharacterId source_id, CharacterId target_id, int damage);
+  void ProcessEvent(Character* character,
+                    unsigned int event,
+                    EventData* event_data);
   void ProcessEvents(Character* character,
-                     WorldTime delta_time,
-                     int queued_damage);
+                     EventData* data,
+                     WorldTime delta_time);
   void UpdatePiePosition(AirbornePie* pie) const;
   CharacterId CalculateCharacterTarget(CharacterId id) const;
   float CalculateCharacterFacingAngleVelocity(const Character& character,
