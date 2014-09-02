@@ -67,8 +67,9 @@ struct Pointer {
     SDL_FingerID id;
     vec2i mousepos;
     vec2i mousedelta;
+    bool used;
 
-    Pointer() : id(0), mousepos(-1), mousedelta(0) {};
+    Pointer() : id(0), mousepos(-1), mousedelta(0), used(false) {};
 };
 
 class InputSystem {

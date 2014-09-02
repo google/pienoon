@@ -159,11 +159,13 @@ void GameState::ProcessEvent(Character* character,
       for (unsigned int i = 0; i < event_data->received_pies.size(); ++i) {
         character->set_health(character->health() -
                               event_data->received_pies[i].damage);
+        characters_[event_data->received_pies[i].source_id].IncrementStat(kHits);
       }
       break;
     }
     case EventId_ReleasePie: {
       CreatePie(character->id(), character->target(), character->pie_damage());
+      character->IncrementStat(kAttacks);
       break;
     }
     case EventId_LoadPie: {

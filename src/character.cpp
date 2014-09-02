@@ -42,6 +42,7 @@ Character::Character(
       position_(mathfu::kZeros3f),
       controller_(controller),
       state_machine_(character_state_machine_def) {
+  for (int i = 0; i < kMaxStats; i++) player_stats_[i] = 0;
 }
 
 void Character::Reset(CharacterId target, CharacterHealth health,
@@ -78,6 +79,11 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
   // Return the renderable id for 'anim_time'.
   return renderable->renderable();
 }
+
+void Character::IncrementStat(PlayerStats stat) {
+  player_stats_[stat]++;
+}
+
 
 // orientation_ and position_ are set each frame in GameState::Advance.
 AirbornePie::AirbornePie(CharacterId source, CharacterId target,

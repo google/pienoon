@@ -30,6 +30,18 @@ typedef int CharacterHealth;
 typedef int CharacterId;
 typedef int WorldTime;
 
+// The different kinds of statistics we're gathering for each player:
+enum PlayerStats {
+  kWins = 0,  // Last man standing in round.
+  kLosses,    // Died during round.
+  kDraws,     // Simultanuous kill.
+  kAttacks,   // Pies launched.
+  kHits,      // Pies launched that hit without being blocked.
+  kBlocks,    // Pies from others that were blocked.
+  kMisses,    // Pies launched that were blocked.
+  kMaxStats
+};
+
 // The current state of the character. This class tracks information external
 // to the state machine, like health.
 class Character {
@@ -80,6 +92,9 @@ class Character {
   const CharacterStateMachine* state_machine() const { return &state_machine_; }
   CharacterStateMachine* state_machine() { return &state_machine_; }
 
+  void IncrementStat(PlayerStats stat);
+  uint64_t GetStat(PlayerStats stat) { return player_stats_[stat]; }
+
  private:
   // Our own id.
   CharacterId id_;
@@ -112,6 +127,9 @@ class Character {
 
   // The current state of the character.
   CharacterStateMachine state_machine_;
+
+  // The stats we're collecting (see PlayerStats enum above).
+  int64_t player_stats_[kMaxStats];
 };
 
 

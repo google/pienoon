@@ -27,6 +27,12 @@ class GPGManager {
   // Call once a frame to allow us to track our async work.
   void Update();
 
+  // Request this stat to be saved for the logged in
+  // player. Does nothing if not logged in.
+  void SaveStat(const char *stat_id, uint64_t score);
+
+  void ShowLeaderboards();
+
  private:
   // These are the states the manager can be in, in sequential order they
   // are expected to happen.
@@ -38,8 +44,10 @@ class GPGManager {
     kAuthUIStarted,
     kAuthUIFailed,
     kAuthed,
-    kShowingAchievements,
   };
+
+  bool LoggedIn();
+
   AsyncState state;
   std::unique_ptr<gpg::GameServices> game_services_;
 };

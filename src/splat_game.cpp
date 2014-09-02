@@ -556,6 +556,32 @@ void SplatGame::Run() {
     prev_world_time_ = world_time;
 
 #   ifdef PLATFORM_MOBILE
+    // TODO: Normally we'd update player stats at the end of a round, but
+    // since we don't have that state yet, here, for testing, we'll check if
+    // a third finger went down on the touch screen, if so we update the
+    // leaderboards:
+    if (input_.GetButton(SDLK_POINTER3).went_down()) {
+      // TODO: move this elsewhere.
+      static const char *leaderboard_ids[] = {
+        "CgkI97yope0IEAIQAw",  // kWins
+        "CgkI97yope0IEAIQBA",  // kLosses
+        "CgkI97yope0IEAIQBQ",  // kDraws
+        "CgkI97yope0IEAIQAg",  // kAttacks
+        "CgkI97yope0IEAIQBg",  // kHits
+        "CgkI97yope0IEAIQBw",  // kBlocks
+        "CgkI97yope0IEAIQCA",  // kMisses
+      };
+      static_assert(sizeof(leaderboard_ids) / sizeof(const char *) ==
+                    kMaxStats, "update leaderboard_ids");
+      // TODO: For testing, increase stat:
+      game_state_.characters()[0].IncreaseStat(kAttacks);
+      // Now upload all stats:
+      for (int ps = kWins; ps < kMaxStats; ps++) {
+        gpg_manager.SaveStat(leaderboard_ids[ps],
+          game_state_.characters()[0].GetStat(static_cast<PlayerStats>(ps)));
+      }
+      gpg_manager.ShowLeaderboards();
+    }
     gpg_manager.Update();
 #   endif
   }

@@ -134,18 +134,19 @@ Button &InputSystem::GetButton(int button) {
 }
 
 void InputSystem::RemovePointer(size_t i) {
-  pointers_[i].id = 0;
+  pointers_[i].used = false;
 }
 
 size_t InputSystem::FindPointer(SDL_FingerID id) {
   for (size_t i = 0; i < pointers_.size(); i++) {
-    if (pointers_[i].id == id) {
+    if (pointers_[i].used && pointers_[i].id == id) {
       return i;
     }
   }
   for (size_t i = 0; i < pointers_.size(); i++) {
-    if (!pointers_[i].id) {
+    if (!pointers_[i].used) {
       pointers_[i].id = id;
+      pointers_[i].used = true;
       return i;
     }
   }

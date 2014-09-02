@@ -65,6 +65,7 @@ bool GPGManager::Initialize() {
 // Called every frame from the game, to see if there's anything to be done
 // with the async progress from gpg
 void GPGManager::Update() {
+  assert(game_services_);
   switch(state) {
     case kStart:
     case kAutoAuthStarted:
@@ -84,17 +85,31 @@ void GPGManager::Update() {
       break;
     case kAuthed:
       // We're good. TODO: Now start actually using gpg functionality...
-
-      // Submit a high score
-      //game_services_->Leaderboards().SubmitScore("myid", 0);
-
-      // Show the default Achievements UI
-      //game_services_->Achievements().ShowAllUI();
-      //state = kShowingAchievements;
-      break;
-    case kShowingAchievements:
       break;
   }
+}
+
+bool GPGManager::LoggedIn() {
+  assert(game_services_);
+  if (state < kAuthed) {
+    SDL_LogWarn(SDL_LOG_CATEGORY_ERROR,
+                "GPG: player not logged in, can\'t interact with gpg!");
+    return false;
+  }
+  return true;
+}
+
+
+void GPGManager::SaveStat(const char *stat_id, uint64_t score) {
+  if (!LoggedIn()) return;
+  game_services_->Leaderboards().SubmitScore(stat_id, score);
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+              "GPG: submitted score %llu for id %s", score, stat_id);
+}
+
+void GPGManager::ShowLeaderboards() {
+  if (!LoggedIn()) return;
+  game_services_->Leaderboards().ShowAllUI();
 }
 
 }  // fpl
