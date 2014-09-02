@@ -618,8 +618,19 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     const CharacterDepthComparer comparer(camera_position_);
     std::sort(sorted_characters.begin(), sorted_characters.end(), comparer);
 
+    // Render all parts of the character. Note that order matters here. For
+    // example, the arrow appears partially behind the character billboard
+    // (because the arrow is flat on the ground) so it has to be rendered first.
     for (auto c = sorted_characters.begin(); c != sorted_characters.end();
          ++c) {
+      // UI arrow
+      if (config_->draw_ui_arrows()) {
+        const Angle arrow_angle = TargetFaceAngle(c->id());
+        scene->renderables().push_back(
+            Renderable(RenderableId_UiArrow,
+                CalculateUiArrowMatrix(c->position(), arrow_angle, *config_)));
+      }
+
       // Render accessories and splatters on the camera-facing side
       // of the character.
       const Angle towards_camera_angle = Angle::FromXZVector(camera_position_ -
@@ -635,26 +646,26 @@ void GameState::PopulateScene(SceneDescription* scene) const {
           Renderable(renderable_id, character_matrix));
 
       // Accessories.
-      const Timeline* const timeline = c->CurrentTimeline();
-      if (!timeline)
-        continue;
-
-      // Get accessories that are valid for the current time.
-      const std::vector<int> accessory_indices =
-          TimelineIndicesWithTime(timeline->accessories(), anim_time);
-
-      // Create a renderable for each accessory.
       int num_accessories = 0;
-      for (auto it = accessory_indices.begin();
-           it != accessory_indices.end(); ++it) {
-        const TimelineAccessory& accessory = *timeline->accessories()->Get(*it);
-        const vec2 location(accessory.offset().x(), accessory.offset().y());
-        scene->renderables().push_back(
-            Renderable(accessory.renderable(),
-                CalculateAccessoryMatrix(location, mathfu::kOnes2f,
-                                         character_matrix, renderable_id,
-                                         num_accessories, *config_)));
-        num_accessories++;
+      const Timeline* const timeline = c->CurrentTimeline();
+      if (timeline) {
+        // Get accessories that are valid for the current time.
+        const std::vector<int> accessory_indices =
+            TimelineIndicesWithTime(timeline->accessories(), anim_time);
+
+        // Create a renderable for each accessory.
+        for (auto it = accessory_indices.begin();
+             it != accessory_indices.end(); ++it) {
+          const TimelineAccessory& accessory =
+              *timeline->accessories()->Get(*it);
+          const vec2 location(accessory.offset().x(), accessory.offset().y());
+          scene->renderables().push_back(
+              Renderable(accessory.renderable(),
+                  CalculateAccessoryMatrix(location, mathfu::kOnes2f,
+                                           character_matrix, renderable_id,
+                                           num_accessories, *config_)));
+          num_accessories++;
+        }
       }
 
       // Splatter
@@ -670,14 +681,6 @@ void GameState::PopulateScene(SceneDescription* scene) const {
                                          renderable_id, num_accessories,
                                          *config_)));
         num_accessories++;
-      }
-
-      // UI arrow
-      if (config_->draw_ui_arrows()) {
-        const Angle arrow_angle = TargetFaceAngle(c->id());
-        scene->renderables().push_back(
-            Renderable(RenderableId_UiArrow,
-                CalculateUiArrowMatrix(c->position(), arrow_angle, *config_)));
       }
     }
   }

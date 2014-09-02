@@ -349,10 +349,9 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
     // TODO: check amount of lights.
     renderer_.light_pos() = world_matrix_inverse * scene.lights()[0];
 
-    // Draw the front of the cardboard.
-    Mesh* front = GetCardboardFront(id);
-    front->Render(renderer_);
-
+    // Note: Draw order is back-to-front, so draw the cardboard back, then
+    // popsicle stick, then cardboard front--in that order.
+    //
     // If we have a back, draw the back too, slightly offset.
     // The back is the *inside* of the cardboard, representing corrugation.
     if (cardboard_backs_[id]) {
@@ -365,6 +364,10 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
       stick_front_->Render(renderer_);
       stick_back_->Render(renderer_);
     }
+
+    // Draw the front of the cardboard.
+    Mesh* front = GetCardboardFront(id);
+    front->Render(renderer_);
   }
 }
 
