@@ -82,7 +82,9 @@ static inline WorldTime CurrentWorldTime() {
 }
 
 SplatGame::SplatGame()
-    : matman_(renderer_),
+    : state_(kUninitialized),
+      state_entry_time_(0),
+      matman_(renderer_),
       cardboard_fronts_(RenderableId_Count, nullptr),
       cardboard_backs_(RenderableId_Count, nullptr),
       stick_front_(nullptr),
@@ -275,8 +277,6 @@ bool SplatGame::InitializeGameState() {
     game_state_.characters().push_back(Character(
         i, &controllers_[i], state_machine_def));
   }
-
-  game_state_.Reset();
 
   debug_previous_states_.resize(config.character_count(), -1);
   debug_previous_angles_.resize(config.character_count(), Angle(0.0f));
@@ -506,12 +506,60 @@ void SplatGame::MoveCamera() {
   }
 }
 
+SplatState SplatGame::CalculateSplatState() const {
+  const Config& config = GetConfig();
+
+  switch (state_) {
+    case kPlaying:
+      // When we're down to one or zero active characters, the game's over.
+      if (game_state_.NumActiveCharacters() <= 1)
+        return kFinished;
+      break;
+
+    case kFinished: {
+      // Reset after a certain amount of time has passed and someone presses
+      // the throw key.
+      const WorldTime min_finished_time =
+          state_entry_time_ + config.play_finished_timeout();
+      if (prev_world_time_ >= min_finished_time &&
+          (game_state_.AllLogicalInputs() & LogicalInputs_ThrowPie) != 0)
+        return kPlaying;
+      break;
+    }
+
+    default:
+      assert(false);
+  }
+  return state_;
+}
+
+void SplatGame::TransitionToSplatState(SplatState next_state) {
+  assert(state_ != next_state); // Must actually transition.
+
+  switch (next_state) {
+    case kPlaying:
+      game_state_.Reset();
+      break;
+
+    case kFinished:
+      // TODO: call Google Play Games Services to record leaderboard info.
+      break;
+
+    default:
+      assert(false);
+  }
+
+  state_ = next_state;
+  state_entry_time_ = prev_world_time_;
+}
+
 void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   const Config& config = GetConfig();
   const WorldTime min_update_time = config.min_update_time();
   const WorldTime max_update_time = config.min_update_time();
   prev_world_time_ = CurrentWorldTime() - min_update_time;
+  TransitionToSplatState(kPlaying);
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
@@ -558,6 +606,12 @@ void SplatGame::Run() {
 
     // Remember the real-world time from this frame.
     prev_world_time_ = world_time;
+
+    // Advance to the next play state, if required.
+    const SplatState next_state = CalculateSplatState();
+    if (next_state != state_) {
+      TransitionToSplatState(next_state);
+    }
 
 #   ifdef PLATFORM_MOBILE
     // TODO: Normally we'd update player stats at the end of a round, but

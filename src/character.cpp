@@ -54,6 +54,7 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   aim_angle_ = face_angle;
   face_angle_velocity_ = 0.0f;
   position_ = position;
+  state_machine_.Reset();
 }
 
 mat4 Character::CalculateMatrix(bool facing_camera) const {

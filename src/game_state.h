@@ -57,6 +57,18 @@ class GameState {
   // Returns one of the RenderableId enums.
   uint16_t CharacterState(CharacterId id) const;
 
+  // Returns an OR of all the character's logical inputs.
+  uint32_t AllLogicalInputs() const;
+
+  // Returns the number of characters who are still in the game (that is,
+  // are not KO'd or otherwise incapacitated).
+  int NumActiveCharacters() const;
+
+  // Returns true if the character cannot turn, either because the
+  // character has only one valid direction to face, or because the
+  // character is incapacitated.
+  bool IsImmobile(CharacterId id) const;
+
   const mathfu::vec3& camera_position() const { return camera_position_; }
   void set_camera_position(const mathfu::vec3& position) {
     camera_position_ = position;
@@ -98,8 +110,6 @@ private:
   float CalculateCharacterFacingAngleVelocity(const Character& character,
                                               WorldTime delta_time) const;
   mathfu::mat4 CameraMatrix() const;
-  int NumActiveCharacters() const;
-  bool IsImmobile(CharacterId id) const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
   int FakeResponseToTurn(CharacterId id, Angle delta_angle,

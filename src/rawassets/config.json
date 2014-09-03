@@ -107,6 +107,7 @@
   "face_fake_response_boost_angular_velocity": 0.3,
   "first_airborne_pie_renderable": "PieEmpty",
   "last_airborne_pie_renderable": "PieLarge",
+  "play_finished_timeout": 2000,
 
 
   "window_size": { "x": 1280, "y": 800 },

@@ -44,6 +44,9 @@ class CharacterStateMachine {
   CharacterStateMachine(
       const CharacterStateMachineDef* const state_machine_def);
 
+  // Resets back to initial conditions. Assumes time is reseting to 0 too.
+  void Reset();
+
   // Updates the current state of the state machine.
   //
   // inputs is a structure containing the game data that can affect whether or

@@ -54,8 +54,8 @@ struct EventData {
 
 GameState::GameState()
     : time_(0),
-      camera_position_(0.0f, 0.0f, 0.0f),
-      camera_target_(0.0f, 0.0f, 0.0f),
+      camera_position_(mathfu::kZeros3f),
+      camera_target_(mathfu::kZeros3f),
       characters_(),
       pies_(),
       config_(),
@@ -99,7 +99,7 @@ void GameState::Reset() {
   time_ = 0;
   camera_position_ = LoadVec3(config_->camera_position());
   camera_target_ = LoadVec3(config_->camera_target());
-  pies_.empty();
+  pies_.clear();
   arrangement_ = GetBestArrangement(config_, characters_.size());
 
   // Reset characters to their initial state.
@@ -503,6 +503,15 @@ float GameState::CalculateCharacterFacingAngleVelocity(
   // be zero.
   return mathfu::Clamp(delta_angle.ToRadians() / delta_time,
                        -snap_velocity, snap_velocity);
+}
+
+uint32_t GameState::AllLogicalInputs() const {
+  uint32_t inputs = 0;
+  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
+    const Controller* controller = it->controller();
+    inputs |= controller->logical_inputs();
+  }
+  return inputs;
 }
 
 void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {

@@ -33,6 +33,12 @@ struct Config;
 class CharacterStateMachine;
 struct RenderingAssets;
 
+enum SplatState {
+  kUninitialized,
+  kPlaying,
+  kFinished
+};
+
 class SplatGame {
  public:
   SplatGame();
@@ -56,6 +62,16 @@ class SplatGame {
   const Config& GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
+  SplatState CalculateSplatState() const;
+  void TransitionToSplatState(SplatState next_state);
+
+  // The overall operating mode of our game. See CalculateSplatState for the
+  // state machine definition.
+  SplatState state_;
+
+  // The elapsed time when we entered state_. In the same time system as
+  // prev_world_time_.
+  WorldTime state_entry_time_;
 
   // Hold configuration binary data.
   std::string config_source_;

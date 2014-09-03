@@ -22,10 +22,14 @@ namespace splat {
 
 CharacterStateMachine::CharacterStateMachine(
     const CharacterStateMachineDef* const state_machine_def)
-    : state_machine_def_(state_machine_def),
-      current_state_(state_machine_def->states()->Get(
-          state_machine_def_->initial_state())),
-      current_state_start_time_(0) {
+    : state_machine_def_(state_machine_def) {
+  Reset();
+}
+
+void CharacterStateMachine::Reset() {
+  current_state_ =
+      state_machine_def_->states()->Get(state_machine_def_->initial_state());
+  current_state_start_time_ = 0;
 }
 
 bool EvaluateCondition(const Condition* condition,
