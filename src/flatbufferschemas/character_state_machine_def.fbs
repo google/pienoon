@@ -25,17 +25,19 @@ enum StateId:byte {
   Blocking,
   HitByPie,
   KO,
+  Won,
   Count // Must be last
 }
 
-enum LogicalInputs:byte (bit_flags) {
+enum LogicalInputs:ushort (bit_flags) {
   ThrowPie,
   Deflect,
   Left,
   Right,
   JustHit,
   NoHealth,
-  AnimationEnd
+  AnimationEnd,
+  Winning
 }
 
 table Condition {

@@ -21,6 +21,12 @@
             "logical_inputs": "Deflect",
             "time": 100
           }
+        },
+        {
+          "target_state": "Won",
+          "condition": {
+            "logical_inputs": "Winning"
+          }
         }
       ],
       "timeline": {
@@ -52,6 +58,12 @@
           "target_state": "Blocking",
           "condition": {
             "logical_inputs": "Deflect"
+          }
+        },
+        {
+          "target_state": "Won",
+          "condition": {
+            "logical_inputs": "Winning"
           }
         },
         {
@@ -111,6 +123,12 @@
           }
         },
         {
+          "target_state": "Won",
+          "condition": {
+            "logical_inputs": "Winning"
+          }
+        },
+        {
           "target_state": "Loading_3",
           "condition": {
             "logical_inputs": "AnimationEnd"
@@ -148,6 +166,12 @@
     {
       "id": "Loading_3",
       "transitions": [
+        {
+          "target_state": "Won",
+          "condition": {
+            "logical_inputs": "Winning"
+          }
+        },
         {
           "target_state": "HitByPie",
           "condition": {
@@ -353,6 +377,19 @@
           }
         ]
       }
+    },
+    {
+      "id": "Won",
+      "timeline": {
+        "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "RenderableId.CharacterWin"
+          }
+        ]
+      }
     }
+
   ]
 }

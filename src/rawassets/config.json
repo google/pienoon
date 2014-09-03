@@ -479,6 +479,14 @@
       "shadow": true
     },
     {
+      "id": "CharacterWin",
+      "cardboard_front": "materials/character_win.bin",
+      "cardboard_back": "materials/character_win_back.bin",
+      "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "stick": true,
+      "shadow": true
+    },
+    {
       "id": "PieEmpty",
       "cardboard_front": ""
     },

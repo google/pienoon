@@ -312,13 +312,29 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
 
 uint16_t GameState::CharacterState(CharacterId id) const {
   assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));
-  return characters_[id].state_machine()->current_state()->id();
+  return characters_[id].State();
+}
+
+// Return the id of the character who has won the game, if such a character
+// exists. If no character has won, return -1.
+CharacterId GameState::WinningCharacterId() const {
+  // Find the id of the one-and-only character who is still active.
+  CharacterId win_id = -1;
+  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
+    if (it->Active()) {
+      if (win_id < 0)
+        win_id = it->id();
+      else
+        return -1; // More than one character still active, so no winner yet.
+    }
+  }
+  return win_id;
 }
 
 int GameState::NumActiveCharacters() const {
   int num_active = 0;
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    if (CharacterState(it->id()) != StateId_KO)
+    if (it->Active())
       num_active++;
   }
   return num_active;
@@ -525,15 +541,20 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   std::vector<EventData> event_data(characters_.size());
 
   // Update controller to gather state machine inputs.
+  const CharacterId win_id = WinningCharacterId();
   for (unsigned int i = 0; i < characters_.size(); ++i) {
     Character& character = characters_[i];
     Controller* controller = character.controller();
+    const Timeline* timeline =
+        character.state_machine()->current_state()->timeline();
     controller->AdvanceFrame();
     controller->SetLogicalInputs(LogicalInputs_JustHit, false);
-    controller->SetLogicalInputs(LogicalInputs_NoHealth, character.health() <= 0);
-    const Timeline* timeline = character.state_machine()->current_state()->timeline();
+    controller->SetLogicalInputs(LogicalInputs_NoHealth,
+                                 character.health() <= 0);
     controller->SetLogicalInputs(LogicalInputs_AnimationEnd,
         timeline && (GetAnimationTime(character) >= timeline->end_time()));
+    controller->SetLogicalInputs(LogicalInputs_Winning,
+                                 character.id() == win_id);
   }
 
   // Update pies. Modify state machine input when character hit by pie.

@@ -66,6 +66,12 @@ class Character {
     return state_machine_.current_state()->timeline();
   }
 
+  // Returns the current state from the character-state-machine.
+  uint16_t State() const { return state_machine_.current_state()->id(); }
+
+  // Returns true if the character is still in the game.
+  bool Active() const { return State() != StateId_KO; }
+
   CharacterHealth health() const { return health_; }
   void set_health(CharacterHealth health) { health_ = health; }
 

@@ -64,6 +64,11 @@ class GameState {
   // are not KO'd or otherwise incapacitated).
   int NumActiveCharacters() const;
 
+  // Returns the id of the winning character, or -1 if no one has won the game.
+  // Note that not all games have a winner. Some games may end with everyone
+  // KO'd.
+  CharacterId WinningCharacterId() const;
+
   // Returns true if the character cannot turn, either because the
   // character has only one valid direction to face, or because the
   // character is incapacitated.

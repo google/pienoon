@@ -27,6 +27,7 @@ enum RenderableId : ushort {
   CharacterHitByPieFrame2,
   CharacterHitByPieFrame3,
   CharacterKnockedOut,
+  CharacterWin,
   PieEmpty,
   PieSmall,
   PieMedium,
