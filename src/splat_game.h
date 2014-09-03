@@ -64,6 +64,7 @@ class SplatGame {
   Mesh* GetCardboardFront(int renderable_id);
   SplatState CalculateSplatState() const;
   void TransitionToSplatState(SplatState next_state);
+  void UploadStats();
 
   // The overall operating mode of our game. See CalculateSplatState for the
   // state machine definition.

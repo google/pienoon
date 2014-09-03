@@ -109,7 +109,16 @@ void GPGManager::SaveStat(const char *stat_id, uint64_t score) {
 
 void GPGManager::ShowLeaderboards() {
   if (!LoggedIn()) return;
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: launching leaderboard UI");
   game_services_->Leaderboards().ShowAllUI();
+  // This one is in the docs, but not in the headers:
+  /*
+  game_services_->Leaderboards().ShowAllUI([](const gpg::UIStatus &status) {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "GPG: UIStatus is: %d, valid == %d", status,
+                gpg::UIStatus::VALID);
+  });
+  */
 }
 
 }  // fpl

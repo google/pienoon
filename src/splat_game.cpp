@@ -542,7 +542,16 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
       break;
 
     case kFinished:
-      // TODO: call Google Play Games Services to record leaderboard info.
+      for (auto it = game_state_.characters().begin();
+               it != game_state_.characters().end(); ++it) {
+        if (it->health() > 0) {
+          it->IncrementStat(kWins);
+        } else {
+          // TODO: this does not account for draws.
+          it->IncrementStat(kLosses);
+        }
+      }
+      UploadStats();
       break;
 
     default:
@@ -551,6 +560,28 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
 
   state_ = next_state;
   state_entry_time_ = prev_world_time_;
+}
+
+void SplatGame::UploadStats() {
+#   ifdef PLATFORM_MOBILE
+    static const char *leaderboard_ids[] = {
+      "CgkI97yope0IEAIQAw",  // kWins
+      "CgkI97yope0IEAIQBA",  // kLosses
+      "CgkI97yope0IEAIQBQ",  // kDraws
+      "CgkI97yope0IEAIQAg",  // kAttacks
+      "CgkI97yope0IEAIQBg",  // kHits
+      "CgkI97yope0IEAIQBw",  // kBlocks
+      "CgkI97yope0IEAIQCA",  // kMisses
+    };
+    static_assert(sizeof(leaderboard_ids) / sizeof(const char *) ==
+                  kMaxStats, "update leaderboard_ids");
+    // Now upload all stats:
+    // TODO: this assumes player 0 == the logged in player.
+    for (int ps = kWins; ps < kMaxStats; ps++) {
+      gpg_manager.SaveStat(leaderboard_ids[ps],
+        game_state_.characters()[0].GetStat(static_cast<PlayerStats>(ps)));
+    }
+#   endif
 }
 
 void SplatGame::Run() {
@@ -614,30 +645,14 @@ void SplatGame::Run() {
     }
 
 #   ifdef PLATFORM_MOBILE
-    // TODO: Normally we'd update player stats at the end of a round, but
-    // since we don't have that state yet, here, for testing, we'll check if
-    // a third finger went down on the touch screen, if so we update the
-    // leaderboards:
+    // Since we don't have a UI nor any gameplay on Android, for testing,
+    // we'll check if a third finger went down on the touch screen,
+    // if so we update the leaderboards and show the UI:
     if (input_.GetButton(SDLK_POINTER3).went_down()) {
-      // TODO: move this elsewhere.
-      static const char *leaderboard_ids[] = {
-        "CgkI97yope0IEAIQAw",  // kWins
-        "CgkI97yope0IEAIQBA",  // kLosses
-        "CgkI97yope0IEAIQBQ",  // kDraws
-        "CgkI97yope0IEAIQAg",  // kAttacks
-        "CgkI97yope0IEAIQBg",  // kHits
-        "CgkI97yope0IEAIQBw",  // kBlocks
-        "CgkI97yope0IEAIQCA",  // kMisses
-      };
-      static_assert(sizeof(leaderboard_ids) / sizeof(const char *) ==
-                    kMaxStats, "update leaderboard_ids");
-      // TODO: For testing, increase stat:
+      // For testing, increase stat:
       game_state_.characters()[0].IncrementStat(kAttacks);
-      // Now upload all stats:
-      for (int ps = kWins; ps < kMaxStats; ps++) {
-        gpg_manager.SaveStat(leaderboard_ids[ps],
-          game_state_.characters()[0].GetStat(static_cast<PlayerStats>(ps)));
-      }
+      UploadStats();
+      // For testing, show UI:
       gpg_manager.ShowLeaderboards();
     }
     gpg_manager.Update();
