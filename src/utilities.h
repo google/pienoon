@@ -29,16 +29,19 @@ namespace fpl
 
 bool LoadFile(const char *filename, std::string *dest);
 
-inline const mathfu::vec3& LoadVec3(const splat::Vec3* v) {
-  return union_reinterpret_cast<mathfu::vec3, splat::Vec3>(*v);
+inline const mathfu::vec3 LoadVec3(const splat::Vec3* v) {
+  // Note: eschew the constructor that loads contiguous floats. It's faster
+  // than the x, y, z constructor we use here, but doesn't account for the
+  // endian swap that might occur in splat::Vec3::x().
+  return mathfu::vec3(v->x(), v->y(), v->z());
 }
 
-inline const mathfu::vec2i& LoadVec2i(const splat::Vec2i* v) {
-  return union_reinterpret_cast<mathfu::vec2i, splat::Vec2i>(*v);
+inline const mathfu::vec2i LoadVec2i(const splat::Vec2i* v) {
+  return mathfu::vec2i(v->x(), v->y());
 }
 
-inline const mathfu::vec2& LoadVec2(const splat::Vec2* v) {
-  return union_reinterpret_cast<mathfu::vec2, splat::Vec2>(*v);
+inline const mathfu::vec2 LoadVec2(const splat::Vec2* v) {
+  return mathfu::vec2(v->x(), v->y());
 }
 
 bool ChangeToUpstreamDir(const char* const target_dir,

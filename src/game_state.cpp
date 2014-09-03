@@ -631,8 +631,8 @@ static const mat4 CalculateAccessoryMatrix(
 }
 
 static mat4 CalculatePropWorldMatrix(const Prop& prop) {
-  const vec3& scale = LoadVec3(prop.scale());
-  const vec3& position = LoadVec3(prop.position());
+  const vec3 scale = LoadVec3(prop.scale());
+  const vec3 position = LoadVec3(prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
   const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(), mathfu::kAxisY3f);
   const mat4 vertical_orientation_matrix =
