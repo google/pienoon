@@ -19,13 +19,24 @@ project(splat)
 set(SPLAT_DEBUG ON)
 
 # Directory which contains the source for 3rd party libraries.
-set(THIRD_PARTY_ROOT ${CMAKE_SOURCE_DIR}/../../../../external)
+get_filename_component(
+    THIRD_PARTY_ROOT
+    "${CMAKE_SOURCE_DIR}/../../../../external"
+    REALPATH)
 # Directory which contains source for FPL libraries.
-set(FPL_ROOT ${CMAKE_SOURCE_DIR}/../../libs)
+get_filename_component(
+    FPL_ROOT
+    "${CMAKE_SOURCE_DIR}/../../libs"
+    REALPATH)
 
-set(GOOGLETEST_PROJECT_DIR ${FPL_ROOT}/googletest)
+set(dependencies_googletest_dir "${FPL_ROOT}/googletest"
+    CACHE PATH "Directory containing the GoogleTest library.")
 set(FLATBUFFERS_PROJECT_DIR ${FPL_ROOT}/flatbuffers)
-set(MATHFU_PROJECT_DIR ${FPL_ROOT}/mathfu)
+set(dependencies_mathfu_dir "${FPL_ROOT}/mathfu"
+    CACHE PATH "Directory containing the MathFu library.")
+
+# Include MathFu in this project.
+add_subdirectory(${dependencies_mathfu_dir} mathfu)
 
 # Include SDL in this project while working around SDL requirement of out of
 # tree builds.
@@ -105,13 +116,14 @@ include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 include_directories(${sdl_mixer_SOURCE_DIR})
 
 # Executable target.
-add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra
-                -DMATHFU_COMPILE_WITHOUT_SIMD_SUPPORT)
+add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra)
 if(SPLAT_DEBUG)
   add_definitions(-D_DEBUG)
 endif()
 
 add_executable(splat ${splat_SRCS})
+# Additional flags for the target.
+mathfu_configure_flags(splat)
 # Dependencies for the executable target.
 add_dependencies(splat generated_includes assets)
 target_link_libraries(splat
@@ -119,8 +131,7 @@ target_link_libraries(splat
   sdl_mixer
   ${OPENGL_LIBRARIES})
 
-# Include GoogleTest in this project.
-add_subdirectory(${GOOGLETEST_PROJECT_DIR} googletest)
+# Tests.
 add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 
 get_target_property(SPLAT_EXECUTABLE splat LOCATION)

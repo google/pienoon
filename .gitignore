@@ -10,6 +10,7 @@ CMakeLists.txt
 CMakeScripts/
 Makefile
 cmake_install.cmake
+mathfu/
 flatbuffers/
 googletest/
 sdl/

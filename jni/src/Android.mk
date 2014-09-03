@@ -56,11 +56,13 @@ GENERATED_INCLUDES := \
 # Generate a build rule for each header.
 $(foreach schema,$(FLATBUFFERS_SCHEMAS),\
 	$(call flatbuffers_header_build_rule,$(schema)))
-
-# Build includes as a side effect of this empty library.
 .PHONY: generated_includes
-
 generated_includes: $(GENERATED_INCLUDES)
+
+# Build rule which builds assets for the game.
+.PHONY: build_assets
+build_assets:
+	$(hide) $(MAKE) -f $(SPLAT_PATH)/scripts/build_assets.mk FLATC=$(FLATC)
 
 
 include $(CLEAR_VARS)
@@ -69,7 +71,6 @@ LOCAL_MODULE := main
 LOCAL_C_INCLUDES := $(SDL_PATH)/include \
                     $(MIXER_PATH) \
                     $(FLATBUFFERS_PATH)/include \
-                    $(MATHFU_PATH)/include \
                     $(GENERATED_INCLUDES_PATH) \
                     $(GPG_PATH)/include \
                     src
@@ -91,10 +92,12 @@ LOCAL_SRC_FILES := \
 	$(SPLAT_PATH)/src/audio_engine.cpp \
 	$(SPLAT_PATH)/src/sound.cpp
 
-# Make each source file dependent upon the generated_includes target.
+# Make each source file dependent upon the generated_includes and build_assets
+# targets.
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
+$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): build_assets))
 
-LOCAL_STATIC_LIBRARIES := libgpg
+LOCAL_STATIC_LIBRARIES := libgpg libmathfu
 
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_mixer
 
@@ -102,3 +105,6 @@ LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz
 
 include $(BUILD_SHARED_LIBRARY)
 
+$(call import-add-path,$(abspath $(MATHFU_PATH)/..))
+
+$(call import-module,mathfu/jni)

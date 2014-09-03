@@ -13,11 +13,16 @@
 # 2. Altered source versions must be plainly marked as such, and must not be
 # misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.12)
+
+# Import gtest if it's not already present.
+if(NOT TARGET gtest)
+add_subdirectory(${dependencies_googletest_dir} googletest)
+endif()
 
 # Set some variables describing file locations.
-set(GUNIT_INCDIR "${GOOGLETEST_PROJECT_DIR}/include")
-set(GTEST_LIBDIR "${GOOGLETEST_PROJECT_DIR}")
+set(GUNIT_INCDIR "${dependencies_googletest_dir}/include")
+set(GTEST_LIBDIR "${dependencies_googletest_dir}")
 
 # Include helper functions and macros used by Google Test.
 include(${GTEST_LIBDIR}/cmake/internal_utils.cmake)
@@ -56,6 +61,7 @@ function(test_executable name additional_srcs)
   cxx_executable_with_flags(${name}_test "${cxx_default}" "${COMMON_LIBS}"
       ${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}_test.cpp ${SUPPORT_SRCS}
       ${additional_srcs})
+  mathfu_configure_flags(${name}_test)
 endfunction()
 
 test_executable(character_state_machine ../src/character_state_machine.cpp)
