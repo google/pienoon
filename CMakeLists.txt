@@ -31,6 +31,9 @@ set(MATHFU_PROJECT_DIR ${FPL_ROOT}/mathfu)
 # tree builds.
 set(BIN_DIR ${CMAKE_BINARY_DIR})
 set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
+if(APPLE)
+  set(SDL_AUDIO_DRIVER_COREAUDIO 1)
+endif(APPLE)
 add_subdirectory(${THIRD_PARTY_ROOT}/sdl sdl)
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
