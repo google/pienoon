@@ -40,7 +40,7 @@ table Splatter {
   renderable:RenderableId;
 }
 
-struct Prop {
+table Prop {
   // The object to render. See RenderableId enum.
   // TODO: change to ushort once padding warning is fixed.
   renderable:uint;
@@ -58,7 +58,7 @@ struct Prop {
   scale:Vec3;
 }
 
-struct CharacterData {
+table CharacterData {
   // Where the character should be placed in the world.
   position:Vec3;
 

@@ -68,9 +68,9 @@ static Angle InitialFaceAngle(const CharacterArrangement* arrangement,
                               const CharacterId id,
                               const CharacterId target_id) {
   const vec3 characterPosition =
-      LoadVec3(&arrangement->character_data()->Get(id)->position());
+      LoadVec3(arrangement->character_data()->Get(id)->position());
   const vec3 targetPosition =
-      LoadVec3(&arrangement->character_data()->Get(target_id)->position());
+      LoadVec3(arrangement->character_data()->Get(target_id)->position());
   return Angle::FromXZVector(targetPosition - characterPosition);
 }
 
@@ -112,7 +112,7 @@ void GameState::Reset() {
         target_id,
         config_->character_health(),
         InitialFaceAngle(arrangement_, id, target_id),
-        LoadVec3(&arrangement_->character_data()->Get(id)->position()));
+        LoadVec3(arrangement_->character_data()->Get(id)->position()));
   }
 }
 
@@ -631,8 +631,8 @@ static const mat4 CalculateAccessoryMatrix(
 }
 
 static mat4 CalculatePropWorldMatrix(const Prop& prop) {
-  const vec3& scale = LoadVec3(&prop.scale());
-  const vec3& position = LoadVec3(&prop.position());
+  const vec3& scale = LoadVec3(prop.scale());
+  const vec3& position = LoadVec3(prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
   const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(), mathfu::kAxisY3f);
   const mat4 vertical_orientation_matrix =
