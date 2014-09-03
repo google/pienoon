@@ -632,7 +632,7 @@ void SplatGame::Run() {
       static_assert(sizeof(leaderboard_ids) / sizeof(const char *) ==
                     kMaxStats, "update leaderboard_ids");
       // TODO: For testing, increase stat:
-      game_state_.characters()[0].IncreaseStat(kAttacks);
+      game_state_.characters()[0].IncrementStat(kAttacks);
       // Now upload all stats:
       for (int ps = kWins; ps < kMaxStats; ps++) {
         gpg_manager.SaveStat(leaderboard_ids[ps],
