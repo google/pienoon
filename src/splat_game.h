@@ -52,7 +52,7 @@ class SplatGame {
   void Render(const SceneDescription& scene);
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
-  void DebugCamera();
+  void MoveCamera();
   const Config& GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);

@@ -309,11 +309,17 @@ table Config {
   // Translate mouse movement to camera rotation in the world.
   mouse_to_camera_rotation_scale:float;
 
+  // Move the camera when mouse buttons are pressed.
+  allow_camera_movement:bool;
+
   // Print out character states whenever a transition happens.
   print_character_states:bool;
 
   // Print out pie movement when they are airborne.
   print_pie_states:bool;
+
+  // Print out the camera position or target whenever they change.
+  print_camera_orientation:bool;
 }
 
 root_type Config;

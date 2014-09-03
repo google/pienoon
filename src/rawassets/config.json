@@ -139,6 +139,7 @@
   "mouse_to_ground_scale": 0.005,
   "mouse_to_height_scale": 0.0025,
   "mouse_to_camera_rotation_scale": 0.001,
+  "allow_camera_movement": true,
 
   "splatter": [
     {
@@ -526,5 +527,6 @@
   ],
 
   "print_character_states": false,
-  "print_pie_states": false
+  "print_pie_states": false,
+  "print_camera_orientation": false
 }

@@ -421,7 +421,7 @@ void SplatGame::DebugPrintCharacterStates() {
     auto& character = game_state_.characters()[i];
     int id = character.state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
-      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                    "character %d - Health %2d, State %s [%d]\n",
               i, character.health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
@@ -429,7 +429,7 @@ void SplatGame::DebugPrintCharacterStates() {
 
     // Report face angle changes.
     if (debug_previous_angles_[i] != character.face_angle()) {
-      SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                    "character %d - face error %.0f(%.0f) - target %d\n",
           i, game_state_.FaceAngleError(i).ToDegrees(),
           game_state_.TargetFaceAngle(i).ToDegrees(),
@@ -443,7 +443,7 @@ void SplatGame::DebugPrintCharacterStates() {
 void SplatGame::DebugPrintPieStates() {
   for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
     AirbornePie& pie = game_state_.pies()[i];
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                  "Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
            pie.source(), pie.target(), pie.damage(),
            pie.position().x(), pie.position().y(), pie.position().z());
@@ -459,7 +459,7 @@ const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
 }
 
 // Debug function to move the camera if the mouse button is down.
-void SplatGame::DebugCamera() {
+void SplatGame::MoveCamera() {
   const Config& config = GetConfig();
   const vec2 mouse_delta = vec2(input_.pointers_[0].mousedelta);
 
@@ -474,10 +474,11 @@ void SplatGame::DebugCamera() {
     const vec3 new_position = game_state_.camera_position() + camera_delta;
     game_state_.set_camera_position(new_position);
 
-#   ifdef SPLAT_DEBUG_CAMERA
-      SDL_LogDebug("camera position (%.5ff, %.5ff, %.5ff)\n",
-             new_position[0], new_position[1], new_position[2]);
-#   endif
+    if (config.print_camera_orientation()) {
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                   "camera position (%.5ff, %.5ff, %.5ff)\n",
+                   new_position[0], new_position[1], new_position[2]);
+    }
   }
 
   // Move the camera target in the camera plane.
@@ -497,10 +498,11 @@ void SplatGame::DebugCamera() {
     const vec3 new_target = game_state_.camera_target() + target_delta;
     game_state_.set_camera_target(new_target);
 
-#   ifdef SPLAT_DEBUG_CAMERA
-      SDL_LogDebug("camera target (%.5ff, %.5ff, %.5ff)\n",
-             new_target[0], new_target[1], new_target[2]);
-#   endif
+    if (config.print_camera_orientation()) {
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                   "camera target (%.5ff, %.5ff, %.5ff)\n",
+                   new_target[0], new_target[1], new_target[2]);
+    }
   }
 }
 
@@ -535,15 +537,6 @@ void SplatGame::Run() {
     // Update game logic by a variable number of milliseconds.
     game_state_.AdvanceFrame(delta_time, &audio_engine_);
 
-    // Output debug information.
-    if (config.print_character_states()) {
-      DebugPrintCharacterStates();
-    }
-    if (config.print_pie_states()) {
-      DebugPrintPieStates();
-    }
-    DebugCamera();
-
     // Populate 'scene' from the game state--all the positions, orientations,
     // and renderable-ids (which specify materials) of the characters and props.
     // Also specify the camera matrix.
@@ -551,6 +544,17 @@ void SplatGame::Run() {
 
     // Issue draw calls for the 'scene'.
     Render(scene_);
+
+    // Output debug information.
+    if (config.print_character_states()) {
+      DebugPrintCharacterStates();
+    }
+    if (config.print_pie_states()) {
+      DebugPrintPieStates();
+    }
+    if (config.allow_camera_movement()) {
+      MoveCamera();
+    }
 
     // Remember the real-world time from this frame.
     prev_world_time_ = world_time;
