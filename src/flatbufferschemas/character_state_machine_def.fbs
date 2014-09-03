@@ -38,21 +38,29 @@ enum LogicalInputs:byte (bit_flags) {
   AnimationEnd
 }
 
-table TransitionCondition {
+table Condition {
   logical_inputs:LogicalInputs;
   time:int = 0;
   end_time:int = 2147483647; // MAX_INT
 }
 
+table ConditionalEvent {
+  condition:Condition;
+  event:ushort;       // Identify what is happening in the event.
+                      // For Splat, use EventId in splat_common.fbs.
+  modifier:ushort;    // Meaning depends on 'event'. e.g. amount of damage.
+}
+
 table Transition {
   target_state:StateId;
-  condition:TransitionCondition;
+  condition:Condition;
 }
 
 table CharacterState {
   id:StateId;
   transitions:[Transition];
   timeline:Timeline;
+  conditional_events:[ConditionalEvent];
 }
 
 table CharacterStateMachineDef {

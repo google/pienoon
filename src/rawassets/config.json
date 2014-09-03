@@ -94,6 +94,7 @@
   "pie_initial_height": 1.5,
   "pie_arc_height": 5,
   "pie_arc_height_variance": 2,
+  "pie_deflection_mode": "ToTargetOfTarget",
   "min_update_time": 10,
   "max_update_time": 100,
   "face_delta_to_accel": 0.00031831,

@@ -275,7 +275,15 @@
             }
           }
         ]
-      }
+      },
+      "conditional_events": [
+        {
+          "condition": {
+            "logical_inputs": "JustHit"
+          },
+          "event": "EventId.DeflectPie"
+        }
+      ]
     },
     {
       "id": "HitByPie",

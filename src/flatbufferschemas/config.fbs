@@ -22,6 +22,12 @@ enum Orientation : ushort {
   Horizontal
 }
 
+enum PieDeflectionMode : ushort {
+  ToTargetOfTarget,
+  ToSource,
+  ToRandom
+}
+
 table Splatter {
   // Location for the splatter texture to appear.
   location:Vec2i;
@@ -146,6 +152,9 @@ table Config {
 
   // The target angle of the pie when landing, in degrees.
   pie_target_angle:float;
+
+  // Where the pie should be directed when deflected.
+  pie_deflection_mode:PieDeflectionMode;
 
   // The minimum duration a frame can last regardless of how fast the
   // processor is. In ms.

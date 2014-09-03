@@ -106,14 +106,14 @@ TEST(CharacterStateMachineTests, FollowTransitions) {
   CharacterStateMachineDef_Validate(def);
 
   sp::CharacterStateMachine state_machine(def);
-  sp::TransitionInputs correct_input1;
+  sp::ConditionInputs correct_input1;
   correct_input1.logical_inputs = sp::LogicalInputs_ThrowPie;
 
-  sp::TransitionInputs correct_input2;
+  sp::ConditionInputs correct_input2;
   correct_input2.logical_inputs =
       sp::LogicalInputs_ThrowPie | sp::LogicalInputs_Deflect;
 
-  sp::TransitionInputs incorrect_input;
+  sp::ConditionInputs incorrect_input;
   incorrect_input.logical_inputs = sp::LogicalInputs_Deflect;
 
   ASSERT_EQ(state_machine.current_state()->id(), 0);

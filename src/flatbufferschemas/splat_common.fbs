@@ -64,6 +64,7 @@ enum SoundId : ushort {
 enum EventId : ushort {
   TakeDamage,
   ReleasePie,
+  DeflectPie,
   LoadPie
 }
 

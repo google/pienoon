@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include <algorithm>
 #include "character_state_machine.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
@@ -29,22 +28,25 @@ CharacterStateMachine::CharacterStateMachine(
       current_state_start_time_(0) {
 }
 
-void CharacterStateMachine::Update(const TransitionInputs& inputs) {
+bool EvaluateCondition(const Condition* condition,
+                       const ConditionInputs& inputs) {
+  unsigned int required_inputs = condition->logical_inputs();
+  return (inputs.logical_inputs & required_inputs) == required_inputs &&
+         inputs.animation_time >= condition->time() &&
+         inputs.animation_time < condition->end_time();
+}
+
+void CharacterStateMachine::Update(const ConditionInputs& inputs) {
   if (!current_state_->transitions()) {
     return;
   }
   for (auto it = current_state_->transitions()->begin();
        it != current_state_->transitions()->end(); ++it) {
-    const TransitionCondition* condition = it->condition();
+    const Condition* condition = it->condition();
     if (!condition) {
       continue;
     }
-    if ((condition->logical_inputs() & inputs.logical_inputs) !=
-        condition->logical_inputs()) {
-      continue;
-    }
-    if (inputs.animation_time < condition->time() ||
-        condition->end_time() < inputs.animation_time) {
+    if (!EvaluateCondition(condition, inputs)) {
       continue;
     }
     current_state_ = state_machine_def_->states()->Get(it->target_state());

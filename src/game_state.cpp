@@ -120,8 +120,9 @@ WorldTime GameState::GetAnimationTime(const Character& character) const {
   return time_ - character.state_machine()->current_state_start_time();
 }
 
-void GameState::ProcessSounds(Character* character, WorldTime delta_time,
-                              AudioEngine* audio_engine) const {
+void GameState::ProcessSounds(AudioEngine* audio_engine,
+                              Character* character,
+                              WorldTime delta_time) const {
   // Process sounds in timeline.
   const Timeline* const timeline = character->CurrentTimeline();
   if (!timeline)
@@ -138,7 +139,9 @@ void GameState::ProcessSounds(Character* character, WorldTime delta_time,
   }
 }
 
-void GameState::CreatePie(CharacterId source_id, CharacterId target_id, int damage) {
+void GameState::CreatePie(CharacterId source_id,
+                          CharacterId target_id,
+                          int damage) {
   float height = config_->pie_arc_height();
   height += config_->pie_arc_height_variance() *
             (mathfu::Random<float>() * 2 - 1);
@@ -149,6 +152,24 @@ void GameState::CreatePie(CharacterId source_id, CharacterId target_id, int dama
                               time_, config_->pie_flight_time(),
                               damage, height, rotations));
   UpdatePiePosition(&pies_.back());
+}
+
+CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
+  switch (config_->pie_deflection_mode()) {
+    case PieDeflectionMode_ToTargetOfTarget: {
+      return characters_[pie.target_id].target();
+    }
+    case PieDeflectionMode_ToSource: {
+      return pie.source_id;
+    }
+    case PieDeflectionMode_ToRandom: {
+      return rand() % characters_.size();
+    }
+    default: {
+      assert(0);
+      return 0;
+    }
+  }
 }
 
 void GameState::ProcessEvent(Character* character,
@@ -168,6 +189,14 @@ void GameState::ProcessEvent(Character* character,
       character->IncrementStat(kAttacks);
       break;
     }
+    case EventId_DeflectPie: {
+      for (unsigned int i = 0; i < event_data->received_pies.size(); ++i) {
+          ReceivedPie& pie = event_data->received_pies[i];
+          CreatePie(character->id(),
+                    DetermineDeflectionTarget(pie),
+                    pie.damage);
+      }
+    }
     case EventId_LoadPie: {
       character->set_pie_damage(event_data->pie_damage);
       break;
@@ -178,7 +207,8 @@ void GameState::ProcessEvent(Character* character,
   }
 }
 
-void GameState::ProcessEvents(Character* character, EventData* event_data,
+void GameState::ProcessEvents(Character* character,
+                              EventData* event_data,
                               WorldTime delta_time) {
   // Process events in timeline.
   const Timeline* const timeline = character->CurrentTimeline();
@@ -195,6 +225,32 @@ void GameState::ProcessEvents(Character* character, EventData* event_data,
     const TimelineEvent* event = events->Get(i);
     event_data->pie_damage = event->modifier();
     ProcessEvent(character, event->event(), event_data);
+  }
+}
+
+void GameState::PopulateConditionInputs(ConditionInputs* condition_inputs,
+                                        const Character* character) const {
+  condition_inputs->logical_inputs = character->controller()->logical_inputs();
+  condition_inputs->animation_time = GetAnimationTime(*character);
+  condition_inputs->current_time = time_;
+}
+
+void GameState::ProcessConditionalEvents(Character* character,
+                                         EventData* event_data) {
+  auto current_state = character->state_machine()->current_state();
+  if (current_state && current_state->conditional_events()) {
+    ConditionInputs condition_inputs;
+    PopulateConditionInputs(&condition_inputs, character);
+
+    for (auto it = current_state->conditional_events()->begin();
+         it != current_state->conditional_events()->end(); ++it) {
+      const ConditionalEvent* conditional_event = *it;
+      if (EvaluateCondition(conditional_event->condition(), condition_inputs)) {
+        unsigned int event = conditional_event->event();
+        event_data->pie_damage = conditional_event->modifier();
+        ProcessEvent(character, event, event_data);
+      }
+    }
   }
 }
 
@@ -460,14 +516,15 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   std::vector<EventData> event_data(characters_.size());
 
   // Update controller to gather state machine inputs.
-  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    Controller* controller = it->controller();
+  for (unsigned int i = 0; i < characters_.size(); ++i) {
+    Character& character = characters_[i];
+    Controller* controller = character.controller();
     controller->AdvanceFrame();
     controller->SetLogicalInputs(LogicalInputs_JustHit, false);
-    controller->SetLogicalInputs(LogicalInputs_NoHealth, it->health() <= 0);
-    const Timeline* timeline = it->state_machine()->current_state()->timeline();
+    controller->SetLogicalInputs(LogicalInputs_NoHealth, character.health() <= 0);
+    const Timeline* timeline = character.state_machine()->current_state()->timeline();
     controller->SetLogicalInputs(LogicalInputs_AnimationEnd,
-        timeline && (GetAnimationTime(*it) >= timeline->end_time()));
+        timeline && (GetAnimationTime(character) >= timeline->end_time()));
   }
 
   // Update pies. Modify state machine input when character hit by pie.
@@ -492,26 +549,26 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   }
 
   // Update the character state machines and the facing angles.
-  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
+  for (unsigned int i = 0; i < characters_.size(); ++i) {
+    Character& character = characters_[i];
+
     // Update state machines.
-    TransitionInputs transition_inputs;
-    transition_inputs.logical_inputs = it->controller()->logical_inputs();
-    transition_inputs.animation_time = GetAnimationTime(*it);
-    transition_inputs.current_time = time_;
-    it->state_machine()->Update(transition_inputs);
+    ConditionInputs condition_inputs;
+    PopulateConditionInputs(&condition_inputs, &character);
+    character.state_machine()->Update(condition_inputs);
 
     // Update target.
-    const CharacterId target_id = CalculateCharacterTarget(it->id());
-    it->set_target(target_id);
+    const CharacterId target_id = CalculateCharacterTarget(character.id());
+    character.set_target(target_id);
 
     // Update facing/aiming angles.
     const float face_angle_velocity =
-        CalculateCharacterFacingAngleVelocity(*it, delta_time);
+        CalculateCharacterFacingAngleVelocity(character, delta_time);
     const Angle face_angle = Angle::FromWithinThreePi(
-        it->face_angle().ToRadians() + delta_time * face_angle_velocity);
-    it->set_face_angle_velocity(face_angle_velocity);
-    it->set_face_angle(face_angle);
-    it->set_aim_angle(face_angle);
+        character.face_angle().ToRadians() + delta_time * face_angle_velocity);
+    character.set_face_angle_velocity(face_angle_velocity);
+    character.set_face_angle(face_angle);
+    character.set_aim_angle(face_angle);
   }
 
   // Look to timeline to see what's happening. Make it happen.
@@ -519,9 +576,13 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     ProcessEvents(&characters_[i], &event_data[i], delta_time);
   }
 
+  for (unsigned int i = 0; i < characters_.size(); ++i) {
+    ProcessConditionalEvents(&characters_[i], &event_data[i]);
+  }
+
   // Play the sounds that need to be played at this point in time.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessSounds(&characters_[i], delta_time, audio_engine);
+    ProcessSounds(audio_engine, &characters_[i], delta_time);
   }
 }
 

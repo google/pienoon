@@ -29,6 +29,7 @@ namespace splat {
 struct Config;
 struct CharacterArrangement;
 struct EventData;
+struct ReceivedPie;
 
 class GameState {
  public:
@@ -78,13 +79,17 @@ class GameState {
 
 private:
   WorldTime GetAnimationTime(const Character& character) const;
-  void ProcessSounds(Character* character,
-                     WorldTime delta_time,
-                     AudioEngine* audio_engine) const;
+  void ProcessSounds(AudioEngine* audio_engine,
+                     Character* character,
+                     WorldTime delta_time) const;
   void CreatePie(CharacterId source_id, CharacterId target_id, int damage);
+  CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
   void ProcessEvent(Character* character,
                     unsigned int event,
                     EventData* event_data);
+  void PopulateConditionInputs(ConditionInputs* condition_inputs,
+                               const Character* character) const;
+  void ProcessConditionalEvents(Character* character, EventData* event_data);
   void ProcessEvents(Character* character,
                      EventData* data,
                      WorldTime delta_time);

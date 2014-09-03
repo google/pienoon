@@ -23,8 +23,9 @@ namespace splat {
 
 struct CharacterStateMachineDef;
 struct CharacterState;
+struct Condition;
 
-struct TransitionInputs {
+struct ConditionInputs {
   // A set of bits that the state machine will compare against when following
   // transitions.
   int32_t logical_inputs;
@@ -47,7 +48,7 @@ class CharacterStateMachine {
   //
   // inputs is a structure containing the game data that can affect whether or
   // not a state transition occurs
-  void Update(const TransitionInputs& inputs);
+  void Update(const ConditionInputs& inputs);
 
   const CharacterState* current_state() const { return current_state_; }
 
@@ -60,6 +61,9 @@ class CharacterStateMachine {
   const CharacterState* current_state_;
   WorldTime current_state_start_time_;
 };
+
+bool EvaluateCondition(const Condition* condition,
+                       const ConditionInputs& inputs);
 
 // Returns true if the state machine is valid. A valid state machine contains
 // a single state for each state id declared in the StateId enum, and in the
