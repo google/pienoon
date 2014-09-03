@@ -141,7 +141,7 @@
   "mouse_to_camera_rotation_scale": 0.001,
   "allow_camera_movement": true,
 
-  "splatter": [
+  "splatter_accessories": [
     {
       "location": { "x": 0, "y": 0 },
       "scale": {"x": 0.6, "y": 0.6 },
@@ -191,6 +191,61 @@
       "location": { "x": 123, "y": 250 },
       "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter3"
+    }
+  ],
+
+  "health_accessories": [
+    {
+      "location": { "x": -125, "y": 60 },
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": -100, "y": 75},
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": -75, "y": 85 },
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": -50, "y": 90 },
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+
+    {
+      "location": { "x": -115, "y": 40 },
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": -90, "y": 55},
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": -65, "y": 65 },
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": -40, "y": 70 },
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+
+    {
+      "location": { "x": -80, "y": 35},
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": -55, "y": 45 },
+      "scale": {"x": 0.15, "y": 0.15 },
+      "renderable": "Health"
     }
   ],
 
@@ -519,6 +574,10 @@
       "id": "Splatter3",
       "cardboard_front": "materials/splatter3.bin",
       "shadow": true
+    },
+    {
+      "id": "Health",
+      "cardboard_front": "materials/health.bin"
     },
     {
       "id": "UiArrow",

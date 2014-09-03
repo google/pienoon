@@ -28,7 +28,7 @@ enum PieDeflectionMode : ushort {
   ToRandom
 }
 
-table Splatter {
+table FixedAccessory {
   // Location for the splatter texture to appear.
   location:Vec2i;
 
@@ -270,7 +270,11 @@ table Config {
 
   // Where splatter splotches should appear on a character. One splotch appears
   // per point of damage taken.
-  splatter:[Splatter];
+  splatter_accessories:[FixedAccessory];
+
+  // Where hearts should appear on a character. One heart appears per point of
+  // health remaining.
+  health_accessories:[FixedAccessory];
 
   // Initial configuration of stage and environment.
   props:[Prop];

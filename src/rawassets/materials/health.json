@@ -1,0 +1,8 @@
+{
+  shader_basename: "shaders/textured",
+  texture_filenames: [
+    "textures/scribble_heart.tga"
+  ],
+  "blendmode": "ALPHA"
+}
+

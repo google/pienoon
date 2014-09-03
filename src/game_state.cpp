@@ -760,19 +760,41 @@ void GameState::PopulateScene(SceneDescription* scene) const {
         }
       }
 
-      // Splatter
-      unsigned int damage = config_->character_health() - c->health();
-      for (unsigned int i = 0;
-           i < damage && i < config_->splatter()->Length(); ++i) {
-        const Splatter* splatter = config_->splatter()->Get(i);
-        const vec2 location(LoadVec2i(splatter->location()));
-        const vec2 scale(LoadVec2(splatter->scale()));
-        scene->renderables().push_back(
-            Renderable(splatter->renderable(),
-                CalculateAccessoryMatrix(location, scale, character_matrix,
-                                         renderable_id, num_accessories,
-                                         *config_)));
-        num_accessories++;
+      // Splatter and health accessories.
+      // First pass through renders splatter accessories.
+      // Second pass through renders health accessories.
+      struct {
+        const int count;
+        const flatbuffers::Vector<flatbuffers::Offset<FixedAccessory>>*
+            fixed_accessories;
+      } accessories[] = {
+        {
+          config_->character_health() - c->health(),
+          config_->splatter_accessories()
+        },
+        {
+          c->health(),
+          config_->health_accessories()
+        }
+      };
+
+      for (size_t j = 0; j < ARRAYSIZE(accessories); ++j) {
+        const int num_fixed_accessories = std::min(
+            accessories[j].count,
+            static_cast<int>(accessories[j].fixed_accessories->Length()));
+
+        for (int i = 0; i < num_fixed_accessories; ++i) {
+          const FixedAccessory* accessory =
+              accessories[j].fixed_accessories->Get(i);
+          const vec2 location(LoadVec2i(accessory->location()));
+          const vec2 scale(LoadVec2(accessory->scale()));
+          scene->renderables().push_back(
+              Renderable(accessory->renderable(),
+                  CalculateAccessoryMatrix(location, scale, character_matrix,
+                                           renderable_id, num_accessories,
+                                           *config_)));
+          num_accessories++;
+        }
       }
     }
   }
