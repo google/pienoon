@@ -10,20 +10,20 @@ FLATBUFFERS_PATH := ../../libs/flatbuffers
 MATHFU_PATH := ../../libs/mathfu
 GPG_PATH := ../../../../prebuilts/gpg-cpp-sdk/android
 
-# Empty static library which causes headers to be rebuilt from
-# flatbuffers schemas.
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := generated_includes
+# The following block generates build rules which result in headers being
+# rebuilt from flatbuffers schemas.
 
 # Directory that contains the FlatBuffers compiler.
-FLATBUFFERS_PATH?=$(realpath $(SPLAT_PATH)/flatbuffers)
+FLATBUFFERS_FLATC_PATH?=$(realpath $(SPLAT_PATH)/flatbuffers)
 
 # Location of FlatBuffers compiler.
 FLATC?=$(realpath $(firstword \
-            $(wildcard $(FLATBUFFERS_PATH)/flatc*) \
-            $(wildcard $(FLATBUFFERS_PATH)/Release/flatc*) \
-            $(wildcard $(FLATBUFFERS_PATH)/Debug/flatc*)))
+            $(wildcard $(FLATBUFFERS_FLATC_PATH)/flatc*) \
+            $(wildcard $(FLATBUFFERS_FLATC_PATH)/Release/flatc*) \
+            $(wildcard $(FLATBUFFERS_FLATC_PATH)/Debug/flatc*)))
+ifeq (,$(wildcard $(FLATC)))
+$(error flatc binary not found!)
+endif
 
 # Generated includes directory (relative to SPLAT_PATH).
 GENERATED_INCLUDES_PATH := gen/include
@@ -58,12 +58,9 @@ $(foreach schema,$(FLATBUFFERS_SCHEMAS),\
 	$(call flatbuffers_header_build_rule,$(schema)))
 
 # Build includes as a side effect of this empty library.
-$(LOCAL_MODULE): $(GENERATED_INCLUDES)
+.PHONY: generated_includes
 
-# Intentionally empty.
-LOCAL_SRC_FILES :=
-
-include $(BUILD_STATIC_LIBRARY)
+generated_includes: $(GENERATED_INCLUDES)
 
 
 include $(CLEAR_VARS)
@@ -94,7 +91,10 @@ LOCAL_SRC_FILES := \
 	$(SPLAT_PATH)/src/audio_engine.cpp \
 	$(SPLAT_PATH)/src/sound.cpp
 
-LOCAL_STATIC_LIBRARIES := libgpg libgenerated_includes
+# Make each source file dependent upon the generated_includes target.
+$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
+
+LOCAL_STATIC_LIBRARIES := libgpg
 
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_mixer
 
