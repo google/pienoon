@@ -458,21 +458,65 @@ const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
   return fpl::splat::GetCharacterStateMachineDef(state_machine_source_.c_str());
 }
 
+struct ButtonToTranslation {
+  int button;
+  vec3 translation;
+};
+
+static const ButtonToTranslation kDebugCameraButtons[] = {
+  { 'd', mathfu::kAxisX3f },
+  { 'a', -mathfu::kAxisX3f },
+  { 'w', mathfu::kAxisZ3f },
+  { 's', -mathfu::kAxisZ3f },
+  { 'q', mathfu::kAxisY3f },
+  { 'e', -mathfu::kAxisY3f },
+};
+
 // Debug function to move the camera if the mouse button is down.
-void SplatGame::MoveCamera() {
+void SplatGame::DebugCamera() {
   const Config& config = GetConfig();
+
+  // Only move the camera if the left mouse button (or first finger) is down.
+  if (!input_.GetButton(SDLK_POINTER1).is_down())
+    return;
+
+  // Convert key presses to translations along camera axes.
+  vec3 camera_translation(mathfu::kZeros3f);
+  for (size_t i = 0; i < ARRAYSIZE(kDebugCameraButtons); ++i) {
+    const ButtonToTranslation& button = kDebugCameraButtons[i];
+    if (input_.GetButton(button.button).is_down()) {
+      camera_translation += button.translation;
+    }
+  }
+
+  // Camera rotation is a function of how much the mouse is moved (or finger
+  // is dragged).
   const vec2 mouse_delta = vec2(input_.pointers_[0].mousedelta);
 
-  // Translate the camera in world x, y, z coordinates.
-  const bool translate_xz = input_.GetButton(SDLK_POINTER1).is_down();
-  const bool translate_y = input_.GetButton(SDLK_POINTER2).is_down();
-  if (translate_xz || translate_y) {
-    const vec3 camera_delta = vec3(
-        translate_xz ? mouse_delta.x() * config.mouse_to_ground_scale() : 0.0f,
-        translate_y  ? mouse_delta.x() * config.mouse_to_height_scale() : 0.0f,
-        translate_xz ? mouse_delta.y() * config.mouse_to_ground_scale() : 0.0f);
-    const vec3 new_position = game_state_.camera_position() + camera_delta;
+  // Return early if there is no change on the camera.
+  const bool translate = camera_translation[0] != 0.0f ||
+                         camera_translation[1] != 0.0f ||
+                         camera_translation[2] != 0.0f;
+  const bool rotate = mouse_delta[0] != 0.0f || mouse_delta[1] != 0.0f;
+  if (!translate && !rotate)
+    return;
+
+  // Calculate the ortho-normal axes of camera space.
+  vec3 forward = game_state_.camera_target() - game_state_.camera_position();
+  const float dist = forward.Normalize();
+  const vec3 side = vec3::CrossProduct(mathfu::kAxisY3f, forward);
+  const vec3 up = vec3::CrossProduct(side, forward);
+
+  // Convert translation from camera space to world space and scale.
+  if (translate) {
+    const vec3 scale = LoadVec3(config.button_to_camera_translation_scale());
+    const vec3 world_translation = scale * (camera_translation[0] * side +
+                                            camera_translation[1] * up +
+                                            camera_translation[2] * forward);
+    const vec3 new_position = game_state_.camera_position() + world_translation;
+    const vec3 new_target = game_state_.camera_target() + world_translation;
     game_state_.set_camera_position(new_position);
+    game_state_.set_camera_target(new_target);
 
     if (config.print_camera_orientation()) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -482,14 +526,7 @@ void SplatGame::MoveCamera() {
   }
 
   // Move the camera target in the camera plane.
-  const bool rotate = input_.GetButton(SDLK_POINTER3).is_down();
   if (rotate) {
-    // Get axes of camera space.
-    const vec3 up(0.0f, 1.0f, 0.0f);
-    vec3 forward = game_state_.camera_target() - game_state_.camera_position();
-    const float dist = forward.Normalize();
-    const vec3 side = vec3::CrossProduct(up, forward);
-
     // Apply mouse movement along up and side axes. Scale so that no matter
     // distance, the same angle is applied.
     const float scale = dist * config.mouse_to_camera_rotation_scale();
@@ -632,7 +669,7 @@ void SplatGame::Run() {
       DebugPrintPieStates();
     }
     if (config.allow_camera_movement()) {
-      MoveCamera();
+      DebugCamera();
     }
 
     // Remember the real-world time from this frame.
