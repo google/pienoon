@@ -136,19 +136,28 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 
 get_target_property(SPLAT_EXECUTABLE splat LOCATION)
 
-# The set of files and folders to export for non-programmers.
-set(EXPORT_FILES
-    ${CMAKE_SOURCE_DIR}/assets
-    ${CMAKE_SOURCE_DIR}/run.command
-    ${CMAKE_SOURCE_DIR}/scripts/build_assets.mk
-    ${CMAKE_SOURCE_DIR}/src/flatbufferschemas
-    ${CMAKE_SOURCE_DIR}/src/rawassets
-    ${SPLAT_EXECUTABLE}
-    ${FLATBUFFERS_FLATC})
+# Convert executable paths to relative paths.
+# NOTE: This only works if the executables are under the project directory
+# (default location).
+string(REPLACE "${CMAKE_SOURCE_DIR}/" "" SPLAT_EXECUTABLE_RELATIVE
+       "${SPLAT_EXECUTABLE}")
+string(REPLACE "${CMAKE_SOURCE_DIR}/" "" FLATBUFFERS_FLATC_RELATIVE
+       "${FLATBUFFERS_FLATC}")
 
-# Create a zipped tar of all the necessary files to run the game
+# The set of files and folders to export for non-programmers.
+# NOTE: Paths should be absolute paths under the project directory.
+set(EXPORT_FILES
+    assets
+    run.command
+    scripts/build_assets.mk
+    src/flatbufferschemas
+    src/rawassets
+    ${SPLAT_EXECUTABLE_RELATIVE}
+    ${FLATBUFFERS_FLATC_RELATIVE})
+
+# Create a zipped tar of all the necessary files to run the game.
 add_custom_target(export
-  COMMAND tar -czvf ${CMAKE_SOURCE_DIR}/splat.tar.gz ${EXPORT_FILES}
+  COMMAND cd ${CMAKE_SOURCE_DIR} && tar -czvf splat.tar.gz ${EXPORT_FILES}
   DEPENDS splat
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..)
 
