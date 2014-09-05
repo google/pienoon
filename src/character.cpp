@@ -30,15 +30,13 @@ namespace fpl {
 namespace splat {
 
 Character::Character(
-    CharacterId id, Controller* controller,
+    CharacterId id, Controller* controller, const Config& config,
     const CharacterStateMachineDef* character_state_machine_def)
-    : id_(id),
+    : config_(&config),
+      id_(id),
       target_(0),
       health_(0),
       pie_damage_(0),
-      face_angle_(Angle(0.0f)),
-      face_angle_velocity_(0.0f),
-      aim_angle_(Angle(0.0f)),
       position_(mathfu::kZeros3f),
       controller_(controller),
       state_machine_(character_state_machine_def) {
@@ -50,16 +48,31 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   target_ = target;
   health_ = health;
   pie_damage_ = 0;
-  face_angle_ = face_angle;
-  aim_angle_ = face_angle;
-  face_angle_velocity_ = 0.0f;
   position_ = position;
   state_machine_.Reset();
+
+  face_angle_.Initialize(*config_->face_angle_constraints(),
+                         *config_->face_angle_magnet_def(),
+                         MagnetState1f(face_angle.ToRadians(), 0.0f));
+}
+
+void Character::SetTarget(CharacterId target, Angle angle_to_target) {
+  target_ = target;
+  face_angle_.SetTargetPosition(angle_to_target.ToRadians());
+}
+
+void Character::TwitchFaceAngle(MagnetTwitch twitch) {
+  face_angle_.Twitch(twitch);
+}
+
+void Character::AdvanceFrame(WorldTime delta_time) {
+  face_angle_.AdvanceFrame(delta_time);
 }
 
 mat4 Character::CalculateMatrix(bool facing_camera) const {
+  const Angle face_angle = FaceAngle();
   return mat4::FromTranslationVector(position_) *
-         mat4::FromRotationMatrix(face_angle_.ToXZRotationMatrix()) *
+         mat4::FromRotationMatrix(face_angle.ToXZRotationMatrix()) *
          mat4::FromScaleVector(vec3(1.0f, 1.0f, facing_camera ? 1.0f : -1.0f));
 }
 

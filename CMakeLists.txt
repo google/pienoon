@@ -113,27 +113,49 @@ endif()
 
 # Splat source files.
 set(splat_SRCS
+    src/ai_controller.h
     src/ai_controller.cpp
+    src/angle.h
+    src/audio_engine.h
     src/audio_engine.cpp
+    src/character.h
     src/character.cpp
+    src/character_state_machine.h
     src/character_state_machine.cpp
+    src/common.h
+    src/controller.h
     src/controller.cpp
+    src/game_state.h
     src/game_state.cpp
+    src/gamepad_controller.h
     src/gamepad_controller.cpp
+    src/glplatform.h
+    src/gpg_manager.h
+    src/input.h
     src/input.cpp
     src/main.cpp
+    src/material_manager.h
     src/material_manager.cpp
+    src/player_controller.h
     src/player_controller.cpp
     src/shader.h
     src/shader.cpp
     src/mesh.h
     src/mesh.cpp
     src/material.h
+    src/magnet_base.h
+    src/magnet1f.cpp
+    src/magnet1f.h
     src/material.cpp
+    src/precompiled.h
     src/renderer.h
     src/renderer.cpp
+    src/scene_description.h
+    src/sound.h
     src/sound.cpp
+    src/splat_game.h
     src/splat_game.cpp
+    src/utilities.h
     src/utilities.cpp)
 
 # Includes for this project.

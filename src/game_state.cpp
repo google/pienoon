@@ -20,6 +20,7 @@
 #include "splat_common_generated.h" // TODO: put in alphabetical order when
                                     // FlatBuffers predeclare bug fixed.
 #include "audio_config_generated.h"
+#include "magnet_generated.h"
 #include "config_generated.h"
 #include "controller.h"
 #include "scene_description.h"
@@ -426,15 +427,6 @@ Angle GameState::TiltTowardsStageFront(const Angle angle) const
     return result;
 }
 
-// Difference between target face angle and current face angle.
-Angle GameState::FaceAngleError(CharacterId id) const {
-  const Character& c = characters_[id];
-  const Angle target_angle = TargetFaceAngle(id);
-  const Angle tilted_angle = TiltTowardsStageFront(target_angle);
-  const Angle face_angle_error = tilted_angle - c.face_angle();
-  return face_angle_error;
-}
-
 // Return true if the character cannot turn left or right.
 bool GameState::IsImmobile(CharacterId id) const {
   return CharacterState(id) == StateId_KO || NumActiveCharacters() <= 2;
@@ -446,81 +438,18 @@ bool GameState::IsImmobile(CharacterId id) const {
 // Returns 0 if we should not fake a turn. 1 if we should fake turn towards the
 // next character id. -1 if we should fake turn towards the previous character
 // id.
-int GameState::FakeResponseToTurn(CharacterId id, Angle delta_angle,
-                                  float angular_velocity) const {
+MagnetTwitch GameState::FakeResponseToTurn(CharacterId id) const {
   // We only want to fake the turn response when the character is immobile.
   // If the character can move, we'll just let the move happen normally.
   if (!IsImmobile(id))
-    return 0;
+    return kMagnetTwitchNone;
 
   // If the user has not requested any movement, then no need to move.
   const int requested_turn = RequestedTurn(id);
   if (requested_turn == 0)
-    return 0;
+    return kMagnetTwitchNone;
 
-  // Only fake a movement if we're mostly stopped, and already facing the
-  // target.
-  const float stopped_velocity =
-      config_->face_fake_response_angular_velocity() * kDegreesToRadians;
-  const Angle stopped_angle =
-      Angle::FromDegrees(config_->face_fake_response_angle());
-  const bool still_moving = fabs(angular_velocity) > stopped_velocity &&
-                            delta_angle.Abs() > stopped_angle;
-  if (still_moving)
-    return 0;
-
-  // Return 1 or -1, representing the direction we want to turn.
-  return requested_turn;
-}
-
-// The character's face angle accelerates towards the
-float GameState::CalculateCharacterFacingAngleVelocity(
-    const Character& c, WorldTime delta_time) const {
-
-  // Calculate the current error in our facing angle.
-  const Angle delta_angle = FaceAngleError(c.id());
-
-  // Increment our current face angle velocity.
-  const bool wrong_direction =
-      c.face_angle_velocity() * delta_angle.ToRadians() < 0.0f;
-  const float angular_acceleration =
-      delta_angle.ToRadians() * config_->face_delta_to_accel() *
-      (wrong_direction ? config_->face_wrong_direction_accel_bonus() : 1.0f);
-  const float angular_velocity_unclamped =
-      c.face_angle_velocity() + delta_time * angular_acceleration;
-  const float max_velocity = config_->face_max_angular_velocity() *
-                             kDegreesToRadians;
-  const float angular_velocity =
-      mathfu::Clamp(angular_velocity_unclamped, -max_velocity, max_velocity);
-
-  // We're close to facing the target, so check to see if we're immobile
-  // and requesting motion. If so, give a motion push in the requested
-  // direction. This ensures that the character is always respecting turn
-  // inputs, which is important for input feedback.
-  const int fake_response = FakeResponseToTurn(c.id(), delta_angle,
-                                               angular_velocity);
-  if (fake_response != 0) {
-    const float boost_velocity =
-        config_->face_fake_response_boost_angular_velocity() *
-        kDegreesToRadians;
-    return fake_response < 0 ? -boost_velocity : boost_velocity;
-  }
-
-  // If we're far from facing the target, use the velocity calculated above.
-  const float snap_velocity =
-      config_->face_snap_to_target_angular_velocity() * kDegreesToRadians;
-  const Angle snap_angle =
-      Angle::FromDegrees(config_->face_snap_to_target_angle());
-  const bool snap_to_target = fabs(angular_velocity) <= snap_velocity &&
-                              delta_angle.Abs() <= snap_angle;
-  if (!snap_to_target)
-    return angular_velocity;
-
-  // Set the velocity so that next time through we're exactly on the target
-  // angle. Note that if we're already on the target angle, the velocity will
-  // be zero.
-  return mathfu::Clamp(delta_angle.ToRadians() / delta_time,
-                       -snap_velocity, snap_velocity);
+  return requested_turn > 0 ? kMagnetTwitchPositive : kMagnetTwitchNegative;
 }
 
 uint32_t GameState::AllLogicalInputs() const {
@@ -589,18 +518,20 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     PopulateConditionInputs(&condition_inputs, &character);
     character.state_machine()->Update(condition_inputs);
 
-    // Update target.
+    // Update character's target.
     const CharacterId target_id = CalculateCharacterTarget(character.id());
-    character.set_target(target_id);
+    const Angle target_angle =
+        AngleBetweenCharacters(character.id(), target_id);
+    const Angle tilted_angle = TiltTowardsStageFront(target_angle);
+    character.SetTarget(target_id, tilted_angle);
 
-    // Update facing/aiming angles.
-    const float face_angle_velocity =
-        CalculateCharacterFacingAngleVelocity(character, delta_time);
-    const Angle face_angle = Angle::FromWithinThreePi(
-        character.face_angle().ToRadians() + delta_time * face_angle_velocity);
-    character.set_face_angle_velocity(face_angle_velocity);
-    character.set_face_angle(face_angle);
-    character.set_aim_angle(face_angle);
+    // If we're requesting a turn but can't turn, move the face angle
+    // anyway to fake a response.
+    const MagnetTwitch twitch = FakeResponseToTurn(character.id());
+    character.TwitchFaceAngle(twitch);
+
+    // Update each character's simulation.
+    character.AdvanceFrame(delta_time);
   }
 
   // Look to timeline to see what's happening. Make it happen.
@@ -759,7 +690,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       // of the character.
       const Angle towards_camera_angle = Angle::FromXZVector(camera_position_ -
                                                        c->position());
-      const Angle face_to_camera_angle = c->face_angle() - towards_camera_angle;
+      const Angle face_to_camera_angle = c->FaceAngle() - towards_camera_angle;
       const bool facing_camera = face_to_camera_angle.ToRadians() < 0.0f;
 
       // Character.

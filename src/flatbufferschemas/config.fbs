@@ -14,6 +14,7 @@
 
 include "splat_common.fbs";
 include "audio_config.fbs";
+include "magnet.fbs";
 
 namespace fpl.splat;
 
@@ -179,43 +180,10 @@ table Config {
   // super-large update times that we'd rather just ignore.
   max_update_time:int;
 
-  // These values can be tuned to adjust the turning speed and wobble when
+  // Defines the turning speed and wobble of the character's face angle, when
   // changing targets.
-  //
-  // Acceleration is a multiple of the face angle error. Bigger values make
-  // the character accellerate faster. In (radians/tick/tick) / radians.
-  face_delta_to_accel:float;
-
-  // When accelerating away from the target, we multiply our acceleration by
-  // this amount. We need counter-acceleration to be stronger so that the
-  // amplitude eventually dies down.
-  face_wrong_direction_accel_bonus:float;
-
-  // Maximum angular velocity that the character can spin. In degrees/tick.
-  face_max_angular_velocity:float;
-
-  // Cutoff to determine if the character face angle is pretty well at target.
-  // Once below the cutoff, the character's face angle is clamped to target.
-  // In degrees/tick.
-  face_snap_to_target_angular_velocity:float;
-
-  // Cutoff to determine if the chracter's face angle is pretty well at target.
-  // In degrees.
-  face_snap_to_target_angle:float;
-
-  // Even when the character is immobile, we still want to respond to turn
-  // requests by wiggling a little bit. We only respond when the character is
-  // mostly stationary, however. These two cutoffs are used to determine if
-  // we're "mostly stationary".
-  face_fake_response_angular_velocity:float;
-  face_fake_response_angle:float;
-
-  // When we're immobile but we decide to respond to the turn request anyway,
-  // we give the character this boost to angular velocity. Note that we only
-  // boost the angular velocity when the character is stationary, and once we
-  // boost the character, the character is no longer stationary, so the velocity
-  // effect won't stack.
-  face_fake_response_boost_angular_velocity:float;
+  face_angle_constraints:MagnetConstraints1f;
+  face_angle_magnet_def:OvershootMagnet1fDef;
 
   // The id of the first pie and last pie. Intermediate pie material id's are
   // assumed to be in between these two ids.

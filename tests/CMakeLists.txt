@@ -67,4 +67,5 @@ endfunction()
 test_executable(character_state_machine ../src/character_state_machine.cpp)
 test_executable(audio_engine ../src/audio_engine.cpp ../src/sound.cpp)
 test_executable(angle ../src/angle.h)
+test_executable(magnets ../src/magnet1f.cpp)
 

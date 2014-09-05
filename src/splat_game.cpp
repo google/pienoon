@@ -23,6 +23,7 @@
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
 #include "audio_config_generated.h"
+#include "magnet_generated.h"
 #include "config_generated.h"
 #include "splat_game.h"
 #include "utilities.h"
@@ -72,8 +73,7 @@ SplatGame::SplatGame()
       shader_textured_(nullptr),
       shadow_mat_(nullptr),
       prev_world_time_(0),
-      debug_previous_states_(),
-      debug_previous_angles_() {
+      debug_previous_states_() {
 }
 
 SplatGame::~SplatGame() {
@@ -275,22 +275,21 @@ bool SplatGame::InitializeGameState() {
 
 #if defined(__ANDROID__)
       game_state_.characters().push_back(Character(i, &DEBUG_gamepad_controller_,
-                                                   state_machine_def));
+                                                   config, state_machine_def));
 #else // defined(__ANDROID_ )
-          game_state_.characters().push_back(Character(i, &controllers_[i],
-                                                       state_machine_def));
+      game_state_.characters().push_back(Character(i, &controllers_[i],
+                                                   config, state_machine_def));
 #endif // !defined(_ANDROID_)
 
     else
       game_state_.characters().push_back(Character(i, &ai_controllers_[i],
-                                                   state_machine_def));
+                                                   config, state_machine_def));
 
-      // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
-      DEBUG_gamepad_controller_.Initialize(&input_, 0);
+    // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
+    DEBUG_gamepad_controller_.Initialize(&input_, 0);
   }
 
   debug_previous_states_.resize(config.character_count(), -1);
-  debug_previous_angles_.resize(config.character_count(), Angle(0.0f));
 
   return true;
 }
@@ -452,16 +451,6 @@ void SplatGame::DebugPrintCharacterStates() {
                    "character %d - Health %2d, State %s [%d]\n",
               i, character.health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
-    }
-
-    // Report face angle changes.
-    if (debug_previous_angles_[i] != character.face_angle()) {
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                   "character %d - face error %.0f(%.0f) - target %d\n",
-          i, game_state_.FaceAngleError(i).ToDegrees(),
-          game_state_.TargetFaceAngle(i).ToDegrees(),
-          character.target());
-      debug_previous_angles_[i] = character.face_angle();
     }
   }
 }

@@ -15,11 +15,16 @@
 #ifndef SPLAT_CHARACTER_H_
 #define SPLAT_CHARACTER_H_
 
+#include "angle.h"
 #include "character_state_machine.h"
+#include "magnet1f.h"
+#include "player_controller.h"
+// TODO: put these in alphabetical order once FlatBuffers predeclare bug fixed.
+#include "audio_config_generated.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
-#include "player_controller.h"
-#include "angle.h"
+#include "magnet_generated.h"
+#include "config_generated.h"
 
 namespace fpl {
 namespace splat {
@@ -46,12 +51,27 @@ class Character {
  public:
   // The Character does not take ownership of the controller or
   // character_state_machine_def pointers.
-  Character(CharacterId id, Controller* controller,
+  Character(CharacterId id, Controller* controller, const Config& config,
             const CharacterStateMachineDef* character_state_machine_def);
 
   // Resets the character to the start-of-game state.
   void Reset(CharacterId target, CharacterHealth health,
              Angle face_angle, const mathfu::vec3& position);
+
+  // Advance the character's internal simulation (e.g. face angle) by
+  // 'delta_time'.
+  void AdvanceFrame(WorldTime delta_time);
+
+  // Fake a reaction to input by making the character's face angle
+  // jitter slightly in the requested direction. Does not change the
+  // target face angle.
+  void TwitchFaceAngle(MagnetTwitch twitch);
+
+  // Gets the character's current face angle.
+  Angle FaceAngle() const { return Angle(face_angle_.Position()); }
+
+  // Sets the character's target and our target face angle.
+  void SetTarget(CharacterId target, Angle angle_to_target);
 
   // Convert the position and face angle into a matrix for rendering.
   mathfu::mat4 CalculateMatrix(bool facing_camera) const;
@@ -76,17 +96,10 @@ class Character {
   CharacterId id() const { return id_; }
 
   CharacterId target() const { return target_; }
-  void set_target(CharacterId target) { target_ = target; }
 
   CharacterHealth pie_damage() const { return pie_damage_; }
   void set_pie_damage(CharacterHealth pie_damage) { pie_damage_ = pie_damage; }
 
-  Angle face_angle() const { return face_angle_; }
-  void set_face_angle(const Angle& angle) { face_angle_ = angle; }
-  float face_angle_velocity() const { return face_angle_velocity_; }
-  void set_face_angle_velocity(float vel) { face_angle_velocity_ = vel; }
-  Angle aim_angle() const { return aim_angle_; }
-  void set_aim_angle(const Angle& angle) { aim_angle_ = angle; }
   mathfu::vec3 position() const { return position_; }
   void set_position(const mathfu::vec3& position) { position_ = position; }
 
@@ -100,6 +113,9 @@ class Character {
   uint64_t GetStat(PlayerStats stat) { return player_stats_[stat]; }
 
  private:
+  // Constant configuration data.
+  const Config* config_;
+
   // Our own id.
   CharacterId id_;
 
@@ -114,14 +130,7 @@ class Character {
   CharacterHealth pie_damage_;
 
   // World angle. Will eventually settle on the angle towards target_.
-  Angle face_angle_;
-
-  // Rate at which face_angle_ is changing. Acceleration changes instantly, but
-  // face angle has some momentum.
-  float face_angle_velocity_;
-
-  // World Angle that the character's aim-pointer should point.
-  Angle aim_angle_;
+  OvershootMagnet1f face_angle_;
 
   // Position of the character in world space.
   mathfu::vec3 position_;

@@ -209,14 +209,22 @@
   "pie_deflection_mode": "ToTargetOfTarget",
   "min_update_time": 10,
   "max_update_time": 100,
-  "face_delta_to_accel": 0.00031831,
-  "face_wrong_direction_accel_bonus": 4.0,
-  "face_max_angular_velocity": 1.2,
-  "face_snap_to_target_angular_velocity": 0.034,
-  "face_snap_to_target_angle": 1.5,
-  "face_fake_response_angular_velocity": 0.06,
-  "face_fake_response_angle": 5,
-  "face_fake_response_boost_angular_velocity": 0.3,
+
+  "face_angle_constraints": {
+    "modular": true,
+    "min": -3.14159265359,
+    "max": 3.14159265359,
+    "max_velocity": 0.021,
+    "max_delta": 3.141
+  },
+  "face_angle_magnet_def": {
+    "acceleration_per_difference": 0.00032,
+    "wrong_direction_acceleration_multiplier": 4.0,
+    "twitch_velocity_boost": 0.0052,
+    "twitch_settled": { "max_difference": 0.026, "max_velocity": 0.00104 },
+    "snap_settled":   { "max_difference": 0.087, "max_velocity": 0.00059 }
+  },
+
   "first_airborne_pie_renderable": "PieEmpty",
   "last_airborne_pie_renderable": "PieLarge",
   "play_finished_timeout": 2000,

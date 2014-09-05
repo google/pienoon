@@ -51,9 +51,6 @@ class GameState {
   // Angle to the character's target.
   Angle TargetFaceAngle(CharacterId id) const;
 
-  // Difference between target face angle and current face angle.
-  Angle FaceAngleError(CharacterId id) const;
-
   // Returns one of the RenderableId enums.
   uint16_t CharacterState(CharacterId id) const;
 
@@ -117,8 +114,7 @@ private:
   mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
-  int FakeResponseToTurn(CharacterId id, Angle delta_angle,
-                         float angular_velocity) const;
+  MagnetTwitch FakeResponseToTurn(CharacterId id) const;
 
   WorldTime time_;
   mathfu::vec3 camera_position_;

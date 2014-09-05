@@ -99,6 +99,7 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/gpg_manager.cpp \
   $(SPLAT_DIR)/src/input.cpp \
   $(SPLAT_DIR)/src/main.cpp \
+  $(SPLAT_DIR)/src/magnet1f.cpp \
   $(SPLAT_DIR)/src/material.cpp \
   $(SPLAT_DIR)/src/material_manager.cpp \
   $(SPLAT_DIR)/src/mesh.cpp \
