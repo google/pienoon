@@ -17,14 +17,6 @@
 
 namespace fpl {
 
-enum {
-  kAttributePosition,
-  kAttributeNormal,
-  kAttributeTangent,
-  kAttributeTexCoord,
-  kAttributeColor
-};
-
 bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
   // Basic SDL initialization, does not actually initialize a Window or OpenGL,
   // typically should not fail.
@@ -179,18 +171,18 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
   if (vs) {
     auto ps = CompileShader(GL_FRAGMENT_SHADER, program, ps_source);
     if (ps) {
-      glBindAttribLocation(program, kAttributePosition, "aPosition");
-      glBindAttribLocation(program, kAttributeNormal,   "aNormal");
-      glBindAttribLocation(program, kAttributeTangent,  "aTangent");
-      glBindAttribLocation(program, kAttributeTexCoord, "aTexCoord");
-      glBindAttribLocation(program, kAttributeColor,    "aColor");
+      glBindAttribLocation(program, Mesh::kAttributePosition, "aPosition");
+      glBindAttribLocation(program, Mesh::kAttributeNormal,   "aNormal");
+      glBindAttribLocation(program, Mesh::kAttributeTangent,  "aTangent");
+      glBindAttribLocation(program, Mesh::kAttributeTexCoord, "aTexCoord");
+      glBindAttribLocation(program, Mesh::kAttributeColor,    "aColor");
       glLinkProgram(program);
       GLint status;
       glGetProgramiv(program, GL_LINK_STATUS, &status);
       if (status == GL_TRUE) {
         auto shader = new Shader(program, vs, ps);
         glUseProgram(program);
-        shader->Initialize();
+        shader->InitializeUniforms();
         return shader;
       }
       GLint length = 0;
@@ -315,188 +307,6 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
 
   // Remember new mode as the current mode.
   blend_mode_ = blend_mode;
-}
-
-void Material::Set(Renderer &renderer) {
-  renderer.SetBlendMode(blend_mode_);
-  shader_->Set(renderer);
-  SetTextures();
-}
-
-void Material::SetTextures() {
-  for (size_t i = 0; i < textures_.size(); i++) {
-    glActiveTexture(GL_TEXTURE0 + i);
-    glBindTexture(GL_TEXTURE_2D, textures_[i]->id);
-  }
-}
-
-void Mesh::SetAttributes(GLuint vbo, const Attribute *attributes, int stride,
-                         const char *buffer) {
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  size_t offset = 0;
-  for (;;) {
-    switch (*attributes++) {
-      case kPosition3f:
-        glEnableVertexAttribArray(kAttributePosition);
-        glVertexAttribPointer(kAttributePosition, 3, GL_FLOAT, false,
-                              stride, buffer + offset);
-        offset += 3 * sizeof(float);
-        break;
-      case kNormal3f:
-        glEnableVertexAttribArray(kAttributeNormal);
-        glVertexAttribPointer(kAttributeNormal, 3, GL_FLOAT, false,
-                              stride, buffer + offset);
-        offset += 3 * sizeof(float);
-        break;
-      case kTangent4f:
-        glEnableVertexAttribArray(kAttributeTangent);
-        glVertexAttribPointer(kAttributeTangent, 3, GL_FLOAT, false,
-                              stride, buffer + offset);
-        offset += 4 * sizeof(float);
-        break;
-      case kTexCoord2f:
-        glEnableVertexAttribArray(kAttributeTexCoord);
-        glVertexAttribPointer(kAttributeTexCoord, 2, GL_FLOAT, false,
-                              stride, buffer + offset);
-        offset += 2 * sizeof(float);
-        break;
-      case kColor4ub:
-        glEnableVertexAttribArray(kAttributeColor);
-        glVertexAttribPointer(kAttributeColor, 4, GL_UNSIGNED_BYTE, true,
-                              stride, buffer + offset);
-        offset += 4;
-        break;
-      case kEND:
-        return;
-    }
-  }
-}
-
-void Mesh::UnSetAttributes(const Attribute *attributes) {
-  for (;;) {
-    switch (*attributes++) {
-      case kPosition3f:
-        glDisableVertexAttribArray(kAttributePosition);
-        break;
-      case kNormal3f:
-        glDisableVertexAttribArray(kAttributeNormal);
-        break;
-      case kTangent4f:
-        glDisableVertexAttribArray(kAttributeTangent);
-        break;
-      case kTexCoord2f:
-        glDisableVertexAttribArray(kAttributeTexCoord);
-        break;
-      case kColor4ub:
-        glDisableVertexAttribArray(kAttributeColor);
-        break;
-      case kEND:
-        return;
-    }
-  }
-}
-
-void Shader::Initialize() {
-  // Look up variables that are standard, but still optionally present in a
-  // shader.
-  uniform_model_view_projection_ = glGetUniformLocation(
-                                        program_, "model_view_projection");
-  uniform_model_ = glGetUniformLocation(program_, "model");
-
-  uniform_color_ = glGetUniformLocation(program_, "color");
-
-  uniform_light_pos_ = glGetUniformLocation(program_, "light_pos");
-  uniform_camera_pos_ = glGetUniformLocation(program_, "camera_pos");
-
-  // Set up the uniforms the shader uses for texture access.
-  char texture_unit_name[] = "texture_unit_#####";
-  for (int i = 0; i < kMaxTexturesPerShader; i++) {
-    snprintf(texture_unit_name, sizeof(texture_unit_name),
-        "texture_unit_%d", i);
-    auto loc = glGetUniformLocation(program_, texture_unit_name);
-    if (loc >= 0) glUniform1i(loc, i);
-  }
-}
-
-void Shader::Set(const Renderer &renderer) const {
-  glUseProgram(program_);
-
-  if (uniform_model_view_projection_ >= 0)
-    glUniformMatrix4fv(uniform_model_view_projection_, 1, false,
-                       &renderer.model_view_projection()[0]);
-  if (uniform_model_ >= 0)
-    glUniformMatrix4fv(uniform_model_, 1, false, &renderer.model()[0]);
-  if (uniform_color_ >= 0) glUniform4fv(uniform_color_, 1, &renderer.color()[0]);
-  if (uniform_light_pos_ >= 0)
-    glUniform3fv(uniform_light_pos_, 1, &renderer.light_pos()[0]);
-  if (uniform_camera_pos_ >= 0)
-    glUniform3fv(uniform_camera_pos_, 1, &renderer.camera_pos()[0]);
-}
-
-Mesh::Mesh(const void *vertex_data, int count, int vertex_size,
-           const Attribute *format)
-    : vertex_size_(vertex_size), format_(format) {
-  glGenBuffers(1, &vbo_);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-  glBufferData(GL_ARRAY_BUFFER, count * vertex_size, vertex_data,
-               GL_STATIC_DRAW);
-}
-
-Mesh::~Mesh() {
-  glDeleteBuffers(1, &vbo_);
-  for (auto it = indices_.begin(); it != indices_.end(); ++it) {
-    glDeleteBuffers(1, &it->ibo);
-  }
-}
-
-void Mesh::AddIndices(const int *index_data, int count, Material *mat) {
-  indices_.push_back(Indices());
-  auto &idxs = indices_.back();
-  idxs.count = count;
-  glGenBuffers(1, &idxs.ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxs.ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(int), index_data,
-               GL_STATIC_DRAW);
-  idxs.mat = mat;
-}
-
-void Mesh::Render(Renderer &renderer, bool ignore_material) {
-  SetAttributes(vbo_, format_, vertex_size_, nullptr);
-  for (auto it = indices_.begin(); it != indices_.end(); ++it) {
-    if (!ignore_material) it->mat->Set(renderer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo);
-    glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0);
-  }
-  UnSetAttributes(format_);
-}
-
-void Mesh::RenderArray(GLenum primitive, int index_count,
-                       const Attribute *format, int vertex_size,
-                       const char *vertices, const int *indices) {
-  SetAttributes(0, format, vertex_size, vertices);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glDrawElements(primitive, index_count, GL_UNSIGNED_INT, indices);
-  UnSetAttributes(format);
-}
-
-void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
-                              const vec2 &tex_bottom_left,
-                              const vec2 &tex_top_right) {
-  static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
-  static int indices[] = { 0, 1, 2, 1, 2, 3 };
-  // vertex format is [x, y, z] [u, v]:
-  float vertices[] = {
-    bottom_left.x(), bottom_left.y(), bottom_left.z(),
-    tex_bottom_left.x(), tex_bottom_left.y(),
-    top_right.x(),   bottom_left.y(), bottom_left.z(),
-    tex_top_right.x(), tex_bottom_left.y(),
-    bottom_left.x(), top_right.y(),   top_right.z(),
-    tex_bottom_left.x(), tex_top_right.y(),
-    top_right.x(),   top_right.y(),   top_right.z(),
-    tex_top_right.x(), tex_top_right.y()
-  };
-  Mesh::RenderArray(GL_TRIANGLES, 6, format, sizeof(float) * 5,
-                    reinterpret_cast<const char *>(vertices), indices);
 }
 
 }  // namespace fpl

@@ -99,6 +99,13 @@ set(splat_SRCS
     src/main.cpp
     src/material_manager.cpp
     src/player_controller.cpp
+    src/shader.h
+    src/shader.cpp
+    src/mesh.h
+    src/mesh.cpp
+    src/material.h
+    src/material.cpp
+    src/renderer.h
     src/renderer.cpp
     src/sound.cpp
     src/splat_game.cpp
