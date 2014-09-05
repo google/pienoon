@@ -14,14 +14,17 @@
 
 #include "precompiled.h"
 
+#include <algorithm>
 #include "audio_config_generated.h"
 #include "audio_engine.h"
 #include "sound.h"
+#include "sound_generated.h"
 #include "sound_assets_generated.h"
-#include "splat_common_generated.h"
 #include "utilities.h"
 
 namespace fpl {
+
+const ChannelId kInvalidChannel = -1;
 
 AudioEngine::~AudioEngine() {
   for (unsigned int i = 0; i < sounds_.size(); ++i) {
@@ -43,6 +46,11 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   // Number of sound that can be played simutaniously.
   Mix_AllocateChannels(config->mixer_channels());
 
+  // We do our own tracking of audio channels so that when a new sound is played
+  // we can determine if one of the currently playing channels is lower priority
+  // so that we can drop it.
+  playing_sounds_.reserve(config->mixer_channels());
+
   // Load the audio buses.
   if (!LoadFile("buses.bin", &buses_source_)) {
     return false;
@@ -54,21 +62,13 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
     return false;
   }
 
-  // Ensure that there is a 1:1 mapping of sound ids to sound assets.
-  const SoundAssets* sound_assets = GetSoundAssets(sound_assets_source.c_str());
-  if (sound_assets->sounds()->Length() != splat::SoundId_Count) {
-    SDL_LogError(
-        SDL_LOG_CATEGORY_ERROR,
-        "Incorrect number of sound assets loaded. Expected %d, got %d\n",
-        splat::SoundId_Count, sound_assets->sounds()->Length());
-    return false;
-  }
-
   // Create a Sound for each sound def
+  const SoundAssets* sound_assets = GetSoundAssets(sound_assets_source.c_str());
   unsigned int sound_count = sound_assets->sounds()->Length();
   sounds_.resize(sound_count);
   for (unsigned int i = 0; i < sound_count; ++i) {
-    if (!sounds_[i].LoadSound(sound_assets->sounds()->Get(i)->c_str())) {
+    const char* filename = sound_assets->sounds()->Get(i)->c_str();
+    if (!sounds_[i].LoadSoundFromFile(filename)) {
       return false;
     }
   }
@@ -76,18 +76,123 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   return true;
 }
 
-void AudioEngine::PlaySound(unsigned int sound_id) {
-  const int kPlayChannelError = -1;
+Sound* AudioEngine::GetSound(unsigned int sound_id) {
   if (sound_id >= sounds_.size()) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't play audio sample: invalid sound_id\n");
+    return nullptr;
+  }
+  return &sounds_[sound_id];
+}
+
+static int AllocatedChannelCount() {
+  // Passing negative values returns the number of allocated channels.
+  return Mix_AllocateChannels(-1);
+}
+
+static int PlayingChannelCount() {
+  // Passing negative values returns the number of playing channels.
+  return Mix_Playing(-1);
+}
+
+static ChannelId FindFreeChannel() {
+  const int allocated_channels = AllocatedChannelCount();
+  if (PlayingChannelCount() < allocated_channels) {
+    for (int i = 0; i < allocated_channels; ++i) {
+      if (!Mix_Playing(i)) {
+        return i;
+      }
+    }
+  }
+  return kInvalidChannel;
+}
+
+// Sort by priority. In the case of two sounds with the same priority, sort
+// the newer one as being higher priority. Higher priority elements have lower
+// indicies.
+int AudioEngine::PriorityComparitor::operator()(
+    const AudioEngine::PlayingSound& a, const AudioEngine::PlayingSound& b) {
+  const float priority_a = (*sounds_)[a.sound_id].GetSoundDef()->priority();
+  const float priority_b = (*sounds_)[b.sound_id].GetSoundDef()->priority();
+  if (priority_a != priority_b) {
+    return (priority_b - priority_a) < 0 ? -1 : 1;
+  } else {
+    return b.start_time - a.start_time;
+  }
+}
+
+// Sort channels with highest priority first.
+void AudioEngine::PrioritizeChannels(
+    const std::vector<Sound>& sounds,
+    std::vector<PlayingSound>* playing_sounds) {
+  std::sort(playing_sounds->begin(), playing_sounds->end(),
+            PriorityComparitor(&sounds));
+}
+
+// Return true if the given AudioEngine::PlayingSound has finished playing.
+bool AudioEngine::CheckFinishedPlaying(
+    const AudioEngine::PlayingSound& playing_sound) {
+  return !Mix_Playing(playing_sound.channel_id);
+}
+
+// Remove all sounds that are no longer playing.
+void AudioEngine::ClearFinishedSounds() {
+  playing_sounds_.erase(std::remove_if(playing_sounds_.begin(),
+                                       playing_sounds_.end(),
+                                       CheckFinishedPlaying),
+                        playing_sounds_.end());
+}
+
+void AudioEngine::PlaySoundId(unsigned int sound_id) {
+  Sound* sound = GetSound(sound_id);
+  if (!sound) {
     return;
   }
-  Sound& sound = sounds_[sound_id];
-  if (Mix_PlayChannel(-1, sound.SelectChunk(), 0) == kPlayChannelError) {
+
+  // Prune sounds that have finished playing.
+  ClearFinishedSounds();
+
+  // Prepare a new AudioEngine::PlayingSound with a tentative channel.
+  AudioEngine::PlayingSound new_sound(sound_id, FindFreeChannel(), world_time_);
+
+  // If there are no empty channels, clear out the one with the lowest priority.
+  if (new_sound.channel_id == kInvalidChannel) {
+    PrioritizeChannels(sounds_, &playing_sounds_);
+    // If the lowest priority sound is lower than the new one, halt it and
+    // remove it from our list. Otherwise, do nothing.
+    PriorityComparitor comparitor(&sounds_);
+    if (comparitor(new_sound, playing_sounds_.back()) < 0) {
+      // Use the channel of the sound we're replacing.
+      new_sound.channel_id = playing_sounds_.back().channel_id;
+      // Dispose of the lowest priority sound.
+      Mix_HaltChannel(new_sound.channel_id);
+      playing_sounds_.pop_back();
+    } else {
+      // The sound was lower priority than all currently playing sounds; do
+      // nothing.
+      return;
+    }
+  }
+
+  // At this point we should not have an invalid channel.
+  assert(new_sound.channel_id != kInvalidChannel);
+
+  // Attempt to play the sound.
+  ChannelId channel_id = Mix_PlayChannel(
+      new_sound.channel_id, sound->SelectChunk(), 0);
+
+  // If it was successful, track it. If not, report an error.
+  if (channel_id != kInvalidChannel) {
+    playing_sounds_.push_back(new_sound);
+  } else {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't play audio sample: %s\n", Mix_GetError());
   }
+}
+
+void AudioEngine::AdvanceFrame(WorldTime world_time) {
+  world_time_ = world_time;
+  // TODO: Update audio volume per channel each frame. b/17316699
 }
 
 }  // namespace fpl

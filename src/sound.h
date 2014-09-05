@@ -45,7 +45,10 @@ class Sample {
 class Sound {
  public:
   // Load the given flatbuffer binary file containing a SoundDef.
-  bool LoadSound(const char* filename);
+  bool LoadSoundFromFile(const char* filename);
+
+  // Load the given flatbuffer data representing a SoundDef.
+  bool LoadSound(const std::string& sound_def_source);
 
   // Unload the data associated with this Sound.
   void Unload();

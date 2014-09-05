@@ -35,25 +35,34 @@ bool Sample::LoadSample(const char* filename) {
   return true;
 }
 
-bool Sound::LoadSound(const char* filename) {
-  // Load the definition for this sound.
+static int LoadSamples(const SoundDef* def,
+                       std::vector<Sample>* samples,
+                       float* sum_of_probabilities) {
+  unsigned int sample_count =
+      def->audio_sample_set() ? def->audio_sample_set()->Length() : 0;
+  samples->resize(sample_count);
+  for (unsigned int i = 0; i < sample_count; ++i) {
+    const AudioSampleSetEntry* entry = def->audio_sample_set()->Get(i);
+    const char* entry_filename = entry->audio_sample()->filename()->c_str();
+    Sample& sample = (*samples)[i];
+    if (!sample.LoadSample(entry_filename)) {
+      return false;
+    }
+    *sum_of_probabilities += entry->playback_probability();
+  }
+  return true;
+}
+
+bool Sound::LoadSound(const std::string& sound_def_source) {
+  source_ = sound_def_source;
+  return LoadSamples(GetSoundDef(), &samples_, &sum_of_probabilities_);
+}
+
+bool Sound::LoadSoundFromFile(const char* filename) {
   if (!LoadFile(filename, &source_)) {
     return false;
   }
-
-  // Load the samples associated with this sound.
-  const SoundDef* def = GetSoundDef();
-  unsigned int sample_count = def->audio_sample_set()->Length();
-  samples_.resize(sample_count);
-  for (unsigned int i = 0; i < sample_count; ++i) {
-    const AudioSampleSetEntry* entry = def->audio_sample_set()->Get(i);
-    if (!samples_[i].LoadSample(entry->audio_sample()->filename()->c_str())) {
-      return false;
-    }
-    sum_of_probabilities_ += entry->playback_probability();
-  }
-
-  return true;
+  return LoadSamples(GetSoundDef(), &samples_, &sum_of_probabilities_);
 }
 
 void Sound::Unload() {

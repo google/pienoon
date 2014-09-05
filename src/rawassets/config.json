@@ -72,7 +72,6 @@
     }
   ],
 
-  // Audio engine configuration.
   "audio": {
     "output_frequency": 44100,
     "output_channels": "Stereo",

@@ -17,10 +17,18 @@
 
 #include "sound.h"
 #include "splat_common_generated.h"
+#include "common.h"
+
+#ifdef FPL_AUDIO_ENGINE_UNIT_TESTS
+#include "gtest/gtest.h"
+#endif  // FPL_AUDIO_ENGINE_UNIT_TESTS
 
 namespace fpl {
 
 struct AudioConfig;
+
+typedef unsigned int SoundId;
+typedef int ChannelId;
 
 class AudioEngine {
  public:
@@ -29,17 +37,61 @@ class AudioEngine {
   bool Initialize(const AudioConfig* config);
 
   // Play a sound associated with the given sound_id.
-  void PlaySound(unsigned int sound_id);
+  void PlaySoundId(SoundId sound_id);
+
+  // Returns the sound associated with the given sound_id.
+  Sound* GetSound(SoundId sound_id);
 
   // TODO: Update audio volume per channel each frame. b/17316699
-  // void AdvanceFrame();
+  void AdvanceFrame(WorldTime world_time);
 
  private:
+#ifdef FPL_AUDIO_ENGINE_UNIT_TESTS
+  FRIEND_TEST(AudioEngineTests, SamePriorityDifferentStartTimes);
+  FRIEND_TEST(AudioEngineTests, IncreasingPriority);
+#endif  // FPL_AUDIO_ENGINE_UNIT_TESTS
+
+  // Represents a sample that is playing on a channel.
+  struct PlayingSound {
+    PlayingSound(SoundId sid, ChannelId cid, WorldTime time)
+        : sound_id(sid),
+          channel_id(cid),
+          start_time(time) {
+    }
+
+    SoundId sound_id;
+    ChannelId channel_id;
+    WorldTime start_time;
+  };
+
+  class PriorityComparitor {
+   public:
+    PriorityComparitor(const std::vector<Sound>* sounds) : sounds_(sounds) {}
+    int operator()(const PlayingSound& a, const PlayingSound& b);
+   private:
+    const std::vector<Sound>* sounds_;
+  };
+
+  // Return true if the given AudioEngine::PlayingSound has finished playing.
+  static bool CheckFinishedPlaying(const PlayingSound& playing_sound);
+
+  // Remove all sounds that are no longer playing.
+  void ClearFinishedSounds();
+
+  static void PrioritizeChannels(
+    const std::vector<Sound>& sounds,
+    std::vector<PlayingSound>* playing_sounds);
+
   // Hold the audio bus list.
   std::string buses_source_;
 
   // Hold the sounds.
   std::vector<Sound> sounds_;
+
+  // The number of sounds currently playing.
+  std::vector<PlayingSound> playing_sounds_;
+
+  WorldTime world_time_;
 };
 
 }  // namespace fpl

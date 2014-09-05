@@ -57,13 +57,14 @@ set(COMMON_LIBS "gtest;SDL2;${CMAKE_THREAD_LIBS_INIT}")
 # generates an executable called CallbackTests which is the result of compiling
 # CallbackTests.cpp along with any files specified by the SUPPORT_SRCS variable.
 
-function(test_executable name additional_srcs)
+function(test_executable name)
   cxx_executable_with_flags(${name}_test "${cxx_default}" "${COMMON_LIBS}"
       ${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}_test.cpp ${SUPPORT_SRCS}
-      ${additional_srcs})
+      ${ARGN})
   mathfu_configure_flags(${name}_test)
 endfunction()
 
 test_executable(character_state_machine ../src/character_state_machine.cpp)
+test_executable(audio_engine ../src/audio_engine.cpp ../src/sound.cpp)
 test_executable(angle ../src/angle.h)
 
