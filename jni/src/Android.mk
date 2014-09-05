@@ -77,6 +77,7 @@ LOCAL_C_INCLUDES := $(SDL_PATH)/include \
 
 LOCAL_SRC_FILES := \
   $(SPLAT_PATH)/$(SDL_PATH)/src/main/android/SDL_android_main.c \
+	$(SPLAT_PATH)/src/ai_controller.cpp \
 	$(SPLAT_PATH)/src/character.cpp \
 	$(SPLAT_PATH)/src/character_state_machine.cpp \
 	$(SPLAT_PATH)/src/game_state.cpp \
