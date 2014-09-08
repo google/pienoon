@@ -20,20 +20,30 @@ set(SPLAT_DEBUG ON)
 
 # Directory which contains the source for 3rd party libraries.
 get_filename_component(
-    THIRD_PARTY_ROOT
-    "${CMAKE_SOURCE_DIR}/../../../../external"
-    REALPATH)
+    third_party_root "${CMAKE_SOURCE_DIR}/../../../../external" REALPATH)
 # Directory which contains source for FPL libraries.
 get_filename_component(
-    FPL_ROOT
-    "${CMAKE_SOURCE_DIR}/../../libs"
-    REALPATH)
+    fpl_root "${CMAKE_SOURCE_DIR}/../../libs" REALPATH)
 
-set(dependencies_googletest_dir "${FPL_ROOT}/googletest"
+# If the dependencies directory exists, assume this is the root directory for
+# all libraries required by this project.
+set(dependencies_root "${CMAKE_SOURCE_DIR}/dependencies")
+if(EXISTS "${dependencies_root}")
+  set(third_party_root "${dependencies_root}")
+  set(fpl_root "${dependencies_root}")
+endif()
+
+# Configurable locations of dependencies of this project.
+set(dependencies_gtest_dir "${fpl_root}/googletest"
     CACHE PATH "Directory containing the GoogleTest library.")
-set(FLATBUFFERS_PROJECT_DIR ${FPL_ROOT}/flatbuffers)
-set(dependencies_mathfu_dir "${FPL_ROOT}/mathfu"
+set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
+    CACHE PATH "Directory containing the Flatbuffers library.")
+set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
+set(dependencies_sdl_dir "${third_party_root}/sdl"
+    CACHE PATH "Directory containing the SDL library.")
+set(dependencies_sdl_mixer_dir "${third_party_root}/sdl_mixer"
+    CACHE PATH "Directory containing the SDL Mixer library.")
 
 # Include MathFu in this project.
 add_subdirectory(${dependencies_mathfu_dir} mathfu)
@@ -45,14 +55,14 @@ set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
 if(APPLE)
   set(SDL_AUDIO_DRIVER_COREAUDIO 1)
 endif(APPLE)
-add_subdirectory(${THIRD_PARTY_ROOT}/sdl sdl)
+add_subdirectory(${dependencies_sdl_dir} sdl)
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
 # Include SDL Mixer. This must come after SDL is included.
-add_subdirectory(${THIRD_PARTY_ROOT}/sdl_mixer sdl_mixer)
+add_subdirectory("${dependencies_sdl_mixer_dir}" sdl_mixer)
 
 # Include FlatBuffers in this project.
-add_subdirectory(${FLATBUFFERS_PROJECT_DIR} flatbuffers)
+add_subdirectory("${dependencies_flatbuffers_dir}" flatbuffers)
 
 # Generate source files for all FlatBuffers schema files under the src
 # directory.
@@ -113,9 +123,8 @@ set(splat_SRCS
 
 # Includes for this project.
 include_directories(src)
-include_directories(${FLATBUFFERS_PROJECT_DIR}/include)
+include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
-include_directories(${MATHFU_PROJECT_DIR}/include)
 
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)

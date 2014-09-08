@@ -17,12 +17,12 @@ cmake_minimum_required(VERSION 2.8.12)
 
 # Import gtest if it's not already present.
 if(NOT TARGET gtest)
-add_subdirectory(${dependencies_googletest_dir} googletest)
+add_subdirectory(${dependencies_gtest_dir} googletest)
 endif()
 
 # Set some variables describing file locations.
-set(GUNIT_INCDIR "${dependencies_googletest_dir}/include")
-set(GTEST_LIBDIR "${dependencies_googletest_dir}")
+set(GUNIT_INCDIR "${dependencies_gtest_dir}/include")
+set(GTEST_LIBDIR "${dependencies_gtest_dir}")
 
 # Include helper functions and macros used by Google Test.
 include(${GTEST_LIBDIR}/cmake/internal_utils.cmake)
@@ -36,10 +36,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 include_directories(${GUNIT_INCDIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}
-                    ${FLATBUFFERS_PROJECT_DIR}/include)
+                    ${dependencies_flatbuffers_dir}/include)
 
 # These are support sources that are used for unit tests.
-set(SUPPORT_SRCS ${FLATBUFFERS_PROJECT_DIR}/src/idl_parser.cpp)
+set(SUPPORT_SRCS ${dependencies_flatbuffers_dir}/src/idl_parser.cpp)
 
 # Common libraries for tests.
 if(NOT MSVC)
