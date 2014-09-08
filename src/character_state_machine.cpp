@@ -34,8 +34,14 @@ void CharacterStateMachine::Reset() {
 
 bool EvaluateCondition(const Condition* condition,
                        const ConditionInputs& inputs) {
-  unsigned int required_inputs = condition->logical_inputs();
-  return (inputs.logical_inputs & required_inputs) == required_inputs &&
+  unsigned int is_down = condition->is_down();
+  unsigned int is_up = condition->is_up();
+  unsigned int went_down = condition->went_down();
+  unsigned int went_up = condition->went_up();
+  return (inputs.is_down & is_down) == is_down &&
+         (~inputs.is_down & is_up) == is_up &&
+         (inputs.went_down & went_down) == went_down &&
+         (inputs.went_up & went_up) == went_up &&
          inputs.animation_time >= condition->time() &&
          inputs.animation_time < condition->end_time();
 }
@@ -47,15 +53,11 @@ void CharacterStateMachine::Update(const ConditionInputs& inputs) {
   for (auto it = current_state_->transitions()->begin();
        it != current_state_->transitions()->end(); ++it) {
     const Condition* condition = it->condition();
-    if (!condition) {
-      continue;
+    if (condition && EvaluateCondition(condition, inputs)) {
+      current_state_ = state_machine_def_->states()->Get(it->target_state());
+      current_state_start_time_ = inputs.current_time;
+      return;
     }
-    if (!EvaluateCondition(condition, inputs)) {
-      continue;
-    }
-    current_state_ = state_machine_def_->states()->Get(it->target_state());
-    current_state_start_time_ = inputs.current_time;
-    return;
   }
 }
 

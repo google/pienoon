@@ -230,7 +230,9 @@ void GameState::ProcessEvents(Character* character,
 
 void GameState::PopulateConditionInputs(ConditionInputs* condition_inputs,
                                         const Character* character) const {
-  condition_inputs->logical_inputs = character->controller()->logical_inputs();
+  condition_inputs->is_down = character->controller()->is_down();
+  condition_inputs->went_down = character->controller()->went_down();
+  condition_inputs->went_up = character->controller()->went_up();
   condition_inputs->animation_time = GetAnimationTime(*character);
   condition_inputs->current_time = time_;
 }
@@ -345,7 +347,7 @@ int GameState::NumActiveCharacters() const {
 // id. -1 if requesting we target the previous character id.
 int GameState::RequestedTurn(CharacterId id) const {
   const Character& c = characters_[id];
-  const uint32_t logical_inputs = c.controller()->logical_inputs();
+  const uint32_t logical_inputs = c.controller()->went_down();
   const int left_jump = arrangement_->character_data()->Get(id)->left_jump();
   const int target_delta = (logical_inputs & LogicalInputs_Left) ? left_jump :
                            (logical_inputs & LogicalInputs_Right) ? -left_jump :
@@ -525,7 +527,7 @@ uint32_t GameState::AllLogicalInputs() const {
   uint32_t inputs = 0;
   for (auto it = characters_.begin(); it != characters_.end(); ++it) {
     const Controller* controller = it->controller();
-    inputs |= controller->logical_inputs();
+    inputs |= controller->is_down();
   }
   return inputs;
 }

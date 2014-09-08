@@ -30,10 +30,18 @@ void PlayerController::Initialize(InputSystem* input_system,
 }
 
 void PlayerController::AdvanceFrame(WorldTime /*delta_time*/) {
-  for (auto it = scheme_->keybinds.begin();
-       it != scheme_->keybinds.end(); ++it) {
-    bool pressed = input_system_->GetButton(it->physical_input).went_down();
-    SetLogicalInputs(it->logical_input, pressed);
+  ClearAllLogicalInputs();
+  for (size_t i = 0; i < scheme_->keybinds.size(); ++i) {
+    const Keybind& keybind = scheme_->keybinds[i];
+    if (input_system_->GetButton(keybind.physical_input).is_down()) {
+      is_down_ |= keybind.logical_input;
+    }
+    if (input_system_->GetButton(keybind.physical_input).went_down()) {
+      went_down_ |= keybind.logical_input;
+    }
+    if (input_system_->GetButton(keybind.physical_input).went_up()) {
+      went_up_ |= keybind.logical_input;
+    }
   }
 }
 

@@ -23,32 +23,28 @@ namespace splat {
 
 class Controller {
  public:
-  Controller() : logical_inputs_(0u) {}
+  Controller() : is_down_(0u), went_down_(0u), went_up_(0u) {}
   virtual ~Controller() {}
 
   // Update the current state of this controller.
   virtual void AdvanceFrame(WorldTime delta_time) = 0;
 
   // Returns the current set of active logical input bits.
-  uint32_t logical_inputs() const { return logical_inputs_; }
+  uint32_t is_down() const { return is_down_; }
+  uint32_t went_down() const { return went_down_; }
+  uint32_t went_up() const { return went_up_; }
 
   // Updates a one or more bits.
-  void SetLogicalInputs(uint32_t bitmap, bool set) {
-    if (set) {
-      logical_inputs_ |= bitmap;
-    } else {
-      logical_inputs_ &= ~bitmap;
-    }
-  }
+  void SetLogicalInputs(uint32_t bitmap, bool set);
 
   // Clear all the currently set logical inputs.
-  void ClearLogicalInputs() {
-      logical_inputs_ = 0;
-  }
+  void ClearAllLogicalInputs();
 
  protected:
   // A bitfield of currently active logical input bits.
-  uint32_t logical_inputs_;
+  uint32_t is_down_;
+  uint32_t went_down_;
+  uint32_t went_up_;
 };
 
 }  // splat

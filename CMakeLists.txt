@@ -111,6 +111,7 @@ set(splat_SRCS
     src/audio_engine.cpp
     src/character.cpp
     src/character_state_machine.cpp
+    src/controller.cpp
     src/game_state.cpp
     src/input.cpp
     src/main.cpp

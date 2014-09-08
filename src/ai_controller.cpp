@@ -21,10 +21,10 @@
 namespace fpl {
 namespace splat {
 
-void AiController::Initialize(GameState* gamestate_ptr,
+void AiController::Initialize(GameState* gamestate,
                               const Config* config,
                               CharacterId character_id) {
-  gamestate_ = gamestate_ptr;
+  gamestate_ = gamestate;
   config_ = config;
   character_id_ = character_id;
 }
@@ -32,18 +32,18 @@ void AiController::Initialize(GameState* gamestate_ptr,
 // Helper function for picking a random number in a range.
 // TODO(ccornell) Put this in Mathfu!
 static int RandIntInRange(int a, int b) {
-    float percent = mathfu::Random<float>();
-    return static_cast<int>(a * (1.0 - percent) + b * percent);
+  int delta = b - a;
+  return rand() % delta + a;
 }
 
 void AiController::AdvanceFrame(WorldTime delta_time) {
-  ClearLogicalInputs();
+  ClearAllLogicalInputs();
   time_to_next_action_ -= delta_time;
   if (time_to_next_action_ > 0) {
     return;
   }
 
-  if (gamestate_->characters()[character_id_].health()<=0) {
+  if (gamestate_->characters()[character_id_].health() <= 0) {
       return;
   }
 
@@ -52,9 +52,8 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
                      config_->ai_maximum_time_between_actions());
 
   float action = mathfu::Random<float>();
-  if (action < config_->ai_chance_to_change_aim())
-  {
-      if (action < config_->ai_chance_to_change_aim()/2) {
+  if (action < config_->ai_chance_to_change_aim()) {
+      if (action < config_->ai_chance_to_change_aim() / 2) {
         SetLogicalInputs(LogicalInputs_Left, true);
       }
       else {
@@ -62,26 +61,24 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
       }
   }
   action -= config_->ai_chance_to_change_aim();
-  if (action >= 0 && action < config_->ai_chance_to_throw())
+  if (action >= 0 && action < config_->ai_chance_to_throw()) {
       SetLogicalInputs(LogicalInputs_ThrowPie, true);
-  // else do nothing.
-
+  } // else do nothing.
 
   if (IsInDanger(character_id_) &&
-          mathfu::Random<float>() < config_->ai_chance_to_block()) {
-      SetLogicalInputs(LogicalInputs_Deflect, true);
+      mathfu::Random<float>() < config_->ai_chance_to_block()) {
+    SetLogicalInputs(LogicalInputs_Deflect, true);
   }
-
 }
 
 // Utility function for checking if someone is in danger.
 bool AiController::IsInDanger(CharacterId id) const {
-    for (size_t i = 0; i < gamestate_->pies().size(); i++) {
-        if (gamestate_->pies()[i].target() == id) {
-            return true;
-        }
+  for (size_t i = 0; i < gamestate_->pies().size(); i++) {
+    if (gamestate_->pies()[i].target() == id) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 }  // splat

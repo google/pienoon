@@ -107,14 +107,14 @@ TEST(CharacterStateMachineTests, FollowTransitions) {
 
   sp::CharacterStateMachine state_machine(def);
   sp::ConditionInputs correct_input1;
-  correct_input1.logical_inputs = sp::LogicalInputs_ThrowPie;
+  correct_input1.is_down = sp::LogicalInputs_ThrowPie;
 
   sp::ConditionInputs correct_input2;
-  correct_input2.logical_inputs =
+  correct_input2.is_down =
       sp::LogicalInputs_ThrowPie | sp::LogicalInputs_Deflect;
 
   sp::ConditionInputs incorrect_input;
-  incorrect_input.logical_inputs = sp::LogicalInputs_Deflect;
+  incorrect_input.is_down = sp::LogicalInputs_Deflect;
 
   ASSERT_EQ(state_machine.current_state()->id(), 0);
   state_machine.Update(correct_input1);

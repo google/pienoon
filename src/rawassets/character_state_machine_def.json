@@ -6,26 +6,26 @@
         {
           "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "JustHit"
+            "went_down": "JustHit"
           }
         },
         {
           "target_state": "Loading_1",
           "condition": {
-            "logical_inputs": "AnimationEnd"
+            "went_down": "AnimationEnd"
           }
         },
         {
           "target_state": "Blocking",
           "condition": {
-            "logical_inputs": "Deflect",
+            "went_down": "Deflect",
             "time": 100
           }
         },
         {
           "target_state": "Won",
           "condition": {
-            "logical_inputs": "Winning"
+            "went_down": "Winning"
           }
         }
       ],
@@ -45,31 +45,31 @@
         {
           "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "JustHit"
+            "went_down": "JustHit"
           }
         },
         {
           "target_state": "Throwing",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "went_down": "ThrowPie"
           }
         },
         {
           "target_state": "Blocking",
           "condition": {
-            "logical_inputs": "Deflect"
+            "went_down": "Deflect"
           }
         },
         {
           "target_state": "Won",
           "condition": {
-            "logical_inputs": "Winning"
+            "went_down": "Winning"
           }
         },
         {
           "target_state": "Loading_2",
           "condition": {
-            "logical_inputs": "AnimationEnd"
+            "went_down": "AnimationEnd"
           }
         }
       ],
@@ -107,31 +107,31 @@
         {
           "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "JustHit"
+            "went_down": "JustHit"
           }
         },
         {
           "target_state": "Throwing",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "went_down": "ThrowPie"
           }
         },
         {
           "target_state": "Blocking",
           "condition": {
-            "logical_inputs": "Deflect"
+            "went_down": "Deflect"
           }
         },
         {
           "target_state": "Won",
           "condition": {
-            "logical_inputs": "Winning"
+            "went_down": "Winning"
           }
         },
         {
           "target_state": "Loading_3",
           "condition": {
-            "logical_inputs": "AnimationEnd"
+            "went_down": "AnimationEnd"
           }
         }
       ],
@@ -169,31 +169,31 @@
         {
           "target_state": "Won",
           "condition": {
-            "logical_inputs": "Winning"
+            "went_down": "Winning"
           }
         },
         {
           "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "JustHit"
+            "went_down": "JustHit"
           }
         },
         {
           "target_state": "Throwing",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "went_down": "ThrowPie"
           }
         },
         {
           "target_state": "Blocking",
           "condition": {
-            "logical_inputs": "Deflect"
+            "went_down": "Deflect"
           }
         },
         {
           "target_state": "Loading_3",
           "condition": {
-            "logical_inputs": "AnimationEnd"
+            "went_down": "AnimationEnd"
           }
         }
       ],
@@ -231,13 +231,13 @@
         {
           "target_state": "Idling",
           "condition": {
-            "logical_inputs": "AnimationEnd"
+            "went_down": "AnimationEnd"
           }
         },
         {
           "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "JustHit"
+            "went_down": "JustHit"
           }
         }
       ],
@@ -270,13 +270,13 @@
         {
           "target_state": "Idling",
           "condition": {
-            "logical_inputs": "AnimationEnd"
+            "went_up": "Deflect"
           }
         },
         {
           "target_state": "Loading_1",
           "condition": {
-            "logical_inputs": "ThrowPie"
+            "went_down": "ThrowPie"
           }
         }
       ],
@@ -291,7 +291,7 @@
         "accessories": [
           {
             "time": 50,
-            "end_time": 1000,
+            "end_time": 65000,
             "renderable": "RenderableId.PieBlock",
             "offset": {
               "x": -16,
@@ -303,7 +303,7 @@
       "conditional_events": [
         {
           "condition": {
-            "logical_inputs": "JustHit"
+            "went_down": "JustHit"
           },
           "event": "EventId.DeflectPie"
         }
@@ -315,19 +315,19 @@
         {
           "target_state": "KO",
           "condition": {
-            "logical_inputs": "NoHealth"
+            "went_down": "NoHealth"
           }
         },
         {
           "target_state": "Idling",
           "condition": {
-            "logical_inputs": "AnimationEnd"
+            "went_down": "AnimationEnd"
           }
         },
         {
           "target_state": "HitByPie",
           "condition": {
-            "logical_inputs": "JustHit"
+            "went_down": "JustHit"
           }
         }
       ],

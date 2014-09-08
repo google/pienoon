@@ -15,8 +15,6 @@
 #ifndef PLAYER_CONTROLLER_H_
 #define PLAYER_CONTROLLER_H_
 
-#include <vector>
-
 #include "precompiled.h"
 
 #include "SDL_keycode.h"

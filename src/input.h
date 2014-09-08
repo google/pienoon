@@ -28,9 +28,9 @@ class Button {
   void Reset() { went_down_ = went_up_ = false; }
   void Update(bool down);
 
-  bool is_down() { return is_down_; }
-  bool went_down() { return went_down_; }
-  bool went_up() { return went_up_; }
+  bool is_down() const { return is_down_; }
+  bool went_down() const { return went_down_; }
+  bool went_up() const { return went_up_; }
 
  private:
   bool is_down_;

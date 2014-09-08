@@ -28,7 +28,9 @@ struct Condition;
 struct ConditionInputs {
   // A set of bits that the state machine will compare against when following
   // transitions.
-  int32_t logical_inputs;
+  int32_t is_down;
+  int32_t went_down;
+  int32_t went_up;
 
   // The elapsed time of the animation.
   int animation_time;

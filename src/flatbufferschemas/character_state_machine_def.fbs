@@ -41,7 +41,10 @@ enum LogicalInputs:ushort (bit_flags) {
 }
 
 table Condition {
-  logical_inputs:LogicalInputs;
+  is_down:LogicalInputs;
+  is_up:LogicalInputs;
+  went_down:LogicalInputs;
+  went_up:LogicalInputs;
   time:int = 0;
   end_time:int = 2147483647; // MAX_INT
 }
