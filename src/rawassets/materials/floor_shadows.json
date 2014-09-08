@@ -1,5 +1,4 @@
 {
-  shader_basename: "shaders/simple_shadow",
   texture_filenames: [
     "textures/shelf_top.tga",
     "textures/shelf_top_shadow.tga"

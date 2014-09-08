@@ -20,11 +20,6 @@ namespace fpl {
 
 void Material::Set(Renderer &renderer) {
   renderer.SetBlendMode(blend_mode_);
-  shader_->Set(renderer);
-  SetTextures();
-}
-
-void Material::SetTextures() {
   for (size_t i = 0; i < textures_.size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, textures_[i]->id);

@@ -89,6 +89,9 @@ SplatGame::SplatGame()
       cardboard_backs_(RenderableId_Count, nullptr),
       stick_front_(nullptr),
       stick_back_(nullptr),
+      shader_lit_textured_normal_(nullptr),
+      shader_simple_shadow_(nullptr),
+      shader_textured_(nullptr),
       prev_world_time_(0),
       debug_previous_states_(),
       debug_previous_angles_() {
@@ -241,6 +244,15 @@ bool SplatGame::InitializeRenderingAssets() {
                                         stick_front_offset);
   stick_back_ = CreateVerticalQuadMesh(config.stick_back(), stick_back_offset);
 
+  // Load all shaders we use:
+  shader_lit_textured_normal_ =
+      matman_.LoadShader("shaders/lit_textured_normal");
+  shader_simple_shadow_ = matman_.LoadShader("shaders/simple_shadow");
+  shader_textured_ = matman_.LoadShader("shaders/textured");
+  if (!(shader_lit_textured_normal_ &&
+        shader_simple_shadow_ &&
+        shader_textured_)) return false;
+
   return true;
 }
 
@@ -361,17 +373,24 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
     // If we have a back, draw the back too, slightly offset.
     // The back is the *inside* of the cardboard, representing corrugation.
     if (cardboard_backs_[id]) {
+      shader_lit_textured_normal_->Set(renderer_);
       cardboard_backs_[id]->Render(renderer_);
     }
 
     // Draw the popsicle stick that props up the cardboard.
     if (config.renderables()->Get(id)->stick() && stick_front_ != nullptr &&
         stick_back_ != nullptr) {
+      shader_textured_->Set(renderer_);
       stick_front_->Render(renderer_);
       stick_back_->Render(renderer_);
     }
 
     // Draw the front of the cardboard.
+    if (config.renderables()->Get(id)->cardboard()) {
+      shader_lit_textured_normal_->Set(renderer_);
+    } else {
+      shader_textured_->Set(renderer_);
+    }
     Mesh* front = GetCardboardFront(id);
     front->Render(renderer_);
   }
@@ -385,6 +404,7 @@ void SplatGame::Render(const SceneDescription& scene) {
   // TODO: Replace with a regular environment prop. Calculate scale_bias from
   // environment prop size.
   renderer_.model_view_projection() = camera_transform;
+  shader_textured_->Set(renderer_);
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
@@ -401,13 +421,14 @@ void SplatGame::Render(const SceneDescription& scene) {
   assert(shadow_mat);
   renderer_.model_view_projection() = camera_transform;
   renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
-  shadow_mat->get_shader()->SetUniform("scale_bias", scale_bias);
+  shader_simple_shadow_->SetUniform("scale_bias", scale_bias);
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
     const int id = renderable.id();
     Mesh* front = GetCardboardFront(id);
     if (config.renderables()->Get(id)->shadow()) {
       renderer_.model() = renderable.world_matrix();
+      shader_simple_shadow_->Set(renderer_);
       // The first texture of the shadow shader has to be that of the billboard.
       shadow_mat->textures()[0] = front->GetMaterial(0)->textures()[0];
       shadow_mat->Set(renderer_);

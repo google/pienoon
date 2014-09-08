@@ -1,5 +1,4 @@
 {
-  shader_basename: "shaders/lit_textured_normal",
   texture_filenames: [
     "textures/pie_level01.tga",
     "textures/cardboard-normal.tga"

@@ -1,5 +1,4 @@
 {
-  shader_basename: "shaders/textured",
   texture_filenames: [
     "textures/room.tga"
   ],

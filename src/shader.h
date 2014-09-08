@@ -54,10 +54,11 @@ class Shader {
 
   // Find a non-standard uniform by name, -1 means not found.
   GLint FindUniform(const char *uniform_name) {
+    glUseProgram(program_);
     return glGetUniformLocation(program_, uniform_name);
   }
-  // Set an non-standard uniform to a vec2/3/4 value. Call this
-  // before Set() above
+  // Set an non-standard uniform to a vec2/3/4 value.
+  // Call this after Set() or FindUniform().
   template<int N> void SetUniform(GLint uniform_loc,
                                   const mathfu::Vector<float, N> &value) {
     // This should amount to a compile-time if-then.
@@ -67,6 +68,7 @@ class Shader {
     else assert(0);
   }
   // Convenience call that does a Lookup and a Set if found.
+  // Call this after Set().
   template<int N> bool SetUniform(const char *uniform_name,
                                   const mathfu::Vector<float, N> &value) {
     auto loc = FindUniform(uniform_name);

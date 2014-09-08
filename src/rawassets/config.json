@@ -402,7 +402,8 @@
       "cardboard_back": "materials/character_idle_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterLoad1",
@@ -410,7 +411,8 @@
       "cardboard_back": "materials/character_load1_back.bin",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterLoad2",
@@ -418,7 +420,8 @@
       "cardboard_back": "materials/character_load2_back.bin",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterLoad3",
@@ -426,7 +429,8 @@
       "cardboard_back": "materials/character_load3_back.bin",
       "offset": { "x": -0.9, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterThrow",
@@ -434,7 +438,8 @@
       "cardboard_back": "materials/character_throw_back.bin",
       "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterBlock",
@@ -442,7 +447,8 @@
       "cardboard_back": "materials/character_block_back.bin",
       "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterHitByPieFrame0",
@@ -450,7 +456,8 @@
       "cardboard_back": "materials/character_hit_by_pie_frame0_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterHitByPieFrame1",
@@ -458,7 +465,8 @@
       "cardboard_back": "materials/character_hit_by_pie_frame1_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterHitByPieFrame2",
@@ -466,7 +474,8 @@
       "cardboard_back": "materials/character_hit_by_pie_frame2_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterHitByPieFrame3",
@@ -474,7 +483,8 @@
       "cardboard_back": "materials/character_hit_by_pie_frame3_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterKnockedOut",
@@ -482,7 +492,8 @@
       "cardboard_back": "materials/character_knocked_out_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "CharacterWin",
@@ -490,7 +501,8 @@
       "cardboard_back": "materials/character_win_back.bin",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "stick": true,
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "PieEmpty",
@@ -499,22 +511,26 @@
     {
       "id": "PieSmall",
       "cardboard_front": "materials/pie_small.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "PieMedium",
       "cardboard_front": "materials/pie_medium.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "PieLarge",
       "cardboard_front": "materials/pie_large.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "PieBlock",
       "cardboard_front": "materials/pie_block.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "EnvironmentSky",
@@ -522,7 +538,8 @@
     },
     {
       "id": "EnvironmentCloud",
-      "cardboard_front": "materials/environment_cloud.bin"
+      "cardboard_front": "materials/environment_cloud.bin",
+      "cardboard": true
     },
     {
       "id": "EnvironmentCloudShadow",
@@ -530,7 +547,8 @@
     },
     {
       "id": "EnvironmentSun",
-      "cardboard_front": "materials/environment_sun.bin"
+      "cardboard_front": "materials/environment_sun.bin",
+      "cardboard": true
     },
     {
       "id": "EnvironmentSunGlow",
@@ -539,12 +557,14 @@
     {
       "id": "EnvironmentTree",
       "cardboard_front": "materials/environment_tree.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "EnvironmentBush",
       "cardboard_front": "materials/environment_bush.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "EnvironmentString",
@@ -577,17 +597,20 @@
     {
       "id": "Splatter1",
       "cardboard_front": "materials/splatter1.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "Splatter2",
       "cardboard_front": "materials/splatter2.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "Splatter3",
       "cardboard_front": "materials/splatter3.bin",
-      "shadow": true
+      "shadow": true,
+      "cardboard": true
     },
     {
       "id": "Health",

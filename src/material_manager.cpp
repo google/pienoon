@@ -96,11 +96,7 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
         reinterpret_cast<const uint8_t *>(flatbuf.c_str()), flatbuf.length());
     assert(matdef::VerifyMaterialBuffer(verifier));
     auto matdef = matdef::GetMaterial(flatbuf.c_str());
-    auto shadername = matdef->shader_basename();
-    auto shader = LoadShader(shadername->c_str());
-    if (!shader) return nullptr;
     mat = new Material();
-    mat->set_shader(shader);
     mat->set_blend_mode(static_cast<BlendMode>(matdef->blendmode()));
     for (auto it = matdef->texture_filenames()->begin();
              it != matdef->texture_filenames()->end(); ++it) {

@@ -92,6 +92,9 @@ table RenderableDef {
 
   // True if the renderable should cast shadows.
   shadow:bool = false;
+
+  // True if renderable is made of cardboard (has the cardboard normalmap).
+  cardboard:bool = false;
 }
 
 // Each arrangement should have it a unique number of players How many people

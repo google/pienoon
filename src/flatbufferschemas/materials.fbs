@@ -26,7 +26,6 @@ enum BlendMode:ubyte {
 }
 
 table Material {
-  shader_basename:string;
   texture_filenames:[string];
   blendmode:BlendMode;
 }

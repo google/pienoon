@@ -98,6 +98,11 @@ class SplatGame {
   Mesh* stick_front_;
   Mesh* stick_back_;
 
+  // Shaders we use.
+  Shader *shader_lit_textured_normal_;
+  Shader *shader_simple_shadow_;
+  Shader *shader_textured_;
+
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_;
 

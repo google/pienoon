@@ -1,5 +1,4 @@
 {
-  shader_basename: "shaders/lit_textured_normal",
   texture_filenames: [
     "textures/happy_back.tga",
     "textures/cardboard-normal.tga"

@@ -38,13 +38,10 @@ struct Texture {
 
 class Material {
  public:
-  Material() : shader_(nullptr), blend_mode_(kBlendModeOff) {}
+  Material() : blend_mode_(kBlendModeOff) {}
 
   void Set(Renderer &renderer);
-  void SetTextures();
 
-  Shader *get_shader() { return shader_; }
-  void set_shader(Shader *s) { shader_ = s; }
   std::vector<Texture *> &textures() { return textures_; }
   const std::vector<Texture *> &textures() const { return textures_; }
   int blend_mode() const { return blend_mode_; }
@@ -54,7 +51,6 @@ class Material {
   }
 
  private:
-  Shader *shader_;
   std::vector<Texture *> textures_;
   BlendMode blend_mode_;
 };
