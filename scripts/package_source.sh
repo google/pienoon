@@ -18,7 +18,7 @@ declare -r dependencies="\
   $(for lib in ${prebuilt_libs}; do echo ${prebuilt_libs_path}/${lib}; done) \
   $(for lib in ${google_libs}; do echo ${google_libs_path}/${lib}; done)"
 
-declare -r temp_dir=$(mktemp -d)
+declare -r temp_dir=$(mktemp -d /tmp/XXXXXX)
 declare -r output_dir=${temp_dir}/splat
 
 declare -r nothave_prefixes="\
@@ -47,7 +47,7 @@ pushd ${project_dir} >/dev/null
 # Make sure the source directory is clean.
 git_clean_all ${project_dir}
 # Copy the project directory.
-cp -ra ${project_dir} ${output_dir}
+cp -a ${project_dir} ${output_dir}
 rm -rf ${output_dir}/.git
 
 # Create the directory which will contain dependencies.
@@ -56,7 +56,7 @@ mkdir -p ${output_dir}/dependencies
 # Copy the dependencies
 for lib in ${dependencies}; do
   git_clean_all ${lib}
-  cp -ra ${lib} ${output_dir}/dependencies/
+  cp -a ${lib} ${output_dir}/dependencies/
 done
 
 find ${output_dir} -type d -name '.git' | xargs rm -rf
