@@ -1,4 +1,4 @@
-Splat Version [0.1.0][]
+Splat Version 0.1.0
 
 # Splat
 
@@ -115,12 +115,12 @@ For example, from the terminal:
 
 Developers can build the game from source for Android, Linux, OSX and Windows.
 
-### Linux
+### Building for Linux
 
 #### Version Requirements
 
 Following are the minimum required versions for the tools and libraries you
-need for building LiquidFun for Linux:
+need for building Splat for Linux:
 
 -   OpenGL: libglapi-mesa 8.0.4 (tested with libglapi-mesa 8.0.4-0ubuntu0)
 -   GLU: libglu1-mesa-dev 8.0.4 (tested with libglu1-mesa-dev 8.0.4.0ubuntu0)
@@ -188,7 +188,7 @@ You can use [cmake][] to generate an [Xcode][] project for Splat on [OS X][].
 
 #### Version Requirements
 
-These are the minimum required versions for building LiquidFun on OS X:
+These are the minimum required versions for building Splat on OS X:
 
 -   OS X: Mavericks 10.9.1.
 -   Xcode: 5.0.1
@@ -228,22 +228,28 @@ You can use [cmake][] to generate a [Visual Studio][] project for Splat on
 
 #### Version Requirements
 
-These are the minimum required versions for building LiquidFun for Windows:
+These are the minimum required versions for building Splat for Windows:
 
--   Windows: 7
--   Visual Studio: 2010 or 2012
--   cmake: 2.8.12 or newer
+-   [Windows][]: 7
+-   [Visual Studio][]: 2010 or 2012
+-   [DirectX SDK][]: 9.29.1962 or newer.
+-   [cmake][]: 2.8.12 or newer.
+-   [GNU Make Windows][]: 3.81 or newer.
 
 #### Creating the Visual Studio solution using [cmake][]
 
 When working directly with the source, use [cmake][] to generate the
-[Visual Studio][] solution and project files.  For example, the following
-generates the [Visual Studio][] 2012 solution in the `splat` directory:
+[Visual Studio][] solution and project files.  The DXSDK variable needs to
+be set to point to the install location of the [DirectX SDK], for example
+`c:\Program Files (x86)\Microsoft DirectX SDK (June 2010)`.
+
+The following example generates the [Visual Studio][] 2012 solution in the
+`splat` directory:
 
     cd splat
     cmake -G "Visual Studio 11"
 
-To generate a [Visual Studio][] 2010 solution, use this commend:
+To generate a [Visual Studio][] 2010 solution, use this command:
 
     cd splat
     cmake -G "Visual Studio 10"
@@ -260,30 +266,40 @@ bash shell use:
 -   Double-click on `splat/splat.sln` to open the solution.
 -   Select "Build-->Build Solution" from the menu.
 
+It's also possible to build from the command line using msbuild after using
+vsvars32.bat to setup the [Visual Studio][] build environment.  For example,
+assuming [Visual Studio][] is installed in
+`c:\Program Files (x86)\Microsoft Visual Studio 11.0`.
+
+    cd splat
+    "c:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\vsvars32.bat"
+    cmake -G "Visual Studio 11"
+    msbuild splat.sln
+
 #### Executing the game
 
 -   Right-click on the Splat project in the Solution Explorer
     pane, and select "Set as StartUp Project".
 -   Select "Debug-->Start Debugging" from the menu.
 
-# Building for Android
+### Building for Android
 
-### Version Requirements
+#### Version Requirements
 
 Following are the minimum required versions for the tools and libraries you
-need for building LiquidFun for Android:
+need for building Splat for Android:
 
 -   Android SDK:  Android 4.4 (API Level 19)
 -   ADT: 20140702
 -   NDK: android-ndk-r10
 -   NDK plugn for Eclipse: Bundled with ADT
 
-### Before Building
+#### Before Building
 
 -   Install the [Android SDK].
 -   Install the [Android NDK].
 
-### Building
+#### Building
 
 The Splat project has an `AndroidManifest.xml` file which contains details
 about how to build an Android package (apk).
@@ -299,7 +315,7 @@ For example:
     cd splat
     ./build_apk_sdl.sh DEPLOY=0 LAUNCH=0
 
-### Installing and running the game.
+#### Installing and running the game.
 
 `build_apk_sdl.sh` will also install and run the game after a build is
 complete.
@@ -313,7 +329,7 @@ to the workstation with serial number `ADA123123`.
 If only one device is attached to a workstation, the `ADB_DEVICE1 argument
 can be ommitted.
 
-### Code Generation
+#### Code Generation
 
 By default, code is generated for devices that support the `armeabi-v7a` ABI.
 Alternatively, you can generate a fat `.apk` that includes code for all ABIs.
@@ -353,7 +369,6 @@ TODO
 
 TODO
 
-
   [adb]: http://developer.android.com/tools/help/adb.html
   [ADT]: http://developer.android.com/tools/sdk/eclipse-adt.html
   [Android NDK]: http://developer.android.com/tools/sdk/ndk/index.html
@@ -361,6 +376,8 @@ TODO
   [cmake]: http://www.cmake.org
   [Cygwin installation]: http://www.cygwin.com/
   [cygwin]: http://www.cygwin.com/
+  [DirectX SDK]: http://www.microsoft.com/en-us/download/details.aspx?id=6812
+  [GNU Make Windows]: http://gnuwin32.sourceforge.net/packages/make.htm
   [Linux]: http://en.wikipedia.org/wiki/Linux
   [managing avds]: http://developer.android.com/tools/devices/managing-avds.html
   [NDK Eclipse plugin]: http://developer.android.com/sdk/index.html
