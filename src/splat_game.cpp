@@ -616,6 +616,10 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
         }
       }
       UploadStats();
+#     ifdef PLATFORM_MOBILE
+      // For now, we always show leaderboards when a round ends:
+      gpg_manager.ShowLeaderboards();
+#     endif
       break;
 
     default:
@@ -709,10 +713,10 @@ void SplatGame::Run() {
     }
 
 #   ifdef PLATFORM_MOBILE
-    // Since we don't have a UI nor any gameplay on Android, for testing,
-    // we'll check if a third finger went down on the touch screen,
+    // For testing,
+    // we'll check if a sixth finger went down on the touch screen,
     // if so we update the leaderboards and show the UI:
-    if (input_.GetButton(SDLK_POINTER3).went_down()) {
+    if (input_.GetButton(SDLK_POINTER6).went_down()) {
       // For testing, increase stat:
       game_state_.characters()[0].IncrementStat(kAttacks);
       UploadStats();
