@@ -36,3 +36,5 @@ DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers
 DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
 # Location of the Google Play Games library.
 DEPENDENCIES_GPG_DIR?=$(PREBUILTS_ROOT)/gpg-cpp-sdk/android
+# Location of the webp library.
+DEPENDENCIES_WEBP_DIR?=$(THIRD_PARTY_ROOT)/webp

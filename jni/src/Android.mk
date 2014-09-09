@@ -83,6 +83,7 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
                     $(DEPENDENCIES_SDL_MIXER_DIR) \
                     $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
                     $(DEPENDENCIES_GPG_DIR)/include \
+                    $(DEPENDENCIES_WEBP_DIR)/include \
                     $(GENERATED_INCLUDES_PATH) \
                     src
 
@@ -98,9 +99,9 @@ LOCAL_SRC_FILES := \
 	$(SPLAT_DIR)/src/player_controller.cpp \
 	$(SPLAT_DIR)/src/precompiled.cpp \
 	$(SPLAT_DIR)/src/renderer.cpp \
- $(SPLAT_DIR)/src/mesh.cpp \
- $(SPLAT_DIR)/src/shader.cpp \
- $(SPLAT_DIR)/src/material.cpp \
+    $(SPLAT_DIR)/src/mesh.cpp \
+    $(SPLAT_DIR)/src/shader.cpp \
+    $(SPLAT_DIR)/src/material.cpp \
 	$(SPLAT_DIR)/src/splat_game.cpp \
 	$(SPLAT_DIR)/src/utilities.cpp \
 	$(SPLAT_DIR)/src/gpg_manager.cpp \
@@ -112,7 +113,7 @@ LOCAL_SRC_FILES := \
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): build_assets))
 
-LOCAL_STATIC_LIBRARIES := libgpg libmathfu
+LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp-decode
 
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_mixer
 
@@ -121,5 +122,8 @@ LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-add-path,$(abspath $(DEPENDENCIES_MATHFU_DIR)/..))
+$(call import-add-path,$(abspath $(DEPENDENCIES_WEBP_DIR)/..))
 
 $(call import-module,mathfu/jni)
+$(call import-module,webp/src)
+

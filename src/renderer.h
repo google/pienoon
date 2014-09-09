@@ -55,6 +55,10 @@ class Renderer {
   // not understood.
   Texture *CreateTextureFromTGAMemory(const void *tga_buf);
 
+  // Create a texture from a memory buffer containing a Webp format file.
+  // Returns nullptr if the format is not understood.
+  Texture *CreateTextureFromWebpMemory(const void *webp_buf, size_t size);
+
   // Set alpha test (cull pixels with alpha below amount) vs alpha blend
   // (blend with framebuffer pixel regardedless).
   // blend_mode: see materials.fbs for valid enum values.

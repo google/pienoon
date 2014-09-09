@@ -15,6 +15,8 @@
 #include "precompiled.h"
 #include "renderer.h"
 
+#include "webp/decode.h"
+
 namespace fpl {
 
 bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
@@ -258,6 +260,14 @@ Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   auto tex = CreateTexture(rgba, vec2i(header->width, header->height));
   delete[] rgba;
   return tex;
+}
+
+Texture *Renderer::CreateTextureFromWebpMemory(const void *webp_buf,
+                                               size_t size) {
+  int width = 0, height = 0;
+  auto data = WebPDecodeRGBA(static_cast<const uint8_t *>(webp_buf), size,
+                             &width, &height);
+  return data ? CreateTexture(data, vec2i(width, height)) : nullptr;
 }
 
 void Renderer::DepthTest(bool on) {

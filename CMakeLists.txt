@@ -44,6 +44,10 @@ set(dependencies_sdl_dir "${third_party_root}/sdl"
     CACHE PATH "Directory containing the SDL library.")
 set(dependencies_sdl_mixer_dir "${third_party_root}/sdl_mixer"
     CACHE PATH "Directory containing the SDL Mixer library.")
+set(dependencies_webp_cmake_dir "webp"
+    CACHE PATH "Directory containing the Webp cmake project.")
+set(dependencies_webp_distr_dir "${third_party_root}/webp"
+    CACHE PATH "Directory containing the Webp distribution.")
 
 # Include MathFu in this project.
 add_subdirectory(${dependencies_mathfu_dir} mathfu)
@@ -60,6 +64,9 @@ set(CMAKE_BINARY_DIR ${BIN_DIR})
 
 # Include SDL Mixer. This must come after SDL is included.
 add_subdirectory("${dependencies_sdl_mixer_dir}" sdl_mixer)
+
+# Include Webp in this project.
+add_subdirectory("${dependencies_webp_cmake_dir}" webp)
 
 # Include FlatBuffers in this project.
 add_subdirectory("${dependencies_flatbuffers_dir}" flatbuffers)
@@ -125,6 +132,7 @@ set(splat_SRCS
 include_directories(src)
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${dependencies_webp_distr_dir}/include)
 
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
@@ -132,12 +140,17 @@ include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 # SDL Mixer includes.
 include_directories(${sdl_mixer_SOURCE_DIR})
 
-# Executable target.
-add_definitions(-g -std=c++0x -pedantic -Werror -Wall -Wextra)
+# Compiler flags.
+add_definitions(-g)
+set(CMAKE_CXX_FLAGS
+  "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra -Wno-unused-function")
+# -Wno-unused-function is because of webp encode.h
+
 if(SPLAT_DEBUG)
   add_definitions(-D_DEBUG)
 endif()
 
+# Executable target.
 add_executable(splat ${splat_SRCS})
 # Additional flags for the target.
 mathfu_configure_flags(splat)
@@ -146,7 +159,8 @@ add_dependencies(splat generated_includes assets)
 target_link_libraries(splat
   SDL2-static
   sdl_mixer
-  ${OPENGL_LIBRARIES})
+  ${OPENGL_LIBRARIES}
+  webp)
 
 # Tests.
 add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
