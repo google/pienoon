@@ -106,8 +106,6 @@ SplatGame::~SplatGame() {
     cardboard_backs_[i] = nullptr;
   }
 
-  Mix_CloseAudio();
-
   delete stick_front_;
   stick_front_ = nullptr;
 
