@@ -15,6 +15,13 @@ void main(void)
     float shininess = 32.0;
 
     vec4 texture_color =  texture2D(texture_unit_0, vTexCoord);
+    // We only render pixels if they are at least somewhat opaque.
+    // This will still lead to aliased edges if we render
+    // in the wrong order, but leaves us the option to render correctly
+    // if we sort our polygons first.
+    if (texture_color.a < 0.1)
+      discard;
+    texture_color *= color;
 
     // Extract the perturbed normal from the texture:
     vec3 tangent_space_normal =

@@ -17,5 +17,12 @@ uniform sampler2D texture_unit_0;
 uniform vec4 color;
 void main()
 {
-  gl_FragColor = color * texture2D(texture_unit_0, vTexCoord);
+  vec4 texture_color = texture2D(texture_unit_0, vTexCoord);
+  // We only render pixels if they are at least somewhat opaque.
+  // This will still lead to aliased edges if we render
+  // in the wrong order, but leaves us the option to render correctly
+  // if we sort our polygons first.
+  if (texture_color.a < 0.1)
+    discard;
+  gl_FragColor = color * texture_color;
 }
