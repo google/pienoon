@@ -92,16 +92,15 @@ LOCAL_SRC_FILES := \
 	$(SPLAT_DIR)/src/character.cpp \
 	$(SPLAT_DIR)/src/character_state_machine.cpp \
 	$(SPLAT_DIR)/src/game_state.cpp \
-    $(SPLAT_DIR)/src/ai_controller.cpp \
 	$(SPLAT_DIR)/src/input.cpp \
 	$(SPLAT_DIR)/src/main.cpp \
 	$(SPLAT_DIR)/src/material_manager.cpp \
 	$(SPLAT_DIR)/src/player_controller.cpp \
 	$(SPLAT_DIR)/src/precompiled.cpp \
 	$(SPLAT_DIR)/src/renderer.cpp \
-    $(SPLAT_DIR)/src/mesh.cpp \
-    $(SPLAT_DIR)/src/shader.cpp \
-    $(SPLAT_DIR)/src/material.cpp \
+ $(SPLAT_DIR)/src/mesh.cpp \
+ $(SPLAT_DIR)/src/shader.cpp \
+ $(SPLAT_DIR)/src/material.cpp \
 	$(SPLAT_DIR)/src/splat_game.cpp \
 	$(SPLAT_DIR)/src/utilities.cpp \
 	$(SPLAT_DIR)/src/gpg_manager.cpp \
