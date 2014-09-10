@@ -13,7 +13,7 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 2.8.12)
 
-set(webp_dir "../../../../../external/webp")
+set(webp_dir ${dependencies_webp_distr_dir})
 
 # Webp source files.
 set(webp_SRCS

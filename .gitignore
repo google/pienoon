@@ -10,9 +10,9 @@ CMakeLists.txt
 CMakeScripts/
 Makefile
 cmake_install.cmake
-mathfu/
 flatbuffers/
 googletest/
+mathfu/
 sdl/
 sdl_mixer/
 splat.build/
@@ -20,6 +20,7 @@ splat.xcodeproj/
 tests/Debug/
 tests/Release/
 tests/splat.build/
+webp/libwebp.a
 
 # Visual Studio files
 build/
