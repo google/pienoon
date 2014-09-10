@@ -21,6 +21,22 @@
           "left_jump": -1
         },
         {
+          "position": { "x": 0.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  0.5 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.0, "y": 0.0, "z":  0.5 },
+          "left_jump": -1
+        },
+        {
           "position": { "x": -3.0, "y": 0.0, "z":  5.0 },
           "left_jump": 1
         },
@@ -37,35 +53,119 @@
     {
       "character_data": [
         {
-          "position": { "x": -2.5, "y": 0.0, "z":  0.0 },
+          "position": { "x": -5.0, "y": 0.0, "z":  0.5 },
           "left_jump": -1
         },
         {
-          "position": { "x": -5.0, "y": 0.0, "z":  2.5 },
+          "position": { "x": -3.0, "y": 0.0, "z":  3.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 0.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  3.0, "y": 0.0, "z":  3.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  0.5 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.5, "y": 0.0, "z":  0.5 },
           "left_jump": -1
         },
         {
-          "position": { "x": -5.0, "y": 0.0, "z":  5.0 },
+          "position": { "x": -4.0, "y": 0.0, "z":  3.5 },
           "left_jump": 1
         },
         {
-          "position": { "x": -2.5, "y": 0.0, "z":  6.0 },
+          "position": { "x": -2.0, "y": 0.0, "z":  5.0 },
           "left_jump": 1
         },
         {
-          "position": { "x":  2.5, "y": 0.0, "z":  6.0 },
+          "position": { "x": 2.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  4.0, "y": 0.0, "z":  3.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.5, "y": 0.0, "z":  0.5 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.5, "y": 0.0, "z":  0.5 },
           "left_jump": -1
         },
         {
-          "position": { "x":  5.0, "y": 0.0, "z":  5.0 },
+          "position": { "x": -4.5, "y": 0.0, "z":  3.0 },
           "left_jump": 1
         },
         {
-          "position": { "x":  5.0, "y": 0.0, "z":  2.5 },
+          "position": { "x": -2.5, "y": 0.0, "z":  4.0 },
           "left_jump": 1
         },
         {
-          "position": { "x":  2.5, "y": 0.0, "z":  0.0 },
+          "position": { "x": 0.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 2.5, "y": 0.0, "z":  4.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  4.5, "y": 0.0, "z":  3.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.5, "y": 0.0, "z":  0.5 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.5, "y": 0.0, "z":  0.5 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -4.5, "y": 0.0, "z":  2.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": -3.0, "y": 0.0, "z":  3.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": -1.5, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 1.5, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 3.0, "y": 0.0, "z":  3.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  4.5, "y": 0.0, "z":  2.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.5, "y": 0.0, "z":  0.5 },
           "left_jump": -1
         }
       ]
@@ -387,6 +487,13 @@
       "rotation": -40,
       "orientation": "Verticle",
       "scale": { "x": 0.7, "y": 0.7, "z": 0.7 }
+    },
+    {
+      "renderable": "RenderableId.EnvironmentTree",
+      "position": { "x": -10, "y": 0, "z":0.7 },
+      "rotation": -80,
+      "orientation": "Verticle",
+      "scale": { "x": -0.8, "y": 0.7, "z": 1 }
     }
   ],
 
