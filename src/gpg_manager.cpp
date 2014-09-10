@@ -15,9 +15,14 @@
 #include "precompiled.h"
 #include "gpg_manager.h"
 
+//#define NO_GPG
+
 namespace fpl {
 
 bool GPGManager::Initialize() {
+# ifdef NO_GPG
+  return true;
+# endif
   /*
   // This code is here because we may be able to do this part of the
   // initialization here in the future, rather than relying on JNI_OnLoad below.
@@ -65,6 +70,9 @@ bool GPGManager::Initialize() {
 // Called every frame from the game, to see if there's anything to be done
 // with the async progress from gpg
 void GPGManager::Update() {
+# ifdef NO_GPG
+  return;
+# endif
   assert(game_services_);
   switch(state) {
     case kStart:
@@ -90,6 +98,9 @@ void GPGManager::Update() {
 }
 
 bool GPGManager::LoggedIn() {
+# ifdef NO_GPG
+  return true;
+# endif
   assert(game_services_);
   if (state < kAuthed) {
     SDL_LogWarn(SDL_LOG_CATEGORY_ERROR,
@@ -101,6 +112,9 @@ bool GPGManager::LoggedIn() {
 
 
 void GPGManager::SaveStat(const char *stat_id, uint64_t score) {
+# ifdef NO_GPG
+  return;
+# endif
   if (!LoggedIn()) return;
   game_services_->Leaderboards().SubmitScore(stat_id, score);
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -108,6 +122,9 @@ void GPGManager::SaveStat(const char *stat_id, uint64_t score) {
 }
 
 void GPGManager::ShowLeaderboards() {
+# ifdef NO_GPG
+  return;
+# endif
   if (!LoggedIn()) return;
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: launching leaderboard UI");
   game_services_->Leaderboards().ShowAllUI();

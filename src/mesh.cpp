@@ -19,38 +19,38 @@ namespace fpl {
 
 void Mesh::SetAttributes(GLuint vbo, const Attribute *attributes, int stride,
                          const char *buffer) {
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
   size_t offset = 0;
   for (;;) {
     switch (*attributes++) {
       case kPosition3f:
-        glEnableVertexAttribArray(kAttributePosition);
-        glVertexAttribPointer(kAttributePosition, 3, GL_FLOAT, false,
-                              stride, buffer + offset);
+        GL_CALL(glEnableVertexAttribArray(kAttributePosition));
+        GL_CALL(glVertexAttribPointer(kAttributePosition, 3, GL_FLOAT, false,
+                                      stride, buffer + offset));
         offset += 3 * sizeof(float);
         break;
       case kNormal3f:
-        glEnableVertexAttribArray(kAttributeNormal);
-        glVertexAttribPointer(kAttributeNormal, 3, GL_FLOAT, false,
-                              stride, buffer + offset);
+        GL_CALL(glEnableVertexAttribArray(kAttributeNormal));
+        GL_CALL(glVertexAttribPointer(kAttributeNormal, 3, GL_FLOAT, false,
+                                      stride, buffer + offset));
         offset += 3 * sizeof(float);
         break;
       case kTangent4f:
-        glEnableVertexAttribArray(kAttributeTangent);
-        glVertexAttribPointer(kAttributeTangent, 3, GL_FLOAT, false,
-                              stride, buffer + offset);
+        GL_CALL(glEnableVertexAttribArray(kAttributeTangent));
+        GL_CALL(glVertexAttribPointer(kAttributeTangent, 3, GL_FLOAT, false,
+                                      stride, buffer + offset));
         offset += 4 * sizeof(float);
         break;
       case kTexCoord2f:
-        glEnableVertexAttribArray(kAttributeTexCoord);
-        glVertexAttribPointer(kAttributeTexCoord, 2, GL_FLOAT, false,
-                              stride, buffer + offset);
+        GL_CALL(glEnableVertexAttribArray(kAttributeTexCoord));
+        GL_CALL(glVertexAttribPointer(kAttributeTexCoord, 2, GL_FLOAT, false,
+                                      stride, buffer + offset));
         offset += 2 * sizeof(float);
         break;
       case kColor4ub:
-        glEnableVertexAttribArray(kAttributeColor);
-        glVertexAttribPointer(kAttributeColor, 4, GL_UNSIGNED_BYTE, true,
-                              stride, buffer + offset);
+        GL_CALL(glEnableVertexAttribArray(kAttributeColor));
+        GL_CALL(glVertexAttribPointer(kAttributeColor, 4, GL_UNSIGNED_BYTE, true,
+                                      stride, buffer + offset));
         offset += 4;
         break;
       case kEND:
@@ -63,19 +63,19 @@ void Mesh::UnSetAttributes(const Attribute *attributes) {
   for (;;) {
     switch (*attributes++) {
       case kPosition3f:
-        glDisableVertexAttribArray(kAttributePosition);
+        GL_CALL(glDisableVertexAttribArray(kAttributePosition));
         break;
       case kNormal3f:
-        glDisableVertexAttribArray(kAttributeNormal);
+        GL_CALL(glDisableVertexAttribArray(kAttributeNormal));
         break;
       case kTangent4f:
-        glDisableVertexAttribArray(kAttributeTangent);
+        GL_CALL(glDisableVertexAttribArray(kAttributeTangent));
         break;
       case kTexCoord2f:
-        glDisableVertexAttribArray(kAttributeTexCoord);
+        GL_CALL(glDisableVertexAttribArray(kAttributeTexCoord));
         break;
       case kColor4ub:
-        glDisableVertexAttribArray(kAttributeColor);
+        GL_CALL(glDisableVertexAttribArray(kAttributeColor));
         break;
       case kEND:
         return;
@@ -86,16 +86,16 @@ void Mesh::UnSetAttributes(const Attribute *attributes) {
 Mesh::Mesh(const void *vertex_data, int count, int vertex_size,
            const Attribute *format)
     : vertex_size_(vertex_size), format_(format) {
-  glGenBuffers(1, &vbo_);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-  glBufferData(GL_ARRAY_BUFFER, count * vertex_size, vertex_data,
-               GL_STATIC_DRAW);
+  GL_CALL(glGenBuffers(1, &vbo_));
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo_));
+  GL_CALL(glBufferData(GL_ARRAY_BUFFER, count * vertex_size, vertex_data,
+                       GL_STATIC_DRAW));
 }
 
 Mesh::~Mesh() {
-  glDeleteBuffers(1, &vbo_);
+  GL_CALL(glDeleteBuffers(1, &vbo_));
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
-    glDeleteBuffers(1, &it->ibo);
+    GL_CALL(glDeleteBuffers(1, &it->ibo));
   }
 }
 
@@ -103,10 +103,10 @@ void Mesh::AddIndices(const int *index_data, int count, Material *mat) {
   indices_.push_back(Indices());
   auto &idxs = indices_.back();
   idxs.count = count;
-  glGenBuffers(1, &idxs.ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxs.ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(int), index_data,
-               GL_STATIC_DRAW);
+  GL_CALL(glGenBuffers(1, &idxs.ibo));
+  GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxs.ibo));
+  GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(int), index_data,
+                       GL_STATIC_DRAW));
   idxs.mat = mat;
 }
 
@@ -114,8 +114,8 @@ void Mesh::Render(Renderer &renderer, bool ignore_material) {
   SetAttributes(vbo_, format_, vertex_size_, nullptr);
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
     if (!ignore_material) it->mat->Set(renderer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo);
-    glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0);
+    GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo));
+    GL_CALL(glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0));
   }
   UnSetAttributes(format_);
 }
@@ -124,8 +124,8 @@ void Mesh::RenderArray(GLenum primitive, int index_count,
                        const Attribute *format, int vertex_size,
                        const char *vertices, const int *indices) {
   SetAttributes(0, format, vertex_size, vertices);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glDrawElements(primitive, index_count, GL_UNSIGNED_INT, indices);
+  GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+  GL_CALL(glDrawElements(primitive, index_count, GL_UNSIGNED_INT, indices));
   UnSetAttributes(format);
 }
 

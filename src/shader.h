@@ -42,9 +42,9 @@ class Shader {
   {}
 
   ~Shader() {
-    if (vs_) glDeleteShader(vs_);
-    if (ps_) glDeleteShader(ps_);
-    if (program_) glDeleteProgram(program_);
+    if (vs_) GL_CALL(glDeleteShader(vs_));
+    if (ps_) GL_CALL(glDeleteShader(ps_));
+    if (program_) GL_CALL(glDeleteProgram(program_));
   }
 
   // Will make this shader active for any subsequent draw calls, and sets
@@ -54,7 +54,7 @@ class Shader {
 
   // Find a non-standard uniform by name, -1 means not found.
   GLint FindUniform(const char *uniform_name) {
-    glUseProgram(program_);
+    GL_CALL(glUseProgram(program_));
     return glGetUniformLocation(program_, uniform_name);
   }
   // Set an non-standard uniform to a vec2/3/4 value.
@@ -62,10 +62,15 @@ class Shader {
   template<int N> void SetUniform(GLint uniform_loc,
                                   const mathfu::Vector<float, N> &value) {
     // This should amount to a compile-time if-then.
-    if (N == 2) glUniform2fv(uniform_loc, 1, &value[0]);
-    else if(N == 3) glUniform3fv(uniform_loc, 1, &value[0]);
-    else if(N == 4) glUniform4fv(uniform_loc, 1, &value[0]);
-    else assert(0);
+    if (N == 2) {
+      GL_CALL(glUniform2fv(uniform_loc, 1, &value[0]));
+    } else if(N == 3) {
+      GL_CALL(glUniform3fv(uniform_loc, 1, &value[0]));
+    } else if(N == 4) {
+      GL_CALL(glUniform4fv(uniform_loc, 1, &value[0]));
+    } else {
+      assert(0);
+    }
   }
   // Convenience call that does a Lookup and a Set if found.
   // Call this after Set().

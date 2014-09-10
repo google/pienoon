@@ -118,8 +118,8 @@ void Renderer::AdvanceFrame(bool minimized) {
   } else {
     SDL_GL_SwapWindow(window_);
   }
-  glViewport(0, 0, window_size_.x(), window_size_.y());
-  glEnable(GL_DEPTH_TEST);
+  GL_CALL(glViewport(0, 0, window_size_.x(), window_size_.y()));
+  GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
 void Renderer::ShutDown() {
@@ -134,8 +134,8 @@ void Renderer::ShutDown() {
 }
 
 void Renderer::ClearFrameBuffer(const vec4 &color) {
-    glClearColor(color.x(), color.y(), color.z(), color.w());
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GL_CALL(glClearColor(color.x(), color.y(), color.z(), color.w()));
+    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 GLuint Renderer::CompileShader(GLenum stage, GLuint program,
@@ -149,19 +149,19 @@ GLuint Renderer::CompileShader(GLenum stage, GLuint program,
   platform_source += source;
   const char *platform_source_ptr = platform_source.c_str();
   auto shader_obj = glCreateShader(stage);
-  glShaderSource(shader_obj, 1, &platform_source_ptr, nullptr);
-  glCompileShader(shader_obj);
+  GL_CALL(glShaderSource(shader_obj, 1, &platform_source_ptr, nullptr));
+  GL_CALL(glCompileShader(shader_obj));
   GLint success;
-  glGetShaderiv(shader_obj, GL_COMPILE_STATUS, &success);
+  GL_CALL(glGetShaderiv(shader_obj, GL_COMPILE_STATUS, &success));
   if (success) {
-    glAttachShader(program, shader_obj);
+    GL_CALL(glAttachShader(program, shader_obj));
     return shader_obj;
   } else {
     GLint length = 0;
-    glGetShaderiv(shader_obj, GL_INFO_LOG_LENGTH, &length);
+    GL_CALL(glGetShaderiv(shader_obj, GL_INFO_LOG_LENGTH, &length));
     last_error_.assign(length, '\0');
-    glGetShaderInfoLog(shader_obj, length, &length, &last_error_[0]);
-    glDeleteShader(shader_obj);
+    GL_CALL(glGetShaderInfoLog(shader_obj, length, &length, &last_error_[0]));
+    GL_CALL(glDeleteShader(shader_obj));
     return 0;
   }
 }
@@ -173,46 +173,51 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
   if (vs) {
     auto ps = CompileShader(GL_FRAGMENT_SHADER, program, ps_source);
     if (ps) {
-      glBindAttribLocation(program, Mesh::kAttributePosition, "aPosition");
-      glBindAttribLocation(program, Mesh::kAttributeNormal,   "aNormal");
-      glBindAttribLocation(program, Mesh::kAttributeTangent,  "aTangent");
-      glBindAttribLocation(program, Mesh::kAttributeTexCoord, "aTexCoord");
-      glBindAttribLocation(program, Mesh::kAttributeColor,    "aColor");
-      glLinkProgram(program);
+      GL_CALL(glBindAttribLocation(program, Mesh::kAttributePosition,
+                                   "aPosition"));
+      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeNormal,
+                                   "aNormal"));
+      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeTangent,
+                                   "aTangent"));
+      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeTexCoord,
+                                   "aTexCoord"));
+      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeColor,
+                                   "aColor"));
+      GL_CALL(glLinkProgram(program));
       GLint status;
-      glGetProgramiv(program, GL_LINK_STATUS, &status);
+      GL_CALL(glGetProgramiv(program, GL_LINK_STATUS, &status));
       if (status == GL_TRUE) {
         auto shader = new Shader(program, vs, ps);
-        glUseProgram(program);
+        GL_CALL(glUseProgram(program));
         shader->InitializeUniforms();
         return shader;
       }
       GLint length = 0;
-      glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+      GL_CALL(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length));
       last_error_.assign(length, '\0');
-      glGetProgramInfoLog(program, length, &length, &last_error_[0]);
-      glDeleteShader(ps);
+      GL_CALL(glGetProgramInfoLog(program, length, &length, &last_error_[0]));
+      GL_CALL(glDeleteShader(ps));
     }
-    glDeleteShader(vs);
+    GL_CALL(glDeleteShader(vs));
   }
-  glDeleteProgram(program);
+  GL_CALL(glDeleteProgram(program));
   return nullptr;
 }
 
 Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   // TODO: support default args for mipmap/wrap
   GLuint texture_id;
-  glGenTextures(1, &texture_id);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture_id);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, buffer);
-  glGenerateMipmap(GL_TEXTURE_2D);
+  GL_CALL(glGenTextures(1, &texture_id));
+  GL_CALL(glActiveTexture(GL_TEXTURE0));
+  GL_CALL(glBindTexture(GL_TEXTURE_2D, texture_id));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                          GL_LINEAR_MIPMAP_LINEAR));
+  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                       GL_RGBA, GL_UNSIGNED_BYTE, buffer));
+  GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
   return new Texture(texture_id, size);
 }
 
@@ -226,7 +231,7 @@ Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
     "Members of struct TGA need to be packed with no padding.");
   int little_endian = 1;
   if (!*reinterpret_cast<char *>(&little_endian)) {
-    return 0; // TODO: endian swap the shorts instead
+    return nullptr; // TODO: endian swap the shorts instead
   }
   auto header = reinterpret_cast<const TGA *>(tga_buf);
   if (header->color_map_type != 0 // no color map
@@ -271,8 +276,11 @@ Texture *Renderer::CreateTextureFromWebpMemory(const void *webp_buf,
 }
 
 void Renderer::DepthTest(bool on) {
-  if (on) glEnable(GL_DEPTH_TEST);
-  else glDisable(GL_DEPTH_TEST);
+  if (on) {
+    GL_CALL(glEnable(GL_DEPTH_TEST));
+  } else {
+    GL_CALL(glDisable(GL_DEPTH_TEST));
+  }
 }
 
 void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
@@ -285,11 +293,11 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
       break;
     case kBlendModeTest:
 #     ifndef PLATFORM_MOBILE  // Alpha test not supported in ES 2.
-      glDisable(GL_ALPHA_TEST);
+      GL_CALL(glDisable(GL_ALPHA_TEST));
       break;
 #     endif
     case kBlendModeAlpha:
-      glDisable(GL_BLEND);
+      GL_CALL(glDisable(GL_BLEND));
       break;
     default:
       assert(false); // Not yet implemented
@@ -302,13 +310,13 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
       break;
     case kBlendModeTest:
 #     ifndef PLATFORM_MOBILE
-      glEnable(GL_ALPHA_TEST);
-      glAlphaFunc(GL_GREATER, amount);
+      GL_CALL(glEnable(GL_ALPHA_TEST));
+      GL_CALL(glAlphaFunc(GL_GREATER, amount));
       break;
 #     endif
     case kBlendModeAlpha:
-      glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      GL_CALL(glEnable(GL_BLEND));
+      GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
       break;
     default:
       assert(false); // Not yet implemented
@@ -321,9 +329,26 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
 
 }  // namespace fpl
 
+void LogGLError(const char *file, int line, const char *call) {
+  auto err = glGetError();
+  if (err == GL_NO_ERROR) return;
+  const char *err_str = "<unknown error enum>";
+  switch (err) {
+    case GL_INVALID_ENUM: err_str = "GL_INVALID_ENUM"; break;
+    case GL_INVALID_VALUE: err_str = "GL_INVALID_VALUE"; break;
+    case GL_INVALID_OPERATION: err_str = "GL_INVALID_OPERATION"; break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+      err_str = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
+    case GL_OUT_OF_MEMORY: err_str = "GL_OUT_OF_MEMORY"; break;
+  }
+  SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+               "%s(%d): OpenGL Error: %s from %s", file, line, err_str, call);
+  assert(0);
+}
 
 #if !defined(PLATFORM_MOBILE) && !defined(__APPLE__)
   #define GLEXT(type, name) type name = nullptr;
     GLBASEEXTS GLEXTS
   #undef GLEXT
 #endif
+

@@ -36,23 +36,24 @@ void Shader::InitializeUniforms() {
     snprintf(texture_unit_name, sizeof(texture_unit_name),
         "texture_unit_%d", i);
     auto loc = glGetUniformLocation(program_, texture_unit_name);
-    if (loc >= 0) glUniform1i(loc, i);
+    if (loc >= 0) GL_CALL(glUniform1i(loc, i));
   }
 }
 
 void Shader::Set(const Renderer &renderer) const {
-  glUseProgram(program_);
+  GL_CALL(glUseProgram(program_));
 
   if (uniform_model_view_projection_ >= 0)
-    glUniformMatrix4fv(uniform_model_view_projection_, 1, false,
-                       &renderer.model_view_projection()[0]);
+    GL_CALL(glUniformMatrix4fv(uniform_model_view_projection_, 1, false,
+                               &renderer.model_view_projection()[0]));
   if (uniform_model_ >= 0)
-    glUniformMatrix4fv(uniform_model_, 1, false, &renderer.model()[0]);
-  if (uniform_color_ >= 0) glUniform4fv(uniform_color_, 1, &renderer.color()[0]);
+    GL_CALL(glUniformMatrix4fv(uniform_model_, 1, false, &renderer.model()[0]));
+  if (uniform_color_ >= 0)
+    GL_CALL(glUniform4fv(uniform_color_, 1, &renderer.color()[0]));
   if (uniform_light_pos_ >= 0)
-    glUniform3fv(uniform_light_pos_, 1, &renderer.light_pos()[0]);
+    GL_CALL(glUniform3fv(uniform_light_pos_, 1, &renderer.light_pos()[0]));
   if (uniform_camera_pos_ >= 0)
-    glUniform3fv(uniform_camera_pos_, 1, &renderer.camera_pos()[0]);
+    GL_CALL(glUniform3fv(uniform_camera_pos_, 1, &renderer.camera_pos()[0]));
 }
 
 }  // namespace fpl

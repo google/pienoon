@@ -95,4 +95,17 @@
     #endif
 #endif
 
+// Define a GL_CALL macro to wrap each (void-returning) OpenGL call.
+// This logs GL error when LOG_GL_ERRORS below is defined.
+#define LOG_GL_ERRORS
+#ifdef LOG_GL_ERRORS
+    #define GL_CALL(call) { call; LogGLError(__FILE__, __LINE__, #call); }
+#else
+    #define GL_CALL(call) call
+#endif
+
+// The error checking function used by the GL_CALL macro above,
+// uses glGetError() to check for errors.
+extern void LogGLError(const char *file, int line, const char *call);
+
 #endif  // GLPLATFORM_H
