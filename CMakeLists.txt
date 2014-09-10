@@ -49,7 +49,12 @@ set(dependencies_webp_cmake_dir "webp"
 set(dependencies_webp_distr_dir "${third_party_root}/webp"
     CACHE PATH "Directory containing the Webp distribution.")
 
-# Include MathFu in this project.
+# Option to enable / disable the test build.
+option(splat_build_tests "Build tests for this project." ON)
+
+# Include MathFu in this project with test and benchmark builds disabled.
+set(mathfu_build_benchmarks OFF CACHE BOOL "")
+set(mathfu_build_tests OFF CACHE BOOL "")
 add_subdirectory(${dependencies_mathfu_dir} mathfu)
 
 # Include SDL in this project while working around SDL requirement of out of
@@ -69,6 +74,7 @@ add_subdirectory("${dependencies_sdl_mixer_dir}" sdl_mixer)
 add_subdirectory("${dependencies_webp_cmake_dir}" webp)
 
 # Include FlatBuffers in this project.
+set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
 add_subdirectory("${dependencies_flatbuffers_dir}" flatbuffers)
 
 # Generate source files for all FlatBuffers schema files under the src
@@ -164,7 +170,9 @@ target_link_libraries(splat
   webp)
 
 # Tests.
-add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+if(splat_build_tests)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+endif()
 
 get_target_property(SPLAT_EXECUTABLE splat LOCATION)
 
