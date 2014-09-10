@@ -124,7 +124,6 @@ flatbuffers_single_schema_json:=\
 	$(TOP)/src/rawassets/config.json \
 	$(TOP)/src/rawassets/buses.json \
 	$(TOP)/src/rawassets/character_state_machine_def.json \
-	$(TOP)/src/rawassets/rendering_assets.json \
 	$(TOP)/src/rawassets/sound_assets.json
 
 # json describing FlatBuffers material data (using the material.fbs schema)
