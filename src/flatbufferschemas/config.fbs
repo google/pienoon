@@ -75,10 +75,10 @@ table RenderableDef {
   // by the data structure here.
   id:RenderableId;
 
-  // Texture for the front of the cardboard cutout.
+  // Material for the front of the cardboard cutout.
   cardboard_front:string;
 
-  // Texture for the inside surface of the cardboard cutout. That is, showing
+  // Material for the inside surface of the cardboard cutout. That is, showing
   // the corrugations.
   cardboard_back:string;
 
@@ -273,10 +273,11 @@ table Config {
   // cardboard_back_z_offset.
   stick_back_z_offset:float;
 
-  // Texture for the front of the stick. The cutouts are mounted on the stick.
+  // Material for the front of the stick. The cutouts are mounted on the stick.
   stick_front:string;
 
-  // Texture for the inside of the stick. Rendered similar to 'cardboard_back'.
+  // Material for the inside of the stick. Rendered similar to
+  // 'cardboard_back'.
   stick_back:string;
 
   // Offset of UI arrow from the character. Z is forward. X is side. Y is up.
