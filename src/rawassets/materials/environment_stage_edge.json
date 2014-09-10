@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/shelf_edge.tga"
+    "textures/mover_s.tga"
   ],
   "blendmode": "ALPHA"
 }

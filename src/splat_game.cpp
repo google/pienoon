@@ -411,18 +411,20 @@ void SplatGame::Render(const SceneDescription& scene) {
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
-  const float gs = 16.4;
-  const float txs = 1;
-  Mesh::RenderAAQuadAlongX(vec3(-gs, 0, 0), vec3(gs, 0, 8),
-                           vec2(0, 0), vec2(txs, txs));
-  vec2 scale_bias(txs / gs, -0.5f);
+  const float ground_width = 16.4f;
+  const float ground_depth = 8.0f;
+  Mesh::RenderAAQuadAlongX(vec3(-ground_width, 0, 0),
+                           vec3(ground_width, 0, ground_depth),
+                           vec2(0, 0), vec2(1.0f, 1.0f));
+  const vec4 world_scale_bias(1.0f / (2.0f * ground_width), 1.0f / ground_depth,
+                              0.5f, 0.0f);
 
   // Render shadows for all Renderables first, with depth testing off so
   // they blend properly.
   renderer_.DepthTest(false);
   renderer_.model_view_projection() = camera_transform;
   renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
-  shader_simple_shadow_->SetUniform("scale_bias", scale_bias);
+  shader_simple_shadow_->SetUniform("world_scale_bias", world_scale_bias);
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const Renderable& renderable = scene.renderables()[i];
     const int id = renderable.id();

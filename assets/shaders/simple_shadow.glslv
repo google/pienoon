@@ -19,7 +19,7 @@ varying vec2 vTexCoordGround;
 uniform mat4 model_view_projection;
 uniform mat4 model;  // object to world space transform
 uniform vec3 light_pos;  // in world space
-uniform vec2 scale_bias;
+uniform vec4 world_scale_bias;
 
 void main()
 {
@@ -34,6 +34,7 @@ void main()
   gl_Position = model_view_projection * vec4(world_pos_on_ground, 1.0);
   vTexCoord = aTexCoord;
   // Derive the ground texcoord from the world position
-  vTexCoordGround = world_pos_on_ground.xz * scale_bias.x + scale_bias.y;
+  vTexCoordGround = world_pos_on_ground.xz * world_scale_bias.xy +
+                    world_scale_bias.zw;
 }
 
