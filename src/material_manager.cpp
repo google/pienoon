@@ -85,11 +85,10 @@ Texture *MaterialManager::LoadTexture(const char *filename) {
     if (tex) {
       texture_map_[filename] = tex;
     } else {
-      renderer_.last_error() = std::string("TGA format problem: ") + filename;
+      renderer_.last_error() = std::string("file format problem: ") + filename;
     }
     return tex;
   }
-  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Couldn\'t load: %s", filename);
   renderer_.last_error() = std::string("Couldn\'t load: ") + filename;
   return nullptr;
 }
@@ -113,6 +112,8 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
              it != matdef->texture_filenames()->end(); ++it) {
       auto tex = LoadTexture(it->c_str());
       if (!tex) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Texture: %s",
+                     renderer_.last_error().c_str());
         delete mat;
         return nullptr;
       }

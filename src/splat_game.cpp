@@ -92,6 +92,7 @@ SplatGame::SplatGame()
       shader_lit_textured_normal_(nullptr),
       shader_simple_shadow_(nullptr),
       shader_textured_(nullptr),
+      shadow_mat_(nullptr),
       prev_world_time_(0),
       debug_previous_states_(),
       debug_previous_angles_() {
@@ -250,6 +251,10 @@ bool SplatGame::InitializeRenderingAssets() {
   if (!(shader_lit_textured_normal_ &&
         shader_simple_shadow_ &&
         shader_textured_)) return false;
+
+  // Load shadow material:
+  shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.bin");
+  if (!shadow_mat_) return false;
 
   return true;
 }
@@ -415,8 +420,6 @@ void SplatGame::Render(const SceneDescription& scene) {
   // Render shadows for all Renderables first, with depth testing off so
   // they blend properly.
   renderer_.DepthTest(false);
-  auto shadow_mat = matman_.LoadMaterial("materials/floor_shadows.bin");
-  assert(shadow_mat);
   renderer_.model_view_projection() = camera_transform;
   renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
   shader_simple_shadow_->SetUniform("scale_bias", scale_bias);
@@ -428,8 +431,8 @@ void SplatGame::Render(const SceneDescription& scene) {
       renderer_.model() = renderable.world_matrix();
       shader_simple_shadow_->Set(renderer_);
       // The first texture of the shadow shader has to be that of the billboard.
-      shadow_mat->textures()[0] = front->GetMaterial(0)->textures()[0];
-      shadow_mat->Set(renderer_);
+      shadow_mat_->textures()[0] = front->GetMaterial(0)->textures()[0];
+      shadow_mat_->Set(renderer_);
       front->Render(renderer_, true);
     }
   }

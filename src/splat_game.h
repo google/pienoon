@@ -103,6 +103,9 @@ class SplatGame {
   Shader *shader_simple_shadow_;
   Shader *shader_textured_;
 
+  // Shadow material.
+  Material *shadow_mat_;
+
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_;
 

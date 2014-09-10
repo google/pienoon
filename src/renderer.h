@@ -47,7 +47,7 @@ class Renderer {
   Shader *CompileAndLinkShader(const char *vs_source, const char *ps_source);
 
   // Create a texture from a memory buffer containing xsize * ysize RGBA pixels.
-  // Does not fail.
+  // Fails if not a power of two in size.
   Texture *CreateTexture(const uint8_t *buffer, const vec2i &size);
 
   // Create a texture from a memory buffer containing a TGA format file.

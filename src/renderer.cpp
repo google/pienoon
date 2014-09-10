@@ -205,6 +205,13 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
 }
 
 Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
+  int area = size.x() * size.y();
+  if (area & (area - 1)) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "CreateTexture: not power of two in size: (%d,%d)",
+                 size.x(), size.y());
+    return NULL;
+  }
   // TODO: support default args for mipmap/wrap
   GLuint texture_id;
   GL_CALL(glGenTextures(1, &texture_id));
