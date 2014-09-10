@@ -1,5 +1,7 @@
 # Binary
-splat
+libs/
+bin/
+obj/
 tests/*_test
 *.bin
 *.webp
@@ -44,12 +46,9 @@ tags
 splat.tar.gz
 
 # android build files
-bin/
 build.xml
 gen/
-libs/
 local.properties
-obj/
 proguard-project.txt
 
 # symlink to the Google Play Services library.

@@ -18,8 +18,12 @@ project(splat)
 # Compile the game with the debug flag
 set(SPLAT_DEBUG ON)
 
+set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# Temporary files (like object files) created while compiling projects.
+set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 
 # Directory which contains the source for 3rd party libraries.
 get_filename_component(
@@ -45,19 +49,19 @@ set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
 set(dependencies_sdl_dir "${third_party_root}/sdl"
     CACHE PATH "Directory containing the SDL library.")
-set(dependencies_libogg_cmake_dir "libogg"
+set(dependencies_libogg_cmake_dir "${CMAKE_MODULE_PATH}/libogg"
     CACHE PATH "Directory containing the libogg cmake project.")
 set(dependencies_libogg_distr_dir "${third_party_root}/libogg"
     CACHE PATH "Directory containing the libogg library.")
-set(dependencies_libvorbis_cmake_dir "libvorbis"
+set(dependencies_libvorbis_cmake_dir "${CMAKE_MODULE_PATH}/libvorbis"
     CACHE PATH "Directory containing the libvorbis cmake project.")
 set(dependencies_libvorbis_distr_dir "${third_party_root}/libvorbis"
     CACHE PATH "Directory containing the libvorbis library.")
-set(dependencies_sdl_mixer_cmake_dir "sdl_mixer"
+set(dependencies_sdl_mixer_cmake_dir "${CMAKE_MODULE_PATH}/sdl_mixer"
     CACHE PATH "Directory containing the SDL Mixer cmake project.")
 set(dependencies_sdl_mixer_distr_dir "${third_party_root}/sdl_mixer"
     CACHE PATH "Directory containing the SDL Mixer library.")
-set(dependencies_webp_cmake_dir "webp"
+set(dependencies_webp_cmake_dir "${CMAKE_MODULE_PATH}/webp"
     CACHE PATH "Directory containing the Webp cmake project.")
 set(dependencies_webp_distr_dir "${third_party_root}/webp"
     CACHE PATH "Directory containing the Webp distribution.")
@@ -78,7 +82,7 @@ endif()
 # Include MathFu in this project with test and benchmark builds disabled.
 set(mathfu_build_benchmarks OFF CACHE BOOL "")
 set(mathfu_build_tests OFF CACHE BOOL "")
-add_subdirectory(${dependencies_mathfu_dir} mathfu)
+add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
 
 # Include SDL in this project while working around SDL requirement of out of
 # tree builds.
@@ -87,28 +91,28 @@ set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
 if(APPLE)
   set(SDL_AUDIO_DRIVER_COREAUDIO 1)
 endif(APPLE)
-add_subdirectory(${dependencies_sdl_dir} sdl)
+add_subdirectory(${dependencies_sdl_dir} ${tmp_dir}/sdl)
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
 # Include libogg.
-add_subdirectory("${dependencies_libogg_cmake_dir}" libogg)
+add_subdirectory("${dependencies_libogg_cmake_dir}" ${tmp_dir}/libogg)
 
 # Include libvorbis.
-add_subdirectory("${dependencies_libvorbis_cmake_dir}" libvorbis)
+add_subdirectory("${dependencies_libvorbis_cmake_dir}" ${tmp_dir}/libvorbis)
 
 # Include SDL Mixer.
 set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
-add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" sdl_mixer)
+add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" ${tmp_dir}/sdl_mixer)
 
 # Include Webp in this project, and force build in release mode for speed.
 set(original_build_type ${CMAKE_BUILD_TYPE})
 set(CMAKE_BUILD_TYPE Release)
-add_subdirectory("${dependencies_webp_cmake_dir}" webp)
+add_subdirectory("${dependencies_webp_cmake_dir}" ${tmp_dir}/webp)
 set(CMAKE_BUILD_TYPE ${original_build_type})
 
 # Include FlatBuffers in this project.
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
-add_subdirectory("${dependencies_flatbuffers_dir}" flatbuffers)
+add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
 
 # Generate source files for all FlatBuffers schema files under the src
 # directory.
