@@ -88,26 +88,27 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
                     src
 
 LOCAL_SRC_FILES := \
-	$(DEPENDENCIES_SDL_DIR)/src/main/android/SDL_android_main.c \
-	$(SPLAT_DIR)/src/ai_controller.cpp \
-	$(SPLAT_DIR)/src/audio_engine.cpp \
-	$(SPLAT_DIR)/src/character.cpp \
-	$(SPLAT_DIR)/src/character_state_machine.cpp \
-	$(SPLAT_DIR)/src/controller.cpp \
-	$(SPLAT_DIR)/src/game_state.cpp \
-	$(SPLAT_DIR)/src/gpg_manager.cpp \
-	$(SPLAT_DIR)/src/input.cpp \
-	$(SPLAT_DIR)/src/main.cpp \
-	$(SPLAT_DIR)/src/material.cpp \
-	$(SPLAT_DIR)/src/material_manager.cpp \
-	$(SPLAT_DIR)/src/mesh.cpp \
-	$(SPLAT_DIR)/src/player_controller.cpp \
-	$(SPLAT_DIR)/src/precompiled.cpp \
-	$(SPLAT_DIR)/src/renderer.cpp \
-	$(SPLAT_DIR)/src/shader.cpp \
-	$(SPLAT_DIR)/src/sound.cpp \
-	$(SPLAT_DIR)/src/splat_game.cpp \
-	$(SPLAT_DIR)/src/utilities.cpp
+  $(DEPENDENCIES_SDL_DIR)/src/main/android/SDL_android_main.c \
+  $(SPLAT_DIR)/src/ai_controller.cpp \
+  $(SPLAT_DIR)/src/audio_engine.cpp \
+  $(SPLAT_DIR)/src/character.cpp \
+  $(SPLAT_DIR)/src/character_state_machine.cpp \
+  $(SPLAT_DIR)/src/controller.cpp \
+  $(SPLAT_DIR)/src/gamepad_controller.cpp \
+  $(SPLAT_DIR)/src/game_state.cpp \
+  $(SPLAT_DIR)/src/gpg_manager.cpp \
+  $(SPLAT_DIR)/src/input.cpp \
+  $(SPLAT_DIR)/src/main.cpp \
+  $(SPLAT_DIR)/src/material.cpp \
+  $(SPLAT_DIR)/src/material_manager.cpp \
+  $(SPLAT_DIR)/src/mesh.cpp \
+  $(SPLAT_DIR)/src/player_controller.cpp \
+  $(SPLAT_DIR)/src/precompiled.cpp \
+  $(SPLAT_DIR)/src/renderer.cpp \
+  $(SPLAT_DIR)/src/shader.cpp \
+  $(SPLAT_DIR)/src/sound.cpp \
+  $(SPLAT_DIR)/src/splat_game.cpp \
+  $(SPLAT_DIR)/src/utilities.cpp
 
 # Make each source file dependent upon the generated_includes and build_assets
 # targets.

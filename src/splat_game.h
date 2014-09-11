@@ -22,6 +22,7 @@
 #include "renderer.h"
 #include "player_controller.h"
 #include "ai_controller.h"
+#include "gamepad_controller.h"
 #include "audio_engine.h"
 #ifdef PLATFORM_MOBILE
 #include "gpg_manager.h"
@@ -80,6 +81,9 @@ class SplatGame {
 
   // Report touches, button presses, keyboard presses.
   InputSystem input_;
+
+  // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
+  GamepadController DEBUG_gamepad_controller_;
 
   // Hold rendering context.
   Renderer renderer_;

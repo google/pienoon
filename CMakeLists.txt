@@ -119,6 +119,7 @@ set(splat_SRCS
     src/character_state_machine.cpp
     src/controller.cpp
     src/game_state.cpp
+    src/gamepad_controller.cpp
     src/input.cpp
     src/main.cpp
     src/material_manager.cpp

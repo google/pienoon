@@ -292,11 +292,21 @@ bool SplatGame::InitializeGameState() {
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
     if (i<1) // TODO(ccornell) Make this better once we get drop-in joining.
-      game_state_.characters().push_back(Character(i, &controllers_[i],
+
+#if defined(__ANDROID__)
+      game_state_.characters().push_back(Character(i, &DEBUG_gamepad_controller_,
                                                    state_machine_def));
+#else // defined(__ANDROID_ )
+          game_state_.characters().push_back(Character(i, &controllers_[i],
+                                                       state_machine_def));
+#endif // !defined(_ANDROID_)
+
     else
       game_state_.characters().push_back(Character(i, &ai_controllers_[i],
                                                    state_machine_def));
+
+      // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
+      DEBUG_gamepad_controller_.Initialize(&input_, 0);
   }
 
   debug_previous_states_.resize(config.character_count(), -1);
@@ -322,6 +332,8 @@ bool SplatGame::Initialize() {
 
   if (!InitializeRenderingAssets())
     return false;
+
+  input_.Initialize();
 
   // Some people are having trouble loading the audio engine, and it's not
   // strictly necessary for gameplay, so don't die if the audio engine fails to

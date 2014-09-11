@@ -24,8 +24,8 @@ using mathfu::vec2i;
 // Allows you to know if a button went up/down this frame.
 class Button {
  public:
-  Button() : is_down_(false) { Reset(); }
-  void Reset() { went_down_ = went_up_ = false; }
+  Button() : is_down_(false) { AdvanceFrame(); }
+  void AdvanceFrame() { went_down_ = went_up_ = false; }
   void Update(bool down);
 
   bool is_down() const { return is_down_; }
@@ -72,6 +72,61 @@ struct Pointer {
     Pointer() : id(0), mousepos(-1), mousedelta(0), used(false) {};
 };
 
+
+
+// Used to record state for axes
+class JoystickAxis {
+ public:
+  JoystickAxis() : value_(0), previous_value_(0) { AdvanceFrame(); }
+  void AdvanceFrame() { previous_value_ = value_; }
+  void Update(float new_value) { value_ = new_value; }
+  float Value() const { return value_; }
+  float PreviousValue() const { return previous_value_; }
+
+ private:
+  float value_;  //current value
+  float previous_value_;  //value last update
+};
+
+// Used to record state for hats
+class JoystickHat {
+ public:
+  JoystickHat() { AdvanceFrame(); }
+  void AdvanceFrame() { previous_value_ = value_; }
+  void Update(vec2 new_value) {
+    value_ = new_value;
+  }
+  const vec2 &Value() const { return value_; }
+  vec2 PreviousValue() const { return previous_value_; }
+
+ private:
+  vec2 value_;  //current value
+  vec2 previous_value_;  //value last update
+};
+
+
+class Joystick {
+ public:
+
+  // Get a Button object for a pointer index.
+  Button &GetButton(size_t button_index);
+  JoystickAxis &GetAxis(size_t axis_index);
+  JoystickHat &GetHat(size_t hat_index);
+  void AdvanceFrame();
+
+ private:
+  //The maximum number of joystick attributes we track.
+  static const int kMaxJoystickAxes = 10;
+  static const int kMaxJoystickButtons = 10;
+  static const int kMaxJoystickHats = 10;
+
+  SDL_JoystickID joystick_id_;
+  std::vector<JoystickAxis> axis_list_;
+  std::vector<Button> button_list_;
+  std::vector<JoystickHat> hat_list_;
+};
+
+
 class InputSystem {
  public:
   InputSystem() : exit_requested_(false), minimized_(false),
@@ -97,17 +152,32 @@ class InputSystem {
   // above.
   Button &GetButton(int button);
 
+  // Get a joystick object describing the current input state of the specified
+  // joystick ID.  (Contained in every joystick event.)
+  Joystick &GetJoystick(SDL_JoystickID joystick_id);
+
   // Get a Button object for a pointer index.
   Button &GetPointerButton(int pointer) {
     return GetButton(pointer + SDLK_POINTER1);
   }
 
+  void OpenConnectedJoysticks();
+  void CloseOpenJoysticks();
+  void UpdateConnectedJoystickList();
+  void HandleJoystickEvent(SDL_Event event);
+
+  // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
+  SDL_JoystickID DEBUG_most_recent_joystick;
+
  private:
+  std::vector <SDL_Joystick*> open_joystick_list;
   static int HandleAppEvents(void *userdata, SDL_Event *event);
   size_t FindPointer(SDL_FingerID id);
   size_t UpdateDragPosition(const SDL_TouchFingerEvent &e, uint32_t event_type,
                             const vec2i &window_size);
   void RemovePointer(size_t i);
+  vec2 ConvertHatToVector(uint32_t hat_enum) const;
+
 
  public:
   bool exit_requested_;
@@ -116,6 +186,7 @@ class InputSystem {
 
  private:
   std::map<int, Button> button_map_;
+  std::map<SDL_JoystickID, Joystick> joystick_map_;
 
   // Frame timing related, all in milliseconds.
   // records the most recent frame delta, most recent time since start,
