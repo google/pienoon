@@ -22,7 +22,7 @@ void main()
   // This will still lead to aliased edges if we render
   // in the wrong order, but leaves us the option to render correctly
   // if we sort our polygons first.
-  if (texture_color.a < 0.1)
+  if (texture_color.a < 0.01)
     discard;
   gl_FragColor = color * texture_color;
 }

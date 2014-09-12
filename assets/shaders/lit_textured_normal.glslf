@@ -19,7 +19,10 @@ void main(void)
     // This will still lead to aliased edges if we render
     // in the wrong order, but leaves us the option to render correctly
     // if we sort our polygons first.
-    if (texture_color.a < 0.1)
+    // The threshold is set moderately high here, because we have
+    // a lot of art with soft aliased eges, which creates ghosting if
+    // we use a lower threshold.
+    if (texture_color.a < 0.5)
       discard;
     texture_color *= color;
 

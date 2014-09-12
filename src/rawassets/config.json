@@ -434,7 +434,7 @@
     },
     {
       "renderable": "RenderableId.EnvironmentCloud",
-      "position": { "x": -4, "y": 7, "z":6.7 },
+      "position": { "x": -4, "y": 7, "z":6.5 },
       "rotation": -10,
       "orientation": "Verticle",
       "scale": { "x": 1, "y": 1, "z": 1 }
