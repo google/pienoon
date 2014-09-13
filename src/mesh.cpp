@@ -149,4 +149,65 @@ void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
                     reinterpret_cast<const char *>(vertices), indices);
 }
 
+// Compute normals and tangents for a mesh based on positions and texcoords.
+void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
+                                   const int *indices,
+                                   int numverts,
+                                   int numindices) {
+  std::vector<vec3> binormals(numverts, vec3(0, 0, 0));
+  // set all normals to 0, as we'll accumulate
+  for (int i = 0; i < numverts; i++) {
+    vertices[i].norm = vec3(0, 0, 0);
+    vertices[i].tangent = vec4(0, 0, 0, 0);
+  }
+  // Go through each triangle and calculate tangent space for it, then
+  // contribute results to adjacent triangles.
+  // For a description of the math see e.g.:
+  // http://www.terathon.com/code/tangent.html
+  for (int i = 0; i < numindices; i += 3) {
+    auto &v0 = vertices[indices[i + 0]];
+    auto &v1 = vertices[indices[i + 1]];
+    auto &v2 = vertices[indices[i + 2]];
+    // The cross product of two vectors along the triangle surface from the
+    // first vertex gives us this triangle's normal.
+    auto q1 = v1.pos - v0.pos;
+    auto q2 = v2.pos - v0.pos;
+    auto norm = normalize(cross(q1, q2));
+    // Contribute the triangle normal into all 3 verts:
+    v0.norm += norm;
+    v1.norm += norm;
+    v2.norm += norm;
+    // Similarly create uv space vectors:
+    auto uv1 = v1.tc - v0.tc;
+    auto uv2 = v2.tc - v0.tc;
+    float m = 1 / (uv1.x() * uv2.y() - uv2.x() * uv1.y());
+    auto tangent = (uv2.y() * q1 - uv1.y() * q2) * m;
+    auto binorm = (uv1.x() * q2 - uv2.x() * q1) * m;
+    v0.tangent += vec4(tangent, 0);
+    v1.tangent += vec4(tangent, 0);
+    v2.tangent += vec4(tangent, 0);
+    binormals[indices[i + 0]] = binorm;
+    binormals[indices[i + 1]] = binorm;
+    binormals[indices[i + 2]] = binorm;
+  }
+  // Normalize per vertex tangent space constributions, and pack tangent /
+  // binormal into a 4 component tangent.
+  for (int i = 0; i < numverts; i++) {
+    auto &norm = vertices[i].norm;
+    auto &tangent = vertices[i].tangent;
+    // Renormalize all 3 axes:
+    norm = normalize(norm);
+    tangent = vec4(normalize(tangent.xyz()), 0);
+    binormals[i] = normalize(binormals[i]);
+    tangent = vec4(
+      // Gram-Schmidt orthogonalize xyz components:
+      normalize(tangent.xyz() - norm * dot(norm, tangent.xyz())),
+      // The w component is the handedness, set as difference between the
+      // binormal we computed from the texture coordinates and that from the
+      // cross-product:
+      dot(cross(norm, tangent.xyz()), binormals[i])
+    );
+  }
+}
+
 }  // namespace fpl

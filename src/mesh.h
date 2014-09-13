@@ -31,6 +31,18 @@ enum Attribute {
   kColor4ub
 };
 
+// A vertex definition specific to normalmapping.
+// TODO: this is bad for 2 reasons:
+// a) we should not have hardcoded structs like this, instead use Attribute
+// b) it forces us to use MATHFU_COMPILE_FORCE_PADDING 0 for the project.
+// but without it, ComputeNormalsTangents() becomes very clumsy.
+struct NormalMappedVertex {
+  vec3 pos;
+  vec2 tc;
+  vec3 norm;
+  vec4 tangent;
+};
+
 // A mesh instance contains a VBO and one or more IBO's.
 class Mesh {
  public:
@@ -62,6 +74,12 @@ class Mesh {
                                  const vec3 &top_right,
                                  const vec2 &tex_bottom_left = vec2(0, 0),
                                  const vec2 &tex_top_right = vec2(1, 1));
+
+  // Compute normals and tangents given position and texcoords.
+  static void ComputeNormalsTangents(NormalMappedVertex *vertices,
+                                     const int *indices,
+                                     int numverts,
+                                     int numindices);
 
   enum {
     kAttributePosition,

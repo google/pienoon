@@ -37,30 +37,8 @@ using mathfu::mat4;
 namespace fpl {
 namespace splat {
 
-struct CardboardVertex {
-  float x, y, z;
-  float u, v;
-  float normal_x, normal_y, normal_z;
-  float tangent_x, tangent_y, tangent_z;
-  float handedness;
-
-  void SetPosition(float position_x, float position_y, float position_z) {
-    x = position_x;
-    y = position_y;
-    z = position_z;
-  }
-};
-
 static const int kQuadNumVertices = 4;
 static const int kQuadNumIndices = 6;
-
-static const CardboardVertex kQuadUnpositionedVertices[] = {
-    // [x,   y,   z]    [ u,    v]   [normal x, y, z]  [tan x, y, z, handedness]
-    {0.0f, 0.0f, 0.0f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 0.0f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 0.0f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f},
-};
 
 static const int kQuadIndices[] = { 0, 1, 2, 2, 1, 3 };
 
@@ -146,15 +124,17 @@ bool SplatGame::InitializeRenderer() {
 // Initializes 'vertices' at the specified position, aligned up-and-down.
 // 'vertices' must be an array of length kQuadNumVertices.
 static void CreateVerticalQuad(float left, float right, float bottom, float top,
-                               float depth, CardboardVertex* vertices) {
-  MATHFU_STATIC_ASSERT(ARRAYSIZE(kQuadUnpositionedVertices) ==
-                       kQuadNumVertices);
-  memcpy(vertices, kQuadUnpositionedVertices,
-         sizeof(kQuadUnpositionedVertices));
-  vertices[0].SetPosition(left, bottom, depth);
-  vertices[1].SetPosition(right, bottom, depth);
-  vertices[2].SetPosition(left, top, depth);
-  vertices[3].SetPosition(right, top, depth);
+                               float depth, NormalMappedVertex* vertices) {
+  vertices[0].pos = vec3(left, bottom, depth);
+  vertices[1].pos = vec3(right, bottom, depth);
+  vertices[2].pos = vec3(left, top, depth);
+  vertices[3].pos = vec3(right, top, depth);
+  vertices[0].tc = vec2(0, 0);
+  vertices[1].tc = vec2(1, 0);
+  vertices[2].tc = vec2(0, 1);
+  vertices[3].tc = vec2(1, 1);
+  Mesh::ComputeNormalsTangents(vertices, &kQuadIndices[0], kQuadNumVertices,
+                               kQuadNumIndices);
 }
 
 // Creates a mesh of a single quad (two triangles) vertically upright.
@@ -185,13 +165,13 @@ Mesh* SplatGame::CreateVerticalQuadMesh(
   const float half_width = geo_size[0] * 0.5f;
 
   // Initialize a vertex array in the requested position.
-  CardboardVertex vertices[kQuadNumVertices];
+  NormalMappedVertex vertices[kQuadNumVertices];
   CreateVerticalQuad(offset[0] - half_width, offset[0] + half_width,
                      offset[1], offset[1] + geo_size[1],
                      offset[2], vertices);
 
   // Create mesh and add in quad indices.
-  Mesh* mesh = new Mesh(vertices, kQuadNumVertices, sizeof(CardboardVertex),
+  Mesh* mesh = new Mesh(vertices, kQuadNumVertices, sizeof(NormalMappedVertex),
                         kQuadMeshFormat);
   mesh->AddIndices(kQuadIndices, kQuadNumIndices, material);
   return mesh;

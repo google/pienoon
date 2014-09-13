@@ -35,6 +35,8 @@
 #endif // !defined(_WIN32)
 
 #include "flatbuffers/util.h"
+
+#define MATHFU_COMPILE_FORCE_PADDING 0
 #include "mathfu/matrix.h"
 #include "mathfu/vector_4.h"
 #include "mathfu/glsl_mappings.h"
