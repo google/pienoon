@@ -767,7 +767,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       const uint16_t renderable_id = c->RenderableId(anim_time);
       const mat4 character_matrix = c->CalculateMatrix(facing_camera);
       scene->renderables().push_back(
-          Renderable(renderable_id, character_matrix));
+          Renderable(renderable_id, character_matrix,
+                     LoadVec3(config_->character_colors()->Get(c->id()))));
 
       // Accessories.
       int num_accessories = 0;

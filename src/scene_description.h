@@ -22,9 +22,11 @@ namespace fpl {
 
 class Renderable {
  public:
-  Renderable(uint16_t id, const mathfu::mat4& world_matrix)
+  Renderable(uint16_t id, const mathfu::mat4& world_matrix,
+             const mathfu::vec3 &color = mathfu::vec3(1, 1, 1))
     : id_(id),
-      world_matrix_(world_matrix)
+      world_matrix_(world_matrix),
+      color_(color)
   {}
 
   uint16_t id() const { return id_; }
@@ -33,6 +35,9 @@ class Renderable {
   const mathfu::mat4& world_matrix() const { return world_matrix_; }
   void set_world_matrix(const mathfu::mat4& mat) { world_matrix_ = mat; }
 
+  const mathfu::vec3& color() const { return color_; }
+  void set_color(const mathfu::vec3& c) { color_ = c; }
+
  private:
   // Unique identifier for item to be rendered.
   // See renderable_id in timeline_generated.h.
@@ -40,6 +45,8 @@ class Renderable {
 
   // Position and orientation of item.
   mathfu::mat4 world_matrix_;
+
+  mathfu::vec3 color_;
 };
 
 class SceneDescription {

@@ -111,6 +111,12 @@ table Config {
   // Different configurations of players.
   character_arrangements:[CharacterArrangement];
 
+  // Character primary colors.
+  character_colors:[Vec3];
+
+  // This modulates the primary colors
+  character_global_brightness_factor:float;
+
   // Audio engine configuration.
   audio:AudioConfig;
 
