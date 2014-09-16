@@ -19,7 +19,7 @@
 TOP:=$(dir $(lastword $(MAKEFILE_LIST)))/..
 
 # Directory that contains the FlatBuffers compiler.
-FLATBUFFERS_PATH?=$(TOP)/flatbuffers
+FLATBUFFERS_PATH?=$(TOP)/bin
 
 # Directory that contains the cwebp tool.
 WEBP_PATH?=$(TOP)/webp

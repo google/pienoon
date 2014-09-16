@@ -148,7 +148,7 @@ void InputSystem::HandleJoystickEvent(SDL_Event event) {
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
       GetJoystick(joystick_id).GetButton(event.jbutton.button).Update(
-          event.jbutton.state);
+          event.jbutton.state != 0);
       DEBUG_most_recent_joystick = event.jbutton.which;
       break;
     case SDL_JOYHATMOTION:
@@ -160,7 +160,7 @@ void InputSystem::HandleJoystickEvent(SDL_Event event) {
 }
 
 // Convert SDL joystick hat enum values into more generic 2d vectors.
-vec2 InputSystem::ConvertHatToVector(u_int32_t hat_enum) const {
+vec2 InputSystem::ConvertHatToVector(uint32_t hat_enum) const {
   switch (hat_enum){
     case SDL_HAT_LEFTUP:
       return vec2(-1, -1);

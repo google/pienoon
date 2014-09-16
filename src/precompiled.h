@@ -18,9 +18,6 @@
 #include <assert.h>
 #include <cstdint>
 #include <map>
-#if defined(_WIN32) && !defined(_USE_MATH_DEFINES)
-#define _USE_MATH_DEFINES
-#endif // defined(_WIN32) && !defined(_USE_MATH_DEFINES)
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,11 +26,13 @@
 #if defined(_WIN32)
 #include <direct.h> // for _chdir
 #define NOMINMAX
-#include <windows.h> // for Sleep
 #else // !defined(_WIN32)
-#include <unistd.h> // for chdir, usleep
+#include <unistd.h> // for chdir
 #endif // !defined(_WIN32)
 
+#if defined(_WIN32)
+#define MATHFU_COMPILE_WITHOUT_SIMD_SUPPORT
+#endif
 #include "flatbuffers/util.h"
 
 #define MATHFU_COMPILE_FORCE_PADDING 0

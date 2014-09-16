@@ -57,6 +57,11 @@ class Shader {
     GL_CALL(glUseProgram(program_));
     return glGetUniformLocation(program_, uniform_name);
   }
+
+# ifdef _MSC_VER
+# pragma warning(push)
+# pragma warning(disable:4127) // conditional expression is constant
+# endif  // _MSC_VER
   // Set an non-standard uniform to a vec2/3/4 value.
   // Call this after Set() or FindUniform().
   template<int N> void SetUniform(GLint uniform_loc,
@@ -72,6 +77,10 @@ class Shader {
       assert(0);
     }
   }
+# ifdef _MSC_VER
+# pragma warning(pop)
+# endif  // _MSC_VER
+
   // Convenience call that does a Lookup and a Set if found.
   // Call this after Set().
   template<int N> bool SetUniform(const char *uniform_name,

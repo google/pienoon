@@ -16,8 +16,7 @@
 
 #include "utilities.h"
 
-namespace fpl
-{
+namespace fpl {
 
 bool LoadFile(const char *filename, std::string *dest) {
   auto handle = SDL_RWFromFile(filename, "rb");
@@ -126,16 +125,6 @@ std::string FileNameFromEnumName(const char* const enum_name,
   return std::string(prefix)
        + CamelCaseToSnakeCase(camel_case_name)
        + std::string(suffix);
-}
-
-// Yield the CPU for 't' milliseconds. Note that the precision of this function
-// varies from platform to platform.
-void SleepForMilliseconds(const uint32_t milliseconds) {
-#ifdef _WIN32
-  Sleep(milliseconds);
-#else
-  usleep(1000 * milliseconds);
-#endif // _WIN32
 }
 
 } // namespace fpl

@@ -271,19 +271,23 @@ bool SplatGame::InitializeGameState() {
 
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
-    if (i<1) // TODO(ccornell) Make this better once we get drop-in joining.
+    if (i<1) {  // TODO(ccornell) Make this better once we get drop-in joining.
 
 #if defined(__ANDROID__)
-      game_state_.characters().push_back(Character(i, &DEBUG_gamepad_controller_,
-                                                   config, state_machine_def));
+      game_state_.characters().push_back(std::unique_ptr<Character>(
+          new Character(i, &DEBUG_gamepad_controller_,
+                        config, state_machine_def)));
 #else // defined(__ANDROID_ )
-      game_state_.characters().push_back(Character(i, &controllers_[i],
-                                                   config, state_machine_def));
+      game_state_.characters().push_back(std::unique_ptr<Character>(
+          new Character(i, &controllers_[i],
+                        config, state_machine_def)));
 #endif // !defined(_ANDROID_)
 
-    else
-      game_state_.characters().push_back(Character(i, &ai_controllers_[i],
-                                                   config, state_machine_def));
+    } else {
+      game_state_.characters().push_back(std::unique_ptr<Character>(
+          new Character(i, &ai_controllers_[i],
+                        config, state_machine_def)));
+    }
 
     // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
     DEBUG_gamepad_controller_.Initialize(&input_, 0);
@@ -346,20 +350,20 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
   const Config& config = GetConfig();
 
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
-    const Renderable& renderable = scene.renderables()[i];
-    const int id = renderable.id();
+    const auto& renderable = scene.renderables()[i];
+    const int id = renderable->id();
 
     // Set up vertex transformation into projection space.
-    const mat4 mvp = camera_transform * renderable.world_matrix();
+    const mat4 mvp = camera_transform * renderable->world_matrix();
     renderer_.model_view_projection() = mvp;
 
     // Set the camera and light positions in object space.
-    const mat4 world_matrix_inverse = renderable.world_matrix().Inverse();
+    const mat4 world_matrix_inverse = renderable->world_matrix().Inverse();
     renderer_.camera_pos() = world_matrix_inverse *
                              game_state_.camera_position();
 
     // TODO: check amount of lights.
-    renderer_.light_pos() = world_matrix_inverse * scene.lights()[0];
+    renderer_.light_pos() = world_matrix_inverse * (*scene.lights()[0]);
 
     // Note: Draw order is back-to-front, so draw the cardboard back, then
     // popsicle stick, then cardboard front--in that order.
@@ -381,7 +385,7 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
 
     // Draw the front of the cardboard.
     renderer_.color() =
-        vec4(renderable.color() /
+        vec4(renderable->color() /
                config.character_global_brightness_factor() +
                (1 - 1 / config.character_global_brightness_factor()),
              1);
@@ -419,14 +423,14 @@ void SplatGame::Render(const SceneDescription& scene) {
   // they blend properly.
   renderer_.DepthTest(false);
   renderer_.model_view_projection() = camera_transform;
-  renderer_.light_pos() = scene.lights()[0];  // TODO: check amount of lights.
+  renderer_.light_pos() = *scene.lights()[0];  // TODO: check amount of lights.
   shader_simple_shadow_->SetUniform("world_scale_bias", world_scale_bias);
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
-    const Renderable& renderable = scene.renderables()[i];
-    const int id = renderable.id();
+    const auto& renderable = scene.renderables()[i];
+    const int id = renderable->id();
     Mesh* front = GetCardboardFront(id);
     if (config.renderables()->Get(id)->shadow()) {
-      renderer_.model() = renderable.world_matrix();
+      renderer_.model() = renderable->world_matrix();
       shader_simple_shadow_->Set(renderer_);
       // The first texture of the shadow shader has to be that of the billboard.
       shadow_mat_->textures()[0] = front->GetMaterial(0)->textures()[0];
@@ -443,13 +447,13 @@ void SplatGame::Render(const SceneDescription& scene) {
 // Debug function to print out state machine transitions.
 void SplatGame::DebugPrintCharacterStates() {
   // Display the state changes, at least until we get real rendering up.
-  for (unsigned int i = 0; i < game_state_.characters().size(); ++i) {
+  for (size_t i = 0; i < game_state_.characters().size(); ++i) {
     auto& character = game_state_.characters()[i];
-    int id = character.state_machine()->current_state()->id();
+    int id = character->state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                    "character %d - Health %2d, State %s [%d]\n",
-              i, character.health(), EnumNameStateId(id), id);
+              i, character->health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
     }
   }
@@ -458,11 +462,11 @@ void SplatGame::DebugPrintCharacterStates() {
 // Debug function to print out the state of each AirbornePie.
 void SplatGame::DebugPrintPieStates() {
   for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
-    AirbornePie& pie = game_state_.pies()[i];
+    auto& pie = game_state_.pies()[i];
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                  "Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
-           pie.source(), pie.target(), pie.damage(),
-           pie.position().x(), pie.position().y(), pie.position().z());
+           pie->source(), pie->target(), pie->damage(),
+           pie->position().x(), pie->position().y(), pie->position().z());
   }
 }
 
@@ -595,13 +599,13 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
       break;
 
     case kFinished:
-      for (auto it = game_state_.characters().begin();
-               it != game_state_.characters().end(); ++it) {
-        if (it->health() > 0) {
-          it->IncrementStat(kWins);
+      for (size_t i = 0; i < game_state_.characters().size(); ++i) {
+        auto& character = game_state_.characters()[i];
+        if (character->health() > 0) {
+          character->IncrementStat(kWins);
         } else {
           // TODO: this does not account for draws.
-          it->IncrementStat(kLosses);
+          character->IncrementStat(kLosses);
         }
       }
       UploadStats();
@@ -658,7 +662,7 @@ void SplatGame::Run() {
     const WorldTime delta_time = std::min(world_time - prev_world_time_,
                                           max_update_time);
     if (delta_time < min_update_time) {
-      SleepForMilliseconds(min_update_time - delta_time);
+      SDL_Delay(min_update_time - delta_time);
       continue;
     }
 

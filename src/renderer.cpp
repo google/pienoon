@@ -344,7 +344,7 @@ void LogGLError(const char *file, int line, const char *call) {
     case GL_INVALID_ENUM: err_str = "GL_INVALID_ENUM"; break;
     case GL_INVALID_VALUE: err_str = "GL_INVALID_VALUE"; break;
     case GL_INVALID_OPERATION: err_str = "GL_INVALID_OPERATION"; break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
+    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
       err_str = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
     case GL_OUT_OF_MEMORY: err_str = "GL_OUT_OF_MEMORY"; break;
   }

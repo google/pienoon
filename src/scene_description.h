@@ -16,6 +16,7 @@
 #define SPLAT_SCENE_DESCRIPTION_H
 
 #include "mathfu/glsl_mappings.h"
+#include <memory>
 #include <vector>
 
 namespace fpl {
@@ -54,11 +55,19 @@ class SceneDescription {
   const mathfu::mat4& camera() const { return camera_; }
   void set_camera(const mathfu::mat4& camera) { camera_ = camera; }
 
-  std::vector<Renderable>& renderables() { return renderables_; }
-  const std::vector<Renderable>& renderables() const { return renderables_; }
+  std::vector<std::unique_ptr<Renderable>>& renderables() {
+    return renderables_;
+  }
+  const std::vector<std::unique_ptr<Renderable>>& renderables() const {
+    return renderables_;
+  }
 
-  std::vector<mathfu::vec3>& lights() { return lights_; }
-  const std::vector<mathfu::vec3>& lights() const { return lights_; }
+  std::vector<std::unique_ptr<mathfu::vec3>>& lights() {
+    return lights_;
+  }
+  const std::vector<std::unique_ptr<mathfu::vec3>>& lights() const {
+    return lights_;
+  }
 
   // Clear out the render list. Should be called once per frame.
   void Clear() {
@@ -71,10 +80,10 @@ class SceneDescription {
   mathfu::mat4 camera_;
 
   // Array of items to be rendered and their positions.
-  std::vector<Renderable> renderables_;
+  std::vector<std::unique_ptr<Renderable>> renderables_;
 
   // Array of positions for where to place point lights.
-  std::vector<mathfu::vec3> lights_;
+  std::vector<std::unique_ptr<mathfu::vec3>> lights_;
 };
 
 } // namespace fpl

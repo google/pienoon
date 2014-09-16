@@ -1,5 +1,3 @@
-#!/bin/bash -eu
-
 # Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+cmake_minimum_required(VERSION 2.8.7)
 
-# This script processes the json files and then runs the game regardless of
-# where your build system of choice decides to put the executable (as long as
-# it's in one of a few pre-defined locations).
+project(libogg)
 
-# Change to current directory (becuase of how macs run .command files)
-cd `dirname $0`
+set(libogg_dir ${dependencies_libogg_distr_dir})
 
-# Process .json files.
-make -f ./scripts/build_assets.mk
+include_directories(${libogg_dir}/include)
 
-# Run the game.
-for exe in ./bin/splat ./bin/Release/splat ./bin/Debug/splat; do
-  if [[ -e ${exe} ]]; then
-    ${exe}
-    break
-  fi
-done
+set(libogg_SRCS
+    ${libogg_dir}/src/bitwise.c
+    ${libogg_dir}/src/framing.c)
+
+add_library(libogg ${libogg_SRCS})
+

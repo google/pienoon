@@ -33,8 +33,11 @@ void Shader::InitializeUniforms() {
   // Set up the uniforms the shader uses for texture access.
   char texture_unit_name[] = "texture_unit_#####";
   for (int i = 0; i < kMaxTexturesPerShader; i++) {
+// TODO(amablue): Fix this hack because windows doesn't like snprintf.
+#ifndef _WIN32
     snprintf(texture_unit_name, sizeof(texture_unit_name),
         "texture_unit_%d", i);
+#endif  // _WIN32
     auto loc = glGetUniformLocation(program_, texture_unit_name);
     if (loc >= 0) GL_CALL(glUniform1i(loc, i));
   }

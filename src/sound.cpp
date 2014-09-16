@@ -35,9 +35,9 @@ bool Sample::LoadSample(const char* filename) {
   return true;
 }
 
-static int LoadSamples(const SoundDef* def,
-                       std::vector<Sample>* samples,
-                       float* sum_of_probabilities) {
+static bool LoadSamples(const SoundDef* def,
+                        std::vector<Sample>* samples,
+                        float* sum_of_probabilities) {
   unsigned int sample_count =
       def->audio_sample_set() ? def->audio_sample_set()->Length() : 0;
   samples->resize(sample_count);

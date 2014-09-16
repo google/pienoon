@@ -32,7 +32,7 @@ TEST(CharacterStateMachineTests, NotAllStatesUsedDeathTest) {
   flatbuffers::FlatBufferBuilder builder;
   std::vector<flatbuffers::Offset<sp::CharacterState>> states;
   // Omit the final state
-  for (int i = 0; i < sp::StateId_Count - 1; i++) {
+  for (int8_t i = 0; i < sp::StateId_Count - 1; i++) {
     auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
     auto timeline = fpl::CreateTimeline(builder);
     states.push_back(sp::CreateCharacterState(builder, i, trans, timeline));
@@ -69,7 +69,7 @@ TEST(CharacterStateMachineTests, StatesOutOfOrderDeathTest) {
 TEST(CharacterStateMachineTests, AllStatesPass) {
   flatbuffers::FlatBufferBuilder builder;
   std::vector<flatbuffers::Offset<sp::CharacterState>> states;
-  for (int i = 0; i < sp::StateId_Count; i++) {
+  for (uint8_t i = 0; i < sp::StateId_Count; i++) {
     auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
     auto timeline = fpl::CreateTimeline(builder);
     states.push_back(sp::CreateCharacterState(builder, i, trans, timeline));
@@ -86,7 +86,7 @@ TEST(CharacterStateMachineTests, AllStatesPass) {
 TEST(CharacterStateMachineTests, FollowTransitions) {
   flatbuffers::FlatBufferBuilder builder;
   std::vector<flatbuffers::Offset<sp::CharacterState>> states;
-  for (int i = 0; i < sp::StateId_Count; i++) {
+  for (uint8_t i = 0; i < sp::StateId_Count; i++) {
     std::vector<flatbuffers::Offset<sp::Transition>> trans_vec;
     uint8_t target_id = (i + 1) % sp::StateId_Count;
     uint16_t conditions = sp::LogicalInputs_ThrowPie;

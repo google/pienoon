@@ -43,7 +43,7 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
     return;
   }
 
-  if (gamestate_->characters()[character_id_].health() <= 0) {
+  if (gamestate_->characters()[character_id_]->health() <= 0) {
       return;
   }
 
@@ -74,7 +74,7 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
 // Utility function for checking if someone is in danger.
 bool AiController::IsInDanger(CharacterId id) const {
   for (size_t i = 0; i < gamestate_->pies().size(); i++) {
-    if (gamestate_->pies()[i].target() == id) {
+    if (gamestate_->pies()[i]->target() == id) {
       return true;
     }
   }

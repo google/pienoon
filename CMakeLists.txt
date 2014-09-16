@@ -18,6 +18,9 @@ project(splat)
 # Compile the game with the debug flag
 set(SPLAT_DEBUG ON)
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # Directory which contains the source for 3rd party libraries.
 get_filename_component(
     third_party_root "${CMAKE_SOURCE_DIR}/../../../../external" REALPATH)
@@ -42,7 +45,17 @@ set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
 set(dependencies_sdl_dir "${third_party_root}/sdl"
     CACHE PATH "Directory containing the SDL library.")
-set(dependencies_sdl_mixer_dir "${third_party_root}/sdl_mixer"
+set(dependencies_libogg_cmake_dir "libogg"
+    CACHE PATH "Directory containing the libogg cmake project.")
+set(dependencies_libogg_distr_dir "${third_party_root}/libogg"
+    CACHE PATH "Directory containing the libogg library.")
+set(dependencies_libvorbis_cmake_dir "libvorbis"
+    CACHE PATH "Directory containing the libvorbis cmake project.")
+set(dependencies_libvorbis_distr_dir "${third_party_root}/libvorbis"
+    CACHE PATH "Directory containing the libvorbis library.")
+set(dependencies_sdl_mixer_cmake_dir "sdl_mixer"
+    CACHE PATH "Directory containing the SDL Mixer cmake project.")
+set(dependencies_sdl_mixer_distr_dir "${third_party_root}/sdl_mixer"
     CACHE PATH "Directory containing the SDL Mixer library.")
 set(dependencies_webp_cmake_dir "webp"
     CACHE PATH "Directory containing the Webp cmake project.")
@@ -77,8 +90,15 @@ endif(APPLE)
 add_subdirectory(${dependencies_sdl_dir} sdl)
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
-# Include SDL Mixer. This must come after SDL is included.
-add_subdirectory("${dependencies_sdl_mixer_dir}" sdl_mixer)
+# Include libogg.
+add_subdirectory("${dependencies_libogg_cmake_dir}" libogg)
+
+# Include libvorbis.
+add_subdirectory("${dependencies_libvorbis_cmake_dir}" libvorbis)
+
+# Include SDL Mixer.
+set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
+add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" sdl_mixer)
 
 # Include Webp in this project, and force build in release mode for speed.
 set(original_build_type ${CMAKE_BUILD_TYPE})
@@ -173,6 +193,10 @@ set(splat_SRCS
 
 # Includes for this project.
 include_directories(src)
+if(WIN32)
+  include_directories(external/include/windows)
+endif()
+include_directories(${dependencies_webp_distr_dir}/include)
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_webp_distr_dir}/include)
@@ -181,17 +205,39 @@ include_directories(${dependencies_webp_distr_dir}/src)
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 
+# libogg includes.
+include_directories(${dependencies_libogg_distr_dir}/include)
+
+# libvorbis includes.
+include_directories(${dependencies_libvorbis_distr_dir}/include)
+
 # SDL Mixer includes.
-include_directories(${sdl_mixer_SOURCE_DIR})
+include_directories(${dependencies_sdl_mixer_distr_dir})
 
 # Compiler flags.
-add_definitions(-g)
-set(CMAKE_CXX_FLAGS
-  "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra -Wno-unused-function")
-# -Wno-unused-function is because of webp encode.h
+
+set(C_FLAGS_WARNINGS "")
+if(MSVC)
+  set(C_FLAGS_WARNINGS "/W4 /WX")
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
+  add_definitions(-g)
+  set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra -Wno-unused-function")
+  # -Wno-unused-function is because of webp encode.h
+endif()
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
 if(SPLAT_DEBUG)
   add_definitions(-D_DEBUG)
+endif()
+
+set (SDL_LIBRARIES SDL2-static)
+if(WIN32)
+  add_definitions(-D_USE_MATH_DEFINES)
+  set(OPENGL_LIBRARIES opengl32)
+  set(SDL_LIBRARIES SDL2main ${SDL_LIBRARIES})
+  link_directories("$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}")
 endif()
 
 # Executable target.
@@ -201,8 +247,10 @@ mathfu_configure_flags(splat)
 # Dependencies for the executable target.
 add_dependencies(splat generated_includes assets)
 target_link_libraries(splat
-  SDL2-static
+  ${SDL_LIBRARIES}
   sdl_mixer
+  libvorbis
+  libogg
   ${OPENGL_LIBRARIES}
   webp)
 

@@ -25,8 +25,7 @@
 #include "magnet_generated.h"
 #include "config_generated.h"
 
-namespace fpl
-{
+namespace fpl {
 
 bool LoadFile(const char *filename, std::string *dest);
 
@@ -54,8 +53,6 @@ std::string CamelCaseToSnakeCase(const char* const camel);
 std::string FileNameFromEnumName(const char* const enum_name,
                                  const char* const prefix,
                                  const char* const suffix);
-
-void SleepForMilliseconds(const uint32_t milliseconds);
 
 } // namespace fpl
 

@@ -45,9 +45,9 @@ class AudioEngineTests : public ::testing::Test {
  protected:
   virtual void SetUp() {
     // Make a bunch of sound defs with various priorities.
-    for (int i = 0; i < 6; ++i) {
+    for (uint16_t i = 0; i < 6; ++i) {
       flatbuffers::FlatBufferBuilder builder;
-      int id = i;
+      uint16_t id = i;
       float priority = static_cast<float>(i);
       auto sound_def_buffer = fpl::CreateSoundDef(builder, id, priority);
       builder.Finish(sound_def_buffer);

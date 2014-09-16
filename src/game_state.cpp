@@ -109,7 +109,7 @@ void GameState::Reset() {
   const unsigned int target_step = num_ids / 2;
   for (CharacterId id = 0; id < num_ids; ++id) {
     CharacterId target_id = (id + target_step) % num_ids;
-    characters_[id].Reset(
+    characters_[id]->Reset(
         target_id,
         config_->character_health(),
         InitialFaceAngle(arrangement_, id, target_id),
@@ -122,14 +122,14 @@ WorldTime GameState::GetAnimationTime(const Character& character) const {
 }
 
 void GameState::ProcessSounds(AudioEngine* audio_engine,
-                              Character* character,
+                              const Character& character,
                               WorldTime delta_time) const {
   // Process sounds in timeline.
-  const Timeline* const timeline = character->CurrentTimeline();
+  const Timeline* const timeline = character.CurrentTimeline();
   if (!timeline)
     return;
 
-  const WorldTime anim_time = GetAnimationTime(*character);
+  const WorldTime anim_time = GetAnimationTime(character);
   const auto sounds = timeline->sounds();
   const int start_index = TimelineIndexAfterTime(sounds, 0, anim_time);
   const int end_index = TimelineIndexAfterTime(sounds, start_index,
@@ -149,16 +149,16 @@ void GameState::CreatePie(CharacterId source_id,
   int rotations = config_->pie_rotations();
   int variance = config_->pie_rotation_variance();
   rotations += variance ? (rand() % (variance * 2)) - variance : 0;
-  pies_.push_back(AirbornePie(source_id, target_id,
-                              time_, config_->pie_flight_time(),
-                              damage, height, rotations));
-  UpdatePiePosition(&pies_.back());
+  pies_.push_back(std::unique_ptr<AirbornePie>(
+      new AirbornePie(source_id, target_id, time_, config_->pie_flight_time(),
+                      damage, height, rotations)));
+  UpdatePiePosition(pies_.back().get());
 }
 
 CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
   switch (config_->pie_deflection_mode()) {
     case PieDeflectionMode_ToTargetOfTarget: {
-      return characters_[pie.target_id].target();
+      return characters_[pie.target_id]->target();
     }
     case PieDeflectionMode_ToSource: {
       return pie.source_id;
@@ -175,13 +175,14 @@ CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
 
 void GameState::ProcessEvent(Character* character,
                              unsigned int event,
-                             EventData* event_data) {
+                             const EventData& event_data) {
   switch (event) {
     case EventId_TakeDamage: {
-      for (unsigned int i = 0; i < event_data->received_pies.size(); ++i) {
+      for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
+        const ReceivedPie& pie = event_data.received_pies[i];
         character->set_health(character->health() -
-                              event_data->received_pies[i].damage);
-        characters_[event_data->received_pies[i].source_id].IncrementStat(kHits);
+                              pie.damage);
+        characters_[pie.source_id]->IncrementStat(kHits);
       }
       break;
     }
@@ -191,15 +192,13 @@ void GameState::ProcessEvent(Character* character,
       break;
     }
     case EventId_DeflectPie: {
-      for (unsigned int i = 0; i < event_data->received_pies.size(); ++i) {
-          ReceivedPie& pie = event_data->received_pies[i];
-          CreatePie(character->id(),
-                    DetermineDeflectionTarget(pie),
-                    pie.damage);
+      for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
+        const ReceivedPie& pie = event_data.received_pies[i];
+        CreatePie(character->id(), DetermineDeflectionTarget(pie), pie.damage);
       }
     }
     case EventId_LoadPie: {
-      character->set_pie_damage(event_data->pie_damage);
+      character->set_pie_damage(event_data.pie_damage);
       break;
     }
     default: {
@@ -225,16 +224,16 @@ void GameState::ProcessEvents(Character* character,
   for (int i = start_index; i < end_index; ++i) {
     const TimelineEvent* event = events->Get(i);
     event_data->pie_damage = event->modifier();
-    ProcessEvent(character, event->event(), event_data);
+    ProcessEvent(character, event->event(), *event_data);
   }
 }
 
 void GameState::PopulateConditionInputs(ConditionInputs* condition_inputs,
-                                        const Character* character) const {
-  condition_inputs->is_down = character->controller()->is_down();
-  condition_inputs->went_down = character->controller()->went_down();
-  condition_inputs->went_up = character->controller()->went_up();
-  condition_inputs->animation_time = GetAnimationTime(*character);
+                                        const Character& character) const {
+  condition_inputs->is_down = character.controller()->is_down();
+  condition_inputs->went_down = character.controller()->went_down();
+  condition_inputs->went_up = character.controller()->went_up();
+  condition_inputs->animation_time = GetAnimationTime(character);
   condition_inputs->current_time = time_;
 }
 
@@ -243,7 +242,7 @@ void GameState::ProcessConditionalEvents(Character* character,
   auto current_state = character->state_machine()->current_state();
   if (current_state && current_state->conditional_events()) {
     ConditionInputs condition_inputs;
-    PopulateConditionInputs(&condition_inputs, character);
+    PopulateConditionInputs(&condition_inputs, *character);
 
     for (auto it = current_state->conditional_events()->begin();
          it != current_state->conditional_events()->end(); ++it) {
@@ -251,7 +250,7 @@ void GameState::ProcessConditionalEvents(Character* character,
       if (EvaluateCondition(conditional_event->condition(), condition_inputs)) {
         unsigned int event = conditional_event->event();
         event_data->pie_damage = conditional_event->modifier();
-        ProcessEvent(character, event, event_data);
+        ProcessEvent(character, event, *event_data);
       }
     }
   }
@@ -295,8 +294,8 @@ static vec3 CalculatePiePosition(const Character& source,
 }
 
 void GameState::UpdatePiePosition(AirbornePie* pie) const {
-  const Character& source = characters_[pie->source()];
-  const Character& target = characters_[pie->target()];
+  const auto& source = characters_[pie->source()];
+  const auto& target = characters_[pie->target()];
 
   const float time_since_launch = static_cast<float>(time_ - pie->start_time());
   float percent = time_since_launch / config_->pie_flight_time();
@@ -307,7 +306,7 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
   const Quat pie_orientation = CalculatePieOrientation(
       pie_angle, percent, pie->rotations(), config_);
   const vec3 pie_position = CalculatePiePosition(
-      source, target, percent, pie->height(), config_);
+      *source.get(), *target.get(), percent, pie->height(), config_);
 
   pie->set_orientation(pie_orientation);
   pie->set_position(pie_position);
@@ -315,7 +314,7 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
 
 uint16_t GameState::CharacterState(CharacterId id) const {
   assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));
-  return characters_[id].State();
+  return characters_[id]->State();
 }
 
 // Return the id of the character who has won the game, if such a character
@@ -323,10 +322,11 @@ uint16_t GameState::CharacterState(CharacterId id) const {
 CharacterId GameState::WinningCharacterId() const {
   // Find the id of the one-and-only character who is still active.
   CharacterId win_id = -1;
-  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    if (it->Active()) {
+  for (size_t i = 0; i < characters_.size(); ++i) {
+    const auto& character = characters_[i];
+    if (character->Active()) {
       if (win_id < 0)
-        win_id = it->id();
+        win_id = character->id();
       else
         return -1; // More than one character still active, so no winner yet.
     }
@@ -336,9 +336,11 @@ CharacterId GameState::WinningCharacterId() const {
 
 int GameState::NumActiveCharacters() const {
   int num_active = 0;
-  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    if (it->Active())
+  for (size_t i = 0; i < characters_.size(); ++i) {
+    const auto& character = characters_[i];
+    if (character->Active()) {
       num_active++;
+    }
   }
   return num_active;
 }
@@ -347,8 +349,8 @@ int GameState::NumActiveCharacters() const {
 // Returns 0 if no turn requested. 1 if requesting we target the next character
 // id. -1 if requesting we target the previous character id.
 int GameState::RequestedTurn(CharacterId id) const {
-  const Character& c = characters_[id];
-  const uint32_t logical_inputs = c.controller()->went_down();
+  const auto& character = characters_[id];
+  const uint32_t logical_inputs = character->controller()->went_down();
   const int left_jump = arrangement_->character_data()->Get(id)->left_jump();
   const int target_delta = (logical_inputs & LogicalInputs_Left) ? left_jump :
                            (logical_inputs & LogicalInputs_Right) ? -left_jump :
@@ -358,8 +360,8 @@ int GameState::RequestedTurn(CharacterId id) const {
 
 CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
   assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));
-  const Character& c = characters_[id];
-  const CharacterId current_target = c.target();
+  const auto& character = characters_[id];
+  const CharacterId current_target = character->target();
 
   // If you yourself are KO'd, then you can't change target.
   const int target_state = CharacterState(id);
@@ -404,21 +406,20 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
 // The angle between two characters.
 Angle GameState::AngleBetweenCharacters(CharacterId source_id,
                                         CharacterId target_id) const {
-  const Character& source = characters_[source_id];
-  const Character& target = characters_[target_id];
-  const vec3 vector_to_target = target.position() - source.position();
+  const auto& source = characters_[source_id];
+  const auto& target = characters_[target_id];
+  const vec3 vector_to_target = target->position() - source->position();
   const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
   return angle_to_target;
 }
 
 // Angle to the character's target.
 Angle GameState::TargetFaceAngle(CharacterId id) const {
-  const Character& c = characters_[id];
-  return AngleBetweenCharacters(id, c.target());
+  const auto& character = characters_[id];
+  return AngleBetweenCharacters(id, character->target());
 }
 
-Angle GameState::TiltTowardsStageFront(const Angle angle) const
-{
+Angle GameState::TiltTowardsStageFront(const Angle angle) const {
     // Bias characters to face towards the camera.
     vec3 angle_vec = angle.ToXZVector();
     angle_vec.x() *= config_->cardboard_bias_towards_stage_front();
@@ -441,21 +442,20 @@ bool GameState::IsImmobile(CharacterId id) const {
 MagnetTwitch GameState::FakeResponseToTurn(CharacterId id) const {
   // We only want to fake the turn response when the character is immobile.
   // If the character can move, we'll just let the move happen normally.
-  if (!IsImmobile(id))
-    return kMagnetTwitchNone;
+  if (!IsImmobile(id)) return kMagnetTwitchNone;
 
   // If the user has not requested any movement, then no need to move.
   const int requested_turn = RequestedTurn(id);
-  if (requested_turn == 0)
-    return kMagnetTwitchNone;
+  if (requested_turn == 0) return kMagnetTwitchNone;
 
   return requested_turn > 0 ? kMagnetTwitchPositive : kMagnetTwitchNegative;
 }
 
 uint32_t GameState::AllLogicalInputs() const {
   uint32_t inputs = 0;
-  for (auto it = characters_.begin(); it != characters_.end(); ++it) {
-    const Controller* controller = it->controller();
+  for (size_t i = 0; i < characters_.size(); ++i) {
+    const auto& character = characters_[i];
+    const Controller* controller = character->controller();
     inputs |= controller->is_down();
   }
   return inputs;
@@ -474,34 +474,34 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // Update controller to gather state machine inputs.
   const CharacterId win_id = WinningCharacterId();
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    Character& character = characters_[i];
-    Controller* controller = character.controller();
+    auto& character = characters_[i];
+    Controller* controller = character->controller();
     const Timeline* timeline =
-        character.state_machine()->current_state()->timeline();
+        character->state_machine()->current_state()->timeline();
     controller->AdvanceFrame(delta_time);
     controller->SetLogicalInputs(LogicalInputs_JustHit, false);
     controller->SetLogicalInputs(LogicalInputs_NoHealth,
-                                 character.health() <= 0);
-    controller->SetLogicalInputs(LogicalInputs_AnimationEnd,
-        timeline && (GetAnimationTime(character) >= timeline->end_time()));
+                                 character->health() <= 0);
+    controller->SetLogicalInputs(LogicalInputs_AnimationEnd, timeline &&
+        (GetAnimationTime(*character.get()) >= timeline->end_time()));
     controller->SetLogicalInputs(LogicalInputs_Winning,
-                                 character.id() == win_id);
+                                 character->id() == win_id);
   }
 
   // Update pies. Modify state machine input when character hit by pie.
   for (auto it = pies_.begin(); it != pies_.end(); ) {
-    AirbornePie& pie = *it;
-    UpdatePiePosition(&pie);
+    auto& pie = *it;
+    UpdatePiePosition(pie.get());
 
     // Remove pies that have made contact.
-    const WorldTime time_since_launch = time_ - pie.start_time();
-    if (time_since_launch >= pie.flight_time()) {
-      Character& character = characters_[pie.target()];
+    const WorldTime time_since_launch = time_ - pie->start_time();
+    if (time_since_launch >= pie->flight_time()) {
+      auto& character = characters_[pie->target()];
       ReceivedPie received_pie = {
-        pie.source(), pie.target(), pie.damage()
+        pie->source(), pie->target(), pie->damage()
       };
-      event_data[pie.target()].received_pies.push_back(received_pie);
-      character.controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
+      event_data[pie->target()].received_pies.push_back(received_pie);
+      character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
       it = pies_.erase(it);
     }
     else {
@@ -511,41 +511,41 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
 
   // Update the character state machines and the facing angles.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    Character& character = characters_[i];
+    auto& character = characters_[i];
 
     // Update state machines.
     ConditionInputs condition_inputs;
-    PopulateConditionInputs(&condition_inputs, &character);
-    character.state_machine()->Update(condition_inputs);
+    PopulateConditionInputs(&condition_inputs, *character.get());
+    character->state_machine()->Update(condition_inputs);
 
     // Update character's target.
-    const CharacterId target_id = CalculateCharacterTarget(character.id());
+    const CharacterId target_id = CalculateCharacterTarget(character->id());
     const Angle target_angle =
-        AngleBetweenCharacters(character.id(), target_id);
+        AngleBetweenCharacters(character->id(), target_id);
     const Angle tilted_angle = TiltTowardsStageFront(target_angle);
-    character.SetTarget(target_id, tilted_angle);
+    character->SetTarget(target_id, tilted_angle);
 
     // If we're requesting a turn but can't turn, move the face angle
     // anyway to fake a response.
-    const MagnetTwitch twitch = FakeResponseToTurn(character.id());
-    character.TwitchFaceAngle(twitch);
+    const MagnetTwitch twitch = FakeResponseToTurn(character->id());
+    character->TwitchFaceAngle(twitch);
 
     // Update each character's simulation.
-    character.AdvanceFrame(delta_time);
+    character->AdvanceFrame(delta_time);
   }
 
   // Look to timeline to see what's happening. Make it happen.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessEvents(&characters_[i], &event_data[i], delta_time);
+    ProcessEvents(characters_[i].get(), &event_data[i], delta_time);
   }
 
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessConditionalEvents(&characters_[i], &event_data[i]);
+    ProcessConditionalEvents(characters_[i].get(), &event_data[i]);
   }
 
   // Play the sounds that need to be played at this point in time.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessSounds(audio_engine, &characters_[i], delta_time);
+    ProcessSounds(audio_engine, *characters_[i].get(), delta_time);
   }
 }
 
@@ -627,9 +627,9 @@ public:
     camera_position_(camera_position) {
   }
 
-  bool operator()(const Character& a, const Character& b) const {
-    const float a_dist_sq = (camera_position_ - a.position()).LengthSquared();
-    const float b_dist_sq = (camera_position_ - b.position()).LengthSquared();
+  bool operator()(const Character* a, const Character* b) const {
+    const float a_dist_sq = (camera_position_ - a->position()).LengthSquared();
+    const float b_dist_sq = (camera_position_ - b->position()).LengthSquared();
     return a_dist_sq > b_dist_sq;
   }
 
@@ -650,60 +650,64 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     auto props = config_->props();
     for (size_t i = 0; i < props->Length(); ++i) {
       const Prop& prop = *props->Get(i);
-      scene->renderables().push_back(
-          Renderable(static_cast<uint16_t>(prop.renderable()),
-                     CalculatePropWorldMatrix(prop)));
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(static_cast<uint16_t>(prop.renderable()),
+                         CalculatePropWorldMatrix(prop))));
     }
   }
 
   // Pies.
   if (config_->draw_pies()) {
     for (auto it = pies_.begin(); it != pies_.end(); ++it) {
-      const AirbornePie& pie = *it;
-      scene->renderables().push_back(
-          Renderable(RenderableIdForPieDamage(pie.damage(), *config_),
-                     pie.CalculateMatrix()));
+      auto& pie = *it;
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(RenderableIdForPieDamage(pie->damage(), *config_),
+                         pie->CalculateMatrix())));
     }
   }
 
   // Characters and accessories.
   if (config_->draw_characters()) {
     // Sort characters by farthest-to-closest to the camera.
-    std::vector<Character> sorted_characters(characters_);
+    std::vector<Character*> sorted_characters(characters_.size());
+    for (size_t i = 0; i < characters_.size(); ++i) {
+      sorted_characters[i] = characters_[i].get();
+    }
     const CharacterDepthComparer comparer(camera_position_);
     std::sort(sorted_characters.begin(), sorted_characters.end(), comparer);
 
     // Render all parts of the character. Note that order matters here. For
     // example, the arrow appears partially behind the character billboard
     // (because the arrow is flat on the ground) so it has to be rendered first.
-    for (auto c = sorted_characters.begin(); c != sorted_characters.end();
-         ++c) {
+    for (size_t i = 0; i < sorted_characters.size(); ++i) {
+      Character* character = sorted_characters[i];
       // UI arrow
       if (config_->draw_ui_arrows()) {
-        const Angle arrow_angle = TargetFaceAngle(c->id());
-        scene->renderables().push_back(
-            Renderable(RenderableId_UiArrow,
-                CalculateUiArrowMatrix(c->position(), arrow_angle, *config_)));
+        const Angle arrow_angle = TargetFaceAngle(character->id());
+        scene->renderables().push_back(std::unique_ptr<Renderable>(
+            new Renderable(RenderableId_UiArrow, CalculateUiArrowMatrix(
+                character->position(), arrow_angle, *config_))));
       }
 
       // Render accessories and splatters on the camera-facing side
       // of the character.
-      const Angle towards_camera_angle = Angle::FromXZVector(camera_position_ -
-                                                       c->position());
-      const Angle face_to_camera_angle = c->FaceAngle() - towards_camera_angle;
+      const Angle towards_camera_angle = Angle::FromXZVector(
+          camera_position_ - character->position());
+      const Angle face_to_camera_angle =
+          character->FaceAngle() - towards_camera_angle;
       const bool facing_camera = face_to_camera_angle.ToRadians() < 0.0f;
 
       // Character.
-      const WorldTime anim_time = GetAnimationTime(*c);
-      const uint16_t renderable_id = c->RenderableId(anim_time);
-      const mat4 character_matrix = c->CalculateMatrix(facing_camera);
-      scene->renderables().push_back(
-          Renderable(renderable_id, character_matrix,
-                     LoadVec3(config_->character_colors()->Get(c->id()))));
+      const WorldTime anim_time = GetAnimationTime(*character);
+      const uint16_t renderable_id = character->RenderableId(anim_time);
+      const mat4 character_matrix = character->CalculateMatrix(facing_camera);
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(renderable_id, character_matrix, LoadVec3(
+              config_->character_colors()->Get(character->id())))));
 
       // Accessories.
       int num_accessories = 0;
-      const Timeline* const timeline = c->CurrentTimeline();
+      const Timeline* const timeline = character->CurrentTimeline();
       if (timeline) {
         // Get accessories that are valid for the current time.
         const std::vector<int> accessory_indices =
@@ -715,11 +719,12 @@ void GameState::PopulateScene(SceneDescription* scene) const {
           const TimelineAccessory& accessory =
               *timeline->accessories()->Get(*it);
           const vec2 location(accessory.offset().x(), accessory.offset().y());
-          scene->renderables().push_back(
-              Renderable(accessory.renderable(),
+          scene->renderables().push_back(std::unique_ptr<Renderable>(
+              new Renderable(
+                  accessory.renderable(),
                   CalculateAccessoryMatrix(location, mathfu::kOnes2f,
                                            character_matrix, renderable_id,
-                                           num_accessories, *config_)));
+                                           num_accessories, *config_))));
           num_accessories++;
         }
       }
@@ -728,16 +733,16 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       // First pass through renders splatter accessories.
       // Second pass through renders health accessories.
       struct {
-        const int count;
+        int count;
         const flatbuffers::Vector<flatbuffers::Offset<FixedAccessory>>*
-            fixed_accessories;
+          fixed_accessories;
       } accessories[] = {
         {
-          config_->character_health() - c->health(),
+          config_->character_health() - character->health(),
           config_->splatter_accessories()
         },
         {
-          c->health(),
+          character->health(),
           config_->health_accessories()
         }
       };
@@ -752,11 +757,12 @@ void GameState::PopulateScene(SceneDescription* scene) const {
               accessories[j].fixed_accessories->Get(i);
           const vec2 location(LoadVec2i(accessory->location()));
           const vec2 scale(LoadVec2(accessory->scale()));
-          scene->renderables().push_back(
-              Renderable(accessory->renderable(),
-                  CalculateAccessoryMatrix(location, scale, character_matrix,
-                                           renderable_id, num_accessories,
-                                           *config_)));
+          scene->renderables().push_back(std::unique_ptr<Renderable>(
+              new Renderable(
+              accessory->renderable(),
+              CalculateAccessoryMatrix(location, scale, character_matrix,
+                                       renderable_id, num_accessories,
+                                       *config_))));
           num_accessories++;
         }
       }
@@ -771,37 +777,38 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     for (int i = 0; i < 8; ++i) {
       const mat4 axis_dot = mat4::FromTranslationVector(
           vec3(static_cast<float>(i), 0.0f, 0.0f));
-      scene->renderables().push_back(
-          Renderable(RenderableId_PieSmall, axis_dot));
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(RenderableId_PieSmall, axis_dot)));
     }
     for (int i = 0; i < 4; ++i) {
       const mat4 axis_dot = mat4::FromTranslationVector(
           vec3(0.0f, 0.0f, static_cast<float>(i)));
-      scene->renderables().push_back(
-          Renderable(RenderableId_PieSmall, axis_dot));
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(RenderableId_PieSmall, axis_dot)));
     }
     for (int i = 0; i < 2; ++i) {
       const mat4 axis_dot = mat4::FromTranslationVector(
           vec3(0.0f, static_cast<float>(i), 0.0f));
-      scene->renderables().push_back(
-          Renderable(RenderableId_PieSmall, axis_dot));
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(RenderableId_PieSmall, axis_dot)));
     }
   }
 
   // Draw one renderable right in the middle of the world, for debugging.
   // Rotate about z-axis so that it faces the camera.
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
-    scene->renderables().push_back(
-        Renderable(config_->draw_fixed_renderable(),
-                   mat4::FromRotationMatrix(Quat::FromAngleAxis(
-                       kPi, mathfu::kAxisY3f).ToMatrix())));
+    scene->renderables().push_back(std::unique_ptr<Renderable>(
+        new Renderable(
+            config_->draw_fixed_renderable(),
+            mat4::FromRotationMatrix(
+                Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
   }
 
   // Lights. Push all lights from configuration file.
   const auto lights = config_->light_positions();
   for (auto it = lights->begin(); it != lights->end(); ++it) {
     const vec3 light_position = LoadVec3(*it);
-    scene->lights().push_back(light_position);
+    scene->lights().push_back(std::unique_ptr<vec3>(new vec3(light_position)));
   }
 }
 

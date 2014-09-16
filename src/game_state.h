@@ -16,6 +16,7 @@
 #define GAME_STATE_H_
 
 #include <vector>
+#include <memory>
 #include "character.h"
 
 namespace fpl {
@@ -81,11 +82,15 @@ class GameState {
     camera_target_ = target;
   }
 
-  std::vector<Character>& characters() { return characters_; }
-  const std::vector<Character>& characters() const { return characters_; }
+  std::vector<std::unique_ptr<Character>>& characters() { return characters_; }
+  const std::vector<std::unique_ptr<Character>>& characters() const {
+    return characters_;
+  }
 
-  std::vector<AirbornePie>& pies() { return pies_; }
-  const std::vector<AirbornePie>& pies() const { return pies_; }
+  std::vector<std::unique_ptr<AirbornePie>>& pies() { return pies_; }
+  const std::vector<std::unique_ptr<AirbornePie>>& pies() const {
+    return pies_;
+  }
 
   WorldTime time() const { return time_; }
 
@@ -94,22 +99,22 @@ class GameState {
 private:
   WorldTime GetAnimationTime(const Character& character) const;
   void ProcessSounds(AudioEngine* audio_engine,
-                     Character* character,
+                     const Character& character,
                      WorldTime delta_time) const;
   void CreatePie(CharacterId source_id, CharacterId target_id, int damage);
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
   void ProcessEvent(Character* character,
                     unsigned int event,
-                    EventData* event_data);
+                    const EventData& event_data);
   void PopulateConditionInputs(ConditionInputs* condition_inputs,
-                               const Character* character) const;
+                               const Character& character) const;
   void ProcessConditionalEvents(Character* character, EventData* event_data);
   void ProcessEvents(Character* character,
                      EventData* data,
                      WorldTime delta_time);
   void UpdatePiePosition(AirbornePie* pie) const;
   CharacterId CalculateCharacterTarget(CharacterId id) const;
-  float CalculateCharacterFacingAngleVelocity(const Character& character,
+  float CalculateCharacterFacingAngleVelocity(const Character* character,
                                               WorldTime delta_time) const;
   mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
@@ -119,8 +124,8 @@ private:
   WorldTime time_;
   mathfu::vec3 camera_position_;
   mathfu::vec3 camera_target_;
-  std::vector<Character> characters_;
-  std::vector<AirbornePie> pies_;
+  std::vector<std::unique_ptr<Character>> characters_;
+  std::vector<std::unique_ptr<AirbornePie>> pies_;
   const Config* config_;
   const CharacterArrangement* arrangement_;
 };

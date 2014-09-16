@@ -7,7 +7,6 @@ tests/*_test
 # CMake files
 CMakeCache.txt
 CMakeFiles/
-CMakeLists.txt
 CMakeScripts/
 Makefile
 cmake_install.cmake
@@ -15,12 +14,14 @@ flatbuffers/
 googletest/
 mathfu/
 sdl/
-sdl_mixer/
 splat.build/
 splat.xcodeproj/
 tests/Debug/
 tests/Release/
 tests/splat.build/
+libogg/liblibogg.a
+libvorbis/liblibvorbis.a
+sdl_mixer/libsdl_mixer.a
 webp/libwebp.a
 webp/libexampleutil.a
 webp/cwebp
@@ -29,8 +30,11 @@ webp/include/*
 
 # Visual Studio files
 build/
+*.sln
 *.user
 *.suo
+*.vcxproj
+*.vcxproj.filters
 
 # qt creator
 *.cbp
