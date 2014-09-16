@@ -70,8 +70,11 @@ set(CMAKE_BINARY_DIR ${BIN_DIR})
 # Include SDL Mixer. This must come after SDL is included.
 add_subdirectory("${dependencies_sdl_mixer_dir}" sdl_mixer)
 
-# Include Webp in this project.
+# Include Webp in this project, and force build in release mode for speed.
+set(original_build_type ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
 add_subdirectory("${dependencies_webp_cmake_dir}" webp)
+set(CMAKE_BUILD_TYPE ${original_build_type})
 
 # Include FlatBuffers in this project.
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")

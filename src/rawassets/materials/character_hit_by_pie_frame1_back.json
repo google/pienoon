@@ -1,7 +1,7 @@
 {
   texture_filenames: [
-    "textures/hit02_back.tga",
-    "textures/cardboard-normal.tga"
+    "textures/hit02_back.webp",
+    "textures/cardboard-normal.webp"
   ],
   "blendmode": "ALPHA"
 }

@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/scribble_heart.tga"
+    "textures/scribble_heart.webp"
   ],
   "blendmode": "ALPHA"
 }

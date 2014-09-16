@@ -250,15 +250,15 @@ Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   int size = header->width * header->height;
   auto rgba = new unsigned char[size * 4];
   int start_y, end_y, y_direction;
-  if (header->image_descriptor & 0x20)  // y is flipped
+  if (header->image_descriptor & 0x20)  // y is not flipped
   {
-      start_y = header->height - 1;
-      end_y = -1;
-      y_direction = -1;
-  } else {    // y is not flipped.
-      start_y = 0;
-      end_y = header->height;
-      y_direction = 1;
+    start_y = 0;
+    end_y = header->height;
+    y_direction = 1;
+  } else {    // y is flipped.
+    start_y = header->height - 1;
+    end_y = -1;
+    y_direction = -1;
   }
   for (int y = start_y; y != end_y; y += y_direction) {
     for (int x = 0; x < header->width; x++) {

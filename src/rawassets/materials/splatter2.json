@@ -1,7 +1,7 @@
 {
   texture_filenames: [
-    "textures/splat02.tga",
-    "textures/cardboard-normal.tga"
+    "textures/splat02.webp",
+    "textures/cardboard-normal.webp"
   ],
   "blendmode": "ALPHA"
 }

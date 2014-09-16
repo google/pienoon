@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/sun_glow.tga"
+    "textures/sun_glow.webp"
   ],
   "blendmode": "ALPHA"
 }

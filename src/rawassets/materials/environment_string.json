@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/string.tga"
+    "textures/string.webp"
   ],
   "blendmode": "ALPHA"
 }

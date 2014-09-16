@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/store_front.tga"
+    "textures/store_front.webp"
   ],
   "blendmode": "ALPHA"
 }

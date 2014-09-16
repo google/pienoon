@@ -1,7 +1,7 @@
 {
   texture_filenames: [
-    "textures/shield_pie.tga",
-    "textures/cardboard-normal.tga"
+    "textures/shield_pie.webp",
+    "textures/cardboard-normal.webp"
   ],
   "blendmode": "ALPHA"
 }

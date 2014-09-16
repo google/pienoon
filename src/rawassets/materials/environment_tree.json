@@ -1,7 +1,7 @@
 {
   texture_filenames: [
-    "textures/tree.tga",
-    "textures/cardboard-normal.tga"
+    "textures/tree.webp",
+    "textures/cardboard-normal.webp"
   ],
   "blendmode": "ALPHA"
 }

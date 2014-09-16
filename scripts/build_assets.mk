@@ -21,8 +21,13 @@ TOP:=$(dir $(lastword $(MAKEFILE_LIST)))/..
 # Directory that contains the FlatBuffers compiler.
 FLATBUFFERS_PATH?=$(TOP)/flatbuffers
 
+executable_extension=$(if $(findstring Windows,$(OS)),.exe,)
+
 # Name of the flatbuffers executable.
-flatc_executable_name=flatc$(if $(findstring Windows,$(OS)),.exe,)
+flatc_executable_name=flatc$(executable_extension)
+
+# Name of the cwebp executable.
+cwebp_executable_name=cwebp$(executable_extension)
 
 # Location of FlatBuffers compiler.
 FLATC?=$(firstword \
@@ -35,6 +40,8 @@ ifeq ($(FLATC),)
 FLATC:=$(flatc_executable_name)
 endif
 
+# We assume cwebp is in path.
+CWEBP:=$(cwebp_executable_name)
 
 # Function which converts path $(1) to paths understood by the host OS'
 # executables.
@@ -84,6 +91,13 @@ define flatbuffers_json_to_binary
 $(subst $(TOP)/src/rawassets,assets,$(patsubst %.json,%.bin,$(1)))
 endef
 
+# Convert specified PNG paths to Webp output paths.
+# For example: src/rawassets/textures/foo.png will be converted to
+# assets/textures/foo.webp
+define png_to_webp
+$(subst $(TOP)/src/rawassets,$(TOP)/assets,$(patsubst %.png,%.webp,$(1)))
+endef
+
 # Convert specified json path to the associated FlatBuffers schema path.
 # For example: src/rawassets/config.json will be converted to
 # src/flatbufferschemas/config.fbs.
@@ -98,6 +112,13 @@ $(eval \
   $(call flatbuffers_json_to_binary,$(1)): $(1)
 	$(FLATC) -o $$(dir $$@) -b $$(call host-realpath,$(2)) \
 		$$(call host-realpath,$$<))
+endef
+
+# Generate a build rule that will convert a PNG ($(1)) to Webp.
+define webp_build_rule
+$(eval \
+	$(call png_to_webp,$(1)): $(1)
+		$(CWEBP) $$(call host-realpath,$$<) -o $$@)
 endef
 
 # Generate a build rule that will convert a json FlatBuffer to a binary
@@ -143,8 +164,14 @@ flatbuffers_binaries=\
 		$(flatbuffers_material_json) \
 		$(flatbuffers_sound_json))
 
+# PNG files to convert to webp.
+png_textures:=$(wildcard $(TOP)/src/rawassets/textures/*.png)
+
+# All wepb files that should be built.
+webp_textures=$(call png_to_webp, $(png_textures))
+
 # Top level build rule for all assets.
-all: $(flatbuffers_binaries)
+all: $(flatbuffers_binaries) $(webp_textures)
 
 # Generate clean rule.
 clean:
@@ -168,3 +195,8 @@ $(foreach flatbuffers_json_file,$(flatbuffers_material_json),\
 # built from a .json sound file.
 $(foreach flatbuffers_json_file,$(flatbuffers_sound_json),\
     $(call flatbuffers_sound_build_rule,$(flatbuffers_json_file)))
+
+# Create build rules for each Webp file that will be
+# built from a PNG file.
+$(foreach texture,$(png_textures),\
+	$(call webp_build_rule,$(texture)))

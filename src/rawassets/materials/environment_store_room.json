@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/room.tga"
+    "textures/room.webp"
   ],
   "blendmode": "ALPHA"
 }

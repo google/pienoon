@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/mover_s.tga"
+    "textures/mover_s.webp"
   ],
   "blendmode": "ALPHA"
 }

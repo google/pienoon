@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/shelf_top.tga"
+    "textures/shelf_top.webp"
   ],
   "blendmode": "ALPHA"
 }

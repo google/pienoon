@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/sky.tga"
+    "textures/sky.webp"
   ],
   "blendmode": "ALPHA"
 }

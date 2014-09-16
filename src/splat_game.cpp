@@ -129,10 +129,10 @@ static void CreateVerticalQuad(float left, float right, float bottom, float top,
   vertices[1].pos = vec3(right, bottom, depth);
   vertices[2].pos = vec3(left, top, depth);
   vertices[3].pos = vec3(right, top, depth);
-  vertices[0].tc = vec2(0, 0);
-  vertices[1].tc = vec2(1, 0);
-  vertices[2].tc = vec2(0, 1);
-  vertices[3].tc = vec2(1, 1);
+  vertices[0].tc = vec2(0, 1);
+  vertices[1].tc = vec2(1, 1);
+  vertices[2].tc = vec2(0, 0);
+  vertices[3].tc = vec2(1, 0);
   Mesh::ComputeNormalsTangents(vertices, &kQuadIndices[0], kQuadNumVertices,
                                kQuadNumIndices);
 }

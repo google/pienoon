@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/chalkarrowcircle.tga"
+    "textures/chalkarrowcircle.webp"
   ],
   "blendmode": "ALPHA"
 }

@@ -1,7 +1,7 @@
 {
   texture_filenames: [
-    "textures/happy_front.tga",
-    "textures/cardboard-normal.tga"
+    "textures/happy_front.webp",
+    "textures/cardboard-normal.webp"
   ],
   "blendmode": "ALPHA"
 }

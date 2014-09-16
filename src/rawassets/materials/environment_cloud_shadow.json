@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/cloud_shadow.tga"
+    "textures/cloud_shadow.webp"
   ],
   "blendmode": "ALPHA"
 }

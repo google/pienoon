@@ -2,6 +2,7 @@
 splat
 tests/*_test
 *.bin
+*.webp
 
 # CMake files
 CMakeCache.txt

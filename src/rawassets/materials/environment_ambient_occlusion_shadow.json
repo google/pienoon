@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/ambient_occlusion_shadow.tga"
+    "textures/ambient_occlusion_shadow.webp"
   ],
   "blendmode": "ALPHA"
 }
