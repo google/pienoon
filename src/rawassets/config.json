@@ -265,20 +265,23 @@
   "min_update_time": 10,
   "max_update_time": 100,
 
-  "face_angle_constraints": {
+  "face_angle_def": {
     "modular": true,
     "min": -3.14159265359,
     "max": 3.14159265359,
     "max_velocity": 0.021,
-    "max_delta": 3.141
-  },
-  "face_angle_magnet_def": {
+    "max_delta": 3.141,
+    "at_target": { "max_difference": 0.087, "max_velocity": 0.00059 },
     "acceleration_per_difference": 0.00032,
-    "wrong_direction_acceleration_multiplier": 4.0,
-    "twitch_velocity_boost": 0.0052,
-    "twitch_settled": { "max_difference": 0.026, "max_velocity": 0.00104 },
-    "snap_settled":   { "max_difference": 0.087, "max_velocity": 0.00059 }
+    "wrong_direction_acceleration_multiplier": 4.0
   },
+
+  "face_angle_twitch": {
+    "max_difference": 0.026,
+    "max_velocity": 0.00104
+  },
+
+  "face_angle_twitch_velocity": 0.0052,
 
   "renderable_id_for_pie_damage": [
     "PieEmpty",
@@ -290,7 +293,6 @@
   ],
 
   "play_finished_timeout": 2000,
-
 
   "window_size": { "x": 1280, "y": 800 },
   "window_title": "Pie Noon",

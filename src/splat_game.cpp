@@ -18,6 +18,8 @@
 
 #include "angle.h"
 #include "character_state_machine.h"
+#include "impel_processor_overshoot.h"
+#include "impel_processor_smooth.h"
 // TODO: move to alphabetical order once FlatBuffer include dependency fixed
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
@@ -291,6 +293,10 @@ bool SplatGame::InitializeGameState() {
   const Config& config = GetConfig();
 
   game_state_.set_config(&config);
+
+  // Register the impeller types with the ImpelEngine.
+  impel::OvershootImpelProcessor::Register();
+  impel::SmoothImpelProcessor::Register();
 
   // Load flatbuffer into buffer.
   if (!LoadFile("character_state_machine_def.bin", &state_machine_source_)) {

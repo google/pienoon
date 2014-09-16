@@ -17,15 +17,19 @@
 
 #include "angle.h"
 #include "character_state_machine.h"
-#include "magnet1f.h"
+#include "impel_util.h"
+#include "impeller.h"
 #include "player_controller.h"
 // TODO: put these in alphabetical order once FlatBuffers predeclare bug fixed.
 #include "audio_config_generated.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
-#include "magnet_generated.h"
 #include "config_generated.h"
+
+namespace impel {
+  class ImpelEngine;
+}
 
 namespace fpl {
 namespace splat {
@@ -57,19 +61,16 @@ class Character {
 
   // Resets the character to the start-of-game state.
   void Reset(CharacterId target, CharacterHealth health,
-             Angle face_angle, const mathfu::vec3& position);
-
-  // Advance the character's internal simulation (e.g. face angle) by
-  // 'delta_time'.
-  void AdvanceFrame(WorldTime delta_time);
+             Angle face_angle, const mathfu::vec3& position,
+             impel::ImpelEngine* impel_engine);
 
   // Fake a reaction to input by making the character's face angle
   // jitter slightly in the requested direction. Does not change the
   // target face angle.
-  void TwitchFaceAngle(MagnetTwitch twitch);
+  void TwitchFaceAngle(impel::TwitchDirection twitch);
 
   // Gets the character's current face angle.
-  Angle FaceAngle() const { return Angle(face_angle_.Position()); }
+  Angle FaceAngle() const { return Angle(face_angle_.Value()); }
 
   // Sets the character's target and our target face angle.
   void SetTarget(CharacterId target, Angle angle_to_target);
@@ -132,7 +133,7 @@ class Character {
   CharacterHealth pie_damage_;
 
   // World angle. Will eventually settle on the angle towards target_.
-  OvershootMagnet1f face_angle_;
+  impel::Impeller1f face_angle_;
 
   // Position of the character in world space.
   mathfu::vec3 position_;

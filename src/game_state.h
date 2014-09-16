@@ -18,6 +18,8 @@
 #include <vector>
 #include <memory>
 #include "character.h"
+#include "impel_processor.h"
+#include "impel_util.h"
 #include "particles.h"
 
 namespace fpl {
@@ -125,7 +127,7 @@ private:
   mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
-  MagnetTwitch FakeResponseToTurn(CharacterId id) const;
+  impel::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
   void CreatePieSplatter(CharacterId id, int damage);
   void SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
@@ -136,6 +138,7 @@ private:
   mathfu::vec3 camera_target_;
   std::vector<std::unique_ptr<Character>> characters_;
   std::vector<std::unique_ptr<AirbornePie>> pies_;
+  impel::ImpelEngine impel_engine_;
   const Config* config_;
   const CharacterArrangement* arrangement_;
   ParticleManager particle_manager_;

@@ -12,45 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace fpl;
-
-// Defines the range of a value, and how it can change. This table represents
-// *what* value is being moved, whereas the MagnetDef table defines *how* that
-// value is moving.
-//
-// e.g. An angle will set 'modular' to true, with 'min' of -pi and 'max' of +pi.
-// The 'max_delta' and 'max_velocity' for an angle will depend on the thing that
-// is turning--a face angle might move more slowly than a robot arm, for
-// example.
-table MagnetConstraints1f {
-  // A modular value wraps around from min to max. For example, an angle
-  // is modular, where -pi is equivalent to +pi. Setting this to true ensures
-  // that arithmetic wraps around instead of clamping to min/max.
-  modular:bool;
-
-  // Minimum value for the magnet's 'state_.position'.
-  min:float;
-
-  // Maximum value for the magnet's 'state_.position'.
-  max:float;
-
-  // Maximum speed at which the value can change. That is, maximum value for
-  // the magnet's 'state_.velocity'. In units/tick.
-  // For example, if the value is an angle, then this is the max angular
-  // velocity, and the units are radians/tick.
-  max_velocity:float;
-
-  // Maximum that 'state_.position' can be altered on a call to
-  // Magnet::Update(), regardless of velocity or delta_time.
-  max_delta:float;
-
-  // For debugging. Specifies the unit in which the position variables are
-  // expressed. The velocity variables are expressed in units per tick.
-  unit:string;
-}
+namespace impel;
 
 // Set of thresholds to determine if the current state is stopped at-target.
-table MagnetSettled1f {
+table Settled1fParameters {
   // If the difference between 'state_.position' and 'target_.position' is below
   // this threshold, the Magnet is considered to be "at-target".
   max_difference:float;
@@ -60,9 +25,42 @@ table MagnetSettled1f {
   max_velocity:float;
 }
 
-// Characterize the movement of an overshoot magnet. Please see
-// OvershootMagnet1f for a description of the magnet itself.
-table OvershootMagnet1fDef {
+// Characterize the movement of an overshoot Impeller. Please see
+// impel_processor_overshoot.cpp for the actual algorithm.
+//
+// e.g. An angle will set 'modular' to true, with 'min' of -pi and 'max' of +pi.
+// The 'max_delta' and 'max_velocity' for an angle will depend on the thing that
+// is turning--a face angle might move more slowly than a robot arm, for
+// example.
+table OvershootParameters {
+  // A modular value wraps around from min to max. For example, an angle
+  // is modular, where -pi is equivalent to +pi. Setting this to true ensures
+  // that arithmetic wraps around instead of clamping to min/max.
+  modular:bool;
+
+  // Minimum value for Impeller::Value(). Clamped or wrapped-around when we
+  // reach this boundary.
+  min:float;
+
+  // Maximum value for Impeller::Value(). Clamped or wrapped-around when we
+  // reach this boundary.
+  max:float;
+
+  // Maximum speed at which the value can change. That is, maximum value for
+  // the Impeller::Velocity(). In units/tick.
+  // For example, if the value is an angle, then this is the max angular
+  // velocity, and the units are radians/tick.
+  max_velocity:float;
+
+  // Maximum that Impeller::Value() can be altered on a single call to
+  // ImpelEngine::AdvanceFrame(), regardless of velocity or delta_time.
+  max_delta:float;
+
+  // Cutoff to determine if the Impeller's current state has settled on the
+  // target. Once it has settled, Value() is set to TargetValue() and Velocity()
+  // is set to zero.
+  at_target:Settled1fParameters;
+
   // Acceleration is a multiple of abs('state_.position' - 'target_.position').
   // Bigger differences cause faster acceleration.
   acceleration_per_difference:float;
@@ -71,20 +69,15 @@ table OvershootMagnet1fDef {
   // this amount. We need counter-acceleration to be stronger so that the
   // amplitude eventually dies down; otherwise, we'd just have a pendulum.
   wrong_direction_acceleration_multiplier:float;
+}
 
-  // Value added to 'state_.velocity' when a twitch happens. A twitch happens
-  // when 'twitch_settled' is true and Magnet::Twitch is called with a value
-  // other than kNoTwitch.
-  twitch_velocity_boost:float;
+table TwitchParameters {
+  // When a twitch happens, Impeller::Velocity() is set to this value.
+  // A twitch happens when 'twitch_settled' is true and a twich is requested. velocity:float;
 
   // Cutoff to determine if twitch can be applied. Twitch is only applied when
   // the state has more-or-less settled on the target. The more-or-less-ness is
   // determined by this variable.
-  twitch_settled:MagnetSettled1f;
-
-  // Cutoff to determine if the magnet's current state has settled on the
-  // target. When 'state_' drops below this threshold,
-  // OvershootMagnet1f::Settled will return true.
-  snap_settled:MagnetSettled1f;
+  settled:Settled1fParameters;
 }
 

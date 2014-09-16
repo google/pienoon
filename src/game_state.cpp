@@ -15,6 +15,7 @@
 #include "precompiled.h"
 #include "game_state.h"
 #include "character_state_machine.h"
+#include "impel_util.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h" // TODO: put in alphabetical order when
@@ -113,7 +114,8 @@ void GameState::Reset() {
         target_id,
         config_->character_health(),
         InitialFaceAngle(arrangement_, id, target_id),
-        LoadVec3(arrangement_->character_data()->Get(id)->position()));
+        LoadVec3(arrangement_->character_data()->Get(id)->position()),
+        &impel_engine_);
   }
 }
 
@@ -450,16 +452,17 @@ bool GameState::IsImmobile(CharacterId id) const {
 // Returns 0 if we should not fake a turn. 1 if we should fake turn towards the
 // next character id. -1 if we should fake turn towards the previous character
 // id.
-MagnetTwitch GameState::FakeResponseToTurn(CharacterId id) const {
+impel::TwitchDirection GameState::FakeResponseToTurn(CharacterId id) const {
   // We only want to fake the turn response when the character is immobile.
   // If the character can move, we'll just let the move happen normally.
-  if (!IsImmobile(id)) return kMagnetTwitchNone;
+  if (!IsImmobile(id)) return impel::kTwitchDirectionNone;
 
   // If the user has not requested any movement, then no need to move.
   const int requested_turn = RequestedTurn(id);
-  if (requested_turn == 0) return kMagnetTwitchNone;
+  if (requested_turn == 0) return impel::kTwitchDirectionNone;
 
-  return requested_turn > 0 ? kMagnetTwitchPositive : kMagnetTwitchNegative;
+  return requested_turn > 0 ? impel::kTwitchDirectionPositive :
+                              impel::kTwitchDirectionNegative;
 }
 
 uint32_t GameState::AllLogicalInputs() const {
@@ -594,12 +597,12 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
 
     // If we're requesting a turn but can't turn, move the face angle
     // anyway to fake a response.
-    const MagnetTwitch twitch = FakeResponseToTurn(character->id());
+    const impel::TwitchDirection twitch = FakeResponseToTurn(character->id());
     character->TwitchFaceAngle(twitch);
-
-    // Update each character's simulation.
-    character->AdvanceFrame(delta_time);
   }
+
+  // Update all Impellers. Impeller updates are done in bulk for scalability.
+  impel_engine_.AdvanceFrame(delta_time);
 
   // Look to timeline to see what's happening. Make it happen.
   for (unsigned int i = 0; i < characters_.size(); ++i) {

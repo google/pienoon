@@ -165,12 +165,32 @@ set(splat_SRCS
     src/gamepad_controller.h
     src/glplatform.h
     src/gpg_manager.h
+    src/impel_common.h
+    src/impel_engine.cpp
+    src/impel_engine.h
+    src/impel_flatbuffers.cpp
+    src/impel_flatbuffers.h
+    src/impel_id_map.h
+    src/impel_processor.h
+    src/impel_processor_base_classes.h
+    src/impel_processor_overshoot.cpp
+    src/impel_processor_overshoot.h
+    src/impel_processor_smooth.cpp
+    src/impel_processor_smooth.h
+    src/impel_util.h
+    src/impeller.h
     src/input.cpp
     src/input.h
-    src/magnet1f.cpp
-    src/magnet1f.h
-    src/magnet_base.h
     src/main.cpp
+    src/material_manager.cpp
+    src/material_manager.h
+    src/player_controller.cpp
+    src/player_controller.h
+    src/shader.cpp
+    src/shader.h
+    src/main.cpp
+    src/mesh.cpp
+    src/mesh.h
     src/material.cpp
     src/material.h
     src/material_manager.cpp

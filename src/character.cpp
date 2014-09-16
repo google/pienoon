@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "impel_id_map.h"
+
 #include "precompiled.h"
 #include <math.h>
 #include "character.h"
 #include "character_state_machine.h"
+#include "impel_flatbuffers.h"
+#include "impel_processor_overshoot.h"
+#include "impel_util.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
@@ -44,29 +49,31 @@ Character::Character(
 }
 
 void Character::Reset(CharacterId target, CharacterHealth health,
-                      Angle face_angle, const vec3& position) {
+                      Angle face_angle, const vec3& position,
+                      impel::ImpelEngine* impel_engine) {
   target_ = target;
   health_ = health;
   pie_damage_ = 0;
   position_ = position;
   state_machine_.Reset();
 
-  face_angle_.Initialize(*config_->face_angle_constraints(),
-                         *config_->face_angle_magnet_def(),
-                         MagnetState1f(face_angle.ToRadians(), 0.0f));
+  impel::OvershootImpelInit init;
+  OvershootInitFromFlatBuffers(*config_->face_angle_def(), &init);
+
+  face_angle_.Initialize(init, impel_engine);
+  face_angle_.SetValue(face_angle.ToRadians());
 }
 
 void Character::SetTarget(CharacterId target, Angle angle_to_target) {
   target_ = target;
-  face_angle_.SetTargetPosition(angle_to_target.ToRadians());
+  face_angle_.SetTargetValue(angle_to_target.ToRadians());
 }
 
-void Character::TwitchFaceAngle(MagnetTwitch twitch) {
-  face_angle_.Twitch(twitch);
-}
-
-void Character::AdvanceFrame(WorldTime delta_time) {
-  face_angle_.AdvanceFrame(delta_time);
+void Character::TwitchFaceAngle(impel::TwitchDirection twitch) {
+  impel::Settled1f settled;
+  impel::Settled1fFromFlatBuffers(*config_->face_angle_twitch(), &settled);
+  const float velocity = config_->face_angle_twitch_velocity();
+  impel::Twitch(twitch, velocity, settled, &face_angle_);
 }
 
 mat4 Character::CalculateMatrix(bool facing_camera) const {

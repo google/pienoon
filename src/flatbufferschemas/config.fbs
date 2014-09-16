@@ -14,7 +14,7 @@
 
 include "splat_common.fbs";
 include "audio_config.fbs";
-include "magnet.fbs";
+include "impel.fbs";
 include "particles.fbs";
 
 namespace fpl.splat;
@@ -268,8 +268,9 @@ table Config {
 
   // Defines the turning speed and wobble of the character's face angle, when
   // changing targets.
-  face_angle_constraints:MagnetConstraints1f;
-  face_angle_magnet_def:OvershootMagnet1fDef;
+  face_angle_def:OvershootParameters;
+  face_angle_twitch:Settled1fParameters;
+  face_angle_twitch_velocity:float;
 
   // Map airborne pie damage to the renderable id of the pie.
   renderable_id_for_pie_damage:[RenderableId];

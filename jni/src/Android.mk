@@ -97,6 +97,10 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/gamepad_controller.cpp \
   $(SPLAT_DIR)/src/game_state.cpp \
   $(SPLAT_DIR)/src/gpg_manager.cpp \
+  $(SPLAT_DIR)/src/impel_engine.cpp \
+  $(SPLAT_DIR)/src/impel_flatbuffers.cpp \
+  $(SPLAT_DIR)/src/impel_processor_overshoot.cpp \
+  $(SPLAT_DIR)/src/impel_processor_smooth.cpp \
   $(SPLAT_DIR)/src/input.cpp \
   $(SPLAT_DIR)/src/main.cpp \
   $(SPLAT_DIR)/src/magnet1f.cpp \
