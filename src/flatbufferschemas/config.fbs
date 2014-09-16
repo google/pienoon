@@ -69,7 +69,7 @@ table CharacterData {
   // TODO: Add color here?
 }
 
-table RenderableDef {
+table CardboardFigure {
   // The id used around the game to describe what needs to be rendered.
   // The things we render in our scene are simple. They all can be described
   // by the data structure here.
@@ -305,7 +305,7 @@ table Config {
 
   // Describe the model for each item that can be rendered.
   // Array of length RenderableId_Count.
-  renderables:[RenderableDef];
+  renderables:[CardboardFigure];
 
   // AI options
   ai_minimum_time_between_actions:int;
