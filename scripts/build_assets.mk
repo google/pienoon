@@ -16,7 +16,7 @@
 # the results to assets/.
 
 # Path of this project.
-TOP:=$(realpath $(dir $(lastword $(MAKEFILE_LIST)))/..)
+TOP:=$(dir $(lastword $(MAKEFILE_LIST)))/..
 
 # Directory that contains the FlatBuffers compiler.
 FLATBUFFERS_PATH?=$(TOP)/flatbuffers

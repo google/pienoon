@@ -370,7 +370,15 @@ line using `make` which requires:
 
 *   `flatc` ([Flatbuffers compiler][]) to convert [JSON][] text files to .bin
     files in the `splat/assets` directory.
-*   [Windows][] users will need to install [GNU Make Windows][].
+*   [Windows][] users will need to install [GNU Make Windows][] and add
+    the location of the GNU Make `bin` directory to the PATH variable.  For
+    example in Windows 7:
+    *   Right click on `My Computer`, select `Properties`.
+    *   Select `Advanced system settings`.
+    *   Click `Environment Variables`.
+    *   Find and select `PATH`, click `Edit...`.
+    *   Add `;%PATH_TO_GNUMAKE%` where `%PATH_TO_GNUMAKE%` is the location of
+        the GNU Make `bin` directory.
 
 After modifying the data in the `splat/src/rawassets` directory, the assets
 need to be rebuilt by running the following command:
