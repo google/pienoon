@@ -83,7 +83,7 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
                     $(DEPENDENCIES_SDL_MIXER_DIR) \
                     $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
                     $(DEPENDENCIES_GPG_DIR)/include \
-                    $(DEPENDENCIES_WEBP_DIR)/include \
+                    $(DEPENDENCIES_WEBP_DIR)/src \
                     $(GENERATED_INCLUDES_PATH) \
                     src
 
@@ -116,7 +116,7 @@ LOCAL_SRC_FILES := \
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): build_assets))
 
-LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp-decode
+LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp
 
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_mixer
 
@@ -128,5 +128,5 @@ $(call import-add-path,$(abspath $(DEPENDENCIES_MATHFU_DIR)/..))
 $(call import-add-path,$(abspath $(DEPENDENCIES_WEBP_DIR)/..))
 
 $(call import-module,mathfu/jni)
-$(call import-module,webp/src)
+$(call import-module,webp)
 
