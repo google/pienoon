@@ -72,14 +72,20 @@ endef
 endif
 endif
 
-# Implements the command "rm -f" across different platforms.
+# Implements the command "rm -f" and "mkdir -p" across different platforms.
 define host-rm-f
 rm -f $(1)
+endef
+define host-mkdir-p
+mkdir -p $(1)
 endef
 ifneq ($(findstring Windows,$(OS)),)
 ifeq ($(findstring cygwin,$(MAKE_HOST)),)
 define host-rm-f
 del /q $(1) 2>NUL
+endef
+define host-mkdir-p
+md $(1)
 endef
 endif
 endif
@@ -118,6 +124,7 @@ endef
 define webp_build_rule
 $(eval \
 	$(call png_to_webp,$(1)): $(1)
+		$(call host-mkdir-p,$$(dir $$@))
 		$(CWEBP) $$(call host-realpath,$$<) -o $$@)
 endef
 
