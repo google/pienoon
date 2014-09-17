@@ -478,7 +478,6 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     Controller* controller = character->controller();
     const Timeline* timeline =
         character->state_machine()->current_state()->timeline();
-    controller->AdvanceFrame(delta_time);
     controller->SetLogicalInputs(LogicalInputs_JustHit, false);
     controller->SetLogicalInputs(LogicalInputs_NoHealth,
                                  character->health() <= 0);
@@ -701,9 +700,13 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       const WorldTime anim_time = GetAnimationTime(*character);
       const uint16_t renderable_id = character->RenderableId(anim_time);
       const mat4 character_matrix = character->CalculateMatrix(facing_camera);
-      scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(renderable_id, character_matrix, LoadVec3(
-              config_->character_colors()->Get(character->id())))));
+      const vec3 player_color = (character->controller()->controller_type() ==
+          Controller::kTypeAi)
+          ? LoadVec3(config_->ai_color())
+          : LoadVec3(config_->character_colors()->Get(character->id()));
+      scene->renderables().push_back(
+          std::unique_ptr<Renderable>( new Renderable(renderable_id,
+          character_matrix, player_color)));
 
       // Accessories.
       int num_accessories = 0;

@@ -68,6 +68,13 @@ class SplatGame {
   SplatState CalculateSplatState() const;
   void TransitionToSplatState(SplatState next_state);
   void UploadStats();
+  void UpdateGamepadControllers();
+  int FindAiPlayer();
+  ControllerId AddController(Controller* new_controller);
+  Controller * GetController(ControllerId id);
+  ControllerId FindNextUniqueControllerId();
+  void HandlePlayersJoining();
+  void UpdateControllers(WorldTime delta_time);
 
   // The overall operating mode of our game. See CalculateSplatState for the
   // state machine definition.
@@ -82,9 +89,6 @@ class SplatGame {
 
   // Report touches, button presses, keyboard presses.
   InputSystem input_;
-
-  // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
-  GamepadController DEBUG_gamepad_controller_;
 
   // Hold rendering context.
   Renderer renderer_;
@@ -123,13 +127,9 @@ class SplatGame {
   // Hold characters, pies, camera state.
   GameState game_state_;
 
-  // Maps physical inputs (from input_) to logical inputs that the state
-  // machines can use. For example, "up" maps to "throw pie".
-  std::vector<PlayerController> controllers_;
-
-  // AI controllers.  Create logical inputs based on the game state, rather
-  // from inputs.
-  std::vector<AiController> ai_controllers_;
+  // Map containing every active controller, referenced by a unique,
+  // unchanging ID.
+  std::vector<std::unique_ptr<Controller>> active_controllers_;
 
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.
@@ -145,6 +145,8 @@ class SplatGame {
   // Debug data. For displaying when a character's state has changed.
   std::vector<int> debug_previous_states_;
   std::vector<Angle> debug_previous_angles_;
+
+  std::map<SDL_JoystickID, ControllerId> joystick_to_controller_map_;
 
 # ifdef PLATFORM_MOBILE
   GPGManager gpg_manager;

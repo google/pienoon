@@ -23,6 +23,8 @@
 namespace fpl {
 namespace splat {
 
+PlayerController::PlayerController() : Controller(kTypePlayer) {}
+
 void PlayerController::Initialize(InputSystem* input_system,
                                const ControlScheme* scheme) {
   input_system_ = input_system;
@@ -45,43 +47,46 @@ void PlayerController::AdvanceFrame(WorldTime /*delta_time*/) {
   }
 }
 
+const Keybind kKeyBinds0[] = {
+  { SDLK_w, LogicalInputs_ThrowPie },
+  { SDLK_s, LogicalInputs_Deflect },
+  { SDLK_a, LogicalInputs_Left },
+  { SDLK_d, LogicalInputs_Right }
+};
+
+const Keybind kKeyBinds1[] = {
+  { SDLK_i, LogicalInputs_ThrowPie },
+  { SDLK_k, LogicalInputs_Deflect },
+  { SDLK_j, LogicalInputs_Left },
+  { SDLK_l, LogicalInputs_Right }
+};
+
+const Keybind kKeyBinds2[] = {
+  { SDLK_UP, LogicalInputs_ThrowPie },
+  { SDLK_DOWN, LogicalInputs_Deflect },
+  { SDLK_LEFT, LogicalInputs_Left },
+  { SDLK_RIGHT, LogicalInputs_Right }
+};
+
+const Keybind kKeyBinds3[] = {
+  { SDLK_KP_8, LogicalInputs_ThrowPie },
+  { SDLK_KP_5, LogicalInputs_Deflect },
+  { SDLK_KP_4, LogicalInputs_Left },
+  { SDLK_KP_6, LogicalInputs_Right }
+};
+
+const ControlScheme ControlScheme::kDefaultSchemes[] = {
+  { std::vector<Keybind>(kKeyBinds0, &kKeyBinds0[ARRAYSIZE(kKeyBinds0)]) },
+  { std::vector<Keybind>(kKeyBinds1, &kKeyBinds1[ARRAYSIZE(kKeyBinds1)]) },
+  { std::vector<Keybind>(kKeyBinds2, &kKeyBinds2[ARRAYSIZE(kKeyBinds2)]) },
+  { std::vector<Keybind>(kKeyBinds3, &kKeyBinds3[ARRAYSIZE(kKeyBinds3)]) }
+};
+
+const int ControlScheme::kDefinedControlSchemeCount =
+    ARRAYSIZE(kDefaultSchemes);
+
 // static
 const ControlScheme* ControlScheme::GetDefaultControlScheme(int i) {
-  static const Keybind kKeyBinds0[] = {
-    { SDLK_w, LogicalInputs_ThrowPie },
-    { SDLK_s, LogicalInputs_Deflect },
-    { SDLK_a, LogicalInputs_Left },
-    { SDLK_d, LogicalInputs_Right }
-  };
-
-  static const Keybind kKeyBinds1[] = {
-    { SDLK_i, LogicalInputs_ThrowPie },
-    { SDLK_k, LogicalInputs_Deflect },
-    { SDLK_j, LogicalInputs_Left },
-    { SDLK_l, LogicalInputs_Right }
-  };
-
-  static const Keybind kKeyBinds2[] = {
-    { SDLK_UP, LogicalInputs_ThrowPie },
-    { SDLK_DOWN, LogicalInputs_Deflect },
-    { SDLK_LEFT, LogicalInputs_Left },
-    { SDLK_RIGHT, LogicalInputs_Right }
-  };
-
-  static const Keybind kKeyBinds3[] = {
-    { SDLK_KP_8, LogicalInputs_ThrowPie },
-    { SDLK_KP_5, LogicalInputs_Deflect },
-    { SDLK_KP_4, LogicalInputs_Left },
-    { SDLK_KP_6, LogicalInputs_Right }
-  };
-
-  static const ControlScheme kDefaultSchemes[] = {
-    { std::vector<Keybind>(kKeyBinds0, &kKeyBinds0[ARRAYSIZE(kKeyBinds0)]) },
-    { std::vector<Keybind>(kKeyBinds1, &kKeyBinds1[ARRAYSIZE(kKeyBinds1)]) },
-    { std::vector<Keybind>(kKeyBinds2, &kKeyBinds2[ARRAYSIZE(kKeyBinds2)]) },
-    { std::vector<Keybind>(kKeyBinds3, &kKeyBinds3[ARRAYSIZE(kKeyBinds3)]) }
-  };
-
   return &kDefaultSchemes[i % ARRAYSIZE(kDefaultSchemes)];
 }
 

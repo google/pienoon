@@ -113,13 +113,12 @@ class Joystick {
   JoystickAxis &GetAxis(size_t axis_index);
   JoystickHat &GetHat(size_t hat_index);
   void AdvanceFrame();
+  void set_joystick_id(SDL_JoystickID joystick_id) {
+    joystick_id_ = joystick_id;
+  }
+  SDL_JoystickID joystick_id() const { return joystick_id_; }
 
  private:
-  //The maximum number of joystick attributes we track.
-  static const int kMaxJoystickAxes = 10;
-  static const int kMaxJoystickButtons = 10;
-  static const int kMaxJoystickHats = 10;
-
   SDL_JoystickID joystick_id_;
   std::vector<JoystickAxis> axis_list_;
   std::vector<Button> button_list_;
@@ -156,6 +155,10 @@ class InputSystem {
   // joystick ID.  (Contained in every joystick event.)
   Joystick &GetJoystick(SDL_JoystickID joystick_id);
 
+  const std::map<SDL_JoystickID, Joystick> &JoystickMap() const {
+    return joystick_map_;
+  }
+
   // Get a Button object for a pointer index.
   Button &GetPointerButton(int pointer) {
     return GetButton(pointer + SDLK_POINTER1);
@@ -165,9 +168,6 @@ class InputSystem {
   void CloseOpenJoysticks();
   void UpdateConnectedJoystickList();
   void HandleJoystickEvent(SDL_Event event);
-
-  // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
-  SDL_JoystickID DEBUG_most_recent_joystick;
 
  private:
   std::vector <SDL_Joystick*> open_joystick_list;

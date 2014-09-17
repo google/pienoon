@@ -21,12 +21,16 @@
 namespace fpl {
 namespace splat {
 
+AiController::AiController() : Controller(kTypeAi) {}
+
+
 void AiController::Initialize(GameState* gamestate,
                               const Config* config,
                               CharacterId character_id) {
   gamestate_ = gamestate;
   config_ = config;
   character_id_ = character_id;
+  time_to_next_action_ = 0;
 }
 
 // Helper function for picking a random number in a range.

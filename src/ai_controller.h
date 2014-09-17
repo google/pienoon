@@ -36,6 +36,8 @@ namespace splat {
 // this generates inputs based on random numbers and the current game state.
 class AiController : public Controller {
  public:
+  AiController();
+
   // Give the AI everything it will need.
   void Initialize(GameState* gamestate_ptr,
                   const Config* config, int characterId);
@@ -48,7 +50,6 @@ class AiController : public Controller {
 
   GameState* gamestate_; // Pointer to the gamestate object
   const Config* config_; // Pointer to the config structure
-  CharacterId character_id_; // the ID of the player we're controlling
   WorldTime time_to_next_action_;
 };
 

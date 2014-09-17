@@ -23,14 +23,14 @@
 namespace fpl {
 namespace splat {
 
-GamepadController::GamepadController(): input_system_(nullptr),
-  joystick_id_(kInvalidJoystickId) {}
-
-
+GamepadController::GamepadController()
+    : Controller(kTypeGamepad),
+      input_system_(nullptr),
+      joystick_id_(kInvalidJoystickId) {
+}
 
 void GamepadController::Initialize(InputSystem* input_system,
                                    SDL_JoystickID joystick_id) {
-
   input_system_ = input_system;
   joystick_id_ = joystick_id;
   ClearAllLogicalInputs();
@@ -40,9 +40,6 @@ void GamepadController::Initialize(InputSystem* input_system,
 static const float kAnalogDeadZone = 0.25f;
 
 void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
-  // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
-  joystick_id_ = input_system_->DEBUG_most_recent_joystick;
-
   went_down_ = went_up_ = 0;
 
   Joystick joystick = input_system_->GetJoystick(joystick_id_);
@@ -55,7 +52,6 @@ void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
   SetLogicalInputs(LogicalInputs_ThrowPie, joystick.GetButton(0).is_down());
   SetLogicalInputs(LogicalInputs_Deflect, joystick.GetButton(1).is_down());
 }
-
 
 }  // splat
 }  // fpl

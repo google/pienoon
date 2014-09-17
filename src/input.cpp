@@ -123,6 +123,8 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
       case SDL_JOYBUTTONDOWN:
       case SDL_JOYBUTTONUP:
       case SDL_JOYHATMOTION:
+      case SDL_JOYDEVICEADDED:
+      case SDL_JOYDEVICEREMOVED:
         HandleJoystickEvent(event);
         break;
       default:
@@ -135,26 +137,24 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
 }
 
 void InputSystem::HandleJoystickEvent(SDL_Event event) {
-  // This is safe because the position of the 'which' field is
-  // constant in every union we care about.
-  SDL_JoystickID joystick_id = event.jbutton.which;
-  DEBUG_most_recent_joystick = joystick_id;
   switch (event.type) {
+    case SDL_JOYDEVICEADDED:
+    case SDL_JOYDEVICEREMOVED:
+      UpdateConnectedJoystickList();
+      break;
     case SDL_JOYAXISMOTION:
       // Axis data is normalized to a range of [-1.0, 1.0]
-      GetJoystick(joystick_id).GetAxis(event.jaxis.axis).Update(
+      GetJoystick(event.jaxis.which).GetAxis(event.jaxis.axis).Update(
           event.jaxis.value / kJoystickAxisRange);
       break;
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-      GetJoystick(joystick_id).GetButton(event.jbutton.button).Update(
-          event.jbutton.state != 0);
-      DEBUG_most_recent_joystick = event.jbutton.which;
+      GetJoystick(event.jbutton.which).GetButton(event.jbutton.button).Update(
+          event.jbutton.state);
       break;
     case SDL_JOYHATMOTION:
-      GetJoystick(joystick_id).GetHat(event.jhat.hat).Update(
+      GetJoystick(event.jhat.which).GetHat(event.jhat.hat).Update(
           ConvertHatToVector(event.jhat.value));
-      DEBUG_most_recent_joystick = event.jhat.which;
       break;
   }
 }
@@ -207,9 +207,13 @@ Button &InputSystem::GetButton(int button) {
 
 Joystick &InputSystem::GetJoystick(SDL_JoystickID joystick_id) {
   auto it = joystick_map_.find(joystick_id);
-  return it != joystick_map_.end()
-    ? it->second
-    : (joystick_map_[joystick_id] = Joystick());
+  if (it != joystick_map_.end()) {
+    return it->second;
+  } else {
+    joystick_map_[joystick_id] = Joystick();
+    joystick_map_[joystick_id].set_joystick_id(joystick_id);
+    return joystick_map_[joystick_id];
+  }
 }
 
 
@@ -294,9 +298,6 @@ void Button::Update(bool down) {
   else went_up_ = true;
 }
 
-Button &GetButton(int button_index);
-Button &GetAxis(int axis_index);
-
 
 Button &Joystick::GetButton(size_t button_index) {
   if (button_index >= button_list_.size()) {
@@ -321,13 +322,13 @@ JoystickHat &Joystick::GetHat(size_t hat_index) {
 
 // Reset the per-frame input on all our sub-elements
 void Joystick::AdvanceFrame() {
-  for (int i = 0; i < kMaxJoystickButtons; i++) {
+  for (size_t i = 0; i < button_list_.size(); i++) {
     button_list_[i].AdvanceFrame();
   }
-  for (int i = 0; i < kMaxJoystickAxes; i++) {
+  for (size_t i = 0; i < axis_list_.size(); i++) {
     axis_list_[i].AdvanceFrame();
   }
-  for (int i = 0; i < kMaxJoystickHats; i++) {
+  for (size_t i = 0; i < hat_list_.size(); i++) {
     hat_list_[i].AdvanceFrame();
   }
 }

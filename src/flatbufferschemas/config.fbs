@@ -112,8 +112,14 @@ table Config {
   // Different configurations of players.
   character_arrangements:[CharacterArrangement];
 
+  // Number of players to start assigned to keyboard control:
+  number_of_keyboard_controllers:uint;
+
   // Character primary colors.
   character_colors:[Vec3];
+
+  // Color to draw AIs.
+  ai_color:Vec3;
 
   // This modulates the primary colors
   character_global_brightness_factor:float;

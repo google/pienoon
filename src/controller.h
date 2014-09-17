@@ -21,13 +21,31 @@
 namespace fpl {
 namespace splat {
 
+static const CharacterId kNoCharacter = -1;
+
 class Controller {
  public:
-  Controller() : is_down_(0u), went_down_(0u), went_up_(0u) {}
+  enum ControllerType {
+    kTypeUndefined,
+    kTypePlayer,
+    kTypeAi,
+    kTypeGamepad,
+    kTypeTouchScreen
+  };
+
+  explicit Controller(ControllerType controller_type = kTypeUndefined)
+      : is_down_(0u),
+        went_down_(0u),
+        went_up_(0u),
+        character_id_(kNoCharacter),
+        controller_type_(controller_type) {}
+
   virtual ~Controller() {}
 
   // Update the current state of this controller.
   virtual void AdvanceFrame(WorldTime delta_time) = 0;
+
+  ControllerType controller_type() const{ return controller_type_; }
 
   // Returns the current set of active logical input bits.
   uint32_t is_down() const { return is_down_; }
@@ -37,6 +55,9 @@ class Controller {
   // Updates a one or more bits.
   void SetLogicalInputs(uint32_t bitmap, bool set);
 
+  CharacterId character_id() const { return character_id_; }
+  void set_character_id(CharacterId new_id) { character_id_ = new_id; }
+
   // Clear all the currently set logical inputs.
   void ClearAllLogicalInputs();
 
@@ -45,6 +66,9 @@ class Controller {
   uint32_t is_down_;
   uint32_t went_down_;
   uint32_t went_up_;
+  CharacterId character_id_; // the ID of the player we're controlling
+  ControllerType controller_type_;
+
 };
 
 }  // splat

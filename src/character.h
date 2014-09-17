@@ -106,6 +106,7 @@ class Character {
 
   const Controller* controller() const { return controller_; }
   Controller* controller() { return controller_; }
+  void set_controller(Controller* controller) { controller_ = controller; }
 
   const CharacterStateMachine* state_machine() const { return &state_machine_; }
   CharacterStateMachine* state_machine() { return &state_machine_; }

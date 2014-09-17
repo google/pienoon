@@ -74,7 +74,8 @@ SplatGame::SplatGame()
       shadow_mat_(nullptr),
       splash_mat_(nullptr),
       prev_world_time_(0),
-      debug_previous_states_() {
+      debug_previous_states_()
+{
 }
 
 SplatGame::~SplatGame() {
@@ -264,37 +265,21 @@ bool SplatGame::InitializeGameState() {
     return false;
   }
 
-  // Create controllers.
-  controllers_.resize(config.character_count());
-  ai_controllers_.resize(config.character_count());
-  for (unsigned int i = 0; i < config.character_count(); ++i) {
-    controllers_[i].Initialize(
-        &input_, ControlScheme::GetDefaultControlScheme(i));
-    ai_controllers_[i].Initialize(&game_state_, &config, i);
+  for (int i = 0; i < ControlScheme::kDefinedControlSchemeCount; i++) {
+    PlayerController* controller = new PlayerController();
+    controller->Initialize(&input_, ControlScheme::GetDefaultControlScheme(i));
+    AddController(controller);
   }
+
 
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
-    if (i<1) {  // TODO(ccornell) Make this better once we get drop-in joining.
-
-#if defined(__ANDROID__)
-      game_state_.characters().push_back(std::unique_ptr<Character>(
-          new Character(i, &DEBUG_gamepad_controller_,
-                        config, state_machine_def)));
-#else // defined(__ANDROID_ )
-      game_state_.characters().push_back(std::unique_ptr<Character>(
-          new Character(i, &controllers_[i],
-                        config, state_machine_def)));
-#endif // !defined(_ANDROID_)
-
-    } else {
-      game_state_.characters().push_back(std::unique_ptr<Character>(
-          new Character(i, &ai_controllers_[i],
-                        config, state_machine_def)));
-    }
-
-    // This is a hack!  TODO(ccornell): remove this when I put in hot-joining.
-    DEBUG_gamepad_controller_.Initialize(&input_, 0);
+    AiController* controller = new AiController();
+    controller->Initialize(&game_state_, &config, i);
+    game_state_.characters().push_back(std::unique_ptr<Character>(
+        new Character(i, controller, config, state_machine_def)));
+    AddController(controller);
+    controller->Initialize(&game_state_, &config, i);
   }
 
   debug_previous_states_.resize(config.character_count(), -1);
@@ -670,6 +655,91 @@ void SplatGame::UploadStats() {
 #   endif
 }
 
+void SplatGame::UpdateGamepadControllers() {
+  // iterate over list of currently known joysticks.
+  for (auto it = input_.JoystickMap().begin();
+       it != input_.JoystickMap().end(); ++it) {
+    SDL_JoystickID joy_id = it->first;
+    // if we find one that doesn't have a player associated with it...
+    if (joystick_to_controller_map_.find(joy_id) ==
+        joystick_to_controller_map_.end()) {
+      GamepadController* controller = new GamepadController();
+      controller->Initialize(&input_, joy_id);
+      joystick_to_controller_map_[joy_id] = AddController(controller);
+    }
+  }
+}
+
+// Returns the characterId of the first AI player we can find.
+// Returns kNoCharacter if none were found.
+CharacterId SplatGame::FindAiPlayer() {
+  for (CharacterId char_id = 0;
+       char_id < static_cast<CharacterId>(game_state_.characters().size());
+       char_id++) {
+    if (game_state_.characters()[char_id]->controller()->controller_type() ==
+        Controller::kTypeAi) {
+      return char_id;
+    }
+  }
+  return kNoCharacter;
+}
+
+// Add a new controller into the list of known active controllers and assign
+// an ID to it.
+ControllerId SplatGame::AddController(Controller* new_controller) {
+  for (ControllerId new_id = 0;
+       new_id < static_cast<ControllerId>(active_controllers_.size());
+       new_id++) {
+    if (active_controllers_[new_id].get() == nullptr) {
+      active_controllers_[new_id] = std::unique_ptr<Controller>(new_controller);
+      return new_id;
+    }
+  }
+  active_controllers_.push_back(std::unique_ptr<Controller>(new_controller));
+  return active_controllers_.size() - 1;
+}
+
+
+// Returns a controller as specified by its ID
+Controller* SplatGame::GetController(ControllerId id) {
+  return (id >= 0 &&
+          id < static_cast<ControllerId>(active_controllers_.size())) ?
+        active_controllers_[id].get() : nullptr;
+}
+
+// Check to see if any of the controllers have tried to join
+// in.  (Anyone who presses attack while there are still AI
+// slots will bump an AI and take their place.)
+void SplatGame::HandlePlayersJoining()
+{
+  for (size_t i = 0; i < active_controllers_.size(); i++) {
+    Controller* controller = active_controllers_[i].get();
+    if (controller != nullptr &&
+        controller->character_id() == kNoCharacter &&
+        controller->controller_type() != Controller::kTypeAi &&
+        controller->is_down() & LogicalInputs_ThrowPie) {
+
+      CharacterId open_slot = FindAiPlayer();
+      if (open_slot != kNoCharacter) {
+        game_state_.characters()[open_slot]->set_controller(controller);
+        controller->set_character_id(open_slot);
+      }
+    }
+
+  }
+}
+
+// Call AdvanceFrame on every controller that we're listening to
+// and care about.  (Not all are connected to players, but we want
+// to keep them up to date so we can check their inputs as needed.)
+void SplatGame::UpdateControllers(WorldTime delta_time) {
+  for (size_t i = 0; i < active_controllers_.size(); i++) {
+    if (active_controllers_[0].get() != nullptr) {
+      active_controllers_[i]->AdvanceFrame(delta_time);
+    }
+  }
+}
+
 void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   const Config& config = GetConfig();
@@ -700,6 +770,9 @@ void SplatGame::Run() {
     // Update render window size.
     input_.AdvanceFrame(&renderer_.window_size());
 
+    UpdateGamepadControllers();
+    HandlePlayersJoining();
+    UpdateControllers(delta_time);
     // Update game logic by a variable number of milliseconds.
     game_state_.AdvanceFrame(delta_time, &audio_engine_);
 

@@ -38,6 +38,9 @@ struct Keybind {
 // keys and the logical game actions.
 class ControlScheme {
  public:
+  static const int kDefinedControlSchemeCount;
+  static const ControlScheme kDefaultSchemes[];
+
   std::vector<Keybind> keybinds;
 
   // Returns one of four default control schemes.
@@ -51,6 +54,8 @@ class ControlScheme {
 // of the physical inputs that map to logical actions.
 class PlayerController : public Controller {
  public:
+  PlayerController();
+
   // Set up a controller using the given input system and control scheme.
   // The input_system and scheme pointers are unowned and must outlive this
   // object.

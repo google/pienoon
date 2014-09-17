@@ -88,6 +88,8 @@ typedef int WorldTime;
 
 typedef int CharacterId;
 
+typedef int ControllerId;
+
 }  // namespace fpl
 
 #endif  // SPLAT_COMMON_H
