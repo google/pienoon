@@ -154,11 +154,11 @@ void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
                                    const int *indices,
                                    int numverts,
                                    int numindices) {
-  std::vector<vec3> binormals(numverts, vec3(0, 0, 0));
+  std::vector<vec3> binormals(numverts, mathfu::kZeros3f);
   // set all normals to 0, as we'll accumulate
   for (int i = 0; i < numverts; i++) {
-    vertices[i].norm = vec3(0, 0, 0);
-    vertices[i].tangent = vec4(0, 0, 0, 0);
+    vertices[i].norm = mathfu::kZeros3f;
+    vertices[i].tangent = mathfu::kZeros4f;
   }
   // Go through each triangle and calculate tangent space for it, then
   // contribute results to adjacent triangles.
@@ -170,22 +170,22 @@ void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
     auto &v2 = vertices[indices[i + 2]];
     // The cross product of two vectors along the triangle surface from the
     // first vertex gives us this triangle's normal.
-    auto q1 = v1.pos - v0.pos;
-    auto q2 = v2.pos - v0.pos;
+    auto q1 = vec3(v1.pos) - vec3(v0.pos);
+    auto q2 = vec3(v2.pos) - vec3(v0.pos);
     auto norm = normalize(cross(q1, q2));
     // Contribute the triangle normal into all 3 verts:
-    v0.norm += norm;
-    v1.norm += norm;
-    v2.norm += norm;
+    v0.norm = vec3(v0.norm) + norm;
+    v1.norm = vec3(v1.norm) + norm;
+    v2.norm = vec3(v2.norm) + norm;
     // Similarly create uv space vectors:
-    auto uv1 = v1.tc - v0.tc;
-    auto uv2 = v2.tc - v0.tc;
+    auto uv1 = vec2(v1.tc) - vec2(v0.tc);
+    auto uv2 = vec2(v2.tc) - vec2(v0.tc);
     float m = 1 / (uv1.x() * uv2.y() - uv2.x() * uv1.y());
-    auto tangent = (uv2.y() * q1 - uv1.y() * q2) * m;
+    auto tangent = vec4((uv2.y() * q1 - uv1.y() * q2) * m, 0);
     auto binorm = (uv1.x() * q2 - uv2.x() * q1) * m;
-    v0.tangent += vec4(tangent, 0);
-    v1.tangent += vec4(tangent, 0);
-    v2.tangent += vec4(tangent, 0);
+    v0.tangent = vec4(v0.tangent) + tangent;
+    v1.tangent = vec4(v1.tangent) + tangent;
+    v2.tangent = vec4(v2.tangent) + tangent;
     binormals[indices[i + 0]] = binorm;
     binormals[indices[i + 1]] = binorm;
     binormals[indices[i + 2]] = binorm;
@@ -193,8 +193,8 @@ void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
   // Normalize per vertex tangent space constributions, and pack tangent /
   // binormal into a 4 component tangent.
   for (int i = 0; i < numverts; i++) {
-    auto &norm = vertices[i].norm;
-    auto &tangent = vertices[i].tangent;
+    auto norm = vec3(vertices[i].norm);
+    auto tangent = vec4(vertices[i].tangent);
     // Renormalize all 3 axes:
     norm = normalize(norm);
     tangent = vec4(normalize(tangent.xyz()), 0);
@@ -207,6 +207,8 @@ void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
       // cross-product:
       dot(cross(norm, tangent.xyz()), binormals[i])
     );
+    vertices[i].norm = norm;
+    vertices[i].tangent = tangent;
   }
 }
 

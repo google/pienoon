@@ -19,6 +19,10 @@
 
 namespace fpl {
 
+using mathfu::vec2_packed;
+using mathfu::vec3_packed;
+using mathfu::vec4_packed;
+
 class Renderer;
 
 // An array of these enums defines the format of vertex data.
@@ -32,15 +36,14 @@ enum Attribute {
 };
 
 // A vertex definition specific to normalmapping.
-// TODO: this is bad for 2 reasons:
-// a) we should not have hardcoded structs like this, instead use Attribute
-// b) it forces us to use MATHFU_COMPILE_FORCE_PADDING 0 for the project.
-// but without it, ComputeNormalsTangents() becomes very clumsy.
+// TODO: we ideally shouldn't have hardcoded structs like this,
+// instead use Attributes
+// We use the _packed versions to ensure SIMD doesn't ruin the layout.
 struct NormalMappedVertex {
-  vec3 pos;
-  vec2 tc;
-  vec3 norm;
-  vec4 tangent;
+  vec3_packed pos;
+  vec2_packed tc;
+  vec3_packed norm;
+  vec4_packed tangent;
 };
 
 // A mesh instance contains a VBO and one or more IBO's.
