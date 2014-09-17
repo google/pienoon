@@ -52,6 +52,16 @@ set(dependencies_webp_distr_dir "${third_party_root}/webp"
 # Option to enable / disable the test build.
 option(splat_build_tests "Build tests for this project." ON)
 
+# Option to enable / disable the build of cwebp from source.
+option(splat_build_cwebp "Build cwebp from source." OFF)
+
+if(splat_build_cwebp)
+  # Depend upon the cwebp target to build assets.
+  set(CWEBP_TARGET cwebp)
+  # Enable the build of cwebp from source.
+  set(webp_build_cwebp ON CACHE BOOL "")
+endif()
+
 # Include MathFu in this project with test and benchmark builds disabled.
 set(mathfu_build_benchmarks OFF CACHE BOOL "")
 set(mathfu_build_tests OFF CACHE BOOL "")
@@ -107,7 +117,7 @@ add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 # Build rule that uses make to build the assets.
 add_custom_target(assets
   COMMAND make -f ${CMAKE_SOURCE_DIR}/scripts/build_assets.mk
-  DEPENDS flatc)
+  DEPENDS flatc ${CWEBP_TARGET})
 
 if(APPLE)
   find_library(OPENGL_LIBRARIES NAMES GL GLU)
@@ -166,6 +176,7 @@ include_directories(src)
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_webp_distr_dir}/include)
+include_directories(${dependencies_webp_distr_dir}/src)
 
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
@@ -226,4 +237,3 @@ add_custom_target(export
   COMMAND cd ${CMAKE_SOURCE_DIR} && tar -czvf splat.tar.gz ${EXPORT_FILES}
   DEPENDS splat
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..)
-

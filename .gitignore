@@ -22,6 +22,10 @@ tests/Debug/
 tests/Release/
 tests/splat.build/
 webp/libwebp.a
+webp/libexampleutil.a
+webp/cwebp
+webp/dwebp
+webp/include/*
 
 # Visual Studio files
 build/

@@ -21,6 +21,9 @@ TOP:=$(dir $(lastword $(MAKEFILE_LIST)))/..
 # Directory that contains the FlatBuffers compiler.
 FLATBUFFERS_PATH?=$(TOP)/flatbuffers
 
+# Directory that contains the cwebp tool.
+WEBP_PATH?=$(TOP)/webp
+
 executable_extension=$(if $(findstring Windows,$(OS)),.exe,)
 
 # Name of the flatbuffers executable.
@@ -35,13 +38,22 @@ FLATC?=$(firstword \
             $(wildcard $(FLATBUFFERS_PATH)/Release/$(flatc_executable_name)) \
             $(wildcard $(FLATBUFFERS_PATH)/Debug/$(flatc_executable_name)))
 
+# Location of webp compression tool.
+CWEBP?=$(firstword \
+            $(wildcard $(WEBP_PATH)/$(cwebp_executable_name)) \
+            $(wildcard $(WEBP_PATH)/Release/$(cwebp_executable_name)) \
+            $(wildcard $(WEBP_PATH)/Debug/$(cwebp_executable_name)))
+
+
 # If the FlatBuffers compiler is not specified, just assume it's in the PATH.
 ifeq ($(FLATC),)
 FLATC:=$(flatc_executable_name)
 endif
 
-# We assume cwebp is in path.
+# If webp isn't found or specified, assume it's in the path.
+ifeq ($(CWEBP),)
 CWEBP:=$(cwebp_executable_name)
+endif
 
 # Function which converts path $(1) to paths understood by the host OS'
 # executables.
@@ -184,6 +196,8 @@ all: $(flatbuffers_binaries) $(webp_textures)
 clean:
 	$(call host-rm-f,$(call host-native-path-separator,\
 		$(flatbuffers_binaries)))
+	$(call host-rm-f,$(call host-native-path-separator,\
+		$(webp_textures)))
 
 $(foreach binary,$(call host-native-path-separator,$(flatbuffers_binaries)),\
     $(call clean_rule,$(binary)))

@@ -1,0 +1,10 @@
+#ifndef WEBP_CONFIG_H
+#define WEBP_CONFIG_H
+
+#cmakedefine WEBP_HAVE_PNG
+#cmakedefine WEBP_HAVE_JPEG
+#cmakedefine WEBP_HAVE_TIFF
+#cmakedefine WEBP_HAVE_GIF
+#cmakedefine WEBP_HAVE_WIC
+
+#endif // WEBP_CONFIG_H

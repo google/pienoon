@@ -13,7 +13,48 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 2.8.12)
 
+include(CheckIncludeFiles)
+include(CheckLibraryExists)
+
 set(webp_dir ${dependencies_webp_distr_dir})
+option(webp_build_cwebp "Build the cwebp command line tool." OFF)
+option(webp_build_dwebp "Build the cwebp command line tool." OFF)
+
+if(webp_build_cwebp OR webp_build_dwebp)
+  # Find the standard C math library.
+  if(UNIX)
+    find_library(MATH_LIBRARY NAMES m)
+  endif()
+
+  # Configure step for command line tools.
+  check_library_exists(png png_get_libpng_ver "" WEBP_HAVE_PNG)
+  check_library_exists(jpeg jpeg_set_defaults "" WEBP_HAVE_JPEG)
+  check_library_exists(tiff TIFFGetVersion "" WEBP_HAVE_TIFF)
+  check_library_exists(gif DGifOpenFileHandle "" WEBP_HAVE_GIF)
+  check_include_files(wincodec.h shlwapi.h windows.h WEBP_HAVE_WIC)
+  configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/include/webp/config.h)
+
+  # Set the paths of libraries command line tools depend upon.
+  find_library(PNG_LIBRARY NAMES png)
+  find_library(JPEG_LIBRARY NAMES jpeg)
+  find_library(TIFF_LIBRARY NAMES tiff)
+  find_library(GIF_LIBRARY NAMES gif)
+
+  set(IMAGE_CODEC_LIBRARIES "")
+  if(PNG_LIBRARY)
+    list(APPEND IMAGE_CODEC_LIBRARIES ${PNG_LIBRARY})
+  endif()
+  if(JPEG_LIBRARY)
+    list(APPEND IMAGE_CODEC_LIBRARIES ${JPEG_LIBRARY})
+  endif()
+  if(TIFF_LIBRARY)
+    list(APPEND IMAGE_CODEC_LIBRARIES ${TIFF_LIBRARY})
+  endif()
+  if(GIF_LIBRARY)
+    list(APPEND IMAGE_CODEC_LIBRARIES ${GIF_LIBRARY})
+  endif()
+endif()
 
 # Webp source files.
 set(webp_SRCS
@@ -115,8 +156,60 @@ set(webp_SRCS
 # Includes for this project.
 include_directories(${webp_dir}/src)
 include_directories(${webp_dir}/include)
+# Include config.h if the command line tools are being built.
+if(webp_build_cwebp OR webp_build_dwebp)
+  include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+  include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/webp)
+endif()
 
 # Executable target.
 add_definitions(-Wall)
+if(webp_build_cwebp OR webp_build_dwebp)
+  add_definitions(-DHAVE_CONFIG_H)
+endif()
 
 add_library(webp ${webp_SRCS})
+
+# Create a build rule for an example executable.
+function(add_example_executable executable_name)
+  add_executable(${executable_name} ${ARGN})
+  target_link_libraries(${executable_name} exampleutil webp ${MATH_LIBRARY}
+                        ${IMAGE_CODEC_LIBRARIES})
+endfunction()
+
+if(webp_build_cwebp OR webp_build_dwebp)
+  # Example utility library.
+  set(exampleutil_SRCS
+      ${webp_dir}/examples/example_util.c
+      ${webp_dir}/examples/example_util.h
+      ${webp_dir}/examples/stopwatch.h)
+  add_library(exampleutil ${exampleutil_SRCS})
+endif()
+
+if(webp_build_dwebp)
+  # dwebp
+  set(dwebp_SRCS
+      ${webp_dir}/examples/dwebp.c
+      ${webp_dir}/examples/stopwatch.h)
+  add_example_executable(dwebp ${dwebp_SRCS})
+endif()
+
+if(webp_build_cwebp)
+  # cwebp
+  set(cwebp_SRCS
+      ${webp_dir}/examples/cwebp.c
+      ${webp_dir}/examples/metadata.c
+      ${webp_dir}/examples/metadata.h
+      ${webp_dir}/examples/stopwatch.h
+      ${webp_dir}/examples/jpegdec.c
+      ${webp_dir}/examples/jpegdec.h
+      ${webp_dir}/examples/pngdec.c
+      ${webp_dir}/examples/pngdec.h
+      ${webp_dir}/examples/tiffdec.c
+      ${webp_dir}/examples/tiffdec.h
+      ${webp_dir}/examples/webpdec.c
+      ${webp_dir}/examples/webpdec.h
+      ${webp_dir}/examples/wicdec.c
+      ${webp_dir}/examples/wicdec.h)
+  add_example_executable(cwebp ${cwebp_SRCS})
+endif()
