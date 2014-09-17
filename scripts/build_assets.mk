@@ -125,7 +125,7 @@ define webp_build_rule
 $(eval \
 	$(call png_to_webp,$(1)): $(1)
 		$(call host-mkdir-p,$$(dir $$@))
-		$(CWEBP) $$(call host-realpath,$$<) -o $$@)
+		$(CWEBP) -q 90 $$(call host-realpath,$$<) -o $$@)
 endef
 
 # Generate a build rule that will convert a json FlatBuffer to a binary
