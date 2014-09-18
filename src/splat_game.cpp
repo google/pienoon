@@ -72,6 +72,7 @@ SplatGame::SplatGame()
       shader_simple_shadow_(nullptr),
       shader_textured_(nullptr),
       shadow_mat_(nullptr),
+      splash_mat_(nullptr),
       prev_world_time_(0),
       debug_previous_states_() {
 }
@@ -235,6 +236,9 @@ bool SplatGame::InitializeRenderingAssets() {
   // Load shadow material:
   shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.bin");
   if (!shadow_mat_) return false;
+
+  splash_mat_ = matman_.LoadMaterial("materials/splash.bin");
+  if (!splash_mat_) return false;
 
   return true;
 }
@@ -444,6 +448,25 @@ void SplatGame::Render(const SceneDescription& scene) {
   RenderCardboard(scene, camera_transform);
 }
 
+void SplatGame::Render2DElements() {
+  // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
+  // and the bottom right the windows size in pixels.
+  auto res = renderer_.window_size();
+  auto ortho_mat = mathfu::OrthoHelper<float>(0, res.x(), res.y(), 0, -1, 1);
+  renderer_.model_view_projection() = ortho_mat;
+  if (state_ == kFinished) {
+    // Render splash screen.
+    auto height = res.y() / 2.0f;    // Use up half the height of screen.
+    auto width = height * 2.0f;      // Texture is 2:1 ratio.
+    auto x = (res.x() - width) / 2.0f;
+    auto y = (res.y() - height) / 2.0f;
+    splash_mat_->Set(renderer_);
+    shader_textured_->Set(renderer_);
+    Mesh::RenderAAQuadAlongX(vec3(x, y + height, 0), vec3(x + width, y, 0),
+                             vec2(0, 1), vec2(1, 0));
+  }
+}
+
 // Debug function to print out state machine transitions.
 void SplatGame::DebugPrintCharacterStates() {
   // Display the state changes, at least until we get real rendering up.
@@ -651,7 +674,8 @@ void SplatGame::Run() {
   const WorldTime min_update_time = config.min_update_time();
   const WorldTime max_update_time = config.min_update_time();
   prev_world_time_ = CurrentWorldTime() - min_update_time;
-  TransitionToSplatState(kPlaying);
+  TransitionToSplatState(kFinished);
+  game_state_.Reset();
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
@@ -684,6 +708,9 @@ void SplatGame::Run() {
 
     // Issue draw calls for the 'scene'.
     Render(scene_);
+
+    // Render any UI/HUD/Splash on top.
+    Render2DElements();
 
     // Output debug information.
     if (config.print_character_states()) {

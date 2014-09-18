@@ -58,6 +58,7 @@ class SplatGame {
   void RenderCardboard(const SceneDescription& scene,
                        const mat4& camera_transform);
   void Render(const SceneDescription& scene);
+  void Render2DElements();
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
   void DebugCamera();
@@ -109,6 +110,9 @@ class SplatGame {
 
   // Shadow material.
   Material *shadow_mat_;
+
+  // Splash screen.
+  Material *splash_mat_;
 
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_;
