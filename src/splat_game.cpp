@@ -640,7 +640,7 @@ void SplatGame::UploadStats() {
     // TODO: this assumes player 0 == the logged in player.
     for (int ps = kWins; ps < kMaxStats; ps++) {
       gpg_manager.SaveStat(leaderboard_ids[ps],
-        game_state_.characters()[0].GetStat(static_cast<PlayerStats>(ps)));
+        game_state_.characters()[0]->GetStat(static_cast<PlayerStats>(ps)));
     }
 #   endif
 }
@@ -711,7 +711,7 @@ void SplatGame::Run() {
     // if so we update the leaderboards and show the UI:
     if (input_.GetButton(SDLK_POINTER6).went_down()) {
       // For testing, increase stat:
-      game_state_.characters()[0].IncrementStat(kAttacks);
+      game_state_.characters()[0]->IncrementStat(kAttacks);
       UploadStats();
       // For testing, show UI:
       gpg_manager.ShowLeaderboards();

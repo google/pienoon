@@ -353,6 +353,10 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
 
 }  // namespace fpl
 
+#ifndef GL_INVALID_FRAMEBUFFER_OPERATION
+#define GL_INVALID_FRAMEBUFFER_OPERATION GL_INVALID_FRAMEBUFFER_OPERATION_EXT
+#endif
+
 void LogGLError(const char *file, int line, const char *call) {
   auto err = glGetError();
   if (err == GL_NO_ERROR) return;
@@ -361,7 +365,7 @@ void LogGLError(const char *file, int line, const char *call) {
     case GL_INVALID_ENUM: err_str = "GL_INVALID_ENUM"; break;
     case GL_INVALID_VALUE: err_str = "GL_INVALID_VALUE"; break;
     case GL_INVALID_OPERATION: err_str = "GL_INVALID_OPERATION"; break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
       err_str = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
     case GL_OUT_OF_MEMORY: err_str = "GL_OUT_OF_MEMORY"; break;
   }
