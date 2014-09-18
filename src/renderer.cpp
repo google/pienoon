@@ -17,6 +17,8 @@
 
 #include "webp/decode.h"
 
+//#define RENDERER_USE_5551_TEXTURES
+
 namespace fpl {
 
 bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
@@ -222,8 +224,23 @@ Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                           GL_LINEAR_MIPMAP_LINEAR));
+# ifdef RENDERER_USE_5551_TEXTURES
+  auto buffer16 = new uint16_t[size.x() * size.y()];
+  for (int i = 0; i < size.x() * size.y(); i++) {
+    auto c = &buffer[i * 4];
+    // Convert an 8888 rgba channel value to a 5551 format.
+    buffer16[i] = ((c[0] >> 3) << 11) |
+                  ((c[1] >> 3) << 6) |
+                  ((c[2] >> 3) << 1) |
+                  ((c[3] >> 7) << 0);
+  }
+  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                       GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
+  delete[] buffer16;
+# else
   GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
                        GL_RGBA, GL_UNSIGNED_BYTE, buffer));
+#endif
   GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
   return new Texture(texture_id, size);
 }
