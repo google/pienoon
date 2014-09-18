@@ -12,10 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// This file defines the schema for a finite state machine that represents the
+// state of a game character.
+//
+//     http://en.wikipedia.org/wiki/Finite-state_machine
+//
+// A character can be in one of many states, and as the game progresses the
+// character will transition between them based on what the player does and what
+// happens to them. For example, when a player presses the button assigned to
+// `ThrowPie`, the ThrowPie bit will be set, and the character might transition
+// into its `Throwing` state.
+
 include "timeline.fbs";
 
 namespace fpl.splat;
 
+// The list of state ids in the state machine. Each state must have a unique ID.
 enum StateId:byte {
   Idling,
   Loading_1,
@@ -29,6 +41,11 @@ enum StateId:byte {
   Count // Must be last
 }
 
+// A set of bit flags of logical inputs (as opposed to physical inputs) which
+// represent various bits of information that the character uses to decide when
+// to transition to another state. This combines both controller input and
+// gameplay state that exists outside of the state machine, like whether a
+// character was hit this frame or if they are out of health.
 enum LogicalInputs:ushort (bit_flags) {
   ThrowPie,
   Deflect,
@@ -40,15 +57,27 @@ enum LogicalInputs:ushort (bit_flags) {
   Winning
 }
 
+// This represents the set of conditions that must be met to do something, like
+// transition to a new state or execute an action.
 table Condition {
+  // The set of logical inputs that must be set.
   is_down:LogicalInputs;
+
+  // The set of logical inputs that must not be set.
   is_up:LogicalInputs;
+
+  // The set of logical inputs that must have been set this frame.
   went_down:LogicalInputs;
+
+  // The set of logical inputs that must have been cleared this frame.
   went_up:LogicalInputs;
+
+  // The current time must be between `time` and `end_time`.
   time:int = 0;
   end_time:int = 2147483647; // MAX_INT
 }
 
+// An event that is only executed when its condition is met.
 table ConditionalEvent {
   condition:Condition;
   event:ushort;       // Identify what is happening in the event.
@@ -56,11 +85,22 @@ table ConditionalEvent {
   modifier:ushort;    // Meaning depends on 'event'. e.g. amount of damage.
 }
 
+// When the given `condition` is met, the state machine will transition into the
+// `target_state`.
 table Transition {
   target_state:StateId;
   condition:Condition;
 }
 
+// A state the character can occupy. The state contains information on how the
+// character should be animated as well as whether they can take damage or
+// deflect pies in a given state. Events like deflecting are controlled by the
+// list of `conditional_events`.
+//
+// A state may have a set of transitions to other states. Each frame, the
+// condition on each transition will be evaluated in the order the transitions
+// are declared. The first transition to have its condition met will be the one
+// that is followed.
 table CharacterState {
   id:StateId;
   transitions:[Transition];
@@ -68,6 +108,8 @@ table CharacterState {
   conditional_events:[ConditionalEvent];
 }
 
+// The list of states that make up the state machine, as well as which state
+// to initialize a character to.
 table CharacterStateMachineDef {
   states:[CharacterState];
   initial_state:StateId;
