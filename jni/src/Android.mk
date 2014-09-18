@@ -24,7 +24,7 @@ include $(SPLAT_DIR)/jni/android_config.mk
 # rebuilt from flatbuffers schemas.
 
 # Directory that contains the FlatBuffers compiler.
-FLATBUFFERS_FLATC_PATH?=$(realpath $(SPLAT_DIR)/flatbuffers)
+FLATBUFFERS_FLATC_PATH?=$(realpath $(SPLAT_DIR)/bin)
 
 # Location of FlatBuffers compiler.
 FLATC?=$(realpath $(firstword \
