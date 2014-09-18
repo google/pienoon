@@ -379,6 +379,11 @@ line using `make` which requires:
     *   Find and select `PATH`, click `Edit...`.
     *   Add `;%PATH_TO_GNUMAKE%` where `%PATH_TO_GNUMAKE%` is the location of
         the GNU Make `bin` directory.
+*   [cwebp][] is required to convert `png` images to the [webp][] format.
+    Install [cwebp][] by downloading the libwebp archive for your operating
+	system (see [WebP Precompiled Utilities][]) unpack somewhere on your
+	system and add the directory containing the [cwebp][] binary to the `PATH`
+	variable.
 
 After modifying the data in the `splat/src/rawassets` directory, the assets
 need to be rebuilt by running the following command:
@@ -716,6 +721,8 @@ TODO
   [cmake]: http://www.cmake.org
   [Cygwin installation]: http://www.cygwin.com/
   [cygwin]: http://www.cygwin.com/
+  [cwebp]: https://developers.google.com/speed/webp/docs/cwebp
+  [WebP Precompiled Utilities]: https://developers.google.com/speed/webp/docs/precompiled
   [DirectX SDK]: http://www.microsoft.com/en-us/download/details.aspx?id=6812
   [Finite-state machine]: http://en.wikipedia.org/wiki/Finite-state_machine
   [Flatbuffers]: http://google.github.io/flatbuffers/
@@ -730,6 +737,7 @@ TODO
   [Ubuntu]: http://www.ubuntu.com
   [Visual Studio]: http://www.visualstudio.com/
   [Windows]: http://windows.microsoft.com/
+  [webp]: https://developers.google.com/speed/webp/
   [Xcode]: http://developer.apple.com/xcode/
   [Xquartz]: http://xquartz.macosforge.org/
 
