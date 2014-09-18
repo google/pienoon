@@ -22,7 +22,7 @@ TOP:=$(dir $(lastword $(MAKEFILE_LIST)))/..
 FLATBUFFERS_PATH?=$(TOP)/bin
 
 # Directory that contains the cwebp tool.
-WEBP_PATH?=$(TOP)/webp
+WEBP_PATH?=$(TOP)/bin
 
 executable_extension=$(if $(findstring Windows,$(OS)),.exe,)
 
