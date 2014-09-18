@@ -390,6 +390,6 @@
         ]
       }
     }
-
-  ]
+  ],
+  "initial_state": "Idling"
 }
