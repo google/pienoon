@@ -206,6 +206,19 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
   return nullptr;
 }
 
+uint16_t *Renderer::Convert8888To5551(const uint8_t *buffer,
+                                      const vec2i &size) {
+  auto buffer16 = new uint16_t[size.x() * size.y()];
+  for (int i = 0; i < size.x() * size.y(); i++) {
+    auto c = &buffer[i * 4];
+    buffer16[i] = ((c[0] >> 3) << 11) |
+                  ((c[1] >> 3) << 6) |
+                  ((c[2] >> 3) << 1) |
+                  ((c[3] >> 7) << 0);
+  }
+  return buffer16;
+}
+
 Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   int area = size.x() * size.y();
   if (area & (area - 1)) {
@@ -225,15 +238,7 @@ Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                           GL_LINEAR_MIPMAP_LINEAR));
 # ifdef RENDERER_USE_5551_TEXTURES
-  auto buffer16 = new uint16_t[size.x() * size.y()];
-  for (int i = 0; i < size.x() * size.y(); i++) {
-    auto c = &buffer[i * 4];
-    // Convert an 8888 rgba channel value to a 5551 format.
-    buffer16[i] = ((c[0] >> 3) << 11) |
-                  ((c[1] >> 3) << 6) |
-                  ((c[2] >> 3) << 1) |
-                  ((c[3] >> 7) << 0);
-  }
+  auto buffer16 = Convert8888To5551(buffer, size);
   GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
                        GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
   delete[] buffer16;

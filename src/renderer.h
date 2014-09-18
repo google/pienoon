@@ -59,6 +59,10 @@ class Renderer {
   // Returns nullptr if the format is not understood.
   Texture *CreateTextureFromWebpMemory(const void *webp_buf, size_t size);
 
+  // Utility function to convert 32bit RGBA to 16bit.
+  // You must delete[] the return value afterwards.
+  uint16_t *Convert8888To5551(const uint8_t *buffer, const vec2i &size);
+
   // Set alpha test (cull pixels with alpha below amount) vs alpha blend
   // (blend with framebuffer pixel regardedless).
   // blend_mode: see materials.fbs for valid enum values.
