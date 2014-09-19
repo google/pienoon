@@ -16,6 +16,7 @@
 #define MAGNET_1F_H_
 
 #include "magnet_base.h"
+#include "splat_common_generated.h"
 #include "magnet_generated.h"
 
 namespace fpl {

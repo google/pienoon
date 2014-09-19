@@ -214,12 +214,17 @@ include_directories(${dependencies_libvorbis_distr_dir}/include)
 # SDL Mixer includes.
 include_directories(${dependencies_sdl_mixer_distr_dir})
 
-# Compiler flags.
+# Detect clang
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_COMPILER_IS_CLANGXX 1)
+endif()
 
+# Compiler flags.
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
   set(C_FLAGS_WARNINGS "/W4 /WX")
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
+       CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra -Wno-unused-function")
