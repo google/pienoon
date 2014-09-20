@@ -41,6 +41,11 @@ table FixedAccessory {
   renderable:RenderableId;
 }
 
+table AccessoryGroup {
+  // Indices into an array of FixedAccessory's.
+  indices:[byte];
+}
+
 table Prop {
   // The object to render. See RenderableId enum.
   // TODO: change to ushort once padding warning is fixed.
@@ -96,6 +101,12 @@ table CardboardFigure {
 
   // True if renderable is made of cardboard (has the cardboard normalmap).
   cardboard:bool = false;
+
+  // Offset to the splatter accessories, in pixels.
+  splatter_offset:Vec2i;
+
+  // Offset to health accessories (i.e. hearts), in pixels.
+  health_offset:Vec2i;
 }
 
 // Each arrangement should have it a unique number of players How many people
@@ -266,9 +277,19 @@ table Config {
   // Scale of UI arrow from it's authored size. Z is length. X is width.
   ui_arrow_scale:Vec3;
 
+  // Map damage to sets of accessories. That is splatter_map[damage] is the set
+  // indices into splatter_accessories[] that should be rendered when the
+  // character has taken 'damage' amount of damage.
+  splatter_map:[AccessoryGroup];
+
   // Where splatter splotches should appear on a character. One splotch appears
   // per point of damage taken.
   splatter_accessories:[FixedAccessory];
+
+  // Map health to sets of accessories. That is, health_map[health] is the set
+  // of indices into health_accessories[] that should be rendered when the
+  // character has 'health' remaining.
+  health_map:[AccessoryGroup];
 
   // Where hearts should appear on a character. One heart appears per point of
   // health remaining.
@@ -290,10 +311,6 @@ table Config {
 
   // Debug options
   //
-  // Continuously draw this renderable at the origin. Useful for debugging one
-  // renderable.
-  draw_fixed_renderable:RenderableId;
-
   // Put the characters into the scene description.
   draw_characters:bool;
 
@@ -308,6 +325,17 @@ table Config {
 
   // Put a series of objects along the positive x, y, and z axes.
   draw_axes:bool;
+
+  // Draw all character renderables in a line.
+  draw_character_lineup:bool;
+
+  // Draw splatters and hearts of lineup characters. Does nothing unless
+  // draw_character_lineup is true.
+  draw_lineup_accessories:bool;
+
+  // Continuously draw this renderable at the origin. Useful for debugging one
+  // renderable.
+  draw_fixed_renderable:RenderableId;
 
   // When button pressed, how far to translate the camera in the world.
   button_to_camera_translation_scale:Vec3;

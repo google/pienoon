@@ -261,120 +261,168 @@
   "ai_chance_to_change_aim": 0.4,
   "ai_chance_to_throw": 0.2,
 
-  "draw_fixed_renderable": "Invalid",
   "draw_characters": true,
   "draw_ui_arrows": true,
   "draw_pies": true,
   "draw_props": true,
   "draw_axes": false,
+  "draw_character_lineup": false,
+  "draw_lineup_accessories": false,
+  "draw_fixed_renderable": "Invalid",
   "button_to_camera_translation_scale": { "x": 0.08, "y": 0.04, "z": 0.08 },
   "mouse_to_camera_rotation_scale": 0.002,
   "allow_camera_movement": true,
 
+  "splatter_map": [
+    { "indices": [] },
+    { "indices": [4] },
+    { "indices": [4, 9] },
+    { "indices": [2, 9] },
+    { "indices": [1, 9] },
+    { "indices": [0, 9] },
+    { "indices": [0, 8] },
+    { "indices": [0, 7] },
+    { "indices": [0, 6] },
+    { "indices": [0, 5] },
+    { "indices": [0, 5, 10] }
+  ],
+
   "splatter_accessories": [
+    // Splatter1, on the right side of the forehead, in various sizes.
     {
-      "location": { "x": 0, "y": 0 },
-      "scale": {"x": 0.6, "y": 0.6 },
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.8, "y": 0.8 },
       "renderable": "Splatter1"
     },
     {
-      "location": { "x": 100, "y": 50},
-      "scale": {"x": 0.4, "y": 0.4 },
-      "renderable": "Splatter2"
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.7, "y": 0.7 },
+      "renderable": "Splatter1"
     },
     {
-      "location": { "x": -110, "y": 75 },
-      "scale": {"x": 0.6, "y": 0.6 },
-      "renderable": "Splatter3"
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.5, "y": 0.5 },
+      "renderable": "Splatter1"
     },
     {
-      "location": { "x": 120, "y": 0 },
-      "scale": {"x": 0.6, "y": 0.6 },
-      "renderable": "Splatter2"
-    },
-    {
-      "location": { "x": -130, "y": 125 },
+      "location": { "x": 0, "y": 85 },
       "scale": {"x": 0.4, "y": 0.4 },
       "renderable": "Splatter1"
     },
     {
-      "location": { "x": 75, "y": 150 },
-      "scale": {"x": 0.6, "y": 0.6 },
-      "renderable": "Splatter3"
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.3, "y": 0.3 },
+      "renderable": "Splatter1"
     },
+
+    // Splatter2, on the bottom of the chin, in various sizes.
     {
-      "location": { "x": -25, "y": 75 },
-      "scale": {"x": 0.4, "y": 0.4 },
-      "renderable": "Splatter3"
-    },
-    {
-      "location": { "x": 10, "y": 200 },
+      "location": { "x": 90, "y": -50 },
       "scale": {"x": 0.6, "y": 0.6 },
       "renderable": "Splatter2"
     },
     {
-      "location": { "x": -120, "y": 225 },
-      "scale": {"x": 0.4, "y": 0.4 },
-      "renderable": "Splatter1"
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.5, "y": 0.5 },
+      "renderable": "Splatter2"
     },
     {
-      "location": { "x": 123, "y": 250 },
-      "scale": {"x": 0.6, "y": 0.6 },
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.4, "y": 0.4 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.3, "y": 0.3 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.2, "y": 0.2 },
+      "renderable": "Splatter2"
+    },
+
+    // Splatter3, on the left of the forehead.
+    {
+      "location": { "x": 110, "y": 105 },
+      "scale": {"x": 0.4, "y": 0.4 },
       "renderable": "Splatter3"
     }
   ],
 
+  "health_map": [
+    { "indices": [] },
+    { "indices": [4] },
+    { "indices": [4, 9] },
+    { "indices": [2, 9] },
+    { "indices": [1, 9] },
+    { "indices": [0, 9] },
+    { "indices": [0, 8] },
+    { "indices": [0, 7] },
+    { "indices": [0, 6] },
+    { "indices": [0, 5] },
+    { "indices": [0, 5, 10] }
+  ],
+
   "health_accessories": [
+    // Right heart, over the heart, in various sizes.
     {
-      "location": { "x": -125, "y": 60 },
-      "scale": {"x": 0.15, "y": 0.15 },
+      "location": { "x": 30, "y": 0 },
+      "scale": {"x": 0.30, "y": 0.30 },
       "renderable": "Health"
     },
     {
-      "location": { "x": -100, "y": 75},
-      "scale": {"x": 0.15, "y": 0.15 },
+      "location": { "x": 30, "y": 3 },
+      "scale": {"x": 0.22, "y": 0.22 },
       "renderable": "Health"
     },
     {
-      "location": { "x": -75, "y": 85 },
-      "scale": {"x": 0.15, "y": 0.15 },
+      "location": { "x": 30, "y": 15 },
+      "scale": {"x": 0.17, "y": 0.17 },
       "renderable": "Health"
     },
     {
-      "location": { "x": -50, "y": 90 },
-      "scale": {"x": 0.15, "y": 0.15 },
-      "renderable": "Health"
-    },
-
-    {
-      "location": { "x": -115, "y": 40 },
-      "scale": {"x": 0.15, "y": 0.15 },
+      "location": { "x": 30, "y": 22 },
+      "scale": {"x": 0.13, "y": 0.13 },
       "renderable": "Health"
     },
     {
-      "location": { "x": -90, "y": 55},
-      "scale": {"x": 0.15, "y": 0.15 },
-      "renderable": "Health"
-    },
-    {
-      "location": { "x": -65, "y": 65 },
-      "scale": {"x": 0.15, "y": 0.15 },
-      "renderable": "Health"
-    },
-    {
-      "location": { "x": -40, "y": 70 },
-      "scale": {"x": 0.15, "y": 0.15 },
+      "location": { "x": 30, "y": 35 },
+      "scale": {"x": 0.10, "y": 0.10 },
       "renderable": "Health"
     },
 
+    // Left heart, in various sizes.
     {
-      "location": { "x": -80, "y": 35},
-      "scale": {"x": 0.15, "y": 0.15 },
+      "location": { "x": 0, "y": 20 },
+      "scale": {"x": 0.30, "y": 0.30 },
       "renderable": "Health"
     },
     {
-      "location": { "x": -55, "y": 45 },
-      "scale": {"x": 0.15, "y": 0.15 },
+      "location": { "x": 5, "y": 20 },
+      "scale": {"x": 0.22, "y": 0.22 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 10, "y": 20 },
+      "scale": {"x": 0.17, "y": 0.17 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 15, "y": 20 },
+      "scale": {"x": 0.13, "y": 0.13 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 20, "y": 20 },
+      "scale": {"x": 0.10, "y": 0.10 },
+      "renderable": "Health"
+    },
+
+    // Small heart, to add visual distinction when at full health.
+    {
+      "location": { "x": 70, "y": 45 },
+      "scale": {"x": 0.13, "y": 0.13 },
       "renderable": "Health"
     }
   ],
@@ -534,7 +582,9 @@
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -50, "y": 150 },
+      "health_offset": { "x": -55, "y": 105 }
     },
     {
       "id": "CharacterLoad1",
@@ -543,7 +593,9 @@
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -75, "y": 140 },
+      "health_offset": { "x": -80, "y": 80 }
     },
     {
       "id": "CharacterLoad2",
@@ -552,7 +604,9 @@
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -80, "y": 120 },
+      "health_offset": { "x": -95, "y": 70 }
     },
     {
       "id": "CharacterLoad3",
@@ -561,7 +615,9 @@
       "offset": { "x": -0.9, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -90, "y": 70 },
+      "health_offset": { "x": -75, "y": 70 }
     },
     {
       "id": "CharacterThrow",
@@ -570,7 +626,9 @@
       "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": 0, "y": 150 },
+      "health_offset": { "x": 60, "y": 110 }
     },
     {
       "id": "CharacterBlock",
@@ -579,7 +637,9 @@
       "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -30, "y": 170 },
+      "health_offset": { "x": -50, "y": 120 }
     },
     {
       "id": "CharacterHitByPieFrame0",
@@ -588,7 +648,9 @@
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -40, "y": 90 },
+      "health_offset": { "x": -50, "y": 80 }
     },
     {
       "id": "CharacterHitByPieFrame1",
@@ -597,7 +659,9 @@
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -50, "y": 70 },
+      "health_offset": { "x": -50, "y": 80 }
     },
     {
       "id": "CharacterHitByPieFrame2",
@@ -606,7 +670,9 @@
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -70, "y": 100 },
+      "health_offset": { "x": -50, "y": 80 }
     },
     {
       "id": "CharacterHitByPieFrame3",
@@ -615,7 +681,9 @@
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -70, "y": 110 },
+      "health_offset": { "x": -50, "y": 80 }
     },
     {
       "id": "CharacterKnockedOut",
@@ -624,7 +692,9 @@
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -80, "y": 20 },
+      "health_offset": { "x": -80, "y": 30 }
     },
     {
       "id": "CharacterWin",
@@ -633,7 +703,9 @@
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "stick": true,
       "shadow": true,
-      "cardboard": true
+      "cardboard": true,
+      "splatter_offset": { "x": -50, "y": 160 },
+      "health_offset": { "x": 20, "y": 160 }
     },
     {
       "id": "PieEmpty",

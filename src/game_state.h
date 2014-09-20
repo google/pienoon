@@ -108,6 +108,10 @@ private:
                     const EventData& event_data);
   void PopulateConditionInputs(ConditionInputs* condition_inputs,
                                const Character& character) const;
+  void PopulateCharacterAccessories(SceneDescription* scene, int renderable_id,
+                                    const mathfu::mat4& character_matrix,
+                                    int num_accessories, int damage,
+                                    int health) const;
   void ProcessConditionalEvents(Character* character, EventData* event_data);
   void ProcessEvents(Character* character,
                      EventData* data,

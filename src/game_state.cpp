@@ -636,6 +636,61 @@ private:
   vec3 camera_position_;
 };
 
+void GameState::PopulateCharacterAccessories(
+    SceneDescription* scene, int renderable_id, const mat4& character_matrix,
+    int num_accessories, int damage, int health) const {
+  auto renderable = config_->renderables()->Get(renderable_id);
+
+  // Loop twice. First for damage splatters, then for health hearts.
+  struct {
+    int key;
+    vec2i offset;
+    const flatbuffers::Vector<flatbuffers::Offset<AccessoryGroup>>*
+        indices;
+    const flatbuffers::Vector<flatbuffers::Offset<FixedAccessory>>*
+        fixed_accessories;
+  } accessories[] = {
+    {
+      damage,
+      LoadVec2i(renderable->splatter_offset()),
+      config_->splatter_map(),
+      config_->splatter_accessories()
+    },
+    {
+      health,
+      LoadVec2i(renderable->health_offset()),
+      config_->health_map(),
+      config_->health_accessories()
+    }
+  };
+
+  for (size_t j = 0; j < ARRAYSIZE(accessories); ++j) {
+    // Get the set of indices into the fixed_accessories array.
+    const int max_key = accessories[j].indices->Length() - 1;
+    const int key = mathfu::Clamp(accessories[j].key, 0, max_key);
+    auto indices = accessories[j].indices->Get(key)->indices();
+    const int num_fixed_accessories = static_cast<int>(indices->Length());
+
+    // Add each accessory slightly in front of the character, with a slight
+    // z-offset so that they don't z-fight when they overlap, and for a
+    // nice parallax look.
+    for (int i = 0; i < num_fixed_accessories; ++i) {
+      const int index = indices->Get(i);
+      const FixedAccessory* accessory =
+          accessories[j].fixed_accessories->Get(index);
+      const vec2 location(LoadVec2i(accessory->location())
+                          + accessories[j].offset);
+      const vec2 scale(LoadVec2(accessory->scale()));
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(accessory->renderable(),
+              CalculateAccessoryMatrix(location, scale, character_matrix,
+                                       renderable_id, num_accessories,
+                                       *config_))));
+      num_accessories++;
+    }
+  }
+}
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -735,40 +790,11 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       // Splatter and health accessories.
       // First pass through renders splatter accessories.
       // Second pass through renders health accessories.
-      struct {
-        int count;
-        const flatbuffers::Vector<flatbuffers::Offset<FixedAccessory>>*
-          fixed_accessories;
-      } accessories[] = {
-        {
-          config_->character_health() - character->health(),
-          config_->splatter_accessories()
-        },
-        {
-          character->health(),
-          config_->health_accessories()
-        }
-      };
+      const int health = character->health();
+      const int damage = config_->character_health() - health;
+      PopulateCharacterAccessories(scene, renderable_id, character_matrix,
+                                   num_accessories, damage, health);
 
-      for (size_t j = 0; j < ARRAYSIZE(accessories); ++j) {
-        const int num_fixed_accessories = std::min(
-            accessories[j].count,
-            static_cast<int>(accessories[j].fixed_accessories->Length()));
-
-        for (int i = 0; i < num_fixed_accessories; ++i) {
-          const FixedAccessory* accessory =
-              accessories[j].fixed_accessories->Get(i);
-          const vec2 location(LoadVec2i(accessory->location()));
-          const vec2 scale(LoadVec2(accessory->scale()));
-          scene->renderables().push_back(std::unique_ptr<Renderable>(
-              new Renderable(
-              accessory->renderable(),
-              CalculateAccessoryMatrix(location, scale, character_matrix,
-                                       renderable_id, num_accessories,
-                                       *config_))));
-          num_accessories++;
-        }
-      }
     }
   }
 
@@ -805,6 +831,34 @@ void GameState::PopulateScene(SceneDescription* scene) const {
             config_->draw_fixed_renderable(),
             mat4::FromRotationMatrix(
                 Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
+  }
+
+  if (config_->draw_character_lineup()) {
+    static const int kFirstRenderableId = RenderableId_CharacterIdle;
+    static const int kLastRenderableId = RenderableId_CharacterWin;
+    static const int kNumRenderableIds = kLastRenderableId - kFirstRenderableId;
+    static const float kXSeparation = 2.5f;
+    static const float kZSeparation = 0.5f;
+    static const float kXOffset = -kXSeparation * 0.5f * kNumRenderableIds;
+    static const float kZOffset = 4.0f;
+
+    for (int i = kFirstRenderableId; i <= kLastRenderableId; ++i) {
+      // Orient the characters facing the front of the stage in a line.
+      const vec3 position(i * kXSeparation + kXOffset, 0.0f,
+                          i * kZSeparation + kZOffset);
+      const mat4 character_matrix = mat4::FromTranslationVector(position) *
+              mat4::FromRotationMatrix(
+                  Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix());
+
+      // Draw the characters.
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(i, character_matrix)));
+
+      // Draw the accessories, if requested.
+      if (config_->draw_lineup_accessories()) {
+        PopulateCharacterAccessories(scene, i, character_matrix, 0, 10, 10);
+      }
+    }
   }
 
   // Lights. Push all lights from configuration file.
