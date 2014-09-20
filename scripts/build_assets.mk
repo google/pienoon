@@ -97,7 +97,7 @@ define host-rm-f
 del /q $(1) 2>NUL
 endef
 define host-mkdir-p
-md $(1)
+-md $(1)
 endef
 endif
 endif
@@ -136,7 +136,7 @@ endef
 define webp_build_rule
 $(eval \
 	$(call png_to_webp,$(1)): $(1)
-		$(call host-mkdir-p,$$(dir $$@))
+		$(call host-mkdir-p,$$(call host-native-path-separator,$$(dir $$@)))
 		$(CWEBP) -q 90 $$(call host-realpath,$$<) -o $$@)
 endef
 

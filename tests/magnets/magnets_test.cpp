@@ -52,7 +52,7 @@ protected:
     fbb = &flat_buffer_builders_[1];
     const auto angle_unit = fbb->CreateString("radians");
     const auto angle_constraints = fpl::CreateMagnetConstraints1f(
-      *fbb, true, -kPi, kPi, 0.021f, 3.141, angle_unit);
+      *fbb, true, -kPi, kPi, 0.021f, 3.141f, angle_unit);
     fbb->Finish(angle_constraints);
     angle_constraints_ = flatbuffers::GetRoot<MagnetConstraints1f>(
         fbb->GetBufferPointer());

@@ -452,7 +452,9 @@ void SplatGame::Render2DElements() {
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
   // and the bottom right the windows size in pixels.
   auto res = renderer_.window_size();
-  auto ortho_mat = mathfu::OrthoHelper<float>(0, res.x(), res.y(), 0, -1, 1);
+  auto ortho_mat = mathfu::OrthoHelper<float>(
+      0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()), 0.0f,
+      -1.0f, 1.0f);
   renderer_.model_view_projection() = ortho_mat;
   if (state_ == kFinished) {
     // Render splash screen.

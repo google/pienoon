@@ -116,7 +116,6 @@ set(FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
 file(MAKE_DIRECTORY ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src *.fbs)
-get_target_property(FLATBUFFERS_FLATC flatc LOCATION)
 
 # Generate rules to build the set of output files from the set of input
 # schema files.
@@ -126,10 +125,9 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
       ${FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
   add_custom_command(
     OUTPUT ${flatbuffers_include}
-    COMMAND ${FLATBUFFERS_FLATC} -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
+    COMMAND flatc -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -c ${flatbuffers_schema}
-    DEPENDS flatc ${flatbuffers_schema} ${FLATBUFFERS_FLATC}
-        ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+    DEPENDS flatc ${flatbuffers_schema} ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
@@ -264,29 +262,22 @@ if(splat_build_tests)
   add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 endif()
 
-get_target_property(SPLAT_EXECUTABLE splat LOCATION)
-
-# Convert executable paths to relative paths.
-# NOTE: This only works if the executables are under the project directory
-# (default location).
-string(REPLACE "${CMAKE_SOURCE_DIR}/" "" SPLAT_EXECUTABLE_RELATIVE
-       "${SPLAT_EXECUTABLE}")
-string(REPLACE "${CMAKE_SOURCE_DIR}/" "" FLATBUFFERS_FLATC_RELATIVE
-       "${FLATBUFFERS_FLATC}")
+# Export target temporarily disabled while I retrofit this script with Python.
+# b/17589567
 
 # The set of files and folders to export for non-programmers.
 # NOTE: Paths should be absolute paths under the project directory.
-set(EXPORT_FILES
-    assets
-    run.command
-    scripts/build_assets.mk
-    src/flatbufferschemas
-    src/rawassets
-    ${SPLAT_EXECUTABLE_RELATIVE}
-    ${FLATBUFFERS_FLATC_RELATIVE})
+# set(EXPORT_FILES
+#     assets
+#     run.command
+#     scripts/build_assets.mk
+#     src/flatbufferschemas
+#     src/rawassets
+#     ${SPLAT_EXECUTABLE_RELATIVE}
+#     ${FLATBUFFERS_FLATC_RELATIVE})
 
 # Create a zipped tar of all the necessary files to run the game.
-add_custom_target(export
-  COMMAND cd ${CMAKE_SOURCE_DIR} && tar -czvf splat.tar.gz ${EXPORT_FILES}
-  DEPENDS splat
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..)
+# add_custom_target(export
+#   COMMAND cd ${CMAKE_SOURCE_DIR} && tar -czvf splat.tar.gz ${EXPORT_FILES}
+#   DEPENDS splat
+#   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..)
