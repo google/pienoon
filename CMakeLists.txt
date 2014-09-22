@@ -266,22 +266,8 @@ if(splat_build_tests)
   add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 endif()
 
-# Export target temporarily disabled while I retrofit this script with Python.
-# b/17589567
-
-# The set of files and folders to export for non-programmers.
-# NOTE: Paths should be absolute paths under the project directory.
-# set(EXPORT_FILES
-#     assets
-#     run.command
-#     scripts/build_assets.mk
-#     src/flatbufferschemas
-#     src/rawassets
-#     ${SPLAT_EXECUTABLE_RELATIVE}
-#     ${FLATBUFFERS_FLATC_RELATIVE})
-
 # Create a zipped tar of all the necessary files to run the game.
-# add_custom_target(export
-#   COMMAND cd ${CMAKE_SOURCE_DIR} && tar -czvf splat.tar.gz ${EXPORT_FILES}
-#   DEPENDS splat
-#   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..)
+add_custom_target(export
+  COMMAND python scripts/export.py
+  DEPENDS splat)
+
