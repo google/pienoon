@@ -128,7 +128,7 @@ endef
 define flatbuffers_build_rule
 $(eval \
   $(call flatbuffers_json_to_binary,$(1)): $(1)
-	$(FLATC) -o $$(dir $$@) -b $$(call host-realpath,$(2)) \
+	$(FLATC) -H -o $$(dir $$@) -b $$(call host-realpath,$(2)) \
 		$$(call host-realpath,$$<))
 endef
 

@@ -18,7 +18,7 @@ project(splat)
 # Compile the game with the debug flag
 set(SPLAT_DEBUG ON)
 
-set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -129,7 +129,7 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
       ${FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
   add_custom_command(
     OUTPUT ${flatbuffers_include}
-    COMMAND flatc -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
+    COMMAND flatc -H -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -c ${flatbuffers_schema}
     DEPENDS flatc ${flatbuffers_schema} ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})

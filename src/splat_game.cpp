@@ -467,7 +467,7 @@ void SplatGame::DebugPrintCharacterStates() {
   // Display the state changes, at least until we get real rendering up.
   for (size_t i = 0; i < game_state_.characters().size(); ++i) {
     auto& character = game_state_.characters()[i];
-    int id = character->state_machine()->current_state()->id();
+    auto id = character->state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                    "character %d - Health %2d, State %s [%d]\n",

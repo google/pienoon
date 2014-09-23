@@ -15,6 +15,7 @@
 namespace fpl;
 
 enum OutputChannels : ushort {
+  None = 0,
   Mono = 1,
   Stereo = 2
 }

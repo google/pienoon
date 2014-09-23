@@ -71,12 +71,13 @@ bool CharacterStateMachineDef_Validate(
     return false;
   }
   for (uint16_t i = 0; i < state_machine_def->states()->Length(); i++) {
-    uint16_t id = state_machine_def->states()->Get(i)->id();
+    auto id = state_machine_def->states()->Get(i)->id();
     if (id != i) {
       SDL_LogCritical(SDL_LOG_CATEGORY_ERROR,
                       "States must be declared in order. "
                       "State #%i was %s, expected %s.\n",
-                      i, EnumNameStateId(id), EnumNameStateId(i));
+                      i, EnumNameStateId(id),
+                      EnumNameStateId(static_cast<StateId>(i)));
       return false;
     }
   }
