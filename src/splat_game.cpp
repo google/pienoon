@@ -28,6 +28,7 @@
 #include "splat_game.h"
 #include "utilities.h"
 #include "audio_engine.h"
+#include "touchscreen_controller.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -271,6 +272,13 @@ bool SplatGame::InitializeGameState() {
     AddController(controller);
   }
 
+  // Add a touch screen controller into the controller list, so that touch
+  // inputs are processed correctly and assigned a character:
+  TouchscreenController * ts_controller = new TouchscreenController();
+  vec2 window_size = vec2(renderer_.window_size().x(),
+                          renderer_.window_size().y());
+  ts_controller->Initialize(&input_, window_size, &config);
+  AddController(ts_controller);
 
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {

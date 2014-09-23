@@ -109,6 +109,7 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/shader.cpp \
   $(SPLAT_DIR)/src/sound.cpp \
   $(SPLAT_DIR)/src/splat_game.cpp \
+  $(SPLAT_DIR)/src/touchscreen_controller.cpp \
   $(SPLAT_DIR)/src/utilities.cpp
 
 # Make each source file dependent upon the generated_includes and build_assets

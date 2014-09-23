@@ -29,6 +29,26 @@ enum PieDeflectionMode : ushort {
   ToRandom
 }
 
+enum TouchZoneInputType : ushort (bit_flags) {
+  Left,
+  Right,
+  Attack,
+  Defend
+}
+
+// Used for defining zones for the touch controller.
+// top/left/bottom/right are used to demarcate the zone boundaries,
+// and are expressed as floats from [0, 1].  (0,0) is the upper left corner of
+// the touch screen, (1, 1) is the lower right.  Input_type is what input
+// action should be associated with touching that zone.
+table TouchInputZone {
+  top : float;
+  left : float;
+  bottom : float;
+  right : float;
+  input_type : TouchZoneInputType;
+}
+
 table FixedAccessory {
   // Location for the splatter texture to appear.
   location:Vec2i;
@@ -308,6 +328,9 @@ table Config {
   ai_chance_to_block:float;
   ai_chance_to_change_aim:float;
   ai_chance_to_throw:float;
+
+  // Touchscreen controller layout:
+  touchscreen_zones:[TouchInputZone];
 
   // Debug options
   //

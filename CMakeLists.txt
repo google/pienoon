@@ -190,6 +190,8 @@ set(splat_SRCS
     src/sound.cpp
     src/splat_game.h
     src/splat_game.cpp
+    src/touchscreen_controller.h
+    src/touchscreen_controller.cpp
     src/utilities.h
     src/utilities.cpp)
 
