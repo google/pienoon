@@ -637,7 +637,7 @@ private:
 };
 
 void GameState::PopulateCharacterAccessories(
-    SceneDescription* scene, int renderable_id, const mat4& character_matrix,
+    SceneDescription* scene, uint16_t renderable_id, const mat4& character_matrix,
     int num_accessories, int damage, int health) const {
   auto renderable = config_->renderables()->Get(renderable_id);
 
@@ -849,14 +849,16 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       const mat4 character_matrix = mat4::FromTranslationVector(position) *
               mat4::FromRotationMatrix(
                   Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix());
+      uint16_t renderable_id = static_cast<uint16_t>(i);
 
       // Draw the characters.
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(i, character_matrix)));
+          new Renderable(renderable_id, character_matrix)));
 
       // Draw the accessories, if requested.
       if (config_->draw_lineup_accessories()) {
-        PopulateCharacterAccessories(scene, i, character_matrix, 0, 10, 10);
+        PopulateCharacterAccessories(
+            scene, renderable_id, character_matrix, 0, 10, 10);
       }
     }
   }
