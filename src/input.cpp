@@ -80,8 +80,8 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
         break;
       case SDL_KEYDOWN:
       case SDL_KEYUP: {
-          GetButton(event.key.keysym.sym).Update(event.key.state==SDL_PRESSED);
-          break;
+        GetButton(event.key.keysym.sym).Update(event.key.state == SDL_PRESSED);
+        break;
       }
 #     ifdef PLATFORM_MOBILE
       case SDL_FINGERDOWN: {
@@ -102,8 +102,8 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
 #     endif
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP: {
-        GetPointerButton(event.button.button - 1).
-          Update(event.button.state != 0);
+        GetPointerButton(event.button.button - 1).Update(
+            event.button.state == SDL_PRESSED);
         pointers_[0].mousepos = vec2i(event.button.x, event.button.y);
         break;
       }
@@ -112,26 +112,28 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
         pointers_[0].mousepos = vec2i(event.button.x, event.button.y);
         break;
       }
-      case SDL_WINDOWEVENT:
+      case SDL_WINDOWEVENT: {
         switch (event.window.event) {
           case SDL_WINDOWEVENT_RESIZED:
             *window_size = vec2i(event.window.data1, event.window.data2);
             break;
         }
         break;
+      }
       case SDL_JOYAXISMOTION:
       case SDL_JOYBUTTONDOWN:
       case SDL_JOYBUTTONUP:
       case SDL_JOYHATMOTION:
       case SDL_JOYDEVICEADDED:
-      case SDL_JOYDEVICEREMOVED:
+      case SDL_JOYDEVICEREMOVED: {
         HandleJoystickEvent(event);
         break;
-      default:
+      }
+      default: {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "----Unknown SDL event!\n");
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "----Event ID: %d!\n", event.type);
-
-
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "----Event ID: %d!\n", event.type);
+      }
     }
   }
 }
@@ -150,7 +152,7 @@ void InputSystem::HandleJoystickEvent(SDL_Event event) {
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
       GetJoystick(event.jbutton.which).GetButton(event.jbutton.button).Update(
-          event.jbutton.state);
+          event.jbutton.state == SDL_PRESSED);
       break;
     case SDL_JOYHATMOTION:
       GetJoystick(event.jhat.which).GetHat(event.jhat.hat).Update(
