@@ -21,7 +21,7 @@
 namespace fpl {
 namespace splat {
 
-AiController::AiController() : Controller(kTypeAi) {}
+AiController::AiController() : Controller(kTypeAI) {}
 
 
 void AiController::Initialize(GameState* gamestate,
@@ -44,6 +44,10 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
   ClearAllLogicalInputs();
   time_to_next_action_ -= delta_time;
   if (time_to_next_action_ > 0) {
+    return;
+  }
+
+  if (character_id_ == kNoCharacter) {
     return;
   }
 

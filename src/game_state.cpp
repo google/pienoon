@@ -456,7 +456,9 @@ uint32_t GameState::AllLogicalInputs() const {
   for (size_t i = 0; i < characters_.size(); ++i) {
     const auto& character = characters_[i];
     const Controller* controller = character->controller();
-    inputs |= controller->is_down();
+    if (controller->controller_type() != Controller::kTypeAI) {
+      inputs |= controller->is_down();
+    }
   }
   return inputs;
 }
@@ -756,7 +758,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       const uint16_t renderable_id = character->RenderableId(anim_time);
       const mat4 character_matrix = character->CalculateMatrix(facing_camera);
       const vec3 player_color = (character->controller()->controller_type() ==
-          Controller::kTypeAi)
+          Controller::kTypeAI)
           ? LoadVec3(config_->ai_color())
           : LoadVec3(config_->character_colors()->Get(character->id()));
       scene->renderables().push_back(

@@ -581,9 +581,7 @@ void SplatGame::DebugCamera() {
   }
 }
 
-SplatState SplatGame::CalculateSplatState() const {
-  const Config& config = GetConfig();
-
+SplatState SplatGame::UpdateSplatState() {
   switch (state_) {
     case kPlaying:
       // When we're down to one or zero active characters, the game's over.
@@ -592,12 +590,11 @@ SplatState SplatGame::CalculateSplatState() const {
       break;
 
     case kFinished: {
-      // Reset after a certain amount of time has passed and someone presses
-      // the throw key.
-      const WorldTime min_finished_time =
-          state_entry_time_ + config.play_finished_timeout();
-      if (prev_world_time_ >= min_finished_time &&
-          (game_state_.AllLogicalInputs() & LogicalInputs_ThrowPie) != 0)
+      // When players press the A/throw button during the menu screen, they
+      // get assigned a player if they weren't already.
+      HandlePlayersJoining();
+      // Start the game when someone presses the B/block key.
+      if ((game_state_.AllLogicalInputs() & LogicalInputs_Deflect) != 0)
         return kPlaying;
       break;
     }
@@ -624,6 +621,25 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
         } else {
           // TODO: this does not account for draws.
           character->IncrementStat(kLosses);
+        }
+        if (character->controller()->controller_type() != Controller::kTypeAI) {
+          // Assign characters AI characters while the menu is up.
+          // Players will have to press A again to get themselves re-assigned.
+          // Find unused AI character:
+          for (auto it = active_controllers_.begin();
+                   it != active_controllers_.end(); ++it) {
+            if ((*it)->controller_type() == Controller::kTypeAI &&
+                (*it)->character_id() == kNoCharacter) {
+              character->controller()->set_character_id(kNoCharacter);
+              character->set_controller(it->get());
+              (*it)->set_character_id(i);
+              break;
+            }
+          }
+          // There are as many AI controllers as there are players, so this
+          // should never fail:
+          assert(character->controller()->controller_type() ==
+                 Controller::kTypeAI);
         }
       }
       UploadStats();
@@ -685,7 +701,7 @@ CharacterId SplatGame::FindAiPlayer() {
        char_id < static_cast<CharacterId>(game_state_.characters().size());
        char_id++) {
     if (game_state_.characters()[char_id]->controller()->controller_type() ==
-        Controller::kTypeAi) {
+        Controller::kTypeAI) {
       return char_id;
     }
   }
@@ -724,16 +740,17 @@ void SplatGame::HandlePlayersJoining()
     Controller* controller = active_controllers_[i].get();
     if (controller != nullptr &&
         controller->character_id() == kNoCharacter &&
-        controller->controller_type() != Controller::kTypeAi &&
-        controller->is_down() & LogicalInputs_ThrowPie) {
+        controller->controller_type() != Controller::kTypeAI &&
+        controller->went_down() & LogicalInputs_ThrowPie) {
 
       CharacterId open_slot = FindAiPlayer();
       if (open_slot != kNoCharacter) {
-        game_state_.characters()[open_slot]->set_controller(controller);
+        auto character = game_state_.characters()[open_slot].get();
+        character->controller()->set_character_id(kNoCharacter);
+        character->set_controller(controller);
         controller->set_character_id(open_slot);
       }
     }
-
   }
 }
 
@@ -742,7 +759,7 @@ void SplatGame::HandlePlayersJoining()
 // to keep them up to date so we can check their inputs as needed.)
 void SplatGame::UpdateControllers(WorldTime delta_time) {
   for (size_t i = 0; i < active_controllers_.size(); i++) {
-    if (active_controllers_[0].get() != nullptr) {
+    if (active_controllers_[i].get() != nullptr) {
       active_controllers_[i]->AdvanceFrame(delta_time);
     }
   }
@@ -779,7 +796,6 @@ void SplatGame::Run() {
     input_.AdvanceFrame(&renderer_.window_size());
 
     UpdateGamepadControllers();
-    HandlePlayersJoining();
     UpdateControllers(delta_time);
     // Update game logic by a variable number of milliseconds.
     game_state_.AdvanceFrame(delta_time, &audio_engine_);
@@ -810,7 +826,7 @@ void SplatGame::Run() {
     prev_world_time_ = world_time;
 
     // Advance to the next play state, if required.
-    const SplatState next_state = CalculateSplatState();
+    const SplatState next_state = UpdateSplatState();
     if (next_state != state_) {
       TransitionToSplatState(next_state);
     }

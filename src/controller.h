@@ -28,7 +28,7 @@ class Controller {
   enum ControllerType {
     kTypeUndefined,
     kTypePlayer,
-    kTypeAi,
+    kTypeAI,
     kTypeGamepad,
     kTypeTouchScreen
   };

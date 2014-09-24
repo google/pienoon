@@ -65,7 +65,7 @@ class SplatGame {
   const Config& GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
-  SplatState CalculateSplatState() const;
+  SplatState UpdateSplatState();
   void TransitionToSplatState(SplatState next_state);
   void UploadStats();
   void UpdateGamepadControllers();
