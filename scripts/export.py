@@ -19,6 +19,7 @@ all other assets required the play the game.
 """
 
 import os
+import platform
 import sys
 import zipfile
 
@@ -34,6 +35,7 @@ EXPORT_DIRECTORIES = [
 # The list of additional individual files to export.
 EXPORT_FILES = [
     'run.command',
+    'run.bat',
     'scripts/build_assets.mk'
 ]
 
@@ -130,6 +132,8 @@ def main():
   try:
     zip_binary(zip_file, 'bin', 'splat', dir_name)
     zip_binary(zip_file, 'bin', 'flatc', dir_name)
+    if platform.system() == 'Windows':
+      zip_binary(zip_file, 'bin', 'SDL2.dll', dir_name)
   except MissingBinaryError as error:
     sys.stderr.write('Could not find %s binary\n' % error.filename)
     return 1
