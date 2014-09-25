@@ -195,6 +195,8 @@ void GameState::ProcessEvent(Character* character,
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
         CreatePie(character->id(), DetermineDeflectionTarget(pie), pie.damage);
+        character->IncrementStat(kBlocks);
+        characters_[pie.source_id]->IncrementStat(kMisses);
       }
     }
     case EventId_LoadPie: {

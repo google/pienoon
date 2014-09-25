@@ -621,8 +621,11 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
         if (character->health() > 0) {
           character->IncrementStat(kWins);
         } else {
-          // TODO: this does not account for draws.
-          character->IncrementStat(kLosses);
+          // TODO: for draws, this does not account for which players exactly
+          // died simultanously.
+          character->IncrementStat(game_state_.NumActiveCharacters(false) == 0
+                                   ? kDraws
+                                   : kLosses);
         }
         if (character->controller()->controller_type() != Controller::kTypeAI) {
           // Assign characters AI characters while the menu is up.
@@ -838,8 +841,6 @@ void SplatGame::Run() {
     // we'll check if a sixth finger went down on the touch screen,
     // if so we update the leaderboards and show the UI:
     if (input_.GetButton(SDLK_POINTER6).went_down()) {
-      // For testing, increase stat:
-      game_state_.characters()[0]->IncrementStat(kAttacks);
       UploadStats();
       // For testing, show UI:
       gpg_manager.ShowLeaderboards();
