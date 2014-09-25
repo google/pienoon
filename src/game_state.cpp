@@ -334,11 +334,13 @@ CharacterId GameState::WinningCharacterId() const {
   return win_id;
 }
 
-int GameState::NumActiveCharacters() const {
+int GameState::NumActiveCharacters(bool human_only) const {
   int num_active = 0;
   for (size_t i = 0; i < characters_.size(); ++i) {
     const auto& character = characters_[i];
-    if (character->Active()) {
+    if (character->Active() &&
+        (!human_only ||
+         character->controller()->controller_type() != Controller::kTypeAI)) {
       num_active++;
     }
   }

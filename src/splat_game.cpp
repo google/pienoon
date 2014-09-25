@@ -584,8 +584,10 @@ void SplatGame::DebugCamera() {
 SplatState SplatGame::UpdateSplatState() {
   switch (state_) {
     case kPlaying:
-      // When we're down to one or zero active characters, the game's over.
-      if (game_state_.NumActiveCharacters() <= 1)
+      // When we're down to 0 human active players, or <=1 active characters,
+      // the game's over.
+      if (game_state_.NumActiveCharacters(true) == 0 ||
+          game_state_.NumActiveCharacters(false) <= 1)
         return kFinished;
       break;
 

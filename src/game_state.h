@@ -60,7 +60,8 @@ class GameState {
 
   // Returns the number of characters who are still in the game (that is,
   // are not KO'd or otherwise incapacitated).
-  int NumActiveCharacters() const;
+  // By default counts both human players and AI.
+  int NumActiveCharacters(bool human_only = false) const;
 
   // Returns the id of the winning character, or -1 if no one has won the game.
   // Note that not all games have a winner. Some games may end with everyone
