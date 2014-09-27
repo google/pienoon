@@ -5,15 +5,14 @@ varying vec3 vTangentSpaceCameraVector;
 uniform sampler2D texture_unit_0;   //texture
 uniform sampler2D texture_unit_1;   //normalmap
 uniform vec4 color;
+uniform vec3 ambient_material;
+uniform vec3 diffuse_material;
+uniform vec3 specular_material;
+uniform float shininess;
+
 
 void main(void)
 {
-    //these really need to be uniforms.
-    vec3 ambient_material = vec3(0.6, 0.6, 0.6);
-    vec3 diffuse_material = vec3(0.7, 0.7, 0.7);
-    vec3 specular_material = vec3(0.3, 0.3, 0.3);
-    float shininess = 32.0;
-
     vec4 texture_color =  texture2D(texture_unit_0, vTexCoord);
     // We only render pixels if they are at least somewhat opaque.
     // This will still lead to aliased edges if we render

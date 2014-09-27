@@ -388,6 +388,14 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
              1);
     if (config.renderables()->Get(id)->cardboard()) {
       shader_lit_textured_normal_->Set(renderer_);
+      shader_lit_textured_normal_->SetUniform("ambient_material",
+          LoadVec3(config.cardboard_ambient_material()));
+      shader_lit_textured_normal_->SetUniform("diffuse_material",
+          LoadVec3(config.cardboard_diffuse_material()));
+      shader_lit_textured_normal_->SetUniform("specular_material",
+          LoadVec3(config.cardboard_specular_material()));
+      shader_lit_textured_normal_->SetUniform("shininess",
+          config.cardboard_shininess());
     } else {
       shader_textured_->Set(renderer_);
     }

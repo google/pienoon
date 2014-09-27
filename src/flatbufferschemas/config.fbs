@@ -272,6 +272,12 @@ table Config {
   // Bigger numbers increase the effect. A number of 1 eliminates all effect.
   cardboard_bias_towards_stage_front:float;
 
+  // Cardboard lighting properties:
+  cardboard_ambient_material:Vec3;
+  cardboard_diffuse_material:Vec3;
+  cardboard_specular_material:Vec3;
+  cardboard_shininess:float;
+
   // The vertical offset of the popsicle stick prop.
   stick_y_offset:float;
 

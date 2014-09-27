@@ -91,6 +91,13 @@ class Shader {
     return true;
   }
 
+  bool SetUniform(const char *uniform_name, const float &value) {
+    auto loc = FindUniform(uniform_name);
+    if (loc < 0) return false;
+    GL_CALL(glUniform1f(loc, value));
+    return true;
+  }
+
   void InitializeUniforms();
 
  private:
