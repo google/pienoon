@@ -138,7 +138,7 @@ add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 
 # Build rule that uses make to build the assets.
 add_custom_target(assets
-  COMMAND make -f ${CMAKE_SOURCE_DIR}/scripts/build_assets.mk
+  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/build_assets.py
   DEPENDS flatc ${CWEBP_TARGET})
 
 if(APPLE)
@@ -270,6 +270,6 @@ endif()
 
 # Create a zipped tar of all the necessary files to run the game.
 add_custom_target(export
-  COMMAND python scripts/export.py
+  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/export.py
   DEPENDS splat)
 

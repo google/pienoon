@@ -19,7 +19,7 @@ rem where your build system of choice decides to put the executable (as long as
 rem it's in one of a few pre-defined locations).
 
 rem Process .json files.
-make -f .\scripts\build_assets.mk
+python .\scripts\build_assets.py
 
 rem Run the game.
 for %%A IN (.\bin\splat.exe .\bin\Release\splat.exe .\bin\Debug\splat.exe)^

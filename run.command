@@ -22,7 +22,7 @@
 cd `dirname $0`
 
 # Process .json files.
-make -f ./scripts/build_assets.mk
+python ./scripts/build_assets.py
 
 # Run the game.
 for exe in ./bin/splat ./bin/Release/splat ./bin/Debug/splat; do

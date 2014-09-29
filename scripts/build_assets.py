@@ -224,19 +224,24 @@ def processed_json_path(path):
   return path.replace(RAW_ASSETS_PATH, ASSETS_PATH).replace('.json', '.bin')
 
 
-def flatbuffer_binaries():
+def generate_flatbuffer_binaries():
   """Run the flatbuffer compiler on the all of the flatbuffer json files."""
   for element in FLATBUFFERS_SCHEMA_JSON:
+    output_path = element['output_path']
+    if not os.path.exists(output_path):
+      os.makedirs(output_path)
     for json in element['input_files']:
       if needs_rebuild(json, processed_json_path(json)):
         convert_json_to_flatbuffer_binary(
-            json, element['schema'], element['output_path'])
+            json, element['schema'], output_path)
 
 
-def webp_textures():
+def generate_webp_textures():
   """Run the webp converter on off of the png files."""
   input_files = PNG_TEXTURES['input_files']
   output_files = PNG_TEXTURES['output_files']
+  if not os.path.exists(TEXTURE_PATH):
+    os.makedirs(TEXTURE_PATH)
   for png, out in zip(input_files, output_files):
     if needs_rebuild(png, out):
       convert_png_image_to_webp(png, out, WEBP_QUALITY)
@@ -266,10 +271,8 @@ def clean():
 
 def handle_build_error(error):
   """Prints an error message to stderr for BuildErrors"""
-  sys.stderr.write('Error running command `')
-  for arg in error.argv:
-    sys.stderr.write('%s ' % arg)
-  sys.stderr.write('`. Returned %s.\n' % str(error.error_code))
+  sys.stderr.write('Error running command `%s`. Returned %s.\n' % (
+      ' '.join(error.argv), str(error.error_code)))
 
 
 def main(argv):
@@ -293,13 +296,13 @@ def main(argv):
 
   if target in ('all', 'flatbuffers'):
     try:
-      flatbuffer_binaries()
+      generate_flatbuffer_binaries()
     except BuildError as error:
       handle_build_error(error)
       return 1
   if target in ('all', 'webp'):
     try:
-      webp_textures()
+      generate_webp_textures()
     except BuildError as error:
       handle_build_error(error)
       return 1
