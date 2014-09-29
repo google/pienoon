@@ -1,0 +1,68 @@
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+include "splat_common.fbs";
+
+namespace fpl;
+// Definition for spawning a particle.
+table ParticleDef {
+  // The range for how much the particles are scaled when spawned:
+  min_scale:Vec3;
+  max_scale:Vec3;
+
+  // If true, any randomly generated scale will be guaranteed to scale an
+  // equal amount across all axes.
+  preserve_aspect:bool;
+
+  // Range for starting velocity of particle
+  min_velocity:Vec3;
+  max_velocity:Vec3;
+
+  // Range for the initial position offset of the particle
+  min_position_offset:Vec3;
+  max_position_offset:Vec3;
+
+  // Range for the initial orientation of the particle.  Expressed in
+  // Euler angles.
+  min_orientation_offset:Vec3;
+  max_orientation_offset:Vec3;
+
+  // Range for the rotational velocity of the particle.  Expressed in
+  // Euler angles
+  min_angular_velocity:Vec3;
+  max_angular_velocity:Vec3;
+
+  // Range for the lifetime of the particle, measured in milliseconds.
+  min_duration:int;
+  max_duration:int;
+
+  // Amount of time that should be spent smoothly removing the particle from
+  // the screen.  A nonzero fade_duration forces the particle to fade to zero
+  // alpha over the last [fade_duration] milliseconds of its lifespan.
+  // shrink_duration works identically, except transitions the scale to zero
+  // instead of the alpha.
+  shrink_duration:int;
+  fade_duration:int;
+
+  // Acceleration applied to the particle's velocity over time.
+  acceleration:Vec3;
+
+  // A list of colors to tint the particles with.  One is selected at random
+  // for each particle.
+  tint:[Vec4];
+
+  // A list of object IDs that represent the particle's onscreen representation.
+  // One is selected from the list at random for each particle.
+  renderable:[RenderableId];
+}

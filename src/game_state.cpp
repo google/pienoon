@@ -467,6 +467,55 @@ uint32_t GameState::AllLogicalInputs() const {
   return inputs;
 }
 
+// Creates a bunch of particles when a character gets hit by a pie.
+void GameState::CreatePieSplatter(CharacterId id, CharacterHealth damage) {
+  auto& character = characters_[id];
+  const ParticleDef * def = config_->pie_splatter_def();
+  SpawnParticles(character->position(), def, static_cast<int>(damage) *
+                 config_->splat_particles_per_damage());
+}
+
+// Spawns a particle at the given position, using a particle definition.
+void GameState::SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
+                              const int particle_count) {
+  const vec3 min_scale = LoadVec3(def->min_scale());
+  const vec3 max_scale = LoadVec3(def->max_scale());
+  const vec3 min_velocity = LoadVec3(def->min_velocity());
+  const vec3 max_velocity = LoadVec3(def->max_velocity());
+  const vec3 min_angular_velocity = LoadVec3(def->min_angular_velocity());
+  const vec3 max_angular_velocity = LoadVec3(def->max_angular_velocity());
+  const vec3 min_position_offset = LoadVec3(def->min_position_offset());
+  const vec3 max_position_offset = LoadVec3(def->max_position_offset());
+  const vec3 min_orientation_offset = LoadVec3(def->min_orientation_offset());
+  const vec3 max_orientation_offset = LoadVec3(def->max_orientation_offset());
+
+  for (int i = 0; i<particle_count; i++) {
+    Particle * p = particle_manager_.CreateParticle();
+    p->set_base_scale(def->preserve_aspect() ?
+        vec3(mathfu::RandomInRange(min_scale.x(), max_scale.x())) :
+        vec3::RandomInRange(min_scale, max_scale));
+
+    p->set_velocity(vec3::RandomInRange(min_velocity, max_velocity));
+    p->set_acceleration(LoadVec3(def->acceleration()));
+    p->set_renderable_id(def->renderable()->Get(
+        mathfu::RandomInRange<int>(0, def->renderable()->size())));
+    p->set_base_tint(LoadVec4(def->tint()->Get(
+        mathfu::RandomInRange<int>(0, def->tint()->size()))));
+    p->set_duration_remaining(mathfu::RandomInRange<int>(
+                              def->min_duration(), def->max_duration()));
+    p->set_position(position + vec3::RandomInRange(min_position_offset,
+                                                   max_position_offset));
+    p->set_orientation(Quat::FromEulerAngles(
+                       vec3::RandomInRange(min_orientation_offset,
+                                           max_orientation_offset)));
+    p->set_rotational_velocity(Quat::FromEulerAngles(vec3::RandomInRange(
+                                                     min_angular_velocity,
+                                                     max_angular_velocity)));
+    p->set_duration_of_shrink_out(def->shrink_duration());
+    p->set_duration_of_fade_out(def->fade_duration());
+  }
+}
+
 void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // Increment the world time counter. This happens at the start of the function
   // so that functions that reference the current world time will include the
@@ -493,6 +542,9 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
                                  character->id() == win_id);
   }
 
+  // Update all the particles.
+  particle_manager_.AdvanceFrame(delta_time);
+
   // Update pies. Modify state machine input when character hit by pie.
   for (auto it = pies_.begin(); it != pies_.end(); ) {
     auto& pie = *it;
@@ -507,7 +559,13 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
       };
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
+      CharacterHealth pie_damage = pie->damage();
       it = pies_.erase(it);
+
+      // TODO(ccornell) - put this somewhere better?
+      if (character->State() != StateId_Blocking) {
+        CreatePieSplatter(character->id(), pie_damage);
+      }
     }
     else {
       ++it;
@@ -697,6 +755,16 @@ void GameState::PopulateCharacterAccessories(
   }
 }
 
+// Add anything in the list of particles into the scene description:
+void GameState::AddParticlesToScene(SceneDescription* scene) const {
+  auto plist = particle_manager_.get_particle_list();
+  for (auto it = plist.begin(); it != plist.end(); ++it) {
+    scene->renderables().push_back(std::unique_ptr<Renderable>(
+        new Renderable((*it)->renderable_id(), (*it)->CalculateMatrix(),
+                       (*it)->CalculateTint())));
+  }
+}
+
 // TODO: Make this function a member of GameState, once that class has been
 // submitted to git. Then populate from the values in GameState.
 void GameState::PopulateScene(SceneDescription* scene) const {
@@ -704,6 +772,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
   // Camera.
   scene->set_camera(CameraMatrix());
+
+  AddParticlesToScene(scene);
 
   // Populate scene description with environment items.
   if (config_->draw_props()) {
@@ -764,10 +834,14 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       const vec3 player_color = (character->controller()->controller_type() ==
           Controller::kTypeAI)
           ? LoadVec3(config_->ai_color())
-          : LoadVec3(config_->character_colors()->Get(character->id()));
+          : LoadVec3(config_->character_colors()->Get(character->id())) /
+                     config_->character_global_brightness_factor() +
+                     (1 - 1 / config_->character_global_brightness_factor());
       scene->renderables().push_back(
           std::unique_ptr<Renderable>( new Renderable(renderable_id,
-          character_matrix, player_color)));
+          character_matrix,
+          mathfu::vec4(player_color.x(), player_color.y(), player_color.z(),
+                       1.0))));
 
       // Accessories.
       int num_accessories = 0;

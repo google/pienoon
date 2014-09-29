@@ -15,6 +15,7 @@
 include "splat_common.fbs";
 include "audio_config.fbs";
 include "magnet.fbs";
+include "particles.fbs";
 
 namespace fpl.splat;
 
@@ -327,6 +328,10 @@ table Config {
   // Describe the model for each item that can be rendered.
   // Array of length RenderableId_Count.
   renderables:[CardboardFigure];
+
+  // Definition for pie splatter particles:
+  pie_splatter_def:ParticleDef;
+  splat_particles_per_damage:int;
 
   // AI options
   ai_minimum_time_between_actions:int;

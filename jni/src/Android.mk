@@ -104,6 +104,7 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/material_manager.cpp \
   $(SPLAT_DIR)/src/mesh.cpp \
   $(SPLAT_DIR)/src/player_controller.cpp \
+  $(SPLAT_DIR)/src/particles.cpp \
   $(SPLAT_DIR)/src/precompiled.cpp \
   $(SPLAT_DIR)/src/renderer.cpp \
   $(SPLAT_DIR)/src/shader.cpp \

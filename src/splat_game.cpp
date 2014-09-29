@@ -380,12 +380,8 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
       stick_back_->Render(renderer_);
     }
 
-    // Draw the front of the cardboard.
-    renderer_.color() =
-        vec4(renderable->color() /
-               config.character_global_brightness_factor() +
-               (1 - 1 / config.character_global_brightness_factor()),
-             1);
+    renderer_.color() = renderable->color();
+
     if (config.renderables()->Get(id)->cardboard()) {
       shader_lit_textured_normal_->Set(renderer_);
       shader_lit_textured_normal_->SetUniform("ambient_material",

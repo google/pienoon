@@ -33,13 +33,6 @@ void AiController::Initialize(GameState* gamestate,
   time_to_next_action_ = 0;
 }
 
-// Helper function for picking a random number in a range.
-// TODO(ccornell) Put this in Mathfu!
-static int RandIntInRange(int a, int b) {
-  int delta = b - a;
-  return rand() % delta + a;
-}
-
 void AiController::AdvanceFrame(WorldTime delta_time) {
   ClearAllLogicalInputs();
   time_to_next_action_ -= delta_time;
@@ -56,8 +49,8 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
   }
 
   time_to_next_action_ +=
-      RandIntInRange(config_->ai_minimum_time_between_actions(),
-                     config_->ai_maximum_time_between_actions());
+      mathfu::RandomInRange<float>(config_->ai_minimum_time_between_actions(),
+      config_->ai_maximum_time_between_actions());
 
   float action = mathfu::Random<float>();
   if (action < config_->ai_chance_to_change_aim()) {

@@ -187,7 +187,7 @@
 
   "character_global_brightness_factor": 4,
 
-  "ai_color": { "x":  0.0, "y": 0.0, "z":  0.0 },
+  "ai_color": { "x":  0.7, "y": 0.7, "z":  0.7 },
 
   "audio": {
     "output_frequency": 44100,
@@ -195,6 +195,28 @@
     "output_buffer_size": 2048,
     "mixer_channels": 16
   },
+
+  "pie_splatter_def": {
+    "min_scale":  { "x": 0.5, "y": 0.5, "z": 0.5 },
+    "max_scale":  { "x": 1.0, "y": 1.0, "z": 1.0 },
+    "preserve_aspect": true,
+    "min_velocity":  { "x": -0.02, "y": 0, "z": -0.02 },
+    "max_velocity":  { "x": 0.02, "y": 0.01, "z": 0.02 },
+    "min_position_offset":  { "x": 0, "y": 1.0, "z": 0 },
+    "max_position_offset":  { "x": 0, "y": 2.0, "z": 0 },
+    "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
+    "max_orientation_offset":  { "x": 0, "y": 0, "z": 6.282 },
+    "min_angular_velocity": { "x": 0, "y": 0, "z": -0.02 },
+    "max_angular_velocity": { "x": 0, "y": 0, "z": 0.02 },
+    "min_duration": 100,
+    "max_duration": 401,
+    "shrink_duration": 250,
+    "fade_duration": 0,
+    "acceleration":  { "x": 0.0, "y": -0.00012, "z": 0.0 },
+    "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 }],
+    "renderable": ["Splatter1", "Splatter2", "Splatter3"]
+  },
+  "splat_particles_per_damage": 8,
 
   "camera_position": { "x": 0.0, "y": 3.4, "z": -11.5 },
   "camera_target": { "x": 0.0, "y": 3.5, "z": 0.0 },

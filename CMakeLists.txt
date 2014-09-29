@@ -182,6 +182,8 @@ set(splat_SRCS
     src/magnet1f.cpp
     src/magnet1f.h
     src/material.cpp
+    src/particles.h
+    src/particles.cpp
     src/precompiled.h
     src/renderer.h
     src/renderer.cpp

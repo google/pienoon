@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include "character.h"
+#include "particles.h"
 
 namespace fpl {
 
@@ -125,6 +126,10 @@ private:
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
   MagnetTwitch FakeResponseToTurn(CharacterId id) const;
+  void AddParticlesToScene(SceneDescription* scene) const;
+  void CreatePieSplatter(CharacterId id, int damage);
+  void SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
+                      const int particle_count);
 
   WorldTime time_;
   mathfu::vec3 camera_position_;
@@ -133,6 +138,7 @@ private:
   std::vector<std::unique_ptr<AirbornePie>> pies_;
   const Config* config_;
   const CharacterArrangement* arrangement_;
+  ParticleManager particle_manager_;
 };
 
 }  // splat

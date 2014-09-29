@@ -36,6 +36,10 @@ inline const mathfu::vec3 LoadVec3(const splat::Vec3* v) {
   return mathfu::vec3(v->x(), v->y(), v->z());
 }
 
+inline const mathfu::vec4 LoadVec4(const splat::Vec4* v) {
+  return mathfu::vec4(v->x(), v->y(), v->z(), v->w());
+}
+
 inline const mathfu::vec2i LoadVec2i(const splat::Vec2i* v) {
   return mathfu::vec2i(v->x(), v->y());
 }
