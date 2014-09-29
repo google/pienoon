@@ -51,7 +51,7 @@ void TouchscreenController::Initialize(InputSystem* input_system,
 
 void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
   assert(input_system_);
-  uint touch_inputs = 0;
+  uint32_t touch_inputs = 0;
   went_down_ = went_up_ = 0;
 
   for (size_t i = 0; i < input_system_->pointers_.size(); i++) {

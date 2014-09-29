@@ -275,8 +275,8 @@ bool SplatGame::InitializeGameState() {
   // Add a touch screen controller into the controller list, so that touch
   // inputs are processed correctly and assigned a character:
   TouchscreenController * ts_controller = new TouchscreenController();
-  vec2 window_size = vec2(renderer_.window_size().x(),
-                          renderer_.window_size().y());
+  vec2 window_size = vec2(static_cast<float>(renderer_.window_size().x()),
+                          static_cast<float>(renderer_.window_size().y()));
   ts_controller->Initialize(&input_, window_size, &config);
   AddController(ts_controller);
 
