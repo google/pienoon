@@ -50,6 +50,7 @@ build.xml
 gen/
 local.properties
 proguard-project.txt
+src/org/
 
 # symlink to the Google Play Services library.
 google-play-services_lib

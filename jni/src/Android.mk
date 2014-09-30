@@ -72,7 +72,7 @@ generated_includes: $(GENERATED_INCLUDES)
 # Build rule which builds assets for the game.
 .PHONY: build_assets
 build_assets:
-	$(hide) $(MAKE) -f $(SPLAT_DIR)/scripts/build_assets.mk FLATC=$(FLATC)
+	python $(SPLAT_DIR)/scripts/build_assets.py
 
 
 include $(CLEAR_VARS)
