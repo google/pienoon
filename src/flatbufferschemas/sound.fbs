@@ -61,6 +61,10 @@ table SoundDef {
   // Set of samples from which a weighted random selection is performed to
   // determine which sample to play when Sound playback is triggered.
   audio_sample_set:[AudioSampleSetEntry];
+
+  // Whether this sound should be streamed or loaded into a buffer.
+  // Generally music is streamed and sound effects are loaded into a buffer.
+  stream:bool = false;
 }
 
 root_type SoundDef;

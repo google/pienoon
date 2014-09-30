@@ -15,85 +15,69 @@
 #include "precompiled.h"
 #include "sound.h"
 #include "SDL_mixer.h"
-#include "utilities.h"
-#include "sound_generated.h"
+#include "audio_engine.h"
 
 namespace fpl {
 
-Sample::~Sample() {
-  if (chunk_) {
-    Mix_FreeChunk(chunk_);
+const ChannelId kInvalidChannel = -1;
+const int kPlayMusicError = -1;
+const int kLoopForever = -1;
+const int kPlayOnce = 0;
+
+static void LogAudioLoadingError(const char* filename) {
+  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't load %s\n", filename);
+}
+
+Sound::~Sound() {
+  if (data_) {
+    Mix_FreeChunk(data_);
   }
 }
 
-bool Sample::LoadSample(const char* filename) {
-  chunk_ = Mix_LoadWAV(filename);
-  if (!chunk_) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load %s\n", filename);
+bool Sound::LoadFile(const char* filename) {
+  data_ = Mix_LoadWAV(filename);
+  if (!data_) {
+    LogAudioLoadingError(filename);
     return false;
   }
   return true;
 }
 
-static bool LoadSamples(const SoundDef* def,
-                        std::vector<Sample>* samples,
-                        float* sum_of_probabilities) {
-  unsigned int sample_count =
-      def->audio_sample_set() ? def->audio_sample_set()->Length() : 0;
-  samples->resize(sample_count);
-  for (unsigned int i = 0; i < sample_count; ++i) {
-    const AudioSampleSetEntry* entry = def->audio_sample_set()->Get(i);
-    const char* entry_filename = entry->audio_sample()->filename()->c_str();
-    Sample& sample = (*samples)[i];
-    if (!sample.LoadSample(entry_filename)) {
-      return false;
-    }
-    *sum_of_probabilities += entry->playback_probability();
+bool Sound::Play(ChannelId channel_id, bool loop) {
+  int loops = loop ? kLoopForever : kPlayOnce;
+  if (Mix_PlayChannel(channel_id, data_, loops) == kInvalidChannel) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Can't play sound: %s\n", Mix_GetError());
+    return false;
   }
   return true;
 }
 
-bool Sound::LoadSound(const std::string& sound_def_source) {
-  source_ = sound_def_source;
-  return LoadSamples(GetSoundDef(), &samples_, &sum_of_probabilities_);
+Music::~Music() {
+  if (data_) {
+    Mix_FreeMusic(data_);
+  }
 }
 
-bool Sound::LoadSoundFromFile(const char* filename) {
-  if (!LoadFile(filename, &source_)) {
+bool Music::LoadFile(const char* filename) {
+  data_ = Mix_LoadMUS(filename);
+  if (!data_) {
+    LogAudioLoadingError(filename);
     return false;
   }
-  return LoadSamples(GetSoundDef(), &samples_, &sum_of_probabilities_);
+  return true;
 }
 
-void Sound::Unload() {
-  source_.clear();
-  samples_.clear();
-  sum_of_probabilities_ = 0;
-}
-
-const SoundDef* Sound::GetSoundDef() const {
-  assert(source_.size());
-  return fpl::GetSoundDef(source_.c_str());
-}
-
-Mix_Chunk* Sound::SelectChunk() {
-  const SoundDef* sound_def = GetSoundDef();
-
-  // Choose a random number between 0 and the sum of the probabilities, then
-  // iterate over the list, subtracting the weight of each entry until 0 is
-  // reached.
-  float selection = mathfu::Random<float>() * sum_of_probabilities_;
-  for (unsigned int i = 0; i < samples_.size(); ++i) {
-    const AudioSampleSetEntry* entry = sound_def->audio_sample_set()->Get(i);
-    selection -= entry->playback_probability();
-    if (selection <= 0) {
-      return samples_[i].chunk();
-    }
+bool Music::Play(ChannelId channel_id, bool loop) {
+  (void)channel_id;  // SDL_mixer does not currently support
+                     // more than one channel of streaming audio.
+  int loops = loop ? kLoopForever : kPlayOnce;
+  if (Mix_PlayMusic(data_, loops) == kPlayMusicError) {
+    return false;
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Can't play music: %s\n", Mix_GetError());
   }
-
-  // If we've reached here and didn't return a sound, assume there was some
-  // floating point rounding error and just return the last one.
-  return samples_.back().chunk();
+  return true;
 }
 
 }  // namespace fpl

@@ -37,7 +37,7 @@ struct TimelineAccessory {
 
 struct TimelineSound {
   time:ushort;        // Time of event. Time 0 is start of timeline.
-  sound:ushort;       // Identify the sound to start playing at 'time'.
+  sound:SoundId;      // Identify the sound to start playing at 'time'.
                       // For Splat, use SoundId in splat_common.fbs.
 }
 

@@ -59,6 +59,7 @@ enum RenderableId : ushort {
 enum SoundId : ushort {
   ThrowPie,
   HitWithPie,
+  MainTheme,
 
   Count  // Must be last
 }

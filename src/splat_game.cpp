@@ -342,6 +342,9 @@ bool SplatGame::Initialize() {
   // strictly necessary for gameplay, so don't die if the audio engine fails to
   // initialize.
   audio_engine_.Initialize(GetConfig().audio());
+  // TODO(amablue): b/17767350 Move this to a better place when we start plaing
+  // more than one piece of music.
+  audio_engine_.PlayAudio(SoundId_MainTheme);
 
   if (!InitializeGameState())
     return false;

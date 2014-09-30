@@ -136,7 +136,7 @@ void GameState::ProcessSounds(AudioEngine* audio_engine,
                                                anim_time + delta_time);
   for (int i = start_index; i < end_index; ++i) {
     const TimelineSound& timeline_sound = *sounds->Get(i);
-    audio_engine->PlaySoundId(timeline_sound.sound());
+    audio_engine->PlayAudio(timeline_sound.sound());
   }
 }
 

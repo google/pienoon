@@ -15,54 +15,50 @@
 #ifndef SPLAT_SOUND_H_
 #define SPLAT_SOUND_H_
 
-#include <vector>
-#include <string>
-
 struct Mix_Chunk;
+typedef struct _Mix_Music Mix_Music;
 
 namespace fpl {
 
-struct SoundDef;
+typedef int ChannelId;
 
-class Sample {
+// AudioSource is a base class for both audio streams and audio buffers, called
+// Music and Sounds respectively.
+class AudioSource {
  public:
-  Sample() : chunk_(nullptr) {}
-  ~Sample();
+  virtual ~AudioSource() {}
 
-  // Load the given .wav file.
-  bool LoadSample(const char* filename);
+  // Load the audio from the given filename.
+  virtual bool LoadFile(const char* filename) = 0;
 
-  Mix_Chunk* chunk() { return chunk_; }
-
- private:
-
-  Mix_Chunk* chunk_;
+  // Play this audio on the given channel, and loop if necessary.
+  virtual bool Play(ChannelId channel_id, bool loop) = 0;
 };
 
-// Sounds represent an abstract sound (like a 'whoosh'). The Sound object
-// contains a number of samples with weighted probabilities to choose between
-// randomly when played.
-class Sound {
+// A Sound is a piece of buffered audio that is completely loaded into memory.
+class Sound : public AudioSource {
  public:
-  // Load the given flatbuffer binary file containing a SoundDef.
-  bool LoadSoundFromFile(const char* filename);
+  virtual ~Sound();
 
-  // Load the given flatbuffer data representing a SoundDef.
-  bool LoadSound(const std::string& sound_def_source);
+  virtual bool LoadFile(const char* filename);
 
-  // Unload the data associated with this Sound.
-  void Unload();
-
-  // Return the SoundDef.
-  const SoundDef* GetSoundDef() const;
-
-  // Return a random Mix_Chunk from the set of samples for this sound.
-  Mix_Chunk* SelectChunk();
+  virtual bool Play(ChannelId channel_id, bool loop);
 
  private:
-  std::string source_;
-  std::vector<Sample> samples_;
-  float sum_of_probabilities_;
+  Mix_Chunk* data_;
+};
+
+// Music is audio that is streamed from disk rather than loaded into memory.
+class Music : public AudioSource {
+ public:
+  virtual ~Music();
+
+  virtual bool LoadFile(const char* filename);
+
+  virtual bool Play(ChannelId channel_id, bool loop);
+
+ private:
+  Mix_Music* data_;
 };
 
 }  // namespace fpl

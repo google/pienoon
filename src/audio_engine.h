@@ -18,6 +18,7 @@
 #include "sound.h"
 #include "splat_common_generated.h"
 #include "common.h"
+#include "audio_collection.h"
 
 #ifdef FPL_AUDIO_ENGINE_UNIT_TESTS
 #include "gtest/gtest.h"
@@ -27,8 +28,9 @@ namespace fpl {
 
 struct AudioConfig;
 
-typedef unsigned int SoundId;
-typedef int ChannelId;
+// TODO(amablue): Remove splat dependency.
+// What's the right thing to do when SoundId is defined in splat_common.fbs?
+using splat::SoundId;
 
 class AudioEngine {
  public:
@@ -37,10 +39,10 @@ class AudioEngine {
   bool Initialize(const AudioConfig* config);
 
   // Play a sound associated with the given sound_id.
-  void PlaySoundId(SoundId sound_id);
+  void PlayAudio(SoundId sound_id);
 
-  // Returns the sound associated with the given sound_id.
-  Sound* GetSound(SoundId sound_id);
+  // Returns the audio collection associated with the given sound_id.
+  AudioCollection* GetAudioCollection(SoundId sound_id);
 
   // TODO: Update audio volume per channel each frame. b/17316699
   void AdvanceFrame(WorldTime world_time);
@@ -53,23 +55,30 @@ class AudioEngine {
 
   // Represents a sample that is playing on a channel.
   struct PlayingSound {
-    PlayingSound(SoundId sid, ChannelId cid, WorldTime time)
-        : sound_id(sid),
+    PlayingSound(const SoundDef* def, ChannelId cid, WorldTime time)
+        : sound_def(def),
           channel_id(cid),
           start_time(time) {
     }
 
-    SoundId sound_id;
+    const SoundDef* sound_def;
     ChannelId channel_id;
     WorldTime start_time;
   };
 
+  // Play a sound associated with the given sound_id.
+  void PlaySound(AudioCollection* sound);
+
+  // Play a sound associated with the given sound_id.
+  void PlayMusic(AudioCollection* sound);
+
   class PriorityComparitor {
    public:
-    PriorityComparitor(const std::vector<Sound>* sounds) : sounds_(sounds) {}
+    PriorityComparitor(const std::vector<AudioCollection>* collections)
+        : collections_(collections) {}
     int operator()(const PlayingSound& a, const PlayingSound& b);
    private:
-    const std::vector<Sound>* sounds_;
+    const std::vector<AudioCollection>* collections_;
   };
 
   // Return true if the given AudioEngine::PlayingSound has finished playing.
@@ -79,14 +88,14 @@ class AudioEngine {
   void ClearFinishedSounds();
 
   static void PrioritizeChannels(
-    const std::vector<Sound>& sounds,
+    const std::vector<AudioCollection>& collections,
     std::vector<PlayingSound>* playing_sounds);
 
   // Hold the audio bus list.
   std::string buses_source_;
 
   // Hold the sounds.
-  std::vector<Sound> sounds_;
+  std::vector<AudioCollection> collections_;
 
   // The number of sounds currently playing.
   std::vector<PlayingSound> playing_sounds_;

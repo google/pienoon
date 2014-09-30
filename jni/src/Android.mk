@@ -90,6 +90,7 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
 LOCAL_SRC_FILES := \
   $(DEPENDENCIES_SDL_DIR)/src/main/android/SDL_android_main.c \
   $(SPLAT_DIR)/src/ai_controller.cpp \
+  $(SPLAT_DIR)/src/audio_collection.cpp \
   $(SPLAT_DIR)/src/audio_engine.cpp \
   $(SPLAT_DIR)/src/character.cpp \
   $(SPLAT_DIR)/src/character_state_machine.cpp \

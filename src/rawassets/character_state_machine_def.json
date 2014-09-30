@@ -259,7 +259,7 @@
         "sounds": [
           {
             "time": 0,
-            "sound": "SoundId.ThrowPie"
+            "sound": "ThrowPie"
           }
         ]
       }
@@ -361,7 +361,7 @@
         "sounds": [
           {
             "time": 0,
-            "sound": "SoundId.HitWithPie"
+            "sound": "HitWithPie"
           }
         ]
       }

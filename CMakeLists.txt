@@ -150,6 +150,8 @@ set(splat_SRCS
     src/ai_controller.h
     src/ai_controller.cpp
     src/angle.h
+    src/audio_collection.cpp
+    src/audio_collection.h
     src/audio_engine.h
     src/audio_engine.cpp
     src/character.h
