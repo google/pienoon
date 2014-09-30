@@ -389,7 +389,7 @@ After modifying the data in the `splat/src/rawassets` directory, the assets
 need to be rebuilt by running the following command:
 
     cd splat
-    make -f scripts/build_assets.mk
+    python scripts/build_assets.py
 
 Each file under `src/rawassets` will produce a corresponding output file in
 `assets`.  For example, after running the asset build
