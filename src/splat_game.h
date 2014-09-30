@@ -52,7 +52,8 @@ class SplatGame {
   bool InitializeConfig();
   bool InitializeRenderer();
   Mesh* CreateVerticalQuadMesh(const flatbuffers::String* material_name,
-                               const vec3& offset);
+                               const vec3& offset, const vec2& pixel_bounds,
+                               float pixel_to_world_scale);
   bool InitializeRenderingAssets();
   bool InitializeGameState();
   void RenderCardboard(const SceneDescription& scene,

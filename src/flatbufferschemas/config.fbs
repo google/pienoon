@@ -114,6 +114,20 @@ table CardboardFigure {
   // stationary.
   offset:Vec3;
 
+  // Optionally specify bounding box around geometry.
+  // x-coordinate is width. y-coordinate is height.
+  // Texture origin is at the bottom, in the middle, so
+  //   bottom: 0
+  //   top: pixel_bounds.y
+  //   left: -pixel_bounds.x / 2
+  //   right: pixel_bounds.x / 2
+  // If left as the default nullptr, bounding box is ignored.
+  pixel_bounds:Vec2i;
+
+  // Scale the cardboard geometry. We convert from pixel-size to world-size by
+  // multiplying geometry_scale * pixel_to_world_scale (see below).
+  geometry_scale:float = 1.0;
+
   // True if the renderable should have a popsicle stick propping it up.
   stick:bool = false;
 

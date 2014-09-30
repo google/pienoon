@@ -272,7 +272,7 @@
   "cardboard_diffuse_material": { "x": 0.85, "y": 0.85, "z": 0.85 },
   "cardboard_specular_material": { "x": 0.3, "y": 0.3, "z": 0.3 },
   "cardboard_shininess": 32,
-  "stick_y_offset": -4.0,
+  "stick_y_offset": -1.0,
   "stick_front_z_offset": -0.01,
   "stick_back_z_offset": -0.09,
   "stick_front": "materials/stick.bin",
@@ -504,7 +504,7 @@
       "position": { "x": 0, "y": 0, "z":8 },
       "rotation": 0,
       "orientation": "Verticle",
-      "scale": { "x": 1.1, "y": 1, "z":1 }
+      "scale": { "x": 1, "y": 0.9, "z":1 }
     },
     {
       "renderable": "RenderableId.EnvironmentStoreFront",
@@ -546,7 +546,7 @@
       "position": { "x": 4, "y": 8, "z":6.95 },
       "rotation": 10,
       "orientation": "Verticle",
-      "scale": { "x": 1, "y": 4, "z":1 }
+      "scale": { "x": 1, "y": 10, "z":1 }
     },
     {
       "renderable": "RenderableId.EnvironmentSun",
@@ -560,7 +560,7 @@
       "position": { "x": -4, "y": 8, "z":6.8 },
       "rotation": -10,
       "orientation": "Verticle",
-      "scale": { "x": 1, "y": 4, "z":1 }
+      "scale": { "x": 1, "y": 10, "z":1 }
     },
     {
       "renderable": "RenderableId.EnvironmentCloud",
@@ -637,6 +637,8 @@
       "cardboard_front": "materials/character_idle.bin",
       "cardboard_back": "materials/character_idle_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 161, "y": 256 }, // (224, 357) --> (161, 256)
+      "geometry_scale": 1.3945, // 357 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -648,6 +650,8 @@
       "cardboard_front": "materials/character_load1.bin",
       "cardboard_back": "materials/character_load1_back.bin",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 195, "y": 256 }, // (257, 337) --> (195, 256)
+      "geometry_scale": 1.3164, // 337 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -659,6 +663,8 @@
       "cardboard_front": "materials/character_load2.bin",
       "cardboard_back": "materials/character_load2_back.bin",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 200, "y": 256 }, // (289, 370) --> (200, 256)
+      "geometry_scale": 1.4453, // 370 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -670,6 +676,8 @@
       "cardboard_front": "materials/character_load3.bin",
       "cardboard_back": "materials/character_load3_back.bin",
       "offset": { "x": -0.9, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 208 }, // (384,312) --> (256, 208)
+      "geometry_scale": 1.5, // 384 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -681,6 +689,8 @@
       "cardboard_front": "materials/character_throw.bin",
       "cardboard_back": "materials/character_throw_back.bin",
       "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 240, "y": 256 }, // (321,343) --> (240, 256)
+      "geometry_scale": 1.3398, // 343 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -692,6 +702,8 @@
       "cardboard_front": "materials/character_block.bin",
       "cardboard_back": "materials/character_block_back.bin",
       "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 189, "y": 256 }, // (269,365) --> (189, 256)
+      "geometry_scale": 1.4258, // 365 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -703,6 +715,8 @@
       "cardboard_front": "materials/character_hit_by_pie_frame0.bin",
       "cardboard_back": "materials/character_hit_by_pie_frame0_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 240 }, // (298,279) --> (256, 240)
+      "geometry_scale": 1.1640, // 298 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -714,6 +728,8 @@
       "cardboard_front": "materials/character_hit_by_pie_frame1.bin",
       "cardboard_back": "materials/character_hit_by_pie_frame1_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 214 }, // (290,242) --> (256, 214)
+      "geometry_scale": 1.1328, // 290 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -725,6 +741,8 @@
       "cardboard_front": "materials/character_hit_by_pie_frame2.bin",
       "cardboard_back": "materials/character_hit_by_pie_frame2_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 211, "y": 256 }, // (232,282) --> (211, 256)
+      "geometry_scale": 1.1015, // 282 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -736,6 +754,8 @@
       "cardboard_front": "materials/character_hit_by_pie_frame3.bin",
       "cardboard_back": "materials/character_hit_by_pie_frame3_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 191, "y": 256 }, // (219,294) --> (191, 256)
+      "geometry_scale": 1.1484, // 294 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -747,6 +767,8 @@
       "cardboard_front": "materials/character_knocked_out.bin",
       "cardboard_back": "materials/character_knocked_out_back.bin",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 197 }, // (262,201) --> (256, 197)
+      "geometry_scale": 1.0234, // 262 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -758,6 +780,8 @@
       "cardboard_front": "materials/character_win.bin",
       "cardboard_back": "materials/character_win_back.bin",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 206, "y": 256 }, // (316,392) --> (206, 256)
+      "geometry_scale": 1.53125, // 392 / 256
       "stick": true,
       "shadow": true,
       "cardboard": true,
@@ -783,12 +807,16 @@
     {
       "id": "PieLarge",
       "cardboard_front": "materials/pie_large.bin",
+      "pixel_bounds": { "x": 256, "y": 212 }, // (392,324) --> (256,212)
+      "geometry_scale": 1.2, // 1.5312 = 392 / 256, but shrink a little
       "shadow": true,
       "cardboard": true
     },
     {
       "id": "PieBlock",
       "cardboard_front": "materials/pie_block.bin",
+      "pixel_bounds": { "x": 256, "y": 244 }, // (211,193) --> (256,234)
+      "geometry_scale": 0.8242, // 211 / 256
       "shadow": true,
       "cardboard": true
     },
@@ -808,15 +836,21 @@
     {
       "id": "EnvironmentSun",
       "cardboard_front": "materials/environment_sun.bin",
+      "pixel_bounds": { "x": 256, "y": 238 }, // (295,274) --> (256, 238)
+      "geometry_scale": 1.1523, // 295 / 256
       "cardboard": true
     },
     {
       "id": "EnvironmentSunGlow",
+      "pixel_bounds": { "x": 256, "y": 219 }, // (656,560) --> (256, 219)
+      "geometry_scale": 2.5625, // 656 / 256
       "cardboard_front": "materials/environment_sun_glow.bin"
     },
     {
       "id": "EnvironmentTree",
       "cardboard_front": "materials/environment_tree.bin",
+      "pixel_bounds": { "x": 364, "y": 512 }, // (683,960) --> (364, 512)
+      "geometry_scale": 1.875, // 960 / 512
       "shadow": true,
       "cardboard": true
     },
@@ -828,7 +862,8 @@
     },
     {
       "id": "EnvironmentString",
-      "cardboard_front": "materials/environment_string.bin"
+      "cardboard_front": "materials/environment_string.bin",
+      "geometry_scale": 0.625 // 20 / 32
     },
     {
       "id": "EnvironmentStageFront",
@@ -857,18 +892,24 @@
     {
       "id": "Splatter1",
       "cardboard_front": "materials/splatter1.bin",
+      "pixel_bounds": { "x": 105, "y": 128 }, // (125, 157) --> (105, 128)
+      "geometry_scale": 1.2266, // 157 / 128
       "shadow": true,
       "cardboard": true
     },
     {
       "id": "Splatter2",
       "cardboard_front": "materials/splatter2.bin",
+      "pixel_bounds": { "x": 105, "y": 128 }, // (140, 161) --> (112, 128)
+      "geometry_scale": 1.2578, // 161 / 128
       "shadow": true,
       "cardboard": true
     },
     {
       "id": "Splatter3",
       "cardboard_front": "materials/splatter3.bin",
+      "pixel_bounds": { "x": 105, "y": 128 }, // (137, 183) --> (96, 128)
+      "geometry_scale": 1.4297, // 183 / 128
       "shadow": true,
       "cardboard": true
     },

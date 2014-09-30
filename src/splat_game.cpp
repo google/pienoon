@@ -126,16 +126,28 @@ bool SplatGame::InitializeRenderer() {
 
 // Initializes 'vertices' at the specified position, aligned up-and-down.
 // 'vertices' must be an array of length kQuadNumVertices.
-static void CreateVerticalQuad(float left, float right, float bottom, float top,
-                               float depth, NormalMappedVertex* vertices) {
-  vertices[0].pos = vec3(left, bottom, depth);
-  vertices[1].pos = vec3(right, bottom, depth);
-  vertices[2].pos = vec3(left, top, depth);
-  vertices[3].pos = vec3(right, top, depth);
-  vertices[0].tc = vec2(0, 1);
-  vertices[1].tc = vec2(1, 1);
-  vertices[2].tc = vec2(0, 0);
-  vertices[3].tc = vec2(1, 0);
+static void CreateVerticalQuad(const vec3& offset, const vec2& geo_size,
+                               const vec2& texture_coord_size,
+                               NormalMappedVertex* vertices) {
+  const float half_width = geo_size[0] * 0.5f;
+  const vec3 bottom_left = offset + vec3(-half_width, 0.0f, 0.0f);
+  const vec3 top_right = offset + vec3(half_width, geo_size[1], 0.0f);
+
+  vertices[0].pos = bottom_left;
+  vertices[1].pos = vec3(top_right[0], bottom_left[1], offset[2]);
+  vertices[2].pos = vec3(bottom_left[0], top_right[1], offset[2]);
+  vertices[3].pos = top_right;
+
+  const float coord_half_width = texture_coord_size[0] * 0.5f;
+  const vec2 coord_bottom_left(0.5f - coord_half_width, 1.0f);
+  const vec2 coord_top_right(0.5f + coord_half_width,
+                             1.0f - texture_coord_size[1]);
+
+  vertices[0].tc = coord_bottom_left;
+  vertices[1].tc = vec2(coord_top_right[0], coord_bottom_left[1]);
+  vertices[2].tc = vec2(coord_bottom_left[0], coord_top_right[1]);
+  vertices[3].tc = coord_top_right;
+
   Mesh::ComputeNormalsTangents(vertices, &kQuadIndices[0], kQuadNumVertices,
                                kQuadNumIndices);
 }
@@ -145,8 +157,8 @@ static void CreateVerticalQuad(float left, float right, float bottom, float top,
 // The quad is offset in (x,y,z) space by the 'offset' variable.
 // Returns a mesh with the quad and texture, or nullptr if anything went wrong.
 Mesh* SplatGame::CreateVerticalQuadMesh(
-    const flatbuffers::String* material_name, const vec3& offset) {
-  const Config& config = GetConfig();
+    const flatbuffers::String* material_name, const vec3& offset,
+    const vec2& pixel_bounds, float pixel_to_world_scale) {
 
   // Don't try to load obviously invalid materials. Suppresses error logs from
   // the material manager.
@@ -163,15 +175,16 @@ Mesh* SplatGame::CreateVerticalQuadMesh(
   // This is nice for the artist since everything is at the scale of the
   // original artwork.
   const Texture* front_texture = material->textures()[0];
-  const vec2 im(front_texture->size);
-  const vec2 geo_size = im * vec2(config.pixel_to_world_scale());
-  const float half_width = geo_size[0] * 0.5f;
+  const vec2 texture_size(front_texture->size);
+  const vec2 bounding_size(
+      pixel_bounds[0] <= 0 ? texture_size[0] : pixel_bounds[0],
+      pixel_bounds[1] <= 0 ? texture_size[1] : pixel_bounds[1]);
+  const vec2 texture_coord_size = bounding_size / texture_size;
+  const vec2 geo_size = bounding_size * vec2(pixel_to_world_scale);
 
   // Initialize a vertex array in the requested position.
   NormalMappedVertex vertices[kQuadNumVertices];
-  CreateVerticalQuad(offset[0] - half_width, offset[0] + half_width,
-                     offset[1], offset[1] + geo_size[1],
-                     offset[2], vertices);
+  CreateVerticalQuad(offset, geo_size, texture_coord_size, vertices);
 
   // Create mesh and add in quad indices.
   Mesh* mesh = new Mesh(vertices, kQuadNumVertices, sizeof(NormalMappedVertex),
@@ -203,12 +216,19 @@ bool SplatGame::InitializeRenderingAssets() {
                         LoadVec3(renderable->offset());
     const vec3 front_offset = offset + front_z_offset;
     const vec3 back_offset = offset + back_z_offset;
+    const auto pixel_bounds_ptr = renderable->pixel_bounds();
+    const vec2 pixel_bounds(pixel_bounds_ptr == nullptr ? mathfu::kZeros2i :
+                            LoadVec2i(pixel_bounds_ptr));
+    const float pixel_to_world_scale = renderable->geometry_scale() *
+                                       config.pixel_to_world_scale();
 
     cardboard_fronts_[id] = CreateVerticalQuadMesh(
-        renderable->cardboard_front(), front_offset);
+        renderable->cardboard_front(), front_offset, pixel_bounds,
+        pixel_to_world_scale);
 
     cardboard_backs_[id] = CreateVerticalQuadMesh(
-        renderable->cardboard_back(), back_offset);
+        renderable->cardboard_back(), back_offset, pixel_bounds,
+        pixel_to_world_scale);
   }
 
   // We default to the invalid texture, so it has to exist.
@@ -223,8 +243,11 @@ bool SplatGame::InitializeRenderingAssets() {
   const vec3 stick_back_offset(0.0f, config.stick_y_offset(),
                                config.stick_back_z_offset());
   stick_front_ = CreateVerticalQuadMesh(config.stick_front(),
-                                        stick_front_offset);
-  stick_back_ = CreateVerticalQuadMesh(config.stick_back(), stick_back_offset);
+                                        stick_front_offset, mathfu::kZeros2f,
+                                        config.pixel_to_world_scale());
+  stick_back_ = CreateVerticalQuadMesh(config.stick_back(), stick_back_offset,
+                                       mathfu::kZeros2f,
+                                       config.pixel_to_world_scale());
 
   // Load all shaders we use:
   shader_lit_textured_normal_ =
