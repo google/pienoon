@@ -227,13 +227,15 @@ def processed_json_path(path):
 def generate_flatbuffer_binaries():
   """Run the flatbuffer compiler on the all of the flatbuffer json files."""
   for element in FLATBUFFERS_SCHEMA_JSON:
+    schema = element['schema']
     output_path = element['output_path']
     if not os.path.exists(output_path):
       os.makedirs(output_path)
     for json in element['input_files']:
-      if needs_rebuild(json, processed_json_path(json)):
+      target = processed_json_path(json)
+      if needs_rebuild(json, target) or needs_rebuild(schema, target):
         convert_json_to_flatbuffer_binary(
-            json, element['schema'], output_path)
+            json, schema, output_path)
 
 
 def generate_webp_textures():
