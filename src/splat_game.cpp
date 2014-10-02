@@ -35,6 +35,7 @@ using mathfu::vec2i;
 using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::vec4;
+using mathfu::mat3;
 using mathfu::mat4;
 
 namespace fpl {
@@ -174,13 +175,11 @@ Mesh* SplatGame::CreateVerticalQuadMesh(
   // Create vertex geometry in proportion to the texture size.
   // This is nice for the artist since everything is at the scale of the
   // original artwork.
-  const Texture* front_texture = material->textures()[0];
-  const vec2 texture_size(front_texture->size);
-  const vec2 bounding_size(
-      pixel_bounds[0] <= 0 ? texture_size[0] : pixel_bounds[0],
-      pixel_bounds[1] <= 0 ? texture_size[1] : pixel_bounds[1]);
-  const vec2 texture_coord_size = bounding_size / texture_size;
-  const vec2 geo_size = bounding_size * vec2(pixel_to_world_scale);
+  assert(pixel_bounds.x() && pixel_bounds.y());
+  const vec2 texture_size = vec2(mathfu::RoundUpToPowerOf2(pixel_bounds.x()),
+                                 mathfu::RoundUpToPowerOf2(pixel_bounds.y()));
+  const vec2 texture_coord_size = pixel_bounds / texture_size;
+  const vec2 geo_size = pixel_bounds * vec2(pixel_to_world_scale);
 
   // Initialize a vertex array in the requested position.
   NormalMappedVertex vertices[kQuadNumVertices];
@@ -206,6 +205,10 @@ bool SplatGame::InitializeRenderingAssets() {
                  RenderableId_Count);
     return false;
   }
+
+  // Force this texture to be queued up first, since we want to use it for
+  // the loading screen.
+  matman_.LoadMaterial(config.loading_material()->c_str());
 
   // Create a mesh for the front and back of each cardboard cutout.
   const vec3 front_z_offset(0.0f, 0.0f, config.cardboard_front_z_offset());
@@ -243,10 +246,11 @@ bool SplatGame::InitializeRenderingAssets() {
   const vec3 stick_back_offset(0.0f, config.stick_y_offset(),
                                config.stick_back_z_offset());
   stick_front_ = CreateVerticalQuadMesh(config.stick_front(),
-                                        stick_front_offset, mathfu::kZeros2f,
+                                        stick_front_offset,
+                                        LoadVec2(config.stick_bounds()),
                                         config.pixel_to_world_scale());
   stick_back_ = CreateVerticalQuadMesh(config.stick_back(), stick_back_offset,
-                                       mathfu::kZeros2f,
+                                       LoadVec2(config.stick_bounds()),
                                        config.pixel_to_world_scale());
 
   // Load all shaders we use:
@@ -282,6 +286,9 @@ bool SplatGame::InitializeRenderingAssets() {
     touch_controls_[i].set_button_def(config.touchscreen_zones()->Get(i));
     touch_controls_[i].set_shader(shader_textured_);
   }
+
+  // Start the thread that actually loads all assets we requested above.
+  matman_.StartLoadingTextures();
 
   return true;
 }
@@ -516,7 +523,7 @@ void SplatGame::Render2DElements() {
 
       // Height is a percent of screen size. Width maintains aspect ratio.
       auto texture = material->textures()[0];
-      vec2 texture_size(texture->size);
+      vec2 texture_size(texture->size());
       auto aspect_ratio = texture_size[0] / texture_size[1];
       auto height = res.y() * element->size();
       auto width = height * aspect_ratio;
@@ -908,51 +915,80 @@ void SplatGame::Run() {
     UpdateControllers(delta_time);
     UpdateTouchButtons();
 
-    // Update game logic by a variable number of milliseconds.
-    game_state_.AdvanceFrame(delta_time, &audio_engine_);
+    // When we initialized assets, we kicked off a thread to load all textures.
+    // Here we check if those have finished loading.
+    if (matman_.TryFinalize()) {
+      // We're all done loading. Run & render the game as usual.
 
-    // Populate 'scene' from the game state--all the positions, orientations,
-    // and renderable-ids (which specify materials) of the characters and props.
-    // Also specify the camera matrix.
-    game_state_.PopulateScene(&scene_);
+      // Update game logic by a variable number of milliseconds.
+      game_state_.AdvanceFrame(delta_time, &audio_engine_);
 
-    // Issue draw calls for the 'scene'.
-    Render(scene_);
+      // Populate 'scene' from the game state--all the positions, orientations,
+      // and renderable-ids (which specify materials) of the characters and props.
+      // Also specify the camera matrix.
+      game_state_.PopulateScene(&scene_);
 
-    // Render any UI/HUD/Splash on top.
-    Render2DElements();
+      // Issue draw calls for the 'scene'.
+      Render(scene_);
 
-    // Output debug information.
-    if (config.print_character_states()) {
-      DebugPrintCharacterStates();
+      // Render any UI/HUD/Splash on top.
+      Render2DElements();
+
+      // Output debug information.
+      if (config.print_character_states()) {
+        DebugPrintCharacterStates();
+      }
+      if (config.print_pie_states()) {
+        DebugPrintPieStates();
+      }
+      if (config.allow_camera_movement()) {
+        DebugCamera();
+      }
+
+      // Remember the real-world time from this frame.
+      prev_world_time_ = world_time;
+
+      // Advance to the next play state, if required.
+      const SplatState next_state = UpdateSplatState();
+      if (next_state != state_) {
+        TransitionToSplatState(next_state);
+      }
+
+#     ifdef PLATFORM_MOBILE
+      // For testing,
+      // we'll check if a sixth finger went down on the touch screen,
+      // if so we update the leaderboards and show the UI:
+      if (input_.GetButton(SDLK_POINTER6).went_down()) {
+        UploadStats();
+        // For testing, show UI:
+        gpg_manager.ShowLeaderboards();
+      }
+      gpg_manager.Update();
+#     endif
+    } else {
+      // Textures are still loading. Display a loading screen.
+      auto mat = matman_.FindMaterial(config.loading_material()->c_str());
+      assert(mat);
+      // If even the loading texture hasn't loaded yet, remain on a black
+      // screen, otherwise render it spinning.
+      if (mat->textures()[0]->id()) {
+        auto res = renderer_.window_size();
+        auto ortho_mat = mathfu::OrthoHelper<float>(
+            0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()),
+            0.0f, -1.0f, 1.0f);
+        auto rot_mat = mat3::RotationZ(input_.Time() * 3.0f);
+        auto mid = res / 2;
+        renderer_.model_view_projection() =
+            ortho_mat * mat4::FromTranslationVector(vec3(mid.x(), mid.y(), 0)) * mat4::FromRotationMatrix(rot_mat);
+        auto extend = vec2(mat->textures()[0]->size());
+        mat->Set(renderer_);
+        shader_textured_->Set(renderer_);
+        Mesh::RenderAAQuadAlongX(
+              vec3(-extend.x(),  extend.y(), 0),
+              vec3( extend.x(), -extend.y(), 0),
+              vec2(0, 1), vec2(1, 0));
+      }
     }
-    if (config.print_pie_states()) {
-      DebugPrintPieStates();
-    }
-    if (config.allow_camera_movement()) {
-      DebugCamera();
-    }
-
-    // Remember the real-world time from this frame.
-    prev_world_time_ = world_time;
-
-    // Advance to the next play state, if required.
-    const SplatState next_state = UpdateSplatState();
-    if (next_state != state_) {
-      TransitionToSplatState(next_state);
-    }
-
-#   ifdef PLATFORM_MOBILE
-    // For testing,
-    // we'll check if a sixth finger went down on the touch screen,
-    // if so we update the leaderboards and show the UI:
-    if (input_.GetButton(SDLK_POINTER6).went_down()) {
-      UploadStats();
-      // For testing, show UI:
-      gpg_manager.ShowLeaderboards();
-    }
-    gpg_manager.Update();
-#   endif
   }
 }
 

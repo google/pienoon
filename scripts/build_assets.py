@@ -189,7 +189,7 @@ def convert_json_to_flatbuffer_binary(json, schema, out_dir):
   Raises:
     BuildError: Process return code was nonzero.
   """
-  command = [FLATC, '-H', '-o', out_dir, '-b', schema, json]
+  command = [FLATC, '-o', out_dir, '-b', schema, json]
   run_subprocess(command)
 
 

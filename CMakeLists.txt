@@ -149,6 +149,8 @@ endif()
 set(splat_SRCS
     src/ai_controller.cpp
     src/ai_controller.h
+    src/async_loader.h
+    src/async_loader.cpp
     src/angle.h
     src/audio_engine.cpp
     src/audio_engine.h

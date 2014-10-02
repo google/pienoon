@@ -68,29 +68,18 @@ Texture *MaterialManager::FindTexture(const char *filename) {
 Texture *MaterialManager::LoadTexture(const char *filename) {
   auto tex = FindTexture(filename);
   if (tex) return tex;
-  std::string file;
-  if (LoadFile(filename, &file)) {
-    std::string ext = filename;
-    size_t ext_pos = ext.find_last_of(".");
-    if (ext_pos != std::string::npos) ext = ext.substr(ext_pos + 1);
-    if (ext == "tga") {
-      tex = renderer_.CreateTextureFromTGAMemory(file.c_str());
-    } else if (ext == "webp") {
-      tex = renderer_.CreateTextureFromWebpMemory(file.c_str(), file.length());
-    } else {
-      renderer_.last_error() =
-        std::string("Can\'t figure out file type from extension: ") + filename;
-      return nullptr;
-    }
-    if (tex) {
-      texture_map_[filename] = tex;
-    } else {
-      renderer_.last_error() = std::string("file format problem: ") + filename;
-    }
-    return tex;
-  }
-  renderer_.last_error() = std::string("Couldn\'t load: ") + filename;
-  return nullptr;
+  tex = new Texture(renderer_, filename);
+  loader_.QueueJob(tex);
+  texture_map_[filename] = tex;
+  return tex;
+}
+
+void MaterialManager::StartLoadingTextures() {
+  loader_.StartLoading();
+}
+
+bool MaterialManager::TryFinalize() {
+  return loader_.TryFinalize();
 }
 
 Material *MaterialManager::FindMaterial(const char *filename) {
@@ -111,12 +100,6 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
     for (auto it = matdef->texture_filenames()->begin();
              it != matdef->texture_filenames()->end(); ++it) {
       auto tex = LoadTexture(it->c_str());
-      if (!tex) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Texture: %s",
-                     renderer_.last_error().c_str());
-        delete mat;
-        return nullptr;
-      }
       mat->textures().push_back(tex);
     }
     material_map_[filename] = mat;

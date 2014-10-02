@@ -17,6 +17,7 @@
 
 #include "renderer.h"
 #include "common.h"
+#include "async_loader.h"
 
 namespace fpl {
 
@@ -32,11 +33,20 @@ class MaterialManager {
   // If this returns nullptr, the error can be found in Renderer::last_error().
   Shader *LoadShader(const char *basename);
 
-  // Returns a previously loaded texture, or nullptr.
+  // Returns a previously created texture, or nullptr.
   Texture *FindTexture(const char *filename);
-  // Loads a texture if it hasn't been loaded already. Currently only supports
-  // TGA format files. nullptr if the file couldn't be read.
+  // Queue's a texture for loading if it hasn't been loaded already.
+  // Currently only supports TGA/WebP format files.
+  // Returned texture isn't usable until TryFinalize() succeeds and the id
+  // is non-zero.
   Texture *LoadTexture(const char *filename);
+  // LoadTextures doesn't actually load anything, this will start the async
+  // loading of all files, and decompression.
+  void StartLoadingTextures();
+  // Call this repeatedly until it returns true, which signals all textures
+  // will have loaded, and turned into OpenGL textures.
+  // Textures with a 0 id will have failed to load.
+  bool TryFinalize();
 
   // Returns a previously loaded material, or nullptr.
   Material *FindMaterial(const char *filename);
@@ -56,6 +66,7 @@ class MaterialManager {
   std::map<std::string, Shader *> shader_map_;
   std::map<std::string, Texture *> texture_map_;
   std::map<std::string, Material *> material_map_;
+  AsyncLoader loader_;
 };
 
 }  // namespace fpl

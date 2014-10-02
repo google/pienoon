@@ -363,6 +363,9 @@
   "stick_back_z_offset": -0.09,
   "stick_front": "materials/stick.bin",
   "stick_back": "materials/stick_back.bin",
+  "stick_bounds": { "x": 64, "y": 256 },
+
+  "loading_material": "materials/loading.bin",
 
   "ui_arrow_offset": { "x": 1, "y": 0.1, "z": -2 },
   "ui_arrow_scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
@@ -754,7 +757,8 @@
   "renderables": [
     {
       "id": "Invalid",
-      "cardboard_front": "materials/invalid.bin"
+      "cardboard_front": "materials/invalid.bin",
+      "pixel_bounds": { "x": 256, "y": 512 }
     },
     {
       "id": "CharacterIdle",
@@ -920,6 +924,7 @@
       "id": "PieSmall",
       "cardboard_front": "materials/pie_small.bin",
       "offset": { "x": 0.0, "y": -0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 64 },
       "shadow": true,
       "cardboard": true
     },
@@ -927,6 +932,7 @@
       "id": "PieMedium",
       "cardboard_front": "materials/pie_medium.bin",
       "offset": { "x": 0.0, "y": -0.3, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 256 },
       "shadow": true,
       "cardboard": true
     },
@@ -949,16 +955,19 @@
     },
     {
       "id": "EnvironmentSky",
-      "cardboard_front": "materials/environment_sky.bin"
+      "cardboard_front": "materials/environment_sky.bin",
+      "pixel_bounds": { "x": 4096, "y": 2048 }
     },
     {
       "id": "EnvironmentCloud",
       "cardboard_front": "materials/environment_cloud.bin",
+      "pixel_bounds": { "x": 1024, "y": 512 },
       "cardboard": true
     },
     {
       "id": "EnvironmentCloudShadow",
-      "cardboard_front": "materials/environment_cloud_shadow.bin"
+      "cardboard_front": "materials/environment_cloud_shadow.bin",
+      "pixel_bounds": { "x": 1024, "y": 1024 }
     },
     {
       "id": "EnvironmentSun",
@@ -984,37 +993,45 @@
     {
       "id": "EnvironmentBush",
       "cardboard_front": "materials/environment_bush.bin",
+      "pixel_bounds": { "x": 512, "y": 256 },
       "shadow": true,
       "cardboard": true
     },
     {
       "id": "EnvironmentString",
       "cardboard_front": "materials/environment_string.bin",
+      "pixel_bounds": { "x": 32, "y": 128 },
       "geometry_scale": 0.625 // 20 / 32
     },
     {
       "id": "EnvironmentStageFront",
-      "cardboard_front": "materials/environment_stage_front.bin"
+      "cardboard_front": "materials/environment_stage_front.bin",
+      "pixel_bounds": { "x": 4096, "y": 512 }
     },
     {
       "id": "EnvironmentStageGround",
-      "cardboard_front": "materials/environment_stage_ground.bin"
+      "cardboard_front": "materials/environment_stage_ground.bin",
+      "pixel_bounds": { "x": 4096, "y": 1024 }
     },
     {
       "id": "EnvironmentStageEdge",
-      "cardboard_front": "materials/environment_stage_edge.bin"
+      "cardboard_front": "materials/environment_stage_edge.bin",
+      "pixel_bounds": { "x": 256, "y": 512 }
     },
     {
       "id": "EnvironmentStoreFront",
-      "cardboard_front": "materials/environment_store_front.bin"
+      "cardboard_front": "materials/environment_store_front.bin",
+      "pixel_bounds": { "x": 2048, "y": 1024 }
     },
     {
       "id": "EnvironmentStoreRoom",
-      "cardboard_front": "materials/environment_store_room.bin"
+      "cardboard_front": "materials/environment_store_room.bin",
+      "pixel_bounds": { "x": 2048, "y": 1024 }
     },
     {
       "id": "EnvironmentAmbientOcclusionShadow",
-      "cardboard_front": "materials/environment_ambient_occlusion_shadow.bin"
+      "cardboard_front": "materials/environment_ambient_occlusion_shadow.bin",
+      "pixel_bounds": { "x": 256, "y": 128 }
     },
     {
       "id": "Splatter1",
@@ -1042,15 +1059,18 @@
     },
     {
       "id": "Health",
-      "cardboard_front": "materials/health.bin"
+      "cardboard_front": "materials/health.bin",
+      "pixel_bounds": { "x": 256, "y": 256 }
     },
     {
       "id": "UiArrow",
-      "cardboard_front": "materials/arrow.bin"
+      "cardboard_front": "materials/arrow.bin",
+      "pixel_bounds": { "x": 1024, "y": 1024 }
     },
     {
       "id": "Pixel1x1",
-      "cardboard_front": "materials/pixel1x1.bin"
+      "cardboard_front": "materials/pixel1x1.bin",
+      "pixel_bounds": { "x": 1, "y": 1 }
     }
   ],
 

@@ -21,10 +21,10 @@ void TouchscreenButton::Render(Renderer& renderer) {
   const vec2 window_size = vec2(renderer.window_size());
   Material* mat = button_state_ ? down_material_ : up_material_;
 
-  vec3 texture_size = vec3(mat->textures()[0]->size.x() *
+  vec3 texture_size = vec3(mat->textures()[0]->size().x() *
       (button_state_ ? button_def_->draw_scale_pressed()->x() :
                        button_def_->draw_scale_normal()->x()),
-      -mat->textures()[0]->size.y() *
+      -mat->textures()[0]->size().y() *
       (button_state_ ? button_def_->draw_scale_pressed()->y() :
                        button_def_->draw_scale_normal()->y()), 0);
 

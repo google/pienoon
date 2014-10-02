@@ -1,0 +1,7 @@
+{
+  texture_filenames: [
+    "textures/pie_level01.webp"
+  ],
+  "blendmode": "ALPHA"
+}
+

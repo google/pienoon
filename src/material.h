@@ -16,6 +16,7 @@
 #define FPL_MATERIAL_H
 
 #include "shader.h"
+#include "async_loader.h"
 
 namespace fpl {
 
@@ -29,11 +30,24 @@ enum BlendMode {
   kBlendModeCount // Must be at end.
 };
 
-struct Texture {
-  Texture(GLuint _id, const vec2i &_size) : id(_id), size(_size) {}
+class Texture : public AsyncResource {
+ public:
+  Texture(Renderer &renderer, const std::string &filename)
+    : AsyncResource(filename), renderer_(renderer), id_(0),
+      size_(mathfu::kZeros2i) {}
 
-  GLuint id;
-  vec2i size;
+  virtual void Load();
+  virtual void Finalize();
+
+  GLuint id() { return id_; }
+  vec2i size() { return size_; }
+  const vec2i size() const { return size_; }
+
+ private:
+  Renderer &renderer_;
+
+  GLuint id_;
+  vec2i size_;
 };
 
 class Material {

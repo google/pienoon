@@ -14,6 +14,7 @@
 
 #include "precompiled.h"
 #include "renderer.h"
+#include "utilities.h"
 
 #include "webp/decode.h"
 
@@ -219,13 +220,13 @@ uint16_t *Renderer::Convert8888To5551(const uint8_t *buffer,
   return buffer16;
 }
 
-Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
+GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   int area = size.x() * size.y();
   if (area & (area - 1)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "CreateTexture: not power of two in size: (%d,%d)",
                  size.x(), size.y());
-    return NULL;
+    return 0;
   }
   // TODO: support default args for mipmap/wrap
   GLuint texture_id;
@@ -247,10 +248,10 @@ Texture *Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
                        GL_RGBA, GL_UNSIGNED_BYTE, buffer));
 #endif
   GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-  return new Texture(texture_id, size);
+  return texture_id;
 }
 
-Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
+uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions) {
   struct TGA {
     unsigned char id_len, color_map_type, image_type, color_map_data[5];
     unsigned short x_origin, y_origin, width, height;
@@ -270,7 +271,7 @@ Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
   auto pixels = reinterpret_cast<const unsigned char *>(header + 1);
   pixels += header->id_len;
   int size = header->width * header->height;
-  auto rgba = new unsigned char[size * 4];
+  auto rgba = reinterpret_cast<uint8_t *>(malloc(size * 4));
   int start_y, end_y, y_direction;
   if (header->image_descriptor & 0x20)  // y is not flipped
   {
@@ -291,18 +292,41 @@ Texture *Renderer::CreateTextureFromTGAMemory(const void *tga_buf) {
       p[3] = header->bpp == 32 ? *pixels++ : 255;
     }
   }
-  auto tex = CreateTexture(rgba, vec2i(header->width, header->height));
-  delete[] rgba;
-  return tex;
+  *dimensions = vec2i(header->width, header->height);
+  return rgba;
 }
 
-Texture *Renderer::CreateTextureFromWebpMemory(const void *webp_buf,
-                                               size_t size) {
-  int width = 0, height = 0;
-  auto data = WebPDecodeRGBA(static_cast<const uint8_t *>(webp_buf), size,
-                             &width, &height);
-  return data ? CreateTexture(data, vec2i(width, height)) : nullptr;
+uint8_t *Renderer::UnpackWebP(const void *webp_buf, size_t size,
+                              vec2i *dimensions) {
+  return WebPDecodeRGBA(static_cast<const uint8_t *>(webp_buf), size,
+                        &dimensions->x(), &dimensions->y());
 }
+
+uint8_t *Renderer::LoadAndUnpackTexture(const char *filename,
+                                        vec2i *dimensions) {
+  std::string file;
+  if (LoadFile(filename, &file)) {
+    std::string ext = filename;
+    size_t ext_pos = ext.find_last_of(".");
+    if (ext_pos != std::string::npos) ext = ext.substr(ext_pos + 1);
+    if (ext == "tga") {
+      auto buf = UnpackTGA(file.c_str(), dimensions);
+      if (!buf) last_error() = std::string("TGA format problem: ") + filename;
+      return buf;
+    } else if (ext == "webp") {
+      auto buf = UnpackWebP(file.c_str(), file.length(), dimensions);
+      if (!buf) last_error() = std::string("WebP format problem: ") + filename;
+      return buf;
+    } else {
+      last_error() =
+        std::string("Can\'t figure out file type from extension: ") + filename;
+      return nullptr;
+    }
+  }
+  last_error() = std::string("Couldn\'t load: ") + filename;
+  return nullptr;
+}
+
 
 void Renderer::DepthTest(bool on) {
   if (on) {

@@ -390,6 +390,10 @@ table Config {
   // 'cardboard_back'.
   stick_back:string;
 
+  stick_bounds:Vec2;
+
+  loading_material:string;
+
   // Offset of UI arrow from the character. Z is forward. X is side. Y is up.
   ui_arrow_offset:Vec3;
 

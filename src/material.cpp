@@ -18,11 +18,27 @@
 
 namespace fpl {
 
+void Texture::Load() {
+  data_ = renderer_.LoadAndUnpackTexture(filename_.c_str(), &size_);
+  if (!data_) {
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "texture load: %s: %s",
+                filename_.c_str(), renderer_.last_error().c_str());
+  }
+}
+
+void Texture::Finalize() {
+  if (data_) {
+    id_ = renderer_.CreateTexture(data_, size_);
+    free(data_);
+    data_ = nullptr;
+  }
+}
+
 void Material::Set(Renderer &renderer) {
   renderer.SetBlendMode(blend_mode_);
   for (size_t i = 0; i < textures_.size(); i++) {
     GL_CALL(glActiveTexture(GL_TEXTURE0 + i));
-    GL_CALL(glBindTexture(GL_TEXTURE_2D, textures_[i]->id));
+    GL_CALL(glBindTexture(GL_TEXTURE_2D, textures_[i]->id()));
   }
 }
 
