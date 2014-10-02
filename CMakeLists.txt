@@ -131,7 +131,7 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
     OUTPUT ${flatbuffers_include}
     COMMAND flatc -H -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -c ${flatbuffers_schema}
-    DEPENDS flatc ${flatbuffers_schema} ${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+    DEPENDS flatc ${flatbuffers_schema})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
