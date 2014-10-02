@@ -29,25 +29,30 @@ import platform
 import subprocess
 import sys
 
+# The project root directory, which is one level up from this script's
+# directory.
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                            os.path.pardir))
+
 # Directories that may contains the FlatBuffers compiler.
 FLATBUFFERS_PATHS = [
-    os.path.join(os.getcwd(), 'bin'),
-    os.path.join(os.getcwd(), 'bin', 'Release'),
-    os.path.join(os.getcwd(), 'bin', 'Debug'),
+    os.path.join(PROJECT_ROOT, 'bin'),
+    os.path.join(PROJECT_ROOT, 'bin', 'Release'),
+    os.path.join(PROJECT_ROOT, 'bin', 'Debug'),
 ]
 
 # Directory that contains the cwebp tool.
 CWEBP_PATHS = [
-    os.path.join(os.getcwd(), 'bin'),
-    os.path.join(os.getcwd(), 'bin', 'Release'),
-    os.path.join(os.getcwd(), 'bin', 'Debug'),
+    os.path.join(PROJECT_ROOT, 'bin'),
+    os.path.join(PROJECT_ROOT, 'bin', 'Release'),
+    os.path.join(PROJECT_ROOT, 'bin', 'Debug'),
 ]
 
 # Directory to place processed assets.
-ASSETS_PATH = os.path.join(os.getcwd(), 'assets')
+ASSETS_PATH = os.path.join(PROJECT_ROOT, 'assets')
 
 # Directory where unprocessed assets can be found.
-RAW_ASSETS_PATH = os.path.join(os.getcwd(), 'src', 'rawassets')
+RAW_ASSETS_PATH = os.path.join(PROJECT_ROOT, 'src', 'rawassets')
 
 # Directory where processed sound flatbuffer data can be found.
 SOUND_PATH = os.path.join(ASSETS_PATH, 'sounds')
@@ -68,7 +73,7 @@ TEXTURE_PATH = os.path.join(ASSETS_PATH, 'textures')
 RAW_TEXTURE_PATH = os.path.join(RAW_ASSETS_PATH, 'textures')
 
 # Directory where unprocessed assets can be found.
-SCHEMA_PATH = os.path.join(os.getcwd(), 'src', 'flatbufferschemas')
+SCHEMA_PATH = os.path.join(PROJECT_ROOT, 'src', 'flatbufferschemas')
 
 # Windows uses the .exe extension on executables.
 EXECUTABLE_EXTENSION = '.exe' if platform.system() == 'Windows' else ''
@@ -134,9 +139,9 @@ def processed_texture_path(path):
 # PNG files to convert to webp.
 PNG_TEXTURES = {
     'input_files': glob.glob(os.path.join(RAW_TEXTURE_PATH, '*.png')),
-    'output_files': [processed_texture_path(path)
-                     for path in glob.glob(os.path.join(RAW_TEXTURE_PATH,
-                                                        '*.png'))]
+    'output_files': [processed_texture_path(png_path)
+                     for png_path in glob.glob(os.path.join(RAW_TEXTURE_PATH,
+                                                            '*.png'))]
 }
 
 
@@ -272,7 +277,7 @@ def clean():
 
 
 def handle_build_error(error):
-  """Prints an error message to stderr for BuildErrors"""
+  """Prints an error message to stderr for BuildErrors."""
   sys.stderr.write('Error running command `%s`. Returned %s.\n' % (
       ' '.join(error.argv), str(error.error_code)))
 
@@ -293,7 +298,7 @@ def main(argv):
     Returns 0 on success.
   """
   target = argv[1] if len(argv) >= 2 else 'all'
-  if not target in ('all', 'flatbuffers', 'webp', 'clean'):
+  if target not in ('all', 'flatbuffers', 'webp', 'clean'):
     sys.stderr.write('No rule to build target %s.\n' % target)
 
   if target in ('all', 'flatbuffers'):
