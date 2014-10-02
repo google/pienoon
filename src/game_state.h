@@ -40,6 +40,9 @@ class GameState {
   GameState();
   ~GameState();
 
+  // Returns true if the game has reached it's end-game condition.
+  bool IsGameOver() const;
+
   // Return to default configuration.
   void Reset();
 
@@ -67,10 +70,9 @@ class GameState {
   // By default counts both human players and AI.
   int NumActiveCharacters(bool human_only = false) const;
 
-  // Returns the id of the winning character, or -1 if no one has won the game.
-  // Note that not all games have a winner. Some games may end with everyone
-  // KO'd.
-  CharacterId WinningCharacterId() const;
+  // Determines which characters are the winners and losers, and increments
+  // their stats appropriately.
+  void DetermineWinnersAndLosers();
 
   // Returns true if the character cannot turn, either because the
   // character has only one valid direction to face, or because the
@@ -106,7 +108,8 @@ private:
   void ProcessSounds(AudioEngine* audio_engine,
                      const Character& character,
                      WorldTime delta_time) const;
-  void CreatePie(CharacterId source_id, CharacterId target_id, int damage);
+  void CreatePie(CharacterId original_source_id, CharacterId source_id,
+                 CharacterId target_id, int damage);
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
   void ProcessEvent(Character* character,
                     unsigned int event,
@@ -136,6 +139,10 @@ private:
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
 
   WorldTime time_;
+  // countdown_time_ is in seconds and is derived from the length of the game
+  // given in the config file minus the duration of the current game given in
+  // the time_ variable.
+  int countdown_timer_;
   mathfu::vec3 camera_position_;
   mathfu::vec3 camera_target_;
   std::vector<std::unique_ptr<Character>> characters_;

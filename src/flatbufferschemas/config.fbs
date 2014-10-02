@@ -16,6 +16,7 @@ include "splat_common.fbs";
 include "audio_config.fbs";
 include "impel.fbs";
 include "particles.fbs";
+include "scoring_rules.fbs";
 
 namespace fpl.splat;
 
@@ -35,6 +36,17 @@ enum ButtonInputType : ushort (bit_flags) {
   Right,
   Attack,
   Defend
+}
+
+enum GameMode : ushort {
+  // Game ends when one player is left standing.
+  Survival,
+
+  // Game is over when timer runs down, highest score wins.
+  HighScore,
+
+  // First player to reach a certain score wins.
+  ReachTarget
 }
 
 // Used for defining zones for the touch controller.
@@ -203,6 +215,9 @@ table Config {
   // This modulates the primary colors
   character_global_brightness_factor:float;
 
+  // Scoring rules.
+  scoring_rules:ScoringRules;
+
   // Audio engine configuration.
   audio:AudioConfig;
 
@@ -215,8 +230,19 @@ table Config {
   // The positions of the light sources.
   light_positions:[Vec3];
 
+  // Controls the end game victory and loss conditions.
+  game_mode:GameMode;
+
   // How much health a player has. Some pies may do more damage than others.
+  // Only used in Survival mode.
   character_health:int;
+
+  // How long the game should run. Only used in HighScore mode.
+  game_time:int;
+
+  // First player to reach this score wins the game. Only used in ReachTarget
+  // mode.
+  target_score:int;
 
   // How long it takes for a pie to reach it's target. Note that this is not
   // the same as speed; throwing a pie at someone diagonal to you will take the

@@ -86,6 +86,8 @@ typedef mathfu::Quaternion<float> Quat;
 // 1 WorldTime = 1 millisecond.
 typedef int WorldTime;
 
+const int kMillisecondsPerSecond = 1000;
+
 typedef int CharacterId;
 
 typedef int ControllerId;

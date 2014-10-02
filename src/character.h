@@ -115,6 +115,9 @@ class Character {
   void IncrementStat(PlayerStats stat);
   uint64_t GetStat(PlayerStats stat) { return player_stats_[stat]; }
 
+  void set_score(int score) { score_ = score; }
+  int score() { return score_; }
+
  private:
   // Constant configuration data.
   const Config* config_;
@@ -146,15 +149,20 @@ class Character {
 
   // The stats we're collecting (see PlayerStats enum above).
   int64_t player_stats_[kMaxStats];
+
+  // The score of the current player for this round (separate from stats because
+  // it is not a persisted value.
+  int score_;
 };
 
 
 class AirbornePie {
  public:
-  AirbornePie(CharacterId source, CharacterId target, WorldTime start_time,
-              WorldTime flight_time, CharacterHealth damage, float height,
-              int rotations);
+  AirbornePie(CharacterId original_source, CharacterId source,
+              CharacterId target, WorldTime start_time, WorldTime flight_time,
+              CharacterHealth damage, float height, int rotations);
 
+  CharacterId original_source() const { return original_source_; }
   CharacterId source() const { return source_; }
   CharacterId target() const { return target_; }
   WorldTime start_time() const { return start_time_; }
@@ -169,6 +177,7 @@ class AirbornePie {
   mathfu::mat4 CalculateMatrix() const;
 
  private:
+  CharacterId original_source_;
   CharacterId source_;
   CharacterId target_;
   WorldTime start_time_;
@@ -225,6 +234,9 @@ inline std::vector<int> TimelineIndicesWithTime(const T& arr,
   }
   return ret;
 }
+
+void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,
+                      unsigned int damage, Character* character);
 
 }  // splat
 }  // fpl

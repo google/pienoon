@@ -172,6 +172,40 @@
     }
   ],
 
+  "game_mode": "Survival",
+  "game_time": 20000,
+  "character_health": 10,
+  "target_score": 10,
+
+  "scoring_rules": {
+    "rules": [
+      {
+        "event": "ThrewPie",
+        "reward_type": "None"
+      },
+      {
+        // You lose points for getting hit.
+        "event": "HitByPie",
+        "reward_type": "AddPointValue",
+        "point_value": -1
+      },
+      {
+        "event": "DeflectedPie",
+        "reward_type": "None"
+      },
+      {
+        // A pie you created hit someone.
+        "event": "YourPieHitSomeone",
+        "reward_type": "None"
+      },
+      {
+        // A pie that you most recently interacted with hit someone.
+        "event": "HitSomeoneWithPie",
+        "reward_type": "AddDamage"
+      }
+    ]
+  },
+
   "number_of_keyboard_controllers": 1,
 
   "character_colors": [
@@ -251,7 +285,6 @@
   "light_positions": [
       { "x": -50.0, "y": 300.0, "z": -200.0 }
     ],
-  "character_health": 10,
   "pie_flight_time": 500,
   "pie_rotations": 0,
   "pie_rotation_variance": 1,

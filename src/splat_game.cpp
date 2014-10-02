@@ -671,8 +671,7 @@ SplatState SplatGame::UpdateSplatState() {
     case kPlaying:
       // When we're down to 0 human active players, or <=1 active characters,
       // the game's over.
-      if (game_state_.NumActiveCharacters(true) == 0 ||
-          game_state_.NumActiveCharacters(false) <= 1)
+      if (game_state_.IsGameOver())
         return kFinished;
       break;
 
@@ -701,17 +700,9 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
       break;
 
     case kFinished:
+      game_state_.DetermineWinnersAndLosers();
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
-        if (character->health() > 0) {
-          character->IncrementStat(kWins);
-        } else {
-          // TODO: for draws, this does not account for which players exactly
-          // died simultanously.
-          character->IncrementStat(game_state_.NumActiveCharacters(false) == 0
-                                   ? kDraws
-                                   : kLosses);
-        }
         if (character->controller()->controller_type() != Controller::kTypeAI) {
           // Assign characters AI characters while the menu is up.
           // Players will have to press A again to get themselves re-assigned.

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "precompiled.h"
+#include "common.h"
 #include "game_state.h"
 #include "character_state_machine.h"
 #include "impel_flatbuffers.h"
@@ -46,6 +47,7 @@ static const mat4 kRotate90DegreesAboutXAxis(1,  0, 0, 0,
 
 // The data on a pie that just hit a player this frame
 struct ReceivedPie {
+  CharacterId original_source_id;
   CharacterId source_id;
   CharacterId target_id;
   CharacterHealth damage;
@@ -135,6 +137,29 @@ void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
   }
 }
 
+// Returns true if the game is over.
+bool GameState::IsGameOver() const {
+  switch (config_->game_mode()) {
+    case GameMode_Survival: {
+      return NumActiveCharacters(true) == 0 || NumActiveCharacters(false) <= 1;
+    }
+    case GameMode_HighScore: {
+      return time_ >= config_->game_time();
+    }
+    case GameMode_ReachTarget: {
+      const CharacterId num_ids = static_cast<CharacterId>(characters_.size());
+      for (CharacterId id = 0; id < num_ids; ++id) {
+        const auto& character = characters_[id];
+        if (character->score() >= config_->target_score()) {
+          return true;
+        }
+      }
+      break;
+    }
+  }
+  return false;
+}
+
 // Reset the game back to initial configuration.
 void GameState::Reset() {
   time_ = 0;
@@ -202,7 +227,8 @@ void GameState::ProcessSounds(AudioEngine* audio_engine,
   }
 }
 
-void GameState::CreatePie(CharacterId source_id,
+void GameState::CreatePie(CharacterId original_source_id,
+                          CharacterId source_id,
                           CharacterId target_id,
                           CharacterHealth damage) {
   float height = config_->pie_arc_height();
@@ -212,8 +238,8 @@ void GameState::CreatePie(CharacterId source_id,
   int variance = config_->pie_rotation_variance();
   rotations += variance ? (rand() % (variance * 2)) - variance : 0;
   pies_.push_back(std::unique_ptr<AirbornePie>(
-      new AirbornePie(source_id, target_id, time_, config_->pie_flight_time(),
-                      damage, height, rotations)));
+      new AirbornePie(original_source_id, source_id, target_id, time_,
+                      config_->pie_flight_time(), damage, height, rotations)));
   UpdatePiePosition(pies_.back().get());
 }
 
@@ -243,10 +269,18 @@ void GameState::ProcessEvent(Character* character,
       CharacterHealth total_damage = 0;
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
-        character->set_health(character->health() - pie.damage);
         characters_[pie.source_id]->IncrementStat(kHits);
         CreatePieSplatter(character->id(), pie.damage);
         total_damage += pie.damage;
+        if (config_->game_mode() == GameMode_Survival) {
+          character->set_health(character->health() - pie.damage);
+        }
+        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitByPie,
+                         pie.damage, character);
+        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitSomeoneWithPie,
+                         pie.damage, characters_[pie.source_id].get());
+        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_YourPieHitSomeone,
+                         pie.damage, characters_[pie.original_source_id].get());
       }
 
       // Shake the nearby props. Amount of shake is a function of damage.
@@ -256,8 +290,11 @@ void GameState::ProcessEvent(Character* character,
       break;
     }
     case EventId_ReleasePie: {
-      CreatePie(character->id(), character->target(), character->pie_damage());
+      CreatePie(character->id(), character->id(), character->target(),
+                character->pie_damage());
       character->IncrementStat(kAttacks);
+      ApplyScoringRule(config_->scoring_rules(), ScoreEvent_ThrewPie,
+                       character->pie_damage(), character);
       break;
     }
     case EventId_DeflectPie: {
@@ -266,13 +303,15 @@ void GameState::ProcessEvent(Character* character,
         const CharacterHealth deflected_pie_damage =
             pie.damage + config_->pie_damage_change_when_deflected();
         if (deflected_pie_damage > 0) {
-          CreatePie(character->id(), DetermineDeflectionTarget(pie),
-                    deflected_pie_damage);
+          CreatePie(pie.source_id, character->id(),
+                    DetermineDeflectionTarget(pie), pie.damage);
         } else {
           CreatePieSplatter(character->id(), 1);
         }
         character->IncrementStat(kBlocks);
         characters_[pie.source_id]->IncrementStat(kMisses);
+        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_DeflectedPie,
+                         character->pie_damage(), character);
       }
     }
     case EventId_LoadPie: {
@@ -395,21 +434,73 @@ uint16_t GameState::CharacterState(CharacterId id) const {
   return characters_[id]->State();
 }
 
-// Return the id of the character who has won the game, if such a character
-// exists. If no character has won, return -1.
-CharacterId GameState::WinningCharacterId() const {
-  // Find the id of the one-and-only character who is still active.
-  CharacterId win_id = -1;
-  for (size_t i = 0; i < characters_.size(); ++i) {
-    const auto& character = characters_[i];
-    if (character->Active()) {
-      if (win_id < 0)
-        win_id = character->id();
-      else
-        return -1; // More than one character still active, so no winner yet.
+static bool CharacterScore(const std::unique_ptr<Character>& a,
+                           const std::unique_ptr<Character>& b) {
+  return a->score() < b->score();
+}
+
+void GameState::DetermineWinnersAndLosers() {
+  // This code assumes we've verified that the game is over.
+  switch (config_->game_mode()) {
+    case GameMode_Survival: {
+      for (size_t i = 0; i < characters_.size(); ++i) {
+        const auto& character = characters_[i];
+        if (character->Active()) {
+          character->IncrementStat(kWins);
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                      "Player %i wins!\n", static_cast<int>(i) + 1);
+        } else {
+          character->IncrementStat(kLosses);
+        }
+      }
+      break;
+    }
+    case GameMode_HighScore: {
+      if (time_ >= config_->game_time()) {
+        const auto it = std::max_element(
+            characters_.begin(), characters_.end(), CharacterScore);
+        int high_score = (*it)->score();
+        for (size_t i = 0; i < characters_.size(); ++i) {
+          const auto& character = characters_[i];
+          if (character->score() == high_score) {
+            character->IncrementStat(kWins);
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                        "Player %i wins!\n", static_cast<int>(i) + 1);
+          } else {
+            character->IncrementStat(kLosses);
+          }
+        }
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
+        for (size_t i = 0; i < characters_.size(); ++i) {
+          const auto& character = characters_[i];
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                      "  Player %i: %i\n", static_cast<int>(i) + 1,
+                      character->score());
+        }
+      }
+      break;
+    }
+    case GameMode_ReachTarget: {
+      for (size_t i = 0; i < characters_.size(); ++i) {
+        const auto& character = characters_[i];
+        if (character->score() >= config_->target_score()) {
+          character->IncrementStat(kWins);
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                      "Player %i wins!\n", static_cast<int>(i) + 1);
+        } else {
+          character->IncrementStat(kLosses);
+        }
+      }
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
+      for (size_t i = 0; i < characters_.size(); ++i) {
+        const auto& character = characters_[i];
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "  Player %i: %i\n", static_cast<int>(i) + 1,
+                    character->score());
+      }
+      break;
     }
   }
-  return win_id;
 }
 
 int GameState::NumActiveCharacters(bool human_only) const {
@@ -599,6 +690,14 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // delta_time. For example, GetAnimationTime needs to compare against the
   // time for *this* frame, not last frame.
   time_ += delta_time;
+  if (config_->game_mode() == GameMode_HighScore) {
+    int countdown = (config_->game_time() - time_) / kMillisecondsPerSecond;
+    if (countdown != countdown_timer_) {
+      countdown_timer_ = countdown;
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                  "Timer remaining: %i\n", countdown_timer_);
+    }
+  }
   if (NumActiveCharacters(true) == 0) {
     SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
   }
@@ -607,7 +706,8 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   std::vector<EventData> event_data(characters_.size());
 
   // Update controller to gather state machine inputs.
-  const CharacterId win_id = WinningCharacterId();
+  // TODO(amablue): Win conditions have become more complicated - add a way to
+  // transition to the win state when time allows.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
     auto& character = characters_[i];
     Controller* controller = character->controller();
@@ -615,11 +715,10 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
         character->state_machine()->current_state()->timeline();
     controller->SetLogicalInputs(LogicalInputs_JustHit, false);
     controller->SetLogicalInputs(LogicalInputs_NoHealth,
+                                 config_->game_mode() == GameMode_Survival &&
                                  character->health() <= 0);
     controller->SetLogicalInputs(LogicalInputs_AnimationEnd, timeline &&
         (GetAnimationTime(*character.get()) >= timeline->end_time()));
-    controller->SetLogicalInputs(LogicalInputs_Winning,
-                                 character->id() == win_id);
   }
 
   // Update all the particles.
@@ -635,7 +734,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     if (time_since_launch >= pie->flight_time()) {
       auto& character = characters_[pie->target()];
       ReceivedPie received_pie = {
-        pie->source(), pie->target(), pie->damage()
+        pie->original_source(), pie->source(), pie->target(), pie->damage()
       };
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
@@ -947,8 +1046,10 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       // Splatter and health accessories.
       // First pass through renders splatter accessories.
       // Second pass through renders health accessories.
-      const CharacterHealth health = character->health();
-      const CharacterHealth damage = config_->character_health() - health;
+      const CharacterHealth health =
+          config_->game_mode() == GameMode_Survival ? character->health() : 0;
+      const CharacterHealth damage =
+          config_->character_health() - character->health();
       PopulateCharacterAccessories(scene, renderable_id, character_matrix,
                                    num_accessories, damage, health);
 

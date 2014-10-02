@@ -24,6 +24,7 @@
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
+#include "scoring_rules_generated.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -107,10 +108,12 @@ void Character::IncrementStat(PlayerStats stat) {
 
 
 // orientation_ and position_ are set each frame in GameState::Advance.
-AirbornePie::AirbornePie(CharacterId source, CharacterId target,
-                         WorldTime start_time, WorldTime flight_time,
-                         CharacterHealth damage, float height, int rotations)
-    : source_(source),
+AirbornePie::AirbornePie(CharacterId original_source, CharacterId source,
+                         CharacterId target, WorldTime start_time,
+                         WorldTime flight_time, CharacterHealth damage,
+                         float height, int rotations)
+    : original_source_(original_source),
+      source_(source),
       target_(target),
       start_time_(start_time),
       flight_time_(flight_time),
@@ -124,6 +127,49 @@ AirbornePie::AirbornePie(CharacterId source, CharacterId target,
 mat4 AirbornePie::CalculateMatrix() const {
   return mat4::FromTranslationVector(position_) *
          mat4::FromRotationMatrix(orientation_.ToMatrix());
+}
+
+void ApplyScoringRule(const ScoringRules* scoring_rules,
+                      ScoreEvent event,
+                      unsigned int damage,
+                      Character* character) {
+  const auto* rule = scoring_rules->rules()->Get(event);
+  switch (rule->reward_type()) {
+    case RewardType_None: {
+      break;
+    }
+    case RewardType_AddDamage: {
+      character->set_score(character->score() + damage);
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                  "Player %i got %i %s!\n",
+                  character->id(),
+                  damage,
+                  damage == 1 ? "point" : "points");
+      break;
+    }
+    case RewardType_SubtractDamage: {
+      character->set_score(character->score() - damage);
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                  "Player %i lost %i %s!\n",
+                  character->id(),
+                  damage,
+                  damage == 1 ? "point" : "points");
+      break;
+    }
+    case RewardType_AddPointValue: {
+      character->set_score(character->score() + rule->point_value());
+      if (rule->point_value()) {
+        int points = rule->point_value();
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "Player %i %s %i %s!\n", character->id(),
+                    points > 0 ? "got" : "lost",
+                    std::abs(points),
+                    std::abs(points) == 1? "point" : "points");
+      }
+      break;
+    }
+  }
+
 }
 
 } //  namespace fpl
