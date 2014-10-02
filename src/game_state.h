@@ -38,6 +38,7 @@ struct ReceivedPie;
 class GameState {
  public:
   GameState();
+  ~GameState();
 
   // Return to default configuration.
   void Reset();
@@ -132,6 +133,7 @@ private:
   void CreatePieSplatter(CharacterId id, int damage);
   void SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
                       const int particle_count);
+  void ShakeProps(float percent, const mathfu::vec3& damage_position);
 
   WorldTime time_;
   mathfu::vec3 camera_position_;
@@ -139,6 +141,7 @@ private:
   std::vector<std::unique_ptr<Character>> characters_;
   std::vector<std::unique_ptr<AirbornePie>> pies_;
   impel::ImpelEngine impel_engine_;
+  std::vector<impel::Impeller1f> prop_shake_;
   const Config* config_;
   const CharacterArrangement* arrangement_;
   ParticleManager particle_manager_;

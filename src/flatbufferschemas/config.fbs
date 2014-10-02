@@ -20,7 +20,7 @@ include "particles.fbs";
 namespace fpl.splat;
 
 enum Orientation : ushort {
-  Verticle,
+  Vertical,
   Horizontal
 }
 
@@ -98,6 +98,10 @@ table Prop {
 
   // Scale along each axis. Scale is performed before rotation.
   scale:Vec3;
+
+  // Amount this prop should shake when damage occurs nearby. If 0, never moves.
+  // If 1, moves a lot.
+  shake_scale:float;
 }
 
 table CharacterData {
@@ -274,6 +278,21 @@ table Config {
 
   // Map airborne pie damage to the renderable id of the pie.
   renderable_id_for_pie_damage:[RenderableId];
+
+  // Defines how props shake when nearby characters are damaged.
+  prop_shake_def:OvershootParameters;
+
+  // Maximum velocity that is added to the prop shake. In radians per tick.
+  prop_shake_velocity:float;
+
+  // For each damage done to a character, shake the props by this percent of the
+  // maximum velocity above.
+  prop_shake_percent_per_damage:float;
+
+  // The farther a prop is from the damage, the less it shakes. This value
+  // controls the amount that distance affects the shake. The bigger the
+  // value, the less distance matters.
+  prop_shake_identity_distance_sq:float;
 
   // After the game is finished, minimal time before we can reset and start
   // playing again. In ms.

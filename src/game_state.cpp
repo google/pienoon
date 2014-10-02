@@ -15,6 +15,8 @@
 #include "precompiled.h"
 #include "game_state.h"
 #include "character_state_machine.h"
+#include "impel_flatbuffers.h"
+#include "impel_processor_overshoot.h"
 #include "impel_util.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
@@ -64,6 +66,14 @@ GameState::GameState()
       arrangement_() {
 }
 
+GameState::~GameState() {
+  // Invalidate all the prop Impellers before their processor is deleted.
+  // TODO: processors should invalidate their Impellers when they are destroyed.
+  for (size_t i = 0; i < prop_shake_.size(); ++i) {
+    prop_shake_[i].Invalidate();
+  }
+}
+
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
 static Angle InitialFaceAngle(const CharacterArrangement* arrangement,
@@ -96,6 +106,35 @@ static const CharacterArrangement* GetBestArrangement(const Config* config,
   return best_arrangement;
 }
 
+// Given some amount of damage happening at a
+void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
+  for (size_t i = 0; i < config_->props()->Length(); ++i) {
+    const auto prop = config_->props()->Get(i);
+    const float shake_scale = prop->shake_scale();
+    if (shake_scale == 0.0f)
+      continue;
+
+    // We always want to add to the speed, so if the current velocity is
+    // negative, we add a negative amount.
+    const float current_velocity = prop_shake_[i].Velocity();
+    const float current_direction = current_velocity >= 0.0f ? 1.0f : -1.0f;
+
+    // The closer the prop is to the damage_position, the more it should shake.
+    // The effect trails off with distance squared.
+    const vec3 prop_position = LoadVec3(prop->position());
+    const float closeness = mathfu::Clamp(
+        config_->prop_shake_identity_distance_sq() /
+        (damage_position - prop_position).LengthSquared(), 0.01f, 1.0f);
+
+    // Velocity added is the product of all the factors.
+    const float delta_velocity = current_direction * damage_percent *
+                                 closeness * shake_scale *
+                                 config_->prop_shake_velocity();
+    const float new_velocity = current_velocity + delta_velocity;
+    prop_shake_[i].SetVelocity(new_velocity);
+  }
+}
+
 // Reset the game back to initial configuration.
 void GameState::Reset() {
   time_ = 0;
@@ -103,6 +142,27 @@ void GameState::Reset() {
   camera_target_ = LoadVec3(config_->camera_target());
   pies_.clear();
   arrangement_ = GetBestArrangement(config_, characters_.size());
+
+  // Initialize the prop shake Impellers.
+  const int num_props = config_->props()->Length();
+  prop_shake_.resize(num_props);
+  impel::OvershootImpelInit prop_shake_init;
+  impel::OvershootInitFromFlatBuffers(*config_->prop_shake_def(),
+                                      &prop_shake_init);
+  for (int i = 0; i < num_props; ++i) {
+    const auto prop = config_->props()->Get(i);
+    const float shake_scale = prop->shake_scale();
+    if (shake_scale == 0.0f)
+      continue;
+
+    // Bigger props have a smaller shake scale. We want them to shake more
+    // slowly, and with less amplitude.
+    impel::OvershootImpelInit scaled_shake_init = prop_shake_init;
+    scaled_shake_init.min *= shake_scale;
+    scaled_shake_init.max *= shake_scale;
+    scaled_shake_init.accel_per_difference *= shake_scale;
+    prop_shake_[i].Initialize(scaled_shake_init, &impel_engine_);
+  }
 
   // Reset characters to their initial state.
   const CharacterId num_ids = static_cast<CharacterId>(characters_.size());
@@ -180,12 +240,19 @@ void GameState::ProcessEvent(Character* character,
                              const EventData& event_data) {
   switch (event) {
     case EventId_TakeDamage: {
+      CharacterHealth total_damage = 0;
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
         character->set_health(character->health() - pie.damage);
         characters_[pie.source_id]->IncrementStat(kHits);
         CreatePieSplatter(character->id(), pie.damage);
+        total_damage += pie.damage;
       }
+
+      // Shake the nearby props. Amount of shake is a function of damage.
+      const float shake_percent = mathfu::Clamp(
+          total_damage * config_->prop_shake_percent_per_damage(), 0.0f, 1.0f);
+      ShakeProps(shake_percent, character->position());
       break;
     }
     case EventId_ReleasePie: {
@@ -661,14 +728,17 @@ static const mat4 CalculateAccessoryMatrix(
   return accessory_matrix;
 }
 
-static mat4 CalculatePropWorldMatrix(const Prop& prop) {
+static mat4 CalculatePropWorldMatrix(const Prop& prop, Angle shake) {
   const vec3 scale = LoadVec3(prop.scale());
   const vec3 position = LoadVec3(prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
   const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(), mathfu::kAxisY3f);
+  const Quat shake_quat = Quat::FromAngleAxis(shake.ToRadians(),
+                                              mathfu::kAxisX3f);
   const mat4 vertical_orientation_matrix =
       mat4::FromTranslationVector(position) *
       mat4::FromRotationMatrix(quat.ToMatrix()) *
+      mat4::FromRotationMatrix(shake_quat.ToMatrix()) *
       mat4::FromScaleVector(scale);
   return prop.orientation() == Orientation_Horizontal ?
          vertical_orientation_matrix * kRotate90DegreesAboutXAxis :
@@ -786,9 +856,10 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     auto props = config_->props();
     for (size_t i = 0; i < props->Length(); ++i) {
       const Prop& prop = *props->Get(i);
+      const Angle shake(prop_shake_[i].Valid() ? prop_shake_[i].Value() : 0.0f);
       scene->renderables().push_back(std::unique_ptr<Renderable>(
           new Renderable(static_cast<uint16_t>(prop.renderable()),
-                         CalculatePropWorldMatrix(prop))));
+                         CalculatePropWorldMatrix(prop, shake))));
     }
   }
 
