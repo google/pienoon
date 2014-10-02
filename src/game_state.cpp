@@ -45,12 +45,12 @@ static const mat4 kRotate90DegreesAboutXAxis(1,  0, 0, 0,
 struct ReceivedPie {
   CharacterId source_id;
   CharacterId target_id;
-  int damage;
+  CharacterHealth damage;
 };
 
 struct EventData {
   std::vector<ReceivedPie> received_pies;
-  int pie_damage;
+  CharacterHealth pie_damage;
 };
 
 GameState::GameState()
@@ -142,7 +142,7 @@ void GameState::ProcessSounds(AudioEngine* audio_engine,
 
 void GameState::CreatePie(CharacterId source_id,
                           CharacterId target_id,
-                          int damage) {
+                          CharacterHealth damage) {
   float height = config_->pie_arc_height();
   height += config_->pie_arc_height_variance() *
             (mathfu::Random<float>() * 2 - 1);
@@ -180,8 +180,7 @@ void GameState::ProcessEvent(Character* character,
     case EventId_TakeDamage: {
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
-        character->set_health(character->health() -
-                              pie.damage);
+        character->set_health(character->health() - pie.damage);
         characters_[pie.source_id]->IncrementStat(kHits);
       }
       break;
@@ -194,7 +193,12 @@ void GameState::ProcessEvent(Character* character,
     case EventId_DeflectPie: {
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
-        CreatePie(character->id(), DetermineDeflectionTarget(pie), pie.damage);
+        const CharacterHealth deflected_pie_damage =
+            pie.damage + config_->pie_damage_change_when_deflected();
+        if (deflected_pie_damage > 0) {
+          CreatePie(character->id(), DetermineDeflectionTarget(pie),
+                    deflected_pie_damage);
+        }
         character->IncrementStat(kBlocks);
         characters_[pie.source_id]->IncrementStat(kMisses);
       }
@@ -614,11 +618,9 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
 
 static uint16_t RenderableIdForPieDamage(CharacterHealth damage,
                                          const Config& config) {
-  const int first_id = config.first_airborne_pie_renderable();
-  const int last_id = config.last_airborne_pie_renderable();
-  const int max_damage = last_id - first_id;
-  const int clamped_damage = std::min(damage, max_damage);
-  return static_cast<uint16_t>(first_id + clamped_damage);
+  const CharacterHealth clamped_damage = mathfu::Clamp<CharacterHealth>(
+      damage, 0, config.renderable_id_for_pie_damage()->Length() - 1);
+  return config.renderable_id_for_pie_damage()->Get(clamped_damage);
 }
 
 // Get the camera matrix used for rendering.
@@ -701,8 +703,9 @@ private:
 };
 
 void GameState::PopulateCharacterAccessories(
-    SceneDescription* scene, uint16_t renderable_id, const mat4& character_matrix,
-    int num_accessories, int damage, int health) const {
+    SceneDescription* scene, uint16_t renderable_id,
+    const mat4& character_matrix, int num_accessories, CharacterHealth damage,
+    CharacterHealth health) const {
   auto renderable = config_->renderables()->Get(renderable_id);
 
   // Loop twice. First for damage splatters, then for health hearts.
@@ -870,8 +873,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       // Splatter and health accessories.
       // First pass through renders splatter accessories.
       // Second pass through renders health accessories.
-      const int health = character->health();
-      const int damage = config_->character_health() - health;
+      const CharacterHealth health = character->health();
+      const CharacterHealth damage = config_->character_health() - health;
       PopulateCharacterAccessories(scene, renderable_id, character_matrix,
                                    num_accessories, damage, health);
 

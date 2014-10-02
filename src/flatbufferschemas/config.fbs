@@ -218,6 +218,11 @@ table Config {
   // Where the pie should be directed when deflected.
   pie_deflection_mode:PieDeflectionMode;
 
+  // When pie is deflected, the amount of damage the pie will inflict is
+  // changed by this amount. This allows the pies to shrink and eventually
+  // disappear (if the value is negative).
+  pie_damage_change_when_deflected:int;
+
   // The minimum duration a frame can last regardless of how fast the
   // processor is. In ms.
   // For example, if 10ms, game cannot go faster than 100Hz. The game won't
@@ -237,10 +242,8 @@ table Config {
   face_angle_constraints:MagnetConstraints1f;
   face_angle_magnet_def:OvershootMagnet1fDef;
 
-  // The id of the first pie and last pie. Intermediate pie material id's are
-  // assumed to be in between these two ids.
-  first_airborne_pie_renderable:RenderableId;
-  last_airborne_pie_renderable:RenderableId;
+  // Map airborne pie damage to the renderable id of the pie.
+  renderable_id_for_pie_damage:[RenderableId];
 
   // After the game is finished, minimal time before we can reset and start
   // playing again. In ms.

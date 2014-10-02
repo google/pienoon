@@ -233,6 +233,7 @@
   "pie_arc_height": 5,
   "pie_arc_height_variance": 2,
   "pie_deflection_mode": "ToTargetOfTarget",
+  "pie_damage_change_when_deflected": -2,
   "min_update_time": 10,
   "max_update_time": 100,
 
@@ -251,8 +252,15 @@
     "snap_settled":   { "max_difference": 0.087, "max_velocity": 0.00059 }
   },
 
-  "first_airborne_pie_renderable": "PieEmpty",
-  "last_airborne_pie_renderable": "PieLarge",
+  "renderable_id_for_pie_damage": [
+    "PieEmpty",
+    "PieSmall",
+    "PieSmall",
+    "PieMedium",
+    "PieMedium",
+    "PieLarge"
+  ],
+
   "play_finished_timeout": 2000,
 
 
