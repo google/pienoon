@@ -16,10 +16,10 @@
 
 #include <algorithm>
 #include "audio_config_generated.h"
-#include "audio_collection.h"
 #include "audio_engine.h"
 #include "sound.h"
-#include "sound_generated.h"
+#include "sound_collection.h"
+#include "sound_collection_def_generated.h"
 #include "sound_assets_generated.h"
 #include "utilities.h"
 #include "SDL_mixer.h"
@@ -76,7 +76,7 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   collections_.resize(sound_count);
   for (unsigned int i = 0; i < sound_count; ++i) {
     const char* filename = sound_assets->sounds()->Get(i)->c_str();
-    if (!collections_[i].LoadAudioCollectionDefFromFile(filename)) {
+    if (!collections_[i].LoadSoundCollectionDefFromFile(filename)) {
       return false;
     }
   }
@@ -84,7 +84,7 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   return true;
 }
 
-AudioCollection* AudioEngine::GetAudioCollection(SoundId sound_id) {
+SoundCollection* AudioEngine::GetSoundCollection(SoundId sound_id) {
   if (sound_id >= collections_.size()) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't play audio sample: invalid sound_id\n");
@@ -120,8 +120,8 @@ static ChannelId FindFreeChannel() {
 // indicies.
 int AudioEngine::PriorityComparitor::operator()(
     const AudioEngine::PlayingSound& a, const AudioEngine::PlayingSound& b) {
-  const float priority_a = a.sound_def->priority();
-  const float priority_b = b.sound_def->priority();
+  const float priority_a = a.sound_collection_def->priority();
+  const float priority_b = b.sound_collection_def->priority();
   if (priority_a != priority_b) {
     return (priority_b - priority_a) < 0 ? -1 : 1;
   } else {
@@ -131,7 +131,7 @@ int AudioEngine::PriorityComparitor::operator()(
 
 // Sort channels with highest priority first.
 void AudioEngine::PrioritizeChannels(
-    const std::vector<AudioCollection>& sounds,
+    const std::vector<SoundCollection>& sounds,
     std::vector<PlayingSound>* playing_sounds) {
   std::sort(playing_sounds->begin(), playing_sounds->end(),
             PriorityComparitor(&sounds));
@@ -151,13 +151,13 @@ void AudioEngine::ClearFinishedSounds() {
                         playing_sounds_.end());
 }
 
-void AudioEngine::PlayMusic(AudioCollection* music) {
+void AudioEngine::PlayStream(SoundCollection* collection) {
   // Attempt to play the stream.
-  music->Select()->Play(0, music->GetSoundDef()->loop());
+  collection->Select()->Play(0, collection->GetSoundCollectionDef()->loop());
 }
 
-void AudioEngine::PlaySound(AudioCollection* sound) {
-  const SoundDef* def = sound->GetSoundDef();
+void AudioEngine::PlayBuffer(SoundCollection* collection) {
+  const SoundCollectionDef* def = collection->GetSoundCollectionDef();
 
   // Prune sounds that have finished playing.
   ClearFinishedSounds();
@@ -188,18 +188,18 @@ void AudioEngine::PlaySound(AudioCollection* sound) {
   assert(new_sound.channel_id != kInvalidChannel);
 
   // Attempt to play the sound.
-  if (sound->Select()->Play(new_sound.channel_id, def->loop())) {
+  if (collection->Select()->Play(new_sound.channel_id, def->loop())) {
     playing_sounds_.push_back(new_sound);
   }
 }
 
-void AudioEngine::PlayAudio(SoundId sound_id) {
-  AudioCollection* audio = GetAudioCollection(sound_id);
-  if (audio) {
-    if (audio->GetSoundDef()->stream()) {
-      PlayMusic(audio);
+void AudioEngine::PlaySound(SoundId sound_id) {
+  SoundCollection* collection = GetSoundCollection(sound_id);
+  if (collection) {
+    if (collection->GetSoundCollectionDef()->stream()) {
+      PlayStream(collection);
     } else {
-      PlaySound(audio);
+      PlayBuffer(collection);
     }
   }
 }

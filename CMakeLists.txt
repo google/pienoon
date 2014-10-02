@@ -147,56 +147,56 @@ endif()
 
 # Splat source files.
 set(splat_SRCS
-    src/ai_controller.h
     src/ai_controller.cpp
+    src/ai_controller.h
     src/angle.h
-    src/audio_collection.cpp
-    src/audio_collection.h
-    src/audio_engine.h
     src/audio_engine.cpp
-    src/character.h
+    src/audio_engine.h
     src/character.cpp
-    src/character_state_machine.h
+    src/character.h
     src/character_state_machine.cpp
+    src/character_state_machine.h
     src/common.h
-    src/controller.h
     src/controller.cpp
-    src/game_state.h
+    src/controller.h
     src/game_state.cpp
-    src/gamepad_controller.h
+    src/game_state.h
     src/gamepad_controller.cpp
+    src/gamepad_controller.h
     src/glplatform.h
     src/gpg_manager.h
-    src/input.h
     src/input.cpp
-    src/main.cpp
-    src/material_manager.h
-    src/material_manager.cpp
-    src/player_controller.h
-    src/player_controller.cpp
-    src/shader.h
-    src/shader.cpp
-    src/mesh.h
-    src/mesh.cpp
-    src/material.h
-    src/magnet_base.h
+    src/input.h
     src/magnet1f.cpp
     src/magnet1f.h
+    src/magnet_base.h
+    src/main.cpp
     src/material.cpp
-    src/particles.h
+    src/material.h
+    src/material_manager.cpp
+    src/material_manager.h
+    src/mesh.cpp
+    src/mesh.h
     src/particles.cpp
+    src/particles.h
+    src/player_controller.cpp
+    src/player_controller.h
     src/precompiled.h
-    src/renderer.h
     src/renderer.cpp
+    src/renderer.h
     src/scene_description.h
-    src/sound.h
+    src/shader.cpp
+    src/shader.h
     src/sound.cpp
-    src/splat_game.h
+    src/sound.h
+    src/sound_collection.cpp
+    src/sound_collection.h
     src/splat_game.cpp
-    src/touchscreen_controller.h
+    src/splat_game.h
     src/touchscreen_controller.cpp
-    src/utilities.h
-    src/utilities.cpp)
+    src/touchscreen_controller.h
+    src/utilities.cpp
+    src/utilities.h)
 
 # Includes for this project.
 include_directories(src)

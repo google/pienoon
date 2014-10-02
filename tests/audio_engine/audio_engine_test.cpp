@@ -17,12 +17,12 @@
 #define FPL_AUDIO_ENGINE_UNIT_TESTS
 
 #include <vector>
-#include "audio_engine.h"
-#include "audio_collection.h"
-#include "gtest/gtest.h"
-#include "sound_generated.h"
 #include "SDL_mixer.h"
+#include "audio_engine.h"
+#include "gtest/gtest.h"
 #include "sound.h"
+#include "sound_collection.h"
+#include "sound_collection_def_generated.h"
 
 // Stubs for SDL_mixer functions which are not actually part of the tests being
 // run.
@@ -54,10 +54,11 @@ class AudioEngineTests : public ::testing::Test {
       flatbuffers::FlatBufferBuilder builder;
       auto id = static_cast<splat::SoundId>(i);
       float priority = static_cast<float>(i);
-      auto sound_def_buffer = fpl::CreateSoundDef(builder, id, priority);
+      auto sound_def_buffer = fpl::CreateSoundCollectionDef(builder,
+                                                            id, priority);
       builder.Finish(sound_def_buffer);
-      sounds_.push_back(fpl::AudioCollection());
-      sounds_.back().LoadAudioCollectionDef(
+      collections_.push_back(fpl::SoundCollection());
+      collections_.back().LoadSoundCollectionDef(
           std::string(reinterpret_cast<const char*>(builder.GetBufferPointer()),
                       builder.GetSize()));
     }
@@ -65,24 +66,24 @@ class AudioEngineTests : public ::testing::Test {
   virtual void TearDown() {}
 
  protected:
-  std::vector<fpl::AudioCollection> sounds_;
+  std::vector<fpl::SoundCollection> collections_;
 };
 
 TEST_F(AudioEngineTests, IncreasingPriority) {
   std::vector<fpl::AudioEngine::PlayingSound> playing_sounds;
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[0].GetSoundDef(), 0, 0));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[1].GetSoundDef(), 1, 1));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[2].GetSoundDef(), 2, 2));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[3].GetSoundDef(), 3, 3));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[4].GetSoundDef(), 4, 4));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[5].GetSoundDef(), 5, 5));
-  fpl::AudioEngine::PrioritizeChannels(sounds_, &playing_sounds);
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[0].GetSoundCollectionDef(), 0, 0));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[1].GetSoundCollectionDef(), 1, 1));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[2].GetSoundCollectionDef(), 2, 2));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[3].GetSoundCollectionDef(), 3, 3));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[4].GetSoundCollectionDef(), 4, 4));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[5].GetSoundCollectionDef(), 5, 5));
+  fpl::AudioEngine::PrioritizeChannels(collections_, &playing_sounds);
   EXPECT_EQ(0, playing_sounds[5].channel_id);
   EXPECT_EQ(1, playing_sounds[4].channel_id);
   EXPECT_EQ(2, playing_sounds[3].channel_id);
@@ -95,19 +96,19 @@ TEST_F(AudioEngineTests, SamePriorityDifferentStartTimes) {
   std::vector<AudioEngine::PlayingSound> playing_sounds;
   // Sounds with the same priority but later start times should be higher
   // priority.
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[0].GetSoundDef(), 0, 1));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[0].GetSoundDef(), 1, 0));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[1].GetSoundDef(), 2, 1));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[1].GetSoundDef(), 3, 0));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[2].GetSoundDef(), 4, 1));
-  playing_sounds.push_back(
-      fpl::AudioEngine::PlayingSound(sounds_[2].GetSoundDef(), 5, 0));
-  fpl::AudioEngine::PrioritizeChannels(sounds_, &playing_sounds);
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[0].GetSoundCollectionDef(), 0, 1));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[0].GetSoundCollectionDef(), 1, 0));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[1].GetSoundCollectionDef(), 2, 1));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[1].GetSoundCollectionDef(), 3, 0));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[2].GetSoundCollectionDef(), 4, 1));
+  playing_sounds.push_back(fpl::AudioEngine::PlayingSound(
+      collections_[2].GetSoundCollectionDef(), 5, 0));
+  fpl::AudioEngine::PrioritizeChannels(collections_, &playing_sounds);
   EXPECT_EQ(0, playing_sounds[5].channel_id);
   EXPECT_EQ(1, playing_sounds[4].channel_id);
   EXPECT_EQ(2, playing_sounds[3].channel_id);

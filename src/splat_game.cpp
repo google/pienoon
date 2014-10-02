@@ -344,7 +344,7 @@ bool SplatGame::Initialize() {
   audio_engine_.Initialize(GetConfig().audio());
   // TODO(amablue): b/17767350 Move this to a better place when we start plaing
   // more than one piece of music.
-  audio_engine_.PlayAudio(SoundId_MainTheme);
+  audio_engine_.PlaySound(SoundId_MainTheme);
 
   if (!InitializeGameState())
     return false;

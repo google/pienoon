@@ -13,19 +13,19 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include <vector>
-#include <string>
 #include <memory>
-#include "audio_collection.h"
+#include <string>
+#include <vector>
 #include "sound.h"
-#include "sound_generated.h"
+#include "sound_collection.h"
+#include "sound_collection_def_generated.h"
 #include "utilities.h"
 
 namespace fpl {
 
-bool AudioCollection::LoadAudioCollectionDef(const std::string& source) {
+bool SoundCollection::LoadSoundCollectionDef(const std::string& source) {
   source_ = source;
-  const SoundDef* def = GetSoundDef();
+  const SoundCollectionDef* def = GetSoundCollectionDef();
   unsigned int sample_count =
       def->audio_sample_set() ? def->audio_sample_set()->Length() : 0;
   audio_sources_.resize(sample_count);
@@ -34,9 +34,9 @@ bool AudioCollection::LoadAudioCollectionDef(const std::string& source) {
     const char* entry_filename = entry->audio_sample()->filename()->c_str();
     auto& audio = audio_sources_[i];
     if (def->stream()) {
-      audio.reset(new Music());
+      audio.reset(new SoundStream());
     } else {
-      audio.reset(new Sound());
+      audio.reset(new SoundBuffer());
     }
     if (!audio->LoadFile(entry_filename)) {
       return false;
@@ -46,24 +46,24 @@ bool AudioCollection::LoadAudioCollectionDef(const std::string& source) {
   return true;
 }
 
-bool AudioCollection::LoadAudioCollectionDefFromFile(const char* filename) {
+bool SoundCollection::LoadSoundCollectionDefFromFile(const char* filename) {
   std::string source;
-  return LoadFile(filename, &source) && LoadAudioCollectionDef(source);
+  return LoadFile(filename, &source) && LoadSoundCollectionDef(source);
 }
 
-void AudioCollection::Unload() {
+void SoundCollection::Unload() {
   source_.clear();
   audio_sources_.clear();
   sum_of_probabilities_ = 0;
 }
 
-const SoundDef* AudioCollection::GetSoundDef() const {
+const SoundCollectionDef* SoundCollection::GetSoundCollectionDef() const {
   assert(source_.size());
-  return fpl::GetSoundDef(source_.c_str());
+  return fpl::GetSoundCollectionDef(source_.c_str());
 }
 
-AudioSource* AudioCollection::Select() const {
-  const SoundDef* sound_def = GetSoundDef();
+SoundSource* SoundCollection::Select() const {
+  const SoundCollectionDef* sound_def = GetSoundCollectionDef();
   // Choose a random number between 0 and the sum of the probabilities, then
   // iterate over the list, subtracting the weight of each entry until 0 is
   // reached.

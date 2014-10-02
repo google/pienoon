@@ -5,7 +5,7 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "music/game_music_start_tail.ogg"
+        "filename": "sounds/game_music_start_tail.ogg"
       }
     }
   ]

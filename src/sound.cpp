@@ -20,7 +20,7 @@
 namespace fpl {
 
 const ChannelId kInvalidChannel = -1;
-const int kPlayMusicError = -1;
+const int kPlayStreamError = -1;
 const int kLoopForever = -1;
 const int kPlayOnce = 0;
 
@@ -28,13 +28,13 @@ static void LogAudioLoadingError(const char* filename) {
   SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't load %s\n", filename);
 }
 
-Sound::~Sound() {
+SoundBuffer::~SoundBuffer() {
   if (data_) {
     Mix_FreeChunk(data_);
   }
 }
 
-bool Sound::LoadFile(const char* filename) {
+bool SoundBuffer::LoadFile(const char* filename) {
   data_ = Mix_LoadWAV(filename);
   if (!data_) {
     LogAudioLoadingError(filename);
@@ -43,7 +43,7 @@ bool Sound::LoadFile(const char* filename) {
   return true;
 }
 
-bool Sound::Play(ChannelId channel_id, bool loop) {
+bool SoundBuffer::Play(ChannelId channel_id, bool loop) {
   int loops = loop ? kLoopForever : kPlayOnce;
   if (Mix_PlayChannel(channel_id, data_, loops) == kInvalidChannel) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -53,13 +53,13 @@ bool Sound::Play(ChannelId channel_id, bool loop) {
   return true;
 }
 
-Music::~Music() {
+SoundStream::~SoundStream() {
   if (data_) {
     Mix_FreeMusic(data_);
   }
 }
 
-bool Music::LoadFile(const char* filename) {
+bool SoundStream::LoadFile(const char* filename) {
   data_ = Mix_LoadMUS(filename);
   if (!data_) {
     LogAudioLoadingError(filename);
@@ -68,11 +68,11 @@ bool Music::LoadFile(const char* filename) {
   return true;
 }
 
-bool Music::Play(ChannelId channel_id, bool loop) {
+bool SoundStream::Play(ChannelId channel_id, bool loop) {
   (void)channel_id;  // SDL_mixer does not currently support
                      // more than one channel of streaming audio.
   int loops = loop ? kLoopForever : kPlayOnce;
-  if (Mix_PlayMusic(data_, loops) == kPlayMusicError) {
+  if (Mix_PlayMusic(data_, loops) == kPlayStreamError) {
     return false;
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't play music: %s\n", Mix_GetError());

@@ -22,23 +22,23 @@ namespace fpl {
 
 typedef int ChannelId;
 
-// AudioSource is a base class for both audio streams and audio buffers, called
-// Music and Sounds respectively.
-class AudioSource {
+// SoundSource is a base class for both SoundStreams and SoundBuffers.
+class SoundSource {
  public:
-  virtual ~AudioSource() {}
+  virtual ~SoundSource() {}
 
-  // Load the audio from the given filename.
+  // Load the sound from the given filename.
   virtual bool LoadFile(const char* filename) = 0;
 
-  // Play this audio on the given channel, and loop if necessary.
+  // Play this sound on the given channel, and loop if necessary.
   virtual bool Play(ChannelId channel_id, bool loop) = 0;
 };
 
-// A Sound is a piece of buffered audio that is completely loaded into memory.
-class Sound : public AudioSource {
+// A SoundBuffer is a piece of buffered audio that is completely loaded into
+// memory.
+class SoundBuffer : public SoundSource {
  public:
-  virtual ~Sound();
+  virtual ~SoundBuffer();
 
   virtual bool LoadFile(const char* filename);
 
@@ -48,10 +48,11 @@ class Sound : public AudioSource {
   Mix_Chunk* data_;
 };
 
-// Music is audio that is streamed from disk rather than loaded into memory.
-class Music : public AudioSource {
+// A SoundStream is audio that is streamed from disk rather than loaded into
+// memory.
+class SoundStream : public SoundSource {
  public:
-  virtual ~Music();
+  virtual ~SoundStream();
 
   virtual bool LoadFile(const char* filename);
 

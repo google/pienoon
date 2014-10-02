@@ -21,33 +21,33 @@
 
 namespace fpl {
 
-struct SoundDef;
-class AudioSource;
+struct SoundCollectionDef;
+class SoundSource;
 
-// AudioCollection represent an abstract sound (like a 'whoosh'), which contains
+// SoundCollection represent an abstract sound (like a 'whoosh'), which contains
 // a number of pieces of audio with weighted probabilities to choose between
 // randomly when played. It holds objects of type `Audio`, which can be either
 // Sounds or Music
-class AudioCollection {
+class SoundCollection {
  public:
-  // Load the given flatbuffer data representing a SoundDef.
-  bool LoadAudioCollectionDef(const std::string& source);
+  // Load the given flatbuffer data representing a SoundCollectionDef.
+  bool LoadSoundCollectionDef(const std::string& source);
 
   // Load the given flatbuffer binary file containing a SoundDef.
-  bool LoadAudioCollectionDefFromFile(const char* filename);
+  bool LoadSoundCollectionDefFromFile(const char* filename);
 
   // Unload the data associated with this Sound.
   void Unload();
 
   // Return the SoundDef.
-  const SoundDef* GetSoundDef() const;
+  const SoundCollectionDef* GetSoundCollectionDef() const;
 
   // Return a random piece of audio from the set of audio for this sound.
-  AudioSource* Select() const;
+  SoundSource* Select() const;
 
  private:
   std::string source_;
-  std::vector<std::unique_ptr<AudioSource>> audio_sources_;
+  std::vector<std::unique_ptr<SoundSource>> audio_sources_;
   float sum_of_probabilities_;
 };
 

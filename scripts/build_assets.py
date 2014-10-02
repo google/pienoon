@@ -114,7 +114,7 @@ FLATBUFFERS_SCHEMA_JSON = [
         'output_path': ASSETS_PATH
     },
     {
-        'schema': os.path.join(SCHEMA_PATH, 'sound.fbs'),
+        'schema': os.path.join(SCHEMA_PATH, 'sound_collection_def.fbs'),
         'input_files': glob.glob(os.path.join(RAW_SOUND_PATH, '*.json')),
         'output_path': SOUND_PATH
     },

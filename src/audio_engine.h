@@ -15,10 +15,11 @@
 #ifndef SPLAT_AUDIO_ENGINE_H_
 #define SPLAT_AUDIO_ENGINE_H_
 
-#include "sound.h"
-#include "splat_common_generated.h"
 #include "common.h"
-#include "audio_collection.h"
+#include "sound.h"
+#include "sound_collection.h"
+#include "splat_common_generated.h"
+#include "sound_collection_def_generated.h"
 
 #ifdef FPL_AUDIO_ENGINE_UNIT_TESTS
 #include "gtest/gtest.h"
@@ -39,10 +40,10 @@ class AudioEngine {
   bool Initialize(const AudioConfig* config);
 
   // Play a sound associated with the given sound_id.
-  void PlayAudio(SoundId sound_id);
+  void PlaySound(SoundId sound_id);
 
   // Returns the audio collection associated with the given sound_id.
-  AudioCollection* GetAudioCollection(SoundId sound_id);
+  SoundCollection* GetSoundCollection(SoundId sound_id);
 
   // TODO: Update audio volume per channel each frame. b/17316699
   void AdvanceFrame(WorldTime world_time);
@@ -55,30 +56,30 @@ class AudioEngine {
 
   // Represents a sample that is playing on a channel.
   struct PlayingSound {
-    PlayingSound(const SoundDef* def, ChannelId cid, WorldTime time)
-        : sound_def(def),
+    PlayingSound(const SoundCollectionDef* def, ChannelId cid, WorldTime time)
+        : sound_collection_def(def),
           channel_id(cid),
           start_time(time) {
     }
 
-    const SoundDef* sound_def;
+    const SoundCollectionDef* sound_collection_def;
     ChannelId channel_id;
     WorldTime start_time;
   };
 
-  // Play a sound associated with the given sound_id.
-  void PlaySound(AudioCollection* sound);
+  // Play a buffer associated with the given sound_id.
+  void PlayBuffer(SoundCollection* sound);
 
-  // Play a sound associated with the given sound_id.
-  void PlayMusic(AudioCollection* sound);
+  // Play a stream associated with the given sound_id.
+  void PlayStream(SoundCollection* sound);
 
   class PriorityComparitor {
    public:
-    PriorityComparitor(const std::vector<AudioCollection>* collections)
+    PriorityComparitor(const std::vector<SoundCollection>* collections)
         : collections_(collections) {}
     int operator()(const PlayingSound& a, const PlayingSound& b);
    private:
-    const std::vector<AudioCollection>* collections_;
+    const std::vector<SoundCollection>* collections_;
   };
 
   // Return true if the given AudioEngine::PlayingSound has finished playing.
@@ -88,14 +89,14 @@ class AudioEngine {
   void ClearFinishedSounds();
 
   static void PrioritizeChannels(
-    const std::vector<AudioCollection>& collections,
+    const std::vector<SoundCollection>& collections,
     std::vector<PlayingSound>* playing_sounds);
 
   // Hold the audio bus list.
   std::string buses_source_;
 
   // Hold the sounds.
-  std::vector<AudioCollection> collections_;
+  std::vector<SoundCollection> collections_;
 
   // The number of sounds currently playing.
   std::vector<PlayingSound> playing_sounds_;

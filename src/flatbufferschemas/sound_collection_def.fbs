@@ -38,7 +38,7 @@ table AudioSampleSetEntry {
 }
 
 // Basic triggered sound object.
-table SoundDef {
+table SoundCollectionDef {
   // Identifier for the sound that can be referenced by other objects.
   id:SoundId;
 
@@ -67,4 +67,4 @@ table SoundDef {
   stream:bool = false;
 }
 
-root_type SoundDef;
+root_type SoundCollectionDef;
