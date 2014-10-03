@@ -55,7 +55,7 @@ $(eval \
   $(call flatbuffers_fbs_to_h,$(1)): $(1)
 	$(call host-echo-build-step,generic,Generate) \
 		$(subst $(SPLAT_DIR)/,,$(call flatbuffers_fbs_to_h,$(1)))
-	$(hide) $(FLATC) -H -o $$(dir $$@) -c $$<)
+	$(hide) $(FLATC) --gen-includes -o $$(dir $$@) -c $$<)
 endef
 
 # Create the list of generated headers.

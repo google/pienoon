@@ -128,7 +128,7 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
       ${FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
   add_custom_command(
     OUTPUT ${flatbuffers_include}
-    COMMAND flatc -H -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
+    COMMAND flatc --gen-includes -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -c ${flatbuffers_schema}
     DEPENDS flatc ${flatbuffers_schema})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
