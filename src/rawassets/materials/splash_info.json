@@ -2,6 +2,6 @@
   texture_filenames: [
     "textures/splash_info.webp"
   ],
-  "blendmode": "OFF"
+  "blendmode": "ALPHA"
 }
 
