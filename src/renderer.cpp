@@ -18,7 +18,7 @@
 
 #include "webp/decode.h"
 
-//#define RENDERER_USE_5551_TEXTURES
+#define RENDERER_USE_5551_TEXTURES
 
 namespace fpl {
 
@@ -220,7 +220,8 @@ uint16_t *Renderer::Convert8888To5551(const uint8_t *buffer,
   return buffer16;
 }
 
-GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
+GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
+                               bool has_alpha) {
   int area = size.x() * size.y();
   if (area & (area - 1)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -238,20 +239,26 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size) {
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                           GL_LINEAR_MIPMAP_LINEAR));
-# ifdef RENDERER_USE_5551_TEXTURES
-  auto buffer16 = Convert8888To5551(buffer, size);
-  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
-                       GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
-  delete[] buffer16;
-# else
-  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
-                       GL_RGBA, GL_UNSIGNED_BYTE, buffer));
-#endif
+  if (has_alpha) {
+#   ifdef RENDERER_USE_5551_TEXTURES
+    auto buffer16 = Convert8888To5551(buffer, size);
+    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                         GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
+    delete[] buffer16;
+#   else
+    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                         GL_RGBA, GL_UNSIGNED_BYTE, buffer));
+#   endif
+  } else {
+    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x(), size.y(), 0,
+                         GL_RGB, GL_UNSIGNED_BYTE, buffer));
+  }
   GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
   return texture_id;
 }
 
-uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions) {
+uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions,
+                             bool *has_alpha) {
   struct TGA {
     unsigned char id_len, color_map_type, image_type, color_map_data[5];
     unsigned short x_origin, y_origin, width, height;
@@ -271,7 +278,7 @@ uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions) {
   auto pixels = reinterpret_cast<const unsigned char *>(header + 1);
   pixels += header->id_len;
   int size = header->width * header->height;
-  auto rgba = reinterpret_cast<uint8_t *>(malloc(size * 4));
+  auto dest = reinterpret_cast<uint8_t *>(malloc(size * header->bpp / 8));
   int start_y, end_y, y_direction;
   if (header->image_descriptor & 0x20)  // y is not flipped
   {
@@ -285,36 +292,47 @@ uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions) {
   }
   for (int y = start_y; y != end_y; y += y_direction) {
     for (int x = 0; x < header->width; x++) {
-      auto p = rgba + (y * header->width + x) * 4;
+      auto p = dest + (y * header->width + x) * header->bpp / 8;
       p[2] = *pixels++;    // BGR -> RGB
       p[1] = *pixels++;
       p[0] = *pixels++;
-      p[3] = header->bpp == 32 ? *pixels++ : 255;
+      if (header->bpp == 32) p[3] = *pixels++;
     }
   }
+  *has_alpha = header->bpp == 32;
   *dimensions = vec2i(header->width, header->height);
-  return rgba;
+  return dest;
 }
 
 uint8_t *Renderer::UnpackWebP(const void *webp_buf, size_t size,
-                              vec2i *dimensions) {
-  return WebPDecodeRGBA(static_cast<const uint8_t *>(webp_buf), size,
-                        &dimensions->x(), &dimensions->y());
+                              vec2i *dimensions, bool *has_alpha) {
+  WebPBitstreamFeatures features;
+  auto status = WebPGetFeatures(static_cast<const uint8_t *>(webp_buf), size,
+                                &features);
+  if (status != VP8_STATUS_OK) return nullptr;
+  *has_alpha = features.has_alpha;
+  if (features.has_alpha) {
+    return WebPDecodeRGBA(static_cast<const uint8_t *>(webp_buf), size,
+                          &dimensions->x(), &dimensions->y());
+  } else {
+    return WebPDecodeRGB(static_cast<const uint8_t *>(webp_buf), size,
+                          &dimensions->x(), &dimensions->y());
+  }
 }
 
 uint8_t *Renderer::LoadAndUnpackTexture(const char *filename,
-                                        vec2i *dimensions) {
+                                        vec2i *dimensions, bool *has_alpha) {
   std::string file;
   if (LoadFile(filename, &file)) {
     std::string ext = filename;
     size_t ext_pos = ext.find_last_of(".");
     if (ext_pos != std::string::npos) ext = ext.substr(ext_pos + 1);
     if (ext == "tga") {
-      auto buf = UnpackTGA(file.c_str(), dimensions);
+      auto buf = UnpackTGA(file.c_str(), dimensions, has_alpha);
       if (!buf) last_error() = std::string("TGA format problem: ") + filename;
       return buf;
     } else if (ext == "webp") {
-      auto buf = UnpackWebP(file.c_str(), file.length(), dimensions);
+      auto buf = UnpackWebP(file.c_str(), file.length(), dimensions, has_alpha);
       if (!buf) last_error() = std::string("WebP format problem: ") + filename;
       return buf;
     } else {

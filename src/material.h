@@ -34,7 +34,7 @@ class Texture : public AsyncResource {
  public:
   Texture(Renderer &renderer, const std::string &filename)
     : AsyncResource(filename), renderer_(renderer), id_(0),
-      size_(mathfu::kZeros2i) {}
+      size_(mathfu::kZeros2i), has_alpha_(false) {}
 
   virtual void Load();
   virtual void Finalize();
@@ -48,6 +48,7 @@ class Texture : public AsyncResource {
 
   GLuint id_;
   vec2i size_;
+  bool has_alpha_;
 };
 
 class Material {

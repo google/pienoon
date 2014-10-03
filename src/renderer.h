@@ -48,26 +48,29 @@ class Renderer {
 
   // Create a texture from a memory buffer containing xsize * ysize RGBA pixels.
   // Return 0 if not a power of two in size.
-  GLuint CreateTexture(const uint8_t *buffer, const vec2i &size);
+  GLuint CreateTexture(const uint8_t *buffer, const vec2i &size,
+                       bool has_alpha);
 
   // Unpacks a memory buffer containing a TGA format file.
   // May only be uncompressed RGB or RGBA data, Y-flipped or not.
   // Returns RGBA array of returned dimensions or nullptr if the
   // format is not understood.
   // You must free() the returned pointer when done.
-  uint8_t *UnpackTGA(const void *tga_buf, vec2i *dimensions);
+  uint8_t *UnpackTGA(const void *tga_buf, vec2i *dimensions, bool *has_alpha);
 
   // Unpacks a memory buffer containing a Webp format file.
   // Returns RGBA array of the returned dimensions or nullptr if the format
   // is not understood.
   // You must free() the returned pointer when done.
-  uint8_t *UnpackWebP(const void *webp_buf, size_t size, vec2i *dimensions);
+  uint8_t *UnpackWebP(const void *webp_buf, size_t size, vec2i *dimensions,
+                      bool *has_alpha);
 
   // Loads the file in filename, and then unpacks the file format (supports
   // TGA and WebP).
   // last_error() contains more information if nullptr is returned.
   // You must free() the returned pointer when done.
-  uint8_t *LoadAndUnpackTexture(const char *filename, vec2i *dimensions);
+  uint8_t *LoadAndUnpackTexture(const char *filename, vec2i *dimensions,
+                                bool *has_alpha);
 
   // Utility function to convert 32bit RGBA to 16bit.
   // You must delete[] the return value afterwards.

@@ -115,6 +115,7 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/sound.cpp \
   $(SPLAT_DIR)/src/sound_collection.cpp \
   $(SPLAT_DIR)/src/splat_game.cpp \
+  $(SPLAT_DIR)/src/touchscreen_button.cpp \
   $(SPLAT_DIR)/src/touchscreen_controller.cpp \
   $(SPLAT_DIR)/src/utilities.cpp
 

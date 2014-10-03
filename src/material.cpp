@@ -19,7 +19,8 @@
 namespace fpl {
 
 void Texture::Load() {
-  data_ = renderer_.LoadAndUnpackTexture(filename_.c_str(), &size_);
+  data_ = renderer_.LoadAndUnpackTexture(filename_.c_str(), &size_,
+                                         &has_alpha_);
   if (!data_) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "texture load: %s: %s",
                 filename_.c_str(), renderer_.last_error().c_str());
@@ -28,7 +29,7 @@ void Texture::Load() {
 
 void Texture::Finalize() {
   if (data_) {
-    id_ = renderer_.CreateTexture(data_, size_);
+    id_ = renderer_.CreateTexture(data_, size_, has_alpha_);
     free(data_);
     data_ = nullptr;
   }
