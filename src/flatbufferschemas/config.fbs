@@ -150,6 +150,20 @@ table CharacterArrangement {
   character_data:[CharacterData];
 }
 
+table TwoDimensionalElement {
+  // Render first texture in this material.
+  material:string;
+
+  // Size of the screen to occupy, as a multiple of height.
+  //    0.1 --> height is 10% of screen
+  size:float;
+
+  // Location of image on screen.
+  //   0 --> far left (or top).
+  //   1 --> far right (or bottom).
+  placement:Vec2;
+}
+
 table Config {
   // Temporary variable to control number of players until we can configure it
   // from in the game
@@ -357,8 +371,13 @@ table Config {
   ai_chance_to_change_aim:float;
   ai_chance_to_throw:float;
 
+  // UI options
+  //
   // Touchscreen controller layout:
   touchscreen_zones:[TouchInputZone];
+
+  // Splash screen, etc.
+  two_dimensional_elements_for_finished_state:[TwoDimensionalElement];
 
   // Debug options
   //

@@ -73,7 +73,6 @@ SplatGame::SplatGame()
       shader_simple_shadow_(nullptr),
       shader_textured_(nullptr),
       shadow_mat_(nullptr),
-      splash_mat_(nullptr),
       prev_world_time_(0),
       debug_previous_states_()
 {
@@ -262,8 +261,15 @@ bool SplatGame::InitializeRenderingAssets() {
   shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.bin");
   if (!shadow_mat_) return false;
 
-  splash_mat_ = matman_.LoadMaterial("materials/splash.bin");
-  if (!splash_mat_) return false;
+  // Load materials for splash screen:
+  auto finished_elements = config.two_dimensional_elements_for_finished_state();
+  materials_for_finished_state_.resize(finished_elements->Length());
+  for (size_t i = 0; i < finished_elements->Length(); ++i) {
+    auto two_dimensional_element = finished_elements->Get(i);
+    materials_for_finished_state_[i] = matman_.LoadMaterial(
+        two_dimensional_element->material()->c_str());
+    if (!materials_for_finished_state_[i]) return false;
+  }
 
   return true;
 }
@@ -472,6 +478,8 @@ void SplatGame::Render(const SceneDescription& scene) {
 }
 
 void SplatGame::Render2DElements() {
+  const Config& config = GetConfig();
+
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
   // and the bottom right the windows size in pixels.
   auto res = renderer_.window_size();
@@ -479,16 +487,38 @@ void SplatGame::Render2DElements() {
       0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()), 0.0f,
       -1.0f, 1.0f);
   renderer_.model_view_projection() = ortho_mat;
+
+  // Loop through the 2D elements. Draw each subsequent one slightly closer
+  // to the camera so that they appear on top of the previous ones.
+  float z = 0.0f;
   if (state_ == kFinished) {
-    // Render splash screen.
-    auto height = res.y() / 2.0f;    // Use up half the height of screen.
-    auto width = height * 2.0f;      // Texture is 2:1 ratio.
-    auto x = (res.x() - width) / 2.0f;
-    auto y = (res.y() - height) / 2.0f;
-    splash_mat_->Set(renderer_);
-    shader_textured_->Set(renderer_);
-    Mesh::RenderAAQuadAlongX(vec3(x, y + height, 0), vec3(x + width, y, 0),
-                             vec2(0, 1), vec2(1, 0));
+    auto elements = config.two_dimensional_elements_for_finished_state();
+    for (size_t i = 0; i < elements->Length(); ++i) {
+      auto element = elements->Get(i);
+      auto material = materials_for_finished_state_[i];
+
+      // Height is a percent of screen size. Width maintains aspect ratio.
+      auto texture = material->textures()[0];
+      vec2 texture_size(texture->size);
+      auto aspect_ratio = texture_size[0] / texture_size[1];
+      auto height = res.y() * element->size();
+      auto width = height * aspect_ratio;
+
+      // Placement is a percent of free space.
+      //    0 --> extreme left (or top)
+      //    1 --> extreme right (or bottom)
+      auto placement = LoadVec2(element->placement());
+      auto x = (res.x() - width) * placement[0];
+      auto y = (res.y() - height) * placement[1];
+
+      // Issue draw call.
+      material->Set(renderer_);
+      shader_textured_->Set(renderer_);
+      Mesh::RenderAAQuadAlongX(vec3(x, y + height, z), vec3(x + width, y, z),
+                               vec2(0, 1), vec2(1, 0));
+
+      z += 0.01;
+    }
   }
 }
 

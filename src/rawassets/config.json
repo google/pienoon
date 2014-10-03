@@ -326,6 +326,21 @@
     }
   ],
 
+  "two_dimensional_elements_for_finished_state": [
+    {
+      // Splash screen image specified by this material name.
+      "material": "materials/splash.bin",
+      "size": 0.5,
+      "placement": { "x": 0.5, "y": 0.05 }
+    },
+    {
+      // Splash screen "how to join" information in this material name.
+      "material": "materials/splash_info.bin",
+      "size": 0.12,
+      "placement": { "x": 0.6, "y": 0.48 }
+    }
+  ],
+
   "draw_characters": true,
   "draw_ui_arrows": true,
   "draw_pies": true,
