@@ -64,19 +64,17 @@ struct ImpelInitWithVelocity : public ImpelInit {
 
   // Ensure position 'x' is within the valid constraint range.
   float Normalize(float x) const {
-    if (modular) {
-      // For modular values, ensures 'x' is in the constraints (min, max].
-      // That is, exclusive of min, inclusive of max.
-      const float width = max - min;
-      const float above_min = x <= min ? x + width : x;
-      const float normalized = above_min > max ? above_min - width : above_min;
-      assert(min < normalized && normalized <= max);
-      return normalized;
+    // For non-modular values, do nothing.
+    if (!modular)
+      return x;
 
-    } else {
-      // For non-modular values, clamp 'x' to the valid range.
-      return mathfu::Clamp(x, min, max);
-    }
+    // For modular values, ensures 'x' is in the constraints (min, max].
+    // That is, exclusive of min, inclusive of max.
+    const float width = max - min;
+    const float above_min = x <= min ? x + width : x;
+    const float normalized = above_min > max ? above_min - width : above_min;
+    assert(min < normalized && normalized <= max);
+    return normalized;
   }
 
   // Ensure the Impeller's 'value' doesn't increment by more than 'max_delta'.
@@ -91,6 +89,11 @@ struct ImpelInitWithVelocity : public ImpelInit {
     return mathfu::Clamp(velocity, -max_velocity, max_velocity);
   }
 
+  // Ensure the impeller value is within the specified range.
+  float ClampValue(float value) const {
+    return mathfu::Clamp(value, min, max);
+  }
+
   // Return true if we're close to the target and almost stopped.
   // The definition of "close to" and "almost stopped" are given by the
   // "at_target" member.
@@ -102,7 +105,6 @@ struct ImpelInitWithVelocity : public ImpelInit {
 
 // For impeller types that derive from ImpelInitWithVelocity, each Impeller
 // gets a copy of this data. The data is held centrally, in the ImpelProcessor.
-template<class InitType> // InitType should derive from ImpelInitWithVelocity.
 struct ImpelDataWithVelocity {
   // What we are animating. Returned when Impeller::Value() called.
   float value;
@@ -113,35 +115,22 @@ struct ImpelDataWithVelocity {
   // What we are striving to hit. Returned when Impeller::TargetValue() called.
   float target_value;
 
-  // Type-specific data. InitType should derive from ImpelInitWithVelocity.
-  InitType init;
-
-  void Init(const InitType& init_param) {
+  virtual void Initialize(const ImpelInit& /*init_param*/) {
     value = 0.0f;
     velocity = 0.0f;
     target_value = 0.0f;
-    init = init_param;
   }
 };
 
 
-template<class InitType>
+// InitType must derive from ImpelInitWithVelocity.
+// ImpelData must derive from ImpelDataWithVelocity. It should have a member
+// called 'init' of type InitType.
+template<class ImpelData, class InitType>
 class ImpelProcessorWithVelocity : public ImpelProcessor<float> {
  public:
-  typedef InitType Init;
-
   virtual ~ImpelProcessorWithVelocity() {
     assert(map_.Count() == 0);
-  }
-
-  virtual void AdvanceFrame(ImpelTime delta_time) {
-    // Loop through every impeller one at a time.
-    // TODO OPT: reorder data and then optimize with SIMD to process in groups
-    // of 4 floating-point or 8 fixed-point values.
-    for (ImpelData* d = map_.Begin(); d < map_.End(); ++d) {
-      d->velocity = CalculateVelocity(delta_time, *d);
-      d->value = CalculateValue(delta_time, *d);
-    }
   }
 
   virtual ImpelId InitializeImpeller(const ImpelInit& init,
@@ -152,7 +141,7 @@ class ImpelProcessorWithVelocity : public ImpelProcessor<float> {
     ImpelId id = map_.Allocate();
 
     // Initialize the newly allocated item in data_.
-    Data(id).Init(static_cast<const InitType&>(init));
+    Data(id).Initialize(static_cast<const InitType&>(init));
     return id;
   }
 
@@ -172,25 +161,15 @@ class ImpelProcessorWithVelocity : public ImpelProcessor<float> {
   virtual void SetTargetValue(ImpelId id, const float& target_value) {
     Data(id).target_value = target_value;
   }
+  virtual void SetTargetTime(ImpelId /*id*/, float /*target_time*/) {}
   virtual float Difference(ImpelId id) const {
     const ImpelData& d = Data(id);
     return d.init.Normalize(d.target_value - d.value);
   }
 
  protected:
-  typedef ImpelDataWithVelocity<InitType> ImpelData;
   ImpelData& Data(ImpelId id) { return map_.Data(id); }
   const ImpelData& Data(ImpelId id) const { return map_.Data(id); }
-
-  virtual float CalculateVelocity(ImpelTime delta_time,
-                                  const ImpelData& d) const = 0;
-
-  // Step the simulation, with the current velocity.
-  virtual float CalculateValue(ImpelTime delta_time, const ImpelData& d) const {
-    const float delta = d.init.ClampDelta(delta_time * d.velocity);
-    const float value = d.init.Normalize(d.value + delta);
-    return value;
-  }
 
   IdMap<ImpelData> map_;
 };

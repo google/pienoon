@@ -39,17 +39,27 @@ struct OvershootImpelInit : public ImpelInitWithVelocity {
   float wrong_direction_multiplier;
 };
 
+struct OvershootImpelData : public ImpelDataWithVelocity {
+  OvershootImpelInit init;
+
+  virtual void Initialize(const ImpelInit& init_param) {
+    ImpelDataWithVelocity::Initialize(init_param);
+    init = static_cast<const OvershootImpelInit&>(init_param);
+  }
+};
+
 
 class OvershootImpelProcessor :
-    public ImpelProcessorWithVelocity<OvershootImpelInit> {
+    public ImpelProcessorWithVelocity<OvershootImpelData, OvershootImpelInit> {
 
  public:
   IMPEL_PROCESSOR_REGISTER(OvershootImpelProcessor, OvershootImpelInit);
   virtual ~OvershootImpelProcessor() {}
+  virtual void AdvanceFrame(ImpelTime delta_time);
 
  protected:
-  virtual float CalculateVelocity(ImpelTime delta_time,
-                                  const ImpelData& d) const;
+  float CalculateVelocity(ImpelTime delta_time, const OvershootImpelData& d) const;
+  float CalculateValue(ImpelTime delta_time, const OvershootImpelData& d) const;
 };
 
 } // namespace impel

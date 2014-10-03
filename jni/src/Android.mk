@@ -96,6 +96,7 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/character_state_machine.cpp \
   $(SPLAT_DIR)/src/controller.cpp \
   $(SPLAT_DIR)/src/gamepad_controller.cpp \
+  $(SPLAT_DIR)/src/game_camera.cpp \
   $(SPLAT_DIR)/src/game_state.cpp \
   $(SPLAT_DIR)/src/gpg_manager.cpp \
   $(SPLAT_DIR)/src/impel_engine.cpp \

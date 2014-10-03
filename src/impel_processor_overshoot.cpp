@@ -19,8 +19,19 @@ namespace impel {
 
 IMPEL_INIT_INSTANTIATE(OvershootImpelInit);
 
+
+void OvershootImpelProcessor::AdvanceFrame(ImpelTime delta_time) {
+  // Loop through every impeller one at a time.
+  // TODO OPT: reorder data and then optimize with SIMD to process in groups
+  // of 4 floating-point or 8 fixed-point values.
+  for (OvershootImpelData* d = map_.Begin(); d < map_.End(); ++d) {
+    d->velocity = CalculateVelocity(delta_time, *d);
+    d->value = CalculateValue(delta_time, *d);
+  }
+}
+
 float OvershootImpelProcessor::CalculateVelocity(ImpelTime delta_time,
-                                                 const ImpelData& d) const {
+                                                 const OvershootImpelData& d) const {
   // Increment our current face angle velocity.
   // If we're moving in the wrong direction (i.e. away from the target),
   // increase the acceleration. This results in us moving towards the target
@@ -45,6 +56,19 @@ float OvershootImpelProcessor::CalculateVelocity(ImpelTime delta_time,
   }
 
   return velocity;
+}
+
+// Step the simulation, with the current velocity.
+float OvershootImpelProcessor::CalculateValue(ImpelTime delta_time,
+                                              const OvershootImpelData& d) const {
+  // Snap to the target value when we've stopped moving.
+  if (d.velocity == 0.0f)
+    return d.target_value;
+
+  const float delta = d.init.ClampDelta(delta_time * d.velocity);
+  const float value_unclamped = d.init.Normalize(d.value + delta);
+  const float value = d.init.ClampValue(value_unclamped);
+  return value;
 }
 
 } // namespace impel

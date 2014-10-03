@@ -195,6 +195,62 @@ table TwoDimensionalElement {
   placement:Vec2;
 }
 
+//  // Defines the animation of the camera towards the target when a character is
+//  // hit by a big pie.
+//  camera_interest_start_def:SmoothParameters;
+//
+//  // Defines the animation of the camera back to its base position after we've
+//  // finished zooming in on a character hit by a big pie.
+//  camera_interest_end_def:SmoothParameters;
+//
+//  // Defines how long it takes the camera to zoom in on the character who's
+//  // been hit by a big pie. In ticks per distance unit.
+//  camera_time_per_dist_start:float;
+//
+//  // Defines how long it takes the camera to zoom out from the character and
+//  // back to its base position. In ticks per distance unit.
+//  camera_time_per_dist_end:float;
+//
+//  // The initial speed at which the camera starts to zoom towards the target.
+//  // We don't want to accelerate from speed zero. We want to have a little
+//  // speed going in so that it feels as though the camera's been jostled by
+//  // the impact.
+//  camera_start_target_velocity:float;
+//
+//  // The positions to which the camera moves when a character has been hit by
+//  // a big pie. The camera moves towards the position that is closest to the
+//  // character.
+//  camera_interest_positions:[Vec3];
+
+
+table CameraMovementToSubject {
+  // Percent of camera position to take from subject position.
+  // e.g. If (0.5, 0.5, 0.5), half the subject position is used.
+  position_from_subject:Vec3;
+
+  // Percent of camera position to take from the base camera position.
+  // The base camera position is set by 'camera_position' in Config.
+  position_from_base:Vec3;
+
+  // Percent of camera target to take from subject position.
+  target_from_subject:Vec3;
+
+  // Percent of camera target to take from the base camera target.
+  // The base camera target is set by 'camera_target' in Config.
+  target_from_base:Vec3;
+
+  // Start speed we move towards the target position. Higher values indicate
+  // sudden movement, as though you've been hit by something. In percent/tick,
+  // where percent is from 0~1.
+  start_velocity:float;
+
+  // Time to move from current position to the target.
+  time:int;
+
+  // Parameterization of the magnet.
+  def:SmoothParameters;
+}
+
 table Config {
   // Temporary variable to control number of players until we can configure it
   // from in the game
@@ -319,6 +375,18 @@ table Config {
   // controls the amount that distance affects the shake. The bigger the
   // value, the less distance matters.
   prop_shake_identity_distance_sq:float;
+
+  // Any time a character takes this amount of damage or more, the camera will
+  // move.
+  camera_move_on_damage_min_damage:int;
+
+  // Defines the animation of the camera towards the target when a character is
+  // hit by a big pie.
+  camera_move_on_damage:CameraMovementToSubject;
+
+  // Defines the animation of the camera back to its base position after we've
+  // finished zooming in on a character hit by a big pie.
+  camera_move_to_base:CameraMovementToSubject;
 
   // After the game is finished, minimal time before we can reset and start
   // playing again. In ms.

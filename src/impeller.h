@@ -70,6 +70,12 @@ class ImpellerBase {
   // fixed.
   int Dimensions() const { return processor_->Dimensions(); }
 
+  // Set simulation values. Some simulation values are independent of the
+  // number of dimensions, so we put them in the base class.
+  void SetTargetTime(float target_time) {
+    return processor_->SetTargetTime(id_, target_time);
+  }
+
   // More complicated impellers are aggregates of impellers. For example, a
   // composite impeller might emit a 3D vector by aggregating three 1D
   // impellers. These functions allow you to traverse the tree of impellers.

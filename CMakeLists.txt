@@ -154,6 +154,7 @@ set(splat_SRCS
     src/angle.h
     src/audio_engine.cpp
     src/audio_engine.h
+    src/bezier.h
     src/character.cpp
     src/character.h
     src/character_state_machine.cpp
@@ -161,6 +162,8 @@ set(splat_SRCS
     src/common.h
     src/controller.cpp
     src/controller.h
+    src/game_camera.cpp
+    src/game_camera.h
     src/game_state.cpp
     src/game_state.h
     src/gamepad_controller.cpp

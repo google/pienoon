@@ -50,6 +50,10 @@ class ImpelProcessorBase {
   // in 3D space would return 3.
   virtual int Dimensions() const = 0;
 
+  // Set simulation values. Some simulation values are independent of the
+  // number of dimensions, so we put them in the base class.
+  virtual void SetTargetTime(ImpelId /*id*/, float /*target_time*/) {}
+
   // For aggregate Impellers, get the sub-Impellers. See comments in Impeller
   // for details.
   virtual int ChildImpellerCount(ImpelId /*id*/) const { return 0; }

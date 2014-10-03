@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "precompiled.h"
 #include "impel_engine.h"
 #include "impel_processor_smooth.h"
 
@@ -19,23 +20,47 @@ namespace impel {
 
 IMPEL_INIT_INSTANTIATE(SmoothImpelInit);
 
-float SmoothImpelProcessor::CalculateVelocity(ImpelTime delta_time,
-                                              const ImpelData& d) const {
-  const float dist = d.init.Normalize(d.target_value - d.value);
-  const bool at_target = d.init.AtTarget(dist, d.velocity);
-  if (at_target)
-    return 0.0f;
+void SmoothImpelProcessor::AdvanceFrame(ImpelTime delta_time) {
+  // Loop through every impeller one at a time.
+  // TODO OPT: reorder data and then optimize with SIMD to process in groups
+  // of 4 floating-point or 8 fixed-point values.
+  for (SmoothImpelData* d = map_.Begin(); d < map_.End(); ++d) {
+    // If the current or target parameters have changed, we need to recalculate
+    // the curve that we're following. We do this lazily to avoid recalculating
+    // more than once when both the current value and target value are set.
+    if (!d->curve_valid) {
+      CalculateCurve(d);
+    }
 
-  const float abs_dist = fabs(dist);
-  const float decel_time = abs_dist / d.init.decel;
-  const float decel_dist = 0.5f * abs_dist * decel_time;
-  const bool should_decel = decel_dist >= dist;
-  const float accel = should_decel ? -d.init.decel : d.init.accel;
-  const float velocity_unclamped = d.velocity + accel * delta_time;
-  const float velocity = mathfu::Clamp(
-      velocity_unclamped, -d.init.max_velocity, d.init.max_velocity);
-  return velocity;
+    // Update the current simulation time. A time of 0 is the start of the
+    // curve, and a time of end_time is the end of the curve.
+    d->time += delta_time;
+
+    // We've we're at the end of the curve then we're already at the target.
+    const bool at_target = d->time >= d->end_time;
+    if (at_target) {
+      // Optimize the case when we're already at the target.
+      d->value = d->target_value;
+      d->velocity = 0.0f;
+    } else {
+      // Evaluate the polynomial at the current time.
+      d->value = d->init.Normalize(d->curve.Evaluate(d->time));
+      d->velocity = d->curve.Derivative(d->time);
+    }
+  }
+}
+
+void SmoothImpelProcessor::CalculateCurve(SmoothImpelData* d) const {
+  if (d->end_time > 0.0f) {
+    d->curve.Initialize(d->value, d->velocity, d->target_value, 0.0f, 0.0f,
+                        d->end_time);
+  } else {
+    d->curve = BezierCurve1f();
+  }
+  d->time = 0.0f;
+  d->curve_valid = true;
 }
 
 } // namespace impel
+
 

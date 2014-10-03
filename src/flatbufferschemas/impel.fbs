@@ -25,14 +25,7 @@ table Settled1fParameters {
   max_velocity:float;
 }
 
-// Characterize the movement of an overshoot Impeller. Please see
-// impel_processor_overshoot.cpp for the actual algorithm.
-//
-// e.g. An angle will set 'modular' to true, with 'min' of -pi and 'max' of +pi.
-// The 'max_delta' and 'max_velocity' for an angle will depend on the thing that
-// is turning--a face angle might move more slowly than a robot arm, for
-// example.
-table OvershootParameters {
+table VelocityParameters {
   // A modular value wraps around from min to max. For example, an angle
   // is modular, where -pi is equivalent to +pi. Setting this to true ensures
   // that arithmetic wraps around instead of clamping to min/max.
@@ -60,6 +53,18 @@ table OvershootParameters {
   // target. Once it has settled, Value() is set to TargetValue() and Velocity()
   // is set to zero.
   at_target:Settled1fParameters;
+}
+
+// Characterize the movement of an overshoot Impeller. Please see
+// impel_processor_overshoot.cpp for the actual algorithm.
+//
+// e.g. An angle will set 'modular' to true, with 'min' of -pi and 'max' of +pi.
+// The 'max_delta' and 'max_velocity' for an angle will depend on the thing that
+// is turning--a face angle might move more slowly than a robot arm, for
+// example.
+table OvershootParameters {
+  // Common properties for everything based on ImpelInitWithVelocity.
+  base:VelocityParameters;
 
   // Acceleration is a multiple of abs('state_.position' - 'target_.position').
   // Bigger differences cause faster acceleration.
@@ -69,6 +74,11 @@ table OvershootParameters {
   // this amount. We need counter-acceleration to be stronger so that the
   // amplitude eventually dies down; otherwise, we'd just have a pendulum.
   wrong_direction_acceleration_multiplier:float;
+}
+
+table SmoothParameters {
+  // Common properties for everything based on ImpelInitWithVelocity.
+  base:VelocityParameters;
 }
 
 table TwitchParameters {

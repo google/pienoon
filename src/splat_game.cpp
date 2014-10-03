@@ -418,7 +418,7 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
     // Set the camera and light positions in object space.
     const mat4 world_matrix_inverse = renderable->world_matrix().Inverse();
     renderer_.camera_pos() = world_matrix_inverse *
-                             game_state_.camera_position();
+                             game_state_.camera().Position();
 
     // TODO: check amount of lights.
     renderer_.light_pos() = world_matrix_inverse * (*scene.lights()[0]);
@@ -638,10 +638,10 @@ void SplatGame::DebugCamera() {
     return;
 
   // Calculate the ortho-normal axes of camera space.
-  vec3 forward = game_state_.camera_target() - game_state_.camera_position();
-  const float dist = forward.Normalize();
-  const vec3 side = vec3::CrossProduct(mathfu::kAxisY3f, forward);
-  const vec3 up = vec3::CrossProduct(side, forward);
+  GameCamera& camera = game_state_.camera();
+  const vec3 forward = camera.Forward();
+  const vec3 side = camera.Side();
+  const vec3 up = camera.Up();
 
   // Convert translation from camera space to world space and scale.
   if (translate) {
@@ -649,10 +649,8 @@ void SplatGame::DebugCamera() {
     const vec3 world_translation = scale * (camera_translation[0] * side +
                                             camera_translation[1] * up +
                                             camera_translation[2] * forward);
-    const vec3 new_position = game_state_.camera_position() + world_translation;
-    const vec3 new_target = game_state_.camera_target() + world_translation;
-    game_state_.set_camera_position(new_position);
-    game_state_.set_camera_target(new_target);
+    const vec3 new_position = camera.Position() + world_translation;
+    camera.OverridePosition(new_position);
 
     if (config.print_camera_orientation()) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -665,16 +663,17 @@ void SplatGame::DebugCamera() {
   if (rotate) {
     // Apply mouse movement along up and side axes. Scale so that no matter
     // distance, the same angle is applied.
+    const float dist = camera.Dist();
     const float scale = dist * config.mouse_to_camera_rotation_scale();
     const vec3 unscaled_delta = mouse_delta.x() * side + mouse_delta.y() * up;
     const vec3 target_delta = scale * unscaled_delta;
-    const vec3 new_target = game_state_.camera_target() + target_delta;
-    game_state_.set_camera_target(new_target);
+    const vec3 new_target = camera.Target() + target_delta;
+    camera.OverrideTarget(new_target);
 
     if (config.print_camera_orientation()) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                   "camera target (%.5ff, %.5ff, %.5ff)\n",
-                   new_target[0], new_target[1], new_target[2]);
+                  "camera target (%.5ff, %.5ff, %.5ff)\n",
+                  new_target[0], new_target[1], new_target[2]);
     }
   }
 }

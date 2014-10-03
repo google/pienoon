@@ -299,23 +299,27 @@
   "max_update_time": 100,
 
   "face_angle_def": {
-    "modular": true,
-    "min": -3.14159265359,
-    "max": 3.14159265359,
-    "max_velocity": 0.021,
-    "max_delta": 3.141,
-    "at_target": { "max_difference": 0.087, "max_velocity": 0.00059 },
+    "base": {
+      "modular": true,
+      "min": -3.14159265359,
+      "max": 3.14159265359,
+      "max_velocity": 0.021,
+      "max_delta": 3.141,
+      "at_target": { "max_difference": 0.087, "max_velocity": 0.00059 }
+    },
     "acceleration_per_difference": 0.00032,
     "wrong_direction_acceleration_multiplier": 4.0
   },
 
   "prop_shake_def": {
-    "modular": false,
-    "min": -0.5235,
-    "max": 0.5235,
-    "max_velocity": 0.021,
-    "max_delta": 1.5,
-    "at_target": { "max_difference": 0.010, "max_velocity": 0.00003 },
+    "base": {
+      "modular": false,
+      "min": -0.5235,
+      "max": 0.5235,
+      "max_velocity": 0.021,
+      "max_delta": 1.5,
+      "at_target": { "max_difference": 0.010, "max_velocity": 0.00003 }
+    },
     "acceleration_per_difference": 0.00015,
     "wrong_direction_acceleration_multiplier": 1.5
   },
@@ -339,6 +343,44 @@
     "PieMedium",
     "PieLarge"
   ],
+
+  "camera_move_on_damage_min_damage": 5,
+  "camera_move_on_damage": {
+    "position_from_subject": {"x": 1.1, "y": 0.0, "z": 0.2 },
+    "position_from_base": {"x": 1.0, "y": 0.8, "z": 1.0 },
+    "target_from_subject": {"x": 0.5, "y": 0.0, "z": 1.1 },
+    "target_from_base": {"x": 0.0, "y": 1.0, "z": 0.0 },
+    "start_velocity": 0.5,
+    "time": 170,
+    "def": {
+      "base": {
+        "modular": false,
+        "min": 0.0,
+        "max": 1.0,
+        "max_velocity": 0.03,
+        "max_delta": 1.0,
+        "at_target": { "max_difference": 0.01, "max_velocity": 0.001 }
+      }
+    }
+  },
+  "camera_move_to_base": {
+    "position_from_subject": {"x": 0.0, "y": 0.0, "z": 0.0 },
+    "position_from_base": {"x": 1.0, "y": 1.0, "z": 1.0 },
+    "target_from_subject": {"x": 0.0, "y": 0.0, "z": 0.0 },
+    "target_from_base": {"x": 1.0, "y": 1.0, "z": 1.0 },
+    "start_velocity": 0.0,
+    "time": 1300,
+    "def": {
+      "base": {
+        "modular": false,
+        "min": 0.0,
+        "max": 1.0,
+        "max_velocity": 0.01,
+        "max_delta": 1.0,
+        "at_target": { "max_difference": 0.01, "max_velocity": 0.001 }
+      }
+    }
+  },
 
   "play_finished_timeout": 2000,
 
@@ -1061,5 +1103,5 @@
 
   "print_character_states": false,
   "print_pie_states": false,
-  "print_camera_orientation": false
+  "print_camera_orientation": true
 }

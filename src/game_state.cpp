@@ -18,6 +18,7 @@
 #include "character_state_machine.h"
 #include "impel_flatbuffers.h"
 #include "impel_processor_overshoot.h"
+#include "impel_processor_smooth.h"
 #include "impel_util.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
@@ -59,8 +60,6 @@ struct EventData {
 
 GameState::GameState()
     : time_(0),
-      camera_position_(mathfu::kZeros3f),
-      camera_target_(mathfu::kZeros3f),
       characters_(),
       pies_(),
       config_(),
@@ -162,8 +161,9 @@ bool GameState::IsGameOver() const {
 // Reset the game back to initial configuration.
 void GameState::Reset() {
   time_ = 0;
-  camera_position_ = LoadVec3(config_->camera_position());
-  camera_target_ = LoadVec3(config_->camera_target());
+  camera_base_.position = LoadVec3(config_->camera_position());
+  camera_base_.target = LoadVec3(config_->camera_target());
+  camera_.Initialize(camera_base_, &impel_engine_);
   pies_.clear();
   arrangement_ = GetBestArrangement(config_, characters_.size());
 
@@ -260,6 +260,24 @@ CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
   }
 }
 
+// Translate movement defined in 'm' into a motion that can be enqueued in the
+// GameCamera. Center the movement about 'subject_position'.
+static GameCameraMovement CalculateCameraMovement(
+    const CameraMovementToSubject& m, const vec3& subject_position,
+    const GameCameraState& base) {
+  GameCameraMovement movement;
+  movement.end.position =
+      subject_position * LoadVec3(m.position_from_subject()) +
+      base.position * LoadVec3(m.position_from_base());
+  movement.end.target =
+      subject_position * LoadVec3(m.target_from_subject()) +
+      base.target * LoadVec3(m.target_from_base());
+  movement.start_velocity = m.start_velocity();
+  movement.time = static_cast<float>(m.time());
+  SmoothInitFromFlatBuffers(*m.def(), &movement.init);
+  return movement;
+}
+
 void GameState::ProcessEvent(Character* character,
                              unsigned int event,
                              const EventData& event_data) {
@@ -285,6 +303,17 @@ void GameState::ProcessEvent(Character* character,
       const float shake_percent = mathfu::Clamp(
           total_damage * config_->prop_shake_percent_per_damage(), 0.0f, 1.0f);
       ShakeProps(shake_percent, character->position());
+
+      // Move the camera.
+      if (total_damage >= config_->camera_move_on_damage_min_damage()) {
+        camera_.TerminateMovements();
+        camera_.QueueMovement(CalculateCameraMovement(
+                                  *config_->camera_move_on_damage(),
+                                  character->position(), camera_base_));
+        camera_.QueueMovement(CalculateCameraMovement(
+                                  *config_->camera_move_to_base(),
+                                  character->position(), camera_base_));
+      }
       break;
     }
     case EventId_ReleasePie: {
@@ -783,6 +812,8 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   for (unsigned int i = 0; i < characters_.size(); ++i) {
     ProcessSounds(audio_engine, *characters_[i].get(), delta_time);
   }
+
+  camera_.AdvanceFrame(delta_time);
 }
 
 static uint16_t RenderableIdForPieDamage(CharacterHealth damage,
@@ -794,7 +825,7 @@ static uint16_t RenderableIdForPieDamage(CharacterHealth damage,
 
 // Get the camera matrix used for rendering.
 mat4 GameState::CameraMatrix() const {
-  return mat4::LookAt(camera_target_, camera_position_, mathfu::kAxisY3f);
+  return mat4::LookAt(camera_.Target(), camera_.Position(), mathfu::kAxisY3f);
 }
 
 static const mat4 CalculateAccessoryMatrix(
@@ -979,7 +1010,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     for (size_t i = 0; i < characters_.size(); ++i) {
       sorted_characters[i] = characters_[i].get();
     }
-    const CharacterDepthComparer comparer(camera_position_);
+    const CharacterDepthComparer comparer(camera_.Position());
     std::sort(sorted_characters.begin(), sorted_characters.end(), comparer);
 
     // Render all parts of the character. Note that order matters here. For
@@ -998,7 +1029,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       // Render accessories and splatters on the camera-facing side
       // of the character.
       const Angle towards_camera_angle = Angle::FromXZVector(
-          camera_position_ - character->position());
+          camera_.Position() - character->position());
       const Angle face_to_camera_angle =
           character->FaceAngle() - towards_camera_angle;
       const bool facing_camera = face_to_camera_angle.ToRadians() < 0.0f;

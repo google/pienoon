@@ -15,20 +15,31 @@
 #include "impel_flatbuffers.h"
 #include "impel_generated.h"
 #include "impel_processor_overshoot.h"
+#include "impel_processor_smooth.h"
 
 namespace impel {
 
-void OvershootInitFromFlatBuffers(const OvershootParameters& params,
-                                  OvershootImpelInit* init) {
+void VelocityInitFromFlatBuffers(const VelocityParameters& params,
+                                 ImpelInitWithVelocity* init) {
   init->modular = params.modular();
   init->min = params.min();
   init->max = params.max();
   init->max_delta = params.max_delta();
   init->max_velocity = params.max_velocity();
   Settled1fFromFlatBuffers(*params.at_target(), &init->at_target);
+}
+
+void OvershootInitFromFlatBuffers(const OvershootParameters& params,
+                                  OvershootImpelInit* init) {
+  VelocityInitFromFlatBuffers(*params.base(), init);
   init->accel_per_difference = params.acceleration_per_difference();
   init->wrong_direction_multiplier =
       params.wrong_direction_acceleration_multiplier();
+}
+
+void SmoothInitFromFlatBuffers(const SmoothParameters& params,
+                               SmoothImpelInit* init) {
+  VelocityInitFromFlatBuffers(*params.base(), init);
 }
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,

@@ -19,11 +19,16 @@ namespace impel {
 
 struct OvershootImpelInit;
 struct OvershootParameters;
+struct SmoothImpelInit;
+struct SmoothParameters;
 struct Settled1f;
 struct Settled1fParameters;
 
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
                                   OvershootImpelInit* init);
+
+void SmoothInitFromFlatBuffers(const SmoothParameters& params,
+                               SmoothImpelInit* init);
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
                               Settled1f* settled);

@@ -21,6 +21,7 @@
 #include "impel_processor.h"
 #include "impel_util.h"
 #include "particles.h"
+#include "game_camera.h"
 
 namespace fpl {
 
@@ -79,15 +80,8 @@ class GameState {
   // character is incapacitated.
   bool IsImmobile(CharacterId id) const;
 
-  const mathfu::vec3& camera_position() const { return camera_position_; }
-  void set_camera_position(const mathfu::vec3& position) {
-    camera_position_ = position;
-  }
-
-  const mathfu::vec3& camera_target() const { return camera_target_; }
-  void set_camera_target(const mathfu::vec3& target) {
-    camera_target_ = target;
-  }
+  GameCamera& camera() { return camera_; }
+  const GameCamera& camera() const { return camera_; }
 
   std::vector<std::unique_ptr<Character>>& characters() { return characters_; }
   const std::vector<std::unique_ptr<Character>>& characters() const {
@@ -143,8 +137,8 @@ private:
   // given in the config file minus the duration of the current game given in
   // the time_ variable.
   int countdown_timer_;
-  mathfu::vec3 camera_position_;
-  mathfu::vec3 camera_target_;
+  GameCamera camera_;
+  GameCameraState camera_base_;
   std::vector<std::unique_ptr<Character>> characters_;
   std::vector<std::unique_ptr<AirbornePie>> pies_;
   impel::ImpelEngine impel_engine_;
