@@ -48,7 +48,7 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
       return;
   }
 
-  time_to_next_action_ +=
+  time_to_next_action_ =
       mathfu::RandomInRange<float>(config_->ai_minimum_time_between_actions(),
       config_->ai_maximum_time_between_actions());
 
