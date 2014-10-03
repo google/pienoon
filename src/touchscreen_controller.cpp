@@ -17,6 +17,7 @@
 #include "common.h"
 #include "controller.h"
 #include "touchscreen_controller.h"
+#include "utilities.h"
 
 namespace fpl {
 namespace splat {
@@ -49,43 +50,33 @@ void TouchscreenController::Initialize(InputSystem* input_system,
   config_ = config;
 }
 
-void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
-  assert(input_system_);
-  uint32_t touch_inputs = 0;
-  went_down_ = went_up_ = 0;
+// Called from outside, based on screen touches.
+// Basically just translates button inputs into logical inputs.
+void TouchscreenController::HandleTouchButtonInput(int input, bool value) {
 
-  for (size_t i = 0; i < input_system_->pointers_.size(); i++) {
-    Pointer pointer = input_system_->pointers_[i];
-    if (!pointer.used ||
-        !input_system_->GetPointerButton(pointer.id).is_down()) {
-      continue;
-    }
-
-    vec2 pointer_pos = vec2(pointer.mousepos);
-    pointer_pos.x() /= window_size_.x();
-    pointer_pos.y() /= window_size_.y();
-
-    for (size_t j = 0; j < config_->touchscreen_zones()->Length(); j++) {
-      const TouchInputZone* zone = config_->touchscreen_zones()->Get(j);
-
-      if (pointer_pos.x() >= zone->left() &&
-          pointer_pos.x() < zone->right() &&
-          pointer_pos.y() >= zone->top() &&
-          pointer_pos.y() < zone->bottom()) {
-        touch_inputs |= zone->input_type();
-        break;  // Pointer touches are consumed by the first zone that matches.
-      }
-    }
+  int logicalInput = 0;
+  switch (input) {
+    case ButtonInputType_Left:
+      logicalInput = LogicalInputs_Left;
+      break;
+    case ButtonInputType_Right:
+      logicalInput = LogicalInputs_Right;
+      break;
+    case ButtonInputType_Attack:
+      logicalInput = LogicalInputs_ThrowPie;
+      break;
+    case ButtonInputType_Defend:
+      logicalInput = LogicalInputs_Deflect;
+      break;
+    default:
+      break;
   }
+  SetLogicalInputs(logicalInput, value);
+}
 
-  SetLogicalInputs(LogicalInputs_Left,
-                   (touch_inputs & TouchZoneInputType_Left) != 0);
-  SetLogicalInputs(LogicalInputs_Right,
-                   (touch_inputs & TouchZoneInputType_Right) != 0);
-  SetLogicalInputs(LogicalInputs_ThrowPie,
-                   (touch_inputs & TouchZoneInputType_Attack) != 0);
-  SetLogicalInputs(LogicalInputs_Deflect,
-                   (touch_inputs & TouchZoneInputType_Defend) != 0);
+
+void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
+  went_down_ = went_up_ = 0;
 }
 
 }  // splat

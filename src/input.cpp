@@ -105,6 +105,7 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
         GetPointerButton(event.button.button - 1).Update(
             event.button.state == SDL_PRESSED);
         pointers_[0].mousepos = vec2i(event.button.x, event.button.y);
+        pointers_[0].used = true;
         break;
       }
       case SDL_MOUSEMOTION: {

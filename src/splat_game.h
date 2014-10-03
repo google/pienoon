@@ -15,15 +15,17 @@
 #ifndef SPLAT_GAME_H
 #define SPLAT_GAME_H
 
+#include "ai_controller.h"
+#include "audio_engine.h"
+#include "gamepad_controller.h"
 #include "game_state.h"
 #include "input.h"
 #include "material_manager.h"
-#include "scene_description.h"
-#include "renderer.h"
 #include "player_controller.h"
-#include "ai_controller.h"
-#include "gamepad_controller.h"
-#include "audio_engine.h"
+#include "renderer.h"
+#include "scene_description.h"
+#include "touchscreen_button.h"
+#include "touchscreen_controller.h"
 #ifdef PLATFORM_MOBILE
 #include "gpg_manager.h"
 #endif
@@ -76,6 +78,7 @@ class SplatGame {
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining();
   void UpdateControllers(WorldTime delta_time);
+  void UpdateTouchButtons();
 
   // The overall operating mode of our game. See CalculateSplatState for the
   // state machine definition.
@@ -146,6 +149,10 @@ class SplatGame {
   // Debug data. For displaying when a character's state has changed.
   std::vector<int> debug_previous_states_;
   std::vector<Angle> debug_previous_angles_;
+
+  TouchscreenController* touch_controller_;
+
+  std::vector<TouchscreenButton>touch_controls_;
 
   std::map<SDL_JoystickID, ControllerId> joystick_to_controller_map_;
 

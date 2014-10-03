@@ -30,7 +30,7 @@ enum PieDeflectionMode : ushort {
   ToRandom
 }
 
-enum TouchZoneInputType : ushort (bit_flags) {
+enum ButtonInputType : ushort (bit_flags) {
   Left,
   Right,
   Attack,
@@ -38,16 +38,31 @@ enum TouchZoneInputType : ushort (bit_flags) {
 }
 
 // Used for defining zones for the touch controller.
-// top/left/bottom/right are used to demarcate the zone boundaries,
-// and are expressed as floats from [0, 1].  (0,0) is the upper left corner of
 // the touch screen, (1, 1) is the lower right.  Input_type is what input
 // action should be associated with touching that zone.
-table TouchInputZone {
-  top : float;
-  left : float;
-  bottom : float;
-  right : float;
-  input_type : TouchZoneInputType;
+// texture_normal and texture_down show which textures are used to represent
+// the touch-zone in its normal state and when it's being pressed.
+table ButtonDef {
+  // These are used to demarcate the zone boundaries,
+  // Coordinate values can range from 0-1.  (0,0) represents the upper
+  // left corner of the touch screen, (1, 1) is lower right.
+  top_left : Vec2;
+  bottom_right : Vec2;
+
+  // Which action is triggered by touching this zone.
+  input_type : ButtonInputType;
+
+  // Material to display for the touch zone, both in its normal
+  // state, and when it is registering a press.
+  texture_normal : string;
+  texture_pressed : string;
+  draw_scale_normal: Vec2;
+  draw_scale_pressed: Vec2;
+
+  // Position to draw the texture at:
+  // (Designates the center of the texture, and like the zone boundaries, is
+  // expressed as a fraction of the screen width/height.)
+  texture_position : Vec2;
 }
 
 table FixedAccessory {
@@ -374,7 +389,7 @@ table Config {
   // UI options
   //
   // Touchscreen controller layout:
-  touchscreen_zones:[TouchInputZone];
+  touchscreen_zones:[ButtonDef];
 
   // Splash screen, etc.
   two_dimensional_elements_for_finished_state:[TwoDimensionalElement];

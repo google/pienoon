@@ -193,6 +193,8 @@ set(splat_SRCS
     src/sound_collection.h
     src/splat_game.cpp
     src/splat_game.h
+    src/touchscreen_button.h
+    src/touchscreen_button.cpp
     src/touchscreen_controller.cpp
     src/touchscreen_controller.h
     src/utilities.cpp

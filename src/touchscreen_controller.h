@@ -50,6 +50,8 @@ class TouchscreenController : public Controller {
   // Map the input from the physical inputs to logical game inputs.
   virtual void AdvanceFrame(WorldTime delta_time);
 
+  void HandleTouchButtonInput(int input, bool value);
+
  private:
   // A pointer to the object to query for the current input state.
   InputSystem* input_system_;

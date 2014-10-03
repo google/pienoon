@@ -296,34 +296,48 @@
   "ai_chance_to_throw": 0.2,
 
   "touchscreen_zones" : [
-    {
-      "top" : 0.7,
-      "left" : 0.0,
-      "bottom" : 1.0,
-      "right" : 0.2,
-      "input_type" : "Left"
-    },
-    {
-      "top" : 0.7,
-      "left" : 0.8,
-      "bottom" : 1.0,
-      "right" : 1.0,
-      "input_type" : "Right"
-    },
-    {
-      "top" : 0.0,
-      "left" : 0.0,
-      "bottom" : 0.7,
-      "right" : 1.0,
-      "input_type" : "Attack"
-    },
-    {
-      "top" : 0.7,
-      "left" : 0.2,
-      "bottom" : 1.0,
-      "right" : 0.8,
-      "input_type" : "Defend"
-    }
+        {
+          "top_left" : { "x": 0.0, "y": 0.7 },
+          "bottom_right" : { "x": 0.2, "y": 1.0 },
+          "input_type" : "Left",
+          "texture_normal" : "materials/arrow.bin",
+          "texture_pressed" : "materials/arrow.bin",
+          "texture_position" : { "x": 0.1, "y": 0.85 },
+          "draw_scale_normal" : { "x": -0.25, "y": 0.25 },
+          "draw_scale_pressed" : { "x": -0.5, "y": 0.5 }
+
+        },
+        {
+          "top_left" : { "x": 0.8, "y": 0.7 },
+          "bottom_right" : { "x": 1.0, "y": 1.0 },
+          "input_type" : "Right",
+          "texture_normal" : "materials/arrow.bin",
+          "texture_pressed" : "materials/arrow.bin",
+          "texture_position" : { "x": 0.9, "y": 0.85 },
+          "draw_scale_normal" : { "x": 0.25, "y": 0.25 },
+          "draw_scale_pressed" : { "x": 0.5, "y": 0.5 }
+        },
+        {
+          "top_left" : { "x": 0.0, "y": 0.0 },
+          "bottom_right" : { "x": 1.0, "y": 0.7 },
+          "input_type" : "Attack",
+          "texture_normal" : "materials/pie_small.bin",
+          "texture_pressed" : "materials/pie_large.bin",
+          "texture_position" : { "x": 0.5, "y": 0.1 },
+          "draw_scale_normal" : { "x": -1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+
+        },
+        {
+          "top_left" : { "x": 0.2, "y": 0.7 },
+          "bottom_right" : { "x": 0.8, "y": 1.0 },
+          "input_type" : "Defend",
+          "texture_normal" : "materials/pie_block.bin",
+          "texture_pressed" : "materials/pie_block.bin",
+          "texture_position" : { "x": 0.5, "y": 0.85 },
+          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+        }
   ],
 
   "two_dimensional_elements_for_finished_state": [

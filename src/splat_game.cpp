@@ -271,6 +271,17 @@ bool SplatGame::InitializeRenderingAssets() {
     if (!materials_for_finished_state_[i]) return false;
   }
 
+  touch_controls_.resize(config.touchscreen_zones()->Length());
+
+  for (size_t i = 0; i < config.touchscreen_zones()->Length(); i++) {
+    touch_controls_[i].set_up_material(matman_.LoadMaterial(
+        config.touchscreen_zones()->Get(i)->texture_normal()->c_str()));
+    touch_controls_[i].set_down_material(matman_.LoadMaterial(
+        config.touchscreen_zones()->Get(i)->texture_pressed()->c_str()));
+    touch_controls_[i].set_button_def(config.touchscreen_zones()->Get(i));
+    touch_controls_[i].set_shader(shader_textured_);
+  }
+
   return true;
 }
 
@@ -303,11 +314,12 @@ bool SplatGame::InitializeGameState() {
 
   // Add a touch screen controller into the controller list, so that touch
   // inputs are processed correctly and assigned a character:
-  TouchscreenController * ts_controller = new TouchscreenController();
+  touch_controller_ = new TouchscreenController();
+
   vec2 window_size = vec2(static_cast<float>(renderer_.window_size().x()),
                           static_cast<float>(renderer_.window_size().y()));
-  ts_controller->Initialize(&input_, window_size, &config);
-  AddController(ts_controller);
+  touch_controller_->Initialize(&input_, window_size, &config);
+  AddController(touch_controller_);
 
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
@@ -520,7 +532,14 @@ void SplatGame::Render2DElements() {
       z += 0.01;
     }
   }
+  // Render touch controls, as long as the touch-controller is active.
+  if (touch_controller_->character_id() != kNoCharacter) {
+    for (size_t i = 0; i < touch_controls_.size(); i++) {
+      touch_controls_[i].Render(renderer_);
+    }
+  }
 }
+
 
 // Debug function to print out state machine transitions.
 void SplatGame::DebugPrintCharacterStates() {
@@ -830,6 +849,35 @@ void SplatGame::UpdateControllers(WorldTime delta_time) {
   }
 }
 
+void SplatGame::UpdateTouchButtons() {
+  for (size_t i = 0; i < touch_controls_.size(); i++) {
+    touch_controls_[i].set_button_state(false);
+  }
+
+  for (size_t i = 0; i < input_.pointers_.size(); i++) {
+    Pointer pointer = input_.pointers_[i];
+    if (!pointer.used ||
+        !input_.GetPointerButton(pointer.id).is_down()) {
+      continue;
+    }
+    // Look for a touch-control to handle each pointer:
+    for (size_t i = 0; i < touch_controls_.size(); i++) {
+      if (touch_controls_[i].HandlePointer(pointer,
+                                           vec2(renderer_.window_size()))) {
+        // The first touch control to handle a pointer consumes it.
+        break;
+      }
+    }
+  }
+
+  for (size_t i = 0; i < touch_controls_.size(); i++) {
+    touch_controller_->HandleTouchButtonInput(
+        touch_controls_[i].button_def()->input_type(),
+        touch_controls_[i].button_state());
+  }
+}
+
+
 void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   const Config& config = GetConfig();
@@ -862,6 +910,8 @@ void SplatGame::Run() {
 
     UpdateGamepadControllers();
     UpdateControllers(delta_time);
+    UpdateTouchButtons();
+
     // Update game logic by a variable number of milliseconds.
     game_state_.AdvanceFrame(delta_time, &audio_engine_);
 
