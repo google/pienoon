@@ -803,20 +803,23 @@
     {
       "id": "PieSmall",
       "cardboard_front": "materials/pie_small.bin",
+      "offset": { "x": 0.0, "y": -0.2, "z": 0.0 },
       "shadow": true,
       "cardboard": true
     },
     {
       "id": "PieMedium",
       "cardboard_front": "materials/pie_medium.bin",
+      "offset": { "x": 0.0, "y": -0.3, "z": 0.0 },
       "shadow": true,
       "cardboard": true
     },
     {
       "id": "PieLarge",
       "cardboard_front": "materials/pie_large.bin",
-      "pixel_bounds": { "x": 256, "y": 212 }, // (392,324) --> (256,212)
-      "geometry_scale": 1.2, // 1.5312 = 392 / 256, but shrink a little
+      "offset": { "x": 0.0, "y": -0.5, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 221 }, // (273,236) --> (256,221)
+      "geometry_scale": 1.4, // 1.0664 = 273 / 256, but grew a little
       "shadow": true,
       "cardboard": true
     },

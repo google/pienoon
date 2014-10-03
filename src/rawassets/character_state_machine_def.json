@@ -88,7 +88,7 @@
             "renderable": "RenderableId.PieSmall",
             "offset": {
               "x": 2,
-              "y": 132
+              "y": 162
             }
           }
         ],
@@ -150,7 +150,7 @@
             "renderable": "RenderableId.PieMedium",
             "offset": {
               "x": 14,
-              "y": 300
+              "y": 350
             }
           }
         ],
@@ -211,8 +211,8 @@
             "end_time": 750,
             "renderable": "RenderableId.PieLarge",
             "offset": {
-              "x": -100,
-              "y": 240
+              "x": -120,
+              "y": 300
             }
           }
         ],
