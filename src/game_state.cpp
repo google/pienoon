@@ -182,6 +182,7 @@ void GameState::ProcessEvent(Character* character,
         const ReceivedPie& pie = event_data.received_pies[i];
         character->set_health(character->health() - pie.damage);
         characters_[pie.source_id]->IncrementStat(kHits);
+        CreatePieSplatter(character->id(), pie.damage);
       }
       break;
     }
@@ -198,6 +199,8 @@ void GameState::ProcessEvent(Character* character,
         if (deflected_pie_damage > 0) {
           CreatePie(character->id(), DetermineDeflectionTarget(pie),
                     deflected_pie_damage);
+        } else {
+          CreatePieSplatter(character->id(), 1);
         }
         character->IncrementStat(kBlocks);
         characters_[pie.source_id]->IncrementStat(kMisses);
@@ -526,6 +529,9 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // delta_time. For example, GetAnimationTime needs to compare against the
   // time for *this* frame, not last frame.
   time_ += delta_time;
+  if (NumActiveCharacters(true) == 0) {
+    SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
+  }
 
   // Damage is queued up per character then applied during event processing.
   std::vector<EventData> event_data(characters_.size());
@@ -563,13 +569,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
       };
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
-      CharacterHealth pie_damage = pie->damage();
       it = pies_.erase(it);
-
-      // TODO(ccornell) - put this somewhere better?
-      if (character->State() != StateId_Blocking) {
-        CreatePieSplatter(character->id(), pie_damage);
-      }
     }
     else {
       ++it;

@@ -196,12 +196,40 @@
     "mixer_channels": 16
   },
 
+    "confetti_def": {
+      "min_scale":  { "x": 5.0, "y": 5.0, "z": 5.0 },
+      "max_scale":  { "x": 10.0, "y": 10.0, "z": 10.0 },
+      "preserve_aspect": false,
+      "min_velocity":  { "x": -0.002, "y": -0.003, "z": -0.002 },
+      "max_velocity":  { "x": 0.002, "y": -0.005, "z": 0.002 },
+      "min_position_offset":  { "x": -10, "y": 0.0, "z": -10 },
+      "max_position_offset":  { "x": 10, "y": 0.0, "z": 10 },
+      "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
+      "max_orientation_offset":  { "x": 6.282, "y": 6.282, "z": 6.282 },
+      "min_angular_velocity": { "x": -0.02 , "y": -0.02, "z": -0.02 },
+      "max_angular_velocity": { "x": 0.02, "y": 0.02, "z": 0.02 },
+      "min_duration": 4000,
+      "max_duration": 5000,
+      "shrink_duration": 1000,
+      "fade_duration": 0,
+      "acceleration":  { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 },
+            { "x": 0, "y": 1, "z": 1, "w":1 },
+            { "x": 1, "y": 0, "z": 1, "w":1 },
+            { "x": 1, "y": 1, "z": 0, "w":1 },
+            { "x": 0, "y": 0, "z": 1, "w":1 },
+            { "x": 0, "y": 1, "z": 0, "w":1 },
+            { "x": 1, "y": 0, "z": 0, "w":1 }
+        ],
+      "renderable": ["Pixel1x1"]
+    },
+
   "pie_splatter_def": {
     "min_scale":  { "x": 0.5, "y": 0.5, "z": 0.5 },
     "max_scale":  { "x": 1.0, "y": 1.0, "z": 1.0 },
     "preserve_aspect": true,
-    "min_velocity":  { "x": -0.02, "y": 0, "z": -0.02 },
-    "max_velocity":  { "x": 0.02, "y": 0.01, "z": 0.02 },
+    "min_velocity":  { "x": -0.01, "y": 0, "z": -0.01 },
+    "max_velocity":  { "x": 0.01, "y": 0.01, "z": 0.01},
     "min_position_offset":  { "x": 0, "y": 1.0, "z": 0 },
     "max_position_offset":  { "x": 0, "y": 2.0, "z": 0 },
     "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
@@ -209,10 +237,10 @@
     "min_angular_velocity": { "x": 0, "y": 0, "z": -0.02 },
     "max_angular_velocity": { "x": 0, "y": 0, "z": 0.02 },
     "min_duration": 100,
-    "max_duration": 401,
+    "max_duration": 600,
     "shrink_duration": 250,
     "fade_duration": 0,
-    "acceleration":  { "x": 0.0, "y": -0.00012, "z": 0.0 },
+    "acceleration":  { "x": 0.0, "y": -0.00008, "z": 0.0 },
     "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 }],
     "renderable": ["Splatter1", "Splatter2", "Splatter3"]
   },
@@ -960,6 +988,10 @@
     {
       "id": "UiArrow",
       "cardboard_front": "materials/arrow.bin"
+    },
+    {
+      "id": "Pixel1x1",
+      "cardboard_front": "materials/pixel1x1.bin"
     }
   ],
 

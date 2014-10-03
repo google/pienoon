@@ -379,6 +379,9 @@ table Config {
   pie_splatter_def:ParticleDef;
   splat_particles_per_damage:int;
 
+  // Confetti for the victor.
+  confetti_def:ParticleDef;
+
   // AI options
   ai_minimum_time_between_actions:int;
   ai_maximum_time_between_actions:int;
