@@ -331,7 +331,10 @@ bool SplatGame::InitializeGameState() {
   vec2 window_size = vec2(static_cast<float>(renderer_.window_size().x()),
                           static_cast<float>(renderer_.window_size().y()));
   touch_controller_->Initialize(&input_, window_size, &config);
+
+#ifdef __ANDROID__
   AddController(touch_controller_);
+#endif // __ANDROID__
 
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
