@@ -29,7 +29,7 @@ template<class ImpelData>
 class IdMap {
   // Invalid array index.
   typedef uint16_t DataIndex;
-  static const DataIndex kInvalidIndex = UINT16_MAX;
+  static const DataIndex kInvalidIndex = 0xFFFF;
 
  public:
   // Accessors.
@@ -96,7 +96,7 @@ class IdMap {
  private:
   // Returns the index corresponding to an id. Fast.
   int Index(ImpelId id) const {
-    assert(0 <= id && id < id_to_index_.size());
+    assert(0 <= id && id < static_cast<ImpelId>(id_to_index_.size()));
     const int index = id_to_index_[id];
     assert(index != kInvalidIndex);
     return index;
@@ -106,7 +106,7 @@ class IdMap {
   // infrequently.
   ImpelId Id(int index) const {
     // Get id for the last index in data.
-    for (int id = 0; id < id_to_index_.size(); ++id) {
+    for (int id = 0; id < static_cast<int>(id_to_index_.size()); ++id) {
       if (id_to_index_[id] == index)
         return id;
     }
