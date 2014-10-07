@@ -113,7 +113,7 @@ class Character {
   CharacterStateMachine* state_machine() { return &state_machine_; }
 
   void IncrementStat(PlayerStats stat);
-  uint64_t GetStat(PlayerStats stat) { return player_stats_[stat]; }
+  uint64_t &GetStat(PlayerStats stat) { return player_stats_[stat]; }
 
   void set_score(int score) { score_ = score; }
   int score() { return score_; }
@@ -148,7 +148,7 @@ class Character {
   CharacterStateMachine state_machine_;
 
   // The stats we're collecting (see PlayerStats enum above).
-  int64_t player_stats_[kMaxStats];
+  uint64_t player_stats_[kMaxStats];
 
   // The score of the current player for this round (separate from stats because
   // it is not a persisted value.

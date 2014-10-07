@@ -732,11 +732,9 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
                  Controller::kTypeAI);
         }
       }
-      UploadStats();
-#     ifdef PLATFORM_MOBILE
+      UploadEvents();
       // For now, we always show leaderboards when a round ends:
-      gpg_manager.ShowLeaderboards();
-#     endif
+      UploadAndShowLeaderboards();
       break;
 
     default:
@@ -747,26 +745,36 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
   state_entry_time_ = prev_world_time_;
 }
 
-void SplatGame::UploadStats() {
-#   ifdef PLATFORM_MOBILE
-    static const char *leaderboard_ids[] = {
-      "CgkI97yope0IEAIQAw",  // kWins
-      "CgkI97yope0IEAIQBA",  // kLosses
-      "CgkI97yope0IEAIQBQ",  // kDraws
-      "CgkI97yope0IEAIQAg",  // kAttacks
-      "CgkI97yope0IEAIQBg",  // kHits
-      "CgkI97yope0IEAIQBw",  // kBlocks
-      "CgkI97yope0IEAIQCA",  // kMisses
-    };
-    static_assert(sizeof(leaderboard_ids) / sizeof(const char *) ==
-                  kMaxStats, "update leaderboard_ids");
-    // Now upload all stats:
-    // TODO: this assumes player 0 == the logged in player.
-    for (int ps = kWins; ps < kMaxStats; ps++) {
-      gpg_manager.SaveStat(leaderboard_ids[ps],
-        game_state_.characters()[0]->GetStat(static_cast<PlayerStats>(ps)));
-    }
-#   endif
+#ifdef PLATFORM_MOBILE
+static GPGManager::GPGIds gpg_ids[] = {
+  { "CgkI97yope0IEAIQAw", "CgkI97yope0IEAIQCg" },  // kWins
+  { "CgkI97yope0IEAIQBA", "CgkI97yope0IEAIQCw" },  // kLosses
+  { "CgkI97yope0IEAIQBQ", "CgkI97yope0IEAIQDA" },  // kDraws
+  { "CgkI97yope0IEAIQAg", "CgkI97yope0IEAIQCQ" },  // kAttacks
+  { "CgkI97yope0IEAIQBg", "CgkI97yope0IEAIQDQ" },  // kHits
+  { "CgkI97yope0IEAIQBw", "CgkI97yope0IEAIQDg" },  // kBlocks
+  { "CgkI97yope0IEAIQCA", "CgkI97yope0IEAIQDw" },  // kMisses
+};
+static_assert(sizeof(gpg_ids) / sizeof(GPGManager::GPGIds) ==
+              kMaxStats, "update leaderboard_ids");
+#endif
+
+void SplatGame::UploadEvents() {
+# ifdef PLATFORM_MOBILE
+  // Now upload all stats:
+  // TODO: this assumes player 0 == the logged in player.
+  for (int ps = kWins; ps < kMaxStats; ps++) {
+    gpg_manager.SaveStat(gpg_ids[ps].event,
+      &game_state_.characters()[0]->GetStat(static_cast<PlayerStats>(ps)));
+  }
+# endif
+}
+
+void SplatGame::UploadAndShowLeaderboards() {
+# ifdef PLATFORM_MOBILE
+  gpg_manager.ShowLeaderboards(gpg_ids, sizeof(gpg_ids) /
+                                        sizeof(GPGManager::GPGIds));
+# endif
 }
 
 void SplatGame::UpdateGamepadControllers() {
@@ -957,15 +965,15 @@ void SplatGame::Run() {
         TransitionToSplatState(next_state);
       }
 
-#     ifdef PLATFORM_MOBILE
       // For testing,
       // we'll check if a sixth finger went down on the touch screen,
       // if so we update the leaderboards and show the UI:
       if (input_.GetButton(SDLK_POINTER6).went_down()) {
-        UploadStats();
+        UploadEvents();
         // For testing, show UI:
-        gpg_manager.ShowLeaderboards();
+        UploadAndShowLeaderboards();
       }
+#     ifdef PLATFORM_MOBILE
       gpg_manager.Update();
 #     endif
     } else {

@@ -27,11 +27,15 @@ class GPGManager {
   // Call once a frame to allow us to track our async work.
   void Update();
 
+  struct GPGIds { const char *leaderboard, *event; };
+
   // Request this stat to be saved for the logged in
   // player. Does nothing if not logged in.
-  void SaveStat(const char *stat_id, uint64_t score);
+  void SaveStat(const char *event_id, uint64_t *score);
 
-  void ShowLeaderboards();
+
+
+  void ShowLeaderboards(const GPGIds *ids, size_t id_len);
 
  private:
   // These are the states the manager can be in, in sequential order they

@@ -70,7 +70,8 @@ class SplatGame {
   Mesh* GetCardboardFront(int renderable_id);
   SplatState UpdateSplatState();
   void TransitionToSplatState(SplatState next_state);
-  void UploadStats();
+  void UploadEvents();
+  void UploadAndShowLeaderboards();
   void UpdateGamepadControllers();
   int FindAiPlayer();
   ControllerId AddController(Controller* new_controller);

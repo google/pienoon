@@ -111,31 +111,48 @@ bool GPGManager::LoggedIn() {
 }
 
 
-void GPGManager::SaveStat(const char *stat_id, uint64_t score) {
+void GPGManager::SaveStat(const char *event_id, uint64_t *score) {
 # ifdef NO_GPG
   return;
 # endif
   if (!LoggedIn()) return;
-  game_services_->Leaderboards().SubmitScore(stat_id, score);
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "GPG: submitted score %llu for id %s", score, stat_id);
+  game_services_->Events().Increment(event_id, *score);
+  *score = 0;  // Reset accumulation.
 }
 
-void GPGManager::ShowLeaderboards() {
+void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
 # ifdef NO_GPG
   return;
 # endif
   if (!LoggedIn()) return;
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: launching leaderboard UI");
-  game_services_->Leaderboards().ShowAllUI();
-  // This one is in the docs, but not in the headers:
-  /*
-  game_services_->Leaderboards().ShowAllUI([](const gpg::UIStatus &status) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "GPG: UIStatus is: %d, valid == %d", status,
-                gpg::UIStatus::VALID);
+  // First, get all current event counts from GPG in one callback,
+  // which allows us to conveniently update and show the leaderboards without
+  // having to deal with multiple callbacks.
+  game_services_->Events().FetchAll([id_len, ids, this](
+        const gpg::EventManager::FetchAllResponse &far) {
+    for (auto it = far.data.begin(); it != far.data.end(); ++it) {
+      // Look up leaderboard id from corresponding event id.
+      const char *leaderboard_id = nullptr;
+      for (size_t i = 0; i < id_len; i++) {
+        if (ids[i].event == it->first) {
+          leaderboard_id = ids[i].leaderboard;
+        }
+      }
+      assert(leaderboard_id);
+      if (leaderboard_id) {
+        game_services_->Leaderboards().SubmitScore(leaderboard_id,
+                                                   it->second.Count());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "GPG: submitted score %llu for id %s", it->second.Count(),
+                    leaderboard_id);
+      }
+    }
+    game_services_->Leaderboards().ShowAllUI([](const gpg::UIStatus &status) {
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                  "GPG: UI FAILED, UIStatus is: %d", status);
+    });
   });
-  */
 }
 
 }  // fpl
@@ -148,5 +165,18 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
   gpg::AndroidInitialization::JNI_OnLoad(vm);
 
   return JNI_VERSION_1_4;
+}
+
+extern "C" JNIEXPORT void JNICALL
+  Java_com_google_fpl_splat_FPLActivity_nativeOnActivityResult(
+    JNIEnv *env,
+    jobject thiz,
+    jobject activity,
+    jint request_code,
+    jint result_code,
+    jobject data) {
+  gpg::AndroidSupport::OnActivityResult(
+      env, activity, request_code, result_code, data);
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: nativeOnActivityResult");
 }
 #endif
