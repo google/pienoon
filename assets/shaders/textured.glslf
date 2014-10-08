@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-varying vec2 vTexCoord;
+varying mediump vec2 vTexCoord;
 uniform sampler2D texture_unit_0;
-uniform vec4 color;
+uniform lowp vec4 color;
 void main()
 {
-  vec4 texture_color = texture2D(texture_unit_0, vTexCoord);
+  lowp vec4 texture_color = texture2D(texture_unit_0, vTexCoord);
   // We only render pixels if they are at least somewhat opaque.
   // This will still lead to aliased edges if we render
   // in the wrong order, but leaves us the option to render correctly

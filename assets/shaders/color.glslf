@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-uniform vec4 color;
+uniform lowp vec4 color;
 void main()
 {
   gl_FragColor = color;

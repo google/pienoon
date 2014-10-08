@@ -1,19 +1,19 @@
-varying vec2 vTexCoord;
-varying vec3 vObjectSpacePosition;
-varying vec3 vTangentSpaceLightVector;
-varying vec3 vTangentSpaceCameraVector;
+varying mediump vec2 vTexCoord;
+varying mediump vec3 vObjectSpacePosition;
+varying lowp vec3 vTangentSpaceLightVector;
+varying lowp vec3 vTangentSpaceCameraVector;
 uniform sampler2D texture_unit_0;   //texture
 uniform sampler2D texture_unit_1;   //normalmap
-uniform vec4 color;
-uniform vec3 ambient_material;
-uniform vec3 diffuse_material;
-uniform vec3 specular_material;
+uniform lowp vec4 color;
+uniform lowp vec3 ambient_material;
+uniform lowp vec3 diffuse_material;
+uniform lowp vec3 specular_material;
 uniform float shininess;
 
 
 void main(void)
 {
-    vec4 texture_color =  texture2D(texture_unit_0, vTexCoord);
+    lowp vec4 texture_color =  texture2D(texture_unit_0, vTexCoord);
     // We only render pixels if they are at least somewhat opaque.
     // This will still lead to aliased edges if we render
     // in the wrong order, but leaves us the option to render correctly
@@ -26,10 +26,10 @@ void main(void)
     texture_color *= color;
 
     // Extract the perturbed normal from the texture:
-    vec3 tangent_space_normal =
+    lowp vec3 tangent_space_normal =
       texture2D(texture_unit_1, vTexCoord).yxz * 2.0 - 1.0;
 
-    vec3 N = tangent_space_normal;
+    vec3 N = normalize(tangent_space_normal);
 
     // Standard lighting math:
     vec3 L = normalize(vTangentSpaceLightVector);

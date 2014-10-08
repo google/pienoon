@@ -147,7 +147,7 @@ GLuint Renderer::CompileShader(GLenum stage, GLuint program,
   #ifdef PLATFORM_MOBILE
     "#ifdef GL_ES\nprecision highp float;\n#endif\n";
   #else
-    "#version 120\n";
+    "#version 120\n#define lowp\n#define mediump\n#define highp\n";
   #endif
   platform_source += source;
   const char *platform_source_ptr = platform_source.c_str();
@@ -229,7 +229,7 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
                  size.x(), size.y());
     return 0;
   }
-  // TODO: support default args for mipmap/wrap
+  // TODO: support default args for mipmap/wrap/trilinear
   GLuint texture_id;
   GL_CALL(glGenTextures(1, &texture_id));
   GL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -238,7 +238,7 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                          GL_LINEAR_MIPMAP_LINEAR));
+                          GL_LINEAR_MIPMAP_NEAREST/*GL_LINEAR_MIPMAP_LINEAR*/));
   if (has_alpha) {
 #   ifdef RENDERER_USE_5551_TEXTURES
     auto buffer16 = Convert8888To5551(buffer, size);
