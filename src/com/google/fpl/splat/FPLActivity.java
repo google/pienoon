@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.app.Activity;
 
 public class FPLActivity extends SDLActivity {
-    // This is needed for GPG's UIs to function correctly.
+    // GPG's GUIs need activity lifecycle events to function properly, but
+    // they don't have access to them. This code is here to route these events
+    // back to GPG through our C++ code.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       super.onActivityResult(requestCode, resultCode, data);
       nativeOnActivityResult(this, requestCode, resultCode, data);

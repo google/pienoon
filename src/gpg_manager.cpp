@@ -146,6 +146,27 @@ void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                     "GPG: submitted score %llu for id %s", it->second.Count(),
                     leaderboard_id);
+        // TODO: factor this code out into the game, as it is specific to Splat.
+        // Also, ideally this should happen during the game.
+        if (!strcmp(leaderboard_id, "CgkI97yope0IEAIQAg")) {  // Pies thrown.
+          struct Achievement { const char *id; int pie_count; };
+          static const Achievement achievements[] = {
+            { "CgkI97yope0IEAIQEA", 100 },
+            { "CgkI97yope0IEAIQEQ", 250 },
+            { "CgkI97yope0IEAIQEg", 1000 },
+            { "CgkI97yope0IEAIQEw", 2500 },
+            { "CgkI97yope0IEAIQFA", 10000 },
+          };
+          for (size_t i = 0; i < sizeof(achievements) / sizeof(Achievement);
+               i++) {
+            if (it->second.Count() >= achievements[i].pie_count) {
+              game_services_->Achievements().Unlock(achievements[i].id);
+              SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                          "GPG: achievement unlocked: %d pies",
+                          achievements[i].pie_count);
+            }
+          }
+        }
       }
     }
     game_services_->Leaderboards().ShowAllUI([](const gpg::UIStatus &status) {
