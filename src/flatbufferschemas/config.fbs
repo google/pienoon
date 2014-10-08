@@ -370,6 +370,7 @@ table Config {
   cardboard_diffuse_material:Vec3;
   cardboard_specular_material:Vec3;
   cardboard_shininess:float;
+  cardboard_normalmap_scale:float;
 
   // The vertical offset of the popsicle stick prop.
   stick_y_offset:float;

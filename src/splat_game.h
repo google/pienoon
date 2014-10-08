@@ -113,6 +113,7 @@ class SplatGame {
   Mesh* stick_back_;
 
   // Shaders we use.
+  Shader *shader_cardboard;
   Shader *shader_lit_textured_normal_;
   Shader *shader_simple_shadow_;
   Shader *shader_textured_;

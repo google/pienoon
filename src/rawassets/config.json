@@ -358,6 +358,7 @@
   "cardboard_diffuse_material": { "x": 0.85, "y": 0.85, "z": 0.85 },
   "cardboard_specular_material": { "x": 0.3, "y": 0.3, "z": 0.3 },
   "cardboard_shininess": 32,
+  "cardboard_normalmap_scale": 0.3,
   "stick_y_offset": -1.0,
   "stick_front_z_offset": -0.01,
   "stick_back_z_offset": -0.09,

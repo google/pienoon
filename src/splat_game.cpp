@@ -256,9 +256,11 @@ bool SplatGame::InitializeRenderingAssets() {
   // Load all shaders we use:
   shader_lit_textured_normal_ =
       matman_.LoadShader("shaders/lit_textured_normal");
+  shader_cardboard = matman_.LoadShader("shaders/cardboard");
   shader_simple_shadow_ = matman_.LoadShader("shaders/simple_shadow");
   shader_textured_ = matman_.LoadShader("shaders/textured");
   if (!(shader_lit_textured_normal_ &&
+        shader_cardboard &&
         shader_simple_shadow_ &&
         shader_textured_)) return false;
 
@@ -427,7 +429,7 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
     // If we have a back, draw the back too, slightly offset.
     // The back is the *inside* of the cardboard, representing corrugation.
     if (cardboard_backs_[id]) {
-      shader_lit_textured_normal_->Set(renderer_);
+      shader_cardboard->Set(renderer_);
       cardboard_backs_[id]->Render(renderer_);
     }
 
@@ -442,15 +444,17 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
     renderer_.color() = renderable->color();
 
     if (config.renderables()->Get(id)->cardboard()) {
-      shader_lit_textured_normal_->Set(renderer_);
-      shader_lit_textured_normal_->SetUniform("ambient_material",
+      shader_cardboard->Set(renderer_);
+      shader_cardboard->SetUniform("ambient_material",
           LoadVec3(config.cardboard_ambient_material()));
-      shader_lit_textured_normal_->SetUniform("diffuse_material",
+      shader_cardboard->SetUniform("diffuse_material",
           LoadVec3(config.cardboard_diffuse_material()));
-      shader_lit_textured_normal_->SetUniform("specular_material",
+      shader_cardboard->SetUniform("specular_material",
           LoadVec3(config.cardboard_specular_material()));
-      shader_lit_textured_normal_->SetUniform("shininess",
+      shader_cardboard->SetUniform("shininess",
           config.cardboard_shininess());
+      shader_cardboard->SetUniform("normalmap_scale",
+          config.cardboard_normalmap_scale());
     } else {
       shader_textured_->Set(renderer_);
     }
