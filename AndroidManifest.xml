@@ -21,6 +21,7 @@ limitations under the License.
 
     <!-- This .apk has no Java code itself, so set hasCode to false. -->
     <application android:label="@string/app_name"
+                 android:icon="@drawable/ic_launcher"
                  android:allowBackup="true"
                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                  android:debuggable="true">
