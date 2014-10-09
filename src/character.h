@@ -16,16 +16,15 @@
 #define SPLAT_CHARACTER_H_
 
 #include "angle.h"
+#include "audio_config_generated.h"
 #include "character_state_machine.h"
+#include "character_state_machine_def_generated.h"
+#include "config_generated.h"
 #include "impel_util.h"
 #include "impeller.h"
 #include "player_controller.h"
-// TODO: put these in alphabetical order once FlatBuffers predeclare bug fixed.
-#include "audio_config_generated.h"
-#include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
-#include "config_generated.h"
+#include "timeline_generated.h"
 
 namespace impel {
   class ImpelEngine;
@@ -48,6 +47,12 @@ enum PlayerStats {
   kBlocks,    // Pies from others that were blocked.
   kMisses,    // Pies launched that were blocked.
   kMaxStats
+};
+
+enum VictoryState {
+  kResultUnknown,
+  kVictorious,
+  kFailure
 };
 
 // The current state of the character. This class tracks information external
@@ -118,6 +123,9 @@ class Character {
   void set_score(int score) { score_ = score; }
   int score() { return score_; }
 
+  void set_victory_state(VictoryState state) { victory_state_ = state; }
+  bool victory_state() { return victory_state_; }
+
  private:
   // Constant configuration data.
   const Config* config_;
@@ -153,6 +161,9 @@ class Character {
   // The score of the current player for this round (separate from stats because
   // it is not a persisted value.
   int score_;
+
+  // If this character is one of the winners or losers of the match.
+  VictoryState victory_state_;
 };
 
 

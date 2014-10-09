@@ -13,23 +13,22 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "common.h"
-#include "game_state.h"
+#include "audio_config_generated.h"
+#include "audio_engine.h"
 #include "character_state_machine.h"
+#include "character_state_machine_def_generated.h"
+#include "common.h"
+#include "config_generated.h"
+#include "controller.h"
+#include "game_state.h"
 #include "impel_flatbuffers.h"
 #include "impel_processor_overshoot.h"
 #include "impel_processor_smooth.h"
 #include "impel_util.h"
-#include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
-#include "splat_common_generated.h" // TODO: put in alphabetical order when
-                                    // FlatBuffers predeclare bug fixed.
-#include "audio_config_generated.h"
-#include "config_generated.h"
-#include "controller.h"
 #include "scene_description.h"
+#include "splat_common_generated.h"
+#include "timeline_generated.h"
 #include "utilities.h"
-#include "audio_engine.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -139,7 +138,8 @@ void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
 bool GameState::IsGameOver() const {
   switch (config_->game_mode()) {
     case GameMode_Survival: {
-      return NumActiveCharacters(true) == 0 || NumActiveCharacters(false) <= 1;
+      return pies_.size() == 0 &&
+          (NumActiveCharacters(true) == 0 || NumActiveCharacters(false) <= 1);
     }
     case GameMode_HighScore: {
       return time_ >= config_->game_time();
@@ -466,6 +466,10 @@ static bool CharacterScore(const std::unique_ptr<Character>& a,
   return a->score() < b->score();
 }
 
+static bool CharacterIsVictorious(const std::unique_ptr<Character>& character) {
+  return character->victory_state() == kVictorious;
+}
+
 void GameState::DetermineWinnersAndLosers() {
   // This code assumes we've verified that the game is over.
   switch (config_->game_mode()) {
@@ -473,11 +477,11 @@ void GameState::DetermineWinnersAndLosers() {
       for (size_t i = 0; i < characters_.size(); ++i) {
         const auto& character = characters_[i];
         if (character->Active()) {
-          character->IncrementStat(kWins);
+          character->set_victory_state(kVictorious);
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                       "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
-          character->IncrementStat(kLosses);
+          character->set_victory_state(kFailure);
         }
       }
       break;
@@ -490,11 +494,11 @@ void GameState::DetermineWinnersAndLosers() {
         for (size_t i = 0; i < characters_.size(); ++i) {
           const auto& character = characters_[i];
           if (character->score() == high_score) {
-            character->IncrementStat(kWins);
+            character->set_victory_state(kVictorious);
             SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                         "Player %i wins!\n", static_cast<int>(i) + 1);
           } else {
-            character->IncrementStat(kLosses);
+            character->set_victory_state(kFailure);
           }
         }
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
@@ -511,11 +515,11 @@ void GameState::DetermineWinnersAndLosers() {
       for (size_t i = 0; i < characters_.size(); ++i) {
         const auto& character = characters_[i];
         if (character->score() >= config_->target_score()) {
-          character->IncrementStat(kWins);
+          character->set_victory_state(kVictorious);
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                       "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
-          character->IncrementStat(kLosses);
+          character->set_victory_state(kFailure);
         }
       }
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
@@ -526,6 +530,36 @@ void GameState::DetermineWinnersAndLosers() {
                     character->score());
       }
       break;
+    }
+  }
+  int winner_count = std::count_if(characters_.begin(), characters_.end(),
+                                   CharacterIsVictorious);
+  for (size_t i = 0; i < characters_.size(); ++i) {
+    auto& character = characters_[i];
+    switch(winner_count) {
+      // If there's no winners at all, everyone draws.
+      case 0: {
+        character->IncrementStat(kDraws);
+        break;
+      }
+      // If there is only one winner, grant that player a victory.
+      case 1: {
+        if (character->victory_state() == kVictorious) {
+          character->IncrementStat(kWins);
+        } else {
+          character->IncrementStat(kLosses);
+        }
+        break;
+      }
+      // If there's more than one winner, they draw.
+      default: {
+        if (character->victory_state() == kVictorious) {
+          character->IncrementStat(kDraws);
+        } else {
+          character->IncrementStat(kLosses);
+        }
+        break;
+      }
     }
   }
 }
@@ -733,8 +767,6 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   std::vector<EventData> event_data(characters_.size());
 
   // Update controller to gather state machine inputs.
-  // TODO(amablue): Win conditions have become more complicated - add a way to
-  // transition to the win state when time allows.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
     auto& character = characters_[i];
     Controller* controller = character->controller();
@@ -746,6 +778,10 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
                                  character->health() <= 0);
     controller->SetLogicalInputs(LogicalInputs_AnimationEnd, timeline &&
         (GetAnimationTime(*character.get()) >= timeline->end_time()));
+    controller->SetLogicalInputs(LogicalInputs_Won,
+                                 character->victory_state() == kVictorious);
+    controller->SetLogicalInputs(LogicalInputs_Lost,
+                                 character->victory_state() == kFailure);
   }
 
   // Update all the particles.

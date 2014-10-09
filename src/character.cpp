@@ -18,13 +18,13 @@
 #include <math.h>
 #include "character.h"
 #include "character_state_machine.h"
+#include "character_state_machine_def_generated.h"
 #include "impel_flatbuffers.h"
 #include "impel_processor_overshoot.h"
 #include "impel_util.h"
-#include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
-#include "splat_common_generated.h"
 #include "scoring_rules_generated.h"
+#include "splat_common_generated.h"
+#include "timeline_generated.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -45,7 +45,8 @@ Character::Character(
       pie_damage_(0),
       position_(mathfu::kZeros3f),
       controller_(controller),
-      state_machine_(character_state_machine_def) {
+      state_machine_(character_state_machine_def),
+      victory_state_(kResultUnknown) {
   for (int i = 0; i < kMaxStats; i++) player_stats_[i] = 0;
 }
 
@@ -57,6 +58,7 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   pie_damage_ = 0;
   position_ = position;
   state_machine_.Reset();
+  victory_state_ = kResultUnknown;
 
   impel::OvershootImpelInit init;
   OvershootInitFromFlatBuffers(*config_->face_angle_def(), &init);

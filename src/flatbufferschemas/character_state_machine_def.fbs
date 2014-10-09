@@ -54,7 +54,8 @@ enum LogicalInputs:ushort (bit_flags) {
   JustHit,
   NoHealth,
   AnimationEnd,
-  Winning
+  Won,
+  Lost
 }
 
 // This represents the set of conditions that must be met to do something, like

@@ -18,14 +18,20 @@
         {
           "target_state": "Blocking",
           "condition": {
-            "went_down": "Deflect",
+            "is_down": "Deflect",
             "time": 100
           }
         },
         {
           "target_state": "Won",
           "condition": {
-            "went_down": "Winning"
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
           }
         }
       ],
@@ -57,13 +63,19 @@
         {
           "target_state": "Blocking",
           "condition": {
-            "went_down": "Deflect"
+            "is_down": "Deflect"
           }
         },
         {
           "target_state": "Won",
           "condition": {
-            "went_down": "Winning"
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
           }
         },
         {
@@ -119,13 +131,19 @@
         {
           "target_state": "Blocking",
           "condition": {
-            "went_down": "Deflect"
+            "is_down": "Deflect"
           }
         },
         {
           "target_state": "Won",
           "condition": {
-            "went_down": "Winning"
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
           }
         },
         {
@@ -169,7 +187,13 @@
         {
           "target_state": "Won",
           "condition": {
-            "went_down": "Winning"
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
           }
         },
         {
@@ -187,7 +211,7 @@
         {
           "target_state": "Blocking",
           "condition": {
-            "went_down": "Deflect"
+            "is_down": "Deflect"
           }
         },
         {
@@ -270,7 +294,7 @@
         {
           "target_state": "Idling",
           "condition": {
-            "went_up": "Deflect"
+            "is_up": "Deflect"
           }
         },
         {
