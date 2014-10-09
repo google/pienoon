@@ -269,7 +269,6 @@ void GameState::ProcessEvent(Character* character,
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
         characters_[pie.source_id]->IncrementStat(kHits);
-        CreatePieSplatter(character->id(), pie.damage);
         total_damage += pie.damage;
         if (config_->game_mode() == GameMode_Survival) {
           character->set_health(character->health() - pie.damage);
@@ -737,6 +736,8 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
       };
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
+      if (character->State() != StateId_Blocking)
+        CreatePieSplatter(character->id(), pie->damage());
       it = pies_.erase(it);
     }
     else {
