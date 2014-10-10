@@ -612,13 +612,6 @@
       "scale": { "x": 1, "y": 1, "z":1 }
     },
     {
-      "renderable": "RenderableId.EnvironmentAmbientOcclusionShadow",
-      "position": { "x": 0, "y": 0.001, "z":0.3 },
-      "rotation": 180,
-      "orientation": "Horizontal",
-      "scale": { "x": 16, "y": 1, "z":0.3 }
-    },
-    {
       "renderable": "RenderableId.EnvironmentSky",
       "position": { "x": 0, "y": 0, "z":8 },
       "rotation": 0,
@@ -634,26 +627,12 @@
       "shake_scale": 0.1
     },
     {
-      "renderable": "RenderableId.EnvironmentAmbientOcclusionShadow",
-      "position": { "x": -8.5, "y": 0.005, "z":4 },
-      "rotation": -40,
-      "orientation": "Horizontal",
-      "scale": { "x": 5, "y": 1, "z":1 }
-    },
-    {
       "renderable": "RenderableId.EnvironmentStoreRoom",
       "position": { "x": 2.5, "y": -0.3, "z":7.6 },
       "rotation": 0,
       "orientation": "Vertical",
       "scale": { "x": 1, "y": 1, "z": 1 },
       "shake_scale": 0.1
-    },
-    {
-      "renderable": "RenderableId.EnvironmentAmbientOcclusionShadow",
-      "position": { "x": 2.5, "y": 0.01, "z":6.7 },
-      "rotation": 0,
-      "orientation": "Horizontal",
-      "scale": { "x": 10, "y": 2, "z":1 }
     },
     {
       "renderable": "RenderableId.EnvironmentSunGlow",
@@ -957,7 +936,8 @@
     {
       "id": "EnvironmentSky",
       "cardboard_front": "materials/environment_sky.bin",
-      "pixel_bounds": { "x": 4096, "y": 2048 }
+      "pixel_bounds": { "x": 1024, "y": 512 }, // (4096,2048) --> (1024,512)
+      "geometry_scale": 4.0 // 4096 / 1024
     },
     {
       "id": "EnvironmentCloud",
@@ -1007,12 +987,14 @@
     {
       "id": "EnvironmentStageFront",
       "cardboard_front": "materials/environment_stage_front.bin",
-      "pixel_bounds": { "x": 4096, "y": 512 }
+      "pixel_bounds": { "x": 1024, "y": 128 }, // (4096,512) --> (1024, 128)
+      "geometry_scale": 4.0 // 4096 / 1024
     },
     {
       "id": "EnvironmentStageGround",
       "cardboard_front": "materials/environment_stage_ground.bin",
-      "pixel_bounds": { "x": 4096, "y": 1024 }
+      "pixel_bounds": { "x": 1024, "y": 256 }, // (4096,1024) --> (1024, 256)
+      "geometry_scale": 4.0 // 4096 / 1024
     },
     {
       "id": "EnvironmentStageEdge",
@@ -1022,12 +1004,14 @@
     {
       "id": "EnvironmentStoreFront",
       "cardboard_front": "materials/environment_store_front.bin",
-      "pixel_bounds": { "x": 2048, "y": 1024 }
+      "pixel_bounds": { "x": 512, "y": 396 }, // (1133, 877) --> (512, 396)
+      "geometry_scale": 2.2129 // 1133 / 512
     },
     {
       "id": "EnvironmentStoreRoom",
       "cardboard_front": "materials/environment_store_room.bin",
-      "pixel_bounds": { "x": 2048, "y": 1024 }
+      "pixel_bounds": { "x": 1024, "y": 395 }, // (1946, 750) --> (1024, 395)
+      "geometry_scale": 1.9004 // 1946 / 1024
     },
     {
       "id": "EnvironmentAmbientOcclusionShadow",
