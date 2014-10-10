@@ -28,6 +28,10 @@ namespace fpl {
 
 const ChannelId kInvalidChannel = -1;
 
+// Special value for SDL_Mixer that indicates an operation should be applied to
+// all channels.
+const ChannelId kAllChannels = -1;
+
 AudioEngine::~AudioEngine() {
   for (size_t i = 0; i < collections_.size(); ++i) {
     collections_[i].Unload();
@@ -201,6 +205,26 @@ void AudioEngine::PlaySound(SoundId sound_id) {
     } else {
       PlayBuffer(collection);
     }
+  }
+}
+
+void AudioEngine::Mute(bool mute) {
+  if (mute) {
+    Mix_Volume(kAllChannels, 0);
+    Mix_VolumeMusic(0);
+  } else {
+    Mix_Volume(kAllChannels, MIX_MAX_VOLUME);
+    Mix_VolumeMusic(MIX_MAX_VOLUME);
+  }
+}
+
+void AudioEngine::Pause(bool pause) {
+  if (pause) {
+    Mix_Pause(kAllChannels);
+    Mix_PauseMusic();
+  } else {
+    Mix_Resume(kAllChannels);
+    Mix_ResumeMusic();
   }
 }
 

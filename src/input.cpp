@@ -38,24 +38,36 @@ void InputSystem::Initialize() {
 
 int InputSystem::HandleAppEvents(void *userdata, SDL_Event *event) {
   auto renderer = reinterpret_cast<InputSystem *>(userdata);
+  int passthrough = 0;
   switch (event->type) {
     case SDL_APP_TERMINATING:
-      return 0;
+      break;
     case SDL_APP_LOWMEMORY:
-      return 0;
+      break;
     case SDL_APP_WILLENTERBACKGROUND:
       renderer->minimized_ = true;
-      return 0;
+      break;
     case SDL_APP_DIDENTERBACKGROUND:
-      return 0;
+      break;
     case SDL_APP_WILLENTERFOREGROUND:
-      return 0;
+      break;
     case SDL_APP_DIDENTERFOREGROUND:
       renderer->minimized_ = false;
-      return 0;
+      break;
     default:
-      return 1;
+      passthrough = 1;
+      break;
   }
+  if (!passthrough) {
+    for (auto& callback : renderer->app_event_callbacks()) {
+      callback(event);
+    }
+  }
+  return passthrough;
+}
+
+void InputSystem::AddAppEventCallback(AppEventCallback callback) {
+  app_event_callbacks_.push_back(callback);
 }
 
 void InputSystem::AdvanceFrame(vec2i *window_size) {

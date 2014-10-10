@@ -169,15 +169,21 @@ class InputSystem {
   void UpdateConnectedJoystickList();
   void HandleJoystickEvent(SDL_Event event);
 
+  typedef std::function<void(SDL_Event*)> AppEventCallback;
+  std::vector<AppEventCallback>& app_event_callbacks() {
+    return app_event_callbacks_;
+  }
+  void AddAppEventCallback(AppEventCallback callback);
+
  private:
-  std::vector <SDL_Joystick*> open_joystick_list;
+  std::vector<SDL_Joystick*> open_joystick_list;
   static int HandleAppEvents(void *userdata, SDL_Event *event);
   size_t FindPointer(SDL_FingerID id);
   size_t UpdateDragPosition(const SDL_TouchFingerEvent &e, uint32_t event_type,
                             const vec2i &window_size);
   void RemovePointer(size_t i);
   vec2 ConvertHatToVector(uint32_t hat_enum) const;
-
+  std::vector<AppEventCallback> app_event_callbacks_;
 
  public:
   bool exit_requested_;

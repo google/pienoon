@@ -45,6 +45,12 @@ class AudioEngine {
   // Returns the audio collection associated with the given sound_id.
   SoundCollection* GetSoundCollection(SoundId sound_id);
 
+  // Mutes the audio engine completely.
+  void Mute(bool mute);
+
+  // Pauses all playing sounds and streams.
+  void Pause(bool pause);
+
   // TODO: Update audio volume per channel each frame. b/17316699
   void AdvanceFrame(WorldTime world_time);
 

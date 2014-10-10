@@ -13,23 +13,20 @@
 // limitations under the License.
 
 #include "precompiled.h"
-
-#include "SDL_timer.h"
-
 #include "angle.h"
+#include "audio_config_generated.h"
+#include "audio_engine.h"
 #include "character_state_machine.h"
+#include "character_state_machine_def_generated.h"
+#include "config_generated.h"
 #include "impel_processor_overshoot.h"
 #include "impel_processor_smooth.h"
-// TODO: move to alphabetical order once FlatBuffer include dependency fixed
-#include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
 #include "splat_common_generated.h"
-#include "audio_config_generated.h"
-#include "config_generated.h"
 #include "splat_game.h"
-#include "utilities.h"
-#include "audio_engine.h"
+#include "timeline_generated.h"
 #include "touchscreen_controller.h"
+#include "utilities.h"
+#include "SDL_timer.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -353,6 +350,27 @@ bool SplatGame::InitializeGameState() {
   return true;
 }
 
+class AudioEngineVolumeControl {
+ public:
+  AudioEngineVolumeControl(AudioEngine* audio) : audio_(audio) {}
+  void operator()(SDL_Event* event) {
+    switch (event->type) {
+      case SDL_APP_WILLENTERBACKGROUND:
+        audio_->Mute(true);
+        audio_->Pause(true);
+        break;
+      case SDL_APP_DIDENTERFOREGROUND:
+        audio_->Mute(false);
+        audio_->Pause(false);
+        break;
+      default:
+        break;
+    }
+  }
+ private:
+  AudioEngine* audio_;
+};
+
 // Initialize each member in turn. This is logically just one function, since
 // the order of initialization cannot be changed. However, it's nice for
 // debugging and readability to have each section lexographically separate.
@@ -377,6 +395,7 @@ bool SplatGame::Initialize() {
   // strictly necessary for gameplay, so don't die if the audio engine fails to
   // initialize.
   audio_engine_.Initialize(GetConfig().audio());
+  input_.AddAppEventCallback(AudioEngineVolumeControl(&audio_engine_));
   // TODO(amablue): b/17767350 Move this to a better place when we start plaing
   // more than one piece of music.
   audio_engine_.PlaySound(SoundId_MainTheme);
@@ -937,9 +956,12 @@ void SplatGame::Run() {
       // Update game logic by a variable number of milliseconds.
       game_state_.AdvanceFrame(delta_time, &audio_engine_);
 
+      // Update audio engine state.
+      audio_engine_.AdvanceFrame(world_time);
+
       // Populate 'scene' from the game state--all the positions, orientations,
-      // and renderable-ids (which specify materials) of the characters and props.
-      // Also specify the camera matrix.
+      // and renderable-ids (which specify materials) of the characters and
+      // props. Also specify the camera matrix.
       game_state_.PopulateScene(&scene_);
 
       // Issue draw calls for the 'scene'.
