@@ -167,21 +167,29 @@ void GameState::Reset() {
   pies_.clear();
   arrangement_ = GetBestArrangement(config_, characters_.size());
 
+  // Load the impeller specifications. Skip over "None".
+  impel::OvershootImpelInit impeller_inits[ImpellerSpecification_Count];
+  auto impeller_specifications = config_->impeller_specifications();
+  assert(impeller_specifications->Length() == ImpellerSpecification_Count);
+  for (int i = ImpellerSpecification_None + 1; i < ImpellerSpecification_Count;
+       ++i) {
+    auto specification = impeller_specifications->Get(i);
+    impel::OvershootInitFromFlatBuffers(*specification, &impeller_inits[i]);
+  }
+
   // Initialize the prop shake Impellers.
   const int num_props = config_->props()->Length();
   prop_shake_.resize(num_props);
-  impel::OvershootImpelInit prop_shake_init;
-  impel::OvershootInitFromFlatBuffers(*config_->prop_shake_def(),
-                                      &prop_shake_init);
   for (int i = 0; i < num_props; ++i) {
     const auto prop = config_->props()->Get(i);
-    const float shake_scale = prop->shake_scale();
-    if (shake_scale == 0.0f)
+    const ImpellerSpecification impeller_spec = prop->shake_impeller();
+    if (impeller_spec == ImpellerSpecification_None)
       continue;
 
     // Bigger props have a smaller shake scale. We want them to shake more
     // slowly, and with less amplitude.
-    impel::OvershootImpelInit scaled_shake_init = prop_shake_init;
+    const float shake_scale = prop->shake_scale();
+    impel::OvershootImpelInit scaled_shake_init = impeller_inits[impeller_spec];
     scaled_shake_init.min *= shake_scale;
     scaled_shake_init.max *= shake_scale;
     scaled_shake_init.accel_per_difference *= shake_scale;
@@ -899,12 +907,16 @@ static mat4 CalculatePropWorldMatrix(const Prop& prop, Angle shake) {
   const vec3 position = LoadVec3(prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
   const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(), mathfu::kAxisY3f);
-  const Quat shake_quat = Quat::FromAngleAxis(shake.ToRadians(),
-                                              mathfu::kAxisX3f);
+  const vec3 shake_axis = LoadAxis(prop.shake_axis());
+  const Quat shake_quat = Quat::FromAngleAxis(shake.ToRadians(), shake_axis);
+  const vec3 shake_center(prop.shake_center() == nullptr ? mathfu::kZeros3f :
+                          LoadVec3(prop.shake_center()));
   const mat4 vertical_orientation_matrix =
       mat4::FromTranslationVector(position) *
       mat4::FromRotationMatrix(quat.ToMatrix()) *
+      mat4::FromTranslationVector(shake_center) *
       mat4::FromRotationMatrix(shake_quat.ToMatrix()) *
+      mat4::FromTranslationVector(-shake_center) *
       mat4::FromScaleVector(scale);
   return prop.orientation() == Orientation_Horizontal ?
          vertical_orientation_matrix * kRotate90DegreesAboutXAxis :

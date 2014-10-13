@@ -311,18 +311,38 @@
     "wrong_direction_acceleration_multiplier": 4.0
   },
 
-  "prop_shake_def": {
-    "base": {
-      "modular": false,
-      "min": -0.5235,
-      "max": 0.5235,
-      "max_velocity": 0.021,
-      "max_delta": 1.5,
-      "at_target": { "max_difference": 0.010, "max_velocity": 0.00003 }
+  "impeller_specifications": [
+    // None
+    {},
+
+    // Sway
+    {
+      "base": {
+        "modular": false,
+        "min": -0.5235,
+        "max": 0.5235,
+        "max_velocity": 0.021,
+        "max_delta": 1.5,
+        "at_target": { "max_difference": 0.0003, "max_velocity": 0.000005 }
+      },
+      "acceleration_per_difference": 0.00015,
+      "wrong_direction_acceleration_multiplier": 1.5
     },
-    "acceleration_per_difference": 0.00015,
-    "wrong_direction_acceleration_multiplier": 1.5
-  },
+
+    // Pendulum
+    {
+      "base": {
+        "modular": false,
+        "min": -1.047,
+        "max": 1.047,
+        "max_velocity": 0.03,
+        "max_delta": 1.0,
+        "at_target": { "max_difference": 0.005, "max_velocity": 0.000005 }
+      },
+      "acceleration_per_difference": 0.00001,
+      "wrong_direction_acceleration_multiplier": 1.3
+    }
+  ],
 
   "prop_shake_velocity": 0.05,
   "prop_shake_percent_per_damage": 0.2,
@@ -488,7 +508,7 @@
   "draw_fixed_renderable": "Invalid",
   "button_to_camera_translation_scale": { "x": 0.08, "y": 0.04, "z": 0.08 },
   "mouse_to_camera_rotation_scale": 0.002,
-  "allow_camera_movement": false,
+  "allow_camera_movement": true,
 
   "splatter_map": [
     { "indices": [] },
@@ -665,6 +685,7 @@
       "rotation": -40,
       "orientation": "Vertical",
       "scale": { "x": 1, "y": 1, "z": 1 },
+      "shake_impeller": "Sway",
       "shake_scale": 0.1
     },
     {
@@ -673,6 +694,7 @@
       "rotation": 0,
       "orientation": "Vertical",
       "scale": { "x": 1, "y": 1, "z": 1 },
+      "shake_impeller": "Sway",
       "shake_scale": 0.1
     },
     {
@@ -683,32 +705,26 @@
       "scale": { "x": 1, "y": 1, "z": 1 }
     },
     {
-      "renderable": "RenderableId.EnvironmentString",
-      "position": { "x": 4, "y": 8, "z":6.95 },
-      "rotation": 10,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 10, "z":1 }
-    },
-    {
       "renderable": "RenderableId.EnvironmentSun",
       "position": { "x": 4, "y": 6.5, "z":6.9 },
       "rotation": 10,
       "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentString",
-      "position": { "x": -4, "y": 8, "z":6.8 },
-      "rotation": -10,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 10, "z":1 }
+      "scale": { "x": 1, "y": 1, "z": 1 },
+      "shake_impeller": "Pendulum",
+      "shake_scale": 1.0,
+      "shake_center": { "x": 0, "y": 6, "z": 0 },
+      "shake_axis": "Z"
     },
     {
       "renderable": "RenderableId.EnvironmentCloud",
       "position": { "x": -4, "y": 7, "z":6.5 },
       "rotation": -10,
       "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 }
+      "scale": { "x": 1, "y": 1, "z": 1 },
+      "shake_impeller": "Pendulum",
+      "shake_scale": 0.7,
+      "shake_center": { "x": 0, "y": 4.6, "z": 0 },
+      "shake_axis": "Z"
     },
     {
       "renderable": "RenderableId.EnvironmentCloudShadow",
@@ -719,18 +735,20 @@
     },
     {
       "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -2.8, "y": -0.1, "z":7.3 },
+      "position": { "x": -2.8, "y": -0.1, "z":6.7 },
       "rotation": 0,
       "orientation": "Vertical",
       "scale": { "x": 1, "y": 1, "z": 1 },
+      "shake_impeller": "Sway",
       "shake_scale": 1.0
     },
     {
       "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -4.5, "y": 0, "z":6 },
+      "position": { "x": -4.5, "y": 0, "z":5.7 },
       "rotation": -20,
       "orientation": "Vertical",
       "scale": { "x": 0.6, "y": 0.6, "z": 0.6 },
+      "shake_impeller": "Sway",
       "shake_scale": 1.0
     },
     {
@@ -739,6 +757,7 @@
       "rotation": 40,
       "orientation": "Vertical",
       "scale": { "x": 1, "y": 1, "z": 1 },
+      "shake_impeller": "Sway",
       "shake_scale": 0.6
     },
     {
@@ -747,6 +766,7 @@
       "rotation": 20,
       "orientation": "Vertical",
       "scale": { "x": 1, "y": 1, "z": 1 },
+      "shake_impeller": "Sway",
       "shake_scale": 1.0
     },
     {
@@ -755,14 +775,16 @@
       "rotation": -60,
       "orientation": "Vertical",
       "scale": { "x": -0.8, "y": 0.7, "z": 1 },
+      "shake_impeller": "Sway",
       "shake_scale": 0.6
     },
     {
       "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -8, "y": 0, "z":0.5 },
+      "position": { "x": -7.5, "y": 0, "z":0.5 },
       "rotation": -40,
       "orientation": "Vertical",
       "scale": { "x": 0.7, "y": 0.7, "z": 0.7 },
+      "shake_impeller": "Sway",
       "shake_scale": 1.0
     },
     {
@@ -771,6 +793,7 @@
       "rotation": -80,
       "orientation": "Vertical",
       "scale": { "x": -0.8, "y": 0.7, "z": 1 },
+      "shake_impeller": "Sway",
       "shake_scale": 0.6
     }
   ],
@@ -983,7 +1006,8 @@
     {
       "id": "EnvironmentCloud",
       "cardboard_front": "materials/environment_cloud.bin",
-      "pixel_bounds": { "x": 1024, "y": 512 },
+      "pixel_bounds": { "x": 256, "y": 200 },
+      "geometry_scale": 2.8,
       "cardboard": true
     },
     {
@@ -994,8 +1018,8 @@
     {
       "id": "EnvironmentSun",
       "cardboard_front": "materials/environment_sun.bin",
-      "pixel_bounds": { "x": 256, "y": 238 }, // (295,274) --> (256, 238)
-      "geometry_scale": 1.1523, // 295 / 256
+      "pixel_bounds": { "x": 128, "y": 256 },
+      "geometry_scale": 2.5,
       "cardboard": true
     },
     {

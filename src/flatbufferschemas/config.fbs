@@ -49,6 +49,14 @@ enum GameMode : ushort {
   ReachTarget
 }
 
+enum ImpellerSpecification : ushort {
+  None,
+  Sway,
+  Pendulum,
+
+  Count // Must come last
+}
+
 // Used for defining zones for the touch controller.
 // the touch screen, (1, 1) is the lower right.  Input_type is what input
 // action should be associated with touching that zone.
@@ -111,9 +119,23 @@ table Prop {
   // Scale along each axis. Scale is performed before rotation.
   scale:Vec3;
 
+  // Type of shaking this prop should follow. Defined below in
+  // 'impeller_specifications'.
+  shake_impeller:ImpellerSpecification = None;
+
   // Amount this prop should shake when damage occurs nearby. If 0, never moves.
   // If 1, moves a lot.
   shake_scale:float;
+
+  // Center of shaking. The default is the origin of the renderable,
+  // which is in the bottom middle.
+  shake_center:Vec3;
+
+  // Axis that is animated by the shaking.
+  // X -- lean forward and back
+  // Y -- twist side-to-side
+  // Z -- swing left to right
+  shake_axis:Axis = X;
 }
 
 table CharacterData {
@@ -194,34 +216,6 @@ table TwoDimensionalElement {
   //   1 --> far right (or bottom).
   placement:Vec2;
 }
-
-//  // Defines the animation of the camera towards the target when a character is
-//  // hit by a big pie.
-//  camera_interest_start_def:SmoothParameters;
-//
-//  // Defines the animation of the camera back to its base position after we've
-//  // finished zooming in on a character hit by a big pie.
-//  camera_interest_end_def:SmoothParameters;
-//
-//  // Defines how long it takes the camera to zoom in on the character who's
-//  // been hit by a big pie. In ticks per distance unit.
-//  camera_time_per_dist_start:float;
-//
-//  // Defines how long it takes the camera to zoom out from the character and
-//  // back to its base position. In ticks per distance unit.
-//  camera_time_per_dist_end:float;
-//
-//  // The initial speed at which the camera starts to zoom towards the target.
-//  // We don't want to accelerate from speed zero. We want to have a little
-//  // speed going in so that it feels as though the camera's been jostled by
-//  // the impact.
-//  camera_start_target_velocity:float;
-//
-//  // The positions to which the camera moves when a character has been hit by
-//  // a big pie. The camera moves towards the position that is closest to the
-//  // character.
-//  camera_interest_positions:[Vec3];
-
 
 table CameraMovementToSubject {
   // Percent of camera position to take from subject position.
@@ -362,7 +356,7 @@ table Config {
   renderable_id_for_pie_damage:[RenderableId];
 
   // Defines how props shake when nearby characters are damaged.
-  prop_shake_def:OvershootParameters;
+  impeller_specifications:[OvershootParameters];
 
   // Maximum velocity that is added to the prop shake. In radians per tick.
   prop_shake_velocity:float;

@@ -97,7 +97,7 @@ void GameCamera::OverridePosition(const vec3& position) {
   TerminateMovements();
   GameCameraState current = CurrentState();
   const vec3 delta = position - current.position;
-  start_ = GameCameraState(current.position, current.target + delta);
+  start_ = GameCameraState(position, current.target + delta);
   end_ = start_;
 }
 

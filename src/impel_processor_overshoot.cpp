@@ -50,10 +50,8 @@ float OvershootImpelProcessor::CalculateVelocity(ImpelTime delta_time,
 
   // If we're far from facing the target, use the velocity calculated above.
   const bool should_snap = d.init.AtTarget(diff, velocity);
-  if (should_snap) {
-    const float max_velocity = d.init.at_target.max_velocity;
-    return mathfu::Clamp(diff / delta_time, -max_velocity, max_velocity);
-  }
+  if (should_snap)
+    return 0.0f;
 
   return velocity;
 }

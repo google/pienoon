@@ -47,6 +47,11 @@ inline const mathfu::vec2 LoadVec2(const splat::Vec2* v) {
   return mathfu::vec2(v->x(), v->y());
 }
 
+inline const mathfu::vec3 LoadAxis(splat::Axis axis) {
+  return axis == splat::Axis_X ? mathfu::kAxisX3f :
+         axis == splat::Axis_Y ? mathfu::kAxisY3f : mathfu::kAxisZ3f;
+}
+
 bool ChangeToUpstreamDir(const char* const target_dir,
                          const char* const suffix_dirs[],
                          size_t num_suffixes);

@@ -72,6 +72,12 @@ enum EventId : ushort {
   LoadPie
 }
 
+enum Axis : ushort {
+  X,
+  Y,
+  Z
+}
+
 struct Vec2i {
   x:int;
   y:int;
