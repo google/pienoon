@@ -125,9 +125,9 @@ LOCAL_SRC_FILES := \
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): build_assets))
 
-LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp
+LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp SDL2 SDL2_mixer
 
-LOCAL_SHARED_LIBRARIES := SDL2 SDL2_mixer
+LOCAL_SHARED_LIBRARIES :=
 
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz
 

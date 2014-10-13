@@ -20,7 +20,7 @@ public class FPLActivity extends SDLActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
       super.onWindowFocusChanged(hasFocus);
-      if (hasFocus) {
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
         // We use API 15 as our minimum, and these are the only features we
         // use in higher APIs, so we define cloned constants:
         final int SYSTEM_UI_FLAG_LAYOUT_STABLE = 256;  // API 16
