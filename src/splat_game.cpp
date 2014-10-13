@@ -106,10 +106,6 @@ bool SplatGame::InitializeConfig() {
 bool SplatGame::InitializeRenderer() {
   const Config& config = GetConfig();
 
-  perspective_matrix_ = mat4::Perspective(
-      config.viewport_angle(), config.viewport_aspect_ratio(),
-      config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
-
   auto window_size = config.window_size();
   assert(window_size);
   if (!renderer_.Initialize(LoadVec2i(window_size),
@@ -118,6 +114,11 @@ bool SplatGame::InitializeRenderer() {
             renderer_.last_error().c_str());
     return false;
   }
+  auto res = renderer_.window_size();
+  perspective_matrix_ = mat4::Perspective(
+      config.viewport_angle(), res.x() / static_cast<float>(res.y()),
+      config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
+
   renderer_.color() = mathfu::kOnes4f;
   return true;
 }

@@ -403,10 +403,6 @@ table Config {
   // Field of view angle for the camera.
   viewport_angle:float;
 
-  // Aspect ratio of the camera. Should match the window_size aspect ratio for
-  // proper rendering.
-  viewport_aspect_ratio:float;
-
   // Objects closer than the near plane are clipped.
   viewport_near_plane:float;
 
