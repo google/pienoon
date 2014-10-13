@@ -30,11 +30,19 @@ enum BlendMode {
   kBlendModeCount // Must be at end.
 };
 
+enum TextureFormat {
+  kFormatAuto = 0,  // The default, picks based on loaded data.
+  kFormat8888,
+  kFormat888,
+  kFormat5551,
+  kFormat565,
+};
+
 class Texture : public AsyncResource {
  public:
   Texture(Renderer &renderer, const std::string &filename)
     : AsyncResource(filename), renderer_(renderer), id_(0),
-      size_(mathfu::kZeros2i), has_alpha_(false) {}
+      size_(mathfu::kZeros2i), has_alpha_(false), desired_(kFormatAuto) {}
 
   virtual void Load();
   virtual void Finalize();
@@ -42,6 +50,7 @@ class Texture : public AsyncResource {
   GLuint id() { return id_; }
   vec2i size() { return size_; }
   const vec2i size() const { return size_; }
+  void set_desired_format(TextureFormat format) { desired_ = format; }
 
  private:
   Renderer &renderer_;
@@ -49,6 +58,7 @@ class Texture : public AsyncResource {
   GLuint id_;
   vec2i size_;
   bool has_alpha_;
+  TextureFormat desired_;
 };
 
 class Material {

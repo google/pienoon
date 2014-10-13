@@ -65,10 +65,12 @@ Texture *MaterialManager::FindTexture(const char *filename) {
   return FindInMap(texture_map_, filename);
 }
 
-Texture *MaterialManager::LoadTexture(const char *filename) {
+Texture *MaterialManager::LoadTexture(const char *filename,
+                                      TextureFormat format) {
   auto tex = FindTexture(filename);
   if (tex) return tex;
   tex = new Texture(renderer_, filename);
+  tex->set_desired_format(format);
   loader_.QueueJob(tex);
   texture_map_[filename] = tex;
   return tex;
@@ -97,9 +99,13 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
     auto matdef = matdef::GetMaterial(flatbuf.c_str());
     mat = new Material();
     mat->set_blend_mode(static_cast<BlendMode>(matdef->blendmode()));
-    for (auto it = matdef->texture_filenames()->begin();
-             it != matdef->texture_filenames()->end(); ++it) {
-      auto tex = LoadTexture(it->c_str());
+    for (size_t i = 0; i < matdef->texture_filenames()->size(); i++) {
+      auto format = matdef->desired_format() &&
+                    i < matdef->desired_format()->size()
+          ? static_cast<TextureFormat>(matdef->desired_format()->Get(i))
+          : kFormatAuto;
+      auto tex = LoadTexture(matdef->texture_filenames()->Get(i)->c_str(),
+                             format);
       mat->textures().push_back(tex);
     }
     material_map_[filename] = mat;

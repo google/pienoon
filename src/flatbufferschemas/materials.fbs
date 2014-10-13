@@ -25,9 +25,20 @@ enum BlendMode:ubyte {
   MULTIPLY
 }
 
+enum TextureFormat:ubyte {
+  AUTO = 0,  // The default, picks based on loaded data.
+  F_8888,
+  F_888,
+  F_5551,
+  F_565,
+}
+
 table Material {
   texture_filenames:[string];
   blendmode:BlendMode;
+  // This vector corresponds to the textures above, if not present,
+  // all of them will default to AUTO.
+  desired_format:[TextureFormat];
 }
 
 root_type Material;

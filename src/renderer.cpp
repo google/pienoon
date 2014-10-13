@@ -18,8 +18,6 @@
 
 #include "webp/decode.h"
 
-#define RENDERER_USE_5551_TEXTURES
-
 namespace fpl {
 
 bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
@@ -220,8 +218,19 @@ uint16_t *Renderer::Convert8888To5551(const uint8_t *buffer,
   return buffer16;
 }
 
+uint16_t *Renderer::Convert888To565(const uint8_t *buffer, const vec2i &size) {
+  auto buffer16 = new uint16_t[size.x() * size.y()];
+  for (int i = 0; i < size.x() * size.y(); i++) {
+    auto c = &buffer[i * 3];
+    buffer16[i] = ((c[0] >> 3) << 11) |
+                  ((c[1] >> 2) << 5) |
+                  ((c[2] >> 3) << 0);
+  }
+  return buffer16;
+}
+
 GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
-                               bool has_alpha) {
+                               bool has_alpha, TextureFormat desired) {
   int area = size.x() * size.y();
   if (area & (area - 1)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -239,19 +248,37 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                           GL_LINEAR_MIPMAP_NEAREST/*GL_LINEAR_MIPMAP_LINEAR*/));
-  if (has_alpha) {
-#   ifdef RENDERER_USE_5551_TEXTURES
-    auto buffer16 = Convert8888To5551(buffer, size);
-    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
-                         GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
-    delete[] buffer16;
-#   else
-    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
-                         GL_RGBA, GL_UNSIGNED_BYTE, buffer));
-#   endif
-  } else {
-    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x(), size.y(), 0,
-                         GL_RGB, GL_UNSIGNED_BYTE, buffer));
+  if (desired == kFormatAuto) desired = has_alpha ? kFormat5551 : kFormat565;
+  switch (desired) {
+    case kFormat5551: {
+      assert(has_alpha);
+      auto buffer16 = Convert8888To5551(buffer, size);
+      GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                           GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
+      delete[] buffer16;
+      break;
+    }
+    case kFormat565: {
+      assert(!has_alpha);
+      auto buffer16 = Convert888To565(buffer, size);
+      GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x(), size.y(), 0,
+                           GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer16));
+      delete[] buffer16;
+      break;
+    }
+    case kFormat8888: {
+      assert(has_alpha);
+      GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                           GL_RGBA, GL_UNSIGNED_BYTE, buffer));
+      break;
+    }
+    case kFormat888: {
+      assert(!has_alpha);
+      GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x(), size.y(), 0,
+                           GL_RGB, GL_UNSIGNED_BYTE, buffer));
+      break;
+    }
+    default: assert(0);
   }
   GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
   return texture_id;
@@ -320,8 +347,8 @@ uint8_t *Renderer::UnpackWebP(const void *webp_buf, size_t size,
   }
 }
 
-uint8_t *Renderer::LoadAndUnpackTexture(const char *filename,
-                                        vec2i *dimensions, bool *has_alpha) {
+uint8_t *Renderer::LoadAndUnpackTexture(const char *filename, vec2i *dimensions,
+                                        bool *has_alpha) {
   std::string file;
   if (LoadFile(filename, &file)) {
     std::string ext = filename;

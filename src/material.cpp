@@ -29,7 +29,7 @@ void Texture::Load() {
 
 void Texture::Finalize() {
   if (data_) {
-    id_ = renderer_.CreateTexture(data_, size_, has_alpha_);
+    id_ = renderer_.CreateTexture(data_, size_, has_alpha_, desired_);
     free(data_);
     data_ = nullptr;
   }

@@ -39,7 +39,8 @@ class MaterialManager {
   // Currently only supports TGA/WebP format files.
   // Returned texture isn't usable until TryFinalize() succeeds and the id
   // is non-zero.
-  Texture *LoadTexture(const char *filename);
+  Texture *LoadTexture(const char *filename,
+                       TextureFormat format = kFormatAuto);
   // LoadTextures doesn't actually load anything, this will start the async
   // loading of all files, and decompression.
   void StartLoadingTextures();
