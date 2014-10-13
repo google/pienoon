@@ -29,3 +29,6 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+
+MATHFU_DEFINE_GLOBAL_SIMD_AWARE_NEW_DELETE
+

@@ -15,9 +15,9 @@
 #include "precompiled.h"
 #include "input.h"
 
-#if defined(_DEBUG) || DEBUG==1
+//#if defined(_DEBUG) || DEBUG==1
 # define LOG_FRAMERATE
-#endif
+//#endif
 
 namespace fpl {
 
@@ -81,7 +81,7 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
   // Simplistic frame delta output.
   static float next_fps_update = 0;
   if (Time() > next_fps_update) {
-    next_fps_update += ceilf(Time());
+    next_fps_update = ceilf(Time());
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "DeltaTime: %f", DeltaTime());
   }
 # endif
