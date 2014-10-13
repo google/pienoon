@@ -21,13 +21,21 @@ public class FPLActivity extends SDLActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
       super.onWindowFocusChanged(hasFocus);
       if (hasFocus) {
+        // We use API 15 as our minimum, and these are the only features we
+        // use in higher APIs, so we define cloned constants:
+        final int SYSTEM_UI_FLAG_LAYOUT_STABLE = 256;  // API 16
+        final int SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION = 512;  // API 16
+        final int SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN = 1024;  // API 16
+        final int SYSTEM_UI_FLAG_HIDE_NAVIGATION = 2;  // API 14
+        final int SYSTEM_UI_FLAG_FULLSCREEN = 4;  // API 16
+        final int SYSTEM_UI_FLAG_IMMERSIVE_STICKY = 4096; // API 19
         mLayout.setSystemUiVisibility(
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_FULLSCREEN
-            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            | SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | SYSTEM_UI_FLAG_FULLSCREEN
+            | SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
       }
     }
 

@@ -26,7 +26,7 @@ declare -r android_manifest=AndroidManifest.xml
 declare -r os_name=$(uname -s)
 
 # Minimum Android target version supported by this project.
-: ${BUILDAPK_ANDROID_TARGET_MINVERSION:=19}
+: ${BUILDAPK_ANDROID_TARGET_MINVERSION:=15}
 # Directory containing the Android SDK
 # (http://developer.android.com/sdk/index.html).
 : ${ANDROID_SDK_HOME:=}

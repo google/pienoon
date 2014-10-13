@@ -119,6 +119,8 @@ void Renderer::AdvanceFrame(bool minimized) {
   } else {
     SDL_GL_SwapWindow(window_);
   }
+  // Get window size again, just in case it has changed.
+  SDL_GetWindowSize(window_, &window_size_.x(), &window_size_.y());
   GL_CALL(glViewport(0, 0, window_size_.x(), window_size_.y()));
   GL_CALL(glEnable(GL_DEPTH_TEST));
 }
