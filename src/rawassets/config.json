@@ -285,7 +285,7 @@
   "light_positions": [
       { "x": -50.0, "y": 300.0, "z": -200.0 }
     ],
-  "pie_flight_time": 500,
+  "pie_flight_time": 833,
   "pie_rotations": 0,
   "pie_rotation_variance": 1,
   "pie_initial_angle": 45,
@@ -303,12 +303,12 @@
       "modular": true,
       "min": -3.14159265359,
       "max": 3.14159265359,
-      "max_velocity": 0.021,
+      "max_velocity": 0.0126,
       "max_delta": 3.141,
-      "at_target": { "max_difference": 0.087, "max_velocity": 0.00059 }
+      "at_target": { "max_difference": 0.03, "max_velocity": 0.0001 }
     },
-    "acceleration_per_difference": 0.00032,
-    "wrong_direction_acceleration_multiplier": 4.0
+    "acceleration_per_difference": 0.000192,
+    "wrong_direction_acceleration_multiplier": 6.0
   },
 
   "impeller_specifications": [
@@ -321,11 +321,11 @@
         "modular": false,
         "min": -0.5235,
         "max": 0.5235,
-        "max_velocity": 0.021,
+        "max_velocity": 0.0126,
         "max_delta": 1.5,
-        "at_target": { "max_difference": 0.0003, "max_velocity": 0.000005 }
+        "at_target": { "max_difference": 0.0003, "max_velocity": 0.000003 }
       },
-      "acceleration_per_difference": 0.00015,
+      "acceleration_per_difference": 0.00009,
       "wrong_direction_acceleration_multiplier": 1.5
     },
 
@@ -335,25 +335,25 @@
         "modular": false,
         "min": -1.047,
         "max": 1.047,
-        "max_velocity": 0.03,
+        "max_velocity": 0.018,
         "max_delta": 1.0,
-        "at_target": { "max_difference": 0.005, "max_velocity": 0.000005 }
+        "at_target": { "max_difference": 0.005, "max_velocity": 0.000003 }
       },
-      "acceleration_per_difference": 0.00001,
+      "acceleration_per_difference": 0.000006,
       "wrong_direction_acceleration_multiplier": 1.3
     }
   ],
 
-  "prop_shake_velocity": 0.05,
+  "prop_shake_velocity": 0.03,
   "prop_shake_percent_per_damage": 0.2,
   "prop_shake_identity_distance_sq": 1.3,
 
   "face_angle_twitch": {
     "max_difference": 0.026,
-    "max_velocity": 0.00104
+    "max_velocity": 0.000624
   },
 
-  "face_angle_twitch_velocity": 0.0052,
+  "face_angle_twitch_velocity": 0.00312,
 
   "renderable_id_for_pie_damage": [
     "PieEmpty",
@@ -370,16 +370,16 @@
     "position_from_base": {"x": 1.0, "y": 0.8, "z": 1.0 },
     "target_from_subject": {"x": 0.5, "y": 0.0, "z": 1.1 },
     "target_from_base": {"x": 0.0, "y": 1.0, "z": 0.0 },
-    "start_velocity": 0.5,
+    "start_velocity": 0.3,
     "time": 170,
     "def": {
       "base": {
         "modular": false,
         "min": 0.0,
         "max": 1.0,
-        "max_velocity": 0.03,
+        "max_velocity": 0.018,
         "max_delta": 1.0,
-        "at_target": { "max_difference": 0.01, "max_velocity": 0.001 }
+        "at_target": { "max_difference": 0.01, "max_velocity": 0.0006 }
       }
     }
   },
@@ -395,9 +395,9 @@
         "modular": false,
         "min": 0.0,
         "max": 1.0,
-        "max_velocity": 0.01,
+        "max_velocity": 0.006,
         "max_delta": 1.0,
-        "at_target": { "max_difference": 0.01, "max_velocity": 0.001 }
+        "at_target": { "max_difference": 0.01, "max_velocity": 0.0006 }
       }
     }
   },

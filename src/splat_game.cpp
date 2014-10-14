@@ -920,7 +920,7 @@ void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   const Config& config = GetConfig();
   const WorldTime min_update_time = config.min_update_time();
-  const WorldTime max_update_time = config.min_update_time();
+  const WorldTime max_update_time = config.max_update_time();
   prev_world_time_ = CurrentWorldTime() - min_update_time;
   TransitionToSplatState(kFinished);
   game_state_.Reset();
