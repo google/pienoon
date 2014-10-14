@@ -35,10 +35,9 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                             os.path.pardir))
 
 PREBUILTS_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
-                                              os.path.pardir,
-                                              os.path.pardir,
-                                              os.path.pardir,
-                                              os.path.pardir))
+                                              os.path.pardir, os.path.pardir,
+                                              os.path.pardir, os.path.pardir,
+                                              'prebuilts'))
 
 # Directories that may contains the FlatBuffers compiler.
 FLATBUFFERS_PATHS = [
@@ -52,7 +51,8 @@ CWEBP_PATHS = [
     os.path.join(PROJECT_ROOT, 'bin'),
     os.path.join(PROJECT_ROOT, 'bin', 'Release'),
     os.path.join(PROJECT_ROOT, 'bin', 'Debug'),
-    os.path.join(PREBUILTS_ROOT, 'libwebp', 'libwebp-0.4.1-linux-x86-32', 'bin')
+    os.path.join(PREBUILTS_ROOT, 'libwebp', 'linux-x86',
+                 'libwebp-0.4.1-linux-x86-32', 'bin')
 ]
 
 # Directory to place processed assets.
