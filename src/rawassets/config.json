@@ -508,7 +508,7 @@
   "draw_fixed_renderable": "Invalid",
   "button_to_camera_translation_scale": { "x": 0.08, "y": 0.04, "z": 0.08 },
   "mouse_to_camera_rotation_scale": 0.002,
-  "allow_camera_movement": true,
+  "allow_camera_movement": false,
 
   "splatter_map": [
     { "indices": [] },
