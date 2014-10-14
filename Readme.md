@@ -233,7 +233,7 @@ These are the minimum required versions for building Splat for Windows:
 -   [Visual Studio][]: 2010 or 2012
 -   [DirectX SDK][]: 9.29.1962 or newer.
 -   [cmake][]: 2.8.12 or newer.
--   [GNU Make Windows][]: 3.81 or newer.
+-   [Python][]: 2.7.*
 
 #### Creating the Visual Studio solution using [cmake][]
 
@@ -365,25 +365,25 @@ The following table maps each set of [JSON][] files in `src/rawassets` to
 ### Building
 
 The game loads assets from the `assets` directory.  In order to convert data
-into a format suitable for the game runtime, assets are built from the command
-line using `make` which requires:
+into a format suitable for the game runtime, assets are built from a python
+script which requires:
 
-*   `flatc` ([Flatbuffers compiler][]) to convert [JSON][] text files to .bin
-    files in the `splat/assets` directory.
-*   [Windows][] users will need to install [GNU Make Windows][] and add
-    the location of the GNU Make `bin` directory to the PATH variable.  For
-    example in Windows 7:
+*   [Python][] to run the asset build script. [Windows][] users may need to
+    install [Python][] and add the location of the python executable to the PATH
+    variable.  For example in Windows 7:
     *   Right click on `My Computer`, select `Properties`.
     *   Select `Advanced system settings`.
     *   Click `Environment Variables`.
     *   Find and select `PATH`, click `Edit...`.
-    *   Add `;%PATH_TO_GNUMAKE%` where `%PATH_TO_GNUMAKE%` is the location of
-        the GNU Make `bin` directory.
+    *   Add `;%PATH_TO_PYTHONEXE%` where `%PATH_TO_PYTHONEXE%` is the location
+        of the python executable.
+*   `flatc` ([Flatbuffers compiler][]) to convert [JSON][] text files to .bin
+    files in the `splat/assets` directory.
 *   [cwebp][] is required to convert `png` images to the [webp][] format.
     Install [cwebp][] by downloading the libwebp archive for your operating
-	system (see [WebP Precompiled Utilities][]) unpack somewhere on your
-	system and add the directory containing the [cwebp][] binary to the `PATH`
-	variable.
+    system (see [WebP Precompiled Utilities][]) unpack somewhere on your
+    system and add the directory containing the [cwebp][] binary to the `PATH`
+    variable.
 
 After modifying the data in the `splat/src/rawassets` directory, the assets
 need to be rebuilt by running the following command:
@@ -728,12 +728,12 @@ TODO
   [Flatbuffers]: http://google.github.io/flatbuffers/
   [Flatbuffers compiler]: http://google.github.io/flatbuffers/md__compiler.html
   [Flatbuffers schema]: http://google.github.io/flatbuffers/md__schemas.html
-  [GNU Make Windows]: http://gnuwin32.sourceforge.net/packages/make.htm
   [Linux]: http://en.wikipedia.org/wiki/Linux
   [JSON]: http://json.org/
   [managing avds]: http://developer.android.com/tools/devices/managing-avds.html
   [NDK Eclipse plugin]: http://developer.android.com/sdk/index.html
   [OS X]: http://www.apple.com/osx/
+  [Python]: http://python.org/
   [Ubuntu]: http://www.ubuntu.com
   [Visual Studio]: http://www.visualstudio.com/
   [Windows]: http://windows.microsoft.com/
