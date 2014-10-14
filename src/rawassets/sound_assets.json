@@ -9,6 +9,9 @@
     "sounds/hit_with_pie.bin",
 
     // MainTheme
-    "sounds/main_theme.bin"
+    "sounds/main_theme.bin",
+
+    // TitleScreen
+    "sounds/title_screen.bin"
   ]
 }

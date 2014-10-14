@@ -397,9 +397,6 @@ bool SplatGame::Initialize() {
   // initialize.
   audio_engine_.Initialize(GetConfig().audio());
   input_.AddAppEventCallback(AudioEngineVolumeControl(&audio_engine_));
-  // TODO(amablue): b/17767350 Move this to a better place when we start plaing
-  // more than one piece of music.
-  audio_engine_.PlaySound(SoundId_MainTheme);
 
   if (!InitializeGameState())
     return false;
@@ -700,12 +697,13 @@ void SplatGame::DebugCamera() {
 
 SplatState SplatGame::UpdateSplatState() {
   switch (state_) {
-    case kPlaying:
+    case kPlaying: {
       // When we're down to 0 human active players, or <=1 active characters,
       // the game's over.
       if (game_state_.IsGameOver())
         return kFinished;
       break;
+    }
 
     case kFinished: {
       // When players press the A/throw button during the menu screen, they
@@ -727,11 +725,13 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
   assert(state_ != next_state); // Must actually transition.
 
   switch (next_state) {
-    case kPlaying:
+    case kPlaying: {
+      audio_engine_.PlaySound(SoundId_MainTheme);
       game_state_.Reset();
       break;
-
-    case kFinished:
+    }
+    case kFinished: {
+      audio_engine_.PlaySound(SoundId_TitleScreen);
       game_state_.DetermineWinnersAndLosers();
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
@@ -759,6 +759,7 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
       // For now, we always show leaderboards when a round ends:
       UploadAndShowLeaderboards();
       break;
+    }
 
     default:
       assert(false);
