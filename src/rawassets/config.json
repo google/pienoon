@@ -17,7 +17,7 @@
     {
       "character_data": [
         {
-          "position": { "x": -5.0, "y": 0.0, "z":  0.5 },
+          "position": { "x": -5.0, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         },
         {
@@ -25,7 +25,7 @@
           "left_jump": 1
         },
         {
-          "position": { "x":  5.0, "y": 0.0, "z":  0.5 },
+          "position": { "x":  5.0, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         }
       ]
@@ -33,7 +33,7 @@
     {
       "character_data": [
         {
-          "position": { "x": -5.0, "y": 0.0, "z":  0.5 },
+          "position": { "x": -5.0, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         },
         {
@@ -45,7 +45,7 @@
           "left_jump": 1
         },
         {
-          "position": { "x":  5.0, "y": 0.0, "z":  0.5 },
+          "position": { "x":  5.0, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         }
       ]
@@ -53,7 +53,7 @@
     {
       "character_data": [
         {
-          "position": { "x": -5.0, "y": 0.0, "z":  0.5 },
+          "position": { "x": -5.0, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         },
         {
@@ -69,7 +69,7 @@
           "left_jump": 1
         },
         {
-          "position": { "x":  5.0, "y": 0.0, "z":  0.5 },
+          "position": { "x":  5.0, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         }
       ]
@@ -77,7 +77,7 @@
     {
       "character_data": [
         {
-          "position": { "x": -5.5, "y": 0.0, "z":  0.5 },
+          "position": { "x": -5.5, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         },
         {
@@ -97,7 +97,7 @@
           "left_jump": 1
         },
         {
-          "position": { "x":  5.5, "y": 0.0, "z":  0.5 },
+          "position": { "x":  5.5, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         }
       ]
@@ -105,7 +105,7 @@
     {
       "character_data": [
         {
-          "position": { "x": -5.5, "y": 0.0, "z":  0.5 },
+          "position": { "x": -5.5, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         },
         {
@@ -129,7 +129,7 @@
           "left_jump": 1
         },
         {
-          "position": { "x":  5.5, "y": 0.0, "z":  0.5 },
+          "position": { "x":  5.5, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         }
       ]
@@ -137,7 +137,7 @@
     {
       "character_data": [
         {
-          "position": { "x": -5.5, "y": 0.0, "z":  0.5 },
+          "position": { "x": -5.5, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         },
         {
@@ -165,7 +165,7 @@
           "left_jump": 1
         },
         {
-          "position": { "x":  5.5, "y": 0.0, "z":  0.5 },
+          "position": { "x":  5.5, "y": 0.0, "z":  0.8 },
           "left_jump": -1
         }
       ]
@@ -431,8 +431,8 @@
   "loading_logo": "materials/loading_logo.bin",
   "min_loading_time": 2.0,
 
-  "ui_arrow_offset": { "x": 1, "y": 0.1, "z": -2 },
-  "ui_arrow_scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
+  "ui_arrow_offset": { "x": 0.7, "y": 0.1, "z": -1.0 },
+  "ui_arrow_scale": { "x": 1.7, "y": 1.7, "z": 1.7 },
 
   "ai_minimum_time_between_actions": 200,
   "ai_maximum_time_between_actions": 1000,
@@ -691,6 +691,13 @@
       "shake_scale": 0.1
     },
     {
+      "renderable": "RenderableId.EnvironmentAmbientOcclusionShadow",
+      "position": { "x": -8.5, "y": 0.005, "z":4 },
+      "rotation": -40,
+      "orientation": "Horizontal",
+      "scale": { "x": 80, "y": 1, "z":1 }
+    },
+    {
       "renderable": "RenderableId.EnvironmentStoreRoom",
       "position": { "x": 2.5, "y": -0.3, "z":7.6 },
       "rotation": 0,
@@ -698,6 +705,13 @@
       "scale": { "x": 1, "y": 1, "z": 1 },
       "shake_impeller": "Sway",
       "shake_scale": 0.1
+    },
+    {
+      "renderable": "RenderableId.EnvironmentAmbientOcclusionShadow",
+      "position": { "x": 2.5, "y": 0.01, "z":6.7 },
+      "rotation": 0,
+      "orientation": "Horizontal",
+      "scale": { "x": 160, "y": 2, "z":1 }
     },
     {
       "renderable": "RenderableId.EnvironmentSunGlow",
@@ -856,7 +870,7 @@
       "shadow": true,
       "cardboard": true,
       "splatter_offset": { "x": -90, "y": 70 },
-      "health_offset": { "x": -75, "y": 70 }
+      "health_offset": { "x": -75, "y": 40 }
     },
     {
       "id": "CharacterThrow",
@@ -1026,8 +1040,8 @@
     },
     {
       "id": "EnvironmentSunGlow",
-      "pixel_bounds": { "x": 256, "y": 219 }, // (656,560) --> (256, 219)
-      "geometry_scale": 2.5625, // 656 / 256
+      "pixel_bounds": { "x": 128, "y": 110 }, // (656,560) --> (128, 110)
+      "geometry_scale": 5.125, // 656 / 128
       "cardboard_front": "materials/environment_sun_glow.bin"
     },
     {
@@ -1083,7 +1097,7 @@
     {
       "id": "EnvironmentAmbientOcclusionShadow",
       "cardboard_front": "materials/environment_ambient_occlusion_shadow.bin",
-      "pixel_bounds": { "x": 256, "y": 128 }
+      "pixel_bounds": { "x": 16, "y": 128 }
     },
     {
       "id": "Splatter1",
@@ -1117,7 +1131,8 @@
     {
       "id": "UiArrow",
       "cardboard_front": "materials/arrow.bin",
-      "pixel_bounds": { "x": 1024, "y": 1024 }
+      "pixel_bounds": { "x": 256, "y": 149 },
+      "geometry_scale": 1.0
     },
     {
       "id": "Pixel1x1",

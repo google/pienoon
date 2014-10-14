@@ -2,6 +2,7 @@
   texture_filenames: [
     "textures/chalkarrowcircle.webp"
   ],
-  "blendmode": "ALPHA"
+  "blendmode": "ALPHA",
+  desired_format: [ F_8888 ]
 }
 
