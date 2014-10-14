@@ -1159,17 +1159,10 @@ void GameState::PopulateScene(SceneDescription* scene) const {
       const WorldTime anim_time = GetAnimationTime(*character);
       const uint16_t renderable_id = character->RenderableId(anim_time);
       const mat4 character_matrix = character->CalculateMatrix(facing_camera);
-      const vec3 player_color = (character->controller()->controller_type() ==
-          Controller::kTypeAI)
-          ? LoadVec3(config_->ai_color())
-          : LoadVec3(config_->character_colors()->Get(character->id())) /
-                     config_->character_global_brightness_factor() +
-                     (1 - 1 / config_->character_global_brightness_factor());
       scene->renderables().push_back(
-          std::unique_ptr<Renderable>( new Renderable(renderable_id,
-          character_matrix,
-          mathfu::vec4(player_color.x(), player_color.y(), player_color.z(),
-                       1.0))));
+          std::unique_ptr<Renderable>(
+              new Renderable(renderable_id, character_matrix,
+                             character->Color())));
 
       // Accessories.
       int num_accessories = 0;
@@ -1204,7 +1197,6 @@ void GameState::PopulateScene(SceneDescription* scene) const {
           config_->character_health() - character->health();
       PopulateCharacterAccessories(scene, renderable_id, character_matrix,
                                    num_accessories, damage, health);
-
     }
   }
 

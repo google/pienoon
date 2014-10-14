@@ -26,6 +26,7 @@
 #include "scoring_rules_generated.h"
 #include "pie_noon_common_generated.h"
 #include "timeline_generated.h"
+#include "utilities.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -110,6 +111,15 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 
 void Character::PlaySound(SoundId sound_id) const {
   audio_engine_->PlaySound(sound_id);
+}
+
+mathfu::vec4 Character::Color() const {
+  const bool ai = controller_->controller_type() == Controller::kTypeAI;
+  const vec3 color = ai ? LoadVec3(config_->ai_color()) :
+                     Lerp(mathfu::kOnes3f,
+                          LoadVec3(config_->character_colors()->Get(id_)),
+                          1.0f / config_->character_global_brightness_factor());
+  return vec4(color, 1.0);
 }
 
 void Character::IncrementStat(PlayerStats stat) {
