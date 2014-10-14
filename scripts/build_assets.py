@@ -35,7 +35,10 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                             os.path.pardir))
 
 PREBUILTS_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
-    os.path.pardir, os.path.pardir, os.path.pardir, os.path.pardir))
+                                              os.path.pardir,
+                                              os.path.pardir,
+                                              os.path.pardir,
+                                              os.path.pardir))
 
 # Directories that may contains the FlatBuffers compiler.
 FLATBUFFERS_PATHS = [
@@ -98,40 +101,51 @@ def processed_json_dir(path):
   return os.path.dirname(path.replace(RAW_ASSETS_PATH, ASSETS_PATH))
 
 
-# json describing FlatBuffers data that will be converted to FlatBuffers binary
-# files.
-FLATBUFFERS_SCHEMA_JSON = [
-    {
-        'schema': os.path.join(SCHEMA_PATH, 'config.fbs'),
-        'input_files': [os.path.join(RAW_ASSETS_PATH, 'config.json')],
-        'output_path': ASSETS_PATH
-    },
-    {
-        'schema': os.path.join(SCHEMA_PATH, 'buses.fbs'),
-        'input_files': [os.path.join(RAW_ASSETS_PATH, 'buses.json')],
-        'output_path': ASSETS_PATH
-    },
-    {
-        'schema': os.path.join(SCHEMA_PATH, 'sound_assets.fbs'),
-        'input_files': [os.path.join(RAW_ASSETS_PATH, 'sound_assets.json')],
-        'output_path': ASSETS_PATH
-    },
-    {
-        'schema': os.path.join(SCHEMA_PATH, 'character_state_machine_def.fbs'),
-        'input_files': [os.path.join(RAW_ASSETS_PATH,
-                                     'character_state_machine_def.json')],
-        'output_path': ASSETS_PATH
-    },
-    {
-        'schema': os.path.join(SCHEMA_PATH, 'sound_collection_def.fbs'),
-        'input_files': glob.glob(os.path.join(RAW_SOUND_PATH, '*.json')),
-        'output_path': SOUND_PATH
-    },
-    {
-        'schema': os.path.join(SCHEMA_PATH, 'materials.fbs'),
-        'input_files': glob.glob(os.path.join(RAW_MATERIAL_PATH, '*.json')),
-        'output_path': MATERIAL_PATH
-    }
+class FlatbuffersConversionData(object):
+  """Holds data needed to convert a set of json files to flatbuffer binaries.
+
+  Attributes:
+    schema: The path to the flatbuffer schema file.
+    input_files: A list of input files to convert.
+    output_path: The path to the output directory where the converted files will
+        be placed.
+  """
+
+  def __init__(self, schema, input_files, output_path):
+    """Initializes this object's schema, input_files and output_path."""
+    self.schema = schema
+    self.input_files = input_files
+    self.output_path = output_path
+
+
+# A list of json files and their schemas that will be converted to binary files
+# by the flatbuffer compiler.
+FLATBUFFERS_CONVERSION_DATA = [
+    FlatbuffersConversionData(
+        schema=os.path.join(SCHEMA_PATH, 'config.fbs'),
+        input_files=[os.path.join(RAW_ASSETS_PATH, 'config.json')],
+        output_path=ASSETS_PATH),
+    FlatbuffersConversionData(
+        schema=os.path.join(SCHEMA_PATH, 'buses.fbs'),
+        input_files=[os.path.join(RAW_ASSETS_PATH, 'buses.json')],
+        output_path=ASSETS_PATH),
+    FlatbuffersConversionData(
+        schema=os.path.join(SCHEMA_PATH, 'sound_assets.fbs'),
+        input_files=[os.path.join(RAW_ASSETS_PATH, 'sound_assets.json')],
+        output_path=ASSETS_PATH),
+    FlatbuffersConversionData(
+        schema=os.path.join(SCHEMA_PATH, 'character_state_machine_def.fbs'),
+        input_files=[os.path.join(RAW_ASSETS_PATH,
+                                  'character_state_machine_def.json')],
+        output_path=ASSETS_PATH),
+    FlatbuffersConversionData(
+        schema=os.path.join(SCHEMA_PATH, 'sound_collection_def.fbs'),
+        input_files=glob.glob(os.path.join(RAW_SOUND_PATH, '*.json')),
+        output_path=SOUND_PATH),
+    FlatbuffersConversionData(
+        schema=os.path.join(SCHEMA_PATH, 'materials.fbs'),
+        input_files=glob.glob(os.path.join(RAW_MATERIAL_PATH, '*.json')),
+        output_path=MATERIAL_PATH)
 ]
 
 
@@ -235,12 +249,12 @@ def processed_json_path(path):
 
 def generate_flatbuffer_binaries():
   """Run the flatbuffer compiler on the all of the flatbuffer json files."""
-  for element in FLATBUFFERS_SCHEMA_JSON:
-    schema = element['schema']
-    output_path = element['output_path']
+  for element in FLATBUFFERS_CONVERSION_DATA:
+    schema = element.schema
+    output_path = element.output_path
     if not os.path.exists(output_path):
       os.makedirs(output_path)
-    for json in element['input_files']:
+    for json in element.input_files:
       target = processed_json_path(json)
       if needs_rebuild(json, target) or needs_rebuild(schema, target):
         convert_json_to_flatbuffer_binary(
@@ -267,8 +281,8 @@ def clean_webp_textures():
 
 def clean_flatbuffer_binaries():
   """Delete all the processed flatbuffer binaries."""
-  for element in FLATBUFFERS_SCHEMA_JSON:
-    for json in element['input_files']:
+  for element in FLATBUFFERS_CONVERSION_DATA:
+    for json in element.input_files:
       path = processed_json_path(json)
       if os.path.isfile(path):
         os.remove(path)
