@@ -19,11 +19,13 @@
 #include "sound.h"
 #include "sound_collection.h"
 #include "sound_collection_def_generated.h"
+#include "audio_engine.h"
 #include "utilities.h"
 
 namespace fpl {
 
-bool SoundCollection::LoadSoundCollectionDef(const std::string& source) {
+bool SoundCollection::LoadSoundCollectionDef(const std::string& source,
+                                             AudioEngine* audio_engine) {
   source_ = source;
   const SoundCollectionDef* def = GetSoundCollectionDef();
   unsigned int sample_count =
@@ -43,12 +45,25 @@ bool SoundCollection::LoadSoundCollectionDef(const std::string& source) {
     }
     sum_of_probabilities_ += entry->playback_probability();
   }
+  if (!def->bus()) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Sound collection does not specify a bus");
+    return false;
+  }
+  if (audio_engine) {
+    bus_ = audio_engine->FindBus(def->bus()->c_str());
+    if (!bus_) {
+      return false;
+    }
+  }
   return true;
 }
 
-bool SoundCollection::LoadSoundCollectionDefFromFile(const char* filename) {
+bool SoundCollection::LoadSoundCollectionDefFromFile(
+    const char* filename, AudioEngine* audio_engine) {
   std::string source;
-  return LoadFile(filename, &source) && LoadSoundCollectionDef(source);
+  return LoadFile(filename, &source) &&
+      LoadSoundCollectionDef(source, audio_engine);
 }
 
 void SoundCollection::Unload() {

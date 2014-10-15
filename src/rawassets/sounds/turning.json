@@ -1,5 +1,6 @@
 {
   "id": "Turning",
+  "bus": "game_sound_effects",
   "gain": 0.3,
   "priority": 0.1,
   "audio_sample_set": [

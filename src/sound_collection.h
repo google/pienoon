@@ -23,6 +23,8 @@ namespace fpl {
 
 struct SoundCollectionDef;
 class SoundSource;
+class AudioEngine;
+class Bus;
 
 // SoundCollection represent an abstract sound (like a 'whoosh'), which contains
 // a number of pieces of audio with weighted probabilities to choose between
@@ -31,10 +33,12 @@ class SoundSource;
 class SoundCollection {
  public:
   // Load the given flatbuffer data representing a SoundCollectionDef.
-  bool LoadSoundCollectionDef(const std::string& source);
+  bool LoadSoundCollectionDef(const std::string& source,
+                              AudioEngine* audio_engine);
 
   // Load the given flatbuffer binary file containing a SoundDef.
-  bool LoadSoundCollectionDefFromFile(const char* filename);
+  bool LoadSoundCollectionDefFromFile(const char* filename,
+                                      AudioEngine* audio_engine);
 
   // Unload the data associated with this Sound.
   void Unload();
@@ -45,7 +49,13 @@ class SoundCollection {
   // Return a random piece of audio from the set of audio for this sound.
   SoundSource* Select() const;
 
+  // Return the bus this SoundCollection will play on.
+  Bus* bus() { return bus_; }
+
  private:
+  // The bus this SoundCollection will play on.
+  Bus* bus_;
+
   std::string source_;
   std::vector<std::unique_ptr<SoundSource>> audio_sources_;
   float sum_of_probabilities_;

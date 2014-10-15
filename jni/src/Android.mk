@@ -170,6 +170,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_DIR)/src/ai_controller.cpp \
   $(PIE_NOON_DIR)/src/async_loader.cpp \
   $(PIE_NOON_DIR)/src/audio_engine.cpp \
+  $(PIE_NOON_DIR)/src/bus.cpp \
   $(PIE_NOON_DIR)/src/character.cpp \
   $(PIE_NOON_DIR)/src/character_state_machine.cpp \
   $(PIE_NOON_DIR)/src/controller.cpp \

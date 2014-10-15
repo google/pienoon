@@ -1,5 +1,6 @@
 {
   "id": "StingerWin",
+  "bus": "stingers",
   "stream": true,
   "audio_sample_set": [
     {

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace fpl.pie_noon;
+namespace fpl;
 
-// Representation of an audio bus similar to a bus on a mixing desk. Busses are
+// Representation of an audio bus similar to a bus on a mixing desk. Buses are
 // hierarchical where the gain of each parent bus is applied to each of the
 // children.
 table BusDef {
@@ -26,13 +26,13 @@ table BusDef {
   gain:float = 1.0;
 
   // Identifiers of children of this bus.
-  child_busses:[string];
+  child_buses:[string];
 
-  // Identifiers of busses that should be ducked when sounds are played on this
+  // Identifiers of buses that should be ducked when sounds are played on this
   // bus.
-  duck_busses:[string];
+  duck_buses:[string];
 
-  // Gain applied to duck_busses when a sound plays on this bus.
+  // Gain applied to duck_buses when a sound plays on this bus.
   duck_gain:float;
 
   // Time (in seconds) for gain to duck_gain transition.
@@ -43,7 +43,7 @@ table BusDef {
 }
 
 table BusDefList {
-  busses:[BusDef];
+  buses:[BusDef];
 }
 
 root_type BusDefList;

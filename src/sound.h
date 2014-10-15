@@ -24,8 +24,6 @@ struct AudioSampleSetEntry;
 
 typedef int ChannelId;
 
-const ChannelId kInvalidChannel = -1;
-
 // SoundSource is a base class for both SoundStreams and SoundBuffers.
 class SoundSource {
  public:

@@ -1,5 +1,6 @@
 {
   "id": "MusicMenu",
+  "bus": "title_screen_music",
   "stream": true,
   "loop": true,
   "audio_sample_set": [

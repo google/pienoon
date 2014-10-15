@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PIE_NOON_AUDIO_ENGINE_H_
-#define PIE_NOON_AUDIO_ENGINE_H_
+#ifndef FPL_AUDIO_ENGINE_H_
+#define FPL_AUDIO_ENGINE_H_
 
+#include "precompiled.h"
+#include <vector>
+#include "bus.h"
 #include "common.h"
 #include "sound.h"
 #include "sound_collection.h"
-#include "pie_noon_common_generated.h"
 #include "sound_collection_def_generated.h"
 
 #ifdef FPL_AUDIO_ENGINE_UNIT_TESTS
@@ -28,6 +30,7 @@
 namespace fpl {
 
 struct AudioConfig;
+struct BusDefList;
 
 // TODO(amablue): Remove pie_noon dependency.
 // What's the right thing to do when SoundId is defined in pie_noon_common.fbs?
@@ -47,8 +50,11 @@ class AudioEngine {
   // Returns the channel the sound is played on.
   ChannelId PlaySound(SoundId sound_id);
 
+  // Immediately halts a sound.
+  static void Halt(ChannelId channel_id);
+
   // Checks if the sound playing on a given channel is playing
-  bool IsPlaying(ChannelId channel_id) const;
+  static bool Playing(ChannelId channel_id);
 
   // Stop a channel.
   void Stop(ChannelId channel_id);
@@ -56,14 +62,23 @@ class AudioEngine {
   // Returns the audio collection associated with the given sound_id.
   SoundCollection* GetSoundCollection(SoundId sound_id);
 
+  // master_volumes the audio engine completely.
+  void set_master_gain(float master_gain) { master_gain_ = master_gain; }
+  float master_gain() { return master_gain_; }
+
   // Mutes the audio engine completely.
-  void Mute(bool mute);
+  void set_mute(bool mute) { mute_ = mute; }
+  bool mute() { return mute_; }
 
   // Pauses all playing sounds and streams.
   void Pause(bool pause);
 
   // TODO: Update audio volume per channel each frame. b/17316699
   void AdvanceFrame(WorldTime world_time);
+
+  // Find a bus by the given name. Returns a nullptr if no bus by that name
+  // exists.
+  Bus* FindBus(const char* name);
 
  private:
 #ifdef FPL_AUDIO_ENGINE_UNIT_TESTS
@@ -73,41 +88,45 @@ class AudioEngine {
 
   // Represents a sample that is playing on a channel.
   struct PlayingSound {
-    PlayingSound(const SoundCollectionDef* def, ChannelId cid, WorldTime time)
-        : sound_collection_def(def),
-          channel_id(cid),
-          start_time(time) {
-    }
+    PlayingSound(SoundCollection* collection, ChannelId cid, WorldTime time);
+    PlayingSound(const PlayingSound& other);
+    PlayingSound& operator=(const PlayingSound& other);
+    ~PlayingSound();
 
-    const SoundCollectionDef* sound_collection_def;
+    SoundCollection* sound_collection;
     ChannelId channel_id;
     WorldTime start_time;
   };
 
-  // Play a buffer associated with the given sound_id.
-  ChannelId PlayBuffer(SoundCollection* sound);
+  // Get the bus definitions.
+  const BusDefList* GetBusDefList() const;
 
-  // Play a stream associated with the given sound_id.
-  ChannelId PlayStream(SoundCollection* sound);
+  // Populate a Bus's child or duck buses.
+  typedef flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>
+      BusNameList;
+  bool PopulateBuses(const char* list_name, const BusNameList* child_name_list,
+                     std::vector<Bus*>* output);
 
-  class PriorityComparitor {
-   public:
-    PriorityComparitor(const SoundCollections* collections)
-        : collections_(collections) {}
-    int operator()(const PlayingSound& a, const PlayingSound& b);
-   private:
-    const SoundCollections* collections_;
-  };
+  // Set the volume of a channel.
+  static void SetChannelGain(ChannelId channel_id, float volume);
 
   // Return true if the given AudioEngine::PlayingSound has finished playing.
   static bool CheckFinishedPlaying(const PlayingSound& playing_sound);
 
   // Remove all sounds that are no longer playing.
-  void ClearFinishedSounds();
+  void EraseFinishedSounds();
 
-  static void PrioritizeChannels(
-    const SoundCollections& collections,
-    std::vector<PlayingSound>* playing_sounds);
+  // Return true if the given AudioEngine::PlayingSound is a stream.
+  static bool CheckIfStream(const PlayingSound& playing_sound);
+
+  // Remove all streams.
+  void EraseStreams();
+
+  // Compares the priority of two PlayingSounds.
+  static int PriorityComparitor(const PlayingSound& a, const PlayingSound& b);
+
+  // Sort all playing sounds based on the PriorityComparitor.
+  static void PrioritizeChannels(std::vector<PlayingSound>* playing_sounds);
 
   // Play a source selected from a collection on the specified channel.
   static bool PlaySource(SoundSource* const source, ChannelId channel_id,
@@ -116,10 +135,22 @@ class AudioEngine {
   // Hold the audio bus list.
   std::string buses_source_;
 
+  // The state of the buses.
+  std::vector<Bus> buses_;
+
+  // The master bus, cached to prevent needless lookups.
+  Bus* master_bus_;
+
+  // The gain applied to all buses.
+  float master_gain_;
+
+  // If true, the master gain is ignored and all channels have a gain of 0.
+  bool mute_;
+
   // Hold the sounds.
   SoundCollections collections_;
 
-  // The number of sounds currently playing.
+  // A list of the currently playing sounds.
   std::vector<PlayingSound> playing_sounds_;
 
   WorldTime world_time_;
@@ -127,4 +158,5 @@ class AudioEngine {
 
 }  // namespace fpl
 
-#endif  // PIE_NOON_AUDIO_ENGINE_H_
+#endif  // FPL_AUDIO_ENGINE_H_
+

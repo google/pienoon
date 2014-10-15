@@ -1,5 +1,6 @@
 {
   "id": "BlockedSmallPie",
+  "bus": "game_sound_effects",
   "audio_sample_set": [
     {
       "audio_sample": {

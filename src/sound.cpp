@@ -44,7 +44,8 @@ bool SoundBuffer::LoadFile(const char* filename) {
 
 bool SoundBuffer::Play(ChannelId channel_id, bool loop) {
   int loops = loop ? kLoopForever : kPlayOnce;
-  if (Mix_PlayChannel(channel_id, data_, loops) == kInvalidChannel) {
+  if (Mix_PlayChannel(channel_id, data_, loops) ==
+      AudioEngine::kInvalidChannel) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't play sound: %s\n", Mix_GetError());
     return false;

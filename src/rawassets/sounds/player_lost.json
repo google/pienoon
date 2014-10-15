@@ -1,5 +1,6 @@
 {
   "id": "PlayerLost",
+  "bus": "voices",
   "audio_sample_set": [
     {
       "audio_sample": {

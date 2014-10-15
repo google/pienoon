@@ -89,7 +89,7 @@ PieNoonGame::PieNoonGame()
       full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized),
       ambience_channel_(AudioEngine::kInvalidChannel),
-      stinger_channel_(kInvalidChannel) {
+      stinger_channel_(AudioEngine::kInvalidChannel) {
 }
 
 PieNoonGame::~PieNoonGame() {
@@ -369,11 +369,9 @@ class AudioEngineVolumeControl {
   void operator()(SDL_Event* event) {
     switch (event->type) {
       case SDL_APP_WILLENTERBACKGROUND:
-        audio_->Mute(true);
         audio_->Pause(true);
         break;
       case SDL_APP_DIDENTERFOREGROUND:
-        audio_->Mute(false);
         audio_->Pause(false);
         break;
       default:
@@ -805,8 +803,9 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
           input_.GetButton(SDLK_p).went_down()) {
         return kPaused;
       }
-      if (game_state_.IsGameOver() && stinger_channel_ != kInvalidChannel &&
-          !audio_engine_.IsPlaying(stinger_channel_)) {
+      if (game_state_.IsGameOver() &&
+          stinger_channel_ != AudioEngine::kInvalidChannel &&
+          !AudioEngine::Playing(stinger_channel_)) {
         return kFinished;
       }
       break;
@@ -881,14 +880,12 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
         ambience_channel_ = audio_engine_.PlaySound(SoundId_Ambience);
         game_state_.Reset();
       } else {
-        audio_engine_.Mute(false);
         audio_engine_.Pause(false);
       }
       break;
     }
     case kPaused: {
       gui_menu_.Setup(config.pause_screen_buttons(), &matman_);
-      audio_engine_.Mute(true);
       audio_engine_.Pause(true);
       break;
     }
@@ -1400,7 +1397,8 @@ void PieNoonGame::Run() {
           game_state_.AdvanceFrame(delta_time, &audio_engine_);
         }
 
-        if (state_ == kPlaying && stinger_channel_ == kInvalidChannel &&
+        if (state_ == kPlaying &&
+            stinger_channel_ == AudioEngine::kInvalidChannel &&
             game_state_.IsGameOver()) {
           game_state_.DetermineWinnersAndLosers();
           stinger_channel_ = PlayStinger();
@@ -1552,8 +1550,6 @@ void PieNoonGame::Run() {
     }
   }
 }
-
-
 
 }  // pie_noon
 }  // fpl

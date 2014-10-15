@@ -155,6 +155,8 @@ set(pie_noon_SRCS
     src/audio_engine.cpp
     src/audio_engine.h
     src/bezier.h
+    src/bus.cpp
+    src/bus.h
     src/character.cpp
     src/character.h
     src/character_state_machine.cpp

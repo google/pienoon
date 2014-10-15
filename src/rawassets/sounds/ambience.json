@@ -1,5 +1,6 @@
 {
   "id": "Ambience",
+  "bus": "ambience",
   "loop": true,
   "priority": 10.0,
   "audio_sample_set": [
