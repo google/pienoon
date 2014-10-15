@@ -24,6 +24,7 @@ main() {
      esac
   done
 
+  android list sdk -a -u
   echo 'y' | android update sdk -u -a -t \
       $(android list sdk -a -u | awk -F'-' '/Google Play services,/ {print $1}')
   cd vendor/unbundled_google/packages/splat
