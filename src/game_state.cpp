@@ -732,22 +732,21 @@ void GameState::SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
         vec3(mathfu::RandomInRange(min_scale.x(), max_scale.x())) :
         vec3::RandomInRange(min_scale, max_scale));
 
-    p->set_velocity(vec3::RandomInRange(min_velocity, max_velocity));
+    p->set_base_velocity(vec3::RandomInRange(min_velocity, max_velocity));
     p->set_acceleration(LoadVec3(def->acceleration()));
     p->set_renderable_id(def->renderable()->Get(
         mathfu::RandomInRange<int>(0, def->renderable()->size())));
     p->set_base_tint(LoadVec4(def->tint()->Get(
         mathfu::RandomInRange<int>(0, def->tint()->size()))));
-    p->set_duration_remaining(mathfu::RandomInRange<int>(
-                              def->min_duration(), def->max_duration()));
-    p->set_position(position + vec3::RandomInRange(min_position_offset,
-                                                   max_position_offset));
-    p->set_orientation(Quat::FromEulerAngles(
-                       vec3::RandomInRange(min_orientation_offset,
-                                           max_orientation_offset)));
-    p->set_rotational_velocity(Quat::FromEulerAngles(vec3::RandomInRange(
-                                                     min_angular_velocity,
-                                                     max_angular_velocity)));
+    p->set_duration(mathfu::RandomInRange<int>(
+        def->min_duration(), def->max_duration()));
+    p->set_base_position(position + vec3::RandomInRange(min_position_offset,
+        max_position_offset));
+    p->set_base_orientation(vec3::RandomInRange(min_orientation_offset,
+                            max_orientation_offset));
+    p->set_rotational_velocity(vec3::RandomInRange(
+                               min_angular_velocity,
+                               max_angular_velocity));
     p->set_duration_of_shrink_out(def->shrink_duration());
     p->set_duration_of_fade_out(def->fade_duration());
   }
@@ -1015,7 +1014,7 @@ void GameState::AddParticlesToScene(SceneDescription* scene) const {
   for (auto it = plist.begin(); it != plist.end(); ++it) {
     scene->renderables().push_back(std::unique_ptr<Renderable>(
         new Renderable((*it)->renderable_id(), (*it)->CalculateMatrix(),
-                       (*it)->CalculateTint())));
+                       (*it)->CurrentTint())));
   }
 }
 

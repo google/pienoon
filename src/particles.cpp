@@ -4,65 +4,82 @@
 namespace fpl {
 namespace splat {
 
-mathfu::mat4 Particle::CalculateMatrix() const {
-  return mathfu::mat4::FromTranslationVector(position_) *
-         mathfu::mat4::FromRotationMatrix(orientation_.ToMatrix()) *
-         mathfu::mat4::FromScaleVector(CalculateScale());
-}
 
 void Particle::reset() {
-  position_ = mathfu::vec3(0, 0, 0);
-  velocity_ = mathfu::vec3(0, 0, 0);
+  base_position_ = mathfu::vec3(0, 0, 0);
+  base_velocity_ = mathfu::vec3(0, 0, 0);
   acceleration_ = mathfu::vec3(0, 0, 0);
-  orientation_ = Quat(0, 0, 0, 1);
-  rotational_velocity_ = Quat(0, 0, 0, 1);
+  base_orientation_ = mathfu::vec3(0, 0, 0);
+  rotational_velocity_ = mathfu::vec3(0, 0, 0);
   base_scale_ = mathfu::vec3(1, 1, 1);
   base_tint_ = mathfu::vec4(1, 1, 1, 1);
-  duration_remaining_= 0;
+  duration_= 0;
+  age_ = 0;
   duration_of_fade_out_ = 0;
   duration_of_shrink_out_ = 0;
 }
 
+mathfu::mat4 Particle::CalculateMatrix() const {
+  return mathfu::mat4::FromTranslationVector(CurrentPosition()) *
+         mathfu::mat4::FromRotationMatrix(CurrentOrientation().ToMatrix()) *
+         mathfu::mat4::FromScaleVector(CurrentScale());
+}
+
+mathfu::vec3 Particle::CurrentPosition() const {
+  return base_position_ + (base_velocity_ * age_) +
+      (acceleration_ / 2.0) * age_ * age_;
+}
+
+mathfu::vec3 Particle::CurrentVelocity() const {
+  return base_velocity_ + acceleration_ * age_;
+}
+
+Quat Particle::CurrentOrientation() const {
+  return Quat::FromEulerAngles(base_orientation_ + rotational_velocity_ * age_);
+}
+
+TimeStep Particle::DurationRemaining() const {
+  return duration_ - age_;
+}
+
+void Particle::SetDurationRemaining(TimeStep duration) {
+  duration_ = age_ + duration;
+}
+
 // Returns the current tint, after taking particle effects into account.
-mathfu::vec4 Particle::CalculateTint() const {
+mathfu::vec4 Particle::CurrentTint() const {
   return base_tint_ *
-      ((duration_remaining_ < duration_of_fade_out_) ?
-      ((float)duration_remaining_ / (float)duration_of_fade_out_) :
+      (((duration_ - age_) < duration_of_fade_out_) ?
+      (float)(duration_ - age_) / (float)duration_of_fade_out_ :
       1.0);
+}
+
+void Particle::AdvanceFrame(TimeStep delta_time) {
+  age_ += delta_time;
+}
+
+bool Particle::IsFinished() const {
+  return age_ >= duration_;
 }
 
 // Returns the current tint, after taking particle effects into account.
-mathfu::vec3 Particle::CalculateScale() const {
+mathfu::vec3 Particle::CurrentScale() const {
   return base_scale_ *
-      ((duration_remaining_ < duration_of_shrink_out_) ?
-      (float)duration_remaining_ / (float)duration_of_shrink_out_ :
+      (((duration_ - age_) < duration_of_shrink_out_) ?
+      (float)(duration_ - age_) / (float)duration_of_shrink_out_ :
       1.0);
 }
 
-void ParticleManager::AdvanceFrame(WorldTime delta_time) {
+void ParticleManager::AdvanceFrame(TimeStep delta_time) {
   for (auto it = particle_list_.begin(); it != particle_list_.end(); ) {
-    bool is_still_active = AdvanceParticle((*it), delta_time);
-    if (!is_still_active) {
+    (*it)->AdvanceFrame(delta_time);
+    if ((*it)->IsFinished()) {
       inactive_particle_list_.push_back(*it);
       it = particle_list_.erase(it);
     } else {
       ++it;
     }
   }
-}
-
-bool ParticleManager::AdvanceParticle(Particle * p, WorldTime delta_time) {
-  p->set_position(p->position() + p->velocity() * delta_time);
-  p->set_velocity(p->velocity() + p->acceleration() * delta_time);
-  p->set_orientation((p->rotational_velocity() * delta_time) *
-                     p->orientation());
-  if (p->duration_remaining() < delta_time) {
-    return false;
-  } else {
-    p->set_duration_remaining(p->duration_remaining() - delta_time);
-    return true;
-  }
-  return !(p->duration_remaining() <= 0);
 }
 
 Particle* ParticleManager::CreateParticle() {
@@ -73,6 +90,7 @@ Particle* ParticleManager::CreateParticle() {
   } else {
     result = new Particle();
   }
+  result->set_age(0);
   particle_list_.push_back(result);
   return result;
 }

@@ -23,6 +23,7 @@
 namespace fpl {
 namespace splat {
 
+typedef float TimeStep;
 
 class Particle {
  public:
@@ -30,20 +31,38 @@ class Particle {
 
   void reset();
 
-  mathfu::vec3 position() const { return position_; }
-  void set_position(mathfu::vec3 position) { position_ = position; }
+  mathfu::vec3 CurrentPosition() const;
+  mathfu::vec3 CurrentVelocity() const;
+  Quat CurrentOrientation() const;
+  mathfu::vec4 CurrentTint() const;
+  mathfu::vec3 CurrentScale() const;
+  TimeStep DurationRemaining() const;
 
-  mathfu::vec3 velocity() const { return velocity_; }
-  void set_velocity(mathfu::vec3 velocity) { velocity_ = velocity; }
+  void SetDurationRemaining(TimeStep duration);
+
+  mathfu::vec3 base_position() const { return base_position_; }
+
+  void set_base_position(mathfu::vec3 base_position) {
+    base_position_ = base_position;
+  }
+
+  mathfu::vec3 base_velocity() const { return base_velocity_; }
+  void set_base_velocity(mathfu::vec3 base_velocity) {
+    base_velocity_ = base_velocity;
+  }
 
   mathfu::vec3 acceleration() const { return acceleration_; }
-  void set_acceleration(mathfu::vec3 acceleration) { acceleration_ = acceleration; }
+  void set_acceleration(mathfu::vec3 acceleration) {
+    acceleration_ = acceleration;
+  }
 
-  Quat orientation() const { return orientation_; }
-  void set_orientation(Quat orientation) { orientation_ = orientation; }
+  mathfu::vec3 base_orientation() const { return base_orientation_; }
+  void set_base_orientation(mathfu::vec3 base_orientation) {
+    base_orientation_ = base_orientation;
+  }
 
-  Quat rotational_velocity() const { return rotational_velocity_; }
-  void set_rotational_velocity(Quat rotational_velocity) {
+  mathfu::vec3 rotational_velocity() const { return rotational_velocity_; }
+  void set_rotational_velocity(mathfu::vec3 rotational_velocity) {
     rotational_velocity_ = rotational_velocity;
   }
 
@@ -53,50 +72,59 @@ class Particle {
   mathfu::vec3 base_scale() const { return base_scale_; }
   void set_base_scale(mathfu::vec3 base_scale) { base_scale_ = base_scale; }
 
-  uint16_t duration_remaining() const { return duration_remaining_; }
-  void set_duration_remaining(uint16_t duration_remaining) {
-    duration_remaining_ = duration_remaining;
-  }
-
-  uint16_t duration_of_fade_out() const { return duration_of_fade_out_; }
-  void set_duration_of_fade_out(uint16_t duration_of_fade_out) {
+  TimeStep duration_of_fade_out() const { return duration_of_fade_out_; }
+  void set_duration_of_fade_out(TimeStep duration_of_fade_out) {
     duration_of_fade_out_ = duration_of_fade_out;
   }
 
-  uint16_t duration_of_shrink_out() const { return duration_of_shrink_out_; }
-  void set_duration_of_shrink_out(uint16_t duration_of_shrink_out) {
+  TimeStep duration_of_shrink_out() const { return duration_of_shrink_out_; }
+  void set_duration_of_shrink_out(TimeStep duration_of_shrink_out) {
     duration_of_shrink_out_ = duration_of_shrink_out;
   }
 
-  uint16_t renderable_id() const { return renderable_id_; }
-  void set_renderable_id(uint16_t renderable_id) {
+  TimeStep renderable_id() const { return renderable_id_; }
+  void set_renderable_id(TimeStep renderable_id) {
     renderable_id_ = renderable_id;
+  }
+
+  TimeStep duration() const { return duration_; }
+  void set_duration(TimeStep duration) {
+    duration_ = duration;
+  }
+
+  TimeStep age() const { return age_; }
+  void set_age(TimeStep age) {
+    age_ = age;
   }
 
   // Generate the matrix we'll need to draw it:
   mathfu::mat4 CalculateMatrix() const;
 
-  // Returns the current tint, after taking particle effects into account.
-  mathfu::vec4 CalculateTint() const;
-  // Returns the current scale, after taking particle effects into account.
-  mathfu::vec3 CalculateScale() const;
+  void AdvanceFrame(TimeStep delta_time);
+  bool IsFinished() const;
 
  private:
-  mathfu::vec3 position_;
-  mathfu::vec3 velocity_;
+  mathfu::vec3 base_position_;
+  mathfu::vec3 base_velocity_;
   mathfu::vec3 acceleration_;
-  Quat orientation_;
-  Quat rotational_velocity_;
+
+  // Expressed in Euler angles:
+  mathfu::vec3 base_orientation_;
+  mathfu::vec3 rotational_velocity_;
+
   mathfu::vec3 base_scale_;
   mathfu::vec4 base_tint_;
 
-  // How much longer the particle will last, in milliseconds.
-  uint16_t duration_remaining_;
+  // How long the particle will last, in milliseconds.
+  TimeStep duration_;
+
+  // How long the particle has been alive so far, in milliseconds
+  TimeStep age_;
 
   // How long it will take the particle to fade or shrink away, when it reaches
   // the end of its life span.  (In milliseconds)
-  uint16_t duration_of_fade_out_;
-  uint16_t duration_of_shrink_out_;
+  TimeStep duration_of_fade_out_;
+  TimeStep duration_of_shrink_out_;
 
   // the renderable ID we should use when drawing this particle.
   uint16_t renderable_id_;
@@ -104,7 +132,7 @@ class Particle {
 
 class ParticleManager {
  public:
-  void AdvanceFrame(WorldTime delta_time);
+  void AdvanceFrame(TimeStep delta_time);
 
   const std::list<Particle*>& get_particle_list() const {
     return particle_list_;
@@ -119,8 +147,6 @@ class ParticleManager {
 
  private:
   void DeactivateParticle();
-
-  bool AdvanceParticle(Particle *p, WorldTime delta_time);
 
   std::list<Particle*> particle_list_;
   std::list<Particle*> inactive_particle_list_;
