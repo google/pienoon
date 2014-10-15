@@ -24,6 +24,8 @@ main() {
      esac
   done
 
+  echo 'y' | android update sdk -u -a -t \
+      $(android list sdk -a -u | awk -F'-' '/Google Play services,/ {print $1}')
   cd vendor/unbundled_google/packages/splat
   rm -rf bin
   ../../../../prebuilts/cmake/linux-x86/cmake-2.8.12.1-Linux-i386/bin/cmake .
