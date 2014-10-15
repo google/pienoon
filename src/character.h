@@ -124,7 +124,7 @@ class Character {
   int score() { return score_; }
 
   void set_victory_state(VictoryState state) { victory_state_ = state; }
-  bool victory_state() { return victory_state_; }
+  VictoryState victory_state() { return victory_state_; }
 
  private:
   // Constant configuration data.
