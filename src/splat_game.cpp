@@ -709,6 +709,7 @@ SplatState SplatGame::UpdateSplatState() {
       // When players press the A/throw button during the menu screen, they
       // get assigned a player if they weren't already.
       HandlePlayersJoining();
+      HandlePlayersMenu();
       // Start the game when someone presses the B/block key.
       if ((game_state_.AllLogicalInputs() & LogicalInputs_Deflect) != 0)
         return kPlaying;
@@ -875,6 +876,22 @@ void SplatGame::HandlePlayersJoining()
     }
   }
 }
+
+void SplatGame::HandlePlayersMenu()
+{
+  for (size_t i = 0; i < active_controllers_.size(); i++) {
+    Controller* controller = active_controllers_[i].get();
+    if (controller != nullptr &&
+        controller->character_id() == kNoCharacter &&
+        controller->controller_type() != Controller::kTypeAI &&
+        controller->went_down() & LogicalInputs_Right) {
+#     ifdef PLATFORM_MOBILE
+      gpg_manager.ToggleSignIn();
+#     endif
+    }
+  }
+}
+
 
 // Call AdvanceFrame on every controller that we're listening to
 // and care about.  (Not all are connected to players, but we want

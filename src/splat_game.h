@@ -78,6 +78,7 @@ class SplatGame {
   Controller * GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining();
+  void HandlePlayersMenu();
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons();
 

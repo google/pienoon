@@ -27,6 +27,13 @@ class GPGManager {
   // Call once a frame to allow us to track our async work.
   void Update();
 
+  // To be called from UI to sign out (if we were signed in) or sign back in
+  // (if we were signed out).
+  void ToggleSignIn();
+
+  // Logged in status, can be shown in UI.
+  bool LoggedIn();
+
   struct GPGIds { const char *leaderboard, *event; };
 
   // Request this stat to be saved for the logged in
@@ -44,13 +51,12 @@ class GPGManager {
     kStart,
     kAutoAuthStarted,
     kAutoAuthFailed,
+    kManualSignBackIn,
     kAuthUILaunched,
     kAuthUIStarted,
     kAuthUIFailed,
     kAuthed,
   };
-
-  bool LoggedIn();
 
   AsyncState state;
   std::unique_ptr<gpg::GameServices> game_services_;
