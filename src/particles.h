@@ -82,8 +82,8 @@ class Particle {
     duration_of_shrink_out_ = duration_of_shrink_out;
   }
 
-  TimeStep renderable_id() const { return renderable_id_; }
-  void set_renderable_id(TimeStep renderable_id) {
+  uint16_t renderable_id() const { return renderable_id_; }
+  void set_renderable_id(uint16_t renderable_id) {
     renderable_id_ = renderable_id;
   }
 
