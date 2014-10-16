@@ -491,6 +491,7 @@ google_play_services/libproject/google-play-services_lib"
       pushd "${play_services_dir}" >/dev/null
       android update project -p . -t $(select_android_build_target)
       popd >/dev/null
+      rm -f google-play-services_lib
       ln -s -f ${play_services_dir} google-play-services_lib
     fi
 
