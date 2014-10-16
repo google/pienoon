@@ -48,15 +48,14 @@ class TouchscreenController : public Controller {
 
   void HandleTouchButtonInput(int input, bool value);
 
-  Button& unpause_button() { return unpause_button_; }
-
  private:
   // A pointer to the object to query for the current input state.
   InputSystem* input_system_;
   vec2 window_size_;
   const Config* config_;
-  // Special value for requesting to unpause the game.
-  Button unpause_button_;
+  uint32_t buttons_to_debounce_;
+
+  const uint32_t kDirectionControls = LogicalInputs_Left | LogicalInputs_Right;
 };
 
 }  // splat

@@ -172,6 +172,8 @@ set(splat_SRCS
     src/gamepad_controller.h
     src/glplatform.h
     src/gpg_manager.h
+    src/gui_menu.cpp
+    src/gui_menu.h
     src/impel_common.h
     src/impel_engine.cpp
     src/impel_engine.h

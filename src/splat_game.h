@@ -20,6 +20,7 @@
 #include "full_screen_fader.h"
 #include "game_state.h"
 #include "gamepad_controller.h"
+#include "gui_menu.h"
 #include "input.h"
 #include "material_manager.h"
 #include "player_controller.h"
@@ -86,10 +87,10 @@ class SplatGame {
   Controller * GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining(Controller* controller);
-  void HandleMenuButtons();
-  void HandleMenuButton(Controller* controller, TouchscreenButton* button);
+  SplatState HandleMenuButtons();
+  //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
-  void UpdateTouchButtons();
+  void UpdateTouchButtons(WorldTime delta_time);
 
   // The overall operating mode of our game. See CalculateSplatState for the
   // state machine definition.
@@ -163,11 +164,7 @@ class SplatGame {
   std::vector<Angle> debug_previous_angles_;
 
   TouchscreenController* touch_controller_;
-
-  std::vector<TouchscreenButton> game_button_controls_;
-  std::vector<TouchscreenButton> menu_button_controls_;
-  std::vector<TouchscreenButton> pause_button_controls_;
-  size_t button_focus_;  // TODO: should be in class together with buttons?
+  GuiMenu gui_menu_;
 
   std::map<SDL_JoystickID, ControllerId> joystick_to_controller_map_;
 

@@ -31,7 +31,9 @@ enum PieDeflectionMode : ushort {
   ToRandom
 }
 
-enum ButtonInputType : ushort (bit_flags) {
+enum ButtonId : ushort {
+  Undefined,
+  Cancel,
   Left,
   Right,
   Attack,
@@ -61,33 +63,49 @@ enum ImpellerSpecification : ushort {
   Count // Must come last
 }
 
+
 // Used for defining zones for the touch controller.
-// the touch screen, (1, 1) is the lower right.  Input_type is what input
+// the touch screen, (1, 1) is the lower right.  ButtonId is what input
 // action should be associated with touching that zone.
 // texture_normal and texture_down show which textures are used to represent
 // the touch-zone in its normal state and when it's being pressed.
 table ButtonDef {
+  // Identifier for each button.  Should be unique across the UIGroup.
+  ID : ButtonId;
+
   // These are used to demarcate the zone boundaries,
   // Coordinate values can range from 0-1.  (0,0) represents the upper
   // left corner of the touch screen, (1, 1) is lower right.
   top_left : Vec2;
   bottom_right : Vec2;
 
-  // Which action is triggered by touching this zone.
-  input_type : ButtonInputType;
-
   // Material to display for the touch zone, both in its normal
   // state, and when it is registering a press.
   texture_normal : string;
   texture_pressed : string;
+  texture_selected : string;
   draw_scale_normal : Vec2;
-  draw_scale_highlighted : Vec2;
   draw_scale_pressed : Vec2;
+  draw_scale_highlighted : Vec2;
+  shader : string;
+
+  // IDs of other buttons, that we can navigate to from this one, via d-pad.
+  // IDs are tried in order until one is found that is active.
+  nav_left : [ButtonId];
+  nav_right : [ButtonId];
+  // up and down would be great to have here, but our controllers don't
+  // really support that if you're not on a gamepad.
 
   // Position to draw the texture at:
   // (Designates the center of the texture, and like the zone boundaries, is
   // expressed as a fraction of the screen width/height.)
   texture_position : Vec2;
+}
+
+table UiGroup {
+  allow_controller_navigation : bool;
+  starting_selection : ButtonId;
+  button_list : [ButtonDef];
 }
 
 table FixedAccessory {
@@ -521,9 +539,9 @@ table Config {
   // UI options
   //
   // Button layouts:
-  touchscreen_zones:[ButtonDef];
-  title_screen_buttons:[ButtonDef];
-  pause_screen_buttons:[ButtonDef];
+  touchscreen_zones:UiGroup;
+  pause_screen_buttons:UiGroup;
+  title_screen_buttons:UiGroup;
 
   // Splash screen, etc.
   two_dimensional_elements_for_finished_state:[TwoDimensionalElement];

@@ -24,8 +24,8 @@ namespace splat {
 
 TouchscreenController::TouchscreenController()
   : Controller(kTypeTouchScreen),
-    input_system_(nullptr),
-    unpause_button_() {}
+    input_system_(nullptr)
+    {}
 
 // The touchscreen mapping is defined in the config.fbs file.
 // It currently looks like this:
@@ -49,39 +49,43 @@ void TouchscreenController::Initialize(InputSystem* input_system,
   window_size_ = window_size;
   ClearAllLogicalInputs();
   config_ = config;
+  buttons_to_debounce_ = 0;
 }
 
 // Called from outside, based on screen touches.
 // Basically just translates button inputs into logical inputs.
 void TouchscreenController::HandleTouchButtonInput(int input, bool value) {
   int logicalInput = 0;
-  bool unpause = false;
   switch (input) {
-    case ButtonInputType_Left:
+    case ButtonId_Left:
       logicalInput = LogicalInputs_Left;
+      buttons_to_debounce_ &= ~logicalInput;
       break;
-    case ButtonInputType_Right:
+    case ButtonId_Right:
       logicalInput = LogicalInputs_Right;
+      buttons_to_debounce_ &= ~logicalInput;
       break;
-    case ButtonInputType_Attack:
+    case ButtonId_Attack:
       logicalInput = LogicalInputs_ThrowPie;
+      buttons_to_debounce_ &= ~logicalInput;
       break;
-    case ButtonInputType_Defend:
+    case ButtonId_Defend:
       logicalInput = LogicalInputs_Deflect;
-      break;
-    case ButtonInputType_Unpause:
-      unpause = value;
       break;
     default:
       break;
   }
-  unpause_button_.Update(unpause);
   SetLogicalInputs(logicalInput, value);
 }
 
 void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
+  //ClearAllLogicalInputs();
   went_down_ = went_up_ = 0;
-  unpause_button_.AdvanceFrame();
+  SetLogicalInputs(buttons_to_debounce_, false);
+
+  // Sort of a hack:  Block is the only button we want to be able
+  // to hold down - everything else needs to be debounced.
+  buttons_to_debounce_ = ~0;
 }
 
 }  // splat

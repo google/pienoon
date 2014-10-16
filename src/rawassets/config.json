@@ -460,99 +460,127 @@
   "ai_chance_to_change_aim": 0.4,
   "ai_chance_to_throw": 0.2,
 
-  "touchscreen_zones" : [
-    {
-      "top_left" : { "x": 0.0, "y": 0.7 },
-      "bottom_right" : { "x": 0.2, "y": 1.0 },
-      "input_type" : "Left",
-      "texture_normal" : "materials/arrow.bin",
-      "texture_pressed" : "materials/arrow.bin",
-      "texture_position" : { "x": 0.1, "y": 0.85 },
-      "draw_scale_normal" : { "x": -0.25, "y": 0.25 },
-      "draw_scale_pressed" : { "x": -0.5, "y": 0.5 }
-    },
-    {
-      "top_left" : { "x": 0.8, "y": 0.7 },
-      "bottom_right" : { "x": 1.0, "y": 1.0 },
-      "input_type" : "Right",
-      "texture_normal" : "materials/arrow.bin",
-      "texture_pressed" : "materials/arrow.bin",
-      "texture_position" : { "x": 0.9, "y": 0.85 },
-      "draw_scale_normal" : { "x": 0.25, "y": 0.25 },
-      "draw_scale_pressed" : { "x": 0.5, "y": 0.5 }
-    },
-    {
-      "top_left" : { "x": 0.0, "y": 0.0 },
-      "bottom_right" : { "x": 1.0, "y": 0.7 },
-      "input_type" : "Attack",
-      "texture_normal" : "materials/pie_small.bin",
-      "texture_pressed" : "materials/pie_large.bin",
-      "texture_position" : { "x": 0.5, "y": 0.1 },
-      "draw_scale_normal" : { "x": -1.0, "y": 1.0 },
-      "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+  "touchscreen_zones" : {
+    "starting_selection" : false,
 
-    },
-    {
-      "top_left" : { "x": 0.2, "y": 0.7 },
-      "bottom_right" : { "x": 0.8, "y": 1.0 },
-      "input_type" : "Defend",
-      "texture_normal" : "materials/pie_block.bin",
-      "texture_pressed" : "materials/pie_block.bin",
-      "texture_position" : { "x": 0.5, "y": 0.85 },
-      "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-      "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
-    }
-  ],
+    "button_list" : [
+      {
+        "top_left" : { "x": 0.0, "y": 0.7 },
+        "bottom_right" : { "x": 0.2, "y": 1.0 },
+        "ID" : "Left",
+        "texture_normal" : "materials/arrow.bin",
+        "texture_pressed" : "materials/arrow.bin",
+        "texture_position" : { "x": 0.1, "y": 0.85 },
+        "shader" : "shaders/textured",
+        "draw_scale_normal" : { "x": -0.5, "y": 0.5 },
+        "draw_scale_pressed" : { "x": -1.0, "y": 1.0 }
+      },
+      {
+        "top_left" : { "x": 0.8, "y": 0.7 },
+        "bottom_right" : { "x": 1.0, "y": 1.0 },
+        "ID" : "Right",
+        "texture_normal" : "materials/arrow.bin",
+        "texture_pressed" : "materials/arrow.bin",
+        "texture_position" : { "x": 0.9, "y": 0.85 },
+        "shader" : "shaders/textured",
+        "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+      },
+      {
+        "top_left" : { "x": 0.0, "y": 0.0 },
+        "bottom_right" : { "x": 1.0, "y": 0.7 },
+        "ID" : "Attack",
+        "texture_normal" : "materials/pie_small.bin",
+        "texture_pressed" : "materials/pie_large.bin",
+        "texture_position" : { "x": 0.5, "y": 0.1 },
+        "shader" : "shaders/textured",
+        "draw_scale_normal" : { "x": -1.0, "y": 1.0 },
+        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
 
-  "title_screen_buttons" : [
-    {
-      "top_left" : { "x": 0.0, "y": 0.7 },
-      "bottom_right" : { "x": 0.2, "y": 1.0 },
-      "input_type" : "ToggleLogIn",
-      "texture_normal" : "materials/gpg_button.bin",
-      "texture_pressed" : "materials/gpg_button.bin",
-      "texture_position" : { "x": 0.1, "y": 0.85 },
-      "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
-      "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
-      "draw_scale_pressed" : { "x": 2.1, "y": 2.1 }
+      },
+      {
+        "top_left" : { "x": 0.2, "y": 0.7 },
+        "bottom_right" : { "x": 0.8, "y": 1.0 },
+        "ID" : "Defend",
+        "texture_normal" : "materials/pie_block.bin",
+        "texture_pressed" : "materials/pie_block.bin",
+        "texture_position" : { "x": 0.5, "y": 0.85 },
+        "shader" : "shaders/textured",
+        "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+      }
+    ]
+  },
 
-    },
-    {
-      "top_left" : { "x": 0.2, "y": 0.0 },
-      "bottom_right" : { "x": 0.8, "y": 0.6 },
-      "input_type" : "Title",
-      "texture_position" : { "x": 0.5, "y": 0.85 },
-      "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
-      "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
-      "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
-    },
-    {
-      "top_left" : { "x": 0.8, "y": 0.7 },
-      "bottom_right" : { "x": 1.0, "y": 1.0 },
-      "input_type" : "ShowLicense",
-      "texture_normal" : "materials/license_button.bin",
-      "texture_pressed" : "materials/license_button.bin",
-      "texture_position" : { "x": 0.9, "y": 0.85 },
-      "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-      "draw_scale_highlighted": { "x": 0.6, "y": 0.6 },
-      "draw_scale_pressed" : { "x": 0.7, "y": 0.7 }
-    }
-  ],
 
-  "pause_screen_buttons" : [
-    {
-      "top_left" : { "x": 0.1, "y": 0.1 },
-      "bottom_right" : { "x": 0.9, "y": 0.9 },
-      "input_type" : "Unpause",
-      // TODO: Put a real unpause texture here.
-      "texture_normal" : "materials/pie_small.bin",
-      "texture_pressed" : "materials/pie_large.bin",
-      "texture_position" : { "x": 0.5, "y": 0.5 },
-      "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
-      "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
-      "draw_scale_pressed" : { "x": 2.1, "y": 2.1 }
-    }
-  ],
+  "title_screen_buttons" : {
+    "starting_selection" : "Title",
+    "allow_controller_navigation" : true,
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.0, "y": 0.7 },
+          "bottom_right" : { "x": 0.2, "y": 1.0 },
+          "ID" : "ToggleLogIn",
+          "texture_normal" : "materials/gpg_button.bin",
+          "texture_pressed" : "materials/gpg_button.bin",
+          "texture_position" : { "x": 0.1, "y": 0.85 },
+          "shader" : "shaders/textured",
+          "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
+          "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
+          "draw_scale_pressed" : { "x": 2.1, "y": 2.1 },
+          "nav_left" : [],
+          "nav_right" : ["Title"]
+        },
+        {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "ID" : "Title",
+          "texture_normal" : "materials/splash_info.bin",
+          "texture_pressed" : "materials/splash_info.bin",
+          "texture_position" : { "x": 0.5, "y": 0.55 },
+          "shader" : "shaders/textured",
+          "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["ToggleLogIn"],
+          "nav_right" : ["ShowLicense"]
+        },
+        {
+          "top_left" : { "x": 0.8, "y": 0.7 },
+          "bottom_right" : { "x": 1.0, "y": 1.0 },
+          "ID" : "ShowLicense",
+          "texture_normal" : "materials/license_button.bin",
+          "texture_pressed" : "materials/license_button.bin",
+          "texture_position" : { "x": 0.9, "y": 0.85 },
+          "shader" : "shaders/textured",
+          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+          "draw_scale_highlighted": { "x": 0.6, "y": 0.6 },
+          "draw_scale_pressed" : { "x": 0.7, "y": 0.7 },
+          "nav_left" : ["Title"],
+          "nav_right" : []
+        }
+    ]
+  },
+  "pause_screen_buttons" : {
+    "starting_selection" : "Unpause",
+    "allow_controller_navigation" : true,
+    "button_list" : [
+      {
+        "top_left" : { "x": 0.1, "y": 0.1 },
+        "bottom_right" : { "x": 0.9, "y": 0.9 },
+        "ID" : "Unpause",
+        // TODO: Put a real unpause texture here.
+        "texture_normal" : "materials/pie_small.bin",
+        "texture_pressed" : "materials/pie_large.bin",
+        "texture_position" : { "x": 0.5, "y": 0.5 },
+        "shader" : "shaders/textured",
+        "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
+        "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
+        "draw_scale_pressed" : { "x": 2.1, "y": 2.1 }
+      }
+    ]
+  },
+
 
   "two_dimensional_elements_for_finished_state": [
     {
@@ -560,12 +588,6 @@
       "material": "materials/splash.bin",
       "size": 0.5,
       "placement": { "x": 0.5, "y": 0.05 }
-    },
-    {
-      // Splash screen "how to join" information in this material name.
-      "material": "materials/splash_info.bin",
-      "size": 0.12,
-      "placement": { "x": 0.6, "y": 0.48 }
     }
   ],
 

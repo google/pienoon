@@ -100,6 +100,7 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/game_camera.cpp \
   $(SPLAT_DIR)/src/game_state.cpp \
   $(SPLAT_DIR)/src/gpg_manager.cpp \
+  $(SPLAT_DIR)/src/gui_menu.cpp \
   $(SPLAT_DIR)/src/impel_engine.cpp \
   $(SPLAT_DIR)/src/impel_flatbuffers.cpp \
   $(SPLAT_DIR)/src/impel_processor_overshoot.cpp \

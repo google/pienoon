@@ -32,9 +32,14 @@ class TouchscreenButton
  public:
   TouchscreenButton();
 
-  void AdvanceFrame(InputSystem* input, vec2 window_size);
+  void AdvanceFrame(WorldTime delta_time,
+                    InputSystem* input, vec2 window_size);
 
-  void Render(Renderer& renderer, bool highlight, float time);
+  //bool HandlePointer(Pointer pointer, vec2 window_size);
+  void Render(Renderer& renderer);
+  void AdvanceFrame(WorldTime delta_time);
+  ButtonId GetId();
+  bool WillCapturePointer(const Pointer& pointer, vec2 window_size);
 
   Button& button() { return button_; }
 
@@ -62,9 +67,19 @@ class TouchscreenButton
   Shader* shader() const { return shader_; }
   void set_shader(Shader* shader) { shader_ = shader; }
 
+  bool is_active() const { return is_active_; }
+  void set_is_active(bool is_active) { is_active_ = is_active; }
+
+  bool is_highlighted() const { return is_highlighted_; }
+  void set_is_highlighted(bool is_highlighted) {
+    is_highlighted_ = is_highlighted;
+  }
+
  private:
   Button button_;
+  WorldTime elapsed_time_;
 
+  // TODO(ccornell) - These really need to be combined into a vec3.
   vec2 position_;
   float z_depth_;
 
@@ -78,6 +93,9 @@ class TouchscreenButton
   // Offsets to draw the textures at,
   mathfu::vec2 up_offset_;
   mathfu::vec2 down_offset_;
+
+  bool is_active_;
+  bool is_highlighted_;
 };
 
 }  // splat

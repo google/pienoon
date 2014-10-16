@@ -91,6 +91,8 @@ const int kMillisecondsPerSecond = 1000;
 typedef int CharacterId;
 
 typedef int ControllerId;
+const ControllerId kUndefinedController = -1;
+const ControllerId kTouchController = -2;
 
 }  // namespace fpl
 
