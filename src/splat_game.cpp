@@ -204,9 +204,10 @@ bool SplatGame::InitializeRenderingAssets() {
     return false;
   }
 
-  // Force this texture to be queued up first, since we want to use it for
+  // Force these textures to be queued up first, since we want to use them for
   // the loading screen.
   matman_.LoadMaterial(config.loading_material()->c_str());
+  matman_.LoadMaterial(config.loading_logo()->c_str());
 
   // Create a mesh for the front and back of each cardboard cutout.
   const vec3 front_z_offset(0.0f, 0.0f, config.cardboard_front_z_offset());
@@ -942,6 +943,8 @@ void SplatGame::Run() {
   TransitionToSplatState(kFinished);
   game_state_.Reset();
 
+  float time_before_main_loop = input_.Time();
+
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
     // Milliseconds elapsed since last update. To avoid burning through the CPU,
@@ -967,9 +970,12 @@ void SplatGame::Run() {
     UpdateControllers(delta_time);
     UpdateTouchButtons();
 
+    float loading_time = input_.Time() - time_before_main_loop;
+
     // When we initialized assets, we kicked off a thread to load all textures.
     // Here we check if those have finished loading.
-    if (matman_.TryFinalize()) {
+    // We also leave the loading screen up for a minimum amount of time.
+    if (matman_.TryFinalize() && loading_time > config.min_loading_time()) {
       // We're all done loading. Run & render the game as usual.
 
       // Update game logic by a variable number of milliseconds.
@@ -1022,21 +1028,35 @@ void SplatGame::Run() {
 #     endif
     } else {
       // Textures are still loading. Display a loading screen.
-      auto mat = matman_.FindMaterial(config.loading_material()->c_str());
-      assert(mat);
+      auto spinmat = matman_.FindMaterial(config.loading_material()->c_str());
+      auto logomat = matman_.FindMaterial(config.loading_logo()->c_str());
+      assert(spinmat && logomat);
       // If even the loading texture hasn't loaded yet, remain on a black
       // screen, otherwise render it spinning.
-      if (mat->textures()[0]->id()) {
-        auto res = renderer_.window_size();
-        auto ortho_mat = mathfu::OrthoHelper<float>(
-            0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()),
-            0.0f, -1.0f, 1.0f);
+      auto res = renderer_.window_size();
+      auto mid = res / 2;
+      auto ortho_mat = mathfu::OrthoHelper<float>(
+          0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()),
+          0.0f, -1.0f, 1.0f);
+      if (spinmat->textures()[0]->id()) {
         auto rot_mat = mat3::RotationZ(input_.Time() * 3.0f);
-        auto mid = res / 2;
-        renderer_.model_view_projection() =
-            ortho_mat * mat4::FromTranslationVector(vec3(mid.x(), mid.y(), 0)) * mat4::FromRotationMatrix(rot_mat);
-        auto extend = vec2(mat->textures()[0]->size());
-        mat->Set(renderer_);
+        renderer_.model_view_projection() = ortho_mat *
+            mat4::FromTranslationVector(vec3(mid.x(), mid.y(), 0)) *
+            mat4::FromRotationMatrix(rot_mat);
+        auto extend = vec2(spinmat->textures()[0]->size());
+        spinmat->Set(renderer_);
+        shader_textured_->Set(renderer_);
+        Mesh::RenderAAQuadAlongX(
+              vec3(-extend.x(),  extend.y(), 0),
+              vec3( extend.x(), -extend.y(), 0),
+              vec2(0, 1), vec2(1, 0));
+      }
+      // If we have the logo, display it also:
+      if (logomat->textures()[0]->id()) {
+        auto extend = vec2(logomat->textures()[0]->size()) / 4;
+        renderer_.model_view_projection() = ortho_mat *
+            mat4::FromTranslationVector(vec3(mid.x(), extend.y(), 0));
+        logomat->Set(renderer_);
         shader_textured_->Set(renderer_);
         Mesh::RenderAAQuadAlongX(
               vec3(-extend.x(),  extend.y(), 0),
