@@ -19,6 +19,12 @@ set(libogg_dir ${dependencies_libogg_distr_dir})
 
 include_directories(${libogg_dir}/include)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # Run libogg's autogen.sh to create ogg/config_types.h, needed under Linux.
+    execute_process(COMMAND ${libogg_dir}/autogen.sh
+                    WORKING_DIRECTORY ${libogg_dir})
+endif()
+
 set(libogg_SRCS
     ${libogg_dir}/src/bitwise.c
     ${libogg_dir}/src/framing.c)
