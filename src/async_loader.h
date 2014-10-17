@@ -64,6 +64,7 @@ class AsyncLoader {
  private:
   void Lock(const std::function<void ()> &body) {
     auto err = SDL_LockMutex(mutex_);
+    (void)err;
     assert(err == 0);
     body();
     SDL_UnlockMutex(mutex_);

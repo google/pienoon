@@ -451,9 +451,17 @@ table Config {
 
   stick_bounds:Vec2;
 
+  // Spinning material displayed on the loading screen
   loading_material:string;
+  // Logo displayed on the loading screen.
   loading_logo:string;
-  min_loading_time:float;
+  // Minimum time (in milliseconds) to display the loading screen.
+  min_loading_time:int;
+  // Material used to render full screen to fade from loading screen.
+  fade_material:string;
+  // Length of time (in milliseconds) of fades between game states.
+  // This *must* be greater than zero.
+  full_screen_fade_time:int;
 
   // Offset of UI arrow from the character. Z is forward. X is side. Y is up.
   ui_arrow_offset:Vec3;

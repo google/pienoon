@@ -32,8 +32,7 @@ FLATC?=$(realpath $(firstword \
             $(wildcard $(FLATBUFFERS_FLATC_PATH)/Release/flatc*) \
             $(wildcard $(FLATBUFFERS_FLATC_PATH)/Debug/flatc*)))
 ifeq (,$(wildcard $(FLATC)))
-#$(error flatc binary not found!) # HACK
-FLATC=flatc # HACK
+$(error flatc binary not found!)
 endif
 
 # Generated includes directory (relative to SPLAT_DIR).
@@ -96,6 +95,7 @@ LOCAL_SRC_FILES := \
   $(SPLAT_DIR)/src/character.cpp \
   $(SPLAT_DIR)/src/character_state_machine.cpp \
   $(SPLAT_DIR)/src/controller.cpp \
+  $(SPLAT_DIR)/src/full_screen_fader.cpp \
   $(SPLAT_DIR)/src/gamepad_controller.cpp \
   $(SPLAT_DIR)/src/game_camera.cpp \
   $(SPLAT_DIR)/src/game_state.cpp \

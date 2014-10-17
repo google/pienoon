@@ -54,8 +54,9 @@ int AsyncLoader::LoaderThread(void *user_data) {
 }
 
 void AsyncLoader::StartLoading() {
-  auto thread = SDL_CreateThread(AsyncLoader::LoaderThread, "FPL Loader Thread",
-                                 this);
+  auto thread = SDL_CreateThread(AsyncLoader::LoaderThread,
+                                 "FPL Loader Thread", this);
+  (void)thread;
   assert(thread);
 }
 

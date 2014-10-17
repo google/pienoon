@@ -1,7 +1,8 @@
 {
   texture_filenames: [
-    "textures/splash.webp"
+    "textures/loading_logo.webp"
   ],
-  "blendmode": "OFF"
+  "blendmode": "ALPHA",
+  "desired_format": [ F_8888 ]
 }
 

@@ -73,7 +73,9 @@ SplatGame::SplatGame()
       shader_textured_(nullptr),
       shadow_mat_(nullptr),
       prev_world_time_(0),
-      debug_previous_states_()
+      debug_previous_states_(),
+      full_screen_fader_(renderer_),
+      fade_exit_state_(kUninitialized)
 {
 }
 
@@ -120,6 +122,8 @@ bool SplatGame::InitializeRenderer() {
       config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
 
   renderer_.color() = mathfu::kOnes4f;
+  // Initialize the first frame as black.
+  renderer_.ClearFrameBuffer(mathfu::kZeros4f);
   return true;
 }
 
@@ -208,6 +212,7 @@ bool SplatGame::InitializeRenderingAssets() {
   // the loading screen.
   matman_.LoadMaterial(config.loading_material()->c_str());
   matman_.LoadMaterial(config.loading_logo()->c_str());
+  matman_.LoadMaterial(config.fade_material()->c_str());
 
   // Create a mesh for the front and back of each cardboard cutout.
   const vec3 front_z_offset(0.0f, 0.0f, config.cardboard_front_z_offset());
@@ -287,6 +292,11 @@ bool SplatGame::InitializeRenderingAssets() {
     touch_controls_[i].set_button_def(config.touchscreen_zones()->Get(i));
     touch_controls_[i].set_shader(shader_textured_);
   }
+
+  // Configure the full screen fader.
+  full_screen_fader_.set_material(matman_.FindMaterial(
+      config.fade_material()->c_str()));
+  full_screen_fader_.set_shader(shader_textured_);
 
   // Start the thread that actually loads all assets we requested above.
   matman_.StartLoadingTextures();
@@ -489,6 +499,7 @@ void SplatGame::Render(const SceneDescription& scene) {
   // TODO: Replace with a regular environment prop. Calculate scale_bias from
   // environment prop size.
   renderer_.model_view_projection() = camera_transform;
+  renderer_.color() = mathfu::kOnes4f;
   shader_textured_->Set(renderer_);
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
@@ -514,7 +525,8 @@ void SplatGame::Render(const SceneDescription& scene) {
     if (config.renderables()->Get(id)->shadow()) {
       renderer_.model() = renderable->world_matrix();
       shader_simple_shadow_->Set(renderer_);
-      // The first texture of the shadow shader has to be that of the billboard.
+      // The first texture of the shadow shader has to be that of the
+      // billboard.
       shadow_mat_->textures()[0] = front->GetMaterial(0)->textures()[0];
       shadow_mat_->Set(renderer_);
       front->Render(renderer_, true);
@@ -609,7 +621,8 @@ const Config& SplatGame::GetConfig() const {
 }
 
 const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
-  return fpl::splat::GetCharacterStateMachineDef(state_machine_source_.c_str());
+  return fpl::splat::GetCharacterStateMachineDef(
+    state_machine_source_.c_str());
 }
 
 struct ButtonToTranslation {
@@ -697,7 +710,45 @@ void SplatGame::DebugCamera() {
 }
 
 SplatState SplatGame::UpdateSplatState() {
+  const WorldTime time = CurrentWorldTime();
+  // If a full screen fade is active.
+  if (Fading()) {
+    // If the fade hits the halfway point (opaque) enter the fade exit state.
+    if (full_screen_fader_.Render(time)) {
+      return fade_exit_state_;
+    }
+    // If the fade is complete, stop the transition process.
+    if (full_screen_fader_.Finished(time)) {
+      fade_exit_state_ = kUninitialized;
+    }
+  }
   switch (state_) {
+    case kLoadingInitialMaterials: {
+      const Config& config = GetConfig();
+      if (matman_.FindMaterial(
+            config.loading_material()->c_str())->textures()[0]->id() &&
+          matman_.FindMaterial(
+            config.loading_logo()->c_str())->textures()[0]->id() &&
+          full_screen_fader_.material()->textures()[0]->id()) {
+        // Fade in the loading screen.
+        FadeToSplatState(kLoading, config.full_screen_fade_time(),
+                         mathfu::kZeros4f, false);
+      }
+      break;
+    }
+    case kLoading: {
+      const Config& config = GetConfig();
+      // When we initialized assets, we kicked off a thread to load all
+      // textures. Here we check if those have finished loading.
+      // We also leave the loading screen up for a minimum amount of time.
+      if (!Fading() && matman_.TryFinalize() &&
+          (time - state_entry_time_) > config.min_loading_time()) {
+        // Fade out the loading screen and fade in the scene.
+        FadeToSplatState(kFinished, config.full_screen_fade_time(),
+                         mathfu::kZeros4f, true);
+      }
+      break;
+    }
     case kPlaying: {
       // When we're down to 0 human active players, or <=1 active characters,
       // the game's over.
@@ -712,8 +763,11 @@ SplatState SplatGame::UpdateSplatState() {
       HandlePlayersJoining();
       HandlePlayersMenu();
       // Start the game when someone presses the B/block key.
-      if ((game_state_.AllLogicalInputs() & LogicalInputs_Deflect) != 0)
-        return kPlaying;
+      if ((game_state_.AllLogicalInputs() & LogicalInputs_Deflect) != 0) {
+        // Fade to the game
+        FadeToSplatState(kPlaying, GetConfig().full_screen_fade_time(),
+                         mathfu::kZeros4f, true);
+      }
       break;
     }
 
@@ -727,6 +781,12 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
   assert(state_ != next_state); // Must actually transition.
 
   switch (next_state) {
+    case kLoadingInitialMaterials: {
+      break;
+    }
+    case kLoading: {
+      break;
+    }
     case kPlaying: {
       audio_engine_.PlaySound(SoundId_MainTheme);
       game_state_.Reset();
@@ -737,7 +797,8 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
       game_state_.DetermineWinnersAndLosers();
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
-        if (character->controller()->controller_type() != Controller::kTypeAI) {
+        if (character->controller()->controller_type() !=
+            Controller::kTypeAI) {
           // Assign characters AI characters while the menu is up.
           // Players will have to press A again to get themselves re-assigned.
           // Find unused AI character:
@@ -769,6 +830,27 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
 
   state_ = next_state;
   state_entry_time_ = prev_world_time_;
+}
+
+// Update the current game state and perform a state transition if requested.
+SplatState SplatGame::UpdateSplatStateAndTransition() {
+  const SplatState next_state = UpdateSplatState();
+  if (next_state != state_) {
+    TransitionToSplatState(next_state);
+  }
+  return next_state;
+}
+
+// Queue up a transition to the specified game state with a full screen fade
+// between the states.
+void SplatGame::FadeToSplatState(SplatState next_state,
+                                 const WorldTime& fade_time,
+                                 const mathfu::vec4& color,
+                                 const bool fade_in) {
+  if (!Fading()) {
+    full_screen_fader_.Start(CurrentWorldTime(), fade_time, color, fade_in);
+    fade_exit_state_ = next_state;
+  }
 }
 
 #ifdef PLATFORM_MOBILE
@@ -839,7 +921,8 @@ ControllerId SplatGame::AddController(Controller* new_controller) {
        new_id < static_cast<ControllerId>(active_controllers_.size());
        new_id++) {
     if (active_controllers_[new_id].get() == nullptr) {
-      active_controllers_[new_id] = std::unique_ptr<Controller>(new_controller);
+      active_controllers_[new_id] = std::unique_ptr<Controller>(
+          new_controller);
       return new_id;
     }
   }
@@ -940,16 +1023,14 @@ void SplatGame::Run() {
   const WorldTime min_update_time = config.min_update_time();
   const WorldTime max_update_time = config.max_update_time();
   prev_world_time_ = CurrentWorldTime() - min_update_time;
-  TransitionToSplatState(kFinished);
+  TransitionToSplatState(kLoadingInitialMaterials);
   game_state_.Reset();
-
-  float time_before_main_loop = input_.Time();
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
-    // Milliseconds elapsed since last update. To avoid burning through the CPU,
-    // enforce a minimum time between updates. For example, if min_update_time
-    // is 1, we will not exceed 1000Hz update time.
+    // Milliseconds elapsed since last update. To avoid burning through the
+    // CPU, enforce a minimum time between updates. For example, if
+    // min_update_time is 1, we will not exceed 1000Hz update time.
     const WorldTime world_time = CurrentWorldTime();
     const WorldTime delta_time = std::min(world_time - prev_world_time_,
                                           max_update_time);
@@ -970,14 +1051,16 @@ void SplatGame::Run() {
     UpdateControllers(delta_time);
     UpdateTouchButtons();
 
-    float loading_time = input_.Time() - time_before_main_loop;
+    // Update the full screen fader dimensions.
+    const auto res = renderer_.window_size();
+    const auto ortho_mat = mathfu::OrthoHelper<float>(
+        0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()),
+        0.0f, -1.0f, 1.0f);
+    full_screen_fader_.set_ortho_mat(ortho_mat);
+    full_screen_fader_.set_extents(res);
 
-    // When we initialized assets, we kicked off a thread to load all textures.
-    // Here we check if those have finished loading.
-    // We also leave the loading screen up for a minimum amount of time.
-    if (matman_.TryFinalize() && loading_time > config.min_loading_time()) {
-      // We're all done loading. Run & render the game as usual.
-
+    // If we're all done loading, run & render the game as usual.
+    if (state_ != kLoadingInitialMaterials && state_ != kLoading) {
       // Update game logic by a variable number of milliseconds.
       game_state_.AdvanceFrame(delta_time, &audio_engine_);
 
@@ -1010,10 +1093,7 @@ void SplatGame::Run() {
       prev_world_time_ = world_time;
 
       // Advance to the next play state, if required.
-      const SplatState next_state = UpdateSplatState();
-      if (next_state != state_) {
-        TransitionToSplatState(next_state);
-      }
+      UpdateSplatStateAndTransition();
 
       // For testing,
       // we'll check if a sixth finger went down on the touch screen,
@@ -1027,41 +1107,48 @@ void SplatGame::Run() {
       gpg_manager.Update();
 #     endif
     } else {
-      // Textures are still loading. Display a loading screen.
-      auto spinmat = matman_.FindMaterial(config.loading_material()->c_str());
-      auto logomat = matman_.FindMaterial(config.loading_logo()->c_str());
-      assert(spinmat && logomat);
-      // If even the loading texture hasn't loaded yet, remain on a black
-      // screen, otherwise render it spinning.
-      auto res = renderer_.window_size();
-      auto mid = res / 2;
-      auto ortho_mat = mathfu::OrthoHelper<float>(
-          0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()),
-          0.0f, -1.0f, 1.0f);
-      if (spinmat->textures()[0]->id()) {
-        auto rot_mat = mat3::RotationZ(input_.Time() * 3.0f);
+      // If even the loading textures haven't loaded yet, remain on a black
+      // screen, otherwise render the loading texture spinning and the
+      // logo below.
+      if (state_ == kLoading) {
+        // Textures are still loading. Display a loading screen.
+        auto spinmat = matman_.FindMaterial(
+            config.loading_material()->c_str());
+        auto logomat = matman_.FindMaterial(config.loading_logo()->c_str());
+        assert(spinmat && logomat);
+        assert(spinmat->textures()[0]->id() && logomat->textures()[0]->id());
+        const auto mid = res / 2;
+        const float time = static_cast<float>(world_time) /
+          static_cast<float>(kMillisecondsPerSecond);
+        auto rot_mat = mat3::RotationZ(time * 3.0f);
         renderer_.model_view_projection() = ortho_mat *
-            mat4::FromTranslationVector(vec3(mid.x(), mid.y(), 0)) *
+            mat4::FromTranslationVector(vec3(mid.x(), mid.y() * 0.7, 0)) *
             mat4::FromRotationMatrix(rot_mat);
         auto extend = vec2(spinmat->textures()[0]->size());
+        renderer_.color() = mathfu::kOnes4f;
         spinmat->Set(renderer_);
         shader_textured_->Set(renderer_);
         Mesh::RenderAAQuadAlongX(
               vec3(-extend.x(),  extend.y(), 0),
               vec3( extend.x(), -extend.y(), 0),
               vec2(0, 1), vec2(1, 0));
-      }
-      // If we have the logo, display it also:
-      if (logomat->textures()[0]->id()) {
-        auto extend = vec2(logomat->textures()[0]->size()) / 4;
+
+        extend = vec2(logomat->textures()[0]->size()) / 10;
         renderer_.model_view_projection() = ortho_mat *
-            mat4::FromTranslationVector(vec3(mid.x(), extend.y(), 0));
+            mat4::FromTranslationVector(
+                vec3(mid.x(), res.y() * 0.7, 0));
+        renderer_.color() = mathfu::kOnes4f;
         logomat->Set(renderer_);
         shader_textured_->Set(renderer_);
         Mesh::RenderAAQuadAlongX(
               vec3(-extend.x(),  extend.y(), 0),
               vec3( extend.x(), -extend.y(), 0),
               vec2(0, 1), vec2(1, 0));
+      }
+      matman_.TryFinalize();
+
+      if (UpdateSplatStateAndTransition() == kFinished) {
+        game_state_.Reset();
       }
     }
   }

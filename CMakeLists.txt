@@ -162,6 +162,8 @@ set(splat_SRCS
     src/common.h
     src/controller.cpp
     src/controller.h
+    src/full_screen_fader.cpp
+    src/full_screen_fader.h
     src/game_camera.cpp
     src/game_camera.h
     src/game_state.cpp

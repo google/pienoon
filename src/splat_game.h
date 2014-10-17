@@ -17,6 +17,7 @@
 
 #include "ai_controller.h"
 #include "audio_engine.h"
+#include "full_screen_fader.h"
 #include "gamepad_controller.h"
 #include "game_state.h"
 #include "input.h"
@@ -38,7 +39,9 @@ class CharacterStateMachine;
 struct RenderingAssets;
 
 enum SplatState {
-  kUninitialized,
+  kUninitialized = 0,
+  kLoadingInitialMaterials,
+  kLoading,
   kPlaying,
   kFinished
 };
@@ -70,6 +73,10 @@ class SplatGame {
   Mesh* GetCardboardFront(int renderable_id);
   SplatState UpdateSplatState();
   void TransitionToSplatState(SplatState next_state);
+  SplatState UpdateSplatStateAndTransition();
+  void FadeToSplatState(SplatState next_state, const WorldTime& fade_time,
+                        const mathfu::vec4& color, const bool fade_in);
+  bool Fading() const { return fade_exit_state_ != kUninitialized; }
   void UploadEvents();
   void UploadAndShowLeaderboards();
   void UpdateGamepadControllers();
@@ -114,13 +121,13 @@ class SplatGame {
   Mesh* stick_back_;
 
   // Shaders we use.
-  Shader *shader_cardboard;
-  Shader *shader_lit_textured_normal_;
-  Shader *shader_simple_shadow_;
-  Shader *shader_textured_;
+  Shader* shader_cardboard;
+  Shader* shader_lit_textured_normal_;
+  Shader* shader_simple_shadow_;
+  Shader* shader_textured_;
 
   // Shadow material.
-  Material *shadow_mat_;
+  Material* shadow_mat_;
 
   // Splash screen and splash screen text materials.
   std::vector<Material*> materials_for_finished_state_;
@@ -158,6 +165,11 @@ class SplatGame {
   std::vector<TouchscreenButton>touch_controls_;
 
   std::map<SDL_JoystickID, ControllerId> joystick_to_controller_map_;
+
+  // Used to render an overlay to fade the screen.
+  FullScreenFader full_screen_fader_;
+  // State to enter after the fade is complete.
+  SplatState fade_exit_state_;
 
 # ifdef PLATFORM_MOBILE
   GPGManager gpg_manager;
