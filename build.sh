@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 
 # Copyright 2014 Google Inc. All Rights Reserved.
 #
@@ -45,13 +45,13 @@ main() {
   done
 
   # Make sure we have all the latest tools installed.
-  # android list sdk -a -u
+  android list sdk -a -u
   update_package 'Android SDK Tools,' tools/
   update_package 'Android SDK Platform-tools,' platform-tools/
   update_package 'Android SDK Build-tools,' build-tools/20.0.0/
 
   # Make sure Google Play services is installed.
-  # android list sdk -a -u
+  android list sdk -a -u
   update_package 'Google Play services,' extras/google/google_play_services/
 
   cd vendor/unbundled_google/packages/splat
