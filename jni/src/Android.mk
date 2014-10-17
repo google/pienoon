@@ -32,11 +32,12 @@ FLATC?=$(realpath $(firstword \
             $(wildcard $(FLATBUFFERS_FLATC_PATH)/Release/flatc*) \
             $(wildcard $(FLATBUFFERS_FLATC_PATH)/Debug/flatc*)))
 ifeq (,$(wildcard $(FLATC)))
-$(error flatc binary not found!)
+#$(error flatc binary not found!) # HACK
+FLATC=flatc # HACK
 endif
 
 # Generated includes directory (relative to SPLAT_DIR).
-GENERATED_INCLUDES_PATH := gen/include
+GENERATED_INCLUDES_PATH := gen/include/$(TARGET_ARCH_ABI)
 # Flatbuffers schemas used to generate includes.
 FLATBUFFERS_SCHEMAS := $(wildcard $(SPLAT_DIR)/src/flatbufferschemas/*.fbs)
 
@@ -70,8 +71,8 @@ $(foreach schema,$(FLATBUFFERS_SCHEMAS),\
 generated_includes: $(GENERATED_INCLUDES)
 
 # Build rule which builds assets for the game.
-.PHONY: build_assets
-build_assets:
+.PHONY: build_assets_$(TARGET_ARCH_ABI)
+build_assets_$(TARGET_ARCH_ABI):
 	python $(SPLAT_DIR)/scripts/build_assets.py
 
 
@@ -123,7 +124,8 @@ LOCAL_SRC_FILES := \
 # Make each source file dependent upon the generated_includes and build_assets
 # targets.
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
-$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): build_assets))
+$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): \
+                                       build_assets_$(TARGET_ARCH_ABI)))
 
 LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp SDL2 SDL2_mixer
 
