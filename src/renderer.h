@@ -92,24 +92,33 @@ class Renderer {
                context_(nullptr) {}
   ~Renderer() { ShutDown(); }
 
+  // Shader uniform: model_view_projection
   mat4 &model_view_projection() { return model_view_projection_; }
   const mat4 &model_view_projection() const { return model_view_projection_; }
 
+  // Shader uniform: model (object to world transform only)
   mat4 &model() { return model_; }
   const mat4 &model() const { return model_; }
 
+  // Shader uniform: color
   vec4 &color() { return color_; }
   const vec4 &color() const { return color_; }
 
+  // Shader uniform: light_pos
   vec3 &light_pos() { return light_pos_; }
   const vec3 &light_pos() const { return light_pos_; }
 
+  // Shader uniform: camera_pos
   vec3 &camera_pos() { return camera_pos_; }
   const vec3 &camera_pos() const { return camera_pos_; }
 
+  // If any of the more complex loading operations (shaders, textures etc.)
+  // fail, this sting will contain a more informative error message.
   std::string &last_error() { return last_error_; }
   const std::string &last_error() const { return last_error_; }
 
+  // The device's current framebuffer size. May change from frame to frame
+  // due to window resizing or Android navigation buttons turning on/off.
   vec2i &window_size() { return window_size_; }
   const vec2i &window_size() const { return window_size_; }
 
