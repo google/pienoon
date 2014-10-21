@@ -18,7 +18,7 @@
 
 int main(int argc, char *argv[]) {
   fpl::splat::SplatGame game;
-  const char* binary_directory = binary_directory = argc > 0 ? argv[0] : "";
+  const char* binary_directory = argc > 0 ? argv[0] : "";
   if (!game.Initialize(binary_directory)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Splat: init failed, exiting!");
     return 1;

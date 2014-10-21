@@ -53,6 +53,12 @@ bool SoundBuffer::Play(ChannelId channel_id, bool loop) {
   return true;
 }
 
+
+void SoundBuffer::SetGain(ChannelId channel_id, float gain) {
+  Mix_Volume(channel_id,
+             static_cast<int>(gain * static_cast<float>(MIX_MAX_VOLUME)));
+}
+
 SoundStream::~SoundStream() {
   if (data_) {
     Mix_FreeMusic(data_);
@@ -80,5 +86,9 @@ bool SoundStream::Play(ChannelId channel_id, bool loop) {
   return true;
 }
 
-}  // namespace fpl
+void SoundStream::SetGain(ChannelId channel_id, float gain) {
+  (void)channel_id;
+  Mix_VolumeMusic(static_cast<int>(gain * static_cast<float>(MIX_MAX_VOLUME)));
+}
 
+}  // namespace fpl

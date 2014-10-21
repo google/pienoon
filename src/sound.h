@@ -20,11 +20,15 @@ typedef struct _Mix_Music Mix_Music;
 
 namespace fpl {
 
+struct AudioSampleSetEntry;
+
 typedef int ChannelId;
 
 // SoundSource is a base class for both SoundStreams and SoundBuffers.
 class SoundSource {
  public:
+  SoundSource(const AudioSampleSetEntry* entry)
+      : audio_sample_set_entry_(entry) {}
   virtual ~SoundSource() {}
 
   // Load the sound from the given filename.
@@ -32,17 +36,30 @@ class SoundSource {
 
   // Play this sound on the given channel, and loop if necessary.
   virtual bool Play(ChannelId channel_id, bool loop) = 0;
+
+  // Set the gain of the given channel.
+  virtual void SetGain(ChannelId channel_id, float gain) = 0;
+
+  const AudioSampleSetEntry& audio_sample_set_entry() {
+    return *audio_sample_set_entry_;
+  }
+
+ private:
+  const AudioSampleSetEntry* audio_sample_set_entry_;
 };
 
 // A SoundBuffer is a piece of buffered audio that is completely loaded into
 // memory.
 class SoundBuffer : public SoundSource {
  public:
+  SoundBuffer(const AudioSampleSetEntry* entry) : SoundSource(entry) {}
   virtual ~SoundBuffer();
 
   virtual bool LoadFile(const char* filename);
 
   virtual bool Play(ChannelId channel_id, bool loop);
+
+  virtual void SetGain(ChannelId channel_id, float gain);
 
  private:
   Mix_Chunk* data_;
@@ -52,11 +69,14 @@ class SoundBuffer : public SoundSource {
 // memory.
 class SoundStream : public SoundSource {
  public:
+  SoundStream(const AudioSampleSetEntry* entry) : SoundSource(entry) {}
   virtual ~SoundStream();
 
   virtual bool LoadFile(const char* filename);
 
   virtual bool Play(ChannelId channel_id, bool loop);
+
+  virtual void SetGain(ChannelId channel_id, float gain);
 
  private:
   Mix_Music* data_;

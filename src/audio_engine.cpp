@@ -91,7 +91,7 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
 SoundCollection* AudioEngine::GetSoundCollection(SoundId sound_id) {
   if (sound_id >= collections_.size()) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                 "Can't play audio sample: invalid sound_id\n");
+                 "Can't play audio sample: invalid sound_id (%d)\n", sound_id);
     return nullptr;
   }
   return &collections_[sound_id];
@@ -155,9 +155,21 @@ void AudioEngine::ClearFinishedSounds() {
                         playing_sounds_.end());
 }
 
+bool AudioEngine::PlaySource(SoundSource* const source, ChannelId channel_id,
+                             const SoundCollection& collection) {
+  const SoundCollectionDef& def = *collection.GetSoundCollectionDef();
+  const float gain =
+    source->audio_sample_set_entry().audio_sample()->gain() * def.gain();
+  source->SetGain(channel_id, gain);
+  if (source->Play(channel_id, def.loop())) {
+    return true;
+  }
+  return false;
+}
+
 void AudioEngine::PlayStream(SoundCollection* collection) {
   // Attempt to play the stream.
-  collection->Select()->Play(0, collection->GetSoundCollectionDef()->loop());
+  PlaySource(collection->Select(), 0, *collection);
 }
 
 void AudioEngine::PlayBuffer(SoundCollection* collection) {
@@ -169,7 +181,8 @@ void AudioEngine::PlayBuffer(SoundCollection* collection) {
   // Prepare a new AudioEngine::PlayingSound with a tentative channel.
   AudioEngine::PlayingSound new_sound(def, FindFreeChannel(), world_time_);
 
-  // If there are no empty channels, clear out the one with the lowest priority.
+  // If there are no empty channels, clear out the one with the lowest
+  // priority.
   if (new_sound.channel_id == kInvalidChannel) {
     PrioritizeChannels(collections_, &playing_sounds_);
     // If the lowest priority sound is lower than the new one, halt it and
@@ -192,7 +205,7 @@ void AudioEngine::PlayBuffer(SoundCollection* collection) {
   assert(new_sound.channel_id != kInvalidChannel);
 
   // Attempt to play the sound.
-  if (collection->Select()->Play(new_sound.channel_id, def->loop())) {
+  if (PlaySource(collection->Select(), new_sound.channel_id, *collection)) {
     playing_sounds_.push_back(new_sound);
   }
 }
@@ -234,4 +247,3 @@ void AudioEngine::AdvanceFrame(WorldTime world_time) {
 }
 
 }  // namespace fpl
-

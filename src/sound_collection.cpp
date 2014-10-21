@@ -34,9 +34,9 @@ bool SoundCollection::LoadSoundCollectionDef(const std::string& source) {
     const char* entry_filename = entry->audio_sample()->filename()->c_str();
     auto& audio = audio_sources_[i];
     if (def->stream()) {
-      audio.reset(new SoundStream());
+      audio.reset(new SoundStream(entry));
     } else {
-      audio.reset(new SoundBuffer());
+      audio.reset(new SoundBuffer(entry));
     }
     if (!audio->LoadFile(entry_filename)) {
       return false;

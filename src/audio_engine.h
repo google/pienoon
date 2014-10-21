@@ -98,6 +98,10 @@ class AudioEngine {
     const std::vector<SoundCollection>& collections,
     std::vector<PlayingSound>* playing_sounds);
 
+  // Play a source selected from a collection on the specified channel.
+  static bool PlaySource(SoundSource* const source, ChannelId channel_id,
+                         const SoundCollection& collection);
+
   // Hold the audio bus list.
   std::string buses_source_;
 
