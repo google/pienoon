@@ -52,9 +52,8 @@ inline const mathfu::vec3 LoadAxis(splat::Axis axis) {
          axis == splat::Axis_Y ? mathfu::kAxisY3f : mathfu::kAxisZ3f;
 }
 
-bool ChangeToUpstreamDir(const char* const target_dir,
-                         const char* const suffix_dirs[],
-                         size_t num_suffixes);
+bool ChangeToUpstreamDir(const char* const binary_dir,
+                         const char* const target_dir);
 
 std::string CamelCaseToSnakeCase(const char* const camel);
 

@@ -50,7 +50,7 @@ class SplatGame {
  public:
   SplatGame();
   ~SplatGame();
-  bool Initialize();
+  bool Initialize(const char* const binary_directory);
   void Run();
 
  private:

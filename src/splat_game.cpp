@@ -47,9 +47,6 @@ static const Attribute kQuadMeshFormat[] =
     { kPosition3f, kTexCoord2f, kNormal3f, kTangent4f, kEND };
 
 static const char kAssetsDir[] = "assets";
-static const char *kBuildPaths[] = {
-    "Debug", "Release", "projects\\VisualStudio2010", "build\\Debug\\bin",
-    "build\\Release\\bin"};
 
 static const char kConfigFileName[] = "config.bin";
 
@@ -400,10 +397,10 @@ class AudioEngineVolumeControl {
 // Initialize each member in turn. This is logically just one function, since
 // the order of initialization cannot be changed. However, it's nice for
 // debugging and readability to have each section lexographically separate.
-bool SplatGame::Initialize() {
+bool SplatGame::Initialize(const char* const binary_directory) {
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Splat initializing...\n");
 
-  if (!ChangeToUpstreamDir(kAssetsDir, kBuildPaths, ARRAYSIZE(kBuildPaths)))
+  if (!ChangeToUpstreamDir(binary_directory, kAssetsDir))
     return false;
 
   if (!InitializeConfig())
