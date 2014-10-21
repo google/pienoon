@@ -1,0 +1,47 @@
+{
+  "id": "Turning",
+  "gain": 0.3,
+  "priority": 0.1,
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_01.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_02.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_03.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_04.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_05.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_06.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_07.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charrotate_08.wav"
+      }
+    }
+  ]
+}

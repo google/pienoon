@@ -57,6 +57,17 @@ struct EventData {
   CharacterHealth pie_damage;
 };
 
+// Look up a value in a vector based upon pie damage.
+template<typename T>
+static T EnumerationValueForPieDamage(
+    CharacterHealth damage,
+    const flatbuffers::Vector<uint16_t> &lookup_vector) {
+  const CharacterHealth clamped_damage = mathfu::Clamp<CharacterHealth>(
+      damage, 0, lookup_vector.Length() - 1);
+  return static_cast<T>(lookup_vector.Get(clamped_damage));
+}
+
+
 GameState::GameState()
     : time_(0),
       characters_(),
@@ -218,6 +229,7 @@ WorldTime GameState::GetAnimationTime(const Character& character) const {
 void GameState::ProcessSounds(AudioEngine* audio_engine,
                               const Character& character,
                               WorldTime delta_time) const {
+  (void)audio_engine;
   // Process sounds in timeline.
   const Timeline* const timeline = character.CurrentTimeline();
   if (!timeline)
@@ -230,8 +242,11 @@ void GameState::ProcessSounds(AudioEngine* audio_engine,
                                                anim_time + delta_time);
   for (int i = start_index; i < end_index; ++i) {
     const TimelineSound& timeline_sound = *sounds->Get(i);
-    audio_engine->PlaySound(timeline_sound.sound());
+    character.PlaySound(timeline_sound.sound());
   }
+
+  // If the character is trying to turn, play the turn sound.
+  if (RequestedTurn(character.id())) character.PlaySound(SoundId_Turning);
 }
 
 void GameState::CreatePie(CharacterId original_source_id,
@@ -301,10 +316,13 @@ void GameState::ProcessEvent(Character* character,
         }
         ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitByPie,
                          pie.damage, character);
-        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitSomeoneWithPie,
+        ApplyScoringRule(config_->scoring_rules(),
+                         ScoreEvent_HitSomeoneWithPie,
                          pie.damage, characters_[pie.source_id].get());
-        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_YourPieHitSomeone,
-                         pie.damage, characters_[pie.original_source_id].get());
+        ApplyScoringRule(config_->scoring_rules(),
+                         ScoreEvent_YourPieHitSomeone,
+                         pie.damage,
+                         characters_[pie.original_source_id].get());
       }
 
       // Shake the nearby props. Amount of shake is a function of damage.
@@ -335,13 +353,16 @@ void GameState::ProcessEvent(Character* character,
     case EventId_DeflectPie: {
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
+        character->PlaySound(EnumerationValueForPieDamage<SoundId>(
+            pie.damage, *(config_->blocked_sound_id_for_pie_damage())));
+
         const CharacterHealth deflected_pie_damage =
             pie.damage + config_->pie_damage_change_when_deflected();
         if (deflected_pie_damage > 0) {
           CreatePie(pie.source_id, character->id(),
                     DetermineDeflectionTarget(pie), pie.damage);
         } else {
-          CreatePieSplatter(character->id(), 1);
+          CreatePieSplatter(*character, 1);
         }
         character->IncrementStat(kBlocks);
         characters_[pie.source_id]->IncrementStat(kMisses);
@@ -399,7 +420,8 @@ void GameState::ProcessConditionalEvents(Character* character,
     for (auto it = current_state->conditional_events()->begin();
          it != current_state->conditional_events()->end(); ++it) {
       const ConditionalEvent* conditional_event = *it;
-      if (EvaluateCondition(conditional_event->condition(), condition_inputs)) {
+      if (EvaluateCondition(conditional_event->condition(),
+                            condition_inputs)) {
         unsigned int event = conditional_event->event();
         event_data->pie_damage = conditional_event->modifier();
         ProcessEvent(character, event, *event_data);
@@ -705,11 +727,15 @@ uint32_t GameState::AllLogicalInputs() const {
 }
 
 // Creates a bunch of particles when a character gets hit by a pie.
-void GameState::CreatePieSplatter(CharacterId id, CharacterHealth damage) {
-  auto& character = characters_[id];
+void GameState::CreatePieSplatter(const Character& character,
+                                  CharacterHealth damage) {
   const ParticleDef * def = config_->pie_splatter_def();
-  SpawnParticles(character->position(), def, static_cast<int>(damage) *
+  SpawnParticles(character.position(), def, static_cast<int>(damage) *
                  config_->splat_particles_per_damage());
+  // Play a pie hit sound based upon the amount of damage applied (size of the
+  // pie).
+  character.PlaySound(EnumerationValueForPieDamage<SoundId>(
+      damage, *(config_->hit_sound_id_for_pie_damage())));
 }
 
 // Spawns a particle at the given position, using a particle definition.
@@ -809,7 +835,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
       if (character->State() != StateId_Blocking)
-        CreatePieSplatter(character->id(), pie->damage());
+        CreatePieSplatter(*character, pie->damage());
       it = pies_.erase(it);
     }
     else {
@@ -857,13 +883,6 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   }
 
   camera_.AdvanceFrame(delta_time);
-}
-
-static uint16_t RenderableIdForPieDamage(CharacterHealth damage,
-                                         const Config& config) {
-  const CharacterHealth clamped_damage = mathfu::Clamp<CharacterHealth>(
-      damage, 0, config.renderable_id_for_pie_damage()->Length() - 1);
-  return config.renderable_id_for_pie_damage()->Get(clamped_damage);
 }
 
 // Get the camera matrix used for rendering.
@@ -1045,8 +1064,10 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     for (auto it = pies_.begin(); it != pies_.end(); ++it) {
       auto& pie = *it;
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(RenderableIdForPieDamage(pie->damage(), *config_),
-                         pie->CalculateMatrix())));
+          new Renderable(
+              EnumerationValueForPieDamage<uint16_t>(
+                  pie->damage(), *(config_->renderable_id_for_pie_damage())),
+              pie->CalculateMatrix())));
     }
   }
 
@@ -1209,4 +1230,3 @@ void GameState::PopulateScene(SceneDescription* scene) const {
 
 }  // splat
 }  // fpl
-

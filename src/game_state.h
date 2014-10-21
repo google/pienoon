@@ -127,7 +127,7 @@ private:
   Angle TiltTowardsStageFront(const Angle angle) const;
   impel::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
-  void CreatePieSplatter(CharacterId id, int damage);
+  void CreatePieSplatter(const Character& character, int damage);
   void SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
                       const int particle_count);
   void ShakeProps(float percent, const mathfu::vec3& damage_position);

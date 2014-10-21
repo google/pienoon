@@ -5,8 +5,47 @@
     // ThrowPie
     "sounds/throw_pie.bin",
 
-    // HitWithPie
-    "sounds/hit_with_pie.bin",
+    // HitWithSmallPie
+    "sounds/hit_with_small_pie.bin",
+
+    // HitWithMediumPie
+    "sounds/hit_with_medium_pie.bin",
+
+    // HitWithLargePie
+    "sounds/hit_with_large_pie.bin",
+
+    // BlockedSmallPie
+    "sounds/blocked_small_pie.bin",
+
+    // BlockedMediumPie
+    "sounds/blocked_medium_pie.bin",
+
+    // BlockedLargePie
+    "sounds/blocked_large_pie.bin",
+
+    // Loading_1
+    "sounds/loading_1.bin",
+
+    // Loading_2
+    "sounds/loading_2.bin",
+
+    // Loading_3
+    "sounds/loading_3.bin",
+
+    // Turning
+    "sounds/turning.bin",
+
+    // PlayerWon
+    "sounds/player_won.bin",
+
+    // PlayerLost
+    "sounds/player_lost.bin",
+
+    // JoinMatch
+    "sounds/join_match.bin",
+
+    // StartMatch
+    "sounds/start_match.bin",
 
     // MainTheme
     "sounds/main_theme.bin",

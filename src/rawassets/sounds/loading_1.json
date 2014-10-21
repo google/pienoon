@@ -1,0 +1,23 @@
+{
+  "id": "Loading_1",
+  "gain": 0.2,
+  "priority": 0.1,
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/throwready_01.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throwready_02.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throwready_03.wav"
+      }
+    }
+  ]
+}
+

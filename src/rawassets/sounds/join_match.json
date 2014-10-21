@@ -1,0 +1,10 @@
+{
+  "id": "JoinMatch",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/joingame_01.wav"
+      }
+    }
+  ]
+}

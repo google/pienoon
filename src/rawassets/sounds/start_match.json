@@ -1,0 +1,10 @@
+{
+  "id": "StartMatch",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/start_01.wav"
+      }
+    }
+  ]
+}

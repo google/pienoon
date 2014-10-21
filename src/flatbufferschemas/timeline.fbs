@@ -30,6 +30,7 @@ struct PixelOffset {
 struct TimelineAccessory {
   time:ushort;        // Time to start displaying accessory.
   end_time:ushort;    // Time to stop displaying accessory.
+                      // 0 never stops the display of an accessory.
   renderable:ushort;  // Identify the accessory to render.
                       // For Splat, use RenderableId in splat_common.fbs.
   offset:PixelOffset; // Offset in pixels from bottom left of renderable.

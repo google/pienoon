@@ -1,0 +1,20 @@
+{
+  "id": "HitWithMediumPie",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/pastryhit_04.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_01.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_02.wav"
+      }
+    }
+  ]
+}

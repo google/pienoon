@@ -16,6 +16,7 @@
 
 #include "precompiled.h"
 #include <math.h>
+#include "audio_engine.h"
 #include "character.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
@@ -37,7 +38,8 @@ namespace splat {
 
 Character::Character(
     CharacterId id, Controller* controller, const Config& config,
-    const CharacterStateMachineDef* character_state_machine_def)
+    const CharacterStateMachineDef* character_state_machine_def,
+    AudioEngine* audio_engine)
     : config_(&config),
       id_(id),
       target_(0),
@@ -46,7 +48,8 @@ Character::Character(
       position_(mathfu::kZeros3f),
       controller_(controller),
       state_machine_(character_state_machine_def),
-      victory_state_(kResultUnknown) {
+      victory_state_(kResultUnknown),
+      audio_engine_(audio_engine) {
   for (int i = 0; i < kMaxStats; i++) player_stats_[i] = 0;
 }
 
@@ -102,6 +105,10 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 
   // Return the renderable id for 'anim_time'.
   return renderable->renderable();
+}
+
+void Character::PlaySound(SoundId sound_id) const {
+  audio_engine_->PlaySound(sound_id);
 }
 
 void Character::IncrementStat(PlayerStats stat) {
@@ -176,4 +183,3 @@ void ApplyScoringRule(const ScoringRules* scoring_rules,
 
 } //  namespace fpl
 } //  namespace splat
-

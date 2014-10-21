@@ -59,7 +59,20 @@ enum RenderableId : ushort {
 
 enum SoundId : ushort {
   ThrowPie,
-  HitWithPie,
+  HitWithSmallPie,
+  HitWithMediumPie,
+  HitWithLargePie,
+  BlockedSmallPie,
+  BlockedMediumPie,
+  BlockedLargePie,
+  Loading_1,
+  Loading_2,
+  Loading_3,
+  Turning,
+  PlayerWon,
+  PlayerLost,
+  JoinMatch,
+  StartMatch,
   MainTheme,
   TitleScreen,
 

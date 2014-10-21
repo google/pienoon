@@ -110,6 +110,12 @@
             "event": "EventId.LoadPie",
             "modifier": 1
           }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "Loading_1"
+          }
         ]
       }
     },
@@ -178,6 +184,12 @@
             "event": "EventId.LoadPie",
             "modifier": 3
           }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "Loading_2"
+          }
         ]
       }
     },
@@ -213,12 +225,6 @@
           "condition": {
             "is_down": "Deflect"
           }
-        },
-        {
-          "target_state": "Loading_3",
-          "condition": {
-            "went_down": "AnimationEnd"
-          }
         }
       ],
       "timeline": {
@@ -232,7 +238,7 @@
         "accessories": [
           {
             "time": 0,
-            "end_time": 750,
+            "end_time": 0,
             "renderable": "RenderableId.PieLarge",
             "offset": {
               "x": -120,
@@ -245,6 +251,12 @@
             "time": 0,
             "event": "EventId.LoadPie",
             "modifier": 5
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "Loading_3"
           }
         ]
       }
@@ -381,12 +393,6 @@
             "event": "EventId.TakeDamage",
             "modifier": 0
           }
-        ],
-        "sounds": [
-          {
-            "time": 0,
-            "sound": "HitWithPie"
-          }
         ]
       }
     },
@@ -399,6 +405,12 @@
             "time": 0,
             "renderable": "RenderableId.CharacterKnockedOut"
           }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "PlayerLost"
+          }
         ]
       }
     },
@@ -410,6 +422,12 @@
           {
             "time": 0,
             "renderable": "RenderableId.CharacterWin"
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "PlayerWon"
           }
         ]
       }

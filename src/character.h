@@ -24,6 +24,7 @@
 #include "impeller.h"
 #include "player_controller.h"
 #include "splat_common_generated.h"
+#include "sound_collection_def_generated.h"
 #include "timeline_generated.h"
 
 namespace impel {
@@ -31,6 +32,10 @@ namespace impel {
 }
 
 namespace fpl {
+
+class AudioEngine;
+using splat::SoundId;
+
 namespace splat {
 
 class Controller;
@@ -62,7 +67,8 @@ class Character {
   // The Character does not take ownership of the controller or
   // character_state_machine_def pointers.
   Character(CharacterId id, Controller* controller, const Config& config,
-            const CharacterStateMachineDef* character_state_machine_def);
+            const CharacterStateMachineDef* character_state_machine_def,
+            AudioEngine* audio_engine);
 
   // Resets the character to the start-of-game state.
   void Reset(CharacterId target, CharacterHealth health,
@@ -96,6 +102,9 @@ class Character {
 
   // Returns true if the character is still in the game.
   bool Active() const { return State() != StateId_KO; }
+
+  // Play a sound associated with this character.
+  void PlaySound(SoundId sound_id) const;
 
   CharacterHealth health() const { return health_; }
   void set_health(CharacterHealth health) { health_ = health; }
@@ -164,6 +173,9 @@ class Character {
 
   // If this character is one of the winners or losers of the match.
   VictoryState victory_state_;
+
+  // Used to play sounds associated with the character.
+  AudioEngine* audio_engine_;
 };
 
 
@@ -240,7 +252,8 @@ inline std::vector<int> TimelineIndicesWithTime(const T& arr,
     return ret;
 
   for (int i = 0; i < static_cast<int>(arr->Length()); ++i) {
-    if (arr->Get(i)->time() <= t && t < arr->Get(i)->end_time())
+    const float end_time = arr->Get(i)->end_time();
+    if (arr->Get(i)->time() <= t && (t < end_time || end_time == 0.0f))
       ret.push_back(i);
   }
   return ret;
@@ -253,4 +266,3 @@ void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,
 }  // fpl
 
 #endif  // SPLAT_CHARACTER_H_
-

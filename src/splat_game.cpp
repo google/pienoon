@@ -363,7 +363,8 @@ bool SplatGame::InitializeGameState() {
     AiController* controller = new AiController();
     controller->Initialize(&game_state_, &config, i);
     game_state_.characters().push_back(std::unique_ptr<Character>(
-        new Character(i, controller, config, state_machine_def)));
+        new Character(i, controller, config, state_machine_def,
+                      &audio_engine_)));
     AddController(controller);
     controller->Initialize(&game_state_, &config, i);
   }
@@ -805,6 +806,7 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
       break;
     }
     case kPlaying: {
+      audio_engine_.PlaySound(SoundId_StartMatch);
       audio_engine_.PlaySound(SoundId_MainTheme);
       game_state_.Reset();
       break;
@@ -974,6 +976,7 @@ void SplatGame::HandlePlayersJoining()
         character->controller()->set_character_id(kNoCharacter);
         character->set_controller(controller);
         controller->set_character_id(open_slot);
+        audio_engine_.PlaySound(SoundId_JoinMatch);
       }
     }
   }
