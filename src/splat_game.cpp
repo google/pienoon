@@ -584,6 +584,7 @@ void SplatGame::Render2DElements() {
   // Render touch controls, as long as the touch-controller is active.
   if (touch_controller_->character_id() != kNoCharacter) {
     for (size_t i = 0; i < touch_controls_.size(); i++) {
+      touch_controls_[i].set_z_depth(z);
       touch_controls_[i].Render(renderer_);
     }
   }

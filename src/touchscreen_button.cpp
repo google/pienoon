@@ -30,7 +30,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
 
   vec3 position = vec3(button_def()->texture_position()->x() * window_size.x(),
                        button_def()->texture_position()->y() * window_size.y(),
-                       0);
+                       z_depth());
   shader_->Set(renderer);
   mat->Set(renderer);
 

@@ -41,6 +41,9 @@ class TouchscreenButton
   vec2 position() const { return position_; }
   void set_position(vec2 position) { position_ = position; }
 
+  float z_depth() const { return z_depth_; }
+  void set_z_depth(float z_depth) { z_depth_ = z_depth; }
+
   Material* up_material() const { return up_material_; }
   void set_up_material(Material* up_material) { up_material_ = up_material; }
 
@@ -63,6 +66,7 @@ class TouchscreenButton
   bool button_state_;
 
   vec2 position_;
+  float z_depth_;
 
   const ButtonDef* button_def_;
   Shader* shader_;
