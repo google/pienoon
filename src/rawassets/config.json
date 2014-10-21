@@ -487,6 +487,41 @@
         }
   ],
 
+  "title_screen_buttons" : [
+        {
+          "top_left" : { "x": 0.0, "y": 0.7 },
+          "bottom_right" : { "x": 0.2, "y": 1.0 },
+          "input_type" : "ToggleLogIn",
+          "texture_normal" : "materials/gpg_button.bin",
+          "texture_pressed" : "materials/gpg_button.bin",
+          "texture_position" : { "x": 0.1, "y": 0.85 },
+          "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
+          "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
+          "draw_scale_pressed" : { "x": 2.1, "y": 2.1 }
+
+        },
+        {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "input_type" : "Title",
+          "texture_position" : { "x": 0.5, "y": 0.85 },
+          "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+        },
+        {
+          "top_left" : { "x": 0.8, "y": 0.7 },
+          "bottom_right" : { "x": 1.0, "y": 1.0 },
+          "input_type" : "ShowLicense",
+          "texture_normal" : "materials/license_button.bin",
+          "texture_pressed" : "materials/license_button.bin",
+          "texture_position" : { "x": 0.9, "y": 0.85 },
+          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+          "draw_scale_highlighted": { "x": 0.6, "y": 0.6 },
+          "draw_scale_pressed" : { "x": 0.7, "y": 0.7 }
+        }
+  ],
+
   "two_dimensional_elements_for_finished_state": [
     {
       // Splash screen image specified by this material name.

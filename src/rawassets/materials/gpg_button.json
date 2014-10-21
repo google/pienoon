@@ -1,0 +1,7 @@
+{
+  texture_filenames: [
+    "textures/ic_play_games_badge_green.webp"
+  ],
+  blendmode: OFF
+}
+

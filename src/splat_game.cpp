@@ -74,6 +74,7 @@ SplatGame::SplatGame()
       shadow_mat_(nullptr),
       prev_world_time_(0),
       debug_previous_states_(),
+      button_focus_(1),
       full_screen_fader_(renderer_),
       fade_exit_state_(kUninitialized)
 {
@@ -282,15 +283,28 @@ bool SplatGame::InitializeRenderingAssets() {
     if (!materials_for_finished_state_[i]) return false;
   }
 
-  touch_controls_.resize(config.touchscreen_zones()->Length());
+  auto LoadButtonFromConfig = [this](TouchscreenButton *button,
+                                     const ButtonDef *def) {
+    button->set_up_material(def->texture_normal()
+        ? matman_.LoadMaterial(def->texture_normal()->c_str())
+        : nullptr);
+    button->set_down_material(def->texture_pressed()
+        ? matman_.LoadMaterial(def->texture_pressed()->c_str())
+        : nullptr);
+    button->set_button_def(def);
+    button->set_shader(shader_textured_);
+  };
 
+  game_button_controls_.resize(config.touchscreen_zones()->Length());
   for (size_t i = 0; i < config.touchscreen_zones()->Length(); i++) {
-    touch_controls_[i].set_up_material(matman_.LoadMaterial(
-        config.touchscreen_zones()->Get(i)->texture_normal()->c_str()));
-    touch_controls_[i].set_down_material(matman_.LoadMaterial(
-        config.touchscreen_zones()->Get(i)->texture_pressed()->c_str()));
-    touch_controls_[i].set_button_def(config.touchscreen_zones()->Get(i));
-    touch_controls_[i].set_shader(shader_textured_);
+    LoadButtonFromConfig(&game_button_controls_[i],
+                         config.touchscreen_zones()->Get(i));
+  }
+
+  menu_button_controls_.resize(config.title_screen_buttons()->Length());
+  for (size_t i = 0; i < config.title_screen_buttons()->Length(); i++) {
+    LoadButtonFromConfig(&menu_button_controls_[i],
+                         config.title_screen_buttons()->Get(i));
   }
 
   // Configure the full screen fader.
@@ -580,12 +594,18 @@ void SplatGame::Render2DElements() {
 
       z += 0.01;
     }
-  }
-  // Render touch controls, as long as the touch-controller is active.
-  if (touch_controller_->character_id() != kNoCharacter) {
-    for (size_t i = 0; i < touch_controls_.size(); i++) {
-      touch_controls_[i].set_z_depth(z);
-      touch_controls_[i].Render(renderer_);
+    // Render menu controls.
+    for (size_t i = 0; i < menu_button_controls_.size(); i++) {
+      menu_button_controls_[i].Render(renderer_, button_focus_ == i,
+                                      input_.Time());
+    }
+  } else if (state_ == kPlaying) {
+    // Render touch controls, as long as the touch-controller is active.
+    if (touch_controller_->character_id() != kNoCharacter) {
+      for (size_t i = 0; i < game_button_controls_.size(); i++) {
+        game_button_controls_[i].set_z_depth(z);
+        game_button_controls_[i].Render(renderer_, false, 0);
+      }
     }
   }
 }
@@ -761,8 +781,7 @@ SplatState SplatGame::UpdateSplatState() {
     case kFinished: {
       // When players press the A/throw button during the menu screen, they
       // get assigned a player if they weren't already.
-      HandlePlayersJoining();
-      HandlePlayersMenu();
+      HandleMenuButtons();
       // Start the game when someone presses the B/block key.
       if ((game_state_.AllLogicalInputs() & LogicalInputs_Deflect) != 0) {
         // Fade to the game
@@ -794,6 +813,7 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
       break;
     }
     case kFinished: {
+      button_focus_ = 1;
       audio_engine_.PlaySound(SoundId_TitleScreen);
       game_state_.DetermineWinnersAndLosers();
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
@@ -962,17 +982,37 @@ void SplatGame::HandlePlayersJoining()
   }
 }
 
-void SplatGame::HandlePlayersMenu()
+void SplatGame::HandleMenuButtons()
 {
   for (size_t i = 0; i < active_controllers_.size(); i++) {
     Controller* controller = active_controllers_[i].get();
     if (controller != nullptr &&
         controller->character_id() == kNoCharacter &&
-        controller->controller_type() != Controller::kTypeAI &&
-        controller->went_down() & LogicalInputs_Right) {
-#     ifdef PLATFORM_MOBILE
-      gpg_manager.ToggleSignIn();
-#     endif
+        controller->controller_type() != Controller::kTypeAI) {
+      if (controller->went_down() & LogicalInputs_Left) {
+        if (button_focus_ > 0) button_focus_--;
+      } else if (controller->went_down() & LogicalInputs_Right) {
+        if (button_focus_ < menu_button_controls_.size() - 1) button_focus_++;
+      } else if (controller->went_down() & LogicalInputs_ThrowPie ||
+                 controller->went_down() & LogicalInputs_Deflect) {
+        switch(menu_button_controls_[button_focus_].button_def()->
+                                                      input_type()) {
+          case ButtonInputType_ToggleLogIn:
+#           ifdef PLATFORM_MOBILE
+            gpg_manager.ToggleSignIn();
+#           endif
+            break;
+          case ButtonInputType_ShowLicense:
+            // TODO: show license
+            break;
+          case ButtonInputType_Title:
+            // Perform regular behavior of letting players join:
+            HandlePlayersJoining();
+            break;
+          default:
+            assert(0);
+        }
+      }
     }
   }
 }
@@ -990,8 +1030,11 @@ void SplatGame::UpdateControllers(WorldTime delta_time) {
 }
 
 void SplatGame::UpdateTouchButtons() {
-  for (size_t i = 0; i < touch_controls_.size(); i++) {
-    touch_controls_[i].set_button_state(false);
+  auto &buttons_controls = state_ == kFinished
+                         ? menu_button_controls_
+                         : game_button_controls_;
+  for (size_t i = 0; i < buttons_controls.size(); i++) {
+    buttons_controls[i].set_button_state(false);
   }
 
   for (size_t i = 0; i < input_.pointers_.size(); i++) {
@@ -1001,19 +1044,19 @@ void SplatGame::UpdateTouchButtons() {
       continue;
     }
     // Look for a touch-control to handle each pointer:
-    for (size_t i = 0; i < touch_controls_.size(); i++) {
-      if (touch_controls_[i].HandlePointer(pointer,
-                                           vec2(renderer_.window_size()))) {
+    for (size_t i = 0; i < buttons_controls.size(); i++) {
+      if (buttons_controls[i].HandlePointer(pointer,
+                                            vec2(renderer_.window_size()))) {
         // The first touch control to handle a pointer consumes it.
         break;
       }
     }
   }
 
-  for (size_t i = 0; i < touch_controls_.size(); i++) {
+  for (size_t i = 0; i < buttons_controls.size(); i++) {
     touch_controller_->HandleTouchButtonInput(
-        touch_controls_[i].button_def()->input_type(),
-        touch_controls_[i].button_state());
+        buttons_controls[i].button_def()->input_type(),
+        buttons_controls[i].button_state());
   }
 }
 

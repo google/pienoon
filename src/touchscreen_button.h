@@ -33,7 +33,7 @@ class TouchscreenButton
   TouchscreenButton();
 
   bool HandlePointer(Pointer pointer, vec2 window_size);
-  void Render(Renderer& renderer);
+  void Render(Renderer& renderer, bool highlight, float time);
 
   bool button_state() const { return button_state_; }
   void set_button_state(bool button_state) { button_state_ = button_state; }

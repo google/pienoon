@@ -85,7 +85,7 @@ class SplatGame {
   Controller * GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining();
-  void HandlePlayersMenu();
+  void HandleMenuButtons();
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons();
 
@@ -162,7 +162,9 @@ class SplatGame {
 
   TouchscreenController* touch_controller_;
 
-  std::vector<TouchscreenButton>touch_controls_;
+  std::vector<TouchscreenButton> game_button_controls_;
+  std::vector<TouchscreenButton> menu_button_controls_;
+  size_t button_focus_;  // TODO: should be in class together with buttons?
 
   std::map<SDL_JoystickID, ControllerId> joystick_to_controller_map_;
 

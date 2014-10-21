@@ -35,7 +35,10 @@ enum ButtonInputType : ushort (bit_flags) {
   Left,
   Right,
   Attack,
-  Defend
+  Defend,
+  ToggleLogIn,
+  ShowLicense,
+  Title,
 }
 
 enum GameMode : ushort {
@@ -76,8 +79,9 @@ table ButtonDef {
   // state, and when it is registering a press.
   texture_normal : string;
   texture_pressed : string;
-  draw_scale_normal: Vec2;
-  draw_scale_pressed: Vec2;
+  draw_scale_normal : Vec2;
+  draw_scale_highlighted : Vec2;
+  draw_scale_pressed : Vec2;
 
   // Position to draw the texture at:
   // (Designates the center of the texture, and like the zone boundaries, is
@@ -510,8 +514,9 @@ table Config {
 
   // UI options
   //
-  // Touchscreen controller layout:
+  // Button layouts:
   touchscreen_zones:[ButtonDef];
+  title_screen_buttons:[ButtonDef];
 
   // Splash screen, etc.
   two_dimensional_elements_for_finished_state:[TwoDimensionalElement];

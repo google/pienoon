@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
+#include <algorithm>
 
 #if defined(_WIN32)
 #include <direct.h> // for _chdir
