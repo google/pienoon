@@ -1217,13 +1217,13 @@
     {
       "id": "Health",
       "cardboard_front": "materials/health.bin",
-      "pixel_bounds": { "x": 256, "y": 256 }
+      "pixel_bounds": { "x": 128, "y": 128 },
+      "geometry_scale": 2.0
     },
     {
       "id": "UiArrow",
       "cardboard_front": "materials/arrow.bin",
-      "pixel_bounds": { "x": 256, "y": 149 },
-      "geometry_scale": 1.0
+      "pixel_bounds": { "x": 256, "y": 149 }
     },
     {
       "id": "Pixel1x1",
