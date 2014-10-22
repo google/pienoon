@@ -58,7 +58,7 @@ int InputSystem::HandleAppEvents(void *userdata, SDL_Event *event) {
       passthrough = 1;
       break;
   }
-  if (!passthrough) {
+  if (!passthrough && event->type != SDL_APP_TERMINATING) {
     for (auto& callback : renderer->app_event_callbacks()) {
       callback(event);
     }
