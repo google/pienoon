@@ -486,6 +486,7 @@ google_play_services/libproject/google-play-services_lib"
       if [[ ! -e "${play_services_dir}" ]]; then
         echo "Google Play Services must be installed in the Android SDK." >&2
         echo "Use the android SDK manager to install this package." >&2
+        echo "checked ${play_services_dir}" >&2
         exit 1
       fi
       pushd "${play_services_dir}" >/dev/null
