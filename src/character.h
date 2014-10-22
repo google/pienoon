@@ -98,7 +98,9 @@ class Character {
   }
 
   // Returns the current state from the character-state-machine.
-  uint16_t State() const { return state_machine_.current_state()->id(); }
+  uint16_t State() const {
+    return static_cast<uint16_t>(state_machine_.current_state()->id());
+  }
 
   // Returns true if the character is still in the game.
   bool Active() const { return State() != StateId_KO; }
@@ -123,7 +125,9 @@ class Character {
   Controller* controller() { return controller_; }
   void set_controller(Controller* controller) { controller_ = controller; }
 
-  const CharacterStateMachine* state_machine() const { return &state_machine_; }
+  const CharacterStateMachine* state_machine() const {
+    return &state_machine_;
+  }
   CharacterStateMachine* state_machine() { return &state_machine_; }
 
   void IncrementStat(PlayerStats stat);

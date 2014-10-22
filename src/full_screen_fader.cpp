@@ -24,7 +24,7 @@
 namespace fpl {
 namespace splat {
 
-FullScreenFader::FullScreenFader(Renderer& renderer) :
+FullScreenFader::FullScreenFader(Renderer* renderer) :
   start_time_(0), half_fade_time_(0), fade_in_(false), renderer_(renderer),
   material_(NULL), shader_(NULL) {}
 
@@ -56,14 +56,15 @@ bool FullScreenFader::Render(const WorldTime& time) {
   }
 
   // Render the overlay in front on the screen.
-  renderer_.model_view_projection() =
+  renderer_->model_view_projection() =
     ortho_mat_ * mat4::FromTranslationVector(vec3(0.0f, 0.0f, 0.1f));
-  renderer_.color() = vec4(0.0f, 0.0f, 0.0f, alpha);
-  material_->Set(renderer_);
-  shader_->Set(renderer_);
-  Mesh::RenderAAQuadAlongX(vec3(0, extents_.y(), 0),
-                           vec3(extents_.x(), 0, 0),
-                           vec2(0, 1), vec2(1, 0));
+  renderer_->color() = vec4(0.0f, 0.0f, 0.0f, alpha);
+  material_->Set(*renderer_);
+  shader_->Set(*renderer_);
+  Mesh::RenderAAQuadAlongX(
+      vec3(0.0f, static_cast<float>(extents_.y()), 0.0f),
+      vec3(static_cast<float>(extents_.x()), 0.0f, 0.0f),
+      vec2(0.0f, 1.0f), vec2(1.0f, 0.0f));
   return opaque;
 }
 

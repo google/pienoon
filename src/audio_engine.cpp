@@ -34,7 +34,7 @@ const ChannelId kAllChannels = -1;
 
 AudioEngine::~AudioEngine() {
   for (size_t i = 0; i < collections_.size(); ++i) {
-    collections_[i].Unload();
+    collections_[i]->Unload();
   }
   Mix_CloseAudio();
 }
@@ -58,9 +58,9 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   // Number of sound that can be played simutaniously.
   Mix_AllocateChannels(config->mixer_channels());
 
-  // We do our own tracking of audio channels so that when a new sound is played
-  // we can determine if one of the currently playing channels is lower priority
-  // so that we can drop it.
+  // We do our own tracking of audio channels so that when a new sound is
+  // played we can determine if one of the currently playing channels is lower
+  // priority so that we can drop it.
   playing_sounds_.reserve(config->mixer_channels());
 
   // Load the audio buses.
@@ -75,12 +75,15 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   }
 
   // Create a Sound for each sound def
-  const SoundAssets* sound_assets = GetSoundAssets(sound_assets_source.c_str());
+  const SoundAssets* sound_assets =
+      GetSoundAssets(sound_assets_source.c_str());
   unsigned int sound_count = sound_assets->sounds()->Length();
   collections_.resize(sound_count);
   for (unsigned int i = 0; i < sound_count; ++i) {
     const char* filename = sound_assets->sounds()->Get(i)->c_str();
-    if (!collections_[i].LoadSoundCollectionDefFromFile(filename)) {
+    SoundCollection *collection = new SoundCollection();
+    collections_[i].reset(collection);
+    if (!collection->LoadSoundCollectionDefFromFile(filename)) {
       return false;
     }
   }
@@ -89,12 +92,12 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
 }
 
 SoundCollection* AudioEngine::GetSoundCollection(SoundId sound_id) {
-  if (sound_id >= collections_.size()) {
+  if (sound_id >= static_cast<SoundId>(collections_.size())) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't play audio sample: invalid sound_id (%d)\n", sound_id);
     return nullptr;
   }
-  return &collections_[sound_id];
+  return collections_[sound_id].get();
 }
 
 static int AllocatedChannelCount() {
@@ -135,7 +138,7 @@ int AudioEngine::PriorityComparitor::operator()(
 
 // Sort channels with highest priority first.
 void AudioEngine::PrioritizeChannels(
-    const std::vector<SoundCollection>& sounds,
+    const SoundCollections& sounds,
     std::vector<PlayingSound>* playing_sounds) {
   std::sort(playing_sounds->begin(), playing_sounds->end(),
             PriorityComparitor(&sounds));
@@ -161,7 +164,7 @@ bool AudioEngine::PlaySource(SoundSource* const source, ChannelId channel_id,
   const float gain =
     source->audio_sample_set_entry().audio_sample()->gain() * def.gain();
   source->SetGain(channel_id, gain);
-  if (source->Play(channel_id, def.loop())) {
+  if (source->Play(channel_id, def.loop() != 0)) {
     return true;
   }
   return false;

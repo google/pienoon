@@ -339,7 +339,7 @@ uint8_t *Renderer::UnpackWebP(const void *webp_buf, size_t size,
   auto status = WebPGetFeatures(static_cast<const uint8_t *>(webp_buf), size,
                                 &features);
   if (status != VP8_STATUS_OK) return nullptr;
-  *has_alpha = features.has_alpha;
+  *has_alpha = features.has_alpha != 0;
   if (features.has_alpha) {
     return WebPDecodeRGBA(static_cast<const uint8_t *>(webp_buf), size,
                           &dimensions->x(), &dimensions->y());
@@ -349,7 +349,8 @@ uint8_t *Renderer::UnpackWebP(const void *webp_buf, size_t size,
   }
 }
 
-uint8_t *Renderer::LoadAndUnpackTexture(const char *filename, vec2i *dimensions,
+uint8_t *Renderer::LoadAndUnpackTexture(const char *filename,
+                                        vec2i *dimensions,
                                         bool *has_alpha) {
   std::string file;
   if (LoadFile(filename, &file)) {

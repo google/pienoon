@@ -35,7 +35,8 @@ mathfu::vec3 Particle::CurrentVelocity() const {
 }
 
 Quat Particle::CurrentOrientation() const {
-  return Quat::FromEulerAngles(base_orientation_ + rotational_velocity_ * age_);
+  return Quat::FromEulerAngles(base_orientation_ +
+                               rotational_velocity_ * age_);
 }
 
 TimeStep Particle::DurationRemaining() const {
@@ -51,7 +52,7 @@ mathfu::vec4 Particle::CurrentTint() const {
   return base_tint_ *
       (((duration_ - age_) < duration_of_fade_out_) ?
       (float)(duration_ - age_) / (float)duration_of_fade_out_ :
-      1.0);
+      1.0f);
 }
 
 void Particle::AdvanceFrame(TimeStep delta_time) {
@@ -67,7 +68,7 @@ mathfu::vec3 Particle::CurrentScale() const {
   return base_scale_ *
       (((duration_ - age_) < duration_of_shrink_out_) ?
       (float)(duration_ - age_) / (float)duration_of_shrink_out_ :
-      1.0);
+      1.0f);
 }
 
 void ParticleManager::AdvanceFrame(TimeStep delta_time) {

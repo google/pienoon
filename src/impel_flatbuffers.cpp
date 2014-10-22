@@ -21,7 +21,7 @@ namespace impel {
 
 void VelocityInitFromFlatBuffers(const VelocityParameters& params,
                                  ImpelInitWithVelocity* init) {
-  init->modular = params.modular();
+  init->modular = params.modular() != 0;
   init->min = params.min();
   init->max = params.max();
   init->max_delta = params.max_delta();

@@ -200,7 +200,8 @@ void GameState::Reset() {
     // Bigger props have a smaller shake scale. We want them to shake more
     // slowly, and with less amplitude.
     const float shake_scale = prop->shake_scale();
-    impel::OvershootImpelInit scaled_shake_init = impeller_inits[impeller_spec];
+    impel::OvershootImpelInit scaled_shake_init =
+        impeller_inits[impeller_spec];
     scaled_shake_init.min *= shake_scale;
     scaled_shake_init.max *= shake_scale;
     scaled_shake_init.accel_per_difference *= shake_scale;
@@ -265,7 +266,8 @@ void GameState::CreatePie(CharacterId original_source_id,
   UpdatePiePosition(pies_.back().get());
 }
 
-CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
+CharacterId GameState::DetermineDeflectionTarget(
+    const ReceivedPie& pie) const {
   switch (config_->pie_deflection_mode()) {
     case PieDeflectionMode_ToTargetOfTarget: {
       return characters_[pie.target_id]->target();
@@ -471,7 +473,8 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
   const auto& source = characters_[pie->source()];
   const auto& target = characters_[pie->target()];
 
-  const float time_since_launch = static_cast<float>(time_ - pie->start_time());
+  const float time_since_launch =
+      static_cast<float>(time_ - pie->start_time());
   float percent = time_since_launch / config_->pie_flight_time();
   percent = mathfu::Clamp(percent, 0.0f, 1.0f);
 
@@ -496,7 +499,8 @@ static bool CharacterScore(const std::unique_ptr<Character>& a,
   return a->score() < b->score();
 }
 
-static bool CharacterIsVictorious(const std::unique_ptr<Character>& character) {
+static bool CharacterIsVictorious(
+    const std::unique_ptr<Character>& character) {
   return character->victory_state() == kVictorious;
 }
 
@@ -614,9 +618,9 @@ int GameState::RequestedTurn(CharacterId id) const {
   const auto& character = characters_[id];
   const uint32_t logical_inputs = character->controller()->went_down();
   const int left_jump = arrangement_->character_data()->Get(id)->left_jump();
-  const int target_delta = (logical_inputs & LogicalInputs_Left) ? left_jump :
-                           (logical_inputs & LogicalInputs_Right) ? -left_jump :
-                           0;
+  const int target_delta =
+      (logical_inputs & LogicalInputs_Left) ? left_jump :
+      (logical_inputs & LogicalInputs_Right) ? -left_jump : 0;
   return target_delta;
 }
 
@@ -637,7 +641,7 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
 
   const CharacterId character_count =
       static_cast<CharacterId>(characters_.size());
-  for (CharacterId target_id = current_target + requested_turn;;
+  for (CharacterId target_id = current_target + requested_turn; ;
        target_id += requested_turn) {
     // Wrap around.
     if (target_id >= character_count) {
@@ -695,9 +699,9 @@ bool GameState::IsImmobile(CharacterId id) const {
   return CharacterState(id) == StateId_KO || NumActiveCharacters() <= 2;
 }
 
-// Calculate if we should fake turning this frame. We fake a turn to ensure that
-// we provide feedback to a user's turn request, even if the game state forbids
-// turning at this moment.
+// Calculate if we should fake turning this frame. We fake a turn to ensure
+// that we provide feedback to a user's turn request, even if the game state
+// forbids turning at this moment.
 // Returns 0 if we should not fake a turn. 1 if we should fake turn towards the
 // next character id. -1 if we should fake turn towards the previous character
 // id.
@@ -764,8 +768,8 @@ void GameState::SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
         mathfu::RandomInRange<int>(0, def->renderable()->size())));
     p->set_base_tint(LoadVec4(def->tint()->Get(
         mathfu::RandomInRange<int>(0, def->tint()->size()))));
-    p->set_duration(mathfu::RandomInRange<int>(
-        def->min_duration(), def->max_duration()));
+    p->set_duration(static_cast<float>(mathfu::RandomInRange<int32_t>(
+        def->min_duration(), def->max_duration())));
     p->set_base_position(position + vec3::RandomInRange(min_position_offset,
         max_position_offset));
     p->set_base_orientation(vec3::RandomInRange(min_orientation_offset,
@@ -773,16 +777,17 @@ void GameState::SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
     p->set_rotational_velocity(vec3::RandomInRange(
                                min_angular_velocity,
                                max_angular_velocity));
-    p->set_duration_of_shrink_out(def->shrink_duration());
-    p->set_duration_of_fade_out(def->fade_duration());
+    p->set_duration_of_shrink_out(
+        static_cast<TimeStep>(def->shrink_duration()));
+    p->set_duration_of_fade_out(static_cast<TimeStep>(def->fade_duration()));
   }
 }
 
 void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
-  // Increment the world time counter. This happens at the start of the function
-  // so that functions that reference the current world time will include the
-  // delta_time. For example, GetAnimationTime needs to compare against the
-  // time for *this* frame, not last frame.
+  // Increment the world time counter. This happens at the start of the
+  // function so that functions that reference the current world time will
+  // include the delta_time. For example, GetAnimationTime needs to compare
+  // against the time for *this* frame, not last frame.
   time_ += delta_time;
   if (config_->game_mode() == GameMode_HighScore) {
     int countdown = (config_->game_time() - time_) / kMillisecondsPerSecond;
@@ -818,7 +823,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   }
 
   // Update all the particles.
-  particle_manager_.AdvanceFrame(delta_time);
+  particle_manager_.AdvanceFrame(static_cast<TimeStep>(delta_time));
 
   // Update pies. Modify state machine input when character hit by pie.
   for (auto it = pies_.begin(); it != pies_.end(); ) {
@@ -916,7 +921,8 @@ static const mat4 CalculateAccessoryMatrix(
   const vec3 scale3d(scale[0], scale[1], 1.0f);
   const mat4 offset_matrix = mat4::FromTranslationVector(offset);
   const mat4 scale_matrix = mat4::FromScaleVector(scale3d);
-  const mat4 accessory_matrix = character_matrix * offset_matrix * scale_matrix;
+  const mat4 accessory_matrix =
+      character_matrix * offset_matrix * scale_matrix;
   return accessory_matrix;
 }
 
@@ -924,7 +930,8 @@ static mat4 CalculatePropWorldMatrix(const Prop& prop, Angle shake) {
   const vec3 scale = LoadVec3(prop.scale());
   const vec3 position = LoadVec3(prop.position());
   const Angle rotation = Angle::FromDegrees(prop.rotation());
-  const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(), mathfu::kAxisY3f);
+  const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(),
+                                        mathfu::kAxisY3f);
   const vec3 shake_axis = LoadAxis(prop.shake_axis());
   const Quat shake_quat = Quat::FromAngleAxis(shake.ToRadians(), shake_axis);
   const vec3 shake_center(prop.shake_center() == nullptr ? mathfu::kZeros3f :
@@ -1018,7 +1025,7 @@ void GameState::PopulateCharacterAccessories(
                           + accessories[j].offset);
       const vec2 scale(LoadVec2(accessory->scale()));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(accessory->renderable(),
+          new Renderable(static_cast<uint16_t>(accessory->renderable()),
               CalculateAccessoryMatrix(location, scale, character_matrix,
                                        renderable_id, num_accessories,
                                        *config_))));
@@ -1052,7 +1059,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
     auto props = config_->props();
     for (size_t i = 0; i < props->Length(); ++i) {
       const Prop& prop = *props->Get(i);
-      const Angle shake(prop_shake_[i].Valid() ? prop_shake_[i].Value() : 0.0f);
+      const Angle shake(prop_shake_[i].Valid() ?
+                        prop_shake_[i].Value() : 0.0f);
       scene->renderables().push_back(std::unique_ptr<Renderable>(
           new Renderable(static_cast<uint16_t>(prop.renderable()),
                          CalculatePropWorldMatrix(prop, shake))));
@@ -1185,7 +1193,7 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
     scene->renderables().push_back(std::unique_ptr<Renderable>(
         new Renderable(
-            config_->draw_fixed_renderable(),
+            static_cast<uint16_t>(config_->draw_fixed_renderable()),
             mat4::FromRotationMatrix(
                 Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
   }
@@ -1193,7 +1201,8 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   if (config_->draw_character_lineup()) {
     static const int kFirstRenderableId = RenderableId_CharacterIdle;
     static const int kLastRenderableId = RenderableId_CharacterWin;
-    static const int kNumRenderableIds = kLastRenderableId - kFirstRenderableId;
+    static const int kNumRenderableIds =
+        kLastRenderableId - kFirstRenderableId;
     static const float kXSeparation = 2.5f;
     static const float kZSeparation = 0.5f;
     static const float kXOffset = -kXSeparation * 0.5f * kNumRenderableIds;

@@ -30,7 +30,7 @@ namespace splat {
 // transparent.
 class FullScreenFader {
  public:
-  FullScreenFader(Renderer& renderer);
+  FullScreenFader(Renderer* renderer);
   ~FullScreenFader() {}
 
   // Starts the fade.
@@ -74,7 +74,7 @@ class FullScreenFader {
   mathfu::mat4 ortho_mat_;
   // Extents of the fade region.
   mathfu::vec2i extents_;
-  Renderer& renderer_;
+  Renderer* renderer_;
   // Material used to render the overlay.
   Material* material_;
   // Shader used to render the overlay material.

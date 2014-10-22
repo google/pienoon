@@ -52,7 +52,7 @@ class IdMap {
     ImpelId id = 0;
     if (ids_to_recycle_.empty()) {
       // Allocate a new id from the end of id_to_index_.
-      id = id_to_index_.size();
+      id = static_cast<ImpelId>(id_to_index_.size());
       id_to_index_.resize(id + 1);
 
     } else {
@@ -70,10 +70,10 @@ class IdMap {
   // of it. Return 'id' to the list of eligable ids to allocate.
   void Free(ImpelId id) {
     // Plug hole in data_.
-    const int index = Index(id);
-    const int last_index = data_.size() - 1;
+    const DataIndex index = Index(id);
+    const DataIndex last_index = static_cast<DataIndex>(data_.size() - 1);
     if (index != last_index) {
-      const int last_id = Id(last_index);
+      const DataIndex last_id = Id(last_index);
       assert(last_id != kImpelIdInvalid);
 
       // Move last item in data_ to the index being deleted.
@@ -95,20 +95,21 @@ class IdMap {
 
  private:
   // Returns the index corresponding to an id. Fast.
-  int Index(ImpelId id) const {
+  DataIndex Index(ImpelId id) const {
     assert(0 <= id && id < static_cast<ImpelId>(id_to_index_.size()));
-    const int index = id_to_index_[id];
+    const DataIndex index = id_to_index_[id];
     assert(index != kInvalidIndex);
     return index;
   }
 
   // Returns an id corresponding to an index. Slow. Should be called
   // infrequently.
-  ImpelId Id(int index) const {
+  ImpelId Id(DataIndex index) const {
     // Get id for the last index in data.
-    for (int id = 0; id < static_cast<int>(id_to_index_.size()); ++id) {
+    for (DataIndex id = 0; id < static_cast<DataIndex>(id_to_index_.size());
+         ++id) {
       if (id_to_index_[id] == index)
-        return id;
+        return static_cast<ImpelId>(id);
     }
     return kImpelIdInvalid;
   }
@@ -124,8 +125,8 @@ class IdMap {
   // so that the id_to_index_ map doesn't grow without bound.
   std::vector<ImpelId> ids_to_recycle_;
 
-  // A packed array of (template defined) data. There are no holes in this data.
-  // No holes allows for good memory cohesion and possible optimizations.
+  // A packed array of (template defined) data. There are no holes in this
+  // data. No holes allows for good memory cohesion and possible optimizations.
   std::vector<ImpelData> data_;
 };
 

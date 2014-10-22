@@ -42,35 +42,37 @@ class Particle {
 
   mathfu::vec3 base_position() const { return base_position_; }
 
-  void set_base_position(mathfu::vec3 base_position) {
+  void set_base_position(const mathfu::vec3& base_position) {
     base_position_ = base_position;
   }
 
   mathfu::vec3 base_velocity() const { return base_velocity_; }
-  void set_base_velocity(mathfu::vec3 base_velocity) {
+  void set_base_velocity(const mathfu::vec3& base_velocity) {
     base_velocity_ = base_velocity;
   }
 
   mathfu::vec3 acceleration() const { return acceleration_; }
-  void set_acceleration(mathfu::vec3 acceleration) {
+  void set_acceleration(const mathfu::vec3& acceleration) {
     acceleration_ = acceleration;
   }
 
   mathfu::vec3 base_orientation() const { return base_orientation_; }
-  void set_base_orientation(mathfu::vec3 base_orientation) {
+  void set_base_orientation(const mathfu::vec3& base_orientation) {
     base_orientation_ = base_orientation;
   }
 
   mathfu::vec3 rotational_velocity() const { return rotational_velocity_; }
-  void set_rotational_velocity(mathfu::vec3 rotational_velocity) {
+  void set_rotational_velocity(const mathfu::vec3& rotational_velocity) {
     rotational_velocity_ = rotational_velocity;
   }
 
   mathfu::vec4 base_tint() const { return base_tint_; }
-  void set_base_tint(mathfu::vec4 base_tint) { base_tint_ = base_tint; }
+  void set_base_tint(const mathfu::vec4& base_tint) { base_tint_ = base_tint; }
 
   mathfu::vec3 base_scale() const { return base_scale_; }
-  void set_base_scale(mathfu::vec3 base_scale) { base_scale_ = base_scale; }
+  void set_base_scale(const mathfu::vec3& base_scale) {
+    base_scale_ = base_scale;
+  }
 
   TimeStep duration_of_fade_out() const { return duration_of_fade_out_; }
   void set_duration_of_fade_out(TimeStep duration_of_fade_out) {

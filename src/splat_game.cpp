@@ -72,7 +72,7 @@ SplatGame::SplatGame()
       prev_world_time_(0),
       debug_previous_states_(),
       button_focus_(1),
-      full_screen_fader_(renderer_),
+      full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized)
 {
 }
@@ -271,7 +271,8 @@ bool SplatGame::InitializeRenderingAssets() {
   if (!shadow_mat_) return false;
 
   // Load materials for splash screen:
-  auto finished_elements = config.two_dimensional_elements_for_finished_state();
+  auto finished_elements =
+    config.two_dimensional_elements_for_finished_state();
   materials_for_finished_state_.resize(finished_elements->Length());
   for (size_t i = 0; i < finished_elements->Length(); ++i) {
     auto two_dimensional_element = finished_elements->Get(i);
@@ -590,7 +591,7 @@ void SplatGame::Render2DElements() {
       Mesh::RenderAAQuadAlongX(vec3(x, y + height, z), vec3(x + width, y, z),
                                vec2(0, 1), vec2(1, 0));
 
-      z += 0.01;
+      z += 0.01f;
     }
     // Render menu controls.
     for (size_t i = 0; i < menu_button_controls_.size(); i++) {
@@ -1166,7 +1167,9 @@ void SplatGame::Run() {
           static_cast<float>(kMillisecondsPerSecond);
         auto rot_mat = mat3::RotationZ(time * 3.0f);
         renderer_.model_view_projection() = ortho_mat *
-            mat4::FromTranslationVector(vec3(mid.x(), mid.y() * 0.7, 0)) *
+            mat4::FromTranslationVector(
+                vec3(static_cast<float>(mid.x()),
+                     static_cast<float>(mid.y()) * 0.7f, 0.0f)) *
             mat4::FromRotationMatrix(rot_mat);
         auto extend = vec2(spinmat->textures()[0]->size());
         renderer_.color() = mathfu::kOnes4f;
@@ -1180,7 +1183,8 @@ void SplatGame::Run() {
         extend = vec2(logomat->textures()[0]->size()) / 10;
         renderer_.model_view_projection() = ortho_mat *
             mat4::FromTranslationVector(
-                vec3(mid.x(), res.y() * 0.7, 0));
+                vec3(static_cast<float>(mid.x()),
+                     static_cast<float>(res.y()) * 0.7f, 0.0f));
         renderer_.color() = mathfu::kOnes4f;
         logomat->Set(renderer_);
         shader_textured_->Set(renderer_);

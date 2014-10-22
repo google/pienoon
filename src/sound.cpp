@@ -79,9 +79,9 @@ bool SoundStream::Play(ChannelId channel_id, bool loop) {
                      // more than one channel of streaming audio.
   int loops = loop ? kLoopForever : kPlayOnce;
   if (Mix_PlayMusic(data_, loops) == kPlayStreamError) {
-    return false;
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Can't play music: %s\n", Mix_GetError());
+    return false;
   }
   return true;
 }

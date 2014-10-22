@@ -41,7 +41,7 @@ enum TextureFormat {
 class Texture : public AsyncResource {
  public:
   Texture(Renderer &renderer, const std::string &filename)
-    : AsyncResource(filename), renderer_(renderer), id_(0),
+    : AsyncResource(filename), renderer_(&renderer), id_(0),
       size_(mathfu::kZeros2i), has_alpha_(false), desired_(kFormatAuto) {}
 
   virtual void Load();
@@ -53,7 +53,7 @@ class Texture : public AsyncResource {
   void set_desired_format(TextureFormat format) { desired_ = format; }
 
  private:
-  Renderer &renderer_;
+  Renderer *renderer_;
 
   GLuint id_;
   vec2i size_;

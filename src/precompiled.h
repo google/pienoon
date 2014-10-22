@@ -17,6 +17,7 @@
 
 #include <assert.h>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <math.h>
 #include <stdio.h>

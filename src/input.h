@@ -160,8 +160,8 @@ class InputSystem {
   }
 
   // Get a Button object for a pointer index.
-  Button &GetPointerButton(int pointer) {
-    return GetButton(pointer + SDLK_POINTER1);
+  Button &GetPointerButton(SDL_FingerID pointer) {
+    return GetButton(static_cast<int>(pointer + SDLK_POINTER1));
   }
 
   void OpenConnectedJoysticks();

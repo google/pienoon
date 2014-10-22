@@ -29,7 +29,8 @@ class ImpelProcessorBase {
  public:
   virtual ~ImpelProcessorBase() {}
 
-  // Advance the simulation by delta_time. Should only be called by ImpelEngine.
+  // Advance the simulation by delta_time. Should only be called by
+  // ImpelEngine.
   virtual void AdvanceFrame(ImpelTime delta_time) = 0;
 
   // Creation an impeller and return a unique id representing it.
@@ -134,7 +135,7 @@ struct ImpelProcessorFunctions {
 // for the ImpelEngine to access impellers of your type.
 #define IMPEL_PROCESSOR_REGISTER(Type, InitType) \
     static ImpelProcessorBase* Create() { return new Type(); } \
-    static void Destroy(ImpelProcessorBase* p) { return delete p; } \
+    static void Destroy(ImpelProcessorBase* p) { delete p; } \
     static void Register() { \
       const ImpelProcessorFunctions functions(Create, Destroy); \
       ImpelEngine::RegisterProcessorFactory(InitType::kType, functions); \

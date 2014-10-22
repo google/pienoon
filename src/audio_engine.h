@@ -35,6 +35,8 @@ using splat::SoundId;
 
 class AudioEngine {
  public:
+  typedef std::vector<std::unique_ptr<SoundCollection>> SoundCollections;
+
   ~AudioEngine();
 
   bool Initialize(const AudioConfig* config);
@@ -81,11 +83,11 @@ class AudioEngine {
 
   class PriorityComparitor {
    public:
-    PriorityComparitor(const std::vector<SoundCollection>* collections)
+    PriorityComparitor(const SoundCollections* collections)
         : collections_(collections) {}
     int operator()(const PlayingSound& a, const PlayingSound& b);
    private:
-    const std::vector<SoundCollection>* collections_;
+    const SoundCollections* collections_;
   };
 
   // Return true if the given AudioEngine::PlayingSound has finished playing.
@@ -95,7 +97,7 @@ class AudioEngine {
   void ClearFinishedSounds();
 
   static void PrioritizeChannels(
-    const std::vector<SoundCollection>& collections,
+    const SoundCollections& collections,
     std::vector<PlayingSound>* playing_sounds);
 
   // Play a source selected from a collection on the specified channel.
@@ -106,7 +108,7 @@ class AudioEngine {
   std::string buses_source_;
 
   // Hold the sounds.
-  std::vector<SoundCollection> collections_;
+  SoundCollections collections_;
 
   // The number of sounds currently playing.
   std::vector<PlayingSound> playing_sounds_;
