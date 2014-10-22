@@ -39,6 +39,7 @@ enum ButtonInputType : ushort (bit_flags) {
   ToggleLogIn,
   ShowLicense,
   Title,
+  Unpause
 }
 
 enum GameMode : ushort {
@@ -522,6 +523,7 @@ table Config {
   // Button layouts:
   touchscreen_zones:[ButtonDef];
   title_screen_buttons:[ButtonDef];
+  pause_screen_buttons:[ButtonDef];
 
   // Splash screen, etc.
   two_dimensional_elements_for_finished_state:[TwoDimensionalElement];

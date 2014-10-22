@@ -6,26 +6,42 @@ namespace splat {
 
 TouchscreenButton::TouchscreenButton() {}
 
-bool TouchscreenButton::HandlePointer(Pointer pointer, vec2 window_size) {
+static bool HandlePointer(const ButtonDef& def, const Pointer& pointer,
+                          vec2 window_size) {
   if (pointer.used &&
-      pointer.mousepos.x()/window_size.x() >= button_def_->top_left()->x() &&
-      pointer.mousepos.y()/window_size.y() >= button_def_->top_left()->y() &&
-      pointer.mousepos.x()/window_size.x() <= button_def_->bottom_right()->x() &&
-      pointer.mousepos.y()/window_size.y() <= button_def_->bottom_right()->y()) {
-    return button_state_ = true;
+      pointer.mousepos.x() / window_size.x() >= def.top_left()->x() &&
+      pointer.mousepos.y() / window_size.y() >= def.top_left()->y() &&
+      pointer.mousepos.x() / window_size.x() <= def.bottom_right()->x() &&
+      pointer.mousepos.y() / window_size.y() <= def.bottom_right()->y()) {
+    return true;
   }
   return false;
 }
 
+void TouchscreenButton::AdvanceFrame(InputSystem* input, vec2 window_size) {
+  button_.AdvanceFrame();
+  bool down = false;
+  for (size_t i = 0; i < input->pointers_.size(); i++) {
+    const Pointer& pointer = input->pointers_[i];
+    if (pointer.used &&
+        input->GetPointerButton(pointer.id).is_down() &&
+        HandlePointer(*button_def_, pointer, window_size)) {
+      down = true;
+      break;
+    }
+  }
+  button_.Update(down);
+}
+
 void TouchscreenButton::Render(Renderer& renderer, bool highlight, float time) {
   const vec2 window_size = vec2(renderer.window_size());
-  Material* mat = button_state_ ? down_material_ : up_material_;
+  Material* mat = button_.is_down() ? down_material_ : up_material_;
 
   if (!mat) return;  // This is an invisible button.
 
   vec2 base_size = LoadVec2(highlight
                       ? button_def_->draw_scale_highlighted()
-                      : (button_state_
+                      : (button_.is_down()
                          ? button_def_->draw_scale_pressed()
                          : button_def_->draw_scale_normal()));
 
@@ -49,5 +65,4 @@ void TouchscreenButton::Render(Renderer& renderer, bool highlight, float time) {
 
 }  // splat
 }  // fpl
-
 

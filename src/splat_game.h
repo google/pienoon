@@ -18,8 +18,8 @@
 #include "ai_controller.h"
 #include "audio_engine.h"
 #include "full_screen_fader.h"
-#include "gamepad_controller.h"
 #include "game_state.h"
+#include "gamepad_controller.h"
 #include "input.h"
 #include "material_manager.h"
 #include "player_controller.h"
@@ -43,6 +43,7 @@ enum SplatState {
   kLoadingInitialMaterials,
   kLoading,
   kPlaying,
+  kPaused,
   kFinished
 };
 
@@ -84,8 +85,9 @@ class SplatGame {
   ControllerId AddController(Controller* new_controller);
   Controller * GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
-  void HandlePlayersJoining();
+  void HandlePlayersJoining(Controller* controller);
   void HandleMenuButtons();
+  void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons();
 
@@ -164,6 +166,7 @@ class SplatGame {
 
   std::vector<TouchscreenButton> game_button_controls_;
   std::vector<TouchscreenButton> menu_button_controls_;
+  std::vector<TouchscreenButton> pause_button_controls_;
   size_t button_focus_;  // TODO: should be in class together with buttons?
 
   std::map<SDL_JoystickID, ControllerId> joystick_to_controller_map_;

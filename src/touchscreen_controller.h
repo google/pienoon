@@ -15,20 +15,17 @@
 #ifndef TOUCHSCREEN_CONTROLLER_H_
 #define TOUCHSCREEN_CONTROLLER_H_
 
-#include <vector>
-
 #include "precompiled.h"
-
+#include <vector>
 #include "SDL_keycode.h"
-#include "controller.h"
-#include "player_controller.h"
-#include "input.h"
-#include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
-#include "splat_common_generated.h" // TODO: put in alphabetical order when
-                                    // FlatBuffers predeclare bug fixed.
 #include "audio_config_generated.h"
+#include "character_state_machine_def_generated.h"
 #include "config_generated.h"
+#include "controller.h"
+#include "input.h"
+#include "player_controller.h"
+#include "splat_common_generated.h"
+#include "timeline_generated.h"
 
 namespace fpl {
 namespace splat {
@@ -51,11 +48,15 @@ class TouchscreenController : public Controller {
 
   void HandleTouchButtonInput(int input, bool value);
 
+  Button& unpause_button() { return unpause_button_; }
+
  private:
   // A pointer to the object to query for the current input state.
   InputSystem* input_system_;
   vec2 window_size_;
   const Config* config_;
+  // Special value for requesting to unpause the game.
+  Button unpause_button_;
 };
 
 }  // splat

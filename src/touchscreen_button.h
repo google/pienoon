@@ -32,11 +32,11 @@ class TouchscreenButton
  public:
   TouchscreenButton();
 
-  bool HandlePointer(Pointer pointer, vec2 window_size);
+  void AdvanceFrame(InputSystem* input, vec2 window_size);
+
   void Render(Renderer& renderer, bool highlight, float time);
 
-  bool button_state() const { return button_state_; }
-  void set_button_state(bool button_state) { button_state_ = button_state; }
+  Button& button() { return button_; }
 
   vec2 position() const { return position_; }
   void set_position(vec2 position) { position_ = position; }
@@ -63,7 +63,7 @@ class TouchscreenButton
   void set_shader(Shader* shader) { shader_ = shader; }
 
  private:
-  bool button_state_;
+  Button button_;
 
   vec2 position_;
   float z_depth_;

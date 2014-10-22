@@ -24,7 +24,8 @@ namespace splat {
 
 TouchscreenController::TouchscreenController()
   : Controller(kTypeTouchScreen),
-    input_system_(nullptr) {}
+    input_system_(nullptr),
+    unpause_button_() {}
 
 // The touchscreen mapping is defined in the config.fbs file.
 // It currently looks like this:
@@ -53,8 +54,8 @@ void TouchscreenController::Initialize(InputSystem* input_system,
 // Called from outside, based on screen touches.
 // Basically just translates button inputs into logical inputs.
 void TouchscreenController::HandleTouchButtonInput(int input, bool value) {
-
   int logicalInput = 0;
+  bool unpause = false;
   switch (input) {
     case ButtonInputType_Left:
       logicalInput = LogicalInputs_Left;
@@ -68,16 +69,21 @@ void TouchscreenController::HandleTouchButtonInput(int input, bool value) {
     case ButtonInputType_Defend:
       logicalInput = LogicalInputs_Deflect;
       break;
+    case ButtonInputType_Unpause:
+      unpause = value;
+      break;
     default:
       break;
   }
+  unpause_button_.Update(unpause);
   SetLogicalInputs(logicalInput, value);
 }
 
-
 void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
   went_down_ = went_up_ = 0;
+  unpause_button_.AdvanceFrame();
 }
 
 }  // splat
 }  // fpl
+
