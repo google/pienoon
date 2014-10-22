@@ -41,7 +41,7 @@ namespace splat {
 static const int kQuadNumVertices = 4;
 static const int kQuadNumIndices = 6;
 
-static const int kQuadIndices[] = { 0, 1, 2, 2, 1, 3 };
+static const unsigned short kQuadIndices[] = { 0, 1, 2, 2, 1, 3 };
 
 static const Attribute kQuadMeshFormat[] =
     { kPosition3f, kTexCoord2f, kNormal3f, kTangent4f, kEND };

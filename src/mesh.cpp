@@ -99,7 +99,7 @@ Mesh::~Mesh() {
   }
 }
 
-void Mesh::AddIndices(const int *index_data, int count, Material *mat) {
+void Mesh::AddIndices(const unsigned short *index_data, int count, Material *mat) {
   indices_.push_back(Indices());
   auto &idxs = indices_.back();
   idxs.count = count;
@@ -115,17 +115,17 @@ void Mesh::Render(Renderer &renderer, bool ignore_material) {
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
     if (!ignore_material) it->mat->Set(renderer);
     GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo));
-    GL_CALL(glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0));
+    GL_CALL(glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_SHORT, 0));
   }
   UnSetAttributes(format_);
 }
 
 void Mesh::RenderArray(GLenum primitive, int index_count,
                        const Attribute *format, int vertex_size,
-                       const char *vertices, const int *indices) {
+                       const char *vertices, const unsigned short *indices) {
   SetAttributes(0, format, vertex_size, vertices);
   GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-  GL_CALL(glDrawElements(primitive, index_count, GL_UNSIGNED_INT, indices));
+  GL_CALL(glDrawElements(primitive, index_count, GL_UNSIGNED_SHORT, indices));
   UnSetAttributes(format);
 }
 
@@ -133,7 +133,7 @@ void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
                               const vec2 &tex_bottom_left,
                               const vec2 &tex_top_right) {
   static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
-  static int indices[] = { 0, 1, 2, 1, 2, 3 };
+  static unsigned short indices[] = { 0, 1, 2, 1, 2, 3 };
   // vertex format is [x, y, z] [u, v]:
   float vertices[] = {
     bottom_left.x(), bottom_left.y(), bottom_left.z(),
@@ -151,7 +151,7 @@ void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
 
 // Compute normals and tangents for a mesh based on positions and texcoords.
 void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
-                                   const int *indices,
+                                   const unsigned short *indices,
                                    int numverts,
                                    int numindices) {
   std::vector<vec3> binormals(numverts, mathfu::kZeros3f);
