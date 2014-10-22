@@ -44,6 +44,11 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
   // Always double buffer.
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+  // Set back buffer format to 565
+  SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+
   // Create the window:
   window_ = SDL_CreateWindow(
     window_title,
