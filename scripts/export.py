@@ -36,7 +36,7 @@ EXPORT_DIRECTORIES = [
 EXPORT_FILES = [
     'run.command',
     'run.bat',
-    'scripts/build_assets.mk'
+    'scripts/build_assets.py'
 ]
 
 
