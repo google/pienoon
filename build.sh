@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export ANDROID_SDK_HOME=$(cd $(dirname $(which android))/..; pwd)
+export ANDROID_SDK_HOME=$(cd $(dirname $(which android))/../..; pwd)
 
 main() {
   local output_dir=
