@@ -16,6 +16,24 @@
 
 export ANDROID_SDK_HOME=$(cd $(dirname $(which android))/../..; pwd)
 
+package_version() {
+  grep Revision $ANDROID_SDK_HOME/$1/source.properties | sed 's/.*=//;s/\(\.0\)*$//'
+}
+
+# Updates a package if the revision in the target directory is not what is
+# expected
+#
+# Args:
+#   1: package name
+#   2: package directory
+update_package() {
+  line="$(android list sdk -a -u | awk "/$1/ {print \$0; exit 0}")"
+  version="$(echo $line | awk '{print $NF}')"
+  if [[ $version != $(package_version $2) ]]; then
+    echo 'y' | android update sdk -u -a -t $(echo $line | awk -F- '{print $1}')
+  fi
+}
+
 main() {
   local output_dir=
   local dist_dir=
@@ -25,6 +43,16 @@ main() {
        d ) dist_dir=${OPTARG};;
      esac
   done
+
+  # Make sure we have all the latest tools installed.
+  android list sdk -a -u
+  update_package 'Android SDK Tools,' sdk/tools/
+  update_package 'Android SDK Platform-tools,' sdk/platform-tools/
+  update_package 'Android SDK Build-tools,' sdk/build-tools/20.0.0/
+
+  # Make sure Google Play services is installed.
+  android list sdk -a -u
+  update_package 'Google Play services,' sdk/extras/google/google_play_services/
 
   find $ANDROID_SDK_HOME -name google-play-services_lib
   cd vendor/unbundled_google/packages/splat
