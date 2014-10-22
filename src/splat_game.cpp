@@ -887,9 +887,13 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
                  Controller::kTypeAI);
         }
       }
-      UploadEvents();
-      // For now, we always show leaderboards when a round ends:
-      UploadAndShowLeaderboards();
+      // This should only happen if we just finished a game, not if we
+      // end up in this state after loading.
+      if (state_ == kPlaying) {
+        UploadEvents();
+        // For now, we always show leaderboards when a round ends:
+        UploadAndShowLeaderboards();
+      }
       break;
     }
 
