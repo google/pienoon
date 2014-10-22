@@ -822,6 +822,9 @@ SplatState SplatGame::UpdateSplatState() {
         FadeToSplatState(kPlaying, GetConfig().full_screen_fade_time(),
                          mathfu::kZeros4f, true);
       }
+      if (input_.GetButton(SDLK_AC_BACK).went_down()) {
+        input_.exit_requested_ = true;
+      }
       break;
     }
 
