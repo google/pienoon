@@ -405,7 +405,7 @@ bool SplatGame::Initialize(const char* const binary_directory) {
   if (!InitializeGameState())
     return false;
 
-# ifdef PLATFORM_MOBILE
+# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
   if (!gpg_manager.Initialize())
     return false;
 # endif
@@ -877,7 +877,7 @@ void SplatGame::FadeToSplatState(SplatState next_state,
   }
 }
 
-#ifdef PLATFORM_MOBILE
+#ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
 static GPGManager::GPGIds gpg_ids[] = {
   { "CgkI97yope0IEAIQAw", "CgkI97yope0IEAIQCg" },  // kWins
   { "CgkI97yope0IEAIQBA", "CgkI97yope0IEAIQCw" },  // kLosses
@@ -892,7 +892,7 @@ static_assert(sizeof(gpg_ids) / sizeof(GPGManager::GPGIds) ==
 #endif
 
 void SplatGame::UploadEvents() {
-# ifdef PLATFORM_MOBILE
+# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
   // Now upload all stats:
   // TODO: this assumes player 0 == the logged in player.
   for (int ps = kWins; ps < kMaxStats; ps++) {
@@ -903,7 +903,7 @@ void SplatGame::UploadEvents() {
 }
 
 void SplatGame::UploadAndShowLeaderboards() {
-# ifdef PLATFORM_MOBILE
+# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
   gpg_manager.ShowLeaderboards(gpg_ids, sizeof(gpg_ids) /
                                         sizeof(GPGManager::GPGIds));
 # endif
@@ -995,9 +995,9 @@ SplatState SplatGame::HandleMenuButtons() {
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
     case ButtonId_ToggleLogIn:
-#           ifdef PLATFORM_MOBILE
+#     ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
       gpg_manager.ToggleSignIn();
-#           endif
+#     endif
       break;
     case ButtonId_ShowLicense:
       // TODO: show license
@@ -1135,7 +1135,7 @@ void SplatGame::Run() {
         // For testing, show UI:
         UploadAndShowLeaderboards();
       }
-#     ifdef PLATFORM_MOBILE
+#     ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
       gpg_manager.Update();
 #     endif
     } else {

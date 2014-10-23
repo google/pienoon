@@ -15,6 +15,10 @@
 #ifndef SPLAT_GAME_H
 #define SPLAT_GAME_H
 
+#ifdef PLATFORM_MOBILE
+#define SPLAT_USES_GOOGLE_PLAY_GAMES
+#endif
+
 #include "ai_controller.h"
 #include "audio_engine.h"
 #include "full_screen_fader.h"
@@ -28,7 +32,7 @@
 #include "scene_description.h"
 #include "touchscreen_button.h"
 #include "touchscreen_controller.h"
-#ifdef PLATFORM_MOBILE
+#ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
 #include "gpg_manager.h"
 #endif
 
@@ -173,7 +177,7 @@ class SplatGame {
   // State to enter after the fade is complete.
   SplatState fade_exit_state_;
 
-# ifdef PLATFORM_MOBILE
+# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
 # endif
 };
