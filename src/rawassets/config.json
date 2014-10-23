@@ -537,7 +537,7 @@
           "ID" : "Title",
           "texture_normal" : "materials/splash_info.bin",
           "texture_pressed" : "materials/splash_info.bin",
-          "texture_position" : { "x": 0.5, "y": 0.55 },
+          "texture_position" : { "x": 0.555, "y": 0.435 },
           "shader" : "shaders/textured",
           "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
