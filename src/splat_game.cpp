@@ -999,9 +999,25 @@ SplatState SplatGame::HandleMenuButtons() {
       gpg_manager.ToggleSignIn();
 #     endif
       break;
-    case ButtonId_ShowLicense:
-      // TODO: show license
+    case ButtonId_ShowLicense: {
+      std::string licenses;
+      if (!LoadFile("licenses.txt", &licenses)) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load licenses.txt");
+        break;
+      }
+#     ifdef __ANDROID__
+      JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+      jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+      jclass fpl_class = env->GetObjectClass(activity);
+      jmethodID method_id = env->GetMethodID(fpl_class, "showTextDialog",
+                                             "(Ljava/lang/String;)V");
+      jstring text = env->NewStringUTF(licenses.c_str());
+      env->CallVoidMethod(activity, method_id, text);
+      env->DeleteLocalRef(text);
+      env->DeleteLocalRef(activity);
+#     endif
       break;
+    }
     case ButtonId_Title:
       // Perform regular behavior of letting players join:
       HandlePlayersJoining(menu_selection.controller_id != kTouchController ?
