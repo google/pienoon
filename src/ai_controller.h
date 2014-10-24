@@ -46,6 +46,7 @@ class AiController : public Controller {
 
  private:
   bool IsInDanger(CharacterId id) const;
+  WorldTime block_timer_;   // How many milliseconds we need to block.
 
   GameState* gamestate_; // Pointer to the gamestate object
   const Config* config_; // Pointer to the config structure

@@ -31,11 +31,20 @@ void AiController::Initialize(GameState* gamestate,
   config_ = config;
   character_id_ = character_id;
   time_to_next_action_ = 0;
+  block_timer_ = 0;
 }
 
 void AiController::AdvanceFrame(WorldTime delta_time) {
   ClearAllLogicalInputs();
   time_to_next_action_ -= delta_time;
+
+  // if we're blocking, keep blocking.
+  if (block_timer_ > 0) {
+    block_timer_ -= delta_time;
+    SetLogicalInputs(LogicalInputs_Deflect, true);
+    return;
+  }
+
   if (time_to_next_action_ > 0) {
     return;
   }
@@ -69,6 +78,9 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
 
   if (IsInDanger(character_id_) &&
       mathfu::Random<float>() < config_->ai_chance_to_block()) {
+    block_timer_ = mathfu::RandomInRange<WorldTime>(
+          config_->ai_block_min_duration(),
+          config_->ai_block_max_duration());
     SetLogicalInputs(LogicalInputs_Deflect, true);
   }
 }

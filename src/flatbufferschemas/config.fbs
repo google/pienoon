@@ -530,11 +530,22 @@ table Config {
   confetti_def:ParticleDef;
 
   // AI options
+  // Variance for how long AI players go without acting:
   ai_minimum_time_between_actions:int;
   ai_maximum_time_between_actions:int;
+
+  // Chance (0-1) that they'll block a pie flung at them, if able.
   ai_chance_to_block:float;
+
+  // Chance (0-1) that they'll change who they're aiming at when they act.
   ai_chance_to_change_aim:float;
+
+  // Chance (0-1) that they'll throw their pie when they act.
   ai_chance_to_throw:float;
+
+  // Duration range (in milliseconds) that the AI will block for if threatened.
+  ai_block_min_duration:int;
+  ai_block_max_duration:int;
 
   // UI options
   //
