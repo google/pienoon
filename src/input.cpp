@@ -290,13 +290,10 @@ size_t InputSystem::UpdateDragPosition(const SDL_TouchFingerEvent &e,
   return 0;
 }
 
-
-
 void InputSystem::UpdateConnectedJoystickList(){
   CloseOpenJoysticks();
   OpenConnectedJoysticks();
 }
-
 
 void InputSystem::OpenConnectedJoysticks(){
   // Make sure we're set up to receive events from these.
@@ -319,13 +316,14 @@ void InputSystem::CloseOpenJoysticks(){
   }
 }
 
-
 void Button::Update(bool down) {
+  if (!is_down_ && down) {
+    went_down_ = true;
+  } else if (is_down_ && !down) {
+    went_up_ = true;
+  }
   is_down_ = down;
-  if (down) went_down_ = true;
-  else went_up_ = true;
 }
-
 
 Button &Joystick::GetButton(size_t button_index) {
   if (button_index >= button_list_.size()) {

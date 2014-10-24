@@ -24,9 +24,14 @@ public class FPLActivity extends SDLActivity {
     nativeOnActivityResult(this, requestCode, resultCode, data);
   }
 
+  boolean textDialogOpen;
+
   @Override
   public void onWindowFocusChanged(boolean hasFocus) {
     super.onWindowFocusChanged(hasFocus);
+    if (hasFocus) {
+      textDialogOpen = false;
+    }
     final int BUILD_VERSION_KITCAT = 18;
     if (android.os.Build.VERSION.SDK_INT >= BUILD_VERSION_KITCAT &&
         hasFocus) {
@@ -57,6 +62,7 @@ public class FPLActivity extends SDLActivity {
     }
     public void run() {
       try {
+        textDialogOpen = true;
         TextView tv = new TextView(activity);
         tv.setText(text);
         tv.setLayoutParams(new LayoutParams(
@@ -78,6 +84,7 @@ public class FPLActivity extends SDLActivity {
         display.getSize(size);
         alert.getWindow().setLayout(size.x / 2, size.y - 50);
       } catch (Exception e) {
+        textDialogOpen = false;
         Log.e("SDL", "exception", e);
       }
     }
@@ -85,6 +92,10 @@ public class FPLActivity extends SDLActivity {
 
   public void showTextDialog(String text) {
     runOnUiThread(new TextDialogRunnable(this, text));
+  }
+
+  public boolean isTextDialogOpen() {
+    return textDialogOpen;
   }
 
   // Implemented in C++.

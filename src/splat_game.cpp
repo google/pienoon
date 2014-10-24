@@ -748,12 +748,10 @@ SplatState SplatGame::UpdateSplatState() {
       break;
     }
     case kPaused: {
-
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
         input_.exit_requested_ = true;
       }
       return HandleMenuButtons();
-      break;
     }
     case kFinished: {
       // When players press the A/throw button during the menu screen, they
@@ -769,7 +767,6 @@ SplatState SplatGame::UpdateSplatState() {
         input_.exit_requested_ = true;
       }
       return HandleMenuButtons();
-      break;
     }
 
     default:
@@ -954,7 +951,6 @@ ControllerId SplatGame::AddController(Controller* new_controller) {
   return active_controllers_.size() - 1;
 }
 
-
 // Returns a controller as specified by its ID
 Controller* SplatGame::GetController(ControllerId id) {
   return (id >= 0 &&
@@ -979,7 +975,6 @@ void SplatGame::HandlePlayersJoining(Controller* controller) {
   }
 }
 
-
 SplatState SplatGame::HandleMenuButtons() {
   for (size_t i = 0; i < active_controllers_.size(); i++) {
     Controller* controller = active_controllers_[i].get();
@@ -989,48 +984,51 @@ SplatState SplatGame::HandleMenuButtons() {
     }
   }
 
-
   for (MenuSelection menu_selection = gui_menu_.GetRecentSelection();
        menu_selection.button_id != ButtonId_Undefined;
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
-    case ButtonId_ToggleLogIn:
-#     ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
-      gpg_manager.ToggleSignIn();
-#     endif
-      break;
-    case ButtonId_ShowLicense: {
-      std::string licenses;
-      if (!LoadFile("licenses.txt", &licenses)) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load licenses.txt");
+      case ButtonId_ToggleLogIn:
+#       ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+        gpg_manager.ToggleSignIn();
+#       endif
+        break;
+      case ButtonId_ShowLicense: {
+        std::string licenses;
+        if (!LoadFile("licenses.txt", &licenses)) {
+          SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load licenses.txt");
+          break;
+        }
+#       ifdef __ANDROID__
+        JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+        jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+        jclass fpl_class = env->GetObjectClass(activity);
+        jmethodID is_text_dialog_open = env->GetMethodID(
+            fpl_class, "isTextDialogOpen", "()Z");
+        jboolean open = env->CallBooleanMethod(activity, is_text_dialog_open);
+        if (!open) {
+          jmethodID show_text_dialog = env->GetMethodID(
+              fpl_class, "showTextDialog", "(Ljava/lang/String;)V");
+          jstring text = env->NewStringUTF(licenses.c_str());
+          env->CallVoidMethod(activity, show_text_dialog, text);
+          env->DeleteLocalRef(text);
+        }
+        env->DeleteLocalRef(activity);
+#       endif
         break;
       }
-#     ifdef __ANDROID__
-      JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
-      jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-      jclass fpl_class = env->GetObjectClass(activity);
-      jmethodID method_id = env->GetMethodID(fpl_class, "showTextDialog",
-                                             "(Ljava/lang/String;)V");
-      jstring text = env->NewStringUTF(licenses.c_str());
-      env->CallVoidMethod(activity, method_id, text);
-      env->DeleteLocalRef(text);
-      env->DeleteLocalRef(activity);
-#     endif
-      break;
-    }
-    case ButtonId_Title:
-      // Perform regular behavior of letting players join:
-      HandlePlayersJoining(menu_selection.controller_id != kTouchController ?
-            active_controllers_[menu_selection.controller_id].get() :
-            touch_controller_);
-      break;
-    case ButtonId_Unpause:
-      if (state_ == kPaused) {
-        return kPlaying;
-      }
-    default:
-      break;
-      //assert(0);
+      case ButtonId_Title:
+        // Perform regular behavior of letting players join:
+        HandlePlayersJoining(menu_selection.controller_id != kTouchController ?
+              active_controllers_[menu_selection.controller_id].get() :
+              touch_controller_);
+        break;
+      case ButtonId_Unpause:
+        if (state_ == kPaused) {
+          return kPlaying;
+        }
+      default:
+        break;
     }
   }
   return state_;
@@ -1056,12 +1054,10 @@ void SplatGame::UpdateTouchButtons(WorldTime delta_time) {
     for (MenuSelection menu_selection = gui_menu_.GetRecentSelection();
          menu_selection.button_id != ButtonId_Undefined;
          menu_selection = gui_menu_.GetRecentSelection()) {
-
       touch_controller_->HandleTouchButtonInput(menu_selection.button_id, true);
     }
   }
 }
-
 
 void SplatGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.

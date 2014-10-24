@@ -16,13 +16,12 @@
 #define GUI_MENU_H
 
 #include <queue>
-
-#include "config_generated.h"
 #include "common.h"
+#include "config_generated.h"
 #include "controller.h"
 #include "input.h"
-#include "renderer.h"
 #include "material_manager.h"
+#include "renderer.h"
 #include "touchscreen_button.h"
 
 namespace fpl {
@@ -32,15 +31,14 @@ namespace splat {
 // triggered it.
 struct MenuSelection {
   MenuSelection(ButtonId buttonId, ControllerId controllerId)
-    : button_id(buttonId),
-      controller_id(controllerId) {}
+      : button_id(buttonId),
+        controller_id(controllerId) {}
 
   ButtonId button_id;
   ControllerId controller_id;
 };
 
-class GuiMenu
-{
+class GuiMenu {
  public:
   GuiMenu();
 

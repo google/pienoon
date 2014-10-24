@@ -20,7 +20,6 @@
 namespace fpl {
 namespace splat {
 
-
 GuiMenu::GuiMenu() {}
 
 void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
@@ -62,9 +61,10 @@ void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input) {
     button_list_[i].AdvanceFrame(delta_time, input, window_size_);
     button_list_[i].set_is_highlighted(
         current_focus_ == button_list_[i].GetId());
-    if (button_list_[i].button().went_down())
+    if (button_list_[i].button().is_down()) {
       unhandled_selections_.push(MenuSelection(button_list_[i].GetId(),
                                                kTouchController));
+    }
   }
 }
 
@@ -91,7 +91,6 @@ MenuSelection GuiMenu::GetRecentSelection() {
     return return_value;
   }
 }
-
 
 void GuiMenu::Render(Renderer* renderer) {
   // Render touch controls, as long as the touch-controller is active.
@@ -143,11 +142,6 @@ void GuiMenu::MoveSelection(
   // leave everything unchanged.
 }
 
-
-
-
-//std::map<ButtonID, int> buttonIdMap_;
-
-
 }  // splat
 }  // fpl
+
