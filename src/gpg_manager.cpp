@@ -127,7 +127,7 @@ void GPGManager::ToggleSignIn() {
 # endif
   if (state == kAuthed) {
     game_services_->SignOut();
-  } else if (state == kStart) {
+  } else if (state == kStart || state == kAuthUIFailed) {
     state = kManualSignBackIn;
   }
 }
