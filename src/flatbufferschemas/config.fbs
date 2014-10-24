@@ -72,6 +72,10 @@ enum ImpellerSpecification : ushort {
   Count // Must come last
 }
 
+table ButtonTexture {
+  standard : string;
+  touch_screen : string;
+}
 
 // Used for defining zones for the touch controller.
 // the touch screen, (1, 1) is the lower right.  ButtonId is what input
@@ -90,8 +94,8 @@ table ButtonDef {
 
   // Material to display for the touch zone, both in its normal
   // state, and when it is registering a press.
-  texture_normal : string;
-  texture_pressed : string;
+  texture_normal : ButtonTexture;
+  texture_pressed : ButtonTexture;
   texture_selected : string;
   draw_scale_normal : Vec2;
   draw_scale_pressed : Vec2;

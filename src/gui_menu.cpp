@@ -22,6 +22,14 @@ namespace splat {
 
 GuiMenu::GuiMenu() {}
 
+static const char* TextureName(const ButtonTexture& button_texture) {
+#ifdef PLATFORM_MOBILE
+  if (button_texture.touch_screen() != nullptr)
+    return button_texture.touch_screen()->c_str();
+#endif
+  return button_texture.standard()->c_str();
+}
+
 void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   ClearRecentSelections();
   if (menu_def == nullptr) {
@@ -37,9 +45,9 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
     button_list_[i].set_up_material(matman->LoadMaterial(
-        button->texture_normal()->c_str()));
+        TextureName(*button->texture_normal())));
     button_list_[i].set_down_material(matman->LoadMaterial(
-        button->texture_pressed()->c_str()));
+        TextureName(*button->texture_pressed())));
 
     Shader* shader = matman->LoadShader(
           button->shader()->c_str());
@@ -60,8 +68,8 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
 void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
   for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
-    matman->LoadMaterial(button->texture_normal()->c_str());
-    matman->LoadMaterial(button->texture_pressed()->c_str());
+    matman->LoadMaterial(TextureName(*button->texture_normal()));
+    matman->LoadMaterial(TextureName(*button->texture_pressed()));
 
     Shader* shader = matman->LoadShader(
           button->shader()->c_str());
