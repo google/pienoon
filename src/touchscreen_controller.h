@@ -53,7 +53,6 @@ class TouchscreenController : public Controller {
   InputSystem* input_system_;
   vec2 window_size_;
   const Config* config_;
-  uint32_t buttons_to_debounce_;
 
   const uint32_t kDirectionControls = LogicalInputs_Left | LogicalInputs_Right;
 };

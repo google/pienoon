@@ -5,7 +5,10 @@ namespace fpl {
 namespace splat {
 
 TouchscreenButton::TouchscreenButton()
-  : is_active_(true),
+  : elapsed_time_(0),
+    position_(vec2(0, 0)),
+    z_depth_(0),
+    is_active_(true),
     is_highlighted_(false)
 {}
 
@@ -75,7 +78,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
 
   vec3 position = vec3(button_def()->texture_position()->x() * window_size.x(),
                        button_def()->texture_position()->y() * window_size.y(),
-                       z_depth());
+                       z_depth_);
   shader_->Set(renderer);
   mat->Set(renderer);
 

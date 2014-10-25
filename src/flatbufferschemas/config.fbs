@@ -44,6 +44,15 @@ enum ButtonId : ushort {
   Unpause
 }
 
+// Setting a button to Hold means it will fire as long
+// as it is held down.  Setting it to Press means it will
+// only fire when it goes down, and will not fire again until
+// after it has been released.
+enum ButtonEvent : ushort (bit_flags) {
+  ButtonPress,
+  ButtonHold
+}
+
 enum GameMode : ushort {
   // Game ends when one player is left standing.
   Survival,
@@ -100,6 +109,12 @@ table ButtonDef {
   // (Designates the center of the texture, and like the zone boundaries, is
   // expressed as a fraction of the screen width/height.)
   texture_position : Vec2;
+
+  // does this button start out active?
+  starts_active : bool = true;
+
+  // When this button triggers.  (See enum for description)
+  event_trigger : ButtonEvent = ButtonPress;
 }
 
 table UiGroup {

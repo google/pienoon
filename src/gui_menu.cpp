@@ -49,22 +49,46 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     }
     button_list_[i].set_shader(shader);
     button_list_[i].set_button_def(button);
-    button_list_[i].set_is_active(true);
+    button_list_[i].set_is_active(button->starts_active());
     button_list_[i].set_is_highlighted(true);
   }
 }
 
-void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input) {
+
+// Force the material manager to load all the textures and shaders
+// used in the UI group.
+void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
+  for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
+    const ButtonDef* button = menu_def->button_list()->Get(i);
+    matman->LoadMaterial(button->texture_normal()->c_str());
+    matman->LoadMaterial(button->texture_pressed()->c_str());
+
+    Shader* shader = matman->LoadShader(
+          button->shader()->c_str());
+    if (shader == nullptr) {
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                  "Buttons used in menus must specify a shader!");
+    }
+  }
+}
+
+void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
+                           const vec2& window_size) {
   // Start every frame with a clean list of events.
   ClearRecentSelections();
   for (size_t i = 0; i < button_list_.size(); i++) {
-    button_list_[i].AdvanceFrame(delta_time, input, window_size_);
+    button_list_[i].AdvanceFrame(delta_time, input, window_size);
     button_list_[i].set_is_highlighted(
         current_focus_ == button_list_[i].GetId());
+
     if (button_list_[i].button().is_down()) {
+    if ((button_list_[i].button_def()->event_trigger() ==
+         ButtonEvent_ButtonHold && button_list_[i].button().is_down()) ||
+        (button_list_[i].button_def()->event_trigger() ==
+         ButtonEvent_ButtonPress && button_list_[i].button().went_down())) {
       unhandled_selections_.push(MenuSelection(button_list_[i].GetId(),
                                                kTouchController));
-    }
+    }}
   }
 }
 
@@ -97,7 +121,6 @@ void GuiMenu::Render(Renderer* renderer) {
   for (size_t i = 0; i < button_list_.size(); i++) {
     button_list_[i].Render(*renderer);
   }
-  window_size_ = vec2(renderer->window_size());
 }
 
 // Accepts logical inputs, and navigates based on it.
@@ -110,13 +133,11 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
   }
   const ButtonDef* current_def = current_focus_button_->button_def();
   if (logical_input & LogicalInputs_Left) {
-    MoveSelection(current_def->nav_left());
+    UpdateFocus(current_def->nav_left());
   }
   if (logical_input & LogicalInputs_Right) {
-    MoveSelection(current_def->nav_right());
+    UpdateFocus(current_def->nav_right());
   }
-  // We don't really have up or down inputs at the moment for anything
-  // besides joysticks.
 
   if (logical_input & LogicalInputs_ThrowPie) {
     unhandled_selections_.push(MenuSelection(current_focus_, controller_id));
@@ -126,20 +147,37 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
   }
 }
 
-void GuiMenu::MoveSelection(
+// This is an internal-facing function for moving the focus around.  It
+// accepts an array of possible destinations as input, and moves to
+// the first active ID it finds.  (otherwise it doesn't move.)
+void GuiMenu::UpdateFocus(
     const flatbuffers::Vector<uint16_t>* destination_list) {
   for (size_t i = 0; i < destination_list->Length(); i++) {
     ButtonId destination_id =
         static_cast<ButtonId>(destination_list->Get(i));
     TouchscreenButton* destination =
-        FindButtonById(static_cast<ButtonId>(destination_id));
+        FindButtonById(destination_id);
     if (destination != nullptr && destination->is_active()) {
-      current_focus_ = destination_id;
+      SetFocus(destination_id);
       return;
     }
   }
   // if we didn't find an active button to move to, we just return and
   // leave everything unchanged.
+}
+
+ButtonId GuiMenu::GetFocus() const {
+  return current_focus_;
+}
+
+void GuiMenu::SetFocus(ButtonId new_focus) {
+  current_focus_  = new_focus;
+}
+
+// Returns a pointer to the button specified, if it's in the current
+// menu.  Otherwise, returns a null pointer if it's not found.
+TouchscreenButton* GuiMenu::GetButtonById(ButtonId id) {
+  return FindButtonById(id);
 }
 
 }  // splat

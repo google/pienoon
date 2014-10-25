@@ -49,7 +49,6 @@ void TouchscreenController::Initialize(InputSystem* input_system,
   window_size_ = window_size;
   ClearAllLogicalInputs();
   config_ = config;
-  buttons_to_debounce_ = 0;
 }
 
 // Called from outside, based on screen touches.
@@ -59,15 +58,12 @@ void TouchscreenController::HandleTouchButtonInput(int input, bool value) {
   switch (input) {
     case ButtonId_Left:
       logicalInput = LogicalInputs_Left;
-      buttons_to_debounce_ &= ~logicalInput;
       break;
     case ButtonId_Right:
       logicalInput = LogicalInputs_Right;
-      buttons_to_debounce_ &= ~logicalInput;
       break;
     case ButtonId_Attack:
       logicalInput = LogicalInputs_ThrowPie;
-      buttons_to_debounce_ &= ~logicalInput;
       break;
     case ButtonId_Defend:
       logicalInput = LogicalInputs_Deflect;
@@ -79,13 +75,7 @@ void TouchscreenController::HandleTouchButtonInput(int input, bool value) {
 }
 
 void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
-  //ClearAllLogicalInputs();
-  went_down_ = went_up_ = 0;
-  SetLogicalInputs(buttons_to_debounce_, false);
-
-  // Sort of a hack:  Block is the only button we want to be able
-  // to hold down - everything else needs to be debounced.
-  buttons_to_debounce_ = ~0;
+  ClearAllLogicalInputs();
 }
 
 }  // splat

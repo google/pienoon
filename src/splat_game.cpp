@@ -280,10 +280,10 @@ bool SplatGame::InitializeRenderingAssets() {
     if (!materials_for_finished_state_[i]) return false;
   }
 
-  // Force all the menu textures to load.
-  gui_menu_.Setup(config.title_screen_buttons(), &matman_);
-  gui_menu_.Setup(config.touchscreen_zones(), &matman_);
-  gui_menu_.Setup(config.pause_screen_buttons(), &matman_);
+  // Load all the menu textures.
+  gui_menu_.LoadAssets(config.title_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.touchscreen_zones(), &matman_);
+  gui_menu_.LoadAssets(config.pause_screen_buttons(), &matman_);
 
   // Configure the full screen fader.
   full_screen_fader_.set_material(matman_.FindMaterial(
@@ -335,9 +335,7 @@ bool SplatGame::InitializeGameState() {
                           static_cast<float>(renderer_.window_size().y()));
   touch_controller_->Initialize(&input_, window_size, &config);
 
-#ifdef __ANDROID__
   AddController(touch_controller_);
-#endif // __ANDROID__
 
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
@@ -1046,7 +1044,7 @@ void SplatGame::UpdateControllers(WorldTime delta_time) {
 }
 
 void SplatGame::UpdateTouchButtons(WorldTime delta_time) {
-  gui_menu_.AdvanceFrame(delta_time, &input_);
+  gui_menu_.AdvanceFrame(delta_time, &input_, vec2(renderer_.window_size()));
 
   // If we're playing the game, we have to send the menu events directly
   // to the touch controller, so it can act on them.

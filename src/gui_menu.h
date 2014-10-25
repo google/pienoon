@@ -42,18 +42,23 @@ class GuiMenu {
  public:
   GuiMenu();
 
-  void AdvanceFrame(WorldTime delta_time, InputSystem* input);
+  void AdvanceFrame(WorldTime delta_time, InputSystem* input,
+                    const vec2& window_size);
   void Setup(const UiGroup* menudef, MaterialManager* matman);
+  void LoadAssets(const UiGroup* menu_def, MaterialManager* matman);
   void Render(Renderer* renderer);
   void AdvanceFrame(WorldTime delta_time);
   MenuSelection GetRecentSelection();
   void HandleControllerInput(uint32_t logical_input,
                              ControllerId controller_id);
+  ButtonId GetFocus() const;
+  void SetFocus(ButtonId new_focus);
+  TouchscreenButton* GetButtonById(ButtonId id);
 
  private:
   void ClearRecentSelections();
   TouchscreenButton* FindButtonById(ButtonId id);
-  void MoveSelection(const flatbuffers::Vector<uint16_t>* destination_list);
+  void UpdateFocus(const flatbuffers::Vector<uint16_t>* destination_list);
 
   const UiGroup* menu_def_;
   InputSystem* input_;
@@ -64,7 +69,6 @@ class GuiMenu {
   // Total Worldtime since the menu was initialized.
   // Used for animating selections and such.
   WorldTime time_elapsed_;
-  mathfu::vec2 window_size_;
 };
 
 
