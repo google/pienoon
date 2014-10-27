@@ -26,7 +26,8 @@ struct OvershootImpelInit : public ImpelInitWithVelocity {
   OvershootImpelInit() :
       ImpelInitWithVelocity(kType),
       accel_per_difference(0.0f),
-      wrong_direction_multiplier(0.0f)
+      wrong_direction_multiplier(0.0f),
+      max_delta_time(0)
   {}
 
   // Acceleration is a multiple of abs('state_.position' - 'target_.position').
@@ -37,6 +38,10 @@ struct OvershootImpelInit : public ImpelInitWithVelocity {
   // this amount. We need counter-acceleration to be stronger so that the
   // amplitude eventually dies down; otherwise, we'd just have a pendulum.
   float wrong_direction_multiplier;
+
+  // The algorithm is iterative. When the iteration step gets too big, the
+  // behavior becomes erratic. This value clamps the iteration step.
+  ImpelTime max_delta_time;
 };
 
 struct OvershootImpelData : public ImpelDataWithVelocity {

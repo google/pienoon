@@ -35,6 +35,7 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
   init->accel_per_difference = params.acceleration_per_difference();
   init->wrong_direction_multiplier =
       params.wrong_direction_acceleration_multiplier();
+  init->max_delta_time = params.max_delta_time();
 }
 
 void SmoothInitFromFlatBuffers(const SmoothParameters& params,

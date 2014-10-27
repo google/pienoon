@@ -308,7 +308,8 @@
       "at_target": { "max_difference": 0.03, "max_velocity": 0.0001 }
     },
     "acceleration_per_difference": 0.000192,
-    "wrong_direction_acceleration_multiplier": 6.0
+    "wrong_direction_acceleration_multiplier": 6.0,
+    "max_delta_time": 20
   },
 
   "impeller_specifications": [

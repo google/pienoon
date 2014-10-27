@@ -25,8 +25,14 @@ void OvershootImpelProcessor::AdvanceFrame(ImpelTime delta_time) {
   // TODO OPT: reorder data and then optimize with SIMD to process in groups
   // of 4 floating-point or 8 fixed-point values.
   for (OvershootImpelData* d = map_.Begin(); d < map_.End(); ++d) {
-    d->velocity = CalculateVelocity(delta_time, *d);
-    d->value = CalculateValue(delta_time, *d);
+    for (ImpelTime time_remaining = delta_time; time_remaining > 0;) {
+      ImpelTime dt = std::min(time_remaining, d->init.max_delta_time);
+
+      d->velocity = CalculateVelocity(dt, *d);
+      d->value = CalculateValue(dt, *d);
+
+      time_remaining -= dt;
+    }
   }
 }
 

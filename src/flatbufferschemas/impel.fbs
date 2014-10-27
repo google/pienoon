@@ -74,6 +74,10 @@ table OvershootParameters {
   // this amount. We need counter-acceleration to be stronger so that the
   // amplitude eventually dies down; otherwise, we'd just have a pendulum.
   wrong_direction_acceleration_multiplier:float;
+
+  // The algorithm is iterative. When the iteration step gets too big, the
+  // behavior becomes erratic. This value clamps the iteration step.
+  max_delta_time:short = 32767;
 }
 
 table SmoothParameters {
