@@ -49,8 +49,16 @@ class TouchscreenButton
   float z_depth() const { return z_depth_; }
   void set_z_depth(float z_depth) { z_depth_ = z_depth; }
 
-  Material* up_material() const { return up_material_; }
-  void set_up_material(Material* up_material) { up_material_ = up_material; }
+  const std::vector<Material*> &up_materials() const { return up_materials_; }
+  void set_up_material(size_t i, Material* up_material) {
+    assert(up_material);
+    if (i >= up_materials_.size()) up_materials_.resize(i + 1);
+    up_materials_[i] = up_material;
+  }
+  void set_current_up_material(size_t which) {
+    assert(which < up_materials_.size());
+    up_current_ = which;
+  }
 
   Material* down_material() const { return down_material_; }
   void set_down_material(Material* down_material) { down_material_ = down_material; }
@@ -87,7 +95,9 @@ class TouchscreenButton
   Shader* shader_;
 
   // Textures to draw for the up/down states:
-  Material* up_material_;
+  std::vector<Material*> up_materials_;
+  size_t up_current_;
+
   Material* down_material_;
 
   // Offsets to draw the textures at,

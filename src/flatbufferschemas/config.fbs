@@ -94,7 +94,7 @@ table ButtonDef {
 
   // Material to display for the touch zone, both in its normal
   // state, and when it is registering a press.
-  texture_normal : ButtonTexture;
+  texture_normal : [ButtonTexture];
   texture_pressed : ButtonTexture;
   texture_selected : string;
   draw_scale_normal : Vec2;

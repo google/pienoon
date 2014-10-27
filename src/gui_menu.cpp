@@ -44,9 +44,12 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
 
   for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
-    button_list_[i].set_up_material(matman->LoadMaterial(
-        TextureName(*button->texture_normal())));
-    button_list_[i].set_down_material(matman->LoadMaterial(
+    for (auto it = button->texture_normal()->begin();
+         it != button->texture_normal()->end(); ++it) {
+      button_list_[i].set_up_material(it - button->texture_normal()->begin(),
+                                      matman->FindMaterial(TextureName(**it)));
+    }
+    button_list_[i].set_down_material(matman->FindMaterial(
         TextureName(*button->texture_pressed())));
 
     Shader* shader = matman->LoadShader(
@@ -68,7 +71,10 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
 void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
   for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
-    matman->LoadMaterial(TextureName(*button->texture_normal()));
+    for (auto it = button->texture_normal()->begin();
+         it != button->texture_normal()->end(); ++it) {
+      matman->LoadMaterial(TextureName(**it));
+    }
     matman->LoadMaterial(TextureName(*button->texture_pressed()));
 
     Shader* shader = matman->LoadShader(

@@ -8,6 +8,7 @@ TouchscreenButton::TouchscreenButton()
   : elapsed_time_(0),
     position_(vec2(0, 0)),
     z_depth_(0),
+    up_current_(0),
     is_active_(true),
     is_highlighted_(false)
 {}
@@ -57,7 +58,9 @@ void TouchscreenButton::AdvanceFrame(WorldTime delta_time,
 
 void TouchscreenButton::Render(Renderer& renderer) {
   const vec2 window_size = vec2(renderer.window_size());
-  Material* mat = button_.is_down() ? down_material_ : up_material_;
+  Material* mat = button_.is_down()
+                  ? down_material_
+                  : up_materials_[up_current_];
 
   if (!mat) return;  // This is an invisible button.
 
