@@ -113,10 +113,6 @@ bool SplatGame::InitializeRenderer() {
             renderer_.last_error().c_str());
     return false;
   }
-  auto res = renderer_.window_size();
-  perspective_matrix_ = mat4::Perspective(
-      config.viewport_angle(), res.x() / static_cast<float>(res.y()),
-      config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
 
   renderer_.color() = mathfu::kOnes4f;
   // Initialize the first frame as black.
@@ -484,6 +480,12 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
 
 void SplatGame::Render(const SceneDescription& scene) {
   const Config& config = GetConfig();
+
+  // Final matrix that applies the view frustum to bring into screen space.
+  auto res = renderer_.window_size();
+  mat4 perspective_matrix_ = mat4::Perspective(
+      config.viewport_angle(), res.x() / static_cast<float>(res.y()),
+      config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
   const mat4 camera_transform = perspective_matrix_ * scene.camera();
 
   // Render a ground plane.

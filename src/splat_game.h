@@ -139,9 +139,6 @@ class SplatGame {
   // Splash screen and splash screen text materials.
   std::vector<Material*> materials_for_finished_state_;
 
-  // Final matrix that applies the view frustum to bring into screen space.
-  mat4 perspective_matrix_;
-
   // Hold state machine binary data.
   std::string state_machine_source_;
 
