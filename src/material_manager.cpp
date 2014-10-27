@@ -115,5 +115,15 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
   return nullptr;
 }
 
+void MaterialManager::UnloadMaterial(const char *filename) {
+  auto mat = FindMaterial(filename);
+  if (!mat) return;
+  mat->DeleteTextures();
+  material_map_.erase(filename);
+  for (auto it = mat->textures().begin(); it != mat->textures().end(); ++it) {
+    texture_map_.erase((*it)->filename());
+  }
+}
+
 }  // namespace fpl
 

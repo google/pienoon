@@ -37,6 +37,8 @@ class AsyncResource {
   // desired resource. Called on the main thread only.
   virtual void Finalize() = 0;
 
+  const std::string &filename() const { return filename_; }
+
  protected:
   std::string filename_;
   uint8_t *data_;

@@ -47,7 +47,7 @@ class Texture : public AsyncResource {
   virtual void Load();
   virtual void Finalize();
 
-  GLuint id() { return id_; }
+  const GLuint &id() const { return id_; }
   vec2i size() { return size_; }
   const vec2i size() const { return size_; }
   void set_desired_format(TextureFormat format) { desired_ = format; }
@@ -74,6 +74,8 @@ class Material {
     assert(0 <= blend_mode && blend_mode < kBlendModeCount);
     blend_mode_ = blend_mode;
   }
+
+  void DeleteTextures();
 
  private:
   std::vector<Texture *> textures_;

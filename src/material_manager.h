@@ -56,6 +56,11 @@ class MaterialManager {
   // If this returns nullptr, the error can be found in Renderer::last_error().
   Material *LoadMaterial(const char *filename);
 
+  // Deletes all OpenGL textures contained in this material, and removes the
+  // textures and the material from material manager. Any subsequent requests
+  // for these textures through Load*() will cause them to be loaded anew.
+  void UnloadMaterial(const char *filename);
+
   // Handy accessors, so you don't have to pass the renderer around too.
   Renderer &renderer() { return renderer_; }
   const Renderer &renderer() const { return renderer_; }

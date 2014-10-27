@@ -43,4 +43,10 @@ void Material::Set(Renderer &renderer) {
   }
 }
 
+void Material::DeleteTextures() {
+  for (size_t i = 0; i < textures_.size(); i++) {
+    GL_CALL(glDeleteTextures(1, &textures_[i]->id()));
+  }
+}
+
 }  // namespace fpl
