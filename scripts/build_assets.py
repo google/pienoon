@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # Copyright 2014 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +24,7 @@ pass 'cwebp' as an argument. Additionally, if you would like to clean all
 generated files, you can call this script with the argument 'clean'.
 """
 
+import distutils.spawn
 import glob
 import os
 import platform
@@ -51,8 +53,10 @@ CWEBP_PATHS = [
     os.path.join(PROJECT_ROOT, 'bin'),
     os.path.join(PROJECT_ROOT, 'bin', 'Release'),
     os.path.join(PROJECT_ROOT, 'bin', 'Debug'),
-    os.path.join(PREBUILTS_ROOT, 'libwebp', 'linux-x86',
-                 'libwebp-0.4.1-linux-x86-32', 'bin')
+    os.path.join(PREBUILTS_ROOT, 'libwebp',
+                 '%s-x86' % platform.system().lower(),
+                 'libwebp-0.4.1-%s-x86-32' % platform.system().lower(), 'bin'),
+    os.path.dirname(distutils.spawn.find_executable('cwebp')),
 ]
 
 # Directory to place processed assets.

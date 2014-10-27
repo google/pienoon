@@ -78,6 +78,7 @@ build_assets_$(TARGET_ARCH_ABI):
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
+LOCAL_ARM_MODE := arm
 
 LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
                     $(DEPENDENCIES_SDL_MIXER_DIR) \

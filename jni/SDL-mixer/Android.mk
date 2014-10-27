@@ -26,6 +26,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := SDL2_mixer
 
+LOCAL_ARM_MODE := arm
+
 # Enable this if you want to support loading MOD music via modplug
 # The library path should be a relative path to this directory.
 SUPPORT_MOD_MODPLUG := false

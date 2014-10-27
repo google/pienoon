@@ -20,6 +20,8 @@ include $(SPLAT_DIR)/jni/android_config.mk
 
 include $(CLEAR_VARS)
 
+LOCAL_ARM_MODE := arm
+
 PRIVATE_APP_STL:=$(APP_STL)
 PRIVATE_APP_STL:=$(PRIVATE_APP_STL:_shared=)
 PRIVATE_APP_STL:=$(PRIVATE_APP_STL:_static=)
