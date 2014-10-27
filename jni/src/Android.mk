@@ -36,7 +36,7 @@ $(error flatc binary not found!)
 endif
 
 # Generated includes directory (relative to SPLAT_DIR).
-GENERATED_INCLUDES_PATH := gen/include/$(TARGET_ARCH_ABI)
+GENERATED_INCLUDES_PATH := gen/include
 # Flatbuffers schemas used to generate includes.
 FLATBUFFERS_SCHEMAS := $(wildcard $(SPLAT_DIR)/src/flatbufferschemas/*.fbs)
 
@@ -64,15 +64,28 @@ GENERATED_INCLUDES := \
 		$(call flatbuffers_fbs_to_h,$(schema)))
 
 # Generate a build rule for each header.
+ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
 $(foreach schema,$(FLATBUFFERS_SCHEMAS),\
 	$(call flatbuffers_header_build_rule,$(schema)))
+
 .PHONY: generated_includes
 generated_includes: $(GENERATED_INCLUDES)
 
+clean_generated_includes:
+	$(hide) $(host-rm) $(GENERATED_INCLUDES)
+endif
+
 # Build rule which builds assets for the game.
-.PHONY: build_assets_$(TARGET_ARCH_ABI)
-build_assets_$(TARGET_ARCH_ABI):
-	python $(SPLAT_DIR)/scripts/build_assets.py
+ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
+.PHONY: build_assets
+build_assets:
+	$(hide) python $(SPLAT_DIR)/scripts/build_assets.py
+
+.PHONY: clean_assets
+clean_assets:
+	$(hide) python $(SPLAT_DIR)/scripts/build_assets.py clean
+endif
+PROJECT_GLOBAL_BUILD_RULES_DEFINED:=1
 
 
 include $(CLEAR_VARS)
@@ -85,7 +98,7 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
                     $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
                     $(DEPENDENCIES_GPG_DIR)/include \
                     $(DEPENDENCIES_WEBP_DIR)/src \
-                    $(GENERATED_INCLUDES_PATH) \
+                    $(SPLAT_DIR)/$(GENERATED_INCLUDES_PATH) \
                     src
 
 LOCAL_SRC_FILES := \
@@ -126,8 +139,9 @@ LOCAL_SRC_FILES := \
 # Make each source file dependent upon the generated_includes and build_assets
 # targets.
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
-$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): \
-                                       build_assets_$(TARGET_ARCH_ABI)))
+$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): build_assets))
+
+clean: clean_assets clean_generated_includes
 
 LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp SDL2 SDL2_mixer
 
