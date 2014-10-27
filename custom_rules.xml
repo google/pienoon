@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<project name="copy-google-play-games_lib" default="debug">
+
+  <!-- Location of SDL relative to this directory. -->
+  <property name="sdlpath" value="../../../../external/sdl" />
+  <!-- Location of the Android SDL activity. -->
+  <property name="sdlactivity" value="org/libsdl/app/SDLActivity.java" />
+
+  <target name="initialize-google-play-games_lib"
+          description="Initialize Google Play Games library in the project.">
+    <!-- Copy the library to the project. -->
+    <copy todir="google-play-services_lib">
+      <fileset dir="${sdk.dir}/extras/google/google_play_services/libproject/google-play-services_lib"/>
+    </copy>
+    <!-- Create an ant project for the library. -->
+    <exec executable="android">
+      <arg value="update"/>
+      <arg value="project"/>
+      <arg value="-p"/>
+      <arg value="google-play-services_lib"/>
+      <arg value="-t"/>
+      <arg value="${target}"/>
+    </exec>
+  </target>
+
+  <target name="copy-sdl-activity"
+          description="Copy SDL activity into the source directory.">
+    <copy tofile="src_java/${sdlactivity}"
+          file="${sdlpath}/android-project/src/${sdlactivity}"/>
+  </target>
+
+  <!-- Override the -pre-compile target in sdk/tools/ant/build.xml to copy
+       the Google Play Games library and SDL Android activity to this
+       directory before the build process starts. -->
+  <target name="-pre-build"
+          depends="initialize-google-play-games_lib, copy-sdl-activity" />
+</project>

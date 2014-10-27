@@ -49,6 +49,7 @@ FLATBUFFERS_PATHS = [
 ]
 
 # Directory that contains the cwebp tool.
+CWEBP_BINARY_IN_PATH = distutils.spawn.find_executable('cwebp')
 CWEBP_PATHS = [
     os.path.join(PROJECT_ROOT, 'bin'),
     os.path.join(PROJECT_ROOT, 'bin', 'Release'),
@@ -56,7 +57,7 @@ CWEBP_PATHS = [
     os.path.join(PREBUILTS_ROOT, 'libwebp',
                  '%s-x86' % platform.system().lower(),
                  'libwebp-0.4.1-%s-x86-32' % platform.system().lower(), 'bin'),
-    os.path.dirname(distutils.spawn.find_executable('cwebp')),
+    os.path.dirname(CWEBP_BINARY_IN_PATH) if CWEBP_BINARY_IN_PATH else '',
 ]
 
 # Directory to place processed assets.

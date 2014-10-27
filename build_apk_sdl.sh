@@ -309,12 +309,6 @@ build_apk() {
                            -n ${package_filename} --path .
   fi
 
-  # Copy the activity implementation which we use verbatim from the current
-  # SDL.
-  mkdir -p src/org/libsdl/app
-  cp ${sdl_root}/android-project/src/org/libsdl/app/SDLActivity.java \
-                                 src/org/libsdl/app/
-
   # TEMP solution for ant packing everything under src into the apk.
   # we move src out of the way, and only keep the .java files in there.
   local backup_dir="src_backup"
@@ -489,11 +483,6 @@ google_play_services/libproject/google-play-services_lib"
         echo "checked ${play_services_dir}" >&2
         exit 1
       fi
-      pushd "${play_services_dir}" >/dev/null
-      android update project -p . -t $(select_android_build_target)
-      popd >/dev/null
-      rm -f google-play-services_lib
-      ln -s -f ${play_services_dir} google-play-services_lib
     fi
 
     # Build the native target.
