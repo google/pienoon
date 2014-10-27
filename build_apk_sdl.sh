@@ -309,22 +309,10 @@ build_apk() {
                            -n ${package_filename} --path .
   fi
 
-  # TEMP solution for ant packing everything under src into the apk.
-  # we move src out of the way, and only keep the .java files in there.
-  local backup_dir="src_backup"
-  mv src ${backup_dir}
-  mkdir -p src
-  cp -r ${backup_dir}/com src
-  cp -r ${backup_dir}/org src
-
   # Use ant to build the apk.
   # Ignore it failing, because we have to be sure to place the files back.
   # TODO: what if someone presses CTRL+C here?
   ant -quiet ${ant_target} || true
-
-  # now move src back
-  rm -rf src
-  mv ${backup_dir} src
 
   # Sign release apks with a temporary key as these packages will not be
   # redistributed.
