@@ -546,8 +546,8 @@ void SplatGame::Render2DElements() {
   // to the camera so that they appear on top of the previous ones.
 # ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
   auto gpg_button = gui_menu_.GetButtonById(ButtonId_ToggleLogIn);
-  assert(gpg_button);
-  gpg_button->set_current_up_material(gpg_manager.LoggedIn() ? 0 : 1);
+  if (gpg_button)
+    gpg_button->set_current_up_material(gpg_manager.LoggedIn() ? 0 : 1);
 # endif
   float z = -0.5f;
   gui_menu_.Render(&renderer_);
