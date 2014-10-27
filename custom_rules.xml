@@ -15,8 +15,6 @@ limitations under the License.
 -->
 <project name="copy-google-play-games_lib" default="debug">
 
-  <!-- Location of SDL relative to this directory. -->
-  <property name="sdlpath" value="../../../../external/sdl" />
   <!-- Location of the Android SDL activity. -->
   <property name="sdlactivity" value="org/libsdl/app/SDLActivity.java" />
 
@@ -37,8 +35,17 @@ limitations under the License.
     </exec>
   </target>
 
+  <target name="get-sdl-path"
+          description="Get SDL's location and save it in sdlpath.">
+    <exec executable="ndk-build" outputproperty="sdlpath">
+      <arg value="print_dependency"/>
+      <arg value="DEP_DIR=SDL"/>
+    </exec>
+  </target>
+
   <target name="copy-sdl-activity"
-          description="Copy SDL activity into the source directory.">
+          description="Copy SDL activity into the source directory."
+          depends="get-sdl-path">
     <copy tofile="src_java/${sdlactivity}"
           file="${sdlpath}/android-project/src/${sdlactivity}"/>
   </target>
