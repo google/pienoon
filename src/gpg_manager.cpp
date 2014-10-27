@@ -19,6 +19,8 @@
 
 namespace fpl {
 
+GPGManager::GPGManager() : state_(kStart), num_gui_logins_(0) {}
+
 bool GPGManager::Initialize() {
 # ifdef NO_GPG
   return true;
@@ -36,27 +38,30 @@ bool GPGManager::Initialize() {
   platform_configuration.SetActivity((jobject)SDL_AndroidGetActivity());
 
   // Creates a games_services object that has lambda callbacks.
-  state = kStart;
+  state_ = kStart;
   game_services_ =
     gpg::GameServices::Builder()
       .SetDefaultOnLog(gpg::LogLevel::VERBOSE)
       .SetOnAuthActionStarted([this](gpg::AuthOperation op) {
-        state = state == kAuthUILaunched
-                ? kAuthUIStarted
-                : kAutoAuthStarted;
+        state_ = state_ == kAuthUILaunched
+                 ? kAuthUIStarted
+                 : kAutoAuthStarted;
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPG: Auto Sign in started!");
+                    "GPG: Sign in started! (%d)", state_);
       })
       .SetOnAuthActionFinished([this](gpg::AuthOperation op,
                                       gpg::AuthStatus status) {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPG: Auto Sign in finished with a result of %d", status);
+                    "GPG: Sign in finished with a result of %d (%d)", status,
+                    state_);
         if (op == gpg::AuthOperation::SIGN_IN) {
-          state = status == gpg::AuthStatus::VALID
-                  ? kAuthed
-                  : (state == kAuthUIStarted ? kAuthUIFailed : kAutoAuthFailed);
+          state_ = status == gpg::AuthStatus::VALID
+                   ? kAuthed
+                   : ((state_ == kAuthUIStarted || state_ == kAuthUILaunched)
+                     ? kAuthUIFailed
+                     : kAutoAuthFailed);
         } else if (op == gpg::AuthOperation::SIGN_OUT) {
-          state = kStart;
+          state_ = kStart;
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                       "GPG: SIGN OUT finished with a result of %d", status);
         } else {
@@ -83,7 +88,7 @@ void GPGManager::Update() {
   return;
 # endif
   assert(game_services_);
-  switch(state) {
+  switch(state_) {
     case kStart:
     case kAutoAuthStarted:
       // Nothing to do, waiting.
@@ -91,8 +96,11 @@ void GPGManager::Update() {
     case kAutoAuthFailed:
     case kManualSignBackIn:
       // Need to explicitly ask for user  login.
-      game_services_->StartAuthorizationUI();
-      state = kAuthUILaunched;
+      if (num_gui_logins_ < 1) {
+        game_services_->StartAuthorizationUI();
+        state_ = kAuthUILaunched;
+        num_gui_logins_++;
+      }
       break;
     case kAuthUILaunched:
     case kAuthUIStarted:
@@ -112,7 +120,7 @@ bool GPGManager::LoggedIn() {
   return false;
 # endif
   assert(game_services_);
-  if (state < kAuthed) {
+  if (state_ < kAuthed) {
     SDL_LogDebug(SDL_LOG_CATEGORY_ERROR,
                 "GPG: player not logged in, can\'t interact with gpg!");
     return false;
@@ -125,10 +133,11 @@ void GPGManager::ToggleSignIn() {
 # ifdef NO_GPG
   return;
 # endif
-  if (state == kAuthed) {
+  if (state_ == kAuthed) {
     game_services_->SignOut();
-  } else if (state == kStart || state == kAuthUIFailed) {
-    state = kManualSignBackIn;
+  } else if (state_ == kStart || state_ == kAuthUIFailed) {
+    state_ = kManualSignBackIn;
+    num_gui_logins_ = 0;
   }
 }
 

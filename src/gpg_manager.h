@@ -21,6 +21,8 @@ namespace fpl {
 
 class GPGManager {
  public:
+  GPGManager();
+
   // Start of initial initialization and auth.
   bool Initialize();
 
@@ -40,8 +42,6 @@ class GPGManager {
   // player. Does nothing if not logged in.
   void SaveStat(const char *event_id, uint64_t *score);
 
-
-
   void ShowLeaderboards(const GPGIds *ids, size_t id_len);
 
  private:
@@ -58,7 +58,8 @@ class GPGManager {
     kAuthed,
   };
 
-  AsyncState state;
+  AsyncState state_;
+  int num_gui_logins_;
   std::unique_ptr<gpg::GameServices> game_services_;
 };
 
