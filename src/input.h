@@ -77,7 +77,7 @@ struct Pointer {
 // Used to record state for axes
 class JoystickAxis {
  public:
-  JoystickAxis() : value_(0), previous_value_(0) { AdvanceFrame(); }
+  JoystickAxis() : value_(0), previous_value_(0) {}
   void AdvanceFrame() { previous_value_ = value_; }
   void Update(float new_value) { value_ = new_value; }
   float Value() const { return value_; }
@@ -91,9 +91,9 @@ class JoystickAxis {
 // Used to record state for hats
 class JoystickHat {
  public:
-  JoystickHat() { AdvanceFrame(); }
+  JoystickHat() : value_(mathfu::kZeros2f), previous_value_(mathfu::kZeros2f) {}
   void AdvanceFrame() { previous_value_ = value_; }
-  void Update(vec2 new_value) {
+  void Update(const vec2 &new_value) {
     value_ = new_value;
   }
   const vec2 &Value() const { return value_; }
@@ -113,8 +113,8 @@ class Joystick {
   JoystickAxis &GetAxis(size_t axis_index);
   JoystickHat &GetHat(size_t hat_index);
   void AdvanceFrame();
-  SDL_Joystick* sdl_joystick() { return sdl_joystick_; }
-  void set_sdl_joystick(SDL_Joystick* joy) { sdl_joystick_ = joy; }
+  SDL_Joystick *sdl_joystick() { return sdl_joystick_; }
+  void set_sdl_joystick(SDL_Joystick *joy) { sdl_joystick_ = joy; }
   SDL_JoystickID GetJoystickId() const;
   int GetNumButtons() const;
   int GetNumAxes() const;
