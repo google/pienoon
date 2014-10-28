@@ -113,13 +113,15 @@ class Joystick {
   JoystickAxis &GetAxis(size_t axis_index);
   JoystickHat &GetHat(size_t hat_index);
   void AdvanceFrame();
-  void set_joystick_id(SDL_JoystickID joystick_id) {
-    joystick_id_ = joystick_id;
-  }
-  SDL_JoystickID joystick_id() const { return joystick_id_; }
+  SDL_Joystick* sdl_joystick() { return sdl_joystick_; }
+  void set_sdl_joystick(SDL_Joystick* joy) { sdl_joystick_ = joy; }
+  SDL_JoystickID GetJoystickId() const;
+  int GetNumButtons() const;
+  int GetNumAxes() const;
+  int GetNumHats() const;
 
  private:
-  SDL_JoystickID joystick_id_;
+  SDL_Joystick* sdl_joystick_;
   std::vector<JoystickAxis> axis_list_;
   std::vector<Button> button_list_;
   std::vector<JoystickHat> hat_list_;

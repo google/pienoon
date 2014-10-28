@@ -911,10 +911,22 @@ void SplatGame::UploadAndShowLeaderboards() {
 # endif
 }
 
+// Some joysticks are not traditional joysticks. For example, the accelerometer
+// on a mobile device is considered a joystick, but we don't want to
+// play our game with the accelerometer. Ignore anything that doesn't have the
+// minimum number of buttons.
+static bool ValidGameplayController(const Joystick& joy) {
+  static const int kMinNumButtonsOnJoystick = 2;
+  return joy.GetNumButtons() >= kMinNumButtonsOnJoystick;
+}
+
 void SplatGame::UpdateGamepadControllers() {
   // iterate over list of currently known joysticks.
   for (auto it = input_.JoystickMap().begin();
        it != input_.JoystickMap().end(); ++it) {
+    if (!ValidGameplayController(it->second))
+      continue;
+
     SDL_JoystickID joy_id = it->first;
     // if we find one that doesn't have a player associated with it...
     if (joystick_to_controller_map_.find(joy_id) ==

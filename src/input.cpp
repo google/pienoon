@@ -235,13 +235,8 @@ Button &InputSystem::GetButton(int button) {
 
 Joystick &InputSystem::GetJoystick(SDL_JoystickID joystick_id) {
   auto it = joystick_map_.find(joystick_id);
-  if (it != joystick_map_.end()) {
-    return it->second;
-  } else {
-    joystick_map_[joystick_id] = Joystick();
-    joystick_map_[joystick_id].set_joystick_id(joystick_id);
-    return joystick_map_[joystick_id];
-  }
+  assert(it != joystick_map_.end());
+  return it->second;
 }
 
 
@@ -300,19 +295,29 @@ void InputSystem::OpenConnectedJoysticks(){
   SDL_InitSubSystem(SDL_INIT_JOYSTICK);
   SDL_JoystickEventState(SDL_ENABLE);
 
-  open_joystick_list.clear();
-
   for (int i = 0; i < SDL_NumJoysticks(); i++) {
-    SDL_Joystick* joy = SDL_JoystickOpen(i);
-    if (joy) {
-      open_joystick_list.push_back(joy);
+    // Tell SDL that we're interested in getting updates for this joystick.
+    SDL_Joystick* sdl_joystick = SDL_JoystickOpen(i);
+
+    // Create our Joystick structure, if it doesn't already exist for this
+    // joystick_id. Note that our Joystick structure is never removed from
+    // the map.
+    SDL_JoystickID joystick_id = SDL_JoystickInstanceID(sdl_joystick);
+    auto it = joystick_map_.find(joystick_id);
+    if (it == joystick_map_.end()) {
+      joystick_map_[joystick_id] = Joystick();
     }
+
+    // Remember the SDL handle for this joystick.
+    joystick_map_[joystick_id].set_sdl_joystick(sdl_joystick);
   }
 }
 
 void InputSystem::CloseOpenJoysticks(){
-  for (size_t i = 0; i < open_joystick_list.size(); i++){
-    SDL_JoystickClose(open_joystick_list[i]);
+  for (auto it = joystick_map_.begin(); it != joystick_map_.end(); ++it){
+    Joystick& joystick = it->second;
+    SDL_JoystickClose(joystick.sdl_joystick());
+    joystick.set_sdl_joystick(nullptr);
   }
 }
 
@@ -359,5 +364,20 @@ void Joystick::AdvanceFrame() {
   }
 }
 
+SDL_JoystickID Joystick::GetJoystickId() const {
+  return SDL_JoystickInstanceID(sdl_joystick_);
+}
+
+int Joystick::GetNumButtons() const {
+  return SDL_JoystickNumButtons(sdl_joystick_);
+}
+
+int Joystick::GetNumAxes() const {
+  return SDL_JoystickNumAxes(sdl_joystick_);
+}
+
+int Joystick::GetNumHats() const {
+  return SDL_JoystickNumHats(sdl_joystick_);
+}
 
 }  // namespace fpl
