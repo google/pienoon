@@ -74,7 +74,7 @@ class IdMap {
     const DataIndex last_index = static_cast<DataIndex>(data_.size() - 1);
     if (index != last_index) {
       const DataIndex last_id = Id(last_index);
-      assert(last_id != kImpelIdInvalid);
+      assert(last_id != static_cast<DataIndex>(kImpelIdInvalid));
 
       // Move last item in data_ to the index being deleted.
       data_[index] = data_[last_index];
