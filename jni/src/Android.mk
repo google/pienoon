@@ -26,19 +26,82 @@ include $(SPLAT_DIR)/jni/android_config.mk
 # Directory that contains the FlatBuffers compiler.
 FLATBUFFERS_FLATC_PATH?=$(realpath $(SPLAT_DIR)/bin)
 
-# Location of FlatBuffers compiler.
-FLATC?=$(realpath $(firstword \
-            $(wildcard $(FLATBUFFERS_FLATC_PATH)/flatc*) \
-            $(wildcard $(FLATBUFFERS_FLATC_PATH)/Release/flatc*) \
-            $(wildcard $(FLATBUFFERS_FLATC_PATH)/Debug/flatc*)))
-ifeq (,$(wildcard $(FLATC)))
+# Macro which searches build locations for the flatbuffers compiler.
+# The FLATC can be used to override the location of flatc.
+define find_flatc
+  $(wildcard \
+    $(realpath $(firstword \
+      $(wildcard $(FLATC)) \
+      $(wildcard $(FLATBUFFERS_FLATC_PATH)/flatc*) \
+      $(wildcard $(FLATBUFFERS_FLATC_PATH)/Release/flatc*) \
+      $(wildcard $(FLATBUFFERS_FLATC_PATH)/Debug/flatc*))))
+endef
+
+PROJECT_OS:=$(OS)
+ifeq (,$(OS))
+PROJECT_OS:=$(shell uname -s)
+else
+ifneq ($(findstring Windows,$(PROJECT_OS)),)
+PROJECT_OS:=Windows
+endif
+endif
+
+# Search for cmake.
+CMAKE_ROOT:=$(realpath $(SPLAT_DIR)/../../../../prebuilts/cmake)
+ifeq (,$(CMAKE))
+ifeq (Linux,$(PROJECT_OS))
+CMAKE:=$(wildcard $(CMAKE_ROOT)/linux-x86/current/bin/cmake*)
+endif
+ifeq (Darwin,$(PROJECT_OS))
+CMAKE:=$(wildcard $(CMAKE_ROOT)/darwin-x86_64/current/*.app/Contents/bin/cmake)
+endif
+ifeq (Windows,$(PROJECT_OS))
+CMAKE:=$(wildcard $(CMAKE_ROOT)/windows/current/bin/cmake*)
+endif
+endif
+ifeq (,$(CMAKE))
+CMAKE:=cmake
+endif
+
+# Generate a host build rule for the flatbuffers compiler.
+ifeq (Windows,$(PROJECT_OS))
+# TODO(smiles): Need to find msbuild correctly in here.
+define build_flatc_recipe
+	cd $(SPLAT_DIR) & $(CMAKE) -G'Visual Studio 11 2012' . & msbuild
+endef
+endif
+ifeq (Linux,$(PROJECT_OS))
+define build_flatc_recipe
+	cd $(SPLAT_DIR) && $(CMAKE) . && $(MAKE) flatc
+endef
+endif
+ifeq (Darwin,$(PROJECT_OS))
+define build_flatc_recipe
+	cd $(SPLAT_DIR) && "$(CMAKE)" -GXcode . && xcodebuild -target flatc
+endef
+endif
+ifeq (,$(build_flatc_recipe))
+ifeq (,$(call find_flatc))
 $(error flatc binary not found!)
+endif
 endif
 
 # Generated includes directory (relative to SPLAT_DIR).
 GENERATED_INCLUDES_PATH := gen/include
 # Flatbuffers schemas used to generate includes.
 FLATBUFFERS_SCHEMAS := $(wildcard $(SPLAT_DIR)/src/flatbufferschemas/*.fbs)
+
+# Generate a build rule for flatc.
+ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
+ifeq ($(strip $(call find_flatc)),)
+flatc_target:=build_flatc
+.PHONY: $(flatc_target)
+else
+flatc_target:=$(call find_flatc)
+endif
+$(flatc_target):
+	$(call build_flatc_recipe)
+endif
 
 # Convert the specified fbs path to a Flatbuffers generated header path.
 # For example: src/flatbuffers/schemas/config.fbs will be converted to
@@ -52,10 +115,10 @@ endef
 # header derived from the schema filename using flatbuffers_fbs_to_h.
 define flatbuffers_header_build_rule
 $(eval \
-  $(call flatbuffers_fbs_to_h,$(1)): $(1)
+  $(call flatbuffers_fbs_to_h,$(1)): $(1) $(flatc_target)
 	$(call host-echo-build-step,generic,Generate) \
 		$(subst $(SPLAT_DIR)/,,$(call flatbuffers_fbs_to_h,$(1)))
-	$(hide) $(FLATC) --gen-includes -o $$(dir $$@) -c $$<)
+	$(hide) $$(call find_flatc) --gen-includes -o $$(dir $$@) -c $$<)
 endef
 
 # Create the list of generated headers.
@@ -78,7 +141,7 @@ endif
 # Build rule which builds assets for the game.
 ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
 .PHONY: build_assets
-build_assets:
+build_assets: $(flatc_target)
 	$(hide) python $(SPLAT_DIR)/scripts/build_assets.py
 
 .PHONY: clean_assets
