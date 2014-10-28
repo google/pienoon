@@ -2,6 +2,6 @@
   texture_filenames: [
     "textures/license_button.webp"
   ],
-  blendmode: OFF
+  blendmode: ALPHA
 }
 

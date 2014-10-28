@@ -1,7 +1,7 @@
 {
   texture_filenames: [
-    "textures/ic_play_games_badge_gray.webp"
+    "textures/play_games_disconnected_button.webp"
   ],
-  blendmode: OFF
+  blendmode: ALPHA
 }
 

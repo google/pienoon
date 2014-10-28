@@ -573,9 +573,9 @@
           "texture_pressed" : { "standard" : "materials/license_button.bin" },
           "texture_position" : { "x": 0.9, "y": 0.85 },
           "shader" : "shaders/textured",
-          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-          "draw_scale_highlighted": { "x": 0.6, "y": 0.6 },
-          "draw_scale_pressed" : { "x": 0.7, "y": 0.7 },
+          "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
+          "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
+          "draw_scale_pressed" : { "x": 2.1, "y": 2.1 },
           "nav_left" : ["Title"],
           "nav_right" : []
         }
