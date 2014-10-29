@@ -40,6 +40,7 @@ class TouchscreenButton
   void AdvanceFrame(WorldTime delta_time);
   ButtonId GetId();
   bool WillCapturePointer(const Pointer& pointer, vec2 window_size);
+  bool IsTriggered();
 
   Button& button() { return button_; }
 

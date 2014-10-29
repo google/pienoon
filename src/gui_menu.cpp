@@ -95,14 +95,10 @@ void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
     button_list_[i].set_is_highlighted(
         current_focus_ == button_list_[i].GetId());
 
-    if (button_list_[i].button().is_down()) {
-    if ((button_list_[i].button_def()->event_trigger() ==
-         ButtonEvent_ButtonHold && button_list_[i].button().is_down()) ||
-        (button_list_[i].button_def()->event_trigger() ==
-         ButtonEvent_ButtonPress && button_list_[i].button().went_down())) {
+    if (button_list_[i].IsTriggered()) {
       unhandled_selections_.push(MenuSelection(button_list_[i].GetId(),
                                                kTouchController));
-    }}
+    }
   }
 }
 

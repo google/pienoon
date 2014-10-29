@@ -24,8 +24,7 @@ ButtonId TouchscreenButton::GetId() {
 
 bool TouchscreenButton::WillCapturePointer(const Pointer& pointer,
                                            vec2 window_size) {
-  if (pointer.used &&
-      pointer.mousepos.x() / window_size.x() >=
+  if (pointer.mousepos.x() / window_size.x() >=
           button_def_->top_left()->x() &&
       pointer.mousepos.y() / window_size.y() >=
           button_def_->top_left()->y() &&
@@ -44,16 +43,27 @@ void TouchscreenButton::AdvanceFrame(WorldTime delta_time,
   elapsed_time_ += delta_time;
   button_.AdvanceFrame();
   bool down = false;
-  for (size_t i = 0; i < input->pointers_.size(); i++) {
+
+  for (size_t i = 0; i < input->pointers_.size(); i++)
+  {
     const Pointer& pointer = input->pointers_[i];
-    if (pointer.used &&
-        input->GetPointerButton(pointer.id).is_down() &&
+    const Button pointer_button = input->GetPointerButton(pointer.id);
+    if ((pointer_button.is_down() || pointer_button.went_down()) &&
         WillCapturePointer(pointer, window_size)) {
       down = true;
       break;
     }
   }
   button_.Update(down);
+}
+
+
+bool TouchscreenButton::IsTriggered()
+{
+  return (button_def_->event_trigger() == ButtonEvent_ButtonHold &&
+      button_.is_down()) ||
+      (button_def_->event_trigger() == ButtonEvent_ButtonPress &&
+      button_.went_down());
 }
 
 void TouchscreenButton::Render(Renderer& renderer) {
