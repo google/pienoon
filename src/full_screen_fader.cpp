@@ -22,7 +22,7 @@
 #include "shader.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 FullScreenFader::FullScreenFader(Renderer* renderer) :
   start_time_(0), half_fade_time_(0), fade_in_(false), renderer_(renderer),
@@ -68,5 +68,5 @@ bool FullScreenFader::Render(const WorldTime& time) {
   return opaque;
 }
 
-}  // namespace splat
+}  // namespace pie_noon
 }  // namespace fpl

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-include "splat_common.fbs";
+include "pie_noon_common.fbs";
 
 namespace fpl;
 // Definition for spawning a particle.

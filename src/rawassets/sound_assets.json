@@ -1,7 +1,7 @@
 {
   "sounds": [
     // SoundDefs must be in the order specified by the SoundId enum.
-    // See splat_common.fbs for the SoundId enum.
+    // See pie_noon_common.fbs for the SoundId enum.
     // ThrowPie
     "sounds/throw_pie.bin",
 

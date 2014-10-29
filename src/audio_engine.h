@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_AUDIO_ENGINE_H_
-#define SPLAT_AUDIO_ENGINE_H_
+#ifndef PIE_NOON_AUDIO_ENGINE_H_
+#define PIE_NOON_AUDIO_ENGINE_H_
 
 #include "common.h"
 #include "sound.h"
 #include "sound_collection.h"
-#include "splat_common_generated.h"
+#include "pie_noon_common_generated.h"
 #include "sound_collection_def_generated.h"
 
 #ifdef FPL_AUDIO_ENGINE_UNIT_TESTS
@@ -29,9 +29,9 @@ namespace fpl {
 
 struct AudioConfig;
 
-// TODO(amablue): Remove splat dependency.
-// What's the right thing to do when SoundId is defined in splat_common.fbs?
-using splat::SoundId;
+// TODO(amablue): Remove pie_noon dependency.
+// What's the right thing to do when SoundId is defined in pie_noon_common.fbs?
+using pie_noon::SoundId;
 
 class AudioEngine {
  public:
@@ -118,4 +118,4 @@ class AudioEngine {
 
 }  // namespace fpl
 
-#endif  // SPLAT_AUDIO_ENGINE_H_
+#endif  // PIE_NOON_AUDIO_ENGINE_H_

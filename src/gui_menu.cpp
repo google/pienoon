@@ -18,7 +18,7 @@
 #include "character_state_machine_def_generated.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 GuiMenu::GuiMenu() {}
 
@@ -194,6 +194,6 @@ TouchscreenButton* GuiMenu::GetButtonById(ButtonId id) {
   return FindButtonById(id);
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl
 

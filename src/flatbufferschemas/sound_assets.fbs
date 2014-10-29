@@ -16,7 +16,7 @@ namespace fpl;
 
 table SoundAssets {
   // The list of all SoundDef flatbuffers to load, ordered by SoundId.
-  // See splat_common.fbs for the SoundId enum.
+  // See pie_noon_common.fbs for the SoundId enum.
   sounds:[string];
 }
 

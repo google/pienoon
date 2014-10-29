@@ -14,8 +14,8 @@
 
 """Export the game and all necessary assets.
 
-This script will find the splat and flatc executable and package them along with
-all other assets required the play the game.
+This script will find the pie_noon and flatc executable and package them along
+with all other assets required the play the game.
 """
 
 import os
@@ -94,8 +94,8 @@ def main():
   """Zips up all files needed to run the game.
 
   Zips up all files listed in EXPORT_FILES, all directories listed in
-  EXPORT_DIRECTORIES, and the binary executables `splat` and `flatc`, which have
-  different locations when built using different tool chains.
+  EXPORT_DIRECTORIES, and the binary executables `pie_noon` and `flatc`, which
+  have different locations when built using different tool chains.
 
   Returns:
     0 on success, 1 otherwise.
@@ -130,7 +130,7 @@ def main():
       return 1
 
   try:
-    zip_binary(zip_file, 'bin', 'splat', dir_name)
+    zip_binary(zip_file, 'bin', 'pie_noon', dir_name)
     zip_binary(zip_file, 'bin', 'flatc', dir_name)
     if platform.system() == 'Windows':
       zip_binary(zip_file, 'bin', 'SDL2.dll', dir_name)

@@ -55,12 +55,12 @@ main() {
   update_package 'Google Play services,' sdk/extras/google/google_play_services/
 
   find $ANDROID_SDK_HOME -name google-play-services_lib
-  cd vendor/unbundled_google/packages/splat
+  cd vendor/unbundled_google/packages/pie_noon
   rm -rf bin
   ../../../../prebuilts/cmake/linux-x86/cmake-2.8.12.1-Linux-i386/bin/cmake .
   make assets
   bash -xeu ./build_apk_sdl.sh LAUNCH=0 DEPLOY=0
-  cp ./bin/splat-release-unsigned.apk $dist_dir/PieNoon.apk
+  cp ./bin/pie_noon-release-unsigned.apk $dist_dir/PieNoon.apk
 }
 
 main "$@"

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_CONTROLLER_H_
-#define SPLAT_CONTROLLER_H_
+#ifndef PIE_NOON_CONTROLLER_H_
+#define PIE_NOON_CONTROLLER_H_
 
 #include <cstdint>
 #include "common.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 static const CharacterId kNoCharacter = -1;
 
@@ -71,8 +71,8 @@ class Controller {
 
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
-#endif  // SPLAT_CONTROLLER_H_
+#endif  // PIE_NOON_CONTROLLER_H_
 

@@ -15,8 +15,8 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-SPLAT_DIR:=$(realpath $(LOCAL_PATH)/../..)
-include $(SPLAT_DIR)/jni/android_config.mk
+PIE_NOON_DIR:=$(realpath $(LOCAL_PATH)/../..)
+include $(PIE_NOON_DIR)/jni/android_config.mk
 
 # relative to project root
 
@@ -24,7 +24,7 @@ include $(SPLAT_DIR)/jni/android_config.mk
 # rebuilt from flatbuffers schemas.
 
 # Directory that contains the FlatBuffers compiler.
-FLATBUFFERS_FLATC_PATH?=$(realpath $(SPLAT_DIR)/bin)
+FLATBUFFERS_FLATC_PATH?=$(realpath $(PIE_NOON_DIR)/bin)
 
 # Macro which searches build locations for the flatbuffers compiler.
 # The FLATC can be used to override the location of flatc.
@@ -47,7 +47,7 @@ endif
 endif
 
 # Search for cmake.
-CMAKE_ROOT:=$(realpath $(SPLAT_DIR)/../../../../prebuilts/cmake)
+CMAKE_ROOT:=$(realpath $(PIE_NOON_DIR)/../../../../prebuilts/cmake)
 ifeq (,$(CMAKE))
 ifeq (Linux,$(PROJECT_OS))
 CMAKE:=$(wildcard $(CMAKE_ROOT)/linux-x86/current/bin/cmake*)
@@ -67,17 +67,17 @@ endif
 ifeq (Windows,$(PROJECT_OS))
 # TODO(smiles): Need to find msbuild correctly in here.
 define build_flatc_recipe
-	cd $(SPLAT_DIR) & $(CMAKE) -G'Visual Studio 11 2012' . & msbuild
+	cd $(PIE_NOON_DIR) & $(CMAKE) -G'Visual Studio 11 2012' . & msbuild
 endef
 endif
 ifeq (Linux,$(PROJECT_OS))
 define build_flatc_recipe
-	cd $(SPLAT_DIR) && $(CMAKE) . && $(MAKE) flatc
+	cd $(PIE_NOON_DIR) && $(CMAKE) . && $(MAKE) flatc
 endef
 endif
 ifeq (Darwin,$(PROJECT_OS))
 define build_flatc_recipe
-	cd $(SPLAT_DIR) && "$(CMAKE)" -GXcode . && xcodebuild -target flatc
+	cd $(PIE_NOON_DIR) && "$(CMAKE)" -GXcode . && xcodebuild -target flatc
 endef
 endif
 ifeq (,$(build_flatc_recipe))
@@ -86,10 +86,10 @@ $(error flatc binary not found!)
 endif
 endif
 
-# Generated includes directory (relative to SPLAT_DIR).
+# Generated includes directory (relative to PIE_NOON_DIR).
 GENERATED_INCLUDES_PATH := gen/include
 # Flatbuffers schemas used to generate includes.
-FLATBUFFERS_SCHEMAS := $(wildcard $(SPLAT_DIR)/src/flatbufferschemas/*.fbs)
+FLATBUFFERS_SCHEMAS := $(wildcard $(PIE_NOON_DIR)/src/flatbufferschemas/*.fbs)
 
 # Generate a build rule for flatc.
 ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
@@ -117,7 +117,7 @@ define flatbuffers_header_build_rule
 $(eval \
   $(call flatbuffers_fbs_to_h,$(1)): $(1) $(flatc_target)
 	$(call host-echo-build-step,generic,Generate) \
-		$(subst $(SPLAT_DIR)/,,$(call flatbuffers_fbs_to_h,$(1)))
+		$(subst $(PIE_NOON_DIR)/,,$(call flatbuffers_fbs_to_h,$(1)))
 	$(hide) $$(call find_flatc) --gen-includes -o $$(dir $$@) -c $$<)
 endef
 
@@ -142,11 +142,11 @@ endif
 ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
 .PHONY: build_assets
 build_assets: $(flatc_target)
-	$(hide) python $(SPLAT_DIR)/scripts/build_assets.py
+	$(hide) python $(PIE_NOON_DIR)/scripts/build_assets.py
 
 .PHONY: clean_assets
 clean_assets:
-	$(hide) python $(SPLAT_DIR)/scripts/build_assets.py clean
+	$(hide) python $(PIE_NOON_DIR)/scripts/build_assets.py clean
 endif
 PROJECT_GLOBAL_BUILD_RULES_DEFINED:=1
 
@@ -161,43 +161,43 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
                     $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
                     $(DEPENDENCIES_GPG_DIR)/include \
                     $(DEPENDENCIES_WEBP_DIR)/src \
-                    $(SPLAT_DIR)/$(GENERATED_INCLUDES_PATH) \
+                    $(PIE_NOON_DIR)/$(GENERATED_INCLUDES_PATH) \
                     src
 
 LOCAL_SRC_FILES := \
   $(DEPENDENCIES_SDL_DIR)/src/main/android/SDL_android_main.c \
-  $(SPLAT_DIR)/src/ai_controller.cpp \
-  $(SPLAT_DIR)/src/async_loader.cpp \
-  $(SPLAT_DIR)/src/audio_engine.cpp \
-  $(SPLAT_DIR)/src/character.cpp \
-  $(SPLAT_DIR)/src/character_state_machine.cpp \
-  $(SPLAT_DIR)/src/controller.cpp \
-  $(SPLAT_DIR)/src/full_screen_fader.cpp \
-  $(SPLAT_DIR)/src/gamepad_controller.cpp \
-  $(SPLAT_DIR)/src/game_camera.cpp \
-  $(SPLAT_DIR)/src/game_state.cpp \
-  $(SPLAT_DIR)/src/gpg_manager.cpp \
-  $(SPLAT_DIR)/src/gui_menu.cpp \
-  $(SPLAT_DIR)/src/impel_engine.cpp \
-  $(SPLAT_DIR)/src/impel_flatbuffers.cpp \
-  $(SPLAT_DIR)/src/impel_processor_overshoot.cpp \
-  $(SPLAT_DIR)/src/impel_processor_smooth.cpp \
-  $(SPLAT_DIR)/src/input.cpp \
-  $(SPLAT_DIR)/src/main.cpp \
-  $(SPLAT_DIR)/src/material.cpp \
-  $(SPLAT_DIR)/src/material_manager.cpp \
-  $(SPLAT_DIR)/src/mesh.cpp \
-  $(SPLAT_DIR)/src/player_controller.cpp \
-  $(SPLAT_DIR)/src/particles.cpp \
-  $(SPLAT_DIR)/src/precompiled.cpp \
-  $(SPLAT_DIR)/src/renderer.cpp \
-  $(SPLAT_DIR)/src/shader.cpp \
-  $(SPLAT_DIR)/src/sound.cpp \
-  $(SPLAT_DIR)/src/sound_collection.cpp \
-  $(SPLAT_DIR)/src/splat_game.cpp \
-  $(SPLAT_DIR)/src/touchscreen_button.cpp \
-  $(SPLAT_DIR)/src/touchscreen_controller.cpp \
-  $(SPLAT_DIR)/src/utilities.cpp
+  $(PIE_NOON_DIR)/src/ai_controller.cpp \
+  $(PIE_NOON_DIR)/src/async_loader.cpp \
+  $(PIE_NOON_DIR)/src/audio_engine.cpp \
+  $(PIE_NOON_DIR)/src/character.cpp \
+  $(PIE_NOON_DIR)/src/character_state_machine.cpp \
+  $(PIE_NOON_DIR)/src/controller.cpp \
+  $(PIE_NOON_DIR)/src/full_screen_fader.cpp \
+  $(PIE_NOON_DIR)/src/gamepad_controller.cpp \
+  $(PIE_NOON_DIR)/src/game_camera.cpp \
+  $(PIE_NOON_DIR)/src/game_state.cpp \
+  $(PIE_NOON_DIR)/src/gpg_manager.cpp \
+  $(PIE_NOON_DIR)/src/gui_menu.cpp \
+  $(PIE_NOON_DIR)/src/impel_engine.cpp \
+  $(PIE_NOON_DIR)/src/impel_flatbuffers.cpp \
+  $(PIE_NOON_DIR)/src/impel_processor_overshoot.cpp \
+  $(PIE_NOON_DIR)/src/impel_processor_smooth.cpp \
+  $(PIE_NOON_DIR)/src/input.cpp \
+  $(PIE_NOON_DIR)/src/main.cpp \
+  $(PIE_NOON_DIR)/src/material.cpp \
+  $(PIE_NOON_DIR)/src/material_manager.cpp \
+  $(PIE_NOON_DIR)/src/mesh.cpp \
+  $(PIE_NOON_DIR)/src/player_controller.cpp \
+  $(PIE_NOON_DIR)/src/particles.cpp \
+  $(PIE_NOON_DIR)/src/precompiled.cpp \
+  $(PIE_NOON_DIR)/src/renderer.cpp \
+  $(PIE_NOON_DIR)/src/shader.cpp \
+  $(PIE_NOON_DIR)/src/sound.cpp \
+  $(PIE_NOON_DIR)/src/sound_collection.cpp \
+  $(PIE_NOON_DIR)/src/pie_noon_game.cpp \
+  $(PIE_NOON_DIR)/src/touchscreen_button.cpp \
+  $(PIE_NOON_DIR)/src/touchscreen_controller.cpp \
+  $(PIE_NOON_DIR)/src/utilities.cpp
 
 # Make each source file dependent upon the generated_includes and build_assets
 # targets.

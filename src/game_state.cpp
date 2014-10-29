@@ -26,7 +26,7 @@
 #include "impel_processor_smooth.h"
 #include "impel_util.h"
 #include "scene_description.h"
-#include "splat_common_generated.h"
+#include "pie_noon_common_generated.h"
 #include "timeline_generated.h"
 #include "utilities.h"
 
@@ -37,7 +37,7 @@ using mathfu::vec4;
 using mathfu::mat4;
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 static const mat4 kRotate90DegreesAboutXAxis(1,  0, 0, 0,
                                              0,  0, 1, 0,
@@ -735,7 +735,7 @@ void GameState::CreatePieSplatter(const Character& character,
                                   CharacterHealth damage) {
   const ParticleDef * def = config_->pie_splatter_def();
   SpawnParticles(character.position(), def, static_cast<int>(damage) *
-                 config_->splat_particles_per_damage());
+                 config_->pie_noon_particles_per_damage());
   // Play a pie hit sound based upon the amount of damage applied (size of the
   // pie).
   character.PlaySound(EnumerationValueForPieDamage<SoundId>(
@@ -1237,5 +1237,5 @@ void GameState::PopulateScene(SceneDescription* scene) const {
   }
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl

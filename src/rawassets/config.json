@@ -278,7 +278,7 @@
     "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 }],
     "renderable": ["Splatter1", "Splatter2", "Splatter3"]
   },
-  "splat_particles_per_damage": 8,
+  "pie_noon_particles_per_damage": 8,
 
   "camera_position": { "x": 0.0, "y": 3.4, "z": -11.5 },
   "camera_target": { "x": 0.0, "y": 3.5, "z": 0.0 },

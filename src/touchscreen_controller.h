@@ -24,11 +24,11 @@
 #include "controller.h"
 #include "input.h"
 #include "player_controller.h"
-#include "splat_common_generated.h"
+#include "pie_noon_common_generated.h"
 #include "timeline_generated.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 // A TouchscreenController tracks the current state of a human player's logical
 // inputs. It is responsible for polling the touchscreen for the current state
@@ -55,7 +55,7 @@ class TouchscreenController : public Controller {
   const Config* config_;
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 #endif  // TOUCHSCREEN_CONTROLLER_H_

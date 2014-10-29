@@ -58,7 +58,7 @@ class AudioEngineTests : public ::testing::Test {
     // Make a bunch of sound defs with various priorities.
     for (uint16_t i = 0; i < 6; ++i) {
       flatbuffers::FlatBufferBuilder builder;
-      auto id = static_cast<splat::SoundId>(i);
+      auto id = static_cast<pie_noon::SoundId>(i);
       float priority = static_cast<float>(i);
       auto sound_def_buffer = fpl::CreateSoundCollectionDef(builder,
                                                             id, priority);

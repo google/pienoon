@@ -14,13 +14,13 @@
 
 #include "precompiled.h"
 
-#include "splat_game.h"
+#include "pie_noon_game.h"
 
 int main(int argc, char *argv[]) {
-  fpl::splat::SplatGame game;
+  fpl::pie_noon::PieNoonGame game;
   const char* binary_directory = argc > 0 ? argv[0] : "";
   if (!game.Initialize(binary_directory)) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Splat: init failed, exiting!");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "PieNoon: init failed, exiting!");
     return 1;
   }
 

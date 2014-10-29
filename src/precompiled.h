@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_SRC_PRECOMPILED_H
-#define SPLAT_SRC_PRECOMPILED_H
+#ifndef PIE_NOON_SRC_PRECOMPILED_H
+#define PIE_NOON_SRC_PRECOMPILED_H
 
 #include <assert.h>
 #include <cstdint>
@@ -58,4 +58,4 @@
 #pragma hdrstop
 #endif //  _WIN32
 
-#endif // SPLAT_SRC_PRECOMPILED_H
+#endif // PIE_NOON_SRC_PRECOMPILED_H

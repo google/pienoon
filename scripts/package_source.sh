@@ -19,7 +19,7 @@ declare -r dependencies="\
   $(for lib in ${google_libs}; do echo ${google_libs_path}/${lib}; done)"
 
 declare -r temp_dir=$(mktemp -d /tmp/XXXXXX)
-declare -r output_dir=${temp_dir}/splat
+declare -r output_dir=${temp_dir}/pie_noon
 
 declare -r nothave_prefixes="\
 ??
@@ -63,5 +63,5 @@ find ${output_dir} -type d -name '.git' | xargs rm -rf
 
 # Archive the output directory.
 pushd "${temp_dir}" 2>/dev/null
-tar -czvf ${project_dir}/splat-src-$(date +%Y%m%d).tar.gz \
+tar -czvf ${project_dir}/pie_noon-src-$(date +%Y%m%d).tar.gz \
   "$(basename ${output_dir})"

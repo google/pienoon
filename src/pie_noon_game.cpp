@@ -21,8 +21,8 @@
 #include "config_generated.h"
 #include "impel_processor_overshoot.h"
 #include "impel_processor_smooth.h"
-#include "splat_common_generated.h"
-#include "splat_game.h"
+#include "pie_noon_common_generated.h"
+#include "pie_noon_game.h"
 #include "timeline_generated.h"
 #include "touchscreen_controller.h"
 #include "utilities.h"
@@ -36,7 +36,7 @@ using mathfu::mat3;
 using mathfu::mat4;
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 static const int kQuadNumVertices = 4;
 static const int kQuadNumIndices = 6;
@@ -57,7 +57,7 @@ static inline WorldTime CurrentWorldTime() {
   return SDL_GetTicks();
 }
 
-SplatGame::SplatGame()
+PieNoonGame::PieNoonGame()
     : state_(kUninitialized),
       state_entry_time_(0),
       matman_(renderer_),
@@ -76,7 +76,7 @@ SplatGame::SplatGame()
 {
 }
 
-SplatGame::~SplatGame() {
+PieNoonGame::~PieNoonGame() {
   for (int i = 0; i < RenderableId_Count; ++i) {
     delete cardboard_fronts_[i];
     cardboard_fronts_[i] = nullptr;
@@ -92,7 +92,7 @@ SplatGame::~SplatGame() {
   stick_back_ = nullptr;
 }
 
-bool SplatGame::InitializeConfig() {
+bool PieNoonGame::InitializeConfig() {
   if (!LoadFile(kConfigFileName, &config_source_)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load config.bin\n");
     return false;
@@ -102,7 +102,7 @@ bool SplatGame::InitializeConfig() {
 
 // Initialize the 'renderer_' member. No other members have been initialized at
 // this point.
-bool SplatGame::InitializeRenderer() {
+bool PieNoonGame::InitializeRenderer() {
   const Config& config = GetConfig();
 
   auto window_size = config.window_size();
@@ -152,7 +152,7 @@ static void CreateVerticalQuad(const vec3& offset, const vec2& geo_size,
 // The quad's has x and y size determined by the size of the texture.
 // The quad is offset in (x,y,z) space by the 'offset' variable.
 // Returns a mesh with the quad and texture, or nullptr if anything went wrong.
-Mesh* SplatGame::CreateVerticalQuadMesh(
+Mesh* PieNoonGame::CreateVerticalQuadMesh(
     const flatbuffers::String* material_name, const vec3& offset,
     const vec2& pixel_bounds, float pixel_to_world_scale) {
 
@@ -189,7 +189,7 @@ Mesh* SplatGame::CreateVerticalQuadMesh(
 
 // Load textures for cardboard into 'materials_'. The 'renderer_' and 'matman_'
 // members have been initialized at this point.
-bool SplatGame::InitializeRenderingAssets() {
+bool PieNoonGame::InitializeRenderingAssets() {
   const Config& config = GetConfig();
 
   // Check data validity.
@@ -294,7 +294,7 @@ bool SplatGame::InitializeRenderingAssets() {
 
 // Create state matchines, characters, controllers, etc. present in
 // 'gamestate_'.
-bool SplatGame::InitializeGameState() {
+bool PieNoonGame::InitializeGameState() {
   const Config& config = GetConfig();
 
   game_state_.set_config(&config);
@@ -373,8 +373,8 @@ class AudioEngineVolumeControl {
 // Initialize each member in turn. This is logically just one function, since
 // the order of initialization cannot be changed. However, it's nice for
 // debugging and readability to have each section lexographically separate.
-bool SplatGame::Initialize(const char* const binary_directory) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Splat initializing...\n");
+bool PieNoonGame::Initialize(const char* const binary_directory) {
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "PieNoon initializing...\n");
 
   if (!ChangeToUpstreamDir(binary_directory, kAssetsDir))
     return false;
@@ -399,18 +399,18 @@ bool SplatGame::Initialize(const char* const binary_directory) {
   if (!InitializeGameState())
     return false;
 
-# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   if (!gpg_manager.Initialize())
     return false;
 # endif
 
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Splat initialization complete\n");
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "PieNoon initialization complete\n");
   return true;
 }
 
 // Returns the mesh for renderable_id, if we have one, or the pajama mesh
 // (a mesh with a texture that's obviously wrong), if we don't.
-Mesh* SplatGame::GetCardboardFront(int renderable_id) {
+Mesh* PieNoonGame::GetCardboardFront(int renderable_id) {
   const bool is_valid_id = 0 <= renderable_id &&
                            renderable_id < RenderableId_Count &&
                            cardboard_fronts_[renderable_id] != nullptr;
@@ -418,7 +418,7 @@ Mesh* SplatGame::GetCardboardFront(int renderable_id) {
                      : cardboard_fronts_[RenderableId_Invalid];
 }
 
-void SplatGame::RenderCardboard(const SceneDescription& scene,
+void PieNoonGame::RenderCardboard(const SceneDescription& scene,
                                 const mat4& camera_transform) {
   const Config& config = GetConfig();
 
@@ -478,7 +478,7 @@ void SplatGame::RenderCardboard(const SceneDescription& scene,
   }
 }
 
-void SplatGame::Render(const SceneDescription& scene) {
+void PieNoonGame::Render(const SceneDescription& scene) {
   const Config& config = GetConfig();
 
   // Final matrix that applies the view frustum to bring into screen space.
@@ -531,7 +531,7 @@ void SplatGame::Render(const SceneDescription& scene) {
   RenderCardboard(scene, camera_transform);
 }
 
-void SplatGame::Render2DElements() {
+void PieNoonGame::Render2DElements() {
   const Config& config = GetConfig();
 
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
@@ -544,7 +544,7 @@ void SplatGame::Render2DElements() {
 
   // Loop through the 2D elements. Draw each subsequent one slightly closer
   // to the camera so that they appear on top of the previous ones.
-# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   auto gpg_button = gui_menu_.GetButtonById(ButtonId_ToggleLogIn);
   if (gpg_button)
     gpg_button->set_current_up_material(gpg_manager.LoggedIn() ? 0 : 1);
@@ -584,7 +584,7 @@ void SplatGame::Render2DElements() {
 
 
 // Debug function to print out state machine transitions.
-void SplatGame::DebugPrintCharacterStates() {
+void PieNoonGame::DebugPrintCharacterStates() {
   // Display the state changes, at least until we get real rendering up.
   for (size_t i = 0; i < game_state_.characters().size(); ++i) {
     auto& character = game_state_.characters()[i];
@@ -599,7 +599,7 @@ void SplatGame::DebugPrintCharacterStates() {
 }
 
 // Debug function to print out the state of each AirbornePie.
-void SplatGame::DebugPrintPieStates() {
+void PieNoonGame::DebugPrintPieStates() {
   for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
     auto& pie = game_state_.pies()[i];
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -609,12 +609,12 @@ void SplatGame::DebugPrintPieStates() {
   }
 }
 
-const Config& SplatGame::GetConfig() const {
-  return *fpl::splat::GetConfig(config_source_.c_str());
+const Config& PieNoonGame::GetConfig() const {
+  return *fpl::pie_noon::GetConfig(config_source_.c_str());
 }
 
-const CharacterStateMachineDef* SplatGame::GetStateMachine() const {
-  return fpl::splat::GetCharacterStateMachineDef(
+const CharacterStateMachineDef* PieNoonGame::GetStateMachine() const {
+  return fpl::pie_noon::GetCharacterStateMachineDef(
     state_machine_source_.c_str());
 }
 
@@ -633,7 +633,7 @@ static const ButtonToTranslation kDebugCameraButtons[] = {
 };
 
 // Debug function to move the camera if the mouse button is down.
-void SplatGame::DebugCamera() {
+void PieNoonGame::DebugCamera() {
   const Config& config = GetConfig();
 
   // Only move the camera if the left mouse button (or first finger) is down.
@@ -702,7 +702,7 @@ void SplatGame::DebugCamera() {
   }
 }
 
-SplatState SplatGame::UpdateSplatState() {
+PieNoonState PieNoonGame::UpdatePieNoonState() {
   const WorldTime time = CurrentWorldTime();
   // If a full screen fade is active.
   if (Fading()) {
@@ -724,7 +724,7 @@ SplatState SplatGame::UpdateSplatState() {
             config.loading_logo()->c_str())->textures()[0]->id() &&
           full_screen_fader_.material()->textures()[0]->id()) {
         // Fade in the loading screen.
-        FadeToSplatState(kLoading, config.full_screen_fade_time(),
+        FadeToPieNoonState(kLoading, config.full_screen_fade_time(),
                          mathfu::kZeros4f, false);
       }
       break;
@@ -737,7 +737,7 @@ SplatState SplatGame::UpdateSplatState() {
       if (!Fading() && matman_.TryFinalize() &&
           (time - state_entry_time_) > config.min_loading_time()) {
         // Fade out the loading screen and fade in the scene.
-        FadeToSplatState(kFinished, config.full_screen_fade_time(),
+        FadeToPieNoonState(kFinished, config.full_screen_fade_time(),
                          mathfu::kZeros4f, true);
       }
       break;
@@ -764,7 +764,7 @@ SplatState SplatGame::UpdateSplatState() {
       if ((game_state_.AllLogicalInputs() & LogicalInputs_Deflect) != 0 ||
           (touch_controller_->character_id() != kNoCharacter)) {
         // Fade to the game
-        FadeToSplatState(kPlaying, GetConfig().full_screen_fade_time(),
+        FadeToPieNoonState(kPlaying, GetConfig().full_screen_fade_time(),
                          mathfu::kZeros4f, true);
       }
 
@@ -780,7 +780,7 @@ SplatState SplatGame::UpdateSplatState() {
   return state_;
 }
 
-void SplatGame::TransitionToSplatState(SplatState next_state) {
+void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
   assert(state_ != next_state); // Must actually transition.
   const Config& config = GetConfig();
 
@@ -859,17 +859,17 @@ void SplatGame::TransitionToSplatState(SplatState next_state) {
 }
 
 // Update the current game state and perform a state transition if requested.
-SplatState SplatGame::UpdateSplatStateAndTransition() {
-  const SplatState next_state = UpdateSplatState();
+PieNoonState PieNoonGame::UpdatePieNoonStateAndTransition() {
+  const PieNoonState next_state = UpdatePieNoonState();
   if (next_state != state_) {
-    TransitionToSplatState(next_state);
+    TransitionToPieNoonState(next_state);
   }
   return next_state;
 }
 
 // Queue up a transition to the specified game state with a full screen fade
 // between the states.
-void SplatGame::FadeToSplatState(SplatState next_state,
+void PieNoonGame::FadeToPieNoonState(PieNoonState next_state,
                                  const WorldTime& fade_time,
                                  const mathfu::vec4& color,
                                  const bool fade_in) {
@@ -879,7 +879,7 @@ void SplatGame::FadeToSplatState(SplatState next_state,
   }
 }
 
-#ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 static GPGManager::GPGIds gpg_ids[] = {
   { "CgkI97yope0IEAIQAw", "CgkI97yope0IEAIQCg" },  // kWins
   { "CgkI97yope0IEAIQBA", "CgkI97yope0IEAIQCw" },  // kLosses
@@ -893,8 +893,8 @@ static_assert(sizeof(gpg_ids) / sizeof(GPGManager::GPGIds) ==
               kMaxStats, "update leaderboard_ids");
 #endif
 
-void SplatGame::UploadEvents() {
-# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+void PieNoonGame::UploadEvents() {
+# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   // Now upload all stats:
   // TODO: this assumes player 0 == the logged in player.
   for (int ps = kWins; ps < kMaxStats; ps++) {
@@ -904,8 +904,8 @@ void SplatGame::UploadEvents() {
 # endif
 }
 
-void SplatGame::UploadAndShowLeaderboards() {
-# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+void PieNoonGame::UploadAndShowLeaderboards() {
+# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   gpg_manager.ShowLeaderboards(gpg_ids, sizeof(gpg_ids) /
                                         sizeof(GPGManager::GPGIds));
 # endif
@@ -920,7 +920,7 @@ static bool ValidGameplayController(const Joystick& joy) {
   return joy.GetNumButtons() >= kMinNumButtonsOnJoystick;
 }
 
-void SplatGame::UpdateGamepadControllers() {
+void PieNoonGame::UpdateGamepadControllers() {
   // iterate over list of currently known joysticks.
   for (auto it = input_.JoystickMap().begin();
        it != input_.JoystickMap().end(); ++it) {
@@ -940,7 +940,7 @@ void SplatGame::UpdateGamepadControllers() {
 
 // Returns the characterId of the first AI player we can find.
 // Returns kNoCharacter if none were found.
-CharacterId SplatGame::FindAiPlayer() {
+CharacterId PieNoonGame::FindAiPlayer() {
   for (CharacterId char_id = 0;
        char_id < static_cast<CharacterId>(game_state_.characters().size());
        char_id++) {
@@ -954,7 +954,7 @@ CharacterId SplatGame::FindAiPlayer() {
 
 // Add a new controller into the list of known active controllers and assign
 // an ID to it.
-ControllerId SplatGame::AddController(Controller* new_controller) {
+ControllerId PieNoonGame::AddController(Controller* new_controller) {
   for (ControllerId new_id = 0;
        new_id < static_cast<ControllerId>(active_controllers_.size());
        new_id++) {
@@ -969,7 +969,7 @@ ControllerId SplatGame::AddController(Controller* new_controller) {
 }
 
 // Returns a controller as specified by its ID
-Controller* SplatGame::GetController(ControllerId id) {
+Controller* PieNoonGame::GetController(ControllerId id) {
   return (id >= 0 &&
           id < static_cast<ControllerId>(active_controllers_.size())) ?
         active_controllers_[id].get() : nullptr;
@@ -978,7 +978,7 @@ Controller* SplatGame::GetController(ControllerId id) {
 // Check to see if any of the controllers have tried to join
 // in.  (Anyone who presses attack while there are still AI
 // slots will bump an AI and take their place.)
-void SplatGame::HandlePlayersJoining(Controller* controller) {
+void PieNoonGame::HandlePlayersJoining(Controller* controller) {
   if (controller != nullptr &&
       controller->character_id() == kNoCharacter &&
       controller->controller_type() != Controller::kTypeAI) {
@@ -992,7 +992,7 @@ void SplatGame::HandlePlayersJoining(Controller* controller) {
   }
 }
 
-SplatState SplatGame::HandleMenuButtons() {
+PieNoonState PieNoonGame::HandleMenuButtons() {
   for (size_t i = 0; i < active_controllers_.size(); i++) {
     Controller* controller = active_controllers_[i].get();
     if (controller != nullptr &&
@@ -1006,7 +1006,7 @@ SplatState SplatGame::HandleMenuButtons() {
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
       case ButtonId_ToggleLogIn:
-#       ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+#       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.ToggleSignIn();
 #       endif
         break;
@@ -1054,7 +1054,7 @@ SplatState SplatGame::HandleMenuButtons() {
 // Call AdvanceFrame on every controller that we're listening to
 // and care about.  (Not all are connected to players, but we want
 // to keep them up to date so we can check their inputs as needed.)
-void SplatGame::UpdateControllers(WorldTime delta_time) {
+void PieNoonGame::UpdateControllers(WorldTime delta_time) {
   for (size_t i = 0; i < active_controllers_.size(); i++) {
     if (active_controllers_[i].get() != nullptr) {
       active_controllers_[i]->AdvanceFrame(delta_time);
@@ -1062,7 +1062,7 @@ void SplatGame::UpdateControllers(WorldTime delta_time) {
   }
 }
 
-void SplatGame::UpdateTouchButtons(WorldTime delta_time) {
+void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
   gui_menu_.AdvanceFrame(delta_time, &input_, vec2(renderer_.window_size()));
 
   // If we're playing the game, we have to send the menu events directly
@@ -1076,13 +1076,13 @@ void SplatGame::UpdateTouchButtons(WorldTime delta_time) {
   }
 }
 
-void SplatGame::Run() {
+void PieNoonGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   const Config& config = GetConfig();
   const WorldTime min_update_time = config.min_update_time();
   const WorldTime max_update_time = config.max_update_time();
   prev_world_time_ = CurrentWorldTime() - min_update_time;
-  TransitionToSplatState(kLoadingInitialMaterials);
+  TransitionToPieNoonState(kLoadingInitialMaterials);
   game_state_.Reset();
 
   while (!input_.exit_requested_ &&
@@ -1154,7 +1154,7 @@ void SplatGame::Run() {
       prev_world_time_ = world_time;
 
       // Advance to the next play state, if required.
-      UpdateSplatStateAndTransition();
+      UpdatePieNoonStateAndTransition();
 
       // For testing,
       // we'll check if a sixth finger went down on the touch screen,
@@ -1164,7 +1164,7 @@ void SplatGame::Run() {
         // For testing, show UI:
         UploadAndShowLeaderboards();
       }
-#     ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+#     ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
       gpg_manager.Update();
 #     endif
     } else {
@@ -1211,12 +1211,12 @@ void SplatGame::Run() {
       }
       matman_.TryFinalize();
 
-      if (UpdateSplatStateAndTransition() == kFinished) {
+      if (UpdatePieNoonStateAndTransition() == kFinished) {
         game_state_.Reset();
       }
     }
   }
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl

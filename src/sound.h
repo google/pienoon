@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_SOUND_H_
-#define SPLAT_SOUND_H_
+#ifndef PIE_NOON_SOUND_H_
+#define PIE_NOON_SOUND_H_
 
 struct Mix_Chunk;
 typedef struct _Mix_Music Mix_Music;
@@ -84,4 +84,4 @@ class SoundStream : public SoundSource {
 
 }  // namespace fpl
 
-#endif  // SPLAT_SOUND_H_
+#endif  // PIE_NOON_SOUND_H_

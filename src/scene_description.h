@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_SCENE_DESCRIPTION_H
-#define SPLAT_SCENE_DESCRIPTION_H
+#ifndef PIE_NOON_SCENE_DESCRIPTION_H
+#define PIE_NOON_SCENE_DESCRIPTION_H
 
 #include "mathfu/glsl_mappings.h"
 #include <memory>
@@ -89,4 +89,4 @@ class SceneDescription {
 
 } // namespace fpl
 
-#endif // SPLAT_SCENE_DESCRIPTION_H
+#endif // PIE_NOON_SCENE_DESCRIPTION_H

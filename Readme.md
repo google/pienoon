@@ -1,8 +1,8 @@
-Splat Version 0.1.0
+PieNoon Version 0.1.0
 
-# Splat
+# PieNoon
 
-Splat is a simple multiplayer party game where you can throw pies at your
+PieNoon is a simple multiplayer party game where you can throw pies at your
 friends.
 
 ## Gameplay
@@ -40,42 +40,42 @@ TODO
 
 ### Linux
 
-Unpack the Splat archive, for example from a terminal assuming
-splat-linux.tar.gz is in the current directory:
+Unpack the PieNoon archive, for example from a terminal assuming
+pie_noon-linux.tar.gz is in the current directory:
 
-     mkdir splat
-     cd splat
-     tar -xvf ../splat-linux.tar.gz
+     mkdir pie_noon
+     cd pie_noon
+     tar -xvf ../pie_noon-linux.tar.gz
 
-Run the game by changing into the splat directory and running the executable.
+Run the game by changing into the pie_noon directory and running the executable.
 For example, from a terminal:
 
-     cd splat
+     cd pie_noon
      ./run.sh
 
 ### OSX
 
-Unpack the Splat archive, for example from a terminal assuming splat-osx.tar.gz
-is in the current directory:
+Unpack the PieNoon archive, for example from a terminal
+assuming pie_noon-osx.tar.gz is in the current directory:
 
-    mkdir splat
-    cd splat
-    tar -xvf ../splat-osx.tar.gz
+    mkdir pie_noon
+    cd pie_noon
+    tar -xvf ../pie_noon-osx.tar.gz
 
 Run the game by right clicking the run.command file and select
 "Open with Terminal".  It's also possible to run the game from a terminal
 using:
 
-    cd splat
+    cd pie_noon
     ./run.sh
 
 ### Windows
 
-Unpack the Splat archive in a directory and run the Splat executable under
+Unpack the PieNoon archive in a directory and run the PieNoon executable under
 the Debug or Release directory.  For example:
 
-    cd splat
-    Release\splat.exe
+    cd pie_noon
+    Release\pie_noon.exe
 
 ### Android
 
@@ -88,26 +88,26 @@ that is accessible from the device.
 
 *   Upload the apk to Google Drive from your desktop.
 *   Open the apk in Google Drive on your Android to install the game.
-*   Open "splat" from the application launcher.
+*   Open "pie_noon" from the application launcher.
 
 #### Using e-mail
 
 *   e-mail the apk to yourself as an attachment from your desktop.
 *   Open the apk attachment on your Android device.
-*   Open "splat" from the application launcher.
+*   Open "pie_noon" from the application launcher.
 
 #### Using ADB from the Command Line
 
 *   If it isn't installed already, install the [Android SDK].
 *   Open a terminal window.
-*   Change into the splat directory.
+*   Change into the pie_noon directory.
 *   Install the apk to the device using adb install.
-*   Open "splat" from the application launcher.
+*   Open "pie_noon" from the application launcher.
 
 For example, from the terminal:
 
-    cd splat
-    adb install bin/splat-release.apk
+    cd pie_noon
+    adb install bin/pie_noon-release.apk
 
 
 ## Building from source
@@ -119,7 +119,7 @@ Developers can build the game from source for Android, Linux, OSX and Windows.
 #### Version Requirements
 
 Following are the minimum required versions for the tools and libraries you
-need for building Splat for Linux:
+need for building PieNoon for Linux:
 
 -   OpenGL: libglapi-mesa 8.0.4 (tested with libglapi-mesa 8.0.4-0ubuntu0)
 -   GLU: libglu1-mesa-dev 8.0.4 (tested with libglu1-mesa-dev 8.0.4.0ubuntu0)
@@ -144,23 +144,23 @@ The sample applications require OpenGL and GLU.
 
 #### Building
 
--   Generate makefiles from the [cmake][] project in the `splat` directory.
+-   Generate makefiles from the [cmake][] project in the `pie_noon` directory.
 -   Execute `make` to build the library and sample applications.
 
 For example:
 
-    cd splat
+    cd pie_noon
     cmake -G'Unix Makefiles'
     make
 
 To perform a debug build:
 
-    cd splat
+    cd pie_noon
     cmake -G'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug
     make
 
 Build targets can be configured using options exposed in
-`splat/CMakeLists.txt` by using cmake's `-D` option.
+`pie_noon/CMakeLists.txt` by using cmake's `-D` option.
 Build configuration set using the `-D` option is sticky across subsequent
 builds.
 
@@ -179,15 +179,15 @@ to switch to a release build CMAKE_BUILD_TYPE must be explicitly specified:
 After building the project, you can execute the game from the command line.
 For example:
 
-    ./splat
+    ./pie_noon
 
 ### Building for OS X
 
-You can use [cmake][] to generate an [Xcode][] project for Splat on [OS X][].
+You can use [cmake][] to generate an [Xcode][] project for PieNoon on [OS X][].
 
 #### Version Requirements
 
-These are the minimum required versions for building Splat on OS X:
+These are the minimum required versions for building PieNoon on OS X:
 
 -   OS X: Mavericks 10.9.1.
 -   Xcode: 5.0.1
@@ -204,30 +204,31 @@ These are the minimum required versions for building Splat on OS X:
 
 When working directly with the source, you can generate the [Xcode][]
 project using [cmake][].  For example, the following generates the Xcode
-project in the splat directory.
+project in the pie_noon directory.
 
-    cd splat
+    cd pie_noon
     cmake -G "Xcode"
 
 #### Building with [Xcode][]
 
--   Double-click on `splat/splat.xcodeproj` to open the project in [Xcode][].
+-   Double-click on `pie_noon/pie_noon.xcodeproj` to open the project in
+    [Xcode][].
 -   Select "Product-->Build" from the menu.
 
 #### Executing the game
 
--   Select "splat" in `Scheme`, for example "splat-->My Mac 64-bit", from the
-    combo box to the right of the "Run" button.
+-   Select "pie_noon" in `Scheme`, for example "pie_noon-->My Mac 64-bit", from
+    the combo box to the right of the "Run" button.
 -   Click the "Run" button.
 
 ### Building for Windows
 
-You can use [cmake][] to generate a [Visual Studio][] project for Splat on
+You can use [cmake][] to generate a [Visual Studio][] project for PieNoon on
 [Windows][].
 
 #### Version Requirements
 
-These are the minimum required versions for building Splat for Windows:
+These are the minimum required versions for building PieNoon for Windows:
 
 -   [Windows][]: 7
 -   [Visual Studio][]: 2010 or 2012
@@ -243,26 +244,26 @@ be set to point to the install location of the [DirectX SDK], for example
 `c:\Program Files (x86)\Microsoft DirectX SDK (June 2010)`.
 
 The following example generates the [Visual Studio][] 2012 solution in the
-`splat` directory:
+`pie_noon` directory:
 
-    cd splat
+    cd pie_noon
     cmake -G "Visual Studio 11"
 
 To generate a [Visual Studio][] 2010 solution, use this command:
 
-    cd splat
+    cd pie_noon
     cmake -G "Visual Studio 10"
 
 Running [cmake][] under [cygwin][] requires empty TMP, TEMP, tmp and temp
 variables.  To generate a [Visual Studio][] solution from a [cygwin][]
 bash shell use:
 
-    $ cd splat
+    $ cd pie_noon
     $ ( unset {temp,tmp,TEMP,TMP} ; cmake -G "Visual Studio 11" )
 
 #### Building with [Visual Studio][]
 
--   Double-click on `splat/splat.sln` to open the solution.
+-   Double-click on `pie_noon/pie_noon.sln` to open the solution.
 -   Select "Build-->Build Solution" from the menu.
 
 It's also possible to build from the command line using msbuild after using
@@ -270,14 +271,14 @@ vsvars32.bat to setup the [Visual Studio][] build environment.  For example,
 assuming [Visual Studio][] is installed in
 `c:\Program Files (x86)\Microsoft Visual Studio 11.0`.
 
-    cd splat
+    cd pie_noon
     "c:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\vsvars32.bat"
     cmake -G "Visual Studio 11"
-    msbuild splat.sln
+    msbuild pie_noon.sln
 
 #### Executing the game
 
--   Right-click on the Splat project in the Solution Explorer
+-   Right-click on the PieNoon project in the Solution Explorer
     pane, and select "Set as StartUp Project".
 -   Select "Debug-->Start Debugging" from the menu.
 
@@ -286,7 +287,7 @@ assuming [Visual Studio][] is installed in
 #### Version Requirements
 
 Following are the minimum required versions for the tools and libraries you
-need for building Splat for Android:
+need for building PieNoon for Android:
 
 -   Android SDK:  Android 4.4 (API Level 19)
 -   ADT: 20140702
@@ -300,7 +301,7 @@ need for building Splat for Android:
 
 #### Building
 
-The Splat project has an `AndroidManifest.xml` file which contains details
+The PieNoon project has an `AndroidManifest.xml` file which contains details
 about how to build an Android package (apk).
 
 To build the project:
@@ -311,7 +312,7 @@ To build the project:
 
 For example:
 
-    cd splat
+    cd pie_noon
     ./build_apk_sdl.sh DEPLOY=0 LAUNCH=0
 
 #### Installing and running the game.
@@ -322,7 +323,7 @@ complete.
 For example, the following will install and run the game on a device attached
 to the workstation with serial number `ADA123123`.
 
-    cd splat
+    cd pie_noon
     ./build_apk_sdl.sh ADB_DEVICE=ADA123123
 
 If only one device is attached to a workstation, the `ADB_DEVICE1 argument
@@ -343,10 +344,10 @@ To do so, override APP\_ABI on ndk-build's command line via `build_apk_sdl.sh`:
 The game has many data driven components allowing designers the tweak the
 game mechanics and content creators to add assets.
 
-Game data is specified by [JSON][] files in `splat/src/rawassets` which are
+Game data is specified by [JSON][] files in `pie_noon/src/rawassets` which are
 converted to binary and read in-game using [Flatbuffers][].  Each [JSON][]
-file in `splat/src/rawassets` is described by a [Flatbuffers schema][] in
-`splat/src/flatbufferschemas`.  Each [Flatbuffers schema][] file contains
+file in `pie_noon/src/rawassets` is described by a [Flatbuffers schema][] in
+`pie_noon/src/flatbufferschemas`.  Each [Flatbuffers schema][] file contains
 descriptions of each field (prefixed by `//`) in associated [JSON][] files.
 
 The following table maps each set of [JSON][] files in `src/rawassets` to
@@ -378,17 +379,17 @@ script which requires:
     *   Add `;%PATH_TO_PYTHONEXE%` where `%PATH_TO_PYTHONEXE%` is the location
         of the python executable.
 *   `flatc` ([Flatbuffers compiler][]) to convert [JSON][] text files to .bin
-    files in the `splat/assets` directory.
+    files in the `pie_noon/assets` directory.
 *   [cwebp][] is required to convert `png` images to the [webp][] format.
     Install [cwebp][] by downloading the libwebp archive for your operating
     system (see [WebP Precompiled Utilities][]) unpack somewhere on your
     system and add the directory containing the [cwebp][] binary to the `PATH`
     variable.
 
-After modifying the data in the `splat/src/rawassets` directory, the assets
+After modifying the data in the `pie_noon/src/rawassets` directory, the assets
 need to be rebuilt by running the following command:
 
-    cd splat
+    cd pie_noon
     python scripts/build_assets.py
 
 Each file under `src/rawassets` will produce a corresponding output file in
@@ -435,7 +436,7 @@ first entry is used by the game.  The single light is omni-directional.
 
 The scene is composed of a range of objects called renderables.  The game
 has a discrete number of renderable objects described by the `RenderableId`
-enumeration in `src/flatbufferschemas/splat_common.fbs`.  `RenderableId`
+enumeration in `src/flatbufferschemas/pie_noon_common.fbs`.  `RenderableId`
 values are used to associate game objects with renderable objects.
 
 All renderables in the game are billboards (quads) which can be rendered with
@@ -454,7 +455,7 @@ The renderables used for characters are configured using the
 
 ##### Character Accessories
 
-Character accessories (`splatter_accessories` and `health_accessories`) are
+Character accessories (`pie_noonter_accessories` and `health_accessories`) are
 rendered next to each character.  For example, the health display is rendered
 alongside the character to illustrate the characters remaining health.
 
@@ -518,7 +519,7 @@ with a color tint - supplied by the game runtime - with no lighting.
 
 ### Audio
 
-`SoundId` values in `src/flatbufferschemas/splat_common.fbs` are used to
+`SoundId` values in `src/flatbufferschemas/pie_noon_common.fbs` are used to
 associate game events (states) in the *Character State Machine* with sounds.
 
 `src/rawassets/sound_assets.json` associates `SoundId` values with sounds
@@ -620,7 +621,7 @@ Each state in the state machine can be associated with a timeline which can
 display character or character accessory renderables (see the
 *Visuals* section), play sounds (see *Audio* section) or generate events for
 the game to react to (see `EventId` in
-`src/flatbufferschemas/splat_common.fbs`).  Each item on the timeline is
+`src/flatbufferschemas/pie_noon_common.fbs`).  Each item on the timeline is
 associated with a timestamp (in milliseconds) which indicates when the
 item happen relative to the start of the state.  When the state machine enters
 a state it starts playing through items in the timeline.  The state machine
@@ -687,24 +688,24 @@ and `CharacterLoad2` 0.5 seconds after the timeline started playback:
 The following bullets describe the directory structure of the game.
 
 
-| Path                       | Description                                    |
-|----------------------------|------------------------------------------------|
-| `splat`                    | Project build files and run script.            |
-| `splat/assets`             | Assets loaded by the game.                     |
-| `splat/external`           | OpenGL header required by the game on Windows. |
-| `splat/jni`                | Top-level Android NDK makefile.                |
-| `splat/jni/SDL`            | Android NDK makefile for SDL.                  |
-| `splat/jni/SDL-mixer`      | Android NDK makefile for SDL-mixer.            |
-| `splat/jni/gpg`            | Android NDK makefile for Play Games Services.  |
-| `splat/jni/src`            | Android NDK makefile for the game.             |
-| `res`                      | Android specific resource files.               |
-| `scripts`                  | Asset build makefiles.                         |
-| `src`                      | Game's source.                                 |
-| `src/com/google/fpl/splat` | SDL derived Android activity (entry point).    |
-| `src/flatbufferschemas`    | Game schemas for [FlatBuffers][] data.         |
-| `src/org/libsdl/app`       | Real entry point of the application on Android.|
-| `src/rawassets`            | JSON [FlatBuffers] used as game data.          |
-| `tests`                    | Unit tests for some components of the game.    |
+| Path                          | Description                                  |
+|-------------------------------|----------------------------------------------|
+| `pie_noon`                    | Project build files and run script.          |
+| `pie_noon/assets`             | Assets loaded by the game.                   |
+| `pie_noon/external`           | OpenGL header required on Windows.           |
+| `pie_noon/jni`                | Top-level Android NDK makefile.              |
+| `pie_noon/jni/SDL`            | Android NDK makefile for SDL.                |
+| `pie_noon/jni/SDL-mixer`      | Android NDK makefile for SDL-mixer.          |
+| `pie_noon/jni/gpg`            | Android NDK makefile for Play Games Services.|
+| `pie_noon/jni/src`            | Android NDK makefile for the game.           |
+| `res`                         | Android specific resource files.             |
+| `scripts`                     | Asset build makefiles.                       |
+| `src`                         | Game's source.                               |
+| `src/com/google/fpl/pie_noon` | SDL derived Android activity (entry point).  |
+| `src/flatbufferschemas`       | Game schemas for [FlatBuffers][] data.       |
+| `src/org/libsdl/app`          | Real entry point of the app on Android.      |
+| `src/rawassets`               | JSON [FlatBuffers] used as game data.        |
+| `tests`                       | Unit tests for some components of the game.  |
 
 ### Overview
 

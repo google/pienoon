@@ -25,7 +25,7 @@
 #include "input.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 static const SDL_JoystickID kInvalidJoystickId = -1;
 
@@ -52,7 +52,7 @@ class GamepadController : public Controller {
   SDL_JoystickID joystick_id_;
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 #endif  // GAMEPAD_CONTROLLER_H_

@@ -1,5 +1,5 @@
 {
-  texture_filenames: [
+  "texture_filenames": [
     "textures/splat02.webp",
     "textures/cardboard-normal.webp"
   ],

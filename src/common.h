@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_COMMON_H
-#define SPLAT_COMMON_H
+#ifndef PIE_NOON_COMMON_H
+#define PIE_NOON_COMMON_H
 
 #include "mathfu/quaternion.h"
 #include "mathfu/glsl_mappings.h"
@@ -96,4 +96,4 @@ const ControllerId kTouchController = -2;
 
 }  // namespace fpl
 
-#endif  // SPLAT_COMMON_H
+#endif  // PIE_NOON_COMMON_H

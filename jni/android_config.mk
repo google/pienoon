@@ -13,13 +13,13 @@
 # limitations under the License.
 
 # Locations of 3rd party and FPL libraries.
-THIRD_PARTY_ROOT:=$(SPLAT_DIR)/../../../../external
-PREBUILTS_ROOT:=$(SPLAT_DIR)/../../../../prebuilts
-FPL_ROOT:=$(SPLAT_DIR)/../../libs
+THIRD_PARTY_ROOT:=$(PIE_NOON_DIR)/../../../../external
+PREBUILTS_ROOT:=$(PIE_NOON_DIR)/../../../../prebuilts
+FPL_ROOT:=$(PIE_NOON_DIR)/../../libs
 # If the dependencies directory exists either as a subdirectory or as the
 # container of this project directory, assume the dependencies directory is
 # the root directory for all libraries required by this project.
-DEPENDENCIES_ROOT?=$(wildcard $(SPLAT_DIR)/dependencies)
+DEPENDENCIES_ROOT?=$(wildcard $(PIE_NOON_DIR)/dependencies)
 ifneq ($(DEPENDENCIES_ROOT),)
   THIRD_PARTY_ROOT:=$(DEPENDENCIES_ROOT)
   FPL_ROOT:=$(DEPENDENCIES_ROOT)

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_GAME_H
-#define SPLAT_GAME_H
+#ifndef PIE_NOON_GAME_H
+#define PIE_NOON_GAME_H
 
 #ifdef PLATFORM_MOBILE
-#define SPLAT_USES_GOOGLE_PLAY_GAMES
+#define PIE_NOON_USES_GOOGLE_PLAY_GAMES
 #endif
 
 #include "ai_controller.h"
@@ -32,18 +32,18 @@
 #include "scene_description.h"
 #include "touchscreen_button.h"
 #include "touchscreen_controller.h"
-#ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 #include "gpg_manager.h"
 #endif
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 struct Config;
 class CharacterStateMachine;
 struct RenderingAssets;
 
-enum SplatState {
+enum PieNoonState {
   kUninitialized = 0,
   kLoadingInitialMaterials,
   kLoading,
@@ -52,10 +52,10 @@ enum SplatState {
   kFinished
 };
 
-class SplatGame {
+class PieNoonGame {
  public:
-  SplatGame();
-  ~SplatGame();
+  PieNoonGame();
+  ~PieNoonGame();
   bool Initialize(const char* const binary_directory);
   void Run();
 
@@ -77,10 +77,10 @@ class SplatGame {
   const Config& GetConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
-  SplatState UpdateSplatState();
-  void TransitionToSplatState(SplatState next_state);
-  SplatState UpdateSplatStateAndTransition();
-  void FadeToSplatState(SplatState next_state, const WorldTime& fade_time,
+  PieNoonState UpdatePieNoonState();
+  void TransitionToPieNoonState(PieNoonState next_state);
+  PieNoonState UpdatePieNoonStateAndTransition();
+  void FadeToPieNoonState(PieNoonState next_state, const WorldTime& fade_time,
                         const mathfu::vec4& color, const bool fade_in);
   bool Fading() const { return fade_exit_state_ != kUninitialized; }
   void UploadEvents();
@@ -91,14 +91,14 @@ class SplatGame {
   Controller * GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining(Controller* controller);
-  SplatState HandleMenuButtons();
+  PieNoonState HandleMenuButtons();
   //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
 
-  // The overall operating mode of our game. See CalculateSplatState for the
+  // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
-  SplatState state_;
+  PieNoonState state_;
 
   // The elapsed time when we entered state_. In the same time system as
   // prev_world_time_.
@@ -172,15 +172,15 @@ class SplatGame {
   // Used to render an overlay to fade the screen.
   FullScreenFader full_screen_fader_;
   // State to enter after the fade is complete.
-  SplatState fade_exit_state_;
+  PieNoonState fade_exit_state_;
 
-# ifdef SPLAT_USES_GOOGLE_PLAY_GAMES
+# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
 # endif
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
-#endif  // SPLAT_GAME_H
+#endif  // PIE_NOON_GAME_H
 

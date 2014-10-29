@@ -22,10 +22,10 @@
 #include "input.h"
 #include "material.h"
 #include "renderer.h"
-#include "splat_common_generated.h"
+#include "pie_noon_common_generated.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 class TouchscreenButton
 {
@@ -108,7 +108,7 @@ class TouchscreenButton
   bool is_highlighted_;
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 #endif // TOUCHSCREEN_BUTTON_H

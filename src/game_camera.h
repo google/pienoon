@@ -21,7 +21,7 @@
 #include "impel_processor_smooth.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 struct GameCameraState {
   mathfu::vec3 position;
@@ -125,7 +125,7 @@ class GameCamera {
   std::queue<GameCameraMovement> movements_;
 };
 
-} // splat
+} // pie_noon
 } // fpl
 
 #endif // GAME_CAMERA_H_

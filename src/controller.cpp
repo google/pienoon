@@ -15,7 +15,7 @@
 #include "controller.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 void Controller::ClearAllLogicalInputs() {
   is_down_ = 0;
@@ -34,5 +34,5 @@ void Controller::SetLogicalInputs(uint32_t bitmap, bool set) {
   }
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl

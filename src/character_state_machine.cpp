@@ -18,7 +18,7 @@
 #include "character_state_machine_def_generated.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 CharacterStateMachine::CharacterStateMachine(
     const CharacterStateMachineDef* const state_machine_def)
@@ -84,6 +84,6 @@ bool CharacterStateMachineDef_Validate(
   return true;
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl
 

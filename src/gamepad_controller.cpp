@@ -21,7 +21,7 @@
 #include "character_state_machine_def_generated.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 GamepadController::GamepadController()
     : Controller(kTypeGamepad),
@@ -53,7 +53,7 @@ void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
   SetLogicalInputs(LogicalInputs_Deflect, joystick.GetButton(1).is_down());
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 

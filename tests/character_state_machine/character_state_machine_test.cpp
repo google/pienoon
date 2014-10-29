@@ -25,25 +25,25 @@
 #include "flatbuffers/util.h"
 #include "gtest/gtest.h"
 
-namespace sp = ::fpl::splat;
+namespace pn = ::fpl::pie_noon;
 namespace fb = ::flatbuffers;
 
 TEST(CharacterStateMachineTests, NotAllStatesUsedDeathTest) {
   flatbuffers::FlatBufferBuilder builder;
-  std::vector<flatbuffers::Offset<sp::CharacterState>> states;
+  std::vector<flatbuffers::Offset<pn::CharacterState>> states;
   // Omit the final state
-  for (int8_t i = 0; i < sp::StateId_Count - 1; i++) {
-    auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
+  for (int8_t i = 0; i < pn::StateId_Count - 1; i++) {
+    auto trans = builder.CreateVector<fb::Offset<pn::Transition>>(nullptr, 0);
     auto timeline = fpl::CreateTimeline(builder);
-    states.push_back(sp::CreateCharacterState(builder,
-                                              static_cast<sp::StateId>(i),
+    states.push_back(pn::CreateCharacterState(builder,
+                                              static_cast<pn::StateId>(i),
                                               trans, timeline));
   }
-  auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
-      builder.CreateVector<fb::Offset<sp::CharacterState>>(
-          &states.front(), states.size()), sp::StateId_Idling);
+  auto state_machine_offset = pn::CreateCharacterStateMachineDef(builder,
+      builder.CreateVector<fb::Offset<pn::CharacterState>>(
+          &states.front(), states.size()), pn::StateId_Idling);
   builder.Finish(state_machine_offset);
-  auto state_machine = sp::GetCharacterStateMachineDef(
+  auto state_machine = pn::GetCharacterStateMachineDef(
       builder.GetBufferPointer());
 
   ASSERT_FALSE(CharacterStateMachineDef_Validate(state_machine));
@@ -51,19 +51,19 @@ TEST(CharacterStateMachineTests, NotAllStatesUsedDeathTest) {
 
 TEST(CharacterStateMachineTests, StatesOutOfOrderDeathTest) {
   flatbuffers::FlatBufferBuilder builder;
-  std::vector<flatbuffers::Offset<sp::CharacterState>> states;
-  for (int i = 0; i < sp::StateId_Count; i++) {
-    auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
+  std::vector<flatbuffers::Offset<pn::CharacterState>> states;
+  for (int i = 0; i < pn::StateId_Count; i++) {
+    auto trans = builder.CreateVector<fb::Offset<pn::Transition>>(nullptr, 0);
     auto timeline = fpl::CreateTimeline(builder);
     // Set all state id's to 0
-    states.push_back(sp::CreateCharacterState(builder, sp::StateId_Idling,
+    states.push_back(pn::CreateCharacterState(builder, pn::StateId_Idling,
                                               trans, timeline));
   }
-  auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
-      builder.CreateVector<fb::Offset<sp::CharacterState>>(
-          &states.front(), states.size()), sp::StateId_Idling);
+  auto state_machine_offset = pn::CreateCharacterStateMachineDef(builder,
+      builder.CreateVector<fb::Offset<pn::CharacterState>>(
+          &states.front(), states.size()), pn::StateId_Idling);
   builder.Finish(state_machine_offset);
-  auto state_machine = sp::GetCharacterStateMachineDef(
+  auto state_machine = pn::GetCharacterStateMachineDef(
       builder.GetBufferPointer());
 
   ASSERT_FALSE(CharacterStateMachineDef_Validate(state_machine));
@@ -71,58 +71,58 @@ TEST(CharacterStateMachineTests, StatesOutOfOrderDeathTest) {
 
 TEST(CharacterStateMachineTests, AllStatesPass) {
   flatbuffers::FlatBufferBuilder builder;
-  std::vector<flatbuffers::Offset<sp::CharacterState>> states;
-  for (uint8_t i = 0; i < sp::StateId_Count; i++) {
-    auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(nullptr, 0);
+  std::vector<flatbuffers::Offset<pn::CharacterState>> states;
+  for (uint8_t i = 0; i < pn::StateId_Count; i++) {
+    auto trans = builder.CreateVector<fb::Offset<pn::Transition>>(nullptr, 0);
     auto timeline = fpl::CreateTimeline(builder);
-    states.push_back(sp::CreateCharacterState(builder,
-                                              static_cast<sp::StateId>(i),
+    states.push_back(pn::CreateCharacterState(builder,
+                                              static_cast<pn::StateId>(i),
                                               trans, timeline));
   }
-  auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
-      builder.CreateVector<fb::Offset<sp::CharacterState>>(
-          &states.front(), states.size()), sp::StateId_Idling);
+  auto state_machine_offset = pn::CreateCharacterStateMachineDef(builder,
+      builder.CreateVector<fb::Offset<pn::CharacterState>>(
+          &states.front(), states.size()), pn::StateId_Idling);
   builder.Finish(state_machine_offset);
-  auto def = sp::GetCharacterStateMachineDef(builder.GetBufferPointer());
+  auto def = pn::GetCharacterStateMachineDef(builder.GetBufferPointer());
 
   CharacterStateMachineDef_Validate(def);
 }
 
 TEST(CharacterStateMachineTests, FollowTransitions) {
   flatbuffers::FlatBufferBuilder builder;
-  std::vector<flatbuffers::Offset<sp::CharacterState>> states;
-  for (uint8_t i = 0; i < sp::StateId_Count; i++) {
-    std::vector<flatbuffers::Offset<sp::Transition>> trans_vec;
-    uint8_t target_id = (i + 1) % sp::StateId_Count;
-    uint16_t conditions = sp::LogicalInputs_ThrowPie;
-    trans_vec.push_back(sp::CreateTransition(builder,
-                              static_cast<sp::StateId>(target_id), conditions));
+  std::vector<flatbuffers::Offset<pn::CharacterState>> states;
+  for (uint8_t i = 0; i < pn::StateId_Count; i++) {
+    std::vector<flatbuffers::Offset<pn::Transition>> trans_vec;
+    uint8_t target_id = (i + 1) % pn::StateId_Count;
+    uint16_t conditions = pn::LogicalInputs_ThrowPie;
+    trans_vec.push_back(pn::CreateTransition(builder,
+                              static_cast<pn::StateId>(target_id), conditions));
 
-    auto trans = builder.CreateVector<fb::Offset<sp::Transition>>(
+    auto trans = builder.CreateVector<fb::Offset<pn::Transition>>(
       &trans_vec.front(), trans_vec.size());
     auto timeline = fpl::CreateTimeline(builder);
-    states.push_back(sp::CreateCharacterState(builder,
-                                              static_cast<sp::StateId>(i),
+    states.push_back(pn::CreateCharacterState(builder,
+                                              static_cast<pn::StateId>(i),
                                               trans, timeline));
   }
-  auto state_machine_offset = sp::CreateCharacterStateMachineDef(builder,
-      builder.CreateVector<fb::Offset<sp::CharacterState>>(
-          &states.front(), states.size()), sp::StateId_Idling);
+  auto state_machine_offset = pn::CreateCharacterStateMachineDef(builder,
+      builder.CreateVector<fb::Offset<pn::CharacterState>>(
+          &states.front(), states.size()), pn::StateId_Idling);
   builder.Finish(state_machine_offset);
-  auto def = sp::GetCharacterStateMachineDef(builder.GetBufferPointer());
+  auto def = pn::GetCharacterStateMachineDef(builder.GetBufferPointer());
 
   CharacterStateMachineDef_Validate(def);
 
-  sp::CharacterStateMachine state_machine(def);
-  sp::ConditionInputs correct_input1;
-  correct_input1.is_down = sp::LogicalInputs_ThrowPie;
+  pn::CharacterStateMachine state_machine(def);
+  pn::ConditionInputs correct_input1;
+  correct_input1.is_down = pn::LogicalInputs_ThrowPie;
 
-  sp::ConditionInputs correct_input2;
+  pn::ConditionInputs correct_input2;
   correct_input2.is_down =
-      sp::LogicalInputs_ThrowPie | sp::LogicalInputs_Deflect;
+      pn::LogicalInputs_ThrowPie | pn::LogicalInputs_Deflect;
 
-  sp::ConditionInputs incorrect_input;
-  incorrect_input.is_down = sp::LogicalInputs_Deflect;
+  pn::ConditionInputs incorrect_input;
+  incorrect_input.is_down = pn::LogicalInputs_Deflect;
 
   ASSERT_EQ(state_machine.current_state()->id(), 0);
   state_machine.Update(correct_input1);

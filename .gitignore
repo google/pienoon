@@ -16,11 +16,11 @@ flatbuffers/
 googletest/
 mathfu/
 sdl/
-splat.build/
-splat.xcodeproj/
+pie_noon.build/
+pie_noon.xcodeproj/
 tests/Debug/
 tests/Release/
-tests/splat.build/
+tests/pie_noon.build/
 libogg/liblibogg.a
 libvorbis/liblibvorbis.a
 sdl_mixer/libsdl_mixer.a
@@ -43,7 +43,7 @@ build/
 
 # Misc generated files
 tags
-splat.tar.gz
+pie_noon.tar.gz
 
 # android build files
 build.xml

@@ -29,7 +29,7 @@ class AudioEngine;
 class InputSystem;
 class SceneDescription;
 
-namespace splat {
+namespace pie_noon {
 
 struct Config;
 struct CharacterArrangement;
@@ -148,7 +148,7 @@ private:
   ParticleManager particle_manager_;
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 #endif  // GAME_STATE_H_

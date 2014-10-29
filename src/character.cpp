@@ -24,7 +24,7 @@
 #include "impel_processor_overshoot.h"
 #include "impel_util.h"
 #include "scoring_rules_generated.h"
-#include "splat_common_generated.h"
+#include "pie_noon_common_generated.h"
 #include "timeline_generated.h"
 
 using mathfu::vec2i;
@@ -34,7 +34,7 @@ using mathfu::vec4;
 using mathfu::mat4;
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 Character::Character(
     CharacterId id, Controller* controller, const Config& config,
@@ -182,4 +182,4 @@ void ApplyScoringRule(const ScoringRules* scoring_rules,
 }
 
 } //  namespace fpl
-} //  namespace splat
+} //  namespace pie_noon

@@ -25,7 +25,7 @@
 
 include "timeline.fbs";
 
-namespace fpl.splat;
+namespace fpl.pie_noon;
 
 // The list of state ids in the state machine. Each state must have a unique ID.
 enum StateId:byte {
@@ -82,7 +82,7 @@ table Condition {
 table ConditionalEvent {
   condition:Condition;
   event:ushort;       // Identify what is happening in the event.
-                      // For Splat, use EventId in splat_common.fbs.
+                      // For PieNoon, use EventId in pie_noon_common.fbs.
   modifier:ushort;    // Meaning depends on 'event'. e.g. amount of damage.
 }
 

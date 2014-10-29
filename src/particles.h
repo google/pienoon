@@ -21,7 +21,7 @@
 #include <list>
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 typedef float TimeStep;
 
@@ -154,6 +154,6 @@ class ParticleManager {
   std::list<Particle*> inactive_particle_list_;
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 #endif // PARTICLES_H

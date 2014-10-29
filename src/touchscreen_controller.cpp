@@ -20,7 +20,7 @@
 #include "utilities.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 TouchscreenController::TouchscreenController()
   : Controller(kTypeTouchScreen),
@@ -78,6 +78,6 @@ void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
   ClearAllLogicalInputs();
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl
 

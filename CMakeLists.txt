@@ -13,10 +13,10 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 2.8.12)
 
-project(splat)
+project(pie_noon)
 
 # Compile the game with the debug flag
-set(SPLAT_DEBUG ON)
+set(PIE_NOON_DEBUG ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -67,12 +67,12 @@ set(dependencies_webp_distr_dir "${third_party_root}/webp"
     CACHE PATH "Directory containing the Webp distribution.")
 
 # Option to enable / disable the test build.
-option(splat_build_tests "Build tests for this project." ON)
+option(pie_noon_build_tests "Build tests for this project." ON)
 
 # Option to enable / disable the build of cwebp from source.
-option(splat_build_cwebp "Build cwebp from source." OFF)
+option(pie_noon_build_cwebp "Build cwebp from source." OFF)
 
-if(splat_build_cwebp)
+if(pie_noon_build_cwebp)
   # Depend upon the cwebp target to build assets.
   set(CWEBP_TARGET cwebp)
   # Enable the build of cwebp from source.
@@ -145,8 +145,8 @@ if(APPLE)
   SET(CMAKE_CXX_LINK_FLAGS "-framework OpenGL")
 endif()
 
-# Splat source files.
-set(splat_SRCS
+# PieNoon source files.
+set(pie_noon_SRCS
     src/ai_controller.cpp
     src/ai_controller.h
     src/async_loader.h
@@ -220,8 +220,8 @@ set(splat_SRCS
     src/sound.h
     src/sound_collection.cpp
     src/sound_collection.h
-    src/splat_game.cpp
-    src/splat_game.h
+    src/pie_noon_game.cpp
+    src/pie_noon_game.h
     src/touchscreen_button.h
     src/touchscreen_button.cpp
     src/touchscreen_controller.cpp
@@ -271,7 +271,7 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
-if(SPLAT_DEBUG)
+if(PIE_NOON_DEBUG)
   add_definitions(-D_DEBUG)
 endif()
 
@@ -284,12 +284,12 @@ if(WIN32)
 endif()
 
 # Executable target.
-add_executable(splat ${splat_SRCS})
+add_executable(pie_noon ${pie_noon_SRCS})
 # Additional flags for the target.
-mathfu_configure_flags(splat)
+mathfu_configure_flags(pie_noon)
 # Dependencies for the executable target.
-add_dependencies(splat generated_includes assets)
-target_link_libraries(splat
+add_dependencies(pie_noon generated_includes assets)
+target_link_libraries(pie_noon
   ${SDL_LIBRARIES}
   sdl_mixer
   libvorbis
@@ -298,12 +298,12 @@ target_link_libraries(splat
   webp)
 
 # Tests.
-if(splat_build_tests)
+if(pie_noon_build_tests)
   add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 endif()
 
 # Create a zipped tar of all the necessary files to run the game.
 add_custom_target(export
   COMMAND python ${CMAKE_SOURCE_DIR}/scripts/export.py
-  DEPENDS splat)
+  DEPENDS pie_noon)
 

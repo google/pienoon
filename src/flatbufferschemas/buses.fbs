@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace fpl.splat;
+namespace fpl.pie_noon;
 
 // Representation of an audio bus similar to a bus on a mixing desk. Busses are
 // hierarchical where the gain of each parent bus is applied to each of the

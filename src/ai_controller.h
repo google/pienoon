@@ -22,13 +22,13 @@
 #include "common.h"
 #include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
-#include "splat_common_generated.h" // TODO: put in alphabetical order when
+#include "pie_noon_common_generated.h" // TODO: put in alphabetical order when
                                     // FlatBuffers predeclare bug fixed.
 #include "audio_config_generated.h"
 #include "config_generated.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 // A computer-controlled player.  Basically the same as PlayerController,
 // except that instead of generating logical inputs based on events,
@@ -53,7 +53,7 @@ class AiController : public Controller {
   WorldTime time_to_next_action_;
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 #endif  // AI_CONTROLLER_H_

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace fpl.splat;
+namespace fpl.pie_noon;
 
 enum RenderableId : ushort {
   Invalid,

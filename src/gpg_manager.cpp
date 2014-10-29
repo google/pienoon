@@ -176,7 +176,7 @@ void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                     "GPG: submitted score %llu for id %s", it->second.Count(),
                     leaderboard_id);
-        // TODO: factor this code out into the game, as it is specific to Splat.
+        // TODO: factor this code out into the game, as it is specific to PieNoon.
         // Also, ideally this should happen during the game.
         if (!strcmp(leaderboard_id, "CgkI97yope0IEAIQAg")) {  // Pies thrown.
           struct Achievement { const char *id; int pie_count; };
@@ -219,7 +219,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 }
 
 extern "C" JNIEXPORT void JNICALL
-  Java_com_google_fpl_splat_FPLActivity_nativeOnActivityResult(
+  Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnActivityResult(
     JNIEnv *env,
     jobject thiz,
     jobject activity,

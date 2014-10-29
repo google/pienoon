@@ -2,7 +2,7 @@
 
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 
 void Particle::reset() {
@@ -97,5 +97,5 @@ Particle* ParticleManager::CreateParticle() {
 }
 
 
-}  // splat
+}  // pie_noon
 }  // fpl

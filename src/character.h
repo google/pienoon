@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_CHARACTER_H_
-#define SPLAT_CHARACTER_H_
+#ifndef PIE_NOON_CHARACTER_H_
+#define PIE_NOON_CHARACTER_H_
 
 #include "angle.h"
 #include "audio_config_generated.h"
@@ -23,7 +23,7 @@
 #include "impel_util.h"
 #include "impeller.h"
 #include "player_controller.h"
-#include "splat_common_generated.h"
+#include "pie_noon_common_generated.h"
 #include "sound_collection_def_generated.h"
 #include "timeline_generated.h"
 
@@ -34,9 +34,9 @@ namespace impel {
 namespace fpl {
 
 class AudioEngine;
-using splat::SoundId;
+using pie_noon::SoundId;
 
-namespace splat {
+namespace pie_noon {
 
 class Controller;
 
@@ -266,7 +266,7 @@ inline std::vector<int> TimelineIndicesWithTime(const T& arr,
 void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,
                       unsigned int damage, Character* character);
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
-#endif  // SPLAT_CHARACTER_H_
+#endif  // PIE_NOON_CHARACTER_H_

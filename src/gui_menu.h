@@ -25,7 +25,7 @@
 #include "touchscreen_button.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 // Simple struct for transporting a menu selection, and the controller that
 // triggered it.
@@ -72,6 +72,6 @@ class GuiMenu {
 };
 
 
-}  // splat
+}  // pie_noon
 }  // fpl
 #endif // GUI_MENU_H

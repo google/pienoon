@@ -15,8 +15,8 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-SPLAT_DIR:=$(realpath $(LOCAL_PATH)/../..)
-include $(SPLAT_DIR)/jni/android_config.mk
+PIE_NOON_DIR:=$(realpath $(LOCAL_PATH)/../..)
+include $(PIE_NOON_DIR)/jni/android_config.mk
 
 include $(CLEAR_VARS)
 

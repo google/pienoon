@@ -2,7 +2,7 @@
 #include "utilities.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 TouchscreenButton::TouchscreenButton()
   : elapsed_time_(0),
@@ -91,6 +91,6 @@ void TouchscreenButton::Render(Renderer& renderer) {
 }
 
 
-}  // splat
+}  // pie_noon
 }  // fpl
 

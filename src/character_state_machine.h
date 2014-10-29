@@ -19,7 +19,7 @@
 #include "common.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 struct CharacterStateMachineDef;
 struct CharacterState;
@@ -79,7 +79,7 @@ bool EvaluateCondition(const Condition* condition,
 bool CharacterStateMachineDef_Validate(
     const CharacterStateMachineDef* const state_machine_def);
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 #endif  // CHARACTER_STATE_MACHINE_

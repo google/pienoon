@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-include "splat_common.fbs";
+include "pie_noon_common.fbs";
 include "audio_config.fbs";
 include "impel.fbs";
 include "particles.fbs";
 include "scoring_rules.fbs";
 
-namespace fpl.splat;
+namespace fpl.pie_noon;
 
 enum Orientation : ushort {
   Vertical,
@@ -543,7 +543,7 @@ table Config {
 
   // Definition for pie splatter particles:
   pie_splatter_def:ParticleDef;
-  splat_particles_per_damage:int;
+  pie_noon_particles_per_damage:int;
 
   // Confetti for the victor.
   confetti_def:ParticleDef;

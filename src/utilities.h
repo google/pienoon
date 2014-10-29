@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_UTILITIES_H
-#define SPLAT_UTILITIES_H
+#ifndef PIE_NOON_UTILITIES_H
+#define PIE_NOON_UTILITIES_H
 
 #include <string>
 
 #include "mathfu/utilities.h"
 
 // TODO: put in alphabetical order when FlatBuffers predeclare bug fixed.
-#include "splat_common_generated.h"
+#include "pie_noon_common_generated.h"
 #include "audio_config_generated.h"
 #include "config_generated.h"
 
@@ -28,28 +28,28 @@ namespace fpl {
 
 bool LoadFile(const char *filename, std::string *dest);
 
-inline const mathfu::vec3 LoadVec3(const splat::Vec3* v) {
+inline const mathfu::vec3 LoadVec3(const pie_noon::Vec3* v) {
   // Note: eschew the constructor that loads contiguous floats. It's faster
   // than the x, y, z constructor we use here, but doesn't account for the
-  // endian swap that might occur in splat::Vec3::x().
+  // endian swap that might occur in pie_noon::Vec3::x().
   return mathfu::vec3(v->x(), v->y(), v->z());
 }
 
-inline const mathfu::vec4 LoadVec4(const splat::Vec4* v) {
+inline const mathfu::vec4 LoadVec4(const pie_noon::Vec4* v) {
   return mathfu::vec4(v->x(), v->y(), v->z(), v->w());
 }
 
-inline const mathfu::vec2i LoadVec2i(const splat::Vec2i* v) {
+inline const mathfu::vec2i LoadVec2i(const pie_noon::Vec2i* v) {
   return mathfu::vec2i(v->x(), v->y());
 }
 
-inline const mathfu::vec2 LoadVec2(const splat::Vec2* v) {
+inline const mathfu::vec2 LoadVec2(const pie_noon::Vec2* v) {
   return mathfu::vec2(v->x(), v->y());
 }
 
-inline const mathfu::vec3 LoadAxis(splat::Axis axis) {
-  return axis == splat::Axis_X ? mathfu::kAxisX3f :
-         axis == splat::Axis_Y ? mathfu::kAxisY3f : mathfu::kAxisZ3f;
+inline const mathfu::vec3 LoadAxis(pie_noon::Axis axis) {
+  return axis == pie_noon::Axis_X ? mathfu::kAxisX3f :
+         axis == pie_noon::Axis_Y ? mathfu::kAxisY3f : mathfu::kAxisZ3f;
 }
 
 bool ChangeToUpstreamDir(const char* const binary_dir,
@@ -63,4 +63,4 @@ std::string FileNameFromEnumName(const char* const enum_name,
 
 } // namespace fpl
 
-#endif // SPLAT_UTILITIES_H
+#endif // PIE_NOON_UTILITIES_H

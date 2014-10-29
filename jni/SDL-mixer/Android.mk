@@ -16,8 +16,8 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-SPLAT_DIR:=$(realpath $(LOCAL_PATH)/../..)
-include $(SPLAT_DIR)/jni/android_config.mk
+PIE_NOON_DIR:=$(realpath $(LOCAL_PATH)/../..)
+include $(PIE_NOON_DIR)/jni/android_config.mk
 
 # Modify the local path to point to the SDL mixer library source.
 LOCAL_PATH:=$(DEPENDENCIES_SDL_MIXER_DIR)

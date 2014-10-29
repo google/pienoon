@@ -1,7 +1,7 @@
 // Helper class that allows us to rename our app.
 // Can't just modify SDLActivity, since the native code depends on that package.
 
-package com.google.fpl.splat;
+package com.google.fpl.pie_noon;
 
 import org.libsdl.app.SDLActivity;
 import android.content.Intent;

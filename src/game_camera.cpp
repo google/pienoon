@@ -28,7 +28,7 @@ using mathfu::vec4;
 using mathfu::mat4;
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 vec3 GameCamera::Position() const {
   return percent_.Valid() ?
@@ -108,5 +108,5 @@ void GameCamera::OverrideTarget(const vec3& target) {
   end_.target = target;
 }
 
-} // splat
+} // pie_noon
 } // fpl

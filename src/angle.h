@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLAT_SRC_ANGLE_H
-#define SPLAT_SRC_ANGLE_H
+#ifndef PIE_NOON_SRC_ANGLE_H
+#define PIE_NOON_SRC_ANGLE_H
 
 #include <assert.h>
 #include <math.h>
@@ -293,4 +293,4 @@ inline Angle Angle::Clamp(const Angle& center, const Angle& max_diff) const {
 
 }  // namespace fpl
 
-#endif  // SPLAT_SRC_ANGLE_H
+#endif  // PIE_NOON_SRC_ANGLE_H

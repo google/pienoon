@@ -22,7 +22,7 @@
 #include "input.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 // A keybind represents a mapping between a physical key and a game specific
 // input.
@@ -72,7 +72,7 @@ class PlayerController : public Controller {
   const ControlScheme* scheme_;
 };
 
-}  // splat
+}  // pie_noon
 }  // fpl
 
 #endif  // PLAYER_CONTROLLER_H_

@@ -21,7 +21,7 @@
 #include "character_state_machine_def_generated.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 PlayerController::PlayerController() : Controller(kTypePlayer) {}
 
@@ -90,6 +90,6 @@ const ControlScheme* ControlScheme::GetDefaultControlScheme(int i) {
   return &kDefaultSchemes[i % ARRAYSIZE(kDefaultSchemes)];
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl
 

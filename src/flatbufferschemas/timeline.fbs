@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-include "splat_common.fbs"; // Required for enumerations used in Splat.
+include "pie_noon_common.fbs"; // Required for enumerations used in PieNoon.
 
 namespace fpl;
 
 struct TimelineRenderable {
   time:ushort;        // Time of event. Time 0 is start of timeline.
   renderable:ushort;  // Identify the item to render.
-                      // For Splat, use RenderableId in splat_common.fbs.
+                      // For PieNoon, use RenderableId in pie_noon_common.fbs.
 }
 
 struct PixelOffset {
@@ -32,20 +32,20 @@ struct TimelineAccessory {
   end_time:ushort;    // Time to stop displaying accessory.
                       // 0 never stops the display of an accessory.
   renderable:ushort;  // Identify the accessory to render.
-                      // For Splat, use RenderableId in splat_common.fbs.
+                      // For PieNoon, use RenderableId in pie_noon_common.fbs.
   offset:PixelOffset; // Offset in pixels from bottom left of renderable.
 }
 
 struct TimelineSound {
   time:ushort;        // Time of event. Time 0 is start of timeline.
   sound:SoundId;      // Identify the sound to start playing at 'time'.
-                      // For Splat, use SoundId in splat_common.fbs.
+                      // For PieNoon, use SoundId in pie_noon_common.fbs.
 }
 
 struct TimelineEvent {
   time:ushort;        // Time of event. Time 0 is start of timeline.
   event:ushort;       // Identify what is happening in the event.
-                      // For Splat, use EventId in splat_common.fbs.
+                      // For PieNoon, use EventId in pie_noon_common.fbs.
   modifier:ushort;    // Meaning depends on 'event'. e.g. amount of damage.
 }
 

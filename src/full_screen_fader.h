@@ -24,7 +24,7 @@ class Renderer;
 class Material;
 class Shader;
 
-namespace splat {
+namespace pie_noon {
 
 // Renders a full screen overlay that transitions to opaque then back to
 // transparent.
@@ -81,7 +81,7 @@ class FullScreenFader {
   Shader* shader_;
 };
 
-}  // namespace splat
+}  // namespace pie_noon
 }  // namespace fpl
 
 #endif  // FULL_SCREEN_FADER_H

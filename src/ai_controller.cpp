@@ -19,7 +19,7 @@
 #include "utilities.h"
 
 namespace fpl {
-namespace splat {
+namespace pie_noon {
 
 AiController::AiController() : Controller(kTypeAI) {}
 
@@ -95,6 +95,6 @@ bool AiController::IsInDanger(CharacterId id) const {
   return false;
 }
 
-}  // splat
+}  // pie_noon
 }  // fpl
 

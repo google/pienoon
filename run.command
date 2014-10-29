@@ -25,7 +25,7 @@ cd `dirname $0`
 python ./scripts/build_assets.py
 
 # Run the game.
-for exe in ./bin/splat ./bin/Release/splat ./bin/Debug/splat; do
+for exe in ./bin/pie_noon ./bin/Release/pie_noon ./bin/Debug/pie_noon; do
   if [[ -e ${exe} ]]; then
     ${exe}
     break
