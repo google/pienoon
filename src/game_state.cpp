@@ -362,10 +362,9 @@ void GameState::ProcessEvent(Character* character,
             pie.damage + config_->pie_damage_change_when_deflected();
         if (deflected_pie_damage > 0) {
           CreatePie(pie.source_id, character->id(),
-                    DetermineDeflectionTarget(pie), pie.damage);
-        } else {
-          CreatePieSplatter(*character, 1);
+                    DetermineDeflectionTarget(pie), deflected_pie_damage);
         }
+        CreatePieSplatter(*character, 1);
         character->IncrementStat(kBlocks);
         characters_[pie.source_id]->IncrementStat(kMisses);
         ApplyScoringRule(config_->scoring_rules(), ScoreEvent_DeflectedPie,
