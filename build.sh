@@ -55,7 +55,7 @@ main() {
   update_package 'Google Play services,' sdk/extras/google/google_play_services/
 
   find $ANDROID_SDK_HOME -name google-play-services_lib
-  cd vendor/unbundled_google/packages/pie_noon
+  cd vendor/unbundled_google/packages/splat
   rm -rf bin
   ../../../../prebuilts/cmake/linux-x86/cmake-2.8.12.1-Linux-i386/bin/cmake .
   make assets
