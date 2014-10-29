@@ -24,7 +24,7 @@ class GPGManager {
   GPGManager();
 
   // Start of initial initialization and auth.
-  bool Initialize();
+  bool Initialize(bool ui_login);
 
   // Call once a frame to allow us to track our async work.
   void Update();
@@ -59,7 +59,7 @@ class GPGManager {
   };
 
   AsyncState state_;
-  int num_gui_logins_;
+  bool do_ui_login_;
   std::unique_ptr<gpg::GameServices> game_services_;
 };
 

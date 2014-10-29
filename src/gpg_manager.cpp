@@ -19,12 +19,16 @@
 
 namespace fpl {
 
-GPGManager::GPGManager() : state_(kStart), num_gui_logins_(0) {}
+GPGManager::GPGManager() : state_(kStart), do_ui_login_(0) {}
 
-bool GPGManager::Initialize() {
+bool GPGManager::Initialize(bool ui_login) {
+  state_ = kStart;
+  do_ui_login_ = ui_login;
+
 # ifdef NO_GPG
   return true;
 # endif
+
   /*
   // This code is here because we may be able to do this part of the
   // initialization here in the future, rather than relying on JNI_OnLoad below.
@@ -38,7 +42,6 @@ bool GPGManager::Initialize() {
   platform_configuration.SetActivity((jobject)SDL_AndroidGetActivity());
 
   // Creates a games_services object that has lambda callbacks.
-  state_ = kStart;
   game_services_ =
     gpg::GameServices::Builder()
       .SetDefaultOnLog(gpg::LogLevel::VERBOSE)
@@ -96,10 +99,15 @@ void GPGManager::Update() {
     case kAutoAuthFailed:
     case kManualSignBackIn:
       // Need to explicitly ask for user  login.
-      if (num_gui_logins_ < 1) {
+      if (do_ui_login_) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: StartAuthorizationUI");
         game_services_->StartAuthorizationUI();
         state_ = kAuthUILaunched;
-        num_gui_logins_++;
+        do_ui_login_ = false;
+      } else {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                    "GPG: skipping StartAuthorizationUI");
+        state_ = kAuthUIFailed;
       }
       break;
     case kAuthUILaunched:
@@ -134,10 +142,12 @@ void GPGManager::ToggleSignIn() {
   return;
 # endif
   if (state_ == kAuthed) {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: Attempting to log out...");
     game_services_->SignOut();
   } else if (state_ == kStart || state_ == kAuthUIFailed) {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: Attempting to log in...");
     state_ = kManualSignBackIn;
-    num_gui_logins_ = 0;
+    do_ui_login_ = true;
   }
 }
 
