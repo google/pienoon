@@ -41,6 +41,12 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
                         SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
   #endif
 
+#ifdef __ANDROID__
+  // Setup HW scaler in Android
+  AndroidSetScalerResolution(window_size);
+  AndroidPreCreateWindow();
+#endif
+
   // Always double buffer.
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -68,6 +74,12 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
     last_error_ = std::string("SDL_CreateWindow fail: ") + SDL_GetError();
     return false;
   }
+
+#ifdef __ANDROID__
+  // Hook eglCreateWindowSurface
+  AndroidPostCreateWindow();
+#endif
+
   // Get the size we actually got, which typically is native res for
   // any fullscreen display:
   SDL_GetWindowSize(window_, &window_size_.x(), &window_size_.y());
@@ -126,7 +138,14 @@ void Renderer::AdvanceFrame(bool minimized) {
   }
   // Get window size again, just in case it has changed.
   SDL_GetWindowSize(window_, &window_size_.x(), &window_size_.y());
+#ifdef __ANDROID__
+  // Check HW scaler setting and change a viewport size if they are set
+  vec2i size = AndroidGetScalerResolution();
+  const vec2i viewport_size = size.x() && size.y() ? size : window_size_;
+  GL_CALL(glViewport(0, 0, viewport_size.x(), viewport_size.y()));
+#else
   GL_CALL(glViewport(0, 0, window_size_.x(), window_size_.y()));
+#endif
   GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 

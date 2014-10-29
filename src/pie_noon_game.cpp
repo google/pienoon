@@ -51,6 +51,11 @@ static const char kAssetsDir[] = "assets";
 
 static const char kConfigFileName[] = "config.bin";
 
+#ifdef __ANDROID__
+static const int kAndroidMaxScreenWidth = 1920;
+static const int kAndroidMaxScreenHeight = 1080;
+#endif
+
 // Return the elapsed milliseconds since the start of the program. This number
 // will loop back to 0 after about 49 days; always take the difference to
 // properly handle the wrap-around case.
@@ -115,7 +120,12 @@ bool PieNoonGame::InitializeConfig() {
 bool PieNoonGame::InitializeRenderer() {
   const Config& config = GetConfig();
 
+#ifdef __ANDROID__
+  auto max_screen_size = pie_noon::Vec2i(kAndroidMaxScreenWidth, kAndroidMaxScreenHeight);
+  auto window_size = &max_screen_size;
+#else
   auto window_size = config.window_size();
+#endif
   assert(window_size);
   if (!renderer_.Initialize(LoadVec2i(window_size),
                             config.window_title()->c_str())) {

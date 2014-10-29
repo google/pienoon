@@ -156,7 +156,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := main
 LOCAL_ARM_MODE := arm
 
-LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR)/include \
+LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR) \
+                    $(DEPENDENCIES_SDL_DIR)/include \
                     $(DEPENDENCIES_SDL_MIXER_DIR) \
                     $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
                     $(DEPENDENCIES_GPG_DIR)/include \
@@ -191,6 +192,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_DIR)/src/particles.cpp \
   $(PIE_NOON_DIR)/src/precompiled.cpp \
   $(PIE_NOON_DIR)/src/renderer.cpp \
+  $(PIE_NOON_DIR)/src/renderer_android.cpp \
   $(PIE_NOON_DIR)/src/shader.cpp \
   $(PIE_NOON_DIR)/src/sound.cpp \
   $(PIE_NOON_DIR)/src/sound_collection.cpp \
@@ -210,7 +212,7 @@ LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp SDL2 SDL2_mixer
 
 LOCAL_SHARED_LIBRARIES :=
 
-LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz
+LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz -lEGL -landroid
 
 include $(BUILD_SHARED_LIBRARY)
 

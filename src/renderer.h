@@ -19,6 +19,10 @@
 #include "material.h"
 #include "mesh.h"
 
+#ifdef __ANDROID__
+#include "renderer_android.h"
+#endif
+
 namespace fpl {
 
 // The core of the rendering system. Deals with setting up and shutting down
