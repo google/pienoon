@@ -16,6 +16,7 @@
 #include "gui_menu.h"
 #include "config_generated.h"
 #include "character_state_machine_def_generated.h"
+#include "utilities.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -23,11 +24,10 @@ namespace pie_noon {
 GuiMenu::GuiMenu() {}
 
 static const char* TextureName(const ButtonTexture& button_texture) {
-#ifdef PLATFORM_MOBILE
-  if (button_texture.touch_screen() != nullptr)
-    return button_texture.touch_screen()->c_str();
-#endif
-  return button_texture.standard()->c_str();
+  const bool touch_screen = button_texture.touch_screen() != nullptr &&
+                            TouchScreenDevice();
+  return touch_screen ? button_texture.touch_screen()->c_str() :
+                        button_texture.standard()->c_str();
 }
 
 void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {

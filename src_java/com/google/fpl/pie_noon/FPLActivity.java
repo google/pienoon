@@ -5,6 +5,7 @@ package com.google.fpl.pie_noon;
 
 import org.libsdl.app.SDLActivity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -96,6 +97,10 @@ public class FPLActivity extends SDLActivity {
 
   public boolean isTextDialogOpen() {
     return textDialogOpen;
+  }
+
+  public boolean hasSystemFeature(String featureName) {
+    return getPackageManager().hasSystemFeature(featureName);
   }
 
   // Implemented in C++.

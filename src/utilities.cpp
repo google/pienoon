@@ -111,4 +111,28 @@ std::string FileNameFromEnumName(const char* const enum_name,
        + std::string(suffix);
 }
 
+#ifdef __ANDROID__
+bool AndroidSystemFeature(const char* feature_name) {
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID has_system_feature = env->GetMethodID(
+      fpl_class, "hasSystemFeature", "(Ljava/lang/String;)Z");
+  jstring jfeature_name = env->NewStringUTF(feature_name);
+  jboolean has_feature = env->CallBooleanMethod(activity, has_system_feature,
+                                                jfeature_name);
+  env->DeleteLocalRef(jfeature_name);
+  env->DeleteLocalRef(activity);
+  return has_feature;
+}
+#endif
+
+bool TouchScreenDevice() {
+#ifdef __ANDROID__
+  return AndroidSystemFeature("android.hardware.touchscreen");
+#else
+  return false;
+#endif
+}
+
 } // namespace fpl

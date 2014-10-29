@@ -61,6 +61,8 @@ std::string FileNameFromEnumName(const char* const enum_name,
                                  const char* const prefix,
                                  const char* const suffix);
 
+bool TouchScreenDevice();
+
 } // namespace fpl
 
 #endif // PIE_NOON_UTILITIES_H
