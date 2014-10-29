@@ -1030,6 +1030,7 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
           env->CallVoidMethod(activity, show_text_dialog, text);
           env->DeleteLocalRef(text);
         }
+        env->DeleteLocalRef(fpl_class);
         env->DeleteLocalRef(activity);
 #       endif
         break;

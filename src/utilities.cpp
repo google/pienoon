@@ -122,6 +122,7 @@ bool AndroidSystemFeature(const char* feature_name) {
   jboolean has_feature = env->CallBooleanMethod(activity, has_system_feature,
                                                 jfeature_name);
   env->DeleteLocalRef(jfeature_name);
+  env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(activity);
   return has_feature;
 }
