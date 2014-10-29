@@ -270,8 +270,7 @@ sign_apk() {
   local signed_apk="${2}"
   if [[ $(stat_mtime "${unsigned_apk}") -gt \
           $(stat_mtime "${signed_apk}") ]]; then
-    #local -r key_alias=$(basename ${signed_apk} .apk)
-    local -r key_alias=androiddebugkey
+    local -r key_alias=$(basename ${signed_apk} .apk)
     local keystore="${3}"
     local key_password="${4}"
     [[ "${keystore}" == "" ]] && keystore="${unsigned_apk}.keystore"
@@ -317,8 +316,28 @@ build_apk() {
   # Sign release apks with a temporary key as these packages will not be
   # redistributed.
   local unsigned_apk="bin/${package_filename}-${ant_target}-unsigned.apk"
-  if [[ "${ant_target}" == "release" ]]; then
-    sign_apk "${unsigned_apk}" "${output_apk}" "debug.keystore" "android"
+  local -r test_key_pk8="../../libraries/certs/pienoon/pienoon.pk8"
+  local -r test_key_pem="../../libraries/certs/pienoon/pienoon.x509.pem"
+  if [[ "${ant_target}" == "release" && \
+        -e "${test_key_pk8}" && \
+        -e "${test_key_pem}" ]]; then
+    local -r temp_dir=$(mktemp -d -t XXXXXX)
+    local -r key=${temp_dir}/key
+    local -r p12=${temp_dir}/p12
+    local -r keystore=${temp_dir}/test.keystore
+    local -r passphrase=$(xxd -c16 -g16 -l 16 /dev/random | \
+                          sed 's/.*: //;s/ .*//')
+    trap "rm -rf ${temp_dir} || true" EXIT
+    openssl pkcs8 -inform DER -nocrypt -in ${test_key_pk8} -out ${key}
+    openssl pkcs12 -export -in ${test_key_pem} -inkey ${key} -out ${p12} \
+      -password pass:${passphrase} -name $(basename ${output_apk} .apk)
+    keytool -importkeystore -deststorepass ${passphrase} \
+      -destkeystore ${keystore} -srckeystore ${p12} \
+      -srcstoretype PKCS12 -srcstorepass ${passphrase}
+
+    sign_apk "${unsigned_apk}" "${output_apk}" "${keystore}" "${passphrase}"
+
+    rm -rf ${temp_dir} || true
   fi
 }
 
