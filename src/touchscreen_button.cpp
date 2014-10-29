@@ -6,8 +6,6 @@ namespace pie_noon {
 
 TouchscreenButton::TouchscreenButton()
   : elapsed_time_(0),
-    position_(vec2(0, 0)),
-    z_depth_(0),
     up_current_(0),
     is_active_(true),
     is_highlighted_(false)
@@ -67,6 +65,7 @@ bool TouchscreenButton::IsTriggered()
 }
 
 void TouchscreenButton::Render(Renderer& renderer) {
+  static const float kButtonZDepth = 0.0f;
   const vec2 window_size = vec2(renderer.window_size());
   Material* mat = button_.is_down()
                   ? down_material_
@@ -91,7 +90,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
 
   vec3 position = vec3(button_def()->texture_position()->x() * window_size.x(),
                        button_def()->texture_position()->y() * window_size.y(),
-                       z_depth_);
+                       kButtonZDepth);
   shader_->Set(renderer);
   mat->Set(renderer);
 
@@ -100,6 +99,35 @@ void TouchscreenButton::Render(Renderer& renderer) {
                            vec2(0, 1), vec2(1, 0));
 }
 
+
+void StaticImage::Initialize(const StaticImageDef& image_def,
+                             Material* material, Shader* shader) {
+  image_def_ = &image_def;
+  material_ = material;
+  shader_ = shader;
+}
+
+void StaticImage::Render(Renderer& renderer) {
+  static const float kImageZDepth = -0.5f;
+  if (!Valid())
+    return;
+
+  const vec2 window_size = vec2(renderer.window_size());
+  const vec2 scale = LoadVec2(image_def_->draw_scale());
+  const vec2 texture_size = vec2(material_->textures()[0]->size()) * scale;
+  const vec2 position_percent = LoadVec2(image_def_->texture_position());
+  const vec2 position = window_size * position_percent;
+
+  const vec3 position3d(position.x(), position.y(), kImageZDepth);
+  const vec3 texture_size3d(texture_size.x(), -texture_size.y(), 0.0f);
+
+  shader_->Set(renderer);
+  material_->Set(renderer);
+
+  Mesh::RenderAAQuadAlongX(position3d - texture_size3d * 0.5f,
+                           position3d + texture_size3d * 0.5f,
+                           vec2(0, 1), vec2(1, 0));
+}
 
 }  // pie_noon
 }  // fpl

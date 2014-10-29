@@ -465,7 +465,6 @@
 
   "touchscreen_zones" : {
     "starting_selection" : false,
-
     "button_list" : [
       {
         "top_left" : { "x": 0.0, "y": 0.7 },
@@ -518,7 +517,6 @@
       }
     ]
   },
-
 
   "title_screen_buttons" : {
     "starting_selection" : "Title",
@@ -579,6 +577,15 @@
           "nav_left" : ["Title"],
           "nav_right" : []
         }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : { "standard" : "materials/splash.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
     ]
   },
   "pause_screen_buttons" : {
@@ -600,16 +607,6 @@
       }
     ]
   },
-
-
-  "two_dimensional_elements_for_finished_state": [
-    {
-      // Splash screen image specified by this material name.
-      "material": "materials/splash.bin",
-      "size": 0.5,
-      "placement": { "x": 0.5, "y": 0.05 }
-    }
-  ],
 
   "draw_characters": true,
   "draw_ui_arrows": true,

@@ -139,9 +139,6 @@ class PieNoonGame {
   // Shadow material.
   Material* shadow_mat_;
 
-  // Splash screen and splash screen text materials.
-  std::vector<Material*> materials_for_finished_state_;
-
   // Hold state machine binary data.
   std::string state_machine_source_;
 

@@ -30,15 +30,23 @@ static const char* TextureName(const ButtonTexture& button_texture) {
                         button_texture.standard()->c_str();
 }
 
+static size_t LengthImageList(const UiGroup* menu_def) {
+  auto image_list = menu_def->static_image_list();
+  return image_list == nullptr ? 0 : image_list->Length();
+}
+
 void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   ClearRecentSelections();
   if (menu_def == nullptr) {
     button_list_.resize(0);
+    image_list_.resize(0);
     current_focus_ = ButtonId_Undefined;
     return;   // Nothing to set up.  Just clearing things out.
   }
+  const size_t length_image_list = LengthImageList(menu_def);
   menu_def_ = menu_def;
   button_list_.resize(menu_def->button_list()->Length());
+  image_list_.resize(length_image_list);
   current_focus_ = menu_def->starting_selection();
   // Empty the queue.
 
@@ -52,7 +60,7 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     button_list_[i].set_down_material(matman->FindMaterial(
         TextureName(*button->texture_pressed())));
 
-    Shader* shader = matman->LoadShader(
+    Shader* shader = matman->FindShader(
           button->shader()->c_str());
     if (shader == nullptr) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -63,8 +71,29 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     button_list_[i].set_is_active(button->starts_active());
     button_list_[i].set_is_highlighted(true);
   }
-}
 
+  // Initialize image_list_.
+  for (size_t i = 0; i < length_image_list; i++) {
+    const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
+    const char* material_name = TextureName(*image_def.texture());
+    const char* shader_name = image_def.shader()->c_str();
+
+    Material* material = matman->FindMaterial(material_name);
+    Shader* shader = matman->FindShader(shader_name);
+
+    if (material == nullptr) {
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                   "Static image '%s' not found", material_name);
+    }
+    if (shader == nullptr) {
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                   "Static image '%s' missing shader '%s'",
+                   material_name, shader_name);
+    }
+
+    image_list_[i].Initialize(image_def, material, shader);
+  }
+}
 
 // Force the material manager to load all the textures and shaders
 // used in the UI group.
@@ -83,6 +112,13 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                   "Buttons used in menus must specify a shader!");
     }
+  }
+
+  const size_t length_image_list = LengthImageList(menu_def);
+  for (size_t i = 0; i < length_image_list; i++) {
+    const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
+    matman->LoadMaterial(TextureName(*image_def.texture()));
+    matman->LoadShader(image_def.shader()->c_str());
   }
 }
 
@@ -128,6 +164,9 @@ MenuSelection GuiMenu::GetRecentSelection() {
 
 void GuiMenu::Render(Renderer* renderer) {
   // Render touch controls, as long as the touch-controller is active.
+  for (size_t i = 0; i < image_list_.size(); i++) {
+    image_list_[i].Render(*renderer);
+  }
   for (size_t i = 0; i < button_list_.size(); i++) {
     button_list_[i].Render(*renderer);
   }

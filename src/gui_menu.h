@@ -65,6 +65,7 @@ class GuiMenu {
   ButtonId current_focus_;
   std::queue<MenuSelection> unhandled_selections_;
   std::vector<TouchscreenButton> button_list_;
+  std::vector<StaticImage> image_list_;
 
   // Total Worldtime since the menu was initialized.
   // Used for animating selections and such.

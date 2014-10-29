@@ -44,11 +44,6 @@ class TouchscreenButton
 
   Button& button() { return button_; }
 
-  vec2 position() const { return position_; }
-  void set_position(vec2 position) { position_ = position; }
-
-  float z_depth() const { return z_depth_; }
-  void set_z_depth(float z_depth) { z_depth_ = z_depth; }
 
   const std::vector<Material*> &up_materials() const { return up_materials_; }
   void set_up_material(size_t i, Material* up_material) {
@@ -88,10 +83,6 @@ class TouchscreenButton
   Button button_;
   WorldTime elapsed_time_;
 
-  // TODO(ccornell) - These really need to be combined into a vec3.
-  vec2 position_;
-  float z_depth_;
-
   const ButtonDef* button_def_;
   Shader* shader_;
 
@@ -107,6 +98,24 @@ class TouchscreenButton
 
   bool is_active_;
   bool is_highlighted_;
+};
+
+class StaticImage
+{
+ public:
+  StaticImage() : image_def_(nullptr), material_(nullptr), shader_(nullptr) {}
+  void Initialize(const StaticImageDef& image_def, Material* material,
+                  Shader* shader);
+  void Render(Renderer& renderer);
+  bool Valid() const {
+    return image_def_ != nullptr && material_ != nullptr && shader_ != nullptr;
+  }
+  const StaticImageDef* image_def() const { return image_def_; }
+
+ private:
+  const StaticImageDef* image_def_;
+  Material* material_;
+  Shader* shader_;
 };
 
 }  // pie_noon
