@@ -2,6 +2,7 @@
 libs/
 bin/
 obj/
+apks/
 tests/*_test
 *.bin
 *.webp
