@@ -1,5 +1,4 @@
 #!/bin/bash -eux
-
 # Copyright 2014 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,53 +13,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export ANDROID_SDK_HOME=$(cd $(dirname $(which android))/../..; pwd)
+: ${ANDROID_SDK_HOME:=$(cd $(dirname $(which android))/../../sdk; pwd)}
 
+# Get the version of an Android SDK package in directory ${1}.
 package_version() {
-  grep Revision $ANDROID_SDK_HOME/$1/source.properties | sed 's/.*=//;s/\(\.0\)*$//'
+  if [[ $# -eq 1 ]]; then
+    grep Revision ${1}/source.properties | sed 's/.*=//;s/\(\.0\)*$//'
+  fi
 }
 
-# Updates a package if the revision in the target directory is not what is
-# expected
-#
-# Args:
-#   1: package name
-#   2: package directory
+# Updates package ${1} if the latest revision doesn't match the version in
+# the directory ${2}.
 update_package() {
   line="$(android list sdk -a -u | awk "/$1/ {print \$0; exit 0}")"
-  version="$(echo $line | awk '{print $NF}')"
-  if [[ $version != $(package_version $2) ]]; then
-    echo 'y' | android update sdk -u -a -t $(echo $line | awk -F- '{print $1}')
+  version="$(echo "${line}" | awk '{ print $NF }')"
+  if [[ "${version}" != "$(package_version "${2}")" ]]; then
+    echo 'y' | android update sdk -u -a -t "$(echo "${line}" | \
+                                              awk -F- '{print $1}')"
   fi
 }
 
 main() {
-  local output_dir=
   local dist_dir=
   while getopts "o:d:" options; do
      case ${options} in
-       o ) output_dir=${OPTARG};;
        d ) dist_dir=${OPTARG};;
+       h ) echo "Usage: $(basename $0) [-d distribution_directory]" >&2;
+           exit 1;;
      esac
   done
 
+  declare -r latest_build_tools="$(\
+      ls -d ${ANDROID_SDK_HOME}/build-tools/* | \
+      grep 'build-tools/[0-9]*\.[0-9]*\.[0-9]*' | sort -nr | head -n1)"
+
   # Make sure we have all the latest tools installed.
   android list sdk -a -u
-  update_package 'Android SDK Tools,' sdk/tools/
-  update_package 'Android SDK Platform-tools,' sdk/platform-tools/
-  update_package 'Android SDK Build-tools,' sdk/build-tools/20.0.0/
+  update_package 'Android SDK Tools,' "${ANDROID_SDK_HOME}/tools/"
+  update_package 'Android SDK Platform-tools,' \
+    "${ANDROID_SDK_HOME}/platform-tools/"
+  update_package 'Android SDK Build-tools,' "${latest_build_tools}"
 
   # Make sure Google Play services is installed.
   android list sdk -a -u
-  update_package 'Google Play services,' sdk/extras/google/google_play_services/
+  update_package 'Google Play services,' \
+    "${ANDROID_SDK_HOME}/extras/google/google_play_services/"
+  # Log the contents of the SDK.
+  find ${ANDROID_SDK_HOME} -name google-play-services_lib
 
-  find $ANDROID_SDK_HOME -name google-play-services_lib
-  cd vendor/unbundled_google/packages/splat
+  cd "$(dirname $0)"
   rm -rf bin
-  ../../../../prebuilts/cmake/linux-x86/cmake-2.8.12.1-Linux-i386/bin/cmake .
-  make assets
-  bash -xeu ./build_apk_sdl.sh LAUNCH=0 DEPLOY=0
-  cp ./bin/pie_noon-release-unsigned.apk $dist_dir/PieNoon.apk
+  INSTALL=0 LAUNCH=0 ./build_install_run.sh
+  if [[ -n "${dist_dir}" ]]; then
+    cp ./bin/pie_noon-release-unsigned.apk ${dist_dir}/PieNoon.apk
+  fi
 }
 
 main "$@"
