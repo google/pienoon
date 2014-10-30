@@ -15,8 +15,6 @@ import android.widget.ScrollView;
 import android.app.AlertDialog;
 import android.util.Log;
 import android.graphics.Point;
-import android.content.Context;
-import android.content.SharedPreferences;
 
 public class FPLActivity extends SDLActivity {
   // GPG's GUIs need activity lifecycle events to function properly, but
@@ -103,16 +101,6 @@ public class FPLActivity extends SDLActivity {
 
   public boolean hasSystemFeature(String featureName) {
     return getPackageManager().hasSystemFeature(featureName);
-  }
-
-  public void WritePreference(String key, int value) {
-    SharedPreferences.Editor ed = getPreferences(Context.MODE_PRIVATE).edit();
-    ed.putInt(key, value);
-    ed.commit();
-  }
-
-  public int ReadPreference(String key, int default_value) {
-    return getPreferences(Context.MODE_PRIVATE).getInt(key, default_value);
   }
 
   // Implemented in C++.

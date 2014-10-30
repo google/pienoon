@@ -389,7 +389,7 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
     return false;
 
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-  if (!gpg_manager.Initialize(ReadPreference("logged_in", 1) != 0))
+  if (!gpg_manager.Initialize())
     return false;
 # endif
 
@@ -949,43 +949,6 @@ void PieNoonGame::HandlePlayersJoining(Controller* controller) {
   }
 }
 
-int PieNoonGame::ReadPreference(const char *key, int default_value) {
-# ifdef __ANDROID__
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-  jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID read_preference = env->GetMethodID(
-      fpl_class, "ReadPreference", "(Ljava/lang/String;I)I");
-  jstring text = env->NewStringUTF(key);
-  int read = env->CallIntMethod(activity, read_preference, text, default_value);
-  env->DeleteLocalRef(fpl_class);
-  env->DeleteLocalRef(text);
-  env->DeleteLocalRef(activity);
-  return read;
-# else
-  (void)key;
-  return default_value;
-# endif
-}
-
-void PieNoonGame::WritePreference(const char *key, int value) {
-# ifdef __ANDROID__
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-  jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID write_preference = env->GetMethodID(
-      fpl_class, "WritePreference", "(Ljava/lang/String;I)V");
-  jstring text = env->NewStringUTF(key);
-  int read = env->CallIntMethod(activity, write_preference, text, value);
-  env->DeleteLocalRef(fpl_class);
-  env->DeleteLocalRef(text);
-  env->DeleteLocalRef(activity);
-# else
-  (void)key;
-  (void)value;
-# endif
-}
-
 PieNoonState PieNoonGame::HandleMenuButtons() {
   for (size_t i = 0; i < active_controllers_.size(); i++) {
     Controller* controller = active_controllers_[i].get();
@@ -1161,7 +1124,6 @@ void PieNoonGame::Run() {
       }
 #     ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
       gpg_manager.Update();
-      WritePreference("logged_in", static_cast<int>(gpg_manager.LoggedIn()));
 #     endif
     } else {
       // If even the loading textures haven't loaded yet, remain on a black
