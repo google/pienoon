@@ -23,8 +23,7 @@ limitations under the License.
     <application android:label="@string/app_name"
                  android:icon="@drawable/ic_launcher"
                  android:allowBackup="true"
-                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-                 android:debuggable="true">
+                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         <activity android:name="FPLActivity"
                   android:label="@string/app_name"
                   android:screenOrientation="landscape"
@@ -52,6 +51,7 @@ limitations under the License.
 
     <!-- Allow writing to external storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>
 <!-- END_INCLUDE(manifest) -->
