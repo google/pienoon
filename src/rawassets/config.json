@@ -356,6 +356,24 @@
 
   "face_angle_twitch_velocity": 0.00312,
 
+  "join_impeller_def": {
+    "base": {
+      "modular": false,
+      "min": 0.0,
+      "max": 1.0,
+      "max_velocity": 0.0015,
+      "max_delta": 1.0,
+      "at_target": { "max_difference": 0.01, "max_velocity": 0.0001 }
+    },
+    "acceleration_per_difference": 0.00004,
+    "wrong_direction_acceleration_multiplier": 1.0,
+    "max_delta_time": 40
+  },
+
+  "join_impeller_start_value": 0.7,
+  "join_impeller_target_value": 0.0,
+  "join_impeller_start_velocity": 0.0015,
+
   "renderable_id_for_pie_damage": [
     "PieEmpty",
     "PieSmall",
@@ -496,7 +514,7 @@
         "ID" : "Attack",
         "event_trigger" : "ButtonPress",
         "texture_normal" : [ { "standard" : "materials/pie_small.bin" } ],
-        "texture_pressed" : { "standard" : "materials/pie_large.bin" },
+        "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
         "texture_position" : { "x": 0.5, "y": 0.1 },
         "shader" : "shaders/textured",
         "draw_scale_normal" : { "x": -1.0, "y": 1.0 },
@@ -519,62 +537,127 @@
   },
 
   "title_screen_buttons" : {
-    "starting_selection" : "Title",
+    "starting_selection" : "MenuStart",
     "allow_controller_navigation" : true,
     "button_list" : [
         {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "ID" : "MenuStart",
+          "texture_normal" : [
+            { "standard" : "materials/ui_pie.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
+          "texture_position" : { "x": 0.44, "y": 0.435 },
+          "shader" : "shaders/textured",
+          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+          "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
+          "draw_scale_pressed" : { "x": 0.8, "y": 0.8 },
+          "nav_left" : ["MenuLicense"],
+          "nav_right" : ["MenuAchievements"]
+        },
+        {
           "top_left" : { "x": 0.0, "y": 0.7 },
-          "bottom_right" : { "x": 0.2, "y": 1.0 },
-          "ID" : "ToggleLogIn",
+          "bottom_right" : { "x": 0.4, "y": 1.0 },
+          "ID" : "MenuAchievements",
+          "texture_normal" : [
+            { "standard" : "materials/health.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/health.bin" },
+          "texture_position" : { "x": 0.08, "y": 0.93 },
+          "shader" : "shaders/textured",
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuStart"],
+          "nav_right" : ["MenuSignIn"]
+        },
+        {
+          "top_left" : { "x": 0.4, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 1.0 },
+          "ID" : "MenuSignIn",
           "texture_normal" : [
             { "standard" : "materials/gpg_button.bin" },
             { "standard" : "materials/gpg_button_disabled.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/gpg_button.bin" },
-          "texture_position" : { "x": 0.1, "y": 0.85 },
+          "texture_position" : { "x": 0.48, "y": 0.93 },
           "shader" : "shaders/textured",
-          "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
-          "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
-          "draw_scale_pressed" : { "x": 2.1, "y": 2.1 },
-          "nav_left" : [],
-          "nav_right" : ["Title"]
-        },
-        {
-          "top_left" : { "x": 0.2, "y": 0.0 },
-          "bottom_right" : { "x": 0.8, "y": 0.6 },
-          "ID" : "Title",
-          "texture_normal" : [
-            {
-              "standard" : "materials/splash_info.bin",
-              "touch_screen" : "materials/splash_info_touch.bin"
-            }
-          ],
-          "texture_pressed" : {
-            "standard" : "materials/splash_info.bin",
-            "touch_screen" : "materials/splash_info_touch.bin"
-          },
-          "texture_position" : { "x": 0.555, "y": 0.435 },
-          "shader" : "shaders/textured",
-          "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_left" : ["ToggleLogIn"],
-          "nav_right" : ["ShowLicense"]
+          "nav_left" : ["MenuAchievements"],
+          "nav_right" : ["MenuLicense"]
         },
         {
-          "top_left" : { "x": 0.8, "y": 0.7 },
+          "top_left" : { "x": 0.7, "y": 0.7 },
           "bottom_right" : { "x": 1.0, "y": 1.0 },
-          "ID" : "ShowLicense",
+          "ID" : "MenuLicense",
           "texture_normal" : [
             { "standard" : "materials/license_button.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/license_button.bin" },
-          "texture_position" : { "x": 0.9, "y": 0.85 },
+          "texture_position" : { "x": 0.78, "y": 0.93 },
           "shader" : "shaders/textured",
-          "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
-          "draw_scale_highlighted": { "x": 1.8, "y": 1.8 },
-          "draw_scale_pressed" : { "x": 2.1, "y": 2.1 },
-          "nav_left" : ["Title"],
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuSignIn"],
+          "nav_right" : ["MenuStart"]
+        }
+    ],
+    "static_image_list" : [
+        {
+          "texture" : { "standard" : "materials/text_start.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.58, "y": 0.445 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
+        {
+          "texture" : { "standard" : "materials/text_achievements.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.28, "y": 0.93 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
+        {
+          "texture" : { "standard" : "materials/text_sign_in.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.61, "y": 0.93 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
+        {
+          "texture" : { "standard" : "materials/text_license.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.91, "y": 0.93 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : { "standard" : "materials/splash.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ]
+  },
+  "pause_screen_buttons" : {
+    "starting_selection" : "MenuResume",
+    "allow_controller_navigation" : true,
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "ID" : "MenuResume",
+          "texture_normal" : [
+            { "standard" : "materials/text_resume.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_resume.bin" },
+          "texture_position" : { "x": 0.52, "y": 0.435 },
+          "shader" : "shaders/textured",
+          "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : [],
           "nav_right" : []
         }
     ],
@@ -588,28 +671,52 @@
         }
     ]
   },
-  "pause_screen_buttons" : {
-    "starting_selection" : "Unpause",
-    "allow_controller_navigation" : true,
-    "button_list" : [
-        {
-          "top_left" : { "x": 0.2, "y": 0.0 },
-          "bottom_right" : { "x": 0.8, "y": 0.6 },
-          "ID" : "Unpause",
-          "texture_normal" : [
-            { "standard" : "materials/pause_info.bin" }
-          ],
-          "texture_pressed" : { "standard" : "materials/pause_info.bin" },
-          "texture_position" : { "x": 0.52, "y": 0.435 },
-          "shader" : "shaders/textured",
-          "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
-          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
-          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_left" : ["ToggleLogIn"],
-          "nav_right" : ["ShowLicense"]
-        }
-    ],
+
+  "join_screen_buttons" : {
+    "starting_selection" : "MenuResume",
+    "allow_controller_navigation" : false,
     "static_image_list" : [
+        {
+          "ID" : "Counter1",
+          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.36, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter2",
+          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.44, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter3",
+          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.52, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter4",
+          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.60, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter5",
+          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.68, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "texture" : { "standard" : "materials/text_join_in.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.58, "y": 0.445 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
         {
           // Splash screen image specified by this material name.
           "texture" : { "standard" : "materials/splash.bin" },
@@ -1265,3 +1372,4 @@
   "print_pie_states": false,
   "print_camera_orientation": true
 }
+

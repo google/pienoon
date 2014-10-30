@@ -30,9 +30,9 @@ static const char* TextureName(const ButtonTexture& button_texture) {
                         button_texture.standard()->c_str();
 }
 
-static size_t LengthImageList(const UiGroup* menu_def) {
-  auto image_list = menu_def->static_image_list();
-  return image_list == nullptr ? 0 : image_list->Length();
+template<class T>
+static inline size_t ArrayLength(const T* array) {
+  return array == nullptr ? 0 : array->Length();
 }
 
 void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
@@ -43,14 +43,15 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     current_focus_ = ButtonId_Undefined;
     return;   // Nothing to set up.  Just clearing things out.
   }
-  const size_t length_image_list = LengthImageList(menu_def);
+  const size_t length_button_list = ArrayLength(menu_def->button_list());
+  const size_t length_image_list = ArrayLength(menu_def->static_image_list());
   menu_def_ = menu_def;
-  button_list_.resize(menu_def->button_list()->Length());
+  button_list_.resize(length_button_list);
   image_list_.resize(length_image_list);
   current_focus_ = menu_def->starting_selection();
   // Empty the queue.
 
-  for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
+  for (size_t i = 0; i < length_button_list; i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
     button_list_[i] = TouchscreenButton();
     for (auto it = button->texture_normal()->begin();
@@ -99,7 +100,8 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
 // Force the material manager to load all the textures and shaders
 // used in the UI group.
 void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
-  for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
+  const size_t length_button_list = ArrayLength(menu_def->button_list());
+  for (size_t i = 0; i < length_button_list; i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
     for (auto it = button->texture_normal()->begin();
          it != button->texture_normal()->end(); ++it) {
@@ -115,7 +117,7 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
     }
   }
 
-  const size_t length_image_list = LengthImageList(menu_def);
+  const size_t length_image_list = ArrayLength(menu_def->static_image_list());
   for (size_t i = 0; i < length_image_list; i++) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
     matman->LoadMaterial(TextureName(*image_def.texture()));
@@ -144,6 +146,15 @@ TouchscreenButton* GuiMenu::FindButtonById(ButtonId id) {
   for (size_t i = 0; i < button_list_.size(); i++) {
     if (button_list_[i].GetId() == id)
       return &button_list_[i];
+  }
+  return nullptr;
+}
+
+// Utility function for finding indexes.
+StaticImage* GuiMenu::FindImageById(ButtonId id) {
+  for (size_t i = 0; i < image_list_.size(); i++) {
+    if (image_list_[i].GetId() == id)
+      return &image_list_[i];
   }
   return nullptr;
 }

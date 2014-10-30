@@ -1,7 +1,0 @@
-{
-  texture_filenames: [
-    "textures/splash_info_touch.webp"
-  ],
-  "blendmode": "ALPHA"
-}
-

@@ -1,7 +1,0 @@
-{
-  texture_filenames: [
-    "textures/pause_info.webp"
-  ],
-  "blendmode": "ALPHA"
-}
-

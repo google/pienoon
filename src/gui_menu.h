@@ -27,6 +27,8 @@
 namespace fpl {
 namespace pie_noon {
 
+class StaticImage;
+
 // Simple struct for transporting a menu selection, and the controller that
 // triggered it.
 struct MenuSelection {
@@ -54,6 +56,7 @@ class GuiMenu {
   ButtonId GetFocus() const;
   void SetFocus(ButtonId new_focus);
   TouchscreenButton* GetButtonById(ButtonId id);
+  StaticImage* FindImageById(ButtonId id);
 
  private:
   void ClearRecentSelections();

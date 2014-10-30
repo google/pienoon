@@ -11,13 +11,12 @@ TouchscreenButton::TouchscreenButton()
     is_highlighted_(false)
 {}
 
-ButtonId TouchscreenButton::GetId() {
+ButtonId TouchscreenButton::GetId() const {
   if (button_def_ != nullptr) {
     return button_def_->ID();
   } else {
     return ButtonId_Undefined;
   }
-
 }
 
 bool TouchscreenButton::WillCapturePointer(const Pointer& pointer,
@@ -105,6 +104,7 @@ void StaticImage::Initialize(const StaticImageDef& image_def,
   image_def_ = &image_def;
   material_ = material;
   shader_ = shader;
+  scale_ = LoadVec2(image_def_->draw_scale());
 }
 
 void StaticImage::Render(Renderer& renderer) {
@@ -113,8 +113,7 @@ void StaticImage::Render(Renderer& renderer) {
     return;
 
   const vec2 window_size = vec2(renderer.window_size());
-  const vec2 scale = LoadVec2(image_def_->draw_scale());
-  const vec2 texture_size = vec2(material_->textures()[0]->size()) * scale;
+  const vec2 texture_size = vec2(material_->textures()[0]->size()) * scale_;
   const vec2 position_percent = LoadVec2(image_def_->texture_position());
   const vec2 position = window_size * position_percent;
 

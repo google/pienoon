@@ -38,7 +38,7 @@ class TouchscreenButton
   //bool HandlePointer(Pointer pointer, vec2 window_size);
   void Render(Renderer& renderer);
   void AdvanceFrame(WorldTime delta_time);
-  ButtonId GetId();
+  ButtonId GetId() const;
   bool WillCapturePointer(const Pointer& pointer, vec2 window_size);
   bool IsTriggered();
 
@@ -110,12 +110,18 @@ class StaticImage
   bool Valid() const {
     return image_def_ != nullptr && material_ != nullptr && shader_ != nullptr;
   }
+  ButtonId GetId() const {
+    return image_def_ == nullptr ? ButtonId_Undefined : image_def_->ID();
+  }
   const StaticImageDef* image_def() const { return image_def_; }
+  const mathfu::vec2& scale() const { return scale_; }
+  void set_scale(const mathfu::vec2& scale) { scale_ = scale; }
 
  private:
   const StaticImageDef* image_def_;
   Material* material_;
   Shader* shader_;
+  mathfu::vec2 scale_;
 };
 
 }  // pie_noon

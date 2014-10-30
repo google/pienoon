@@ -49,6 +49,7 @@ enum PieNoonState {
   kUninitialized = 0,
   kLoadingInitialMaterials,
   kLoading,
+  kJoining,
   kPlaying,
   kPaused,
   kFinished
@@ -93,11 +94,13 @@ class PieNoonGame {
   Controller * GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining(Controller* controller);
+  void HandlePlayersJoining();
   PieNoonState HandleMenuButtons();
   //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
   ChannelId PlayStinger();
+  ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -168,6 +171,9 @@ class PieNoonGame {
   GuiMenu gui_menu_;
 
   std::map<int, ControllerId> gamepad_to_controller_map_;
+
+  ButtonId join_id_;
+  impel::Impeller1f join_impeller_;
 
   // Used to render an overlay to fade the screen.
   FullScreenFader full_screen_fader_;

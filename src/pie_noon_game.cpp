@@ -19,6 +19,7 @@
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
+#include "impel_flatbuffers.h"
 #include "impel_processor_overshoot.h"
 #include "impel_processor_smooth.h"
 #include "pie_noon_common_generated.h"
@@ -533,7 +534,7 @@ void PieNoonGame::Render2DElements() {
   // Loop through the 2D elements. Draw each subsequent one slightly closer
   // to the camera so that they appear on top of the previous ones.
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-  auto gpg_button = gui_menu_.GetButtonById(ButtonId_ToggleLogIn);
+  auto gpg_button = gui_menu_.GetButtonById(ButtonId_MenuSignIn);
   if (gpg_button)
     gpg_button->set_current_up_material(gpg_manager.LoggedIn() ? 0 : 1);
 # endif
@@ -660,6 +661,17 @@ void PieNoonGame::DebugCamera() {
   }
 }
 
+// The join menu has a series of images that disappear one-by-one.
+// This functions as a countdown timer. This function converts the current
+// time into the id of the image that is currently disappearing.
+ButtonId PieNoonGame::CurrentlyAnimatingJoinImage(WorldTime time) const {
+  const WorldTime time_in_state = time - state_entry_time_;
+  const int seconds_in_state = time_in_state / 1000;
+  const int id = ButtonId_Counter1 + seconds_in_state;
+  const bool valid_id = id <= ButtonId_Counter5;
+  return valid_id ? static_cast<ButtonId>(id) : ButtonId_Undefined;
+}
+
 PieNoonState PieNoonGame::UpdatePieNoonState() {
   const WorldTime time = CurrentWorldTime();
   // If a full screen fade is active.
@@ -696,7 +708,48 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
           (time - state_entry_time_) > config.min_loading_time()) {
         // Fade out the loading screen and fade in the scene.
         FadeToPieNoonState(kFinished, config.full_screen_fade_time(),
-                         mathfu::kZeros4f, true);
+                           mathfu::kZeros4f, true);
+      }
+      break;
+    }
+    case kJoining: {
+      // Allow players to join with any key press.
+      HandlePlayersJoining();
+
+      // Count down by deactivating pies images.
+      const ButtonId id = CurrentlyAnimatingJoinImage(time);
+
+      // We've moved to animating a new pie.
+      if (id != join_id_) {
+        const Config& config = GetConfig();
+
+        // Vanish the previous pie.
+        StaticImage* prev_image = gui_menu_.FindImageById(join_id_);
+        if (prev_image != nullptr) {
+          prev_image->set_scale(mathfu::kZeros2f);
+        }
+
+        // Reset the impeller animation, if we've moved to a new image.
+        impel::OvershootImpelInit init;
+        impel::OvershootInitFromFlatBuffers(*config.join_impeller_def(), &init);
+        join_impeller_.Initialize(init, &game_state_.impel_engine());
+        join_impeller_.SetValue(config.join_impeller_start_value());
+        join_impeller_.SetTargetValue(config.join_impeller_target_value());
+        join_impeller_.SetVelocity(config.join_impeller_start_velocity());
+        join_id_ = id;
+      }
+
+      // Scale the pie to show some pleasing movement.
+      StaticImage* image = gui_menu_.FindImageById(id);
+      if (image != nullptr) {
+        image->set_scale(vec2(join_impeller_.Value()));
+      }
+
+      // After a few seconds, start the game.
+      if (join_id_ == ButtonId_Undefined) {
+        // Fade to the game
+        FadeToPieNoonState(kPlaying, GetConfig().full_screen_fade_time(),
+                           mathfu::kZeros4f, true);
       }
       break;
     }
@@ -718,15 +771,6 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       return HandleMenuButtons();
     }
     case kFinished: {
-      // When players press the A/throw button during the menu screen, they
-      // get assigned a player if they weren't already.
-      if ((game_state_.AllLogicalInputs() & LogicalInputs_Deflect) != 0 ||
-          (touch_controller_->character_id() != kNoCharacter)) {
-        // Fade to the game
-        FadeToPieNoonState(kPlaying, GetConfig().full_screen_fade_time(),
-                         mathfu::kZeros4f, true);
-      }
-
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
         input_.exit_requested_ = true;
       }
@@ -748,6 +792,11 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       break;
     }
     case kLoading: {
+      break;
+    }
+    case kJoining: {
+      gui_menu_.Setup(config.join_screen_buttons(), &matman_);
+      join_id_ = ButtonId_Undefined;
       break;
     }
     case kPlaying: {
@@ -928,19 +977,31 @@ Controller* PieNoonGame::GetController(ControllerId id) {
         active_controllers_[id].get() : nullptr;
 }
 
-// Check to see if any of the controllers have tried to join
-// in.  (Anyone who presses attack while there are still AI
-// slots will bump an AI and take their place.)
 void PieNoonGame::HandlePlayersJoining(Controller* controller) {
-  if (controller != nullptr &&
-      controller->character_id() == kNoCharacter &&
-      controller->controller_type() != Controller::kTypeAI) {
-    CharacterId open_slot = FindAiPlayer();
-    if (open_slot != kNoCharacter) {
-      auto character = game_state_.characters()[open_slot].get();
-      character->controller()->set_character_id(kNoCharacter);
-      character->set_controller(controller);
-      controller->set_character_id(open_slot);
+  if (controller == nullptr ||
+      controller->character_id() != kNoCharacter ||
+      controller->controller_type() == Controller::kTypeAI)
+    return;
+
+  CharacterId open_slot = FindAiPlayer();
+  if (open_slot == kNoCharacter)
+    return;
+
+  auto character = game_state_.characters()[open_slot].get();
+  character->controller()->set_character_id(kNoCharacter);
+  character->set_controller(controller);
+  controller->set_character_id(open_slot);
+}
+
+void PieNoonGame::HandlePlayersJoining() {
+  for (auto it = active_controllers_.begin(); it != active_controllers_.end();
+       ++it) {
+    // Any input on a controller signals that the controller wants to join in.
+    Controller* controller = it->get();
+    const bool has_input = controller != nullptr &&
+                           (controller->went_up() || controller->went_down());
+    if(has_input) {
+      HandlePlayersJoining(controller);
     }
   }
 }
@@ -958,12 +1019,12 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
        menu_selection.button_id != ButtonId_Undefined;
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
-      case ButtonId_ToggleLogIn:
+      case ButtonId_MenuSignIn:
 #       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.ToggleSignIn();
 #       endif
         break;
-      case ButtonId_ShowLicense: {
+      case ButtonId_MenuLicense: {
         std::string licenses;
         if (!LoadFile("licenses.txt", &licenses)) {
           SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load licenses.txt");
@@ -988,16 +1049,23 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
 #       endif
         break;
       }
-      case ButtonId_Title:
-        // Perform regular behavior of letting players join:
-        HandlePlayersJoining(menu_selection.controller_id != kTouchController ?
-              active_controllers_[menu_selection.controller_id].get() :
-              touch_controller_);
+      case ButtonId_MenuStart:
+        if (state_ == kFinished) {
+          if (menu_selection.controller_id == kTouchController) {
+            // When a touch controller exists, we assume it is the unique
+            // input system for the game. We make the touch controller join the
+            // game, and then start the game immediately.
+            HandlePlayersJoining(touch_controller_);
+            return kPlaying;
+          }
+          return kJoining;
+        }
         break;
-      case ButtonId_Unpause:
+      case ButtonId_MenuResume:
         if (state_ == kPaused) {
           return kPlaying;
         }
+        break;
       default:
         break;
     }
@@ -1101,7 +1169,7 @@ void PieNoonGame::Run() {
 
     // If we're all done loading, run & render the game as usual.
     if (state_ != kLoadingInitialMaterials && state_ != kLoading) {
-      if (state_ == kPlaying || state_ == kFinished) {
+      if (state_ == kJoining || state_ == kPlaying || state_ == kFinished) {
         // Update game logic by a variable number of milliseconds.
         game_state_.AdvanceFrame(delta_time, &audio_engine_);
       }
@@ -1207,3 +1275,4 @@ void PieNoonGame::Run() {
 
 }  // pie_noon
 }  // fpl
+

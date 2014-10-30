@@ -97,6 +97,8 @@ class GameState {
 
   void set_config(const Config* config) { config_ = config; }
 
+  impel::ImpelEngine& impel_engine() { return impel_engine_; }
+
 private:
   WorldTime GetAnimationTime(const Character& character) const;
   void ProcessSounds(AudioEngine* audio_engine,

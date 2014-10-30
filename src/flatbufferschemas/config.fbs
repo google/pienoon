@@ -38,10 +38,16 @@ enum ButtonId : ushort {
   Right,
   Attack,
   Defend,
-  ToggleLogIn,
-  ShowLicense,
-  Title,
-  Unpause
+  MenuStart,
+  MenuSignIn,
+  MenuLicense,
+  MenuAchievements,
+  MenuResume,
+  Counter1,
+  Counter2,
+  Counter3,
+  Counter4,
+  Counter5
 }
 
 // Setting a button to Hold means it will fire as long
@@ -122,6 +128,7 @@ table ButtonDef {
 }
 
 table StaticImageDef {
+  ID : ButtonId;
   texture : ButtonTexture;
   shader : string;
   draw_scale : Vec2;
@@ -388,6 +395,14 @@ table Config {
   face_angle_twitch:Settled1fParameters;
   face_angle_twitch_velocity:float;
 
+  // Defines the movement of pies that count-down during the "join" state.
+  // The pies gradually disappear one at a time to give the appearance of a
+  // timer.
+  join_impeller_def:OvershootParameters;
+  join_impeller_start_value:float;
+  join_impeller_target_value:float;
+  join_impeller_start_velocity:float;
+
   // Map airborne pie damage to the renderable id of the pie.
   renderable_id_for_pie_damage:[RenderableId];
 
@@ -566,6 +581,7 @@ table Config {
   touchscreen_zones:UiGroup;
   pause_screen_buttons:UiGroup;
   title_screen_buttons:UiGroup;
+  join_screen_buttons:UiGroup;
 
   // Debug options
   //
