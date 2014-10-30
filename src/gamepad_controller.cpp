@@ -26,13 +26,13 @@ namespace pie_noon {
 GamepadController::GamepadController()
     : Controller(kTypeGamepad),
       input_system_(nullptr),
-      joystick_id_(kInvalidJoystickId) {
+      controller_id_(kInvalidControllerId) {
 }
 
 void GamepadController::Initialize(InputSystem* input_system,
-                                   SDL_JoystickID joystick_id) {
+                                   AndroidInputDeviceId controller_id) {
   input_system_ = input_system;
-  joystick_id_ = joystick_id;
+  controller_id_ = controller_id;
   ClearAllLogicalInputs();
 }
 
@@ -41,16 +41,17 @@ static const float kAnalogDeadZone = 0.25f;
 
 void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
   went_down_ = went_up_ = 0;
-
-  Joystick joystick = input_system_->GetJoystick(joystick_id_);
+  Gamepad gamepad = input_system_->GetGamepad(controller_id_);
   SetLogicalInputs(LogicalInputs_Left,
-      (joystick.GetAxis(0).Value() < -kAnalogDeadZone ||
-      joystick.GetHat(0).Value().x() < 0));
+                   gamepad.GetButton(Gamepad::kLeft).is_down());
   SetLogicalInputs(LogicalInputs_Right,
-      (joystick.GetAxis(0).Value() > kAnalogDeadZone ||
-      joystick.GetHat(0).Value().x() > 0));
-  SetLogicalInputs(LogicalInputs_ThrowPie, joystick.GetButton(0).is_down());
-  SetLogicalInputs(LogicalInputs_Deflect, joystick.GetButton(1).is_down());
+                   gamepad.GetButton(Gamepad::kRight).is_down());
+  SetLogicalInputs(LogicalInputs_ThrowPie,
+                   gamepad.GetButton(Gamepad::kUp).is_down() ||
+                   gamepad.GetButton(Gamepad::kButtonA).is_down());
+  SetLogicalInputs(LogicalInputs_Deflect,
+                   gamepad.GetButton(Gamepad::kDown).is_down() ||
+                   gamepad.GetButton(Gamepad::kButtonB).is_down());
 }
 
 }  // pie_noon

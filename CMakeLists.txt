@@ -168,8 +168,6 @@ set(pie_noon_SRCS
     src/game_camera.h
     src/game_state.cpp
     src/game_state.h
-    src/gamepad_controller.cpp
-    src/gamepad_controller.h
     src/glplatform.h
     src/gpg_manager.h
     src/gui_menu.cpp

@@ -12,13 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <queue>
+
 #ifndef INPUT_SYSTEM_H
 #define INPUT_SYSTEM_H
+
+#ifdef __ANDROID__
+// Enable the android gamepad code.  It receives input events from java, via
+// JNI, and creates a local representation of the state of any connected
+// gamepads.  Also enables the gamepad_controller controller class.
+#define ANDROID_GAMEPAD
+#include "pthread.h"
+#endif
 
 namespace fpl {
 
 using mathfu::vec2;
 using mathfu::vec2i;
+
+#ifdef ANDROID_GAMEPAD
+typedef int AndroidInputDeviceId;
+#endif
 
 // Used to record state for fingers, mousebuttons, keys and gamepad buttons.
 // Allows you to know if a button went up/down this frame.
@@ -72,8 +86,6 @@ struct Pointer {
     Pointer() : id(0), mousepos(-1), mousedelta(0), used(false) {};
 };
 
-
-
 // Used to record state for axes
 class JoystickAxis {
  public:
@@ -104,7 +116,6 @@ class JoystickHat {
   vec2 previous_value_;  //value last update
 };
 
-
 class Joystick {
  public:
 
@@ -127,6 +138,62 @@ class Joystick {
   std::vector<JoystickHat> hat_list_;
 };
 
+#ifdef ANDROID_GAMEPAD
+// Gamepad input class.  Represents the state of a connected gamepad, based on
+// events passed in from java.
+class Gamepad {
+ public:
+  enum GamepadInputButton : int {
+    kInvalid = -1,
+    kUp = 0,
+    kDown,
+    kLeft,
+    kRight,
+    kButtonA,
+    kButtonB,
+    kButtonC,
+
+    kControlCount
+  };
+
+  Gamepad() {
+    button_list_.resize(Gamepad::kControlCount);
+  }
+
+  void AdvanceFrame();
+  Button &GetButton(int i);
+
+  AndroidInputDeviceId controller_id() { return controller_id_; }
+  void set_controller_id(AndroidInputDeviceId controller_id) {
+    controller_id_ = controller_id;
+  }
+
+  static int GetGamepadCodeFromJavaKeyCode(int java_keycode);
+
+ private:
+  AndroidInputDeviceId controller_id_;
+  std::vector<Button> button_list_;
+};
+
+const float kGamepadHatThreshold = 0.5f;
+
+// Structure used for storing gamepad events when we get them from jni
+// until we can deal with them.
+struct AndroidInputEvent {
+  AndroidInputEvent() {}
+  AndroidInputEvent(AndroidInputDeviceId device_id_, int event_code_,
+                    int control_code_, float x_, float y_)
+    : device_id(device_id_),
+      event_code(event_code_),
+      control_code(control_code_),
+      x(x_),
+      y(y_){}
+  AndroidInputDeviceId device_id;
+  int event_code;
+  int control_code;
+  float x, y;
+};
+#endif // ANDROID_GAMEPAD
 
 class InputSystem {
  public:
@@ -160,6 +227,25 @@ class InputSystem {
   const std::map<SDL_JoystickID, Joystick> &JoystickMap() const {
     return joystick_map_;
   }
+
+#ifdef ANDROID_GAMEPAD
+  // Returns an object describing a gamepad, based on the android device ID.
+  // Get the ID either from an android event, or by checking a known gamepad.
+  Gamepad &GetGamepad(AndroidInputDeviceId gamepad_device_id);
+
+  const std::map<int, Gamepad> &GamepadMap() const {
+    return gamepad_map_;
+  }
+
+  // Receives events from java, and stuffs them into a vector until we're ready.
+  static void ReceiveGamepadEvent(int controller_id,
+                                  int event_code,
+                                  int control_code,
+                                  float x, float y);
+
+  // Runs through all the received events and processes them.
+  void HandleGamepadEvents();
+#endif // ANDROID_GAMEPAD
 
   // Get a Button object for a pointer index.
   Button &GetPointerButton(SDL_FingerID pointer) {
@@ -195,6 +281,12 @@ class InputSystem {
  private:
   std::map<int, Button> button_map_;
   std::map<SDL_JoystickID, Joystick> joystick_map_;
+
+#ifdef ANDROID_GAMEPAD
+  std::map<AndroidInputDeviceId, Gamepad> gamepad_map_;
+  static pthread_mutex_t android_event_mutex;
+  static std::queue<AndroidInputEvent> unhandled_java_input_events_;
+#endif // ANDROID_GAMEPAD
 
   // Frame timing related, all in milliseconds.
   // records the most recent frame delta, most recent time since start,

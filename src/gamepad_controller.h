@@ -27,7 +27,7 @@
 namespace fpl {
 namespace pie_noon {
 
-static const SDL_JoystickID kInvalidJoystickId = -1;
+static const SDL_JoystickID kInvalidControllerId = -1;
 
 // A GamepadController tracks the current state of a human player's logical
 // inputs. It is responsible for polling the gamepad for the current state
@@ -48,8 +48,10 @@ class GamepadController : public Controller {
   // A pointer to the object to query for the current input state.
   InputSystem* input_system_;
 
-  // The ID of the joystick controlling this controller.
-  SDL_JoystickID joystick_id_;
+#ifdef ANDROID_GAMEPAD
+  // The device ID of the controller we're listening to.
+  AndroidInputDeviceId controller_id_;
+#endif // ANDROID_GAMEPAD
 };
 
 }  // pie_noon

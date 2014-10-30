@@ -7,6 +7,9 @@ import org.libsdl.app.SDLActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.app.Activity;
+import android.view.InputDevice;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Display;
@@ -91,6 +94,33 @@ public class FPLActivity extends SDLActivity {
     }
   }
 
+
+  // Capture motionevents and keyevents to check for gamepad movement.  Any events we catch
+  // (That look like they were from a gamepad or joystick) get sent to C++ via JNI, where
+  // they are stored, so C++ can deal with them next time it updates the game state.
+  @Override
+  public boolean dispatchGenericMotionEvent(MotionEvent event) {
+    if ((event.getAction() == MotionEvent.ACTION_MOVE) &&
+       (event.getSource() & (InputDevice.SOURCE_JOYSTICK | InputDevice.SOURCE_GAMEPAD)) != 0) {
+       nativeOnGamepadInput(event.getDeviceId(), event.getAction(),
+                          0,  // Control Code is unneeded for motionEvents.
+                          event.getAxisValue(MotionEvent.AXIS_HAT_X),
+                          event.getAxisValue(MotionEvent.AXIS_HAT_Y));
+    }
+    return super.dispatchGenericMotionEvent(event);
+  }
+
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent event)
+  {
+  if ((event.getSource() &
+      (InputDevice.SOURCE_JOYSTICK | InputDevice.SOURCE_GAMEPAD)) != 0) {
+          nativeOnGamepadInput(event.getDeviceId(), event.getAction(),
+                               event.getKeyCode(), 0.0f, 0.0f);
+    }
+    return super.dispatchKeyEvent(event);
+  }
+
   public void showTextDialog(String text) {
     runOnUiThread(new TextDialogRunnable(this, text));
   }
@@ -103,11 +133,20 @@ public class FPLActivity extends SDLActivity {
     return getPackageManager().hasSystemFeature(featureName);
   }
 
-  // Implemented in C++.
+  // Implemented in C++. (gpg_manager.cpp)
   private static native void nativeOnActivityResult(
       Activity activity,
       int requestCode,
       int resultCode,
       Intent data);
+
+  // Implemented in C++. (input.cpp)
+  private static native void nativeOnGamepadInput(
+      int controllerId,
+      int eventCode,
+      int controlCode,
+      float x,
+      float y);
+
 }
 

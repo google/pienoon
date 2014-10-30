@@ -23,7 +23,6 @@
 #include "audio_engine.h"
 #include "full_screen_fader.h"
 #include "game_state.h"
-#include "gamepad_controller.h"
 #include "gui_menu.h"
 #include "input.h"
 #include "material_manager.h"
@@ -32,6 +31,9 @@
 #include "scene_description.h"
 #include "touchscreen_button.h"
 #include "touchscreen_controller.h"
+#ifdef ANDROID_GAMEPAD
+#include "gamepad_controller.h"
+#endif // ANDROID_GAMEPAD
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 #include "gpg_manager.h"
 #endif
@@ -165,7 +167,7 @@ class PieNoonGame {
   TouchscreenController* touch_controller_;
   GuiMenu gui_menu_;
 
-  std::map<SDL_JoystickID, ControllerId> joystick_to_controller_map_;
+  std::map<int, ControllerId> gamepad_to_controller_map_;
 
   // Used to render an overlay to fade the screen.
   FullScreenFader full_screen_fader_;

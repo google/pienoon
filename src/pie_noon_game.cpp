@@ -873,31 +873,22 @@ void PieNoonGame::UploadAndShowLeaderboards() {
 # endif
 }
 
-// Some joysticks are not traditional joysticks. For example, the accelerometer
-// on a mobile device is considered a joystick, but we don't want to
-// play our game with the accelerometer. Ignore anything that doesn't have the
-// minimum number of buttons.
-static bool ValidGameplayController(const Joystick& joy) {
-  static const int kMinNumButtonsOnJoystick = 2;
-  return joy.GetNumButtons() >= kMinNumButtonsOnJoystick;
-}
-
 void PieNoonGame::UpdateGamepadControllers() {
-  // iterate over list of currently known joysticks.
-  for (auto it = input_.JoystickMap().begin();
-       it != input_.JoystickMap().end(); ++it) {
-    if (!ValidGameplayController(it->second))
-      continue;
+#ifdef ANDROID_GAMEPAD
+  // Iterate over list of currently known gamepads.
+  for (auto it = input_.GamepadMap().begin();
+       it != input_.GamepadMap().end(); ++it) {
 
-    SDL_JoystickID joy_id = it->first;
+    int device_id = it->first;
     // if we find one that doesn't have a player associated with it...
-    if (joystick_to_controller_map_.find(joy_id) ==
-        joystick_to_controller_map_.end()) {
+    if (gamepad_to_controller_map_.find(device_id) ==
+        gamepad_to_controller_map_.end()) {
       GamepadController* controller = new GamepadController();
-      controller->Initialize(&input_, joy_id);
-      joystick_to_controller_map_[joy_id] = AddController(controller);
+      controller->Initialize(&input_, device_id);
+      gamepad_to_controller_map_[device_id] = AddController(controller);
     }
   }
+#endif // ANDROID_GAMEPAD
 }
 
 // Returns the characterId of the first AI player we can find.
