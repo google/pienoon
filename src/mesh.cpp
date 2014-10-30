@@ -154,11 +154,13 @@ void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
                                    const unsigned short *indices,
                                    int numverts,
                                    int numindices) {
-  std::vector<vec3> binormals(numverts, mathfu::kZeros3f);
+  std::unique_ptr<vec3[]> binormals(new vec3[numverts]);
+
   // set all normals to 0, as we'll accumulate
   for (int i = 0; i < numverts; i++) {
     vertices[i].norm = mathfu::kZeros3f;
     vertices[i].tangent = mathfu::kZeros4f;
+    binormals[i] = mathfu::kZeros3f;
   }
   // Go through each triangle and calculate tangent space for it, then
   // contribute results to adjacent triangles.

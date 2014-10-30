@@ -68,7 +68,7 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     }
     button_list_[i].set_shader(shader);
     button_list_[i].set_button_def(button);
-    button_list_[i].set_is_active(button->starts_active());
+    button_list_[i].set_is_active(button->starts_active() != 0);
     button_list_[i].set_is_highlighted(true);
   }
 

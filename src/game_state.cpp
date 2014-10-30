@@ -742,8 +742,9 @@ void GameState::CreatePieSplatter(const Character& character,
 }
 
 // Spawns a particle at the given position, using a particle definition.
-void GameState::SpawnParticles(mathfu::vec3 position, const ParticleDef * def,
-                              const int particle_count) {
+void GameState::SpawnParticles(const mathfu::vec3 &position,
+                               const ParticleDef * def,
+                               const int particle_count) {
   const vec3 min_scale = LoadVec3(def->min_scale());
   const vec3 max_scale = LoadVec3(def->max_scale());
   const vec3 min_velocity = LoadVec3(def->min_velocity());

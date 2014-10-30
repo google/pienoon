@@ -28,7 +28,7 @@ struct GameCameraState {
   mathfu::vec3 target;
 
   GameCameraState() : position(mathfu::kZeros3f), target(mathfu::kZeros3f) {}
-  GameCameraState(mathfu::vec3 position, mathfu::vec3 target)
+  GameCameraState(const mathfu::vec3 &position, const mathfu::vec3 &target)
       : position(position), target(target) {}
 
   bool operator==(const GameCameraState& rhs) const {

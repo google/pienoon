@@ -19,9 +19,14 @@ mathfu/
 sdl/
 pie_noon.build/
 pie_noon.xcodeproj/
+pie_noon.dir/
 tests/Debug/
 tests/Release/
 tests/pie_noon.build/
+tests/angle_test.dir/
+tests/audio_engine_test.dir/
+tests/character_state_machine_test.dir/
+tests/impel_test.dir/
 libogg/liblibogg.a
 libvorbis/liblibvorbis.a
 sdl_mixer/libsdl_mixer.a
@@ -38,6 +43,8 @@ build/
 *.suo
 *.vcxproj
 *.vcxproj.filters
+Debug/
+Win32/
 
 # qt creator
 *.cbp

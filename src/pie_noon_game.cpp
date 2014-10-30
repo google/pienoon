@@ -580,15 +580,6 @@ struct ButtonToTranslation {
   vec3 translation;
 };
 
-static const ButtonToTranslation kDebugCameraButtons[] = {
-  { 'd', mathfu::kAxisX3f },
-  { 'a', -mathfu::kAxisX3f },
-  { 'w', mathfu::kAxisZ3f },
-  { 's', -mathfu::kAxisZ3f },
-  { 'q', mathfu::kAxisY3f },
-  { 'e', -mathfu::kAxisY3f },
-};
-
 // Debug function to move the camera if the mouse button is down.
 void PieNoonGame::DebugCamera() {
   const Config& config = GetConfig();
@@ -596,6 +587,15 @@ void PieNoonGame::DebugCamera() {
   // Only move the camera if the left mouse button (or first finger) is down.
   if (!input_.GetButton(SDLK_POINTER1).is_down())
     return;
+
+  static const ButtonToTranslation kDebugCameraButtons[] = {
+    { 'd', mathfu::kAxisX3f },
+    { 'a', -mathfu::kAxisX3f },
+    { 'w', mathfu::kAxisZ3f },
+    { 's', -mathfu::kAxisZ3f },
+    { 'q', mathfu::kAxisY3f },
+    { 'e', -mathfu::kAxisY3f },
+  };
 
   // Convert key presses to translations along camera axes.
   vec3 camera_translation(mathfu::kZeros3f);

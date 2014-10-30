@@ -36,8 +36,8 @@ class IdMap {
   ImpelData& Data(ImpelId id) { return data_[Index(id)]; }
   const ImpelData& Data(ImpelId id) const { return data_[Index(id)]; }
   ImpelData* Begin() { return &data_[0]; }
-  const ImpelData* Begin() const { return &data_[0]; }
-  const ImpelData* End() const { return &data_[data_.size()]; }
+  const ImpelData* Begin() const { return data_.data(); }
+  const ImpelData* End() const { return data_.data() + data_.size(); }
   int Count() const { return static_cast<int>(data_.size()); }
 
   // Allocate data and associate a unique id to it. Note that the id may have

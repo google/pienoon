@@ -73,8 +73,8 @@ bool ChangeToUpstreamDir(const char* const binary_dir,
   }
 #else
   (void)binary_dir; (void)target_dir;
-#endif // !defined(__ANDROID__)
   return true;
+#endif // !defined(__ANDROID__)
 }
 
 static inline bool IsUpperCase(const char c) {

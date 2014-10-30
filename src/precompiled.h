@@ -32,9 +32,6 @@
 #include <unistd.h> // for chdir
 #endif // !defined(_WIN32)
 
-#if defined(_WIN32)
-#define MATHFU_COMPILE_WITHOUT_SIMD_SUPPORT
-#endif
 #include "flatbuffers/util.h"
 
 #include "mathfu/matrix.h"
