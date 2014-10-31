@@ -1,11 +1,11 @@
 {
-  "id": "TitleScreen",
+  "id": "MusicMenu",
   "stream": true,
   "loop": true,
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/game_music_title_screen.ogg"
+        "filename": "sounds/music_menu.ogg"
       }
     }
   ]

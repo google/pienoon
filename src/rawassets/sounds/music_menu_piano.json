@@ -1,12 +1,11 @@
 {
-  "id": "MainTheme",
-  "gain": 0.2,
+  "id": "MusicMenuPiano",
   "stream": true,
   "loop": true,
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/game_music_start_tail.ogg"
+        "filename": "sounds/music_menu_piano.ogg"
       }
     }
   ]

@@ -47,10 +47,22 @@
     // StartMatch
     "sounds/start_match.bin",
 
-    // MainTheme
-    "sounds/main_theme.bin",
+    // MusicMenu
+    "sounds/music_menu.bin",
 
-    // TitleScreen
-    "sounds/title_screen.bin"
+    // MusicMenuPiano
+    "sounds/music_menu_piano.bin",
+
+    // MusicAction
+    "sounds/music_action.bin",
+
+    // StingerWin
+    "sounds/stinger_win.bin",
+
+    // StingerDraw
+    "sounds/stinger_draw.bin",
+
+    // StingerLose
+    "sounds/stinger_lose.bin"
   ]
 }

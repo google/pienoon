@@ -37,6 +37,7 @@ int Mix_OpenAudio(int, Uint16, int, int) { return 0; }
 int Mix_PlayChannelTimed(int, Mix_Chunk*, int, int) { return 0; }
 int Mix_PlayMusic(Mix_Music*, int) { return 0; }
 int Mix_Playing(int) { return 0; }
+int Mix_PlayingMusic() { return 0; }
 int Mix_Volume(int, int) { return 0; }
 int Mix_VolumeMusic(int) { return 0; }
 void Mix_CloseAudio() {}

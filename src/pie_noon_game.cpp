@@ -755,7 +755,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
 
       if (state_ != kPaused) {
         audio_engine_.PlaySound(SoundId_StartMatch);
-        audio_engine_.PlaySound(SoundId_MainTheme);
+        audio_engine_.PlaySound(SoundId_MusicAction);
         game_state_.Reset();
       } else {
         audio_engine_.Mute(false);
@@ -772,7 +772,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     case kFinished: {
       gui_menu_.Setup(config.title_screen_buttons(), &matman_);
 
-      audio_engine_.PlaySound(SoundId_TitleScreen);
+      audio_engine_.PlaySound(SoundId_MusicMenu);
       game_state_.DetermineWinnersAndLosers();
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];

@@ -42,7 +42,11 @@ class AudioEngine {
   bool Initialize(const AudioConfig* config);
 
   // Play a sound associated with the given sound_id.
-  void PlaySound(SoundId sound_id);
+  // Returns the channel the sound is played on.
+  ChannelId PlaySound(SoundId sound_id);
+
+  // Checks if the sound playing on a given channel is playing
+  bool IsPlaying(ChannelId sound_id) const;
 
   // Returns the audio collection associated with the given sound_id.
   SoundCollection* GetSoundCollection(SoundId sound_id);
@@ -76,10 +80,10 @@ class AudioEngine {
   };
 
   // Play a buffer associated with the given sound_id.
-  void PlayBuffer(SoundCollection* sound);
+  ChannelId PlayBuffer(SoundCollection* sound);
 
   // Play a stream associated with the given sound_id.
-  void PlayStream(SoundCollection* sound);
+  ChannelId PlayStream(SoundCollection* sound);
 
   class PriorityComparitor {
    public:

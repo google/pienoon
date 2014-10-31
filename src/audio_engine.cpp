@@ -32,6 +32,9 @@ const ChannelId kInvalidChannel = -1;
 // all channels.
 const ChannelId kAllChannels = -1;
 
+// Special value representing an audio stream.
+const ChannelId kStreamChannel = -100;
+
 AudioEngine::~AudioEngine() {
   for (size_t i = 0; i < collections_.size(); ++i) {
     collections_[i]->Unload();
@@ -75,20 +78,21 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   }
 
   // Create a Sound for each sound def
-  const SoundAssets* sound_assets =
-      GetSoundAssets(sound_assets_source.c_str());
+  const SoundAssets* sound_assets = GetSoundAssets(sound_assets_source.c_str());
   unsigned int sound_count = sound_assets->sounds()->Length();
   collections_.resize(sound_count);
+  bool success = true;
   for (unsigned int i = 0; i < sound_count; ++i) {
     const char* filename = sound_assets->sounds()->Get(i)->c_str();
-    SoundCollection *collection = new SoundCollection();
-    collections_[i].reset(collection);
-    if (!collection->LoadSoundCollectionDefFromFile(filename)) {
-      return false;
+    collections_[i].reset(new SoundCollection());
+    if (!collections_[i]->LoadSoundCollectionDefFromFile(filename)) {
+      // Don't return false if a sound collection fails to load, just null it
+      // out and move on to the next one.
+      collections_[i].reset(nullptr);
     }
   }
 
-  return true;
+  return success;
 }
 
 SoundCollection* AudioEngine::GetSoundCollection(SoundId sound_id) {
@@ -170,12 +174,13 @@ bool AudioEngine::PlaySource(SoundSource* const source, ChannelId channel_id,
   return false;
 }
 
-void AudioEngine::PlayStream(SoundCollection* collection) {
+ChannelId AudioEngine::PlayStream(SoundCollection* collection) {
   // Attempt to play the stream.
   PlaySource(collection->Select(), 0, *collection);
+  return kStreamChannel;
 }
 
-void AudioEngine::PlayBuffer(SoundCollection* collection) {
+ChannelId AudioEngine::PlayBuffer(SoundCollection* collection) {
   const SoundCollectionDef* def = collection->GetSoundCollectionDef();
 
   // Prune sounds that have finished playing.
@@ -200,7 +205,7 @@ void AudioEngine::PlayBuffer(SoundCollection* collection) {
     } else {
       // The sound was lower priority than all currently playing sounds; do
       // nothing.
-      return;
+      return kInvalidChannel;
     }
   }
 
@@ -211,16 +216,25 @@ void AudioEngine::PlayBuffer(SoundCollection* collection) {
   if (PlaySource(collection->Select(), new_sound.channel_id, *collection)) {
     playing_sounds_.push_back(new_sound);
   }
+  return new_sound.channel_id;
 }
 
-void AudioEngine::PlaySound(SoundId sound_id) {
+ChannelId AudioEngine::PlaySound(SoundId sound_id) {
   SoundCollection* collection = GetSoundCollection(sound_id);
   if (collection) {
-    if (collection->GetSoundCollectionDef()->stream()) {
-      PlayStream(collection);
-    } else {
-      PlayBuffer(collection);
-    }
+    return collection->GetSoundCollectionDef()->stream() ?
+        PlayStream(collection) : PlayBuffer(collection);
+  }
+  return kInvalidChannel;
+}
+
+bool AudioEngine::IsPlaying(ChannelId channel_id) const {
+  if (channel_id == kStreamChannel) {
+    return Mix_Playing(channel_id);
+  } else if (channel_id != kInvalidChannel) {
+    return Mix_PlayingMusic();
+  } else {
+    return false;
   }
 }
 

@@ -73,8 +73,12 @@ enum SoundId : ushort {
   PlayerLost,
   JoinMatch,
   StartMatch,
-  MainTheme,
-  TitleScreen,
+  MusicMenu,
+  MusicMenuPiano,
+  MusicAction,
+  StingerWin,
+  StingerDraw,
+  StingerLose,
 
   Count  // Must be last
 }
