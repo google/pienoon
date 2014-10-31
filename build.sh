@@ -61,13 +61,23 @@ main() {
   # Log the contents of the SDK.
   find ${ANDROID_SDK_HOME} -name google-play-services_lib
 
+  # Build release.
   cd "$(dirname $0)"
   rm -rf bin
   INSTALL=0 LAUNCH=0 ./build_install_run.sh
   if [[ -n "${dist_dir}" ]]; then
+    # Archive unsigned release build.
     cp ./bin/pie_noon-release-unsigned.apk ${dist_dir}/PieNoon.apk
+    # Archive release build signed with the test key.
+    cp ./apks/pie_noon.apk ${dist_dir}/PieNoon-Test.apk
+  fi
+
+  # Build and archive the debug build.
+  rm -rf bin
+  INSTALL=0 LAUNCH=0 ./build_install_run.sh -T debug -f 'NDK_DEBUG=1'
+  if [[ -n "${dist_dir}" ]]; then
+    cp ./bin/pie_noon-debug.apk ${dist_dir}/PieNoon-Debug.apk
   fi
 }
 
 main "$@"
-
