@@ -3,17 +3,17 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/charblock_06.wav"
+        "filename": "sounds/charblock_06.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charblock_07.wav"
+        "filename": "sounds/charblock_07.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charblock_08.wav"
+        "filename": "sounds/charblock_08.ogg"
       }
     }
   ]

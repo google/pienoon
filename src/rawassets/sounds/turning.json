@@ -5,42 +5,42 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_01.wav"
+        "filename": "sounds/charrotate_01.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_02.wav"
+        "filename": "sounds/charrotate_02.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_03.wav"
+        "filename": "sounds/charrotate_03.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_04.wav"
+        "filename": "sounds/charrotate_04.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_05.wav"
+        "filename": "sounds/charrotate_05.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_06.wav"
+        "filename": "sounds/charrotate_06.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_07.wav"
+        "filename": "sounds/charrotate_07.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charrotate_08.wav"
+        "filename": "sounds/charrotate_08.ogg"
       }
     }
   ]

@@ -3,42 +3,42 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/throw_01.wav"
+        "filename": "sounds/throw_01.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throw_02.wav"
+        "filename": "sounds/throw_02.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throw_03.wav"
+        "filename": "sounds/throw_03.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throw_04.wav"
+        "filename": "sounds/throw_04.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throw_05.wav"
+        "filename": "sounds/throw_05.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throw_06.wav"
+        "filename": "sounds/throw_06.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throw_07.wav"
+        "filename": "sounds/throw_07.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throw_08.wav"
+        "filename": "sounds/throw_08.ogg"
       }
     }
   ]

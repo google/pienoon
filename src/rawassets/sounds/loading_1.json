@@ -5,17 +5,17 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/throwready_01.wav"
+        "filename": "sounds/throwready_01.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throwready_02.wav"
+        "filename": "sounds/throwready_02.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/throwready_03.wav"
+        "filename": "sounds/throwready_03.ogg"
       }
     }
   ]

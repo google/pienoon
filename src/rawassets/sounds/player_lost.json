@@ -3,42 +3,42 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/charlose_01.wav"
+        "filename": "sounds/charlose_01.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charlose_02.wav"
+        "filename": "sounds/charlose_02.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charlose_03.wav"
+        "filename": "sounds/charlose_03.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charlose_04.wav"
+        "filename": "sounds/charlose_04.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charlose_05.wav"
+        "filename": "sounds/charlose_05.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charlose_06.wav"
+        "filename": "sounds/charlose_06.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charlose_07.wav"
+        "filename": "sounds/charlose_07.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/charlose_08.wav"
+        "filename": "sounds/charlose_08.ogg"
       }
     }
   ]

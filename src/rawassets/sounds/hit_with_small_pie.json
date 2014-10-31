@@ -3,22 +3,22 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/pastryhit_01.wav"
+        "filename": "sounds/pastryhit_01.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/pastryhit_02.wav"
+        "filename": "sounds/pastryhit_02.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/pastryhit_03.wav"
+        "filename": "sounds/pastryhit_03.ogg"
       }
     },
     {
       "audio_sample": {
-        "filename": "sounds/pastryhit_04.wav"
+        "filename": "sounds/pastryhit_04.ogg"
       }
     }
   ]

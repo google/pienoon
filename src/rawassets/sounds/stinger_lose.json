@@ -1,7 +1,6 @@
 {
   "id": "StingerLose",
   "stream": true,
-  "loop": true,
   "audio_sample_set": [
     {
       "audio_sample": {

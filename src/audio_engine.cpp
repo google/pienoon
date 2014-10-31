@@ -231,12 +231,11 @@ ChannelId AudioEngine::PlaySound(SoundId sound_id) {
 }
 
 bool AudioEngine::IsPlaying(ChannelId channel_id) const {
+  assert(channel_id != kInvalidChannel);
   if (channel_id == kStreamChannel) {
-    return Mix_Playing(channel_id);
-  } else if (channel_id != kInvalidChannel) {
     return Mix_PlayingMusic();
   } else {
-    return false;
+    return Mix_Playing(channel_id);
   }
 }
 

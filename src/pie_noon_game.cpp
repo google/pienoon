@@ -73,7 +73,8 @@ PieNoonGame::PieNoonGame()
       debug_previous_states_(),
       full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized),
-      ambience_channel_(AudioEngine::kInvalidChannel) {
+      ambience_channel_(AudioEngine::kInvalidChannel),
+      stinger_channel_(kInvalidChannel) {
 }
 
 PieNoonGame::~PieNoonGame() {
@@ -704,7 +705,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
           input_.GetButton(SDLK_p).went_down()) {
         return kPaused;
       }
-      if (game_state_.IsGameOver()) {
+      if (game_state_.IsGameOver() && stinger_channel_ != kInvalidChannel &&
+          !audio_engine_.IsPlaying(stinger_channel_)) {
         return kFinished;
       }
       break;
@@ -738,7 +740,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
 }
 
 void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
-  assert(state_ != next_state); // Must actually transition.
+  assert(state_ != next_state);  // Must actually transition.
   const Config& config = GetConfig();
 
   switch (next_state) {
@@ -775,8 +777,8 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       if (ambience_channel_ != AudioEngine::kInvalidChannel) {
         audio_engine_.Stop(ambience_channel_);
       }
+      stinger_channel_ = AudioEngine::kInvalidChannel;
       audio_engine_.PlaySound(SoundId_MusicMenu);
-      game_state_.DetermineWinnersAndLosers();
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
         if (character->controller()->controller_type() !=
@@ -1037,6 +1039,33 @@ void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
   }
 }
 
+ChannelId PieNoonGame::PlayStinger() {
+  auto& characters = game_state_.characters();
+  int player_winners = 0;
+  int ai_winners = 0;
+  for (size_t i = 0; i < characters.size(); ++i) {
+    auto& character = characters[i];
+    if (character->victory_state() == kVictorious) {
+      if (character->controller()->controller_type() == Controller::kTypeAI) {
+        ++ai_winners;
+      } else {
+        ++player_winners;
+      }
+    }
+  }
+  // If there's a single human winner, play the victory stinger.
+  // If no humans won, play the lose stinger.
+  // If more than one character won, or if they all lost, play the draw stinger.
+  // This logic should work equally well for all game modes.
+  if (player_winners == 1 && ai_winners == 0) {
+    return audio_engine_.PlaySound(SoundId_StingerWin);
+  } else if (player_winners == 0 && ai_winners > 0) {
+    return audio_engine_.PlaySound(SoundId_StingerLose);
+  } else {
+    return audio_engine_.PlaySound(SoundId_StingerDraw);
+  }
+}
+
 void PieNoonGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   const Config& config = GetConfig();
@@ -1084,6 +1113,12 @@ void PieNoonGame::Run() {
       if (state_ == kPlaying || state_ == kFinished) {
         // Update game logic by a variable number of milliseconds.
         game_state_.AdvanceFrame(delta_time, &audio_engine_);
+      }
+
+      if (state_ == kPlaying && stinger_channel_ == kInvalidChannel &&
+          game_state_.IsGameOver()) {
+        game_state_.DetermineWinnersAndLosers();
+        stinger_channel_ = PlayStinger();
       }
 
       // Update audio engine state.

@@ -95,6 +95,7 @@ class PieNoonGame {
   //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
+  ChannelId PlayStinger();
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -173,6 +174,10 @@ class PieNoonGame {
 
   // Channel used to play the ambience sound effect.
   ChannelId ambience_channel_;
+
+  // A stinger will play before transition to the finished state. Don't
+  // transition until the stinger is complete.
+  ChannelId stinger_channel_;
 
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;

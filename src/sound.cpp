@@ -19,7 +19,6 @@
 
 namespace fpl {
 
-const ChannelId kInvalidChannel = -1;
 const int kPlayStreamError = -1;
 const int kLoopForever = -1;
 const int kPlayOnce = 0;
