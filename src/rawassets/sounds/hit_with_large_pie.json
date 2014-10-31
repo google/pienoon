@@ -3,12 +3,22 @@
   "audio_sample_set": [
     {
       "audio_sample": {
-        "filename": "sounds/piehit_03.wav"
+        "filename": "sounds/piehit_01.wav"
       }
     },
     {
       "audio_sample": {
         "filename": "sounds/piehit_04.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_05.wav"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_08.wav"
       }
     }
   ]
