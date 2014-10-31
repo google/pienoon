@@ -35,6 +35,7 @@ int Mix_HaltChannel(int) { return 0; }
 int Mix_Init(int) { return 0; }
 int Mix_OpenAudio(int, Uint16, int, int) { return 0; }
 int Mix_PlayChannelTimed(int, Mix_Chunk*, int, int) { return 0; }
+int Mix_FadeOutChannel(int, int) { return 0; }
 int Mix_PlayMusic(Mix_Music*, int) { return 0; }
 int Mix_Playing(int) { return 0; }
 int Mix_PlayingMusic() { return 0; }
@@ -45,6 +46,7 @@ void Mix_FreeChunk(Mix_Chunk*) {}
 void Mix_FreeMusic(Mix_Music*) {}
 void Mix_Pause(int) {}
 void Mix_PauseMusic() {}
+int Mix_FadeOutMusic(int) { return 0; }
 void Mix_Resume(int) {}
 void Mix_ResumeMusic() {}
 }

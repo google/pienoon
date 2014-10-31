@@ -72,8 +72,8 @@ PieNoonGame::PieNoonGame()
       prev_world_time_(0),
       debug_previous_states_(),
       full_screen_fader_(&renderer_),
-      fade_exit_state_(kUninitialized)
-{
+      fade_exit_state_(kUninitialized),
+      ambience_channel_(AudioEngine::kInvalidChannel) {
 }
 
 PieNoonGame::~PieNoonGame() {
@@ -756,6 +756,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       if (state_ != kPaused) {
         audio_engine_.PlaySound(SoundId_StartMatch);
         audio_engine_.PlaySound(SoundId_MusicAction);
+        ambience_channel_ = audio_engine_.PlaySound(SoundId_Ambience);
         game_state_.Reset();
       } else {
         audio_engine_.Mute(false);
@@ -771,7 +772,9 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     }
     case kFinished: {
       gui_menu_.Setup(config.title_screen_buttons(), &matman_);
-
+      if (ambience_channel_ != AudioEngine::kInvalidChannel) {
+        audio_engine_.Stop(ambience_channel_);
+      }
       audio_engine_.PlaySound(SoundId_MusicMenu);
       game_state_.DetermineWinnersAndLosers();
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {

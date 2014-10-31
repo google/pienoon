@@ -79,6 +79,7 @@ enum SoundId : ushort {
   StingerWin,
   StingerDraw,
   StingerLose,
+  Ambience,
 
   Count  // Must be last
 }

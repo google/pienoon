@@ -171,6 +171,9 @@ class PieNoonGame {
   // State to enter after the fade is complete.
   PieNoonState fade_exit_state_;
 
+  // Channel used to play the ambience sound effect.
+  ChannelId ambience_channel_;
+
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
 # endif

@@ -63,6 +63,9 @@
     "sounds/stinger_draw.bin",
 
     // StingerLose
-    "sounds/stinger_lose.bin"
+    "sounds/stinger_lose.bin",
+
+    // Ambience
+    "sounds/ambience.bin"
   ]
 }

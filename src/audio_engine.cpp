@@ -26,7 +26,7 @@
 
 namespace fpl {
 
-const ChannelId kInvalidChannel = -1;
+const int kChannelFadeOutRateMs = 10;
 
 // Special value for SDL_Mixer that indicates an operation should be applied to
 // all channels.
@@ -34,6 +34,8 @@ const ChannelId kAllChannels = -1;
 
 // Special value representing an audio stream.
 const ChannelId kStreamChannel = -100;
+
+const ChannelId AudioEngine::kInvalidChannel = -1;
 
 AudioEngine::~AudioEngine() {
   for (size_t i = 0; i < collections_.size(); ++i) {
@@ -123,7 +125,7 @@ static ChannelId FindFreeChannel() {
       }
     }
   }
-  return kInvalidChannel;
+  return AudioEngine::kInvalidChannel;
 }
 
 // Sort by priority. In the case of two sounds with the same priority, sort
@@ -235,6 +237,25 @@ bool AudioEngine::IsPlaying(ChannelId channel_id) const {
     return Mix_PlayingMusic();
   } else {
     return false;
+  }
+}
+
+void AudioEngine::Stop(ChannelId channel_id) {
+  assert(channel_id != kInvalidChannel);
+  // Fade out rather than halting to avoid clicks.
+  if (channel_id == kStreamChannel) {
+    int return_value = Mix_FadeOutMusic(kChannelFadeOutRateMs);
+    if (return_value != 0) {
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                   "Error stopping music: %s\n", Mix_GetError());
+    }
+  } else {
+    int return_value = Mix_FadeOutChannel(channel_id, kChannelFadeOutRateMs);
+    if (return_value != 0) {
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                   "Error stopping channel %d: %s\n", channel_id,
+                   Mix_GetError());
+    }
   }
 }
 

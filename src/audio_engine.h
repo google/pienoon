@@ -37,6 +37,8 @@ class AudioEngine {
  public:
   typedef std::vector<std::unique_ptr<SoundCollection>> SoundCollections;
 
+  static const ChannelId kInvalidChannel;
+
   ~AudioEngine();
 
   bool Initialize(const AudioConfig* config);
@@ -46,7 +48,10 @@ class AudioEngine {
   ChannelId PlaySound(SoundId sound_id);
 
   // Checks if the sound playing on a given channel is playing
-  bool IsPlaying(ChannelId sound_id) const;
+  bool IsPlaying(ChannelId channel_id) const;
+
+  // Stop a channel.
+  void Stop(ChannelId channel_id);
 
   // Returns the audio collection associated with the given sound_id.
   SoundCollection* GetSoundCollection(SoundId sound_id);
