@@ -66,6 +66,9 @@
     "sounds/stinger_lose.bin",
 
     // Ambience
-    "sounds/ambience.bin"
+    "sounds/ambience.bin",
+
+    // FocusMenuItem
+    "sounds/focus_menu_item.bin"
   ]
 }

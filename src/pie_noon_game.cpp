@@ -1007,6 +1007,7 @@ void PieNoonGame::HandlePlayersJoining() {
 }
 
 PieNoonState PieNoonGame::HandleMenuButtons() {
+  const ButtonId previous_focus = gui_menu_.GetFocus();
   for (size_t i = 0; i < active_controllers_.size(); i++) {
     Controller* controller = active_controllers_[i].get();
     if (controller != nullptr &&
@@ -1014,17 +1015,22 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
       gui_menu_.HandleControllerInput(controller->went_down(), i);
     }
   }
+  if (previous_focus != gui_menu_.GetFocus()) {
+    audio_engine_.PlaySound(SoundId_FocusMenuItem);
+  }
 
   for (MenuSelection menu_selection = gui_menu_.GetRecentSelection();
        menu_selection.button_id != ButtonId_Undefined;
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
       case ButtonId_MenuSignIn:
+        audio_engine_.PlaySound(SoundId_JoinMatch);
 #       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.ToggleSignIn();
 #       endif
         break;
       case ButtonId_MenuLicense: {
+        audio_engine_.PlaySound(SoundId_JoinMatch);
         std::string licenses;
         if (!LoadFile("licenses.txt", &licenses)) {
           SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load licenses.txt");
@@ -1051,6 +1057,7 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
       }
       case ButtonId_MenuStart:
         if (state_ == kFinished) {
+          audio_engine_.PlaySound(SoundId_JoinMatch);
           if (menu_selection.controller_id == kTouchController) {
             // When a touch controller exists, we assume it is the unique
             // input system for the game. We make the touch controller join the
