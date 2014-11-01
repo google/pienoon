@@ -52,6 +52,7 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
 
   for (size_t i = 0; i < menu_def->button_list()->Length(); i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
+    button_list_[i] = TouchscreenButton();
     for (auto it = button->texture_normal()->begin();
          it != button->texture_normal()->end(); ++it) {
       button_list_[i].set_up_material(it - button->texture_normal()->begin(),
