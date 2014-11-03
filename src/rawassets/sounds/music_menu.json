@@ -6,7 +6,14 @@
     {
       "audio_sample": {
         "filename": "sounds/music_menu.ogg"
-      }
+      },
+      "playback_probability": 0.8
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/music_menu_piano.ogg"
+      },
+      "playback_probability": 0.2
     }
   ]
 }
