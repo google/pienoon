@@ -124,6 +124,9 @@ need for building PieNoon for Linux:
 -   OpenGL: libglapi-mesa 8.0.4 (tested with libglapi-mesa 8.0.4-0ubuntu0)
 -   GLU: libglu1-mesa-dev 8.0.4 (tested with libglu1-mesa-dev 8.0.4.0ubuntu0)
 -   cmake: 2.8.12 or newer
+-   automake: 1.141 or newer
+-   autoconf: 2.69 or newer
+-   libtool: 2.4.2 or newer
 
 #### Before Building
 
@@ -133,12 +136,14 @@ distribution's package manager:
      (http://cmake.org).
 -    OpenGL (`libglapi-mesa`).
 -    GLU (`libglu1-mesa-dev`).
+-    autoconf, automake, and libtool
 
 For example, on Ubuntu:
 
     sudo apt-get install cmake
     sudo apt-get install libglapi-mesa
     sudo apt-get install libglu1-mesa-dev
+    sudo apt-get install autoconf automake libtool
 
 The sample applications require OpenGL and GLU.
 

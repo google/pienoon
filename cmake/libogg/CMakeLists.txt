@@ -19,10 +19,19 @@ set(libogg_dir ${dependencies_libogg_distr_dir})
 
 include_directories(${libogg_dir}/include)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux"
+    AND NOT EXISTS "${libogg_dir}/include/ogg/config_types.h")
     # Run libogg's autogen.sh to create ogg/config_types.h, needed under Linux.
+    message(STATUS "Running libogg's autogen.sh to create ogg/config_types.h.")
     execute_process(COMMAND ${libogg_dir}/autogen.sh
-                    WORKING_DIRECTORY ${libogg_dir})
+                    WORKING_DIRECTORY ${libogg_dir}
+                    RESULT_VARIABLE autogen_result)
+    if (NOT ${autogen_result} EQUAL 0)
+        message(FATAL_ERROR
+          "CMake encountered an error running libogg's autogen.sh.\n"
+          "You must have autoconf, automake, and libtool installed to "
+          "build on Linux.")
+    endif()
 endif()
 
 set(libogg_SRCS
