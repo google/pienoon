@@ -102,6 +102,9 @@ class PieNoonGame {
   ChannelId PlayStinger();
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
 
+  int ReadPreference(const char *key, int default_value);
+  void WritePreference(const char *key, int value);
+
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
   PieNoonState state_;
