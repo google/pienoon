@@ -964,18 +964,21 @@ static mat4 CalculateUiArrowMatrix(const vec3& position, const Angle& angle,
 // Helper class for std::sort. Sorts Characters by distance from camera.
 class CharacterDepthComparer {
 public:
-  CharacterDepthComparer(const vec3& camera_position) :
-    camera_position_(camera_position) {
-  }
+  CharacterDepthComparer(const vec3& camera_position)
+    : camera_position_(new vec3(camera_position)) {}
+
+  CharacterDepthComparer(const CharacterDepthComparer& comparer)
+    : camera_position_(new vec3(*comparer.camera_position_)) {}
 
   bool operator()(const Character* a, const Character* b) const {
-    const float a_dist_sq = (camera_position_ - a->position()).LengthSquared();
-    const float b_dist_sq = (camera_position_ - b->position()).LengthSquared();
+    const float a_dist_sq = (*camera_position_ - a->position()).LengthSquared();
+    const float b_dist_sq = (*camera_position_ - b->position()).LengthSquared();
     return a_dist_sq > b_dist_sq;
   }
 
 private:
-  vec3 camera_position_;
+  // Pointer to force alignment, which MSVC std::sort ignores
+  std::unique_ptr<vec3> camera_position_;
 };
 
 void GameState::PopulateCharacterAccessories(

@@ -233,9 +233,9 @@ ChannelId AudioEngine::PlaySound(SoundId sound_id) {
 bool AudioEngine::IsPlaying(ChannelId channel_id) const {
   assert(channel_id != kInvalidChannel);
   if (channel_id == kStreamChannel) {
-    return Mix_PlayingMusic();
+    return Mix_PlayingMusic() != 0;
   } else {
-    return Mix_Playing(channel_id);
+    return Mix_Playing(channel_id) != 0;
   }
 }
 
