@@ -483,6 +483,7 @@
 
   "touchscreen_zones" : {
     "starting_selection" : false,
+    "cannonical_window_height": 800,
     "button_list" : [
       {
         "top_left" : { "x": 0.0, "y": 0.7 },
@@ -539,6 +540,7 @@
   "title_screen_buttons_android" : {
     "starting_selection" : "MenuStart",
     "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
     "button_list" : [
         {
           "top_left" : { "x": 0.2, "y": 0.0 },
@@ -682,6 +684,7 @@
   "pause_screen_buttons" : {
     "starting_selection" : "MenuResume",
     "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
     "button_list" : [
         {
           "top_left" : { "x": 0.2, "y": 0.0 },
@@ -714,6 +717,7 @@
   "join_screen_buttons" : {
     "starting_selection" : "MenuResume",
     "allow_controller_navigation" : false,
+    "cannonical_window_height": 800,
     "static_image_list" : [
         {
           "ID" : "Counter1",

@@ -43,6 +43,7 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     current_focus_ = ButtonId_Undefined;
     return;   // Nothing to set up.  Just clearing things out.
   }
+  assert(menu_def->cannonical_window_height() > 0);
   const size_t length_button_list = ArrayLength(menu_def->button_list());
   const size_t length_image_list = ArrayLength(menu_def->static_image_list());
   menu_def_ = menu_def;
@@ -72,6 +73,8 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     button_list_[i].set_button_def(button);
     button_list_[i].set_is_active(button->starts_active() != 0);
     button_list_[i].set_is_highlighted(true);
+    button_list_[i].SetCannonicalWindowHeight(
+        menu_def_->cannonical_window_height());
   }
 
   // Initialize image_list_.
@@ -93,7 +96,8 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
                    material_name, shader_name);
     }
 
-    image_list_[i].Initialize(image_def, material, shader);
+    image_list_[i].Initialize(image_def, material, shader,
+                              menu_def_->cannonical_window_height());
   }
 }
 

@@ -79,6 +79,10 @@ class TouchscreenButton
     is_highlighted_ = is_highlighted;
   }
 
+  void SetCannonicalWindowHeight(int height) {
+    one_over_cannonical_window_height_ = 1.0f / static_cast<float>(height);
+  }
+
  private:
   Button button_;
   WorldTime elapsed_time_;
@@ -98,6 +102,10 @@ class TouchscreenButton
 
   bool is_active_;
   bool is_highlighted_;
+
+  // Scale the textures by the y-axis so that they are (proportionally)
+  // the same height on every platform.
+  float one_over_cannonical_window_height_;
 };
 
 class StaticImage
@@ -105,7 +113,7 @@ class StaticImage
  public:
   StaticImage() : image_def_(nullptr), material_(nullptr), shader_(nullptr) {}
   void Initialize(const StaticImageDef& image_def, Material* material,
-                  Shader* shader);
+                  Shader* shader, int cannonical_window_height);
   void Render(Renderer& renderer);
   bool Valid() const {
     return image_def_ != nullptr && material_ != nullptr && shader_ != nullptr;
@@ -122,6 +130,10 @@ class StaticImage
   Material* material_;
   Shader* shader_;
   mathfu::vec2 scale_;
+
+  // Scale the textures by the y-axis so that they are (proportionally)
+  // the same height on every platform.
+  float one_over_cannonical_window_height_;
 };
 
 }  // pie_noon

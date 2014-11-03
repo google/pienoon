@@ -66,6 +66,8 @@ bool TouchscreenButton::IsTriggered()
 void TouchscreenButton::Render(Renderer& renderer) {
   static const float kButtonZDepth = 0.0f;
   const vec2 window_size = vec2(renderer.window_size());
+  const float texture_scale = window_size.y() *
+                              one_over_cannonical_window_height_;
   Material* mat = button_.is_down()
                   ? down_material_
                   : up_materials_[up_current_];
@@ -83,7 +85,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
     base_size += mathfu::kOnes2f * pulse * 0.05f;
   }
 
-  vec3 texture_size = vec3(
+  vec3 texture_size = texture_scale * vec3(
        mat->textures()[0]->size().x() * base_size.x(),
       -mat->textures()[0]->size().y() * base_size.y(), 0);
 
@@ -100,11 +102,14 @@ void TouchscreenButton::Render(Renderer& renderer) {
 
 
 void StaticImage::Initialize(const StaticImageDef& image_def,
-                             Material* material, Shader* shader) {
+                             Material* material, Shader* shader,
+                             int cannonical_window_height) {
   image_def_ = &image_def;
   material_ = material;
   shader_ = shader;
   scale_ = LoadVec2(image_def_->draw_scale());
+  one_over_cannonical_window_height_ =
+      1.0f / static_cast<float>(cannonical_window_height);
 }
 
 void StaticImage::Render(Renderer& renderer) {
@@ -113,7 +118,9 @@ void StaticImage::Render(Renderer& renderer) {
     return;
 
   const vec2 window_size = vec2(renderer.window_size());
-  const vec2 texture_size = vec2(material_->textures()[0]->size()) * scale_;
+  const float texture_scale = window_size.y() *
+                              one_over_cannonical_window_height_;
+  const vec2 texture_size = texture_scale * vec2(material_->textures()[0]->size()) * scale_;
   const vec2 position_percent = LoadVec2(image_def_->texture_position());
   const vec2 position = window_size * position_percent;
 

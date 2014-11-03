@@ -140,6 +140,7 @@ table UiGroup {
   starting_selection : ButtonId;
   button_list : [ButtonDef];
   static_image_list : [StaticImageDef];
+  cannonical_window_height : int;
 }
 
 table FixedAccessory {
