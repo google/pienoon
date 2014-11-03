@@ -536,7 +536,7 @@
     ]
   },
 
-  "title_screen_buttons" : {
+  "title_screen_buttons_android" : {
     "starting_selection" : "MenuStart",
     "allow_controller_navigation" : true,
     "button_list" : [
@@ -640,6 +640,45 @@
         }
     ]
   },
+
+  "title_screen_buttons_non_android" : {
+    "starting_selection" : "MenuStart",
+    "allow_controller_navigation" : true,
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "ID" : "MenuStart",
+          "texture_normal" : [
+            { "standard" : "materials/ui_pie.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
+          "texture_position" : { "x": 0.44, "y": 0.435 },
+          "shader" : "shaders/textured",
+          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+          "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
+          "draw_scale_pressed" : { "x": 0.8, "y": 0.8 },
+          "nav_left" : ["MenuLicense"],
+          "nav_right" : ["MenuAchievements"]
+        }
+    ],
+    "static_image_list" : [
+        {
+          "texture" : { "standard" : "materials/text_start.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.58, "y": 0.445 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : { "standard" : "materials/splash.bin" },
+          "shader" : "shaders/textured",
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ]
+  },
+
   "pause_screen_buttons" : {
     "starting_selection" : "MenuResume",
     "allow_controller_navigation" : true,

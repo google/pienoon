@@ -580,7 +580,8 @@ table Config {
   // Button layouts:
   touchscreen_zones:UiGroup;
   pause_screen_buttons:UiGroup;
-  title_screen_buttons:UiGroup;
+  title_screen_buttons_android:UiGroup;
+  title_screen_buttons_non_android:UiGroup;
   join_screen_buttons:UiGroup;
 
   // Debug options

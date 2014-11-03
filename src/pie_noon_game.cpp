@@ -58,6 +58,14 @@ static inline WorldTime CurrentWorldTime() {
   return SDL_GetTicks();
 }
 
+static inline const UiGroup* TitleScreenButtons(const Config& config) {
+#ifdef __ANDROID__
+  return config.title_screen_buttons_android();
+#else
+  return config.title_screen_buttons_non_android();
+#endif
+}
+
 PieNoonGame::PieNoonGame()
     : state_(kUninitialized),
       state_entry_time_(0),
@@ -268,7 +276,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
   if (!shadow_mat_) return false;
 
   // Load all the menu textures.
-  gui_menu_.LoadAssets(config.title_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(TitleScreenButtons(config), &matman_);
   gui_menu_.LoadAssets(config.touchscreen_zones(), &matman_);
   gui_menu_.LoadAssets(config.pause_screen_buttons(), &matman_);
 
@@ -822,7 +830,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       break;
     }
     case kFinished: {
-      gui_menu_.Setup(config.title_screen_buttons(), &matman_);
+      gui_menu_.Setup(TitleScreenButtons(config), &matman_);
       if (ambience_channel_ != AudioEngine::kInvalidChannel) {
         audio_engine_.Stop(ambience_channel_);
       }
