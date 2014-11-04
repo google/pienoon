@@ -61,6 +61,7 @@ class GPGManager {
 
   AsyncState state_;
   bool do_ui_login_;
+  bool delayed_login_;
   std::unique_ptr<gpg::GameServices> game_services_;
 };
 

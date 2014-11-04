@@ -1069,6 +1069,7 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
       case ButtonId_MenuSignIn:
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Menu: SIGN IN/OUT");
         audio_engine_.PlaySound(SoundId_JoinMatch);
 #       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.ToggleSignIn();

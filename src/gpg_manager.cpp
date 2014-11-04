@@ -19,7 +19,8 @@
 
 namespace fpl {
 
-GPGManager::GPGManager() : state_(kStart), do_ui_login_(0) {}
+GPGManager::GPGManager() : state_(kStart), do_ui_login_(false),
+                           delayed_login_(false) {}
 
 bool GPGManager::Initialize(bool ui_login) {
   state_ = kStart;
@@ -116,6 +117,13 @@ void GPGManager::Update() {
       break;
     case kAuthUIFailed:
       // Both auto and UI based auth failed, I guess at this point we give up.
+      if (delayed_login_) {
+        // Unless the user expressed desire to try log in again while waiting
+        // for this state.
+        delayed_login_ = false;
+        state_ = kManualSignBackIn;
+        do_ui_login_ = true;
+      }
       break;
     case kAuthed:
       // We're good. TODO: Now start actually using gpg functionality...
@@ -141,6 +149,7 @@ void GPGManager::ToggleSignIn() {
 # ifdef NO_GPG
   return;
 # endif
+  delayed_login_ = false;
   if (state_ == kAuthed) {
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: Attempting to log out...");
     game_services_->SignOut();
@@ -148,6 +157,10 @@ void GPGManager::ToggleSignIn() {
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: Attempting to log in...");
     state_ = kManualSignBackIn;
     do_ui_login_ = true;
+  } else {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "GPG: Ignoring log in/out in state %d", state_);
+    delayed_login_ = true;
   }
 }
 
