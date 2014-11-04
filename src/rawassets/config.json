@@ -1287,7 +1287,7 @@
       "id": "EnvironmentSky",
       "cardboard_front": "materials/environment_sky.bin",
       "pixel_bounds": { "x": 1024, "y": 512 }, // (4096,2048) --> (1024,512)
-      "geometry_scale": 4.0 // 4096 / 1024
+      "geometry_scale": 4.5 // 4096 / 1024
     },
     {
       "id": "EnvironmentCloud",
