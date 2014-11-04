@@ -258,6 +258,29 @@
       "renderable": ["Pixel1x1"]
     },
 
+    "joining_confetti_count" : 100,
+
+    "joining_confetti_def": {
+      "min_scale":  { "x": 8.0, "y": 8.0, "z": 8.0 },
+      "max_scale":  { "x": 15.0, "y": 15.0, "z": 15.0 },
+      "preserve_aspect": false,
+      "min_velocity":  { "x": -0.002, "y": 0.0015, "z": -0.002 },
+      "max_velocity":  { "x": 0.002, "y": 0.0030, "z": 0.002 },
+      "min_position_offset":  { "x": -1, "y": 1.0, "z": -1 },
+      "max_position_offset":  { "x": 1, "y": 4.0, "z": 1 },
+      "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
+      "max_orientation_offset":  { "x": 6.282, "y": 6.282, "z": 6.282 },
+      "min_angular_velocity": { "x": -0.02 , "y": -0.02, "z": -0.02 },
+      "max_angular_velocity": { "x": 0.02, "y": 0.02, "z": 0.02 },
+      "min_duration": 1000,
+      "max_duration": 2000,
+      "shrink_duration": 500,
+      "fade_duration": 0,
+      "acceleration":  { "x": 0.0, "y": -0.000005, "z": 0.0 },
+      "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 }],
+      "renderable": ["Pixel1x1"]
+    },
+
   "pie_splatter_def": {
     "min_scale":  { "x": 0.5, "y": 0.5, "z": 0.5 },
     "max_scale":  { "x": 1.0, "y": 1.0, "z": 1.0 },

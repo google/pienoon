@@ -147,8 +147,10 @@ class ParticleManager {
   // Particle::reset().
   Particle *CreateParticle();
 
+  // Removes all active particles.
+  void RemoveAllParticles();
+
  private:
-  void DeactivateParticle();
 
   std::list<Particle*> particle_list_;
   std::list<Particle*> inactive_particle_list_;

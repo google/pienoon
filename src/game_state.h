@@ -99,6 +99,10 @@ class GameState {
 
   impel::ImpelEngine& impel_engine() { return impel_engine_; }
 
+  // Sets up the players in joining mode, where all they can do is jump up
+  // and down.
+  void EnterJoiningMode();
+
 private:
   WorldTime GetAnimationTime(const Character& character) const;
   void ProcessSounds(AudioEngine* audio_engine,
@@ -130,8 +134,10 @@ private:
   impel::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
   void CreatePieSplatter(const Character& character, int damage);
+  void CreateJoinConfettiBurst(const Character& character);
   void SpawnParticles(const mathfu::vec3 &position, const ParticleDef * def,
-                      const int particle_count);
+                      const int particle_count,
+                      mathfu::vec4 base_tint = mathfu::vec4(1, 1, 1, 1));
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
 
   WorldTime time_;

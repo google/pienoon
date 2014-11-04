@@ -221,6 +221,17 @@ void GameState::Reset() {
         LoadVec3(arrangement_->character_data()->Get(id)->position()),
         &impel_engine_);
   }
+  particle_manager_.RemoveAllParticles();
+}
+
+// Sets up the players in joining mode, where all they can do is jump up
+// and down.
+void GameState::EnterJoiningMode() {
+  Reset();
+  for (CharacterId id = 0;
+      id < static_cast<CharacterId>(characters_.size()); ++id) {
+    characters_[id]->state_machine()->SetCurrentState(StateId_Joining, time_);
+  }
 }
 
 WorldTime GameState::GetAnimationTime(const Character& character) const {
@@ -373,6 +384,10 @@ void GameState::ProcessEvent(Character* character,
     }
     case EventId_LoadPie: {
       character->set_pie_damage(event_data.pie_damage);
+      break;
+    }
+    case EventId_JumpWhileJoining: {
+      CreateJoinConfettiBurst(*character);
       break;
     }
     default: {
@@ -741,10 +756,21 @@ void GameState::CreatePieSplatter(const Character& character,
       damage, *(config_->hit_sound_id_for_pie_damage())));
 }
 
+// Creates confetti when a character presses buttons on the join screen.
+void GameState::CreateJoinConfettiBurst(const Character& character) {
+  const ParticleDef * def = config_->joining_confetti_def();
+  vec3 character_color =
+      LoadVec3(config_->character_colors()->Get(character.id()));
+
+  SpawnParticles(character.position(), def, config_->joining_confetti_count(),
+      vec4(character_color.x(), character_color.y(), character_color.z(), 1));
+}
+
 // Spawns a particle at the given position, using a particle definition.
 void GameState::SpawnParticles(const mathfu::vec3 &position,
                                const ParticleDef * def,
-                               const int particle_count) {
+                               const int particle_count,
+                               const mathfu::vec4 base_tint) {
   const vec3 min_scale = LoadVec3(def->min_scale());
   const vec3 max_scale = LoadVec3(def->max_scale());
   const vec3 min_velocity = LoadVec3(def->min_velocity());
@@ -758,6 +784,10 @@ void GameState::SpawnParticles(const mathfu::vec3 &position,
 
   for (int i = 0; i<particle_count; i++) {
     Particle * p = particle_manager_.CreateParticle();
+    // if we got back a null, it means new particles can't be spawned right now.
+    if (p == nullptr) {
+      break;
+    }
     p->set_base_scale(def->preserve_aspect() ?
         vec3(mathfu::RandomInRange(min_scale.x(), max_scale.x())) :
         vec3::RandomInRange(min_scale, max_scale));
@@ -766,8 +796,12 @@ void GameState::SpawnParticles(const mathfu::vec3 &position,
     p->set_acceleration(LoadVec3(def->acceleration()));
     p->set_renderable_id(def->renderable()->Get(
         mathfu::RandomInRange<int>(0, def->renderable()->size())));
-    p->set_base_tint(LoadVec4(def->tint()->Get(
-        mathfu::RandomInRange<int>(0, def->tint()->size()))));
+    mathfu::vec4 tint = LoadVec4(def->tint()->Get(
+        mathfu::RandomInRange<int>(0, def->tint()->size())));
+    p->set_base_tint(mathfu::vec4(tint.x() * base_tint.x(),
+                                  tint.y() * base_tint.y(),
+                                  tint.z() * base_tint.z(),
+                                  tint.w() * base_tint.w()));
     p->set_duration(static_cast<float>(mathfu::RandomInRange<int32_t>(
         def->min_duration(), def->max_duration())));
     p->set_base_position(position + vec3::RandomInRange(min_position_offset,
@@ -820,6 +854,13 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
                                  character->victory_state() == kVictorious);
     controller->SetLogicalInputs(LogicalInputs_Lost,
                                  character->victory_state() == kFailure);
+
+
+    bool just_joined = character->just_joined_game();
+    controller->SetLogicalInputs(LogicalInputs_JoinedGame, just_joined);
+    if (just_joined && character->State() != StateId_Joining) {
+      character->set_just_joined_game(false);
+    }
   }
 
   // Update all the particles.

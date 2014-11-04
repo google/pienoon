@@ -89,6 +89,7 @@ enum EventId : ushort {
   TakeDamage,
   ReleasePie,
   DeflectPie,
+  JumpWhileJoining,
   LoadPie
 }
 

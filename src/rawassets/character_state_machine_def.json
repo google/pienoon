@@ -46,6 +46,73 @@
       }
     },
     {
+      "id": "Jumping",
+      "transitions": [
+        {
+          "target_state": "Joining",
+          "condition": {
+            "went_down": "AnimationEnd"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 200,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "RenderableId.CharacterWin"
+          }
+        ],
+        "events": [
+          {
+            "time": 0,
+            "event": "EventId.JumpWhileJoining",
+            "modifier": 0
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "PlayerWon"
+          }
+        ]
+      }
+    },
+
+    {
+      "id": "Joining",
+      "transitions": [
+        {
+          "target_state": "Jumping",
+          "condition": {
+            "went_down": "Deflect",
+            "time": 100
+          }
+        },
+        {
+          "target_state": "Jumping",
+          "condition": {
+            "went_down": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Jumping",
+          "condition": {
+            "is_down": "JoinedGame"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 750,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "RenderableId.CharacterIdle"
+          }
+        ]
+      }
+    },
+    {
       "id": "Loading_1",
       "transitions": [
         {

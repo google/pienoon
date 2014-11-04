@@ -30,6 +30,8 @@ namespace fpl.pie_noon;
 // The list of state ids in the state machine. Each state must have a unique ID.
 enum StateId:byte {
   Idling,
+  Jumping,
+  Joining,
   Loading_1,
   Loading_2,
   Loading_3,
@@ -55,7 +57,8 @@ enum LogicalInputs:ushort (bit_flags) {
   NoHealth,
   AnimationEnd,
   Won,
-  Lost
+  Lost,
+  JoinedGame
 }
 
 // This represents the set of conditions that must be met to do something, like

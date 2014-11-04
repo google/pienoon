@@ -136,6 +136,11 @@ class Character {
   void set_score(int score) { score_ = score; }
   int score() { return score_; }
 
+  void set_just_joined_game(bool just_joined_game) {
+    just_joined_game_ = just_joined_game;
+  }
+  bool just_joined_game() { return just_joined_game_; }
+
   void set_victory_state(VictoryState state) { victory_state_ = state; }
   VictoryState victory_state() { return victory_state_; }
 
@@ -165,6 +170,9 @@ class Character {
   // The controller used to translate inputs into game actions.
   Controller* controller_;
 
+  // Used to track if this character just joined the game.
+  bool just_joined_game_;
+
   // The current state of the character.
   CharacterStateMachine state_machine_;
 
@@ -180,6 +188,7 @@ class Character {
 
   // Used to play sounds associated with the character.
   AudioEngine* audio_engine_;
+
 };
 
 

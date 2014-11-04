@@ -815,6 +815,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     case kJoining: {
       gui_menu_.Setup(config.join_screen_buttons(), &matman_);
       join_id_ = ButtonId_Undefined;
+      game_state_.EnterJoiningMode();
       break;
     }
     case kPlaying: {
@@ -1009,6 +1010,7 @@ void PieNoonGame::HandlePlayersJoining(Controller* controller) {
   character->controller()->set_character_id(kNoCharacter);
   character->set_controller(controller);
   controller->set_character_id(open_slot);
+  character->set_just_joined_game(true);
 }
 
 void PieNoonGame::HandlePlayersJoining() {

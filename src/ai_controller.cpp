@@ -35,8 +35,21 @@ void AiController::Initialize(GameState* gamestate,
 }
 
 void AiController::AdvanceFrame(WorldTime delta_time) {
+  if (character_id_ == kNoCharacter) {
+    return;
+  }
   ClearAllLogicalInputs();
   time_to_next_action_ -= delta_time;
+
+  // Check to make sure we're valid to be sending input.
+  const Character * character = gamestate_->characters()[character_id_].get();
+  auto character_state = character->State();
+  if (character->health() <= 0 ||
+      character_state == StateId_KO ||
+      character_state == StateId_Joining ||
+      character_state == StateId_Jumping) {
+    return;
+  }
 
   // if we're blocking, keep blocking.
   if (block_timer_ > 0) {
@@ -45,17 +58,8 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
     return;
   }
 
-  if (time_to_next_action_ > 0) {
+  if (time_to_next_action_ > 0)
     return;
-  }
-
-  if (character_id_ == kNoCharacter) {
-    return;
-  }
-
-  if (gamestate_->characters()[character_id_]->health() <= 0) {
-      return;
-  }
 
   time_to_next_action_ =
       mathfu::RandomInRange<WorldTime>(

@@ -558,6 +558,12 @@ table Config {
   // Confetti for the victor.
   confetti_def:ParticleDef;
 
+  // How much confetti to spawn when they press buttons.
+  joining_confetti_count:int;
+
+  // Burst of confetti when you join.
+  joining_confetti_def:ParticleDef;
+
   // AI options
   // Variance for how long AI players go without acting:
   ai_minimum_time_between_actions:int;

@@ -4,6 +4,7 @@
 namespace fpl {
 namespace pie_noon {
 
+const int kMaxParticles = 1000;
 
 void Particle::reset() {
   base_position_ = mathfu::vec3(0, 0, 0);
@@ -89,11 +90,21 @@ Particle* ParticleManager::CreateParticle() {
     result = inactive_particle_list_.back();
     inactive_particle_list_.pop_back();
   } else {
+    if (particle_list_.size() >= kMaxParticles) {
+      return nullptr;
+    }
     result = new Particle();
   }
   result->set_age(0);
   particle_list_.push_back(result);
   return result;
+}
+
+void ParticleManager::RemoveAllParticles() {
+  for (auto it = particle_list_.begin(); it != particle_list_.end(); ) {
+      inactive_particle_list_.push_back(*it);
+      it = particle_list_.erase(it);
+  }
 }
 
 

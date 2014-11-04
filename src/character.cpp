@@ -47,6 +47,7 @@ Character::Character(
       pie_damage_(0),
       position_(mathfu::kZeros3f),
       controller_(controller),
+      just_joined_game_(false),
       state_machine_(character_state_machine_def),
       victory_state_(kResultUnknown),
       audio_engine_(audio_engine) {

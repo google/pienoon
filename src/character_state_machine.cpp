@@ -32,6 +32,12 @@ void CharacterStateMachine::Reset() {
   current_state_start_time_ = 0;
 }
 
+void CharacterStateMachine::SetCurrentState(int new_stateId,
+                                            WorldTime state_start_time) {
+  current_state_ = state_machine_def_->states()->Get(new_stateId);
+  current_state_start_time_ = state_start_time;
+}
+
 bool EvaluateCondition(const Condition* condition,
                        const ConditionInputs& inputs) {
   unsigned int is_down = condition->is_down();

@@ -57,6 +57,8 @@ class CharacterStateMachine {
 
   const CharacterState* current_state() const { return current_state_; }
 
+  void SetCurrentState(int new_stateId, WorldTime state_start_time);
+
   WorldTime current_state_start_time() const {
     return current_state_start_time_;
   }
