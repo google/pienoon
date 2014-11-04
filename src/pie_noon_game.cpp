@@ -755,6 +755,9 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         join_impeller_.SetTargetValue(config.join_impeller_target_value());
         join_impeller_.SetVelocity(config.join_impeller_start_velocity());
         join_id_ = id;
+
+        // Play a sound to aid with the countdown feeling.
+        audio_engine_.PlaySound(SoundId_StartMatch);
       }
 
       // Scale the pie to show some pleasing movement.
