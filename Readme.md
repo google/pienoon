@@ -23,7 +23,7 @@ While blocking an incoming pie is deflected in the player's aim direction.
 
 ## Controls
 
-### Linux/OSX/Windows
+### Linux/OS X/Windows
 
 | Action    | Player 1 Key | Player 2 Key | Player 3 Key | Player 4 Key |
 |-----------|--------------|--------------|--------------|--------------|
@@ -53,7 +53,7 @@ For example, from a terminal:
      cd pie_noon
      ./run.sh
 
-### OSX
+### OS X
 
 Unpack the PieNoon archive, for example from a terminal
 assuming pie_noon-osx.tar.gz is in the current directory:
@@ -112,7 +112,7 @@ For example, from the terminal:
 
 ## Building from source
 
-Developers can build the game from source for Android, Linux, OSX and Windows.
+Developers can build the game from source for Android, Linux, OS X and Windows.
 
 ### Building for Linux
 
@@ -195,7 +195,7 @@ You can use [cmake][] to generate an [Xcode][] project for PieNoon on [OS X][].
 These are the minimum required versions for building PieNoon on OS X:
 
 -   OS X: Mavericks 10.9.1.
--   Xcode: 5.0.1
+-   Xcode: 5.1.1 or newer
 -   Xquartz: 2.7.5 (xorg-server 1.14.4)
 -   cmake: 2.8.12 or newer
 
@@ -219,6 +219,16 @@ project in the pie_noon directory.
 -   Double-click on `pie_noon/pie_noon.xcodeproj` to open the project in
     [Xcode][].
 -   Select "Product-->Build" from the menu.
+
+You can also build the game from the command-line.
+
+-   Run `xcodebuild` after generating the Xcode project to build all targets.
+-   You may need to force the `generated_includes` target to be built first.
+
+For example, in the pie_noon directory:
+
+    xcodebuild -target generated_includes
+    xcodebuild
 
 #### Executing the game
 
