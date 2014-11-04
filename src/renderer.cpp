@@ -75,11 +75,6 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
     return false;
   }
 
-#ifdef __ANDROID__
-  // Hook eglCreateWindowSurface
-  AndroidPostCreateWindow();
-#endif
-
   // Get the size we actually got, which typically is native res for
   // any fullscreen display:
   SDL_GetWindowSize(window_, &window_size_.x(), &window_size_.y());

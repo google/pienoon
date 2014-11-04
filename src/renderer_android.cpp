@@ -46,29 +46,24 @@ const vec2i& AndroidGetScalerResolution() {
 EGLAPI EGLSurface EGLAPIENTRY HookEglCreateWindowSurface(
     EGLDisplay dpy, EGLConfig config, EGLNativeWindowType win, const EGLint *attrib_list) {
   // Apply scaler setting
-  AndroidPreCreateWindow();
+  ANativeWindow* window = Android_JNI_GetNativeWindow();
+  ANativeWindow_setBuffersGeometry(window,
+    g_android_scaler_resolution.x(), g_android_scaler_resolution.y(), 0);
   return eglCreateWindowSurface(dpy, config, win, attrib_list);
 }
 
 void AndroidPreCreateWindow() {
   // Apply scaler setting prior creating surface
   if (g_android_scaler_resolution.x() && g_android_scaler_resolution.y()) {
-    // Enable HW scaler
-    ANativeWindow* window = Android_JNI_GetNativeWindow();
-    ANativeWindow_setBuffersGeometry(window,
-      g_android_scaler_resolution.x(), g_android_scaler_resolution.y(), 0);
-  }
-}
+    // Initialize OpenGL function pointers inside SDL
+    if (SDL_GL_LoadLibrary(NULL) < 0) {
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR, "couldn't initialize OpenGL library\n");
+    }
 
-void AndroidPostCreateWindow() {
-  // Hook eglCreateWindowSurface call
-  // the eglCreateWindowSurface pointer is set inside SDL_CreateWindow(),
-  // so that what we need to do is:
-  // 1) Set scaler setting before SDL_CreateWindow() for a surface being created in the API
-  // 2) After the API call, hook eglCreateWindowSurface pointer for surfaces that will be
-  //    created when EGLsurface is lost
-  SDL_VideoDevice *device = SDL_GetVideoDevice();
-  device->egl_data->eglCreateWindowSurface = HookEglCreateWindowSurface;
+    // Hook eglCreateWindowSurface call
+    SDL_VideoDevice *device = SDL_GetVideoDevice();
+    device->egl_data->eglCreateWindowSurface = HookEglCreateWindowSurface;
+  }
 }
 
 }  // namespace fpl

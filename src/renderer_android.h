@@ -19,7 +19,6 @@ namespace fpl {
 
 #ifdef __ANDROID__
 void AndroidPreCreateWindow();
-void AndroidPostCreateWindow();
 void AndroidSetScalerResolution(const vec2i& resolution);
 const vec2i& AndroidGetScalerResolution();
 #endif
