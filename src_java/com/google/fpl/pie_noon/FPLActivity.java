@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.ScrollView;
 import android.app.AlertDialog;
 import android.util.Log;
+import android.util.TypedValue;
 import android.graphics.Point;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -75,20 +76,17 @@ public class FPLActivity extends SDLActivity {
                                LayoutParams.WRAP_CONTENT,
                                LayoutParams.WRAP_CONTENT));
         ScrollView sv = new ScrollView(activity.getApplicationContext());
-        tv.setLayoutParams(new LayoutParams(
+        sv.setLayoutParams(new LayoutParams(
                                LayoutParams.FILL_PARENT,
                                LayoutParams.FILL_PARENT));
+        sv.setPadding(DpToPx(20), DpToPx(20), DpToPx(20), DpToPx(0));
         sv.addView(tv);
-        AlertDialog alert = new AlertDialog.Builder(activity)
+        AlertDialog alert = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
             .setTitle("Open Source Licenses")
             .setView(sv)
             .setNeutralButton("OK", null)
             .create();
         alert.show();
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        alert.getWindow().setLayout(size.x / 2, size.y - 50);
       } catch (Exception e) {
         textDialogOpen = false;
         Log.e("SDL", "exception", e);
@@ -143,6 +141,12 @@ public class FPLActivity extends SDLActivity {
 
   public int ReadPreference(String key, int default_value) {
     return getPreferences(Context.MODE_PRIVATE).getInt(key, default_value);
+  }
+
+  public int DpToPx(int dp) {
+    // Convert the dps to pixels, based on density scale
+    return (int)TypedValue.applyDimension(
+      TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
   }
 
   // Implemented in C++. (gpg_manager.cpp)
