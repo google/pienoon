@@ -211,8 +211,20 @@ void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
     }
     game_services_->Leaderboards().ShowAllUI([](const gpg::UIStatus &status) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "GPG: UI FAILED, UIStatus is: %d", status);
+                  "GPG: Leaderboards UI FAILED, UIStatus is: %d", status);
     });
+  });
+}
+
+void GPGManager::ShowAchievements() {
+# ifdef NO_GPG
+  return;
+# endif
+  if (!LoggedIn()) return;
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: launching achievement UI");
+  game_services_->Achievements().ShowAllUI([](const gpg::UIStatus &status) {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "GPG: Achievement UI FAILED, UIStatus is: %d", status);
   });
 }
 

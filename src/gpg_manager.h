@@ -43,6 +43,7 @@ class GPGManager {
   void SaveStat(const char *event_id, uint64_t *score);
 
   void ShowLeaderboards(const GPGIds *ids, size_t id_len);
+  void ShowAchievements();
 
  private:
   // These are the states the manager can be in, in sequential order they

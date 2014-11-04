@@ -1118,6 +1118,11 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
           return kPlaying;
         }
         break;
+      case ButtonId_MenuAchievements:
+#       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        gpg_manager.ShowAchievements();
+#       endif
+        break;
       default:
         break;
     }
