@@ -409,7 +409,7 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
     return false;
 
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-  if (!gpg_manager.Initialize(ReadPreference("logged_in", 1) != 0))
+  if (!gpg_manager.Initialize(ReadPreference("logged_in", 1, 1) != 0))
     return false;
 # endif
 
@@ -724,8 +724,15 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       // We also leave the loading screen up for a minimum amount of time.
       if (!Fading() && matman_.TryFinalize() &&
           (time - state_entry_time_) > config.min_loading_time()) {
-        // Fade out the loading screen and fade in the scene.
-        FadeToPieNoonState(kFinished, config.full_screen_fade_time(),
+        // If we've already displayed the tutorial before, jump straight to
+        // the game. If we don't have the capability to record our previous
+        // tutorial views, also jump straight to the game.
+        bool displayed_tutorial = ReadPreference("displayed_tutorial", 0, 1);
+        const PieNoonState first_state =
+            displayed_tutorial ? kFinished : kTutorial;
+
+        // Fade out the loading screen and fade in the scene or tutorial.
+        FadeToPieNoonState(first_state, config.full_screen_fade_time(),
                            mathfu::kZeros4f, true);
       }
       break;
@@ -796,6 +803,22 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         input_.exit_requested_ = true;
       }
       return HandleMenuButtons();
+    }
+    case kTutorial: {
+      const Config& config = GetConfig();
+      const bool past_last_slide =
+          tutorial_slide_index_ >=
+          static_cast<int>(config.tutorial_slides()->Length());
+      if (past_last_slide && !Fading()) {
+        // Record that we've successfully displayed the tutorial so that we
+        // don't display it again next time.
+        WritePreference("displayed_tutorial", 1);
+
+        // Fade out the tutorial screen and fade in the main menu.
+        FadeToPieNoonState(kFinished, config.full_screen_fade_time(),
+                           mathfu::kZeros4f, true);
+      }
+      break;
     }
 
     default:
@@ -880,6 +903,11 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
         // For now, we always show leaderboards when a round ends:
         UploadAndShowLeaderboards();
       }
+      break;
+    }
+    case kTutorial: {
+      tutorial_slide_index_ = 0;
+      LoadInitialTutorialSlides();
       break;
     }
 
@@ -1029,22 +1057,25 @@ void PieNoonGame::HandlePlayersJoining() {
   }
 }
 
-int PieNoonGame::ReadPreference(const char *key, int default_value) {
+int PieNoonGame::ReadPreference(const char *key, int initial_value,
+                                int failure_value) {
 # ifdef __ANDROID__
+  (void)failure_value;
   JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
   jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID read_preference = env->GetMethodID(
       fpl_class, "ReadPreference", "(Ljava/lang/String;I)I");
   jstring text = env->NewStringUTF(key);
-  int read = env->CallIntMethod(activity, read_preference, text, default_value);
+  int read = env->CallIntMethod(activity, read_preference, text, initial_value);
   env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(text);
   env->DeleteLocalRef(activity);
   return read;
 # else
   (void)key;
-  return default_value;
+  (void)initial_value;
+  return failure_value;
 # endif
 }
 
@@ -1198,6 +1229,85 @@ ChannelId PieNoonGame::PlayStinger() {
   }
 }
 
+// Return the file name for the material at slide_index. If slide_index is
+// invalid, return nullptr.
+const char* PieNoonGame::TutorialSlideName(int slide_index) {
+  const Config& config = GetConfig();
+  const auto slides = config.tutorial_slides();
+  const int num_slides = static_cast<int>(slides->Length());
+  if (slide_index < 0 || slide_index >= num_slides)
+    return nullptr;
+
+  return slides->Get(slide_index)->c_str();
+}
+
+static bool ControllerHasPress(const Controller* controller) {
+  return controller != nullptr &&
+         controller->controller_type() != Controller::kTypeAI &&
+         controller->went_up();
+}
+
+// Return true if a button press or touch screen touch has happened this frame.
+bool PieNoonGame::AnyControllerPresses() {
+  for (auto it = active_controllers_.begin(); it != active_controllers_.end();
+       ++it) {
+    const Controller* controller = it->get();
+    if (ControllerHasPress(controller))
+      return true;
+  }
+  return input_.GetPointerButton(0).went_up();
+}
+
+// Load into memory the tutorial slide at slide_index, if slide_index is valid.
+// We preload some tutorial slides so that we can transition to them.
+void PieNoonGame::LoadTutorialSlide(int slide_index) {
+  const Config& config = GetConfig();
+  const int num_slides = static_cast<int>(config.tutorial_slides()->Length());
+  if (slide_index < 0 || slide_index >= num_slides)
+    return;
+
+  const char* slide_name = TutorialSlideName(slide_index);
+  matman_.LoadMaterial(slide_name);
+}
+
+// Preload the initial few tutorial slides to prime the slide load-unload
+// pipeline.
+void PieNoonGame::LoadInitialTutorialSlides() {
+  const Config& config = GetConfig();
+  const int num_to_load =
+      static_cast<int>(config.tutorial_num_future_slides_to_load());
+  for (int slide_index = 0; slide_index < num_to_load; ++slide_index) {
+    LoadTutorialSlide(slide_index);
+  }
+}
+
+// Scale material by (aspect_ratio, 1) and then scale again so that it covers as
+// much of the screen as possible.
+void PieNoonGame::RenderInMiddleOfScreen(
+    const mat4& ortho_mat, float aspect_ratio, Material* material) {
+  // Calculate the texture scale. We want to fill the screen as much as we can,
+  // but not change the aspect ratio. That means we letterbox either
+  // horizontally or vertically.
+  const vec2 window_size = vec2(renderer_.window_size());
+  const vec2 texture_size = vec2(material->textures()[0]->size()) *
+                            vec2(aspect_ratio, 1.0f);
+  const vec2 scale_xy = window_size / texture_size;
+  const float scale = std::min(scale_xy.x(), scale_xy.y());
+
+  // Calculate the extreme corners of the texture, in 3D.
+  const vec2 mid = 0.5f * window_size;
+  const vec2 tex = 0.5f * scale * texture_size;
+  const vec3 bottom_left(mid.x() - tex.x(), mid.y() + tex.y(), 0.0f);
+  const vec3 top_right(mid.x() + tex.x(), mid.y() - tex.y(), 0.0f);
+
+  // Render the texture to take up the whole screen.
+  renderer_.model_view_projection() = ortho_mat;
+  renderer_.color() = mathfu::kOnes4f;
+  material->Set(renderer_);
+  shader_textured_->Set(renderer_);
+  Mesh::RenderAAQuadAlongX(bottom_left, top_right, vec2(0, 1), vec2(1, 0));
+}
+
 void PieNoonGame::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   const Config& config = GetConfig();
@@ -1241,66 +1351,72 @@ void PieNoonGame::Run() {
     full_screen_fader_.set_extents(res);
 
     // If we're all done loading, run & render the game as usual.
-    if (state_ != kLoadingInitialMaterials && state_ != kLoading) {
-      if (state_ == kJoining || state_ == kPlaying || state_ == kFinished) {
-        // Update game logic by a variable number of milliseconds.
-        game_state_.AdvanceFrame(delta_time, &audio_engine_);
+    switch (state_) {
+      case kJoining:
+      case kPlaying:
+      case kPaused:
+      case kFinished: {
+        if (state_ != kPaused) {
+          // Update game logic by a variable number of milliseconds.
+          game_state_.AdvanceFrame(delta_time, &audio_engine_);
+        }
+
+        if (state_ == kPlaying && stinger_channel_ == kInvalidChannel &&
+            game_state_.IsGameOver()) {
+          game_state_.DetermineWinnersAndLosers();
+          stinger_channel_ = PlayStinger();
+        }
+
+        // Update audio engine state.
+        audio_engine_.AdvanceFrame(world_time);
+
+        // Populate 'scene' from the game state--all the positions, orientations,
+        // and renderable-ids (which specify materials) of the characters and
+        // props. Also specify the camera matrix.
+        game_state_.PopulateScene(&scene_);
+
+        // Issue draw calls for the 'scene'.
+        Render(scene_);
+
+        // Render any UI/HUD/Splash on top.
+        Render2DElements();
+
+        // Output debug information.
+        if (config.print_character_states()) {
+          DebugPrintCharacterStates();
+        }
+        if (config.print_pie_states()) {
+          DebugPrintPieStates();
+        }
+        if (config.allow_camera_movement()) {
+          DebugCamera();
+        }
+
+        // Remember the real-world time from this frame.
+        prev_world_time_ = world_time;
+
+        // Advance to the next play state, if required.
+        UpdatePieNoonStateAndTransition();
+
+        // For testing,
+        // we'll check if a sixth finger went down on the touch screen,
+        // if so we update the leaderboards and show the UI:
+        if (input_.GetButton(SDLK_POINTER6).went_down()) {
+          UploadEvents();
+          // For testing, show UI:
+          UploadAndShowLeaderboards();
+        }
+  #     ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        gpg_manager.Update();
+        WritePreference("logged_in", static_cast<int>(gpg_manager.LoggedIn()));
+  #     endif
+        break;
       }
 
-      if (state_ == kPlaying && stinger_channel_ == kInvalidChannel &&
-          game_state_.IsGameOver()) {
-        game_state_.DetermineWinnersAndLosers();
-        stinger_channel_ = PlayStinger();
-      }
-
-      // Update audio engine state.
-      audio_engine_.AdvanceFrame(world_time);
-
-      // Populate 'scene' from the game state--all the positions, orientations,
-      // and renderable-ids (which specify materials) of the characters and
-      // props. Also specify the camera matrix.
-      game_state_.PopulateScene(&scene_);
-
-      // Issue draw calls for the 'scene'.
-      Render(scene_);
-
-      // Render any UI/HUD/Splash on top.
-      Render2DElements();
-
-      // Output debug information.
-      if (config.print_character_states()) {
-        DebugPrintCharacterStates();
-      }
-      if (config.print_pie_states()) {
-        DebugPrintPieStates();
-      }
-      if (config.allow_camera_movement()) {
-        DebugCamera();
-      }
-
-      // Remember the real-world time from this frame.
-      prev_world_time_ = world_time;
-
-      // Advance to the next play state, if required.
-      UpdatePieNoonStateAndTransition();
-
-      // For testing,
-      // we'll check if a sixth finger went down on the touch screen,
-      // if so we update the leaderboards and show the UI:
-      if (input_.GetButton(SDLK_POINTER6).went_down()) {
-        UploadEvents();
-        // For testing, show UI:
-        UploadAndShowLeaderboards();
-      }
-#     ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-      gpg_manager.Update();
-      WritePreference("logged_in", static_cast<int>(gpg_manager.LoggedIn()));
-#     endif
-    } else {
-      // If even the loading textures haven't loaded yet, remain on a black
-      // screen, otherwise render the loading texture spinning and the
-      // logo below.
-      if (state_ == kLoading) {
+      case kLoading: {
+        // If even the loading textures haven't loaded yet, remain on a black
+        // screen, otherwise render the loading texture spinning and the
+        // logo below.
         // Textures are still loading. Display a loading screen.
         auto spinmat = matman_.FindMaterial(
             config.loading_material()->c_str());
@@ -1337,15 +1453,68 @@ void PieNoonGame::Run() {
               vec3(-extend.x(),  extend.y(), 0),
               vec3( extend.x(), -extend.y(), 0),
               vec2(0, 1), vec2(1, 0));
-      }
-      matman_.TryFinalize();
+      } // Fallthrough
 
-      if (UpdatePieNoonStateAndTransition() == kFinished) {
-        game_state_.Reset();
+      case kLoadingInitialMaterials:
+        // Finalize the materials that have been loaded thus far.
+        matman_.TryFinalize();
+
+        if (UpdatePieNoonStateAndTransition() == kFinished) {
+          game_state_.Reset();
+        }
+        break;
+
+      case kTutorial: {
+        matman_.TryFinalize();
+
+        const bool should_transition =
+            full_screen_fader_.Finished(world_time) && AnyControllerPresses();
+        if (should_transition) {
+          // Start fade-out --> fade-in transition.
+          full_screen_fader_.Start(
+              world_time, config.tutorial_fade_time(), mathfu::kZeros4f, false);
+
+          // Initiate asynchronous loading of a slide, several slides before
+          // it is needed.
+          const int future_slide_index =
+              tutorial_slide_index_ +
+              config.tutorial_num_future_slides_to_load();
+          LoadTutorialSlide(future_slide_index);
+        }
+
+        // Draw the slide covering the entire screen.
+        const char* slide_name = TutorialSlideName(tutorial_slide_index_);
+        if (slide_name != nullptr) {
+          Material* slide = matman_.FindMaterial(slide_name);
+          if (slide->textures()[0]->id()) {
+            RenderInMiddleOfScreen(ortho_mat, config.tutorial_aspect_ratio(),
+                                   slide);
+          }
+        }
+
+        // Overlay the darkening texture.
+        if (!full_screen_fader_.Finished(world_time)) {
+          const bool opaque = full_screen_fader_.Render(world_time);
+          if (opaque) {
+            // Unload current slide to save memory.
+            matman_.UnloadMaterial(slide_name);
+
+            // When completely dark, transition to the next slide.
+            tutorial_slide_index_++;
+          }
+        }
+
+        UpdatePieNoonStateAndTransition();
+        break;
       }
+
+      default:
+        assert(false);
     }
   }
 }
+
+
 
 }  // pie_noon
 }  // fpl

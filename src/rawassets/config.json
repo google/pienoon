@@ -794,6 +794,20 @@
     ]
   },
 
+  "tutorial_slides": [
+      "materials/tutorial_you.bin",
+      "materials/tutorial_pie.bin",
+      "materials/tutorial_aim.bin",
+      "materials/tutorial_throw.bin",
+      "materials/tutorial_health.bin",
+      "materials/tutorial_deflect.bin",
+      "materials/tutorial_deflect_direction.bin",
+      "materials/tutorial_win.bin"
+  ],
+  "tutorial_num_future_slides_to_load": 2,
+  "tutorial_fade_time": 200,
+  "tutorial_aspect_ratio": 0.848,
+
   "draw_characters": true,
   "draw_ui_arrows": true,
   "draw_pies": true,

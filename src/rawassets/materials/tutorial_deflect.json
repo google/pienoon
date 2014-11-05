@@ -1,0 +1,8 @@
+{
+  texture_filenames: [
+    "textures/tutorial_deflect.webp"
+  ],
+  "blendmode": "ALPHA",
+  desired_format: [ F_888 ]
+}
+

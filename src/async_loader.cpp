@@ -17,19 +17,39 @@
 
 namespace fpl {
 
+// Push this to signal the worker thread that it's time to quit.
+class BookendAsyncResource : public AsyncResource {
+  static std::string kBookendFileName;
+ public:
+  BookendAsyncResource() : AsyncResource(kBookendFileName) {}
+  virtual ~BookendAsyncResource() {}
+  virtual void Load() {}
+  virtual void Finalize() {}
+  static bool IsBookend(const AsyncResource& res) {
+    return res.filename() == kBookendFileName;
+  }
+};
+
+// static
+std::string BookendAsyncResource::kBookendFileName = "bookend";
+
 AsyncLoader::AsyncLoader() {
   mutex_ = SDL_CreateMutex();
-  assert(mutex_);
+  job_semaphore_ = SDL_CreateSemaphore(0);
+  assert(mutex_ && job_semaphore_);
 }
 
 AsyncLoader::~AsyncLoader() {
+  StopLoadingWhenComplete();
   if (mutex_) SDL_DestroyMutex(mutex_);
+  if (job_semaphore_) SDL_DestroySemaphore(job_semaphore_);
 }
 
 void AsyncLoader::QueueJob(AsyncResource *res) {
   Lock([this,res]() {
     queue_.push_back(res);
   });
+  SDL_SemPost(job_semaphore_);
 }
 
 void AsyncLoader::LoaderWorker() {
@@ -37,7 +57,14 @@ void AsyncLoader::LoaderWorker() {
     auto res = LockReturn<AsyncResource *>([this]() {
       return queue_.empty() ? nullptr : queue_[0];
     });
-    if (!res) break;
+    if (!res) {
+      SDL_SemWait(job_semaphore_);
+      continue;
+    }
+    // Stop loading once we reach the bookend enqueued by
+    // StopLoadingWhenComplete(). To start loading again, call StartLoading().
+    if (BookendAsyncResource::IsBookend(*res))
+      break;
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "async load: %s",
                  res->filename_.c_str());
     res->Load();
@@ -58,6 +85,12 @@ void AsyncLoader::StartLoading() {
                                  "FPL Loader Thread", this);
   (void)thread;
   assert(thread);
+}
+
+void AsyncLoader::StopLoadingWhenComplete() {
+  // When the loader thread hits the bookend, it will exit.
+  BookendAsyncResource bookend;
+  QueueJob(&bookend);
 }
 
 bool AsyncLoader::TryFinalize() {

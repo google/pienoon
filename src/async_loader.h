@@ -57,6 +57,10 @@ class AsyncLoader {
   // Launches the loading thread.
   void StartLoading();
 
+  // Cleans-up the background loading thread once all jobs have been completed.
+  // You can restart with StartLoading() if you like.
+  void StopLoadingWhenComplete();
+
   // Call this once per frame after StartLoading. Will call Finalize on any
   // resources that have finished loading. One it returns true, that means
   // the queue is empty, all resources have been processed, and the loading
@@ -81,8 +85,12 @@ class AsyncLoader {
   static int LoaderThread(void *user_data);
 
   std::vector<AsyncResource *> queue_, done_;
+
   // This lock protects ALL state in this class, i.e. the two vectors.
   SDL_mutex *mutex_;
+
+  // Kick-off the worker thread when a new job arrives.
+  SDL_semaphore *job_semaphore_;
 };
 
 }  // namespace fpl

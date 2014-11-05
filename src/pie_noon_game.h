@@ -49,6 +49,7 @@ enum PieNoonState {
   kUninitialized = 0,
   kLoadingInitialMaterials,
   kLoading,
+  kTutorial,
   kJoining,
   kPlaying,
   kPaused,
@@ -101,8 +102,14 @@ class PieNoonGame {
   void UpdateTouchButtons(WorldTime delta_time);
   ChannelId PlayStinger();
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
+  const char* TutorialSlideName(int slide_index);
+  bool AnyControllerPresses();
+  void LoadTutorialSlide(int slide_index);
+  void LoadInitialTutorialSlides();
+  void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
+                              Material* material);
 
-  int ReadPreference(const char *key, int default_value);
+  int ReadPreference(const char *key, int initial_value, int failure_value);
   void WritePreference(const char *key, int value);
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
@@ -189,6 +196,9 @@ class PieNoonGame {
   // A stinger will play before transition to the finished state. Don't
   // transition until the stinger is complete.
   ChannelId stinger_channel_;
+
+  // Our current slide of the tutorial. Valid when state_ is kTutorial.
+  int tutorial_slide_index_;
 
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
