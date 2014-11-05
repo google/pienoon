@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/string.webp"
+    "textures/text_leaderboard.webp"
   ],
   "blendmode": "ALPHA",
   desired_format: [ F_8888 ]

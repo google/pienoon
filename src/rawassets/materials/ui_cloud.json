@@ -1,0 +1,7 @@
+{
+  texture_filenames: [
+    "textures/ui_cloud.webp"
+  ],
+  blendmode: ALPHA
+}
+

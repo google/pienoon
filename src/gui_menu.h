@@ -57,6 +57,7 @@ class GuiMenu {
   void SetFocus(ButtonId new_focus);
   TouchscreenButton* FindButtonById(ButtonId id);
   StaticImage* FindImageById(ButtonId id);
+  const UiGroup* menu_def() const { return menu_def_; }
 
  private:
   void ClearRecentSelections();

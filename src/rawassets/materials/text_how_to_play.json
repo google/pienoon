@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/string.webp"
+    "textures/text_how_to_play.webp"
   ],
   "blendmode": "ALPHA",
   desired_format: [ F_8888 ]

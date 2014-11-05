@@ -55,13 +55,15 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   for (size_t i = 0; i < length_button_list; i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
     button_list_[i] = TouchscreenButton();
-    for (auto it = button->texture_normal()->begin();
-         it != button->texture_normal()->end(); ++it) {
-      button_list_[i].set_up_material(it - button->texture_normal()->begin(),
-                                      matman->FindMaterial(TextureName(**it)));
+    const size_t length_texture_normal = ArrayLength(button->texture_normal());
+    for (size_t j = 0; j < length_texture_normal; j++) {
+      const char* texture_name = TextureName(*button->texture_normal()->Get(j));
+      button_list_[i].set_up_material(j, matman->FindMaterial(texture_name));
     }
-    button_list_[i].set_down_material(matman->FindMaterial(
-        TextureName(*button->texture_pressed())));
+    if (button->texture_pressed()) {
+      button_list_[i].set_down_material(matman->FindMaterial(
+          TextureName(*button->texture_pressed())));
+    }
 
     const char* shader_name = (button->shader() == nullptr) ?
         menu_def->default_shader()->c_str() :
@@ -72,7 +74,6 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
         menu_def->default_inactive_shader()->c_str() :
         button->inactive_shader()->c_str();
     Shader* inactive_shader = matman->FindShader(inactive_shader_name);
-
 
     if (shader == nullptr) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -123,11 +124,14 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
   matman->LoadShader(menu_def->default_inactive_shader()->c_str());
   for (size_t i = 0; i < length_button_list; i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
-    for (auto it = button->texture_normal()->begin();
-         it != button->texture_normal()->end(); ++it) {
-      matman->LoadMaterial(TextureName(**it));
+    const size_t length_texture_normal = ArrayLength(button->texture_normal());
+    for (size_t j = 0; j < length_texture_normal; j++) {
+      const char* texture_name = TextureName(*button->texture_normal()->Get(j));
+      matman->LoadMaterial(texture_name);
     }
-    matman->LoadMaterial(TextureName(*button->texture_pressed()));
+    if (button->texture_pressed()) {
+      matman->LoadMaterial(TextureName(*button->texture_pressed()));
+    }
 
     if (button->shader() != nullptr) {
       matman->LoadShader(button->shader()->c_str());
@@ -135,13 +139,13 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
     if (button->inactive_shader() != nullptr) {
       matman->LoadShader(button->inactive_shader()->c_str());
     }
-
   }
 
   const size_t length_image_list = ArrayLength(menu_def->static_image_list());
   for (size_t i = 0; i < length_image_list; i++) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
-    for (size_t j = 0; j < image_def.texture()->Length(); ++j) {
+    const size_t length_texture = ArrayLength(image_def.texture());
+    for (size_t j = 0; j < length_texture; ++j) {
       matman->LoadMaterial(TextureName(*image_def.texture()->Get(j)));
     }
     if (image_def.shader() != nullptr) {

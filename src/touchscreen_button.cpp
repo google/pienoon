@@ -7,9 +7,11 @@ namespace pie_noon {
 TouchscreenButton::TouchscreenButton()
   : elapsed_time_(0),
     up_current_(0),
+    down_material_(nullptr),
     is_active_(true),
     is_visible_(true),
-    is_highlighted_(false)
+    is_highlighted_(false),
+    one_over_cannonical_window_height_(0.0f)
 {}
 
 ButtonId TouchscreenButton::GetId() const {
@@ -65,18 +67,22 @@ bool TouchscreenButton::IsTriggered()
 }
 
 void TouchscreenButton::Render(Renderer& renderer) {
+  static const float kButtonZDepth = 0.0f;
+
   if (!is_visible_) {
     return;
   }
-  static const float kButtonZDepth = 0.0f;
+
+  Material* mat = button_.is_down()
+                  ? down_material_
+                  : up_current_ < up_materials_.size()
+                  ? up_materials_[up_current_]
+                  : nullptr;
+  if (!mat) return;  // This is an invisible button.
+
   const vec2 window_size = vec2(renderer.window_size());
   const float texture_scale = window_size.y() *
                               one_over_cannonical_window_height_;
-  Material* mat = button_.is_down()
-                  ? down_material_
-                  : up_materials_[up_current_];
-
-  if (!mat) return;  // This is an invisible button.
 
   vec2 base_size = LoadVec2(is_highlighted_
                       ? button_def_->draw_scale_highlighted()
@@ -139,7 +145,6 @@ bool StaticImage::Valid() const {
 }
 
 void StaticImage::Render(Renderer& renderer) {
-  static const float kImageZDepth = -0.5f;
   if (!Valid())
     return;
 
@@ -153,7 +158,7 @@ void StaticImage::Render(Renderer& renderer) {
   const vec2 position_percent = LoadVec2(image_def_->texture_position());
   const vec2 position = window_size * position_percent;
 
-  const vec3 position3d(position.x(), position.y(), kImageZDepth);
+  const vec3 position3d(position.x(), position.y(), image_def_->z_depth());
   const vec3 texture_size3d(texture_size.x(), -texture_size.y(), 0.0f);
 
   shader_->Set(renderer);

@@ -566,8 +566,8 @@
     "default_inactive_shader" : "shaders/grayscale",
     "button_list" : [
         {
-          "top_left" : { "x": 0.2, "y": 0.0 },
-          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "top_left" : { "x": 0.3, "y": 0.0 },
+          "bottom_right" : { "x": 0.7, "y": 0.6 },
           "ID" : "MenuStart",
           "texture_normal" : [
             { "standard" : "materials/ui_pie.bin" }
@@ -577,88 +577,68 @@
           "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
           "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
           "draw_scale_pressed" : { "x": 0.8, "y": 0.8 },
-          "nav_down" : ["MenuSignIn"],
-          "nav_left" : ["MenuLicense"],
-          "nav_right" : ["MenuAchievements"]
+          "nav_left" : ["MenuSignIn"],
+          "nav_right" : ["MenuExtras"],
+          "nav_down" : ["MenuSignIn"]
         },
         {
           "top_left" : { "x": 0.0, "y": 0.7 },
-          "bottom_right" : { "x": 0.4, "y": 1.0 },
-          "ID" : "MenuAchievements",
-          "texture_normal" : [
-            { "standard" : "materials/health.bin" }
-          ],
-          "texture_pressed" : { "standard" : "materials/health.bin" },
-          "texture_position" : { "x": 0.08, "y": 0.93 },
-          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
-          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
-          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_up" : ["MenuStart"],
-          "nav_right" : ["MenuSignIn"]
-        },
-        {
-          "top_left" : { "x": 0.4, "y": 0.7 },
-          "bottom_right" : { "x": 0.7, "y": 1.0 },
+          "bottom_right" : { "x": 0.5, "y": 1.0 },
           "ID" : "MenuSignIn",
           "texture_normal" : [
             { "standard" : "materials/gpg_button.bin" },
             { "standard" : "materials/gpg_button_disabled.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/gpg_button.bin" },
-          "texture_position" : { "x": 0.48, "y": 0.93 },
+          "texture_position" : { "x": 0.08, "y": 0.92 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_up" : ["MenuStart"],
-          "nav_left" : ["MenuAchievements"],
-          "nav_right" : ["MenuLicense"]
+          "nav_right" : ["MenuStart"],
+          "nav_up" : ["MenuStart"]
         },
         {
-          "top_left" : { "x": 0.7, "y": 0.7 },
+          "top_left" : { "x": 0.5, "y": 0.7 },
           "bottom_right" : { "x": 1.0, "y": 1.0 },
-          "ID" : "MenuLicense",
+          "ID" : "MenuExtras",
           "texture_normal" : [
             { "standard" : "materials/license_button.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/license_button.bin" },
-          "texture_position" : { "x": 0.78, "y": 0.93 },
+          "texture_position" : { "x": 0.92, "y": 0.92 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_up" : ["MenuStart"],
-          "nav_left" : ["MenuSignIn"]
+          "nav_left" : ["MenuStart"],
+          "nav_up" : ["MenuStart"]
         }
     ],
     "static_image_list" : [
-        {
-          "texture" : [ { "standard" : "materials/text_start.bin" } ],
-          "texture_position": { "x": 0.58, "y": 0.445 },
-          "draw_scale": { "x": 0.8, "y": 0.8 }
-        },
-        {
-          "texture" : [ { "standard" : "materials/text_achievements.bin" } ],
-          "texture_position": { "x": 0.28, "y": 0.93 },
-          "draw_scale": { "x": 0.8, "y": 0.8 }
-        },
-        {
-          "ID" : "MenuSignInText",
-          "texture" : [
-            { "standard" : "materials/text_sign_out.bin" },
-            { "standard" : "materials/text_sign_in.bin" }
-          ],
-          "texture_position": { "x": 0.61, "y": 0.93 },
-          "draw_scale": { "x": 0.8, "y": 0.8 }
-        },
-        {
-          "texture" : [ { "standard" : "materials/text_license.bin" } ],
-          "texture_position": { "x": 0.91, "y": 0.93 },
-          "draw_scale": { "x": 0.8, "y": 0.8 }
-        },
         {
           // Splash screen image specified by this material name.
           "texture" : [ { "standard" : "materials/splash.bin" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_start.bin" } ],
+          "texture_position": { "x": 0.58, "y": 0.445 },
+          "draw_scale": { "x": 0.8, "y": 0.8 },
+          "z_depth" : -0.4
+        },
+        {
+          "ID" : "MenuSignInText",
+          "texture" : [
+              { "standard" : "materials/text_sign_out.bin" },
+              { "standard" : "materials/text_sign_in.bin" }
+          ],
+          "texture_position": { "x": 0.22, "y": 0.93 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_extras.bin" } ],
+          "texture_position": { "x": 0.80, "y": 0.93 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
         }
     ]
   },
@@ -695,6 +675,142 @@
           "texture" : [ { "standard" : "materials/splash.bin" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ]
+  },
+
+  "extras_screen_buttons" : {
+    "starting_selection" : "MenuLeaderboard",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.15, "y": 0.43 },
+          "bottom_right" : { "x": 0.5, "y": 0.73 },
+          "ID" : "MenuLeaderboard",
+          "texture_normal" : [
+            { "standard" : "materials/ui_cloud.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/ui_cloud.bin" },
+          "texture_position" : { "x": 0.45, "y": 0.65 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_right" : ["MenuAchievements"],
+          "nav_down" : ["MenuHowToPlay"]
+        },
+        {
+          "top_left" : { "x": 0.5, "y": 0.43 },
+          "bottom_right" : { "x": 0.85, "y": 0.73 },
+          "ID" : "MenuAchievements",
+          "texture_normal" : [
+            { "standard" : "materials/health.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/health.bin" },
+          "texture_position" : { "x": 0.55, "y": 0.65 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuLeaderboard"],
+          "nav_down" : ["MenuLicense"]
+        },
+        {
+          "top_left" : { "x": 0.15, "y": 0.73 },
+          "bottom_right" : { "x": 0.5, "y": 0.93 },
+          "ID" : "MenuHowToPlay",
+          "texture_normal" : [
+            { "standard" : "materials/ui_throw.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/ui_throw.bin" },
+          "texture_position" : { "x": 0.45, "y": 0.81 },
+          "draw_scale_normal" : { "x": 0.4, "y": 0.4 },
+          "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
+          "draw_scale_pressed" : { "x": 0.5, "y": 0.5 },
+          "nav_right" : ["MenuLicense"],
+          "nav_up" : ["MenuLeaderboard"]
+        },
+        {
+          "top_left" : { "x": 0.5, "y": 0.73 },
+          "bottom_right" : { "x": 0.85, "y": 0.93 },
+          "ID" : "MenuLicense",
+          "texture_normal" : [
+            { "standard" : "materials/license_button.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/license_button.bin" },
+          "texture_position" : { "x": 0.55, "y": 0.81 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuHowToPlay"],
+          "nav_up" : ["MenuAchievements"]
+        },
+        // Two invisible buttons to allow user to go back to main menu.
+        // Note that the buttons end at y=0.7 to avoid conflicting with main
+        // menu buttons.
+        {
+          "top_left" : { "x": 0.0, "y": 0.0 },
+          "bottom_right" : { "x": 0.15, "y": 0.7 },
+          "ID" : "MenuBack"
+        },
+        {
+          "top_left" : { "x": 0.85, "y": 0.0 },
+          "bottom_right" : { "x": 1.0, "y": 0.7 },
+          "ID" : "MenuBack"
+        }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture_position": { "x": 0.5, "y": 0.73 },
+          "draw_scale": { "x": 1.64, "y": 2.1 },
+          "z_depth" : -0.45
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/environment_string.bin" } ],
+          "texture_position": { "x": 0.68, "y": 0.57 },
+          "draw_scale": { "x": 0.4, "y": 1.0 },
+          "z_depth" : -0.55
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/environment_string.bin" } ],
+          "texture_position": { "x": 0.32, "y": 0.57 },
+          "draw_scale": { "x": 0.4, "y": 1.0 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_leaderboard.bin" } ],
+          "texture_position": { "x": 0.32, "y": 0.65 },
+          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_achievements.bin" } ],
+          "texture_position": { "x": 0.73, "y": 0.65 },
+          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_how_to_play.bin" } ],
+          "texture_position": { "x": 0.34, "y": 0.81 },
+          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_license.bin" } ],
+          "texture_position": { "x": 0.67, "y": 0.81 },
+          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "z_depth" : -0.4
         }
     ]
   },

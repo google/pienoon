@@ -1,6 +1,6 @@
 {
   texture_filenames: [
-    "textures/splash.webp"
+    "textures/splash_menu_half.webp"
   ],
   "blendmode": "ALPHA"
 }

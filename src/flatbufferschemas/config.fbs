@@ -42,9 +42,13 @@ enum ButtonId : ushort {
   MenuStart,
   MenuSignIn,
   MenuSignInText,
+  MenuExtras,
   MenuLicense,
   MenuAchievements,
+  MenuLeaderboard,
+  MenuHowToPlay,
   MenuResume,
+  MenuBack,
   Counter1,
   Counter2,
   Counter3,
@@ -136,6 +140,7 @@ table StaticImageDef {
   shader : string;
   draw_scale : Vec2;
   texture_position : Vec2;
+  z_depth : float = -0.5;
 }
 
 table UiGroup {
@@ -594,6 +599,7 @@ table Config {
   pause_screen_buttons:UiGroup;
   title_screen_buttons_android:UiGroup;
   title_screen_buttons_non_android:UiGroup;
+  extras_screen_buttons:UiGroup;
   join_screen_buttons:UiGroup;
 
   // Tutorial

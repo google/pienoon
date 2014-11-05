@@ -293,6 +293,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
   gui_menu_.LoadAssets(config.touchscreen_zones(), &matman_);
   gui_menu_.LoadAssets(config.pause_screen_buttons(), &matman_);
   gui_menu_.LoadAssets(config.join_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.extras_screen_buttons(), &matman_);
 
   // Configure the full screen fader.
   full_screen_fader_.set_material(matman_.FindMaterial(
@@ -818,7 +819,14 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
     }
     case kFinished: {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
-        input_.exit_requested_ = true;
+        const Config& config = GetConfig();
+        const bool in_extras_menu = gui_menu_.menu_def() ==
+                                    config.extras_screen_buttons();
+        if (in_extras_menu) {
+          gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+        } else {
+          input_.exit_requested_ = true;
+        }
       }
       return HandleMenuButtons();
     }
@@ -1191,6 +1199,16 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
       case ButtonId_InvalidInput:
         audio_engine_.PlaySound(SoundId_InvalidInput);
         break;
+      case ButtonId_MenuExtras: {
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.extras_screen_buttons(), &matman_);
+        break;
+      }
+      case ButtonId_MenuBack: {
+        const Config& config = GetConfig();
+        gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+        break;
+      }
       default:
         break;
     }
