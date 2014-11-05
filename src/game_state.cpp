@@ -770,7 +770,7 @@ void GameState::CreateJoinConfettiBurst(const Character& character) {
 void GameState::SpawnParticles(const mathfu::vec3 &position,
                                const ParticleDef * def,
                                const int particle_count,
-                               const mathfu::vec4 base_tint) {
+                               const mathfu::vec4 &base_tint) {
   const vec3 min_scale = LoadVec3(def->min_scale());
   const vec3 max_scale = LoadVec3(def->max_scale());
   const vec3 min_velocity = LoadVec3(def->min_velocity());

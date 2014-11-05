@@ -744,7 +744,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         // If we've already displayed the tutorial before, jump straight to
         // the game. If we don't have the capability to record our previous
         // tutorial views, also jump straight to the game.
-        bool displayed_tutorial = ReadPreference("displayed_tutorial", 0, 1);
+        int displayed_tutorial = ReadPreference("displayed_tutorial", 0, 1);
         const PieNoonState first_state =
             displayed_tutorial ? kFinished : kTutorial;
 

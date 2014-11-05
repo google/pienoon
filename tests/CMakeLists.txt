@@ -15,6 +15,12 @@
 # 3. This notice may not be removed or altered from any source distribution.
 cmake_minimum_required(VERSION 2.8.12)
 
+# gtest seems to prefer the non-DLL runtime on Windows, which conflicts with everything else.
+option(
+  gtest_force_shared_crt
+  "Use shared (DLL) run-time lib even when Google Test is built as static lib."
+  ON)
+
 # Import gtest if it's not already present.
 if(NOT TARGET gtest)
 add_subdirectory(${dependencies_gtest_dir} googletest)
@@ -45,7 +51,13 @@ set(SUPPORT_SRCS ${dependencies_flatbuffers_dir}/src/idl_parser.cpp)
 if(NOT MSVC)
   find_package(Threads)
 endif()
-set(COMMON_LIBS "gtest;SDL2;${CMAKE_THREAD_LIBS_INIT}")
+
+set (SDL_LIBRARIES SDL2-static)
+if(WIN32)
+  set(SDL_LIBRARIES SDL2main;${SDL_LIBRARIES})
+endif()
+
+set(COMMON_LIBS "gtest;${SDL_LIBRARIES};${CMAKE_THREAD_LIBS_INIT}")
 
 # PUT ADDITIONAL UNIT TEST BINARIES BELOW!
 # The commands should be of the form:

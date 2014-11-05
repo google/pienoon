@@ -29,7 +29,6 @@
 extern "C" {
 Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops*, int) { return NULL; }
 Mix_Music* Mix_LoadMUS(const char*) { return NULL; }
-const char* SDL_GetError(void) { return NULL; }
 int Mix_AllocateChannels(int) { return 0; }
 int Mix_HaltChannel(int) { return 0; }
 int Mix_HaltMusic() { return 0; }

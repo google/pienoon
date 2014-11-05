@@ -137,7 +137,7 @@ private:
   void CreateJoinConfettiBurst(const Character& character);
   void SpawnParticles(const mathfu::vec3 &position, const ParticleDef * def,
                       const int particle_count,
-                      mathfu::vec4 base_tint = mathfu::vec4(1, 1, 1, 1));
+                      const mathfu::vec4 &base_tint = mathfu::vec4(1, 1, 1, 1));
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
 
   WorldTime time_;
