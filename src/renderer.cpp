@@ -55,6 +55,11 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
   SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
 
+  // In some Android devices (particulary Galaxy Nexus), there is an issue
+  // of glGenerateMipmap() with 16BPP texture format.
+  // In that case, we are going to fallback to 888/8888 textures
+  use_16bpp_ = fpl::MipmapGeneration16bppSupported();
+
   // Create the window:
   window_ = SDL_CreateWindow(
     window_title,
@@ -273,18 +278,30 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
   switch (desired) {
     case kFormat5551: {
       assert(has_alpha);
-      auto buffer16 = Convert8888To5551(buffer, size);
-      GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
-                           GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
-      delete[] buffer16;
+      if (use_16bpp_) {
+        auto buffer16 = Convert8888To5551(buffer, size);
+        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                             GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, buffer16));
+        delete[] buffer16;
+      } else {
+        // Fallback to 8888
+        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x(), size.y(), 0,
+                             GL_RGBA, GL_UNSIGNED_BYTE, buffer));
+      }
       break;
     }
     case kFormat565: {
       assert(!has_alpha);
-      auto buffer16 = Convert888To565(buffer, size);
-      GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x(), size.y(), 0,
-                           GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer16));
-      delete[] buffer16;
+      if (use_16bpp_) {
+        auto buffer16 = Convert888To565(buffer, size);
+        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x(), size.y(), 0,
+                             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer16));
+        delete[] buffer16;
+      } else {
+        // Fallback to 888
+        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x(), size.y(), 0,
+                             GL_RGB, GL_UNSIGNED_BYTE, buffer));
+      }
       break;
     }
     case kFormat8888: {

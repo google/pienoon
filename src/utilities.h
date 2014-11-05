@@ -63,6 +63,8 @@ std::string FileNameFromEnumName(const char* const enum_name,
 
 bool TouchScreenDevice();
 
+bool MipmapGeneration16bppSupported();
+
 } // namespace fpl
 
 #endif // PIE_NOON_UTILITIES_H

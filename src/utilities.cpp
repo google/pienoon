@@ -136,4 +136,42 @@ bool TouchScreenDevice() {
 #endif
 }
 
+#ifdef __ANDROID__
+bool AndroidCheckDeviceList(const char* device_list[], const int num_devices) {
+  // Retrieve device name through JNI.
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jclass build_class = env->FindClass("android/os/Build");
+  jfieldID model_id = env->GetStaticFieldID(
+    build_class,"MODEL", "Ljava/lang/String;");
+  jstring model_obj = static_cast<jstring>(env->GetStaticObjectField(
+    build_class, model_id));
+  const char *device_name = env->GetStringUTFChars(model_obj, 0);
+
+  // Check if the device name is in the list.
+  bool result = true;
+  for (int i = 0; i < num_devices; ++i ) {
+    if (strcmp(device_list[i], device_name) == 0) {
+      result = false;
+      break;
+    }
+  }
+
+  // Clean up
+  env->ReleaseStringUTFChars(model_obj, device_name);
+  env->DeleteLocalRef(model_obj);
+  env->DeleteLocalRef(build_class);
+  return result;
+}
+#endif
+
+bool MipmapGeneration16bppSupported() {
+#ifdef __ANDROID__
+  const char* device_list[] = { "Galaxy Nexus" };
+  return AndroidCheckDeviceList(device_list,
+    sizeof(device_list) / sizeof(device_list[0]));
+#else
+  return true;
+#endif
+}
+
 } // namespace fpl

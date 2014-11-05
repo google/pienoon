@@ -145,6 +145,8 @@ class Renderer {
   SDL_GLContext context_;
 
   BlendMode blend_mode_;
+
+  bool use_16bpp_;
 };
 
 }  // namespace fpl
