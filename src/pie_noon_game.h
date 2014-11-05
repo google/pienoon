@@ -148,6 +148,7 @@ class PieNoonGame {
   Shader* shader_lit_textured_normal_;
   Shader* shader_simple_shadow_;
   Shader* shader_textured_;
+  Shader* shader_grayscale_;
 
   // Shadow material.
   Material* shadow_mat_;

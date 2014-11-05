@@ -44,7 +44,6 @@ class TouchscreenButton
 
   Button& button() { return button_; }
 
-
   const std::vector<Material*> &up_materials() const { return up_materials_; }
   void set_up_material(size_t i, Material* up_material) {
     assert(up_material);
@@ -68,11 +67,19 @@ class TouchscreenButton
   const ButtonDef* button_def() const { return button_def_; }
   void set_button_def(const ButtonDef* button_def) { button_def_ = button_def; }
 
+  Shader* inactive_shader() const { return inactive_shader_; }
+  void set_inactive_shader(Shader* inactive_shader) {
+    inactive_shader_ = inactive_shader;
+  }
+
   Shader* shader() const { return shader_; }
   void set_shader(Shader* shader) { shader_ = shader; }
 
   bool is_active() const { return is_active_; }
   void set_is_active(bool is_active) { is_active_ = is_active; }
+
+  bool is_visible() const { return is_visible_; }
+  void set_is_visible(bool is_visible) { is_visible_ = is_visible; }
 
   bool is_highlighted() const { return is_highlighted_; }
   void set_is_highlighted(bool is_highlighted) {
@@ -89,6 +96,7 @@ class TouchscreenButton
 
   const ButtonDef* button_def_;
   Shader* shader_;
+  Shader* inactive_shader_;
 
   // Textures to draw for the up/down states:
   std::vector<Material*> up_materials_;
@@ -101,6 +109,7 @@ class TouchscreenButton
   mathfu::vec2 down_offset_;
 
   bool is_active_;
+  bool is_visible_;
   bool is_highlighted_;
 
   // Scale the textures by the y-axis so that they are (proportionally)

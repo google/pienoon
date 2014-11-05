@@ -81,6 +81,7 @@ enum SoundId : ushort {
   StingerLose,
   Ambience,
   FocusMenuItem,
+  InvalidInput,
 
   Count  // Must be last
 }

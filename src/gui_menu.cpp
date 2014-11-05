@@ -63,13 +63,23 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     button_list_[i].set_down_material(matman->FindMaterial(
         TextureName(*button->texture_pressed())));
 
-    Shader* shader = matman->FindShader(
-          button->shader()->c_str());
+    const char* shader_name = (button->shader() == nullptr) ?
+        menu_def->default_shader()->c_str() :
+        button->shader()->c_str();
+    Shader* shader = matman->FindShader(shader_name);
+
+    const char* inactive_shader_name = (button->inactive_shader() == nullptr) ?
+        menu_def->default_inactive_shader()->c_str() :
+        button->inactive_shader()->c_str();
+    Shader* inactive_shader = matman->FindShader(inactive_shader_name);
+
+
     if (shader == nullptr) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                   "Buttons used in menus must specify a shader!");
     }
     button_list_[i].set_shader(shader);
+    button_list_[i].set_inactive_shader(inactive_shader);
     button_list_[i].set_button_def(button);
     button_list_[i].set_is_active(button->starts_active() != 0);
     button_list_[i].set_is_highlighted(true);
@@ -80,7 +90,6 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   // Initialize image_list_.
   for (size_t i = 0; i < length_image_list; i++) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
-    const char* shader_name = image_def.shader()->c_str();
 
     const int num_textures = image_def.texture()->Length();
     std::vector<Material*> materials(num_textures);
@@ -92,7 +101,9 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
                      "Static image '%s' not found", material_name);
       }
     }
-
+    const char* shader_name = (image_def.shader() == nullptr) ?
+        menu_def->default_shader()->c_str() :
+        image_def.shader()->c_str();
     Shader* shader = matman->FindShader(shader_name);
     if (shader == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
@@ -108,6 +119,8 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
 // used in the UI group.
 void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
   const size_t length_button_list = ArrayLength(menu_def->button_list());
+  matman->LoadShader(menu_def->default_shader()->c_str());
+  matman->LoadShader(menu_def->default_inactive_shader()->c_str());
   for (size_t i = 0; i < length_button_list; i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
     for (auto it = button->texture_normal()->begin();
@@ -116,12 +129,13 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
     }
     matman->LoadMaterial(TextureName(*button->texture_pressed()));
 
-    Shader* shader = matman->LoadShader(
-          button->shader()->c_str());
-    if (shader == nullptr) {
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "Buttons used in menus must specify a shader!");
+    if (button->shader() != nullptr) {
+      matman->LoadShader(button->shader()->c_str());
     }
+    if (button->inactive_shader() != nullptr) {
+      matman->LoadShader(button->inactive_shader()->c_str());
+    }
+
   }
 
   const size_t length_image_list = ArrayLength(menu_def->static_image_list());
@@ -130,7 +144,9 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
     for (size_t j = 0; j < image_def.texture()->Length(); ++j) {
       matman->LoadMaterial(TextureName(*image_def.texture()->Get(j)));
     }
-    matman->LoadShader(image_def.shader()->c_str());
+    if (image_def.shader() != nullptr) {
+      matman->LoadShader(image_def.shader()->c_str());
+    }
   }
 }
 
@@ -139,13 +155,15 @@ void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
   // Start every frame with a clean list of events.
   ClearRecentSelections();
   for (size_t i = 0; i < button_list_.size(); i++) {
-    button_list_[i].AdvanceFrame(delta_time, input, window_size);
-    button_list_[i].set_is_highlighted(
-        current_focus_ == button_list_[i].GetId());
+    TouchscreenButton& current_button = button_list_[i];
+    current_button.AdvanceFrame(delta_time, input, window_size);
+    current_button.set_is_highlighted(
+        current_focus_ == current_button.GetId());
 
-    if (button_list_[i].IsTriggered()) {
-      unhandled_selections_.push(MenuSelection(button_list_[i].GetId(),
-                                               kTouchController));
+    if (current_button.IsTriggered()) {
+      unhandled_selections_.push(MenuSelection(
+          current_button.is_active() ? current_button.GetId() :
+          ButtonId_InvalidInput, kTouchController));
     }
   }
 }
@@ -210,7 +228,9 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
   }
 
   if (logical_input & LogicalInputs_ThrowPie) {
-    unhandled_selections_.push(MenuSelection(current_focus_, controller_id));
+    unhandled_selections_.push(MenuSelection(
+        current_focus_button_->is_active() ?
+        current_focus_ : ButtonId_InvalidInput, controller_id));
   }
   if (logical_input & LogicalInputs_Deflect) {
     unhandled_selections_.push(MenuSelection(ButtonId_Cancel, controller_id));
@@ -219,7 +239,7 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
 
 // This is an internal-facing function for moving the focus around.  It
 // accepts an array of possible destinations as input, and moves to
-// the first active ID it finds.  (otherwise it doesn't move.)
+// the first visible ID it finds.  (otherwise it doesn't move.)
 void GuiMenu::UpdateFocus(
     const flatbuffers::Vector<uint16_t>* destination_list) {
   for (size_t i = 0; i < destination_list->Length(); i++) {
@@ -227,7 +247,7 @@ void GuiMenu::UpdateFocus(
         static_cast<ButtonId>(destination_list->Get(i));
     TouchscreenButton* destination =
         FindButtonById(destination_id);
-    if (destination != nullptr && destination->is_active()) {
+    if (destination != nullptr && destination->is_visible()) {
       SetFocus(destination_id);
       return;
     }

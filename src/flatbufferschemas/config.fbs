@@ -33,6 +33,7 @@ enum PieDeflectionMode : ushort {
 
 enum ButtonId : ushort {
   Undefined,
+  InvalidInput,
   Cancel,
   Left,
   Right,
@@ -108,6 +109,7 @@ table ButtonDef {
   draw_scale_pressed : Vec2;
   draw_scale_highlighted : Vec2;
   shader : string;
+  inactive_shader : string;
 
   // IDs of other buttons, that we can navigate to from this one, via d-pad.
   // IDs are tried in order until one is found that is active.
@@ -142,6 +144,8 @@ table UiGroup {
   button_list : [ButtonDef];
   static_image_list : [StaticImageDef];
   cannonical_window_height : int;
+  default_shader : string;
+  default_inactive_shader: string;
 }
 
 table FixedAccessory {

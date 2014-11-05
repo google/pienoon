@@ -8,6 +8,7 @@ TouchscreenButton::TouchscreenButton()
   : elapsed_time_(0),
     up_current_(0),
     is_active_(true),
+    is_visible_(true),
     is_highlighted_(false)
 {}
 
@@ -21,7 +22,8 @@ ButtonId TouchscreenButton::GetId() const {
 
 bool TouchscreenButton::WillCapturePointer(const Pointer& pointer,
                                            vec2 window_size) {
-  if (pointer.mousepos.x() / window_size.x() >=
+  if (is_visible_ &&
+      pointer.mousepos.x() / window_size.x() >=
           button_def_->top_left()->x() &&
       pointer.mousepos.y() / window_size.y() >=
           button_def_->top_left()->y() &&
@@ -54,7 +56,6 @@ void TouchscreenButton::AdvanceFrame(WorldTime delta_time,
   button_.Update(down);
 }
 
-
 bool TouchscreenButton::IsTriggered()
 {
   return (button_def_->event_trigger() == ButtonEvent_ButtonHold &&
@@ -64,6 +65,9 @@ bool TouchscreenButton::IsTriggered()
 }
 
 void TouchscreenButton::Render(Renderer& renderer) {
+  if (!is_visible_) {
+    return;
+  }
   static const float kButtonZDepth = 0.0f;
   const vec2 window_size = vec2(renderer.window_size());
   const float texture_scale = window_size.y() *
@@ -92,9 +96,14 @@ void TouchscreenButton::Render(Renderer& renderer) {
   vec3 position = vec3(button_def()->texture_position()->x() * window_size.x(),
                        button_def()->texture_position()->y() * window_size.y(),
                        kButtonZDepth);
-  shader_->Set(renderer);
-  mat->Set(renderer);
 
+  if (is_active_ || inactive_shader_ == nullptr) {
+    shader_->Set(renderer);
+  }
+  else {
+    inactive_shader_->Set(renderer);
+  }
+  mat->Set(renderer);
   Mesh::RenderAAQuadAlongX(position - (texture_size / 2.0f),
                            position + (texture_size / 2.0f),
                            vec2(0, 1), vec2(1, 0));

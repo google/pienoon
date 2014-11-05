@@ -82,6 +82,7 @@ PieNoonGame::PieNoonGame()
       shader_lit_textured_normal_(nullptr),
       shader_simple_shadow_(nullptr),
       shader_textured_(nullptr),
+      shader_grayscale_(nullptr),
       shadow_mat_(nullptr),
       prev_world_time_(0),
       debug_previous_states_(),
@@ -276,10 +277,12 @@ bool PieNoonGame::InitializeRenderingAssets() {
   shader_cardboard = matman_.LoadShader("shaders/cardboard");
   shader_simple_shadow_ = matman_.LoadShader("shaders/simple_shadow");
   shader_textured_ = matman_.LoadShader("shaders/textured");
+  shader_grayscale_ = matman_.LoadShader("shaders/grayscale");
   if (!(shader_lit_textured_normal_ &&
         shader_cardboard &&
         shader_simple_shadow_ &&
-        shader_textured_)) return false;
+        shader_textured_ &&
+        shader_grayscale_)) return false;
 
   // Load shadow material:
   shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.bin");
@@ -552,7 +555,9 @@ void PieNoonGame::Render2DElements() {
   // Update the currently drawing Google Play Games image. Displays "Sign In"
   // when currently signed-out, and "Sign Out" when currently signed in.
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-  const int material_index = gpg_manager.LoggedIn() ? 0 : 1;
+  bool is_logged_in = gpg_manager.LoggedIn();
+  const int material_index = is_logged_in ? 0 : 1;
+
   auto gpg_button = gui_menu_.FindButtonById(ButtonId_MenuSignIn);
   if (gpg_button)
     gpg_button->set_current_up_material(material_index);
@@ -560,6 +565,10 @@ void PieNoonGame::Render2DElements() {
   auto gpg_text = gui_menu_.FindImageById(ButtonId_MenuSignInText);
   if (gpg_text)
     gpg_text->set_current_material_index(material_index);
+
+  auto achievements_button = gui_menu_.GetButtonById(ButtonId_MenuAchievements);
+  if (achievements_button)
+    achievements_button->set_is_active(is_logged_in);
 # endif
 
   // Loop through the 2D elements. Draw each subsequent one slightly closer
@@ -1177,6 +1186,9 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
 #       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.ShowAchievements();
 #       endif
+        break;
+      case ButtonId_InvalidInput:
+        audio_engine_.PlaySound(SoundId_InvalidInput);
         break;
       default:
         break;
