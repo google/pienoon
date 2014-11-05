@@ -111,24 +111,35 @@ class TouchscreenButton
 class StaticImage
 {
  public:
-  StaticImage() : image_def_(nullptr), material_(nullptr), shader_(nullptr) {}
-  void Initialize(const StaticImageDef& image_def, Material* material,
-                  Shader* shader, int cannonical_window_height);
+  StaticImage();
+  void Initialize(const StaticImageDef& image_def,
+                  std::vector<Material*> materials, Shader* shader,
+                  int cannonical_window_height);
   void Render(Renderer& renderer);
-  bool Valid() const {
-    return image_def_ != nullptr && material_ != nullptr && shader_ != nullptr;
-  }
+  bool Valid() const;
   ButtonId GetId() const {
     return image_def_ == nullptr ? ButtonId_Undefined : image_def_->ID();
   }
   const StaticImageDef* image_def() const { return image_def_; }
   const mathfu::vec2& scale() const { return scale_; }
   void set_scale(const mathfu::vec2& scale) { scale_ = scale; }
+  void set_current_material_index(int i) { current_material_index_ = i;}
 
  private:
+  // Flatbuffer's definition of this image.
   const StaticImageDef* image_def_;
-  Material* material_;
+
+  // A list of materials that can be drawn. Choose current material with
+  // set_current_material_index.
+  std::vector<Material*> materials_;
+
+  // The material that is currently being displayed.
+  int current_material_index_;
+
+  // The shader used to render the material.
   Shader* shader_;
+
+  // Draw image bigger or smaller. (1.0f, 1.0f) means no scaling.
   mathfu::vec2 scale_;
 
   // Scale the textures by the y-axis so that they are (proportionally)

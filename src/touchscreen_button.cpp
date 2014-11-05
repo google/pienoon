@@ -101,15 +101,32 @@ void TouchscreenButton::Render(Renderer& renderer) {
 }
 
 
+StaticImage::StaticImage()
+    : image_def_(nullptr),
+      current_material_index_(0),
+      shader_(nullptr),
+      scale_(mathfu::kZeros2f),
+      one_over_cannonical_window_height_(0.0f) {
+}
+
 void StaticImage::Initialize(const StaticImageDef& image_def,
-                             Material* material, Shader* shader,
+                             std::vector<Material*> materials, Shader* shader,
                              int cannonical_window_height) {
   image_def_ = &image_def;
-  material_ = material;
+  materials_ = materials;
+  current_material_index_ = 0;
   shader_ = shader;
   scale_ = LoadVec2(image_def_->draw_scale());
   one_over_cannonical_window_height_ =
       1.0f / static_cast<float>(cannonical_window_height);
+  assert(Valid());
+}
+
+bool StaticImage::Valid() const {
+  return image_def_ != nullptr &&
+         current_material_index_ < static_cast<int>(materials_.size()) &&
+         materials_[current_material_index_] != nullptr &&
+         shader_ != nullptr;
 }
 
 void StaticImage::Render(Renderer& renderer) {
@@ -117,10 +134,13 @@ void StaticImage::Render(Renderer& renderer) {
   if (!Valid())
     return;
 
+  Material* material = materials_[current_material_index_];
   const vec2 window_size = vec2(renderer.window_size());
   const float texture_scale = window_size.y() *
                               one_over_cannonical_window_height_;
-  const vec2 texture_size = texture_scale * vec2(material_->textures()[0]->size()) * scale_;
+  const vec2 texture_size = texture_scale *
+                            vec2(material->textures()[0]->size()) *
+                            scale_;
   const vec2 position_percent = LoadVec2(image_def_->texture_position());
   const vec2 position = window_size * position_percent;
 
@@ -128,7 +148,7 @@ void StaticImage::Render(Renderer& renderer) {
   const vec3 texture_size3d(texture_size.x(), -texture_size.y(), 0.0f);
 
   shader_->Set(renderer);
-  material_->Set(renderer);
+  material->Set(renderer);
 
   Mesh::RenderAAQuadAlongX(position3d - texture_size3d * 0.5f,
                            position3d + texture_size3d * 0.5f,

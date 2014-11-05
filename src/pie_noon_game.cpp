@@ -549,13 +549,21 @@ void PieNoonGame::Render2DElements() {
       -1.0f, 1.0f);
   renderer_.model_view_projection() = ortho_mat;
 
+  // Update the currently drawing Google Play Games image. Displays "Sign In"
+  // when currently signed-out, and "Sign Out" when currently signed in.
+# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  const int material_index = gpg_manager.LoggedIn() ? 0 : 1;
+  auto gpg_button = gui_menu_.FindButtonById(ButtonId_MenuSignIn);
+  if (gpg_button)
+    gpg_button->set_current_up_material(material_index);
+
+  auto gpg_text = gui_menu_.FindImageById(ButtonId_MenuSignInText);
+  if (gpg_text)
+    gpg_text->set_current_material_index(material_index);
+# endif
+
   // Loop through the 2D elements. Draw each subsequent one slightly closer
   // to the camera so that they appear on top of the previous ones.
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-  auto gpg_button = gui_menu_.GetButtonById(ButtonId_MenuSignIn);
-  if (gpg_button)
-    gpg_button->set_current_up_material(gpg_manager.LoggedIn() ? 0 : 1);
-# endif
   gui_menu_.Render(&renderer_);
 }
 

@@ -40,6 +40,7 @@ enum ButtonId : ushort {
   Defend,
   MenuStart,
   MenuSignIn,
+  MenuSignInText,
   MenuLicense,
   MenuAchievements,
   MenuResume,
@@ -129,7 +130,7 @@ table ButtonDef {
 
 table StaticImageDef {
   ID : ButtonId;
-  texture : ButtonTexture;
+  texture : [ButtonTexture];
   shader : string;
   draw_scale : Vec2;
   texture_position : Vec2;

@@ -80,23 +80,26 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   // Initialize image_list_.
   for (size_t i = 0; i < length_image_list; i++) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
-    const char* material_name = TextureName(*image_def.texture());
     const char* shader_name = image_def.shader()->c_str();
 
-    Material* material = matman->FindMaterial(material_name);
-    Shader* shader = matman->FindShader(shader_name);
-
-    if (material == nullptr) {
-      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                   "Static image '%s' not found", material_name);
+    const int num_textures = image_def.texture()->Length();
+    std::vector<Material*> materials(num_textures);
+    for (int i = 0; i < num_textures; ++i) {
+      const char* material_name = TextureName(*image_def.texture()->Get(i));
+      materials[i] = matman->FindMaterial(material_name);
+      if (materials[i] == nullptr) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                     "Static image '%s' not found", material_name);
+      }
     }
+
+    Shader* shader = matman->FindShader(shader_name);
     if (shader == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                   "Static image '%s' missing shader '%s'",
-                   material_name, shader_name);
+                   "Static image missing shader '%s'", shader_name);
     }
 
-    image_list_[i].Initialize(image_def, material, shader,
+    image_list_[i].Initialize(image_def, materials, shader,
                               menu_def_->cannonical_window_height());
   }
 }
@@ -124,7 +127,9 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
   const size_t length_image_list = ArrayLength(menu_def->static_image_list());
   for (size_t i = 0; i < length_image_list; i++) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
-    matman->LoadMaterial(TextureName(*image_def.texture()));
+    for (size_t j = 0; j < image_def.texture()->Length(); ++j) {
+      matman->LoadMaterial(TextureName(*image_def.texture()->Get(j)));
+    }
     matman->LoadShader(image_def.shader()->c_str());
   }
 }
@@ -237,12 +242,6 @@ ButtonId GuiMenu::GetFocus() const {
 
 void GuiMenu::SetFocus(ButtonId new_focus) {
   current_focus_  = new_focus;
-}
-
-// Returns a pointer to the button specified, if it's in the current
-// menu.  Otherwise, returns a null pointer if it's not found.
-TouchscreenButton* GuiMenu::GetButtonById(ButtonId id) {
-  return FindButtonById(id);
 }
 
 }  // pie_noon

@@ -55,12 +55,11 @@ class GuiMenu {
                              ControllerId controller_id);
   ButtonId GetFocus() const;
   void SetFocus(ButtonId new_focus);
-  TouchscreenButton* GetButtonById(ButtonId id);
+  TouchscreenButton* FindButtonById(ButtonId id);
   StaticImage* FindImageById(ButtonId id);
 
  private:
   void ClearRecentSelections();
-  TouchscreenButton* FindButtonById(ButtonId id);
   void UpdateFocus(const flatbuffers::Vector<uint16_t>* destination_list);
 
   const UiGroup* menu_def_;

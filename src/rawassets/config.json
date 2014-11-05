@@ -633,32 +633,36 @@
     ],
     "static_image_list" : [
         {
-          "texture" : { "standard" : "materials/text_start.bin" },
+          "texture" : [ { "standard" : "materials/text_start.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.58, "y": 0.445 },
           "draw_scale": { "x": 0.8, "y": 0.8 }
         },
         {
-          "texture" : { "standard" : "materials/text_achievements.bin" },
+          "texture" : [ { "standard" : "materials/text_achievements.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.28, "y": 0.93 },
           "draw_scale": { "x": 0.8, "y": 0.8 }
         },
         {
-          "texture" : { "standard" : "materials/text_sign_in.bin" },
+          "ID" : "MenuSignInText",
+          "texture" : [
+            { "standard" : "materials/text_sign_out.bin" },
+            { "standard" : "materials/text_sign_in.bin" }
+          ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.61, "y": 0.93 },
           "draw_scale": { "x": 0.8, "y": 0.8 }
         },
         {
-          "texture" : { "standard" : "materials/text_license.bin" },
+          "texture" : [ { "standard" : "materials/text_license.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.91, "y": 0.93 },
           "draw_scale": { "x": 0.8, "y": 0.8 }
         },
         {
           // Splash screen image specified by this material name.
-          "texture" : { "standard" : "materials/splash.bin" },
+          "texture" : [ { "standard" : "materials/splash.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
@@ -690,14 +694,14 @@
     ],
     "static_image_list" : [
         {
-          "texture" : { "standard" : "materials/text_start.bin" },
+          "texture" : [ { "standard" : "materials/text_start.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.58, "y": 0.445 },
           "draw_scale": { "x": 0.8, "y": 0.8 }
         },
         {
           // Splash screen image specified by this material name.
-          "texture" : { "standard" : "materials/splash.bin" },
+          "texture" : [ { "standard" : "materials/splash.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
@@ -730,7 +734,7 @@
     "static_image_list" : [
         {
           // Splash screen image specified by this material name.
-          "texture" : { "standard" : "materials/splash.bin" },
+          "texture" : [ { "standard" : "materials/splash.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
@@ -745,48 +749,48 @@
     "static_image_list" : [
         {
           "ID" : "Counter1",
-          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.36, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter2",
-          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.44, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter3",
-          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.52, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter4",
-          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.60, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter5",
-          "texture" : { "standard" : "materials/ui_pie.bin" },
+          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.68, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
-          "texture" : { "standard" : "materials/text_join_in.bin" },
+          "texture" : [ { "standard" : "materials/text_join_in.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.58, "y": 0.445 },
           "draw_scale": { "x": 0.8, "y": 0.8 }
         },
         {
           // Splash screen image specified by this material name.
-          "texture" : { "standard" : "materials/splash.bin" },
+          "texture" : [ { "standard" : "materials/splash.bin" } ],
           "shader" : "shaders/textured",
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
