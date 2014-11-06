@@ -45,7 +45,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux"
                     WORKING_DIRECTORY ${libogg_dir}
                     RESULT_VARIABLE autogen_result)
     if (NOT ${autogen_result} EQUAL 0)
-        message(FATAL_ERROR
+      # Maybe make this fatal in the future, but the build seems to run fine
+      # even with this error.
+      message(STATUS
           "CMake encountered an error running libogg's autogen.sh.\n"
           "You must have autoconf, automake, and libtool installed to "
           "build on Linux.")
