@@ -567,7 +567,7 @@ void PieNoonGame::Render2DElements() {
   if (gpg_text)
     gpg_text->set_current_material_index(material_index);
 
-  auto achievements_button = gui_menu_.GetButtonById(ButtonId_MenuAchievements);
+  auto achievements_button = gui_menu_.FindButtonById(ButtonId_MenuAchievements);
   if (achievements_button)
     achievements_button->set_is_active(is_logged_in);
 # endif
