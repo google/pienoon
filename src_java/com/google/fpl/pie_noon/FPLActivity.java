@@ -94,7 +94,6 @@ public class FPLActivity extends SDLActivity {
     }
   }
 
-
   // Capture motionevents and keyevents to check for gamepad movement.  Any events we catch
   // (That look like they were from a gamepad or joystick) get sent to C++ via JNI, where
   // they are stored, so C++ can deal with them next time it updates the game state.
@@ -102,10 +101,22 @@ public class FPLActivity extends SDLActivity {
   public boolean dispatchGenericMotionEvent(MotionEvent event) {
     if ((event.getAction() == MotionEvent.ACTION_MOVE) &&
        (event.getSource() & (InputDevice.SOURCE_JOYSTICK | InputDevice.SOURCE_GAMEPAD)) != 0) {
+       float axisX = event.getAxisValue(MotionEvent.AXIS_X);
+       float axisY = event.getAxisValue(MotionEvent.AXIS_Y);
+       float hatX = event.getAxisValue(MotionEvent.AXIS_HAT_X);
+       float hatY = event.getAxisValue(MotionEvent.AXIS_HAT_Y);
+       float finalX, finalY;
+       // Decide which values to send, based on magnitude.  Hat values, or analog/axis values?
+       if (Math.abs(axisX) + Math.abs(axisY) > Math.abs(hatX) + Math.abs(hatY)) {
+         finalX = axisX;
+         finalY = axisY;
+       } else {
+         finalX = hatX;
+         finalY = hatY;
+       }
        nativeOnGamepadInput(event.getDeviceId(), event.getAction(),
-                          0,  // Control Code is unneeded for motionEvents.
-                          event.getAxisValue(MotionEvent.AXIS_HAT_X),
-                          event.getAxisValue(MotionEvent.AXIS_HAT_Y));
+                          0,  // Control Code is not needed for motionEvents.
+                          finalX, finalY);
     }
     return super.dispatchGenericMotionEvent(event);
   }
