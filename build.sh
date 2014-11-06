@@ -64,6 +64,11 @@ main() {
   # Build release.
   cd "$(dirname $0)"
   rm -rf bin
+  # Copy default libogg config_types.h if none exists
+  if [ ! -r ../../../../external/libogg/include/ogg/config_types.h ]; then
+    cp -fv external/include/ogg/config_types.h.default \
+        ../../../../external/libogg/include/ogg/config_types.h
+  fi
   INSTALL=0 LAUNCH=0 ./build_install_run.sh
   if [[ -n "${dist_dir}" ]]; then
     # Archive unsigned release build.
