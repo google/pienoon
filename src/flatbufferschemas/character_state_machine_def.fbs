@@ -51,8 +51,12 @@ enum StateId:byte {
 enum LogicalInputs:ushort (bit_flags) {
   ThrowPie,
   Deflect,
+  Up,
+  Down,
   Left,
   Right,
+  Select,
+  Cancel,
   JustHit,
   NoHealth,
   AnimationEnd,

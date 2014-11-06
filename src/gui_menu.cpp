@@ -220,6 +220,12 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
     return;
   }
   const ButtonDef* current_def = current_focus_button_->button_def();
+  if (logical_input & LogicalInputs_Up) {
+    UpdateFocus(current_def->nav_up());
+  }
+  if (logical_input & LogicalInputs_Down) {
+    UpdateFocus(current_def->nav_down());
+  }
   if (logical_input & LogicalInputs_Left) {
     UpdateFocus(current_def->nav_left());
   }
@@ -227,12 +233,12 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
     UpdateFocus(current_def->nav_right());
   }
 
-  if (logical_input & LogicalInputs_ThrowPie) {
+  if (logical_input & LogicalInputs_Select) {
     unhandled_selections_.push(MenuSelection(
         current_focus_button_->is_active() ?
         current_focus_ : ButtonId_InvalidInput, controller_id));
   }
-  if (logical_input & LogicalInputs_Deflect) {
+  if (logical_input & LogicalInputs_Cancel) {
     unhandled_selections_.push(MenuSelection(ButtonId_Cancel, controller_id));
   }
 }
@@ -242,18 +248,23 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
 // the first visible ID it finds.  (otherwise it doesn't move.)
 void GuiMenu::UpdateFocus(
     const flatbuffers::Vector<uint16_t>* destination_list) {
-  for (size_t i = 0; i < destination_list->Length(); i++) {
-    ButtonId destination_id =
-        static_cast<ButtonId>(destination_list->Get(i));
-    TouchscreenButton* destination =
-        FindButtonById(destination_id);
-    if (destination != nullptr && destination->is_visible()) {
-      SetFocus(destination_id);
-      return;
+  // buttons are not required to provide a destination list for all directions.
+  if (destination_list != nullptr) {
+    for (size_t i = 0; i < destination_list->Length(); i++) {
+      ButtonId destination_id =
+          static_cast<ButtonId>(destination_list->Get(i));
+      TouchscreenButton* destination =
+          FindButtonById(destination_id);
+      if (destination != nullptr && destination->is_visible()) {
+        SetFocus(destination_id);
+        return;
+      }
     }
   }
   // if we didn't find an active button to move to, we just return and
-  // leave everything unchanged.
+  // leave everything unchanged.  And maybe play a noise.
+  unhandled_selections_.push(MenuSelection(ButtonId_InvalidInput,
+                                           kTouchController));
 }
 
 ButtonId GuiMenu::GetFocus() const {

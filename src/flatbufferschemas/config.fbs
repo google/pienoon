@@ -112,11 +112,11 @@ table ButtonDef {
   inactive_shader : string;
 
   // IDs of other buttons, that we can navigate to from this one, via d-pad.
-  // IDs are tried in order until one is found that is active.
+  // IDs are tried in order until one is found that is visible.
+  nav_up : [ButtonId];
+  nav_down : [ButtonId];
   nav_left : [ButtonId];
   nav_right : [ButtonId];
-  // up and down would be great to have here, but our controllers don't
-  // really support that if you're not on a gamepad.
 
   // Position to draw the texture at:
   // (Designates the center of the texture, and like the zone boundaries, is
