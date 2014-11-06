@@ -292,6 +292,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
   gui_menu_.LoadAssets(TitleScreenButtons(config), &matman_);
   gui_menu_.LoadAssets(config.touchscreen_zones(), &matman_);
   gui_menu_.LoadAssets(config.pause_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.join_screen_buttons(), &matman_);
 
   // Configure the full screen fader.
   full_screen_fader_.set_material(matman_.FindMaterial(
