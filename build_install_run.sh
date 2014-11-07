@@ -18,9 +18,9 @@
 # Build, deploy, debug / execute a native Android package based upon
 # NativeActivity.
 
-: ${FPLUTIL:=$([[ -e dependencies/fplutil ]] && \
-               echo dependencies/fplutil ||
-               echo ../../libs/fplutil)}
+: ${FPLUTIL:=$([[ -e $(dirname $0)/dependencies/fplutil ]] && \
+               ( cd $(dirname $0)/dependencies/fplutil; pwd ) ||
+               ( cd $(dirname $0)/../../libs/fplutil; pwd ))}
 # Enable / disable apk installation.
 : ${INSTALL=1}
 # Enable / disable apk launch.
@@ -64,7 +64,8 @@ main() {
       --apk_keypem ${key_dir}/pienoon.x509.pem -S "$@" ${additional_args}
   else
     echo "${key_dir} not found, skipping signing step." >&2
-    ${FPLUTIL}/bin/build_all_android.py "$@" ${additional_args}
+    ${FPLUTIL}/bin/build_all_android.py -E google-play-services_lib \
+      "$@" ${additional_args}
   fi
 }
 
