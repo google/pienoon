@@ -54,6 +54,13 @@ main() {
     "${ANDROID_SDK_HOME}/platform-tools/"
   update_package 'Android SDK Build-tools,' "${latest_build_tools}"
 
+  # Install the required SDK.
+  android list sdk -a -u
+  update_package 'SDK Platform Android 5.0, API 21' \
+    "${ANDROID_SDK_HOME}/platforms/android-21"
+  update_package 'Google APIs, Android API 21,' \
+    "${ANDROID_SDK_HOME}/add-ons/addon-google_apis-google-21"
+
   # Make sure Google Play services is installed.
   android list sdk -a -u
   update_package 'Google Play services,' \
