@@ -57,7 +57,7 @@ class SoundCollection {
   Bus* bus_;
 
   std::string source_;
-  std::vector<std::unique_ptr<SoundSource>> audio_sources_;
+  std::vector<std::unique_ptr<SoundSource>> sound_sources_;
   float sum_of_probabilities_;
 };
 

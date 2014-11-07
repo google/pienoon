@@ -85,7 +85,10 @@ AudioEngine::PlayingSound& AudioEngine::PlayingSound::operator=(
 
 AudioEngine::~AudioEngine() {
   for (size_t i = 0; i < collections_.size(); ++i) {
-    collections_[i]->Unload();
+    auto& collection = collections_[i];
+    if (collection) {
+      collection->Unload();
+    }
   }
   Mix_CloseAudio();
 }
@@ -151,16 +154,17 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
 
   // Create a SoundCollection for each SoundCollectionDef
   const SoundAssets* sound_assets = GetSoundAssets(sound_assets_source.c_str());
-  unsigned int sound_count = sound_assets->sounds()->Length();
+  size_t sound_count = sound_assets->sounds()->Length();
   collections_.resize(sound_count);
   bool success = true;
-  for (unsigned int i = 0; i < sound_count; ++i) {
+  for (size_t i = 0; i < sound_count; ++i) {
     const char* filename = sound_assets->sounds()->Get(i)->c_str();
     collections_[i].reset(new SoundCollection());
     if (!collections_[i]->LoadSoundCollectionDefFromFile(filename, this)) {
       // Don't return false if a sound collection fails to load, just null it
       // out and move on to the next one.
       collections_[i].reset(nullptr);
+      success = false;
     }
   }
 

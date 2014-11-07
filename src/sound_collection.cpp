@@ -30,24 +30,26 @@ bool SoundCollection::LoadSoundCollectionDef(const std::string& source,
   const SoundCollectionDef* def = GetSoundCollectionDef();
   unsigned int sample_count =
       def->audio_sample_set() ? def->audio_sample_set()->Length() : 0;
-  audio_sources_.resize(sample_count);
+  sound_sources_.resize(sample_count);
   for (unsigned int i = 0; i < sample_count; ++i) {
     const AudioSampleSetEntry* entry = def->audio_sample_set()->Get(i);
     const char* entry_filename = entry->audio_sample()->filename()->c_str();
-    auto& audio = audio_sources_[i];
+    auto& sound_source = sound_sources_[i];
     if (def->stream()) {
-      audio.reset(new SoundStream(entry));
+      sound_source.reset(new SoundStream(entry));
     } else {
-      audio.reset(new SoundBuffer(entry));
+      sound_source.reset(new SoundBuffer(entry));
     }
-    if (!audio->LoadFile(entry_filename)) {
+    if (!sound_source->LoadFile(entry_filename)) {
       return false;
     }
     sum_of_probabilities_ += entry->playback_probability();
   }
   if (!def->bus()) {
+    SoundId sound_id = def->id();
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                 "Sound collection does not specify a bus");
+                 "Sound collection %s (%i) does not specify a bus",
+                 EnumNameSoundId(sound_id), sound_id);
     return false;
   }
   if (audio_engine) {
@@ -68,7 +70,7 @@ bool SoundCollection::LoadSoundCollectionDefFromFile(
 
 void SoundCollection::Unload() {
   source_.clear();
-  audio_sources_.clear();
+  sound_sources_.clear();
   sum_of_probabilities_ = 0;
 }
 
@@ -83,16 +85,16 @@ SoundSource* SoundCollection::Select() const {
   // iterate over the list, subtracting the weight of each entry until 0 is
   // reached.
   float selection = mathfu::Random<float>() * sum_of_probabilities_;
-  for (unsigned int i = 0; i < audio_sources_.size(); ++i) {
+  for (unsigned int i = 0; i < sound_sources_.size(); ++i) {
     const AudioSampleSetEntry* entry = sound_def->audio_sample_set()->Get(i);
     selection -= entry->playback_probability();
     if (selection <= 0) {
-      return audio_sources_[i].get();
+      return sound_sources_[i].get();
     }
   }
   // If we've reached here and didn't return a sound, assume there was some
   // floating point rounding error and just return the last one.
-  return audio_sources_.back().get();
+  return sound_sources_.back().get();
 }
 
 }  // namespace fpl

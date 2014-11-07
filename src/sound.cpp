@@ -35,11 +35,7 @@ SoundBuffer::~SoundBuffer() {
 
 bool SoundBuffer::LoadFile(const char* filename) {
   data_ = Mix_LoadWAV(filename);
-  if (!data_) {
-    LogAudioLoadingError(filename);
-    return false;
-  }
-  return true;
+  return data_ != nullptr;
 }
 
 bool SoundBuffer::Play(ChannelId channel_id, bool loop) {
@@ -67,11 +63,7 @@ SoundStream::~SoundStream() {
 
 bool SoundStream::LoadFile(const char* filename) {
   data_ = Mix_LoadMUS(filename);
-  if (!data_) {
-    LogAudioLoadingError(filename);
-    return false;
-  }
-  return true;
+  return data_ != nullptr;
 }
 
 bool SoundStream::Play(ChannelId channel_id, bool loop) {

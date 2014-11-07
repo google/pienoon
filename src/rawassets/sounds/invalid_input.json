@@ -1,5 +1,6 @@
 {
   "id": "InvalidInput",
+  "bus": "ui_sound_effects",
   "audio_sample_set": [
     {
       "audio_sample": {
