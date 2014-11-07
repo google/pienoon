@@ -198,7 +198,8 @@ struct AndroidInputEvent {
 class InputSystem {
  public:
   InputSystem() : exit_requested_(false), minimized_(false),
-    frame_time_(0), last_millis_(0), frames_(0), start_time_(0) {
+      frame_time_(0), last_millis_(0), start_time_(0), frames_(0),
+      minimized_frame_(0) {
     const int kMaxSimultanuousPointers = 10;  // All current touch screens.
     pointers_.assign(kMaxSimultanuousPointers, Pointer());
   }
@@ -263,6 +264,9 @@ class InputSystem {
   }
   void AddAppEventCallback(AppEventCallback callback);
 
+  int minimized_frame() const { return minimized_frame_; }
+  int frames() const { return frames_; }
+
  private:
   std::vector<SDL_Joystick*> open_joystick_list;
   static int HandleAppEvents(void *userdata, SDL_Event *event);
@@ -288,10 +292,21 @@ class InputSystem {
   static std::queue<AndroidInputEvent> unhandled_java_input_events_;
 #endif // ANDROID_GAMEPAD
 
-  // Frame timing related, all in milliseconds.
-  // records the most recent frame delta, most recent time since start,
-  // number of frames so far, and start time.
-  int frame_time_, last_millis_, frames_, start_time_;
+  // Most recent frame delta, in milliseconds.
+  int frame_time_;
+
+  // Time since start, in milliseconds.
+  int last_millis_;
+
+  // World time at start, in milliseconds. Set with SDL_GetTicks().
+  int start_time_;
+
+  // Number of frames so far. That is, number of times AdvanceFrame() has been
+  // called.
+  int frames_;
+
+  // Most recent frame at which we were minimized or maximized.
+  int minimized_frame_;
 
  public:
   static const int kMillisecondsPerSecond = 1000;

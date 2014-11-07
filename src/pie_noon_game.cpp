@@ -800,7 +800,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
     }
     case kPlaying: {
       if (input_.GetButton(SDLK_AC_BACK).went_down() ||
-          input_.GetButton(SDLK_p).went_down()) {
+          input_.GetButton(SDLK_p).went_down() ||
+          input_.minimized_frame() == input_.frames()) {
         return kPaused;
       }
       if (game_state_.IsGameOver() &&

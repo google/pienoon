@@ -45,8 +45,9 @@ void InputSystem::Initialize() {
   UpdateConnectedJoystickList();
 }
 
+// static
 int InputSystem::HandleAppEvents(void *userdata, SDL_Event *event) {
-  auto renderer = reinterpret_cast<InputSystem *>(userdata);
+  auto input_system = reinterpret_cast<InputSystem *>(userdata);
   int passthrough = 0;
   switch (event->type) {
     case SDL_APP_TERMINATING:
@@ -54,22 +55,24 @@ int InputSystem::HandleAppEvents(void *userdata, SDL_Event *event) {
     case SDL_APP_LOWMEMORY:
       break;
     case SDL_APP_WILLENTERBACKGROUND:
-      renderer->minimized_ = true;
+      input_system->minimized_ = true;
+      input_system->minimized_frame_ = input_system->frames_;
       break;
     case SDL_APP_DIDENTERBACKGROUND:
       break;
     case SDL_APP_WILLENTERFOREGROUND:
       break;
     case SDL_APP_DIDENTERFOREGROUND:
-      renderer->minimized_ = false;
+      input_system->minimized_ = false;
+      input_system->minimized_frame_ = input_system->frames_;
       break;
     default:
       passthrough = 1;
       break;
   }
   if (!passthrough && event->type != SDL_APP_TERMINATING) {
-    for (auto callback = renderer->app_event_callbacks().begin();
-             callback != renderer->app_event_callbacks().end(); ++callback) {
+    for (auto callback = input_system->app_event_callbacks().begin();
+         callback != input_system->app_event_callbacks().end(); ++callback) {
       (*callback)(event);
     }
   }
