@@ -41,8 +41,16 @@ AsyncLoader::AsyncLoader() {
 
 AsyncLoader::~AsyncLoader() {
   StopLoadingWhenComplete();
-  if (mutex_) SDL_DestroyMutex(mutex_);
-  if (job_semaphore_) SDL_DestroySemaphore(job_semaphore_);
+  SDL_WaitThread(worker_thread_, nullptr);
+
+  if (mutex_) {
+    SDL_DestroyMutex(mutex_);
+    mutex_ = nullptr;
+  }
+  if (job_semaphore_) {
+    SDL_DestroySemaphore(job_semaphore_);
+    job_semaphore_ = nullptr;
+  }
 }
 
 void AsyncLoader::QueueJob(AsyncResource *res) {
@@ -81,15 +89,14 @@ int AsyncLoader::LoaderThread(void *user_data) {
 }
 
 void AsyncLoader::StartLoading() {
-  auto thread = SDL_CreateThread(AsyncLoader::LoaderThread,
-                                 "FPL Loader Thread", this);
-  (void)thread;
-  assert(thread);
+  worker_thread_ = SDL_CreateThread(AsyncLoader::LoaderThread,
+                                    "FPL Loader Thread", this);
+  assert(worker_thread_);
 }
 
 void AsyncLoader::StopLoadingWhenComplete() {
   // When the loader thread hits the bookend, it will exit.
-  BookendAsyncResource bookend;
+  static BookendAsyncResource bookend;
   QueueJob(&bookend);
 }
 

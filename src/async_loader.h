@@ -86,6 +86,10 @@ class AsyncLoader {
 
   std::vector<AsyncResource *> queue_, done_;
 
+  // Keep handle to the worker thread around so that we can wait for it to
+  // finish before destroying the class.
+  SDL_Thread *worker_thread_;
+
   // This lock protects ALL state in this class, i.e. the two vectors.
   SDL_mutex *mutex_;
 
