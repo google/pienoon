@@ -1206,6 +1206,11 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         break;
       }
+      case ButtonId_MenuHowToPlay:
+        return kTutorial;
+      case ButtonId_MenuLeaderboard:
+        UploadAndShowLeaderboards();
+        break;
       default:
         break;
     }
@@ -1280,7 +1285,7 @@ const char* PieNoonGame::TutorialSlideName(int slide_index) {
 static bool ControllerHasPress(const Controller* controller) {
   return controller != nullptr &&
          controller->controller_type() != Controller::kTypeAI &&
-         controller->went_up();
+         controller->went_down();
 }
 
 // Return true if a button press or touch screen touch has happened this frame.
@@ -1291,7 +1296,7 @@ bool PieNoonGame::AnyControllerPresses() {
     if (ControllerHasPress(controller))
       return true;
   }
-  return input_.GetPointerButton(0).went_up();
+  return input_.GetPointerButton(0).went_down();
 }
 
 // Load into memory the tutorial slide at slide_index, if slide_index is valid.
