@@ -771,7 +771,7 @@
           // Splash screen image specified by this material name.
           "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
           "texture_position": { "x": 0.5, "y": 0.73 },
-          "draw_scale": { "x": 1.64, "y": 2.1 },
+          "draw_scale": { "x": 1.8, "y": 2.1 },
           "z_depth" : -0.45
         },
         {
