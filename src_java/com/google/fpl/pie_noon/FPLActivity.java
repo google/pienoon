@@ -35,6 +35,9 @@ import android.util.TypedValue;
 import android.graphics.Point;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 
 public class FPLActivity extends SDLActivity {
   // GPG's GUIs need activity lifecycle events to function properly, but
@@ -76,16 +79,25 @@ public class FPLActivity extends SDLActivity {
 
   private class TextDialogRunnable implements Runnable {
     Activity activity;
+    String title;
     String text;
-    public TextDialogRunnable(Activity activity, String text) {
+    boolean html;
+    public TextDialogRunnable(Activity activity, String title, String text,
+                              boolean html) {
       this.activity = activity;
+      this.title = title;
       this.text = text;
+      this.html = html;
     }
     public void run() {
       try {
         textDialogOpen = true;
         TextView tv = new TextView(activity);
-        tv.setText(text);
+
+        tv.setText(html ? Html.fromHtml(text) : text);
+        if (html) {
+          tv.setMovementMethod(LinkMovementMethod.getInstance());
+        }
         tv.setLayoutParams(new LayoutParams(
                                LayoutParams.WRAP_CONTENT,
                                LayoutParams.WRAP_CONTENT));
@@ -96,7 +108,7 @@ public class FPLActivity extends SDLActivity {
         sv.setPadding(DpToPx(20), DpToPx(20), DpToPx(20), DpToPx(0));
         sv.addView(tv);
         AlertDialog alert = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
-            .setTitle("Open Source Licenses")
+            .setTitle(title)
             .setView(sv)
             .setNeutralButton("OK", null)
             .create();
@@ -146,8 +158,8 @@ public class FPLActivity extends SDLActivity {
     return super.dispatchKeyEvent(event);
   }
 
-  public void showTextDialog(String text) {
-    runOnUiThread(new TextDialogRunnable(this, text));
+  public void showTextDialog(String title, String text, boolean html) {
+    runOnUiThread(new TextDialogRunnable(this, title, text, html));
   }
 
   public boolean isTextDialogOpen() {

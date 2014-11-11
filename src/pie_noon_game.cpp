@@ -1150,6 +1150,39 @@ void PieNoonGame::WritePreference(const char *key, int value) {
 # endif
 }
 
+static void DisplayDialogBox(const char* title, const char* text_file_name,
+                             bool html) {
+#ifdef __ANDROID__
+  std::string dialog_text;
+  if (!LoadFile(text_file_name, &dialog_text)) {
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load %s", text_file_name);
+    return;
+  }
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID is_text_dialog_open = env->GetMethodID(
+      fpl_class, "isTextDialogOpen", "()Z");
+  jboolean open = env->CallBooleanMethod(activity, is_text_dialog_open);
+  if (!open) {
+    jmethodID show_text_dialog = env->GetMethodID(
+        fpl_class, "showTextDialog",
+        "(Ljava/lang/String;Ljava/lang/String;Z)V");
+    jstring titlej = env->NewStringUTF(title);
+    jstring dialog_textj = env->NewStringUTF(dialog_text.c_str());
+    env->CallVoidMethod(activity, show_text_dialog, titlej, dialog_textj, html);
+    env->DeleteLocalRef(dialog_textj);
+    env->DeleteLocalRef(titlej);
+  }
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+#else
+  (void)title;
+  (void)text_file_name;
+  (void)html;
+#endif
+}
+
 PieNoonState PieNoonGame::HandleMenuButtons() {
   const ButtonId previous_focus = gui_menu_.GetFocus();
   for (size_t i = 0; i < active_controllers_.size(); i++) {
@@ -1174,32 +1207,14 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
         gpg_manager.ToggleSignIn();
 #       endif
         break;
-      case ButtonId_MenuLicense: {
+      case ButtonId_MenuLicense:
         audio_engine_.PlaySound(SoundId_JoinMatch);
-        std::string licenses;
-        if (!LoadFile("licenses.txt", &licenses)) {
-          SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load licenses.txt");
-          break;
-        }
-#       ifdef __ANDROID__
-        JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
-        jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-        jclass fpl_class = env->GetObjectClass(activity);
-        jmethodID is_text_dialog_open = env->GetMethodID(
-            fpl_class, "isTextDialogOpen", "()Z");
-        jboolean open = env->CallBooleanMethod(activity, is_text_dialog_open);
-        if (!open) {
-          jmethodID show_text_dialog = env->GetMethodID(
-              fpl_class, "showTextDialog", "(Ljava/lang/String;)V");
-          jstring text = env->NewStringUTF(licenses.c_str());
-          env->CallVoidMethod(activity, show_text_dialog, text);
-          env->DeleteLocalRef(text);
-        }
-        env->DeleteLocalRef(fpl_class);
-        env->DeleteLocalRef(activity);
-#       endif
+        DisplayDialogBox("Open Source Licenses", "licenses.txt", false);
         break;
-      }
+      case ButtonId_MenuAbout:
+        audio_engine_.PlaySound(SoundId_JoinMatch);
+        DisplayDialogBox("About", "about.html", true);
+        break;
       case ButtonId_MenuStart:
         if (state_ == kFinished) {
           audio_engine_.PlaySound(SoundId_JoinMatch);

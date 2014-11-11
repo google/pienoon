@@ -685,33 +685,50 @@
     "default_inactive_shader" : "shaders/grayscale",
     "button_list" : [
         {
-          "top_left" : { "x": 0.15, "y": 0.43 },
+          "top_left" : { "x": 0.5, "y": 0.24 },
+          "bottom_right" : { "x": 0.85, "y": 0.54 },
+          "ID" : "MenuAbout",
+          "texture_normal" : [
+            { "standard" : "materials/environment_bush.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/environment_bush.bin" },
+          "texture_position" : { "x": 0.545, "y": 0.47 },
+          "draw_scale_normal" : { "x": 0.22, "y": 0.22 },
+          "draw_scale_highlighted": { "x": 0.24, "y": 0.24 },
+          "draw_scale_pressed" : { "x": 0.24, "y": 0.24 },
+          "nav_left" : ["MenuLeaderboard"],
+          "nav_down" : ["MenuAchievements"]
+        },
+        {
+          "top_left" : { "x": 0.15, "y": 0.45 },
           "bottom_right" : { "x": 0.5, "y": 0.73 },
           "ID" : "MenuLeaderboard",
           "texture_normal" : [
             { "standard" : "materials/ui_cloud.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/ui_cloud.bin" },
-          "texture_position" : { "x": 0.45, "y": 0.65 },
+          "texture_position" : { "x": 0.455, "y": 0.65 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
           "nav_right" : ["MenuAchievements"],
+          "nav_up" : ["MenuAbout"],
           "nav_down" : ["MenuHowToPlay"]
         },
         {
-          "top_left" : { "x": 0.5, "y": 0.43 },
+          "top_left" : { "x": 0.5, "y": 0.54 },
           "bottom_right" : { "x": 0.85, "y": 0.73 },
           "ID" : "MenuAchievements",
           "texture_normal" : [
             { "standard" : "materials/health.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/health.bin" },
-          "texture_position" : { "x": 0.55, "y": 0.65 },
+          "texture_position" : { "x": 0.545, "y": 0.65 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
           "nav_left" : ["MenuLeaderboard"],
+          "nav_up" : ["MenuAbout"],
           "nav_down" : ["MenuLicense"]
         },
         {
@@ -722,7 +739,7 @@
             { "standard" : "materials/ui_throw.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/ui_throw.bin" },
-          "texture_position" : { "x": 0.45, "y": 0.81 },
+          "texture_position" : { "x": 0.455, "y": 0.81 },
           "draw_scale_normal" : { "x": 0.4, "y": 0.4 },
           "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
           "draw_scale_pressed" : { "x": 0.5, "y": 0.5 },
@@ -737,7 +754,7 @@
             { "standard" : "materials/license_button.bin" }
           ],
           "texture_pressed" : { "standard" : "materials/license_button.bin" },
-          "texture_position" : { "x": 0.55, "y": 0.81 },
+          "texture_position" : { "x": 0.545, "y": 0.81 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
@@ -769,7 +786,7 @@
           // Splash screen image specified by this material name.
           "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
           "texture_position": { "x": 0.5, "y": 0.73 },
-          "draw_scale": { "x": 1.8, "y": 2.1 },
+          "draw_scale": { "x": 1.64, "y": 2.1 },
           "z_depth" : -0.45
         },
         {
@@ -787,27 +804,33 @@
           "z_depth" : -0.55
         },
         {
+          "texture" : [ { "standard" : "materials/text_about.bin" } ],
+          "texture_position": { "x": 0.655, "y": 0.48 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
+          "z_depth" : -0.4
+        },
+        {
           "texture" : [ { "standard" : "materials/text_leaderboard.bin" } ],
-          "texture_position": { "x": 0.32, "y": 0.65 },
-          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "texture_position": { "x": 0.335, "y": 0.65 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         },
         {
           "texture" : [ { "standard" : "materials/text_achievements.bin" } ],
-          "texture_position": { "x": 0.73, "y": 0.65 },
-          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "texture_position": { "x": 0.705, "y": 0.65 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         },
         {
           "texture" : [ { "standard" : "materials/text_how_to_play.bin" } ],
-          "texture_position": { "x": 0.34, "y": 0.81 },
-          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "texture_position": { "x": 0.355, "y": 0.81 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         },
         {
           "texture" : [ { "standard" : "materials/text_license.bin" } ],
-          "texture_position": { "x": 0.67, "y": 0.81 },
-          "draw_scale": { "x": 0.62, "y": 0.62 },
+          "texture_position": { "x": 0.655, "y": 0.81 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         }
     ]

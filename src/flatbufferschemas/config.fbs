@@ -48,6 +48,7 @@ enum ButtonId : ushort {
   MenuLeaderboard,
   MenuHowToPlay,
   MenuResume,
+  MenuAbout,
   MenuBack,
   Counter1,
   Counter2,
