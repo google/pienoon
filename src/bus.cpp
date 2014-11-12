@@ -58,7 +58,10 @@ void Bus::UpdateDuckGain(WorldTime delta_time) {
 void Bus::UpdateGain(float parent_gain) {
   gain_ = bus_def_->gain() * parent_gain * duck_gain_;
   for (size_t i = 0; i < child_buses_.size(); ++i) {
-    child_buses_[i]->UpdateGain(gain_);
+    Bus* child_bus = child_buses_[i];
+    if (child_bus) {
+      child_bus->UpdateGain(gain_);
+    }
   }
 }
 
