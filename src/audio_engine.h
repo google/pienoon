@@ -110,14 +110,8 @@ class AudioEngine {
   // Set the volume of a channel.
   static void SetChannelGain(ChannelId channel_id, float volume);
 
-  // Return true if the given AudioEngine::PlayingSound has finished playing.
-  static bool CheckFinishedPlaying(const PlayingSound& playing_sound);
-
   // Remove all sounds that are no longer playing.
   void EraseFinishedSounds();
-
-  // Return true if the given AudioEngine::PlayingSound is a stream.
-  static bool CheckIfStream(const PlayingSound& playing_sound);
 
   // Remove all streams.
   void EraseStreams();

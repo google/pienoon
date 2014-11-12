@@ -174,22 +174,13 @@ bool AudioEngine::Initialize(const AudioConfig* config) {
   return success;
 }
 
-class BusNameMatcher {
- public:
-  BusNameMatcher(const char* name) : name_(name) {}
-  bool operator()(const Bus& bus) {
-    return strcmp(bus.bus_def()->name()->c_str(), name_) == 0;
-  }
- private:
-  const char* name_;
-};
-
 Bus* AudioEngine::FindBus(const char* name) {
-  auto it = std::find_if(buses_.begin(), buses_.end(), BusNameMatcher(name));
+  auto it = std::find_if(buses_.begin(), buses_.end(), [name](const Bus& bus) {
+    return strcmp(bus.bus_def()->name()->c_str(), name) == 0;
+  });
   if (it != buses_.end()) {
     return &*it;
-  }
-  else {
+  } else {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "No bus named \"%s\"\n", name);
     return nullptr;
   }
@@ -277,32 +268,24 @@ void AudioEngine::PrioritizeChannels(
   std::sort(playing_sounds->begin(), playing_sounds->end(), PriorityComparitor);
 }
 
-// Return true if the given AudioEngine::PlayingSound has finished playing.
-bool AudioEngine::CheckFinishedPlaying(
-    const AudioEngine::PlayingSound& playing_sound) {
-  return !AudioEngine::Playing(playing_sound.channel_id);
-}
-
 // Remove all sounds that are no longer playing.
 void AudioEngine::EraseFinishedSounds() {
-  playing_sounds_.erase(std::remove_if(playing_sounds_.begin(),
-                                       playing_sounds_.end(),
-                                       CheckFinishedPlaying),
-                        playing_sounds_.end());
-}
-
-// Return true if the given AudioEngine::PlayingSound is a stream.
-bool AudioEngine::CheckIfStream(
-    const AudioEngine::PlayingSound& playing_sound) {
-  return playing_sound.channel_id == kStreamChannel;
+  playing_sounds_.erase(std::remove_if(
+      playing_sounds_.begin(), playing_sounds_.end(),
+      [](const AudioEngine::PlayingSound& playing_sound) {
+        return !AudioEngine::Playing(playing_sound.channel_id);
+      }),
+      playing_sounds_.end());
 }
 
 // Remove all streams.
 void AudioEngine::EraseStreams() {
-  playing_sounds_.erase(std::remove_if(playing_sounds_.begin(),
-                                       playing_sounds_.end(),
-                                       CheckIfStream),
-                        playing_sounds_.end());
+  playing_sounds_.erase(std::remove_if(
+      playing_sounds_.begin(), playing_sounds_.end(),
+      [](const AudioEngine::PlayingSound& playing_sound) {
+        return playing_sound.channel_id == kStreamChannel;
+      }),
+      playing_sounds_.end());
 }
 
 bool AudioEngine::PlaySource(SoundSource* const source, ChannelId channel_id,
@@ -440,7 +423,9 @@ void AudioEngine::AdvanceFrame(WorldTime world_time) {
   for (size_t i = 0; i < buses_.size(); ++i) {
     buses_[i].UpdateDuckGain(delta_time);
   }
-  master_bus_->UpdateGain(mute_ ? 0.0f : master_gain_);
+  if (master_bus_) {
+    master_bus_->UpdateGain(mute_ ? 0.0f : master_gain_);
+  }
   for (size_t i = 0; i < playing_sounds_.size(); ++i) {
     PlayingSound& playing_sound = playing_sounds_[i];
     SetChannelGain(playing_sound.channel_id,
