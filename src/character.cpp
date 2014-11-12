@@ -51,7 +51,7 @@ Character::Character(
       state_machine_(character_state_machine_def),
       victory_state_(kResultUnknown),
       audio_engine_(audio_engine) {
-  for (int i = 0; i < kMaxStats; i++) player_stats_[i] = 0;
+  ResetStats();
 }
 
 void Character::Reset(CharacterId target, CharacterHealth health,
@@ -114,6 +114,10 @@ void Character::PlaySound(SoundId sound_id) const {
 
 void Character::IncrementStat(PlayerStats stat) {
   player_stats_[stat]++;
+}
+
+void Character::ResetStats() {
+  for (int i = 0; i < kMaxStats; i++) player_stats_[i] = 0;
 }
 
 

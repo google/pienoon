@@ -102,6 +102,16 @@ class Character {
     return static_cast<uint16_t>(state_machine_.current_state()->id());
   }
 
+  uint16_t state_last_update() const {
+    return state_last_update_;
+  }
+
+  // Saves off whatever our current state is.  Should be called once per frame,
+  // just before (potentially) modifying the state.
+  void UpdatePreviousState() {
+    state_last_update_ = State();
+  }
+
   // Returns true if the character is still in the game.
   bool Active() const { return State() != StateId_KO; }
 
@@ -128,6 +138,7 @@ class Character {
   const CharacterStateMachine* state_machine() const {
     return &state_machine_;
   }
+
   CharacterStateMachine* state_machine() { return &state_machine_; }
 
   void IncrementStat(PlayerStats stat);
@@ -143,6 +154,10 @@ class Character {
 
   void set_victory_state(VictoryState state) { victory_state_ = state; }
   VictoryState victory_state() { return victory_state_; }
+
+  // Resets all stats we've accumulated.  Usually called when we have finished
+  // sending them to the server.
+  void ResetStats();
 
  private:
   // Constant configuration data.
@@ -188,6 +203,9 @@ class Character {
 
   // Used to play sounds associated with the character.
   AudioEngine* audio_engine_;
+
+  // What state the character was in last update.
+  uint16_t state_last_update_;
 
 };
 

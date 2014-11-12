@@ -111,6 +111,7 @@ class PieNoonGame {
 
   int ReadPreference(const char *key, int initial_value, int failure_value);
   void WritePreference(const char *key, int value);
+  void CheckForNewAchievements();
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -200,6 +201,8 @@ class PieNoonGame {
 
   // Our current slide of the tutorial. Valid when state_ is kTutorial.
   int tutorial_slide_index_;
+
+  int next_achievement_index_;
 
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;

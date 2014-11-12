@@ -16,8 +16,23 @@
 #define GPG_MANAGER_H
 
 #include "common.h"
+#include "pthread.h"
+#include "gpg/achievement_manager.h"
+#include "gpg/types.h"
+
 
 namespace fpl {
+
+enum RequestState {
+  kPending,
+  kComplete,
+  kFailed
+};
+
+struct GPGKeyValuePair {
+  std::string id;
+  uint64_t value;
+};
 
 class GPGManager {
  public:
@@ -40,10 +55,32 @@ class GPGManager {
 
   // Request this stat to be saved for the logged in
   // player. Does nothing if not logged in.
-  void SaveStat(const char *event_id, uint64_t *score);
+  void IncrementEvent(const char *event_id, uint64_t score);
 
   void ShowLeaderboards(const GPGIds *ids, size_t id_len);
   void ShowAchievements();
+
+  // Asynchronously fetches the stats associated with the current player
+  // from the server.  (Does nothing if not logged in.)
+  // The status of the data can be checked via event_data_state.
+  //const char* fields[]
+  void FetchEvents();
+  void FetchAchievements();
+
+  RequestState event_data_state() const {
+    return event_data_state_;
+  }
+
+  std::map<std::string, gpg::Event> &event_data() {
+    return event_data_;
+  }
+
+  uint64_t GetEventValue(std::string event_id);
+  bool IsAchievementUnlocked(std::string achievement_id);
+  void UnlockAchievement(std::string achievement_id);
+  void IncrementAchievement(std::string achievement_id);
+  void IncrementAchievement(std::string achievement_id, uint32_t steps);
+  void RevealAchievement(std::string achievement_id);
 
  private:
   // These are the states the manager can be in, in sequential order they
@@ -63,6 +100,19 @@ class GPGManager {
   bool do_ui_login_;
   bool delayed_login_;
   std::unique_ptr<gpg::GameServices> game_services_;
+
+  void UpdatePlayerStats();
+
+  // The stats the stats currently stored on the server.
+  // Retrieved after authentication.
+  bool event_data_initialized_;
+  bool achievement_data_initialized_;
+  RequestState event_data_state_;
+  RequestState achievement_data_state_;
+  static pthread_mutex_t events_mutex_;
+  static pthread_mutex_t achievements_mutex_;
+  std::map<std::string, gpg::Event> event_data_;
+  std::vector<gpg::Achievement> achievement_data_;
 };
 
 }  // fpl
