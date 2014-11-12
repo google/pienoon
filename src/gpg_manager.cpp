@@ -174,7 +174,7 @@ void GPGManager::ToggleSignIn() {
   }
 }
 
-void GPGManager::SaveStat(const char *event_id, uint64_t score) {
+void GPGManager::IncrementEvent(const char *event_id, uint64_t score) {
 # ifdef NO_GPG
   return;
 # endif
