@@ -16,7 +16,7 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-PIE_NOON_DIR:=$(realpath $(LOCAL_PATH)/../..)
+PIE_NOON_DIR:=$(LOCAL_PATH)/../..
 include $(PIE_NOON_DIR)/jni/android_config.mk
 
 # Modify the local path to point to the SDL mixer library source.

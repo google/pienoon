@@ -15,8 +15,10 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-PIE_NOON_DIR:=$(realpath $(LOCAL_PATH)/../..)
+PIE_NOON_DIR:=$(LOCAL_PATH)/../..
 include $(PIE_NOON_DIR)/jni/android_config.mk
+
+LOCAL_PATH:=$(DEPENDENCIES_GPG_DIR)
 
 include $(CLEAR_VARS)
 
@@ -28,7 +30,7 @@ PRIVATE_APP_STL:=$(PRIVATE_APP_STL:_static=)
 
 LOCAL_MODULE:=libgpg
 LOCAL_SRC_FILES:=\
-  $(DEPENDENCIES_GPG_DIR)/lib/$(PRIVATE_APP_STL)/$(TARGET_ARCH_ABI)/libgpg.a
+  lib/$(PRIVATE_APP_STL)/$(TARGET_ARCH_ABI)/libgpg.a
 
 include $(PREBUILT_STATIC_LIBRARY)
 

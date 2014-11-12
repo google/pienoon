@@ -18,6 +18,13 @@ limitations under the License.
   <!-- Location of the Android SDL activity. -->
   <property name="sdlactivity" value="org/libsdl/app/SDLActivity.java" />
 
+  <condition property="android_exe" value="android.bat" else="android">
+    <os family="windows" />
+  </condition>
+  <condition property="ndkbuild_exe" value="ndk-build.cmd" else="ndk-build">
+    <os family="windows" />
+  </condition>
+
   <target name="initialize-google-play-games_lib"
           description="Initialize Google Play Games library in the project.">
     <!-- Copy the library to the project. -->
@@ -25,7 +32,7 @@ limitations under the License.
       <fileset dir="${sdk.dir}/extras/google/google_play_services/libproject/google-play-services_lib"/>
     </copy>
     <!-- Create an ant project for the library. -->
-    <exec executable="android">
+    <exec executable="${android_exe}">
       <arg value="update"/>
       <arg value="project"/>
       <arg value="-p"/>
@@ -37,7 +44,7 @@ limitations under the License.
 
   <target name="get-sdl-path"
           description="Get SDL's location and save it in sdlpath.">
-    <exec executable="ndk-build" outputproperty="sdlpath">
+    <exec executable="${ndkbuild_exe}" outputproperty="sdlpath">
       <arg value="print_dependency"/>
       <arg value="DEP_DIR=SDL"/>
     </exec>

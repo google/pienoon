@@ -15,27 +15,11 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-PIE_NOON_DIR:=$(realpath $(LOCAL_PATH)/../..)
+PIE_NOON_RELATIVE_DIR:=../..
+PIE_NOON_DIR:=$(LOCAL_PATH)/$(PIE_NOON_RELATIVE_DIR)
 include $(PIE_NOON_DIR)/jni/android_config.mk
 
 # relative to project root
-
-# The following block generates build rules which result in headers being
-# rebuilt from flatbuffers schemas.
-
-# Directory that contains the FlatBuffers compiler.
-FLATBUFFERS_FLATC_PATH?=$(realpath $(PIE_NOON_DIR)/bin)
-
-# Macro which searches build locations for the flatbuffers compiler.
-# The FLATC can be used to override the location of flatc.
-define find_flatc
-  $(wildcard \
-    $(realpath $(firstword \
-      $(wildcard $(FLATC)) \
-      $(wildcard $(FLATBUFFERS_FLATC_PATH)/flatc*) \
-      $(wildcard $(FLATBUFFERS_FLATC_PATH)/Release/flatc*) \
-      $(wildcard $(FLATBUFFERS_FLATC_PATH)/Debug/flatc*))))
-endef
 
 PROJECT_OS:=$(OS)
 ifeq (,$(OS))
@@ -44,6 +28,21 @@ else
 ifneq ($(findstring Windows,$(PROJECT_OS)),)
 PROJECT_OS:=Windows
 endif
+endif
+
+# The following block generates build rules which result in headers being
+# rebuilt from flatbuffers schemas.
+
+# Directory that contains the FlatBuffers compiler.
+FLATBUFFERS_FLATC_PATH?=$(PIE_NOON_DIR)/bin
+ifeq (Windows,$(PROJECT_OS))
+FLATBUFFERS_FLATC:=$(FLATBUFFERS_FLATC_PATH)/Debug/flatc.exe
+endif
+ifeq (Linux,$(PROJECT_OS))
+FLATBUFFERS_FLATC:=$(FLATBUFFERS_FLATC_PATH)/flatc
+endif
+ifeq (Darwin,$(PROJECT_OS))
+FLATBUFFERS_FLATC:=$(FLATBUFFERS_FLATC_PATH)/Debug/flatc
 endif
 
 # Search for cmake.
@@ -65,9 +64,8 @@ endif
 
 # Generate a host build rule for the flatbuffers compiler.
 ifeq (Windows,$(PROJECT_OS))
-# TODO(smiles): Need to find msbuild correctly in here.
 define build_flatc_recipe
-	cd $(PIE_NOON_DIR) & $(CMAKE) -G'Visual Studio 11 2012' . & msbuild
+	cd $(PIE_NOON_DIR) & jni\build_flatc.bat $(CMAKE)
 endef
 endif
 ifeq (Linux,$(PROJECT_OS))
@@ -81,7 +79,7 @@ define build_flatc_recipe
 endef
 endif
 ifeq (,$(build_flatc_recipe))
-ifeq (,$(call find_flatc))
+ifeq (,$(FLATBUFFERS_FLATC))
 $(error flatc binary not found!)
 endif
 endif
@@ -93,11 +91,11 @@ FLATBUFFERS_SCHEMAS := $(wildcard $(PIE_NOON_DIR)/src/flatbufferschemas/*.fbs)
 
 # Generate a build rule for flatc.
 ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
-ifeq ($(strip $(call find_flatc)),)
+ifeq ($(strip $(FLATBUFFERS_FLATC)),)
 flatc_target:=build_flatc
 .PHONY: $(flatc_target)
 else
-flatc_target:=$(call find_flatc)
+flatc_target:=$(FLATBUFFERS_FLATC)
 endif
 $(flatc_target):
 	$(call build_flatc_recipe)
@@ -118,7 +116,7 @@ $(eval \
   $(call flatbuffers_fbs_to_h,$(1)): $(1) $(flatc_target)
 	$(call host-echo-build-step,generic,Generate) \
 		$(subst $(PIE_NOON_DIR)/,,$(call flatbuffers_fbs_to_h,$(1)))
-	$(hide) $$(call find_flatc) --gen-includes -o $$(dir $$@) -c $$<)
+	$(hide) $$(FLATBUFFERS_FLATC) --gen-includes -o $$(dir $$@) -c $$<)
 endef
 
 # Create the list of generated headers.
@@ -150,7 +148,6 @@ clean_assets:
 endif
 PROJECT_GLOBAL_BUILD_RULES_DEFINED:=1
 
-
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
@@ -166,46 +163,46 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR) \
                     src
 
 LOCAL_SRC_FILES := \
-  $(DEPENDENCIES_SDL_DIR)/src/main/android/SDL_android_main.c \
-  $(PIE_NOON_DIR)/src/ai_controller.cpp \
-  $(PIE_NOON_DIR)/src/async_loader.cpp \
-  $(PIE_NOON_DIR)/src/audio_engine.cpp \
-  $(PIE_NOON_DIR)/src/bus.cpp \
-  $(PIE_NOON_DIR)/src/character.cpp \
-  $(PIE_NOON_DIR)/src/character_state_machine.cpp \
-  $(PIE_NOON_DIR)/src/controller.cpp \
-  $(PIE_NOON_DIR)/src/full_screen_fader.cpp \
-  $(PIE_NOON_DIR)/src/gamepad_controller.cpp \
-  $(PIE_NOON_DIR)/src/game_camera.cpp \
-  $(PIE_NOON_DIR)/src/game_state.cpp \
-  $(PIE_NOON_DIR)/src/gpg_manager.cpp \
-  $(PIE_NOON_DIR)/src/gui_menu.cpp \
-  $(PIE_NOON_DIR)/src/impel_engine.cpp \
-  $(PIE_NOON_DIR)/src/impel_flatbuffers.cpp \
-  $(PIE_NOON_DIR)/src/impel_processor_overshoot.cpp \
-  $(PIE_NOON_DIR)/src/impel_processor_smooth.cpp \
-  $(PIE_NOON_DIR)/src/input.cpp \
-  $(PIE_NOON_DIR)/src/main.cpp \
-  $(PIE_NOON_DIR)/src/material.cpp \
-  $(PIE_NOON_DIR)/src/material_manager.cpp \
-  $(PIE_NOON_DIR)/src/mesh.cpp \
-  $(PIE_NOON_DIR)/src/player_controller.cpp \
-  $(PIE_NOON_DIR)/src/particles.cpp \
-  $(PIE_NOON_DIR)/src/precompiled.cpp \
-  $(PIE_NOON_DIR)/src/renderer.cpp \
-  $(PIE_NOON_DIR)/src/renderer_android.cpp \
-  $(PIE_NOON_DIR)/src/shader.cpp \
-  $(PIE_NOON_DIR)/src/sound.cpp \
-  $(PIE_NOON_DIR)/src/sound_collection.cpp \
-  $(PIE_NOON_DIR)/src/pie_noon_game.cpp \
-  $(PIE_NOON_DIR)/src/touchscreen_button.cpp \
-  $(PIE_NOON_DIR)/src/touchscreen_controller.cpp \
-  $(PIE_NOON_DIR)/src/utilities.cpp
+  $(subst $(LOCAL_PATH)/,,$(DEPENDENCIES_SDL_DIR))/src/main/android/SDL_android_main.c \
+  $(PIE_NOON_RELATIVE_DIR)/src/ai_controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/async_loader.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/audio_engine.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/bus.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/full_screen_fader.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/gamepad_controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/game_camera.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/game_state.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/gpg_manager.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/gui_menu.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/impel_engine.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/impel_flatbuffers.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/impel_processor_overshoot.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/impel_processor_smooth.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/input.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/main.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/material.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/material_manager.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/mesh.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/player_controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/particles.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/precompiled.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/renderer.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/renderer_android.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/shader.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/sound.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/sound_collection.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/utilities.cpp
 
 # Make each source file dependent upon the generated_includes and build_assets
 # targets.
-$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): generated_includes))
-$(foreach src,$(LOCAL_SRC_FILES),$(eval $$(src): build_assets))
+$(foreach src,$(LOCAL_SRC_FILES),$(eval $(LOCAL_PATH)/$$(src): generated_includes))
+$(foreach src,$(LOCAL_SRC_FILES),$(eval $(LOCAL_PATH)/$$(src): build_assets))
 
 clean: clean_assets clean_generated_includes
 
@@ -217,8 +214,8 @@ LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz -lEGL -landroid
 
 include $(BUILD_SHARED_LIBRARY)
 
-$(call import-add-path,$(abspath $(DEPENDENCIES_MATHFU_DIR)/..))
-$(call import-add-path,$(abspath $(DEPENDENCIES_WEBP_DIR)/..))
+$(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_WEBP_DIR)/..)
 
 $(call import-module,mathfu/jni)
 $(call import-module,webp)
