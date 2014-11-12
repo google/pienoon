@@ -570,13 +570,13 @@
           "bottom_right" : { "x": 0.7, "y": 0.6 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/ui_pie.bin" }
+            { "standard" : "materials/menu_start.bin" }
           ],
-          "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
-          "texture_position" : { "x": 0.44, "y": 0.435 },
-          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-          "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
-          "draw_scale_pressed" : { "x": 0.8, "y": 0.8 },
+          "texture_pressed" : { "standard" : "materials/menu_start.bin" },
+          "texture_position" : { "x": 0.53, "y": 0.45 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
           "nav_left" : ["MenuSignIn"],
           "nav_right" : ["MenuExtras"],
           "nav_down" : ["MenuSignIn"]
@@ -621,12 +621,6 @@
           "draw_scale": { "x": 0.82, "y": 0.82 }
         },
         {
-          "texture" : [ { "standard" : "materials/text_start.bin" } ],
-          "texture_position": { "x": 0.58, "y": 0.445 },
-          "draw_scale": { "x": 0.8, "y": 0.8 },
-          "z_depth" : -0.4
-        },
-        {
           "ID" : "MenuSignInText",
           "texture" : [
               { "standard" : "materials/text_sign_out.bin" },
@@ -655,21 +649,16 @@
           "bottom_right" : { "x": 0.8, "y": 0.6 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/ui_pie.bin" }
+            { "standard" : "materials/menu_start.bin" }
           ],
-          "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
-          "texture_position" : { "x": 0.44, "y": 0.435 },
-          "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-          "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
-          "draw_scale_pressed" : { "x": 0.8, "y": 0.8 }
+          "texture_pressed" : { "standard" : "materials/menu_start.bin" },
+          "texture_position" : { "x": 0.53, "y": 0.45 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 }
         }
     ],
     "static_image_list" : [
-        {
-          "texture" : [ { "standard" : "materials/text_start.bin" } ],
-          "texture_position": { "x": 0.58, "y": 0.445 },
-          "draw_scale": { "x": 0.8, "y": 0.8 }
-        },
         {
           // Splash screen image specified by this material name.
           "texture" : [ { "standard" : "materials/splash.bin" } ],
