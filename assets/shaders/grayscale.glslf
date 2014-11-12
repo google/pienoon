@@ -27,5 +27,5 @@ void main()
   lowp float brightness =
       (texture_color.r + texture_color.g + texture_color.b) / 3.0;
   gl_FragColor = color *
-      vec4(brightness, brightness, brightness, texture_color.a);
+      vec4(brightness, brightness, brightness, texture_color.a * 0.3);
 }

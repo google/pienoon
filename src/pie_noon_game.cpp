@@ -569,6 +569,10 @@ void PieNoonGame::Render2DElements() {
   auto achievements_button = gui_menu_.FindButtonById(ButtonId_MenuAchievements);
   if (achievements_button)
     achievements_button->set_is_active(is_logged_in);
+  auto leaderboards_button = gui_menu_.FindButtonById(ButtonId_MenuLeaderboard);
+  if (leaderboards_button)
+    leaderboards_button->set_is_active(is_logged_in);
+
 # endif
 
   // Loop through the 2D elements. Draw each subsequent one slightly closer
