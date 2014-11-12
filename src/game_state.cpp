@@ -841,6 +841,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // Update controller to gather state machine inputs.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
     auto& character = characters_[i];
+    character->UpdatePreviousState();
     Controller* controller = character->controller();
     const Timeline* timeline =
         character->state_machine()->current_state()->timeline();

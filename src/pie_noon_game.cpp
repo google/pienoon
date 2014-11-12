@@ -89,7 +89,8 @@ PieNoonGame::PieNoonGame()
       full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized),
       ambience_channel_(AudioEngine::kInvalidChannel),
-      stinger_channel_(AudioEngine::kInvalidChannel) {
+      stinger_channel_(AudioEngine::kInvalidChannel),
+      next_achievement_index_(0) {
 }
 
 PieNoonGame::~PieNoonGame() {
@@ -986,9 +987,33 @@ void PieNoonGame::UploadEvents() {
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   // Now upload all stats:
   // TODO: this assumes player 0 == the logged in player.
+  Character* character = game_state_.characters()[0].get();
   for (int ps = kWins; ps < kMaxStats; ps++) {
     gpg_manager.SaveStat(gpg_ids[ps].event,
-      &game_state_.characters()[0]->GetStat(static_cast<PlayerStats>(ps)));
+      character->GetStat(static_cast<PlayerStats>(ps)));
+  }
+  character->ResetStats();
+# endif
+}
+
+
+// Called every frame to see if we've gotten any new achievements.
+void PieNoonGame::CheckForNewAchievements() {
+# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  // We're assuming that player 0 is the one who's stats we care about.
+  Character* character = game_state_.characters()[0].get();
+  if (character->State() == StateId_Throwing &&
+      character->state_last_update() != StateId_Throwing) {
+    static const char* achievements[] = {
+       "CgkI97yope0IEAIQEA",    // 100
+       "CgkI97yope0IEAIQEQ",    // 250
+       "CgkI97yope0IEAIQEg",    // 1000
+       "CgkI97yope0IEAIQEw",    // 2500
+       "CgkI97yope0IEAIQFA" };  // 10000
+    int list_size = sizeof(achievements) / sizeof(char *);
+    for (int i = 0; i < list_size; i++) {
+      gpg_manager.IncrementAchievement(achievements[i]);
+    }
   }
 # endif
 }
@@ -1456,6 +1481,7 @@ void PieNoonGame::Run() {
   #     ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.Update();
         WritePreference("logged_in", static_cast<int>(gpg_manager.LoggedIn()));
+        CheckForNewAchievements();
   #     endif
         break;
       }

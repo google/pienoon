@@ -22,9 +22,14 @@ namespace fpl {
 GPGManager::GPGManager() : state_(kStart), do_ui_login_(false),
                            delayed_login_(false) {}
 
+pthread_mutex_t GPGManager::events_mutex_ = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t GPGManager::achievements_mutex_ = PTHREAD_MUTEX_INITIALIZER;
+
 bool GPGManager::Initialize(bool ui_login) {
   state_ = kStart;
   do_ui_login_ = ui_login;
+  event_data_initialized_ = false;
+  achievement_data_initialized_ = false;
 
 # ifdef NO_GPG
   return true;
@@ -64,6 +69,11 @@ bool GPGManager::Initialize(bool ui_login) {
                    : ((state_ == kAuthUIStarted || state_ == kAuthUILaunched)
                      ? kAuthUIFailed
                      : kAutoAuthFailed);
+          if (state_ == kAuthed) {
+            // If we just logged in, go fetch our data!
+            FetchEvents();
+            FetchAchievements();
+          }
         } else if (op == gpg::AuthOperation::SIGN_OUT) {
           state_ = kStart;
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -164,15 +174,16 @@ void GPGManager::ToggleSignIn() {
   }
 }
 
-void GPGManager::SaveStat(const char *event_id, uint64_t *score) {
+void GPGManager::SaveStat(const char *event_id, uint64_t score) {
 # ifdef NO_GPG
   return;
 # endif
   if (!LoggedIn()) return;
-  game_services_->Events().Increment(event_id, *score);
-  *score = 0;  // Reset accumulation.
+  game_services_->Events().Increment(event_id, score);
 }
 
+// This is still somewhat game-specific.  (Because it assumes that your
+// leaderboards are tied to events.)  TODO: clean this up further later.
 void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
 # ifdef NO_GPG
   return;
@@ -199,27 +210,6 @@ void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                     "GPG: submitted score %llu for id %s", it->second.Count(),
                     leaderboard_id);
-        // TODO: factor this code out into the game, as it is specific to PieNoon.
-        // Also, ideally this should happen during the game.
-        if (!strcmp(leaderboard_id, "CgkI97yope0IEAIQAg")) {  // Pies thrown.
-          struct Achievement { const char *id; int pie_count; };
-          static const Achievement achievements[] = {
-            { "CgkI97yope0IEAIQEA", 100 },
-            { "CgkI97yope0IEAIQEQ", 250 },
-            { "CgkI97yope0IEAIQEg", 1000 },
-            { "CgkI97yope0IEAIQEw", 2500 },
-            { "CgkI97yope0IEAIQFA", 10000 },
-          };
-          for (size_t i = 0; i < sizeof(achievements) / sizeof(Achievement);
-               i++) {
-            if (it->second.Count() >= achievements[i].pie_count) {
-              game_services_->Achievements().Unlock(achievements[i].id);
-              SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                          "GPG: achievement unlocked: %d pies",
-                          achievements[i].pie_count);
-            }
-          }
-        }
       }
     }
     game_services_->Leaderboards().ShowAllUI([](const gpg::UIStatus &status) {
@@ -228,6 +218,108 @@ void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
     });
   });
 }
+
+// Unlocks a given achievement.
+void GPGManager::UnlockAchievement(std::string achievement_id) {
+  if (LoggedIn()) {
+    game_services_->Achievements().Unlock(achievement_id);
+  }
+}
+
+// Increments an incremental achievement.
+void GPGManager::IncrementAchievement(std::string achievement_id) {
+  if (LoggedIn()) {
+    game_services_->Achievements().Increment(achievement_id);
+  }
+}
+
+// Increments an incremental achievement by an amount.
+void GPGManager::IncrementAchievement(std::string achievement_id,
+                                      uint32_t steps) {
+  if (LoggedIn()) {
+    game_services_->Achievements().Increment(achievement_id, steps);
+  }
+}
+
+// Reveals a given achievement.
+void GPGManager::RevealAchievement(std::string achievement_id) {
+  if (LoggedIn()) {
+    game_services_->Achievements().Reveal(achievement_id);
+  }
+}
+
+
+// Updates local player stats with values from the server:
+void GPGManager::FetchEvents() {
+  if (!LoggedIn() || event_data_state_ == kPending) return;
+  event_data_state_ = kPending;
+
+  game_services_->Events().FetchAll([this](
+        const gpg::EventManager::FetchAllResponse &far) mutable {
+
+    pthread_mutex_lock(&events_mutex_);
+
+    if (IsSuccess(far.status)) {
+      event_data_state_ = kComplete;
+      event_data_initialized_ = true;
+    } else {
+      event_data_state_ = kFailed;
+    }
+
+    event_data_ = far.data;
+    pthread_mutex_unlock(&events_mutex_);
+  });
+}
+
+bool GPGManager::IsAchievementUnlocked(std::string achievement_id) {
+   if (!achievement_data_initialized_) {
+     return false;
+   }
+   pthread_mutex_lock(&achievements_mutex_);
+   for (int i = 0; i < achievement_data_.size(); i++) {
+     if (achievement_data_[i].Id() == achievement_id) {
+       return achievement_data_[i].State() == gpg::AchievementState::UNLOCKED;
+     }
+   }
+   pthread_mutex_unlock(&achievements_mutex_);
+ }
+
+
+uint64_t GPGManager::GetEventValue(std::string event_id) {
+  if (!event_data_initialized_) {
+    return 0;
+  }
+  pthread_mutex_lock(&achievements_mutex_);
+  uint64_t result = event_data_[event_id].Count();
+  pthread_mutex_unlock(&achievements_mutex_);
+  return result;
+}
+
+
+// Updates local player achievements with values from the server:
+void GPGManager::FetchAchievements() {
+  if (!LoggedIn() || achievement_data_state_ == kPending) return;
+  achievement_data_state_ = kPending;
+
+  game_services_->Achievements().FetchAll([this](
+        const gpg::AchievementManager::FetchAllResponse &far) mutable {
+
+    pthread_mutex_lock(&achievements_mutex_);
+
+    if (IsSuccess(far.status)) {
+      achievement_data_state_ = kComplete;
+      achievement_data_initialized_ = true;
+    } else {
+      achievement_data_state_ = kFailed;
+    }
+
+    achievement_data_ = far.data;
+    pthread_mutex_unlock(&achievements_mutex_);
+  });
+}
+
+
+
 
 void GPGManager::ShowAchievements() {
 # ifdef NO_GPG
