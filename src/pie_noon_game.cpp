@@ -989,7 +989,7 @@ void PieNoonGame::UploadEvents() {
   // TODO: this assumes player 0 == the logged in player.
   Character* character = game_state_.characters()[0].get();
   for (int ps = kWins; ps < kMaxStats; ps++) {
-    gpg_manager.SaveStat(gpg_ids[ps].event,
+    gpg_manager.IncrementEvent(gpg_ids[ps].event,
       character->GetStat(static_cast<PlayerStats>(ps)));
   }
   character->ResetStats();
