@@ -38,6 +38,8 @@ import android.content.SharedPreferences;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class FPLActivity extends SDLActivity {
   // GPG's GUIs need activity lifecycle events to function properly, but
@@ -89,27 +91,24 @@ public class FPLActivity extends SDLActivity {
       this.text = text;
       this.html = html;
     }
+
+    private class LinkInterceptingWebViewClient extends WebViewClient {
+      @Override
+      public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        return false;
+      }
+    }
+
     public void run() {
       try {
         textDialogOpen = true;
-        TextView tv = new TextView(activity);
 
-        tv.setText(html ? Html.fromHtml(text) : text);
-        if (html) {
-          tv.setMovementMethod(LinkMovementMethod.getInstance());
-        }
-        tv.setLayoutParams(new LayoutParams(
-                               LayoutParams.WRAP_CONTENT,
-                               LayoutParams.WRAP_CONTENT));
-        ScrollView sv = new ScrollView(activity.getApplicationContext());
-        sv.setLayoutParams(new LayoutParams(
-                               LayoutParams.FILL_PARENT,
-                               LayoutParams.FILL_PARENT));
-        sv.setPadding(DpToPx(20), DpToPx(20), DpToPx(20), DpToPx(0));
-        sv.addView(tv);
+        WebView webview = new WebView(activity);
+        webview.setWebViewClient(new LinkInterceptingWebViewClient());
+        webview.loadData(text, "text/html", null);
         AlertDialog alert = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
             .setTitle(title)
-            .setView(sv)
+            .setView(webview)
             .setNeutralButton("OK", null)
             .create();
         alert.show();
