@@ -522,38 +522,47 @@
         "draw_scale_pressed" : { "x": -1.0, "y": 1.0 }
       },
       {
-        "top_left" : { "x": 0.8, "y": 0.7 },
-        "bottom_right" : { "x": 1.0, "y": 1.0 },
+        "top_left" : { "x": 0.2, "y": 0.7 },
+        "bottom_right" : { "x": 0.4, "y": 1.0 },
         "ID" : "Right",
         "event_trigger" : "ButtonPress",
         "texture_normal" : [ { "standard" : "materials/arrow.bin" } ],
         "texture_pressed" : { "standard" : "materials/arrow.bin" },
+        "texture_position" : { "x": 0.3, "y": 0.85 },
+        "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+      },
+      {
+        "top_left" : { "x": 0.8, "y": 0.7 },
+        "bottom_right" : { "x": 1.0, "y": 1.0 },
+        "ID" : "Defend",
+        "event_trigger" : "ButtonHold",
+        "texture_normal" : [ { "standard" : "materials/pie_block.bin" } ],
+        "texture_pressed" : { "standard" : "materials/pie_block.bin" },
         "texture_position" : { "x": 0.9, "y": 0.85 },
         "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
         "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+      },
+      {
+        "top_left" : { "x": 0.4, "y": 0.7 },
+        "bottom_right" : { "x": 0.8, "y": 1.0 },
+        "ID" : "Attack",
+        "event_trigger" : "ButtonPress",
+        "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
+        "texture_position" : { "x": 0.7, "y": 0.85 },
+        "draw_scale_normal" : { "x":  0.7, "y": 0.7 },
+        "draw_scale_pressed" : { "x": 0.9, "y": 0.9 }
       },
       {
         "top_left" : { "x": 0.0, "y": 0.0 },
         "bottom_right" : { "x": 1.0, "y": 0.7 },
         "ID" : "Attack",
         "event_trigger" : "ButtonPress",
-        "texture_normal" : [ { "standard" : "materials/pie_small.bin" } ],
+        "texture_normal" : [ { "standard" : "materials/ui_pie.bin" } ],
         "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
-        "texture_position" : { "x": 0.5, "y": 0.1 },
-        "draw_scale_normal" : { "x": -1.0, "y": 1.0 },
-        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
-
-      },
-      {
-        "top_left" : { "x": 0.2, "y": 0.7 },
-        "bottom_right" : { "x": 0.8, "y": 1.0 },
-        "ID" : "Defend",
-        "event_trigger" : "ButtonHold",
-        "texture_normal" : [ { "standard" : "materials/pie_block.bin" } ],
-        "texture_pressed" : { "standard" : "materials/pie_block.bin" },
-        "texture_position" : { "x": 0.5, "y": 0.85 },
-        "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+        "texture_position" : { "x": 0.7, "y": 0.85 },
+        "draw_scale_normal" : { "x":  0.5, "y": 0.5 },
+        "draw_scale_pressed" : { "x": 0.9, "y": 0.9 }
       }
     ]
   },
