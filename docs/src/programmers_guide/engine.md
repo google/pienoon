@@ -1,4 +1,5 @@
-Pie Noon Engine
+Pie Noon Engine {#pie_noon_guide_engine}
+===============
 
 ## Introduction
 
@@ -7,7 +8,7 @@ of Pie Noon is built.
 
 ## SDL
 
-We use [SDL] (Simple Directmedia Layer) as our lowest level layer. SDL is an
+We use [SDL][] (Simple Directmedia Layer) as our lowest level layer. SDL is an
 Open Source cross platform layer providing OpenGL context creation, input, and
 other things a game needs to run on a platform, without having to write any
 platform specific code. It has been in development for a long time, and has
@@ -23,7 +24,7 @@ Directly on top of SDL sit two systems, the renderer and input systems.
 On top of the renderer sits two more (optional) systems, material manager and
 the asynchronous loader.
 
-The renderer also depends upon our [MathFu] library for all its vector and
+The renderer also depends upon our [Pie Noon] library for all its vector and
 matrix datatypes. The (optional) material manager depends on our [FlatBuffers]
 serialization library.
 
@@ -57,7 +58,7 @@ The basic flow of using this lower level layer is as follows:
   to swap buffers and do general initialisation of the frame, likely followed
   by `ClearFrameBuffer`.
 * Before rendering anything, set up the renderer's `model_view_projection()`.
-  Use our separate [MathFu] library to combine matrices depending on whether
+  Use our separate [Pie Noon] library to combine matrices depending on whether
   you're creating a 2D or 3D scene, e.g. `mathfu::OrthoHelper` and
   `mathfu::PerspectiveHelper`.
 * Now use the shader you've created by calling `Set` on it. This will make it
@@ -146,5 +147,5 @@ tell you more about their current position.
 
 
   [SDL]: https://www.libsdl.org/
-  [MathFu]: http://google.github.io/mathfu
+  [Pie Noon]: http://google.github.io/mathfu
   [FlatBuffers]: http://google.github.io/flatbuffers/

@@ -52,6 +52,7 @@ Win32/
 # Misc generated files
 tags
 pie_noon.tar.gz
+docs/html/
 
 # android build files
 build.xml
