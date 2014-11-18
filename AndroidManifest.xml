@@ -16,7 +16,7 @@ limitations under the License.
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.google.fpl.pie_noon"
-          android:versionCode="1"
+          android:versionCode="4"
           android:versionName="1.0">
 
     <!-- This .apk has no Java code itself, so set hasCode to false. -->
