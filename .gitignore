@@ -53,6 +53,7 @@ Win32/
 tags
 pie_noon.tar.gz
 docs/html/
+docs/linklint_results/
 
 # android build files
 build.xml
