@@ -1,0 +1,30 @@
+[submodule "dependencies/fplutil"]
+	path = dependencies/fplutil
+	url = http://github.com/google/fplutil.git
+[submodule "dependencies/googletest"]
+	path = dependencies/googletest
+	url = http://github.com/google/fplutil.git
+[submodule "dependencies/flatbuffers"]
+	path = dependencies/flatbuffers
+	url = http://github.com/google/flatbuffers.git
+[submodule "dependencies/mathfu"]
+	path = dependencies/mathfu
+	url = http://github.com/google/mathfu.git
+[submodule "dependencies/vectorial"]
+	path = dependencies/vectorial
+	url = http://github.com/google/mathfu.git
+[submodule "dependencies/sdl"]
+	path = dependencies/sdl
+	url = http://github.com/google/pienoon.git
+[submodule "dependencies/sdl_mixer"]
+	path = dependencies/sdl_mixer
+	url = http://github.com/google/pienoon.git
+[submodule "dependencies/webp"]
+	path = dependencies/webp
+	url = https://chromium.googlesource.com/webm/libwebp
+[submodule "dependencies/libogg"]
+	path = dependencies/libogg
+	url = https://git.xiph.org/mirrors/ogg.git
+[submodule "dependencies/libvorbis"]
+	path = dependencies/libvorbis
+	url = https://git.xiph.org/mirrors/vorbis.git
