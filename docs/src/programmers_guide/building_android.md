@@ -16,6 +16,11 @@ need for building PieNoon for Android:
 
 -   Install the [Android SDK].
 -   Install the [Android NDK].
+-   Download the [Google Play Games C++ SDK] and unpack into Pie Noon's
+    `dependencies/gpg-cpp-sdk` directory.
+    -   For example, if you've fetched Pie Noon to `~/pie_noon/`, unpack
+        the downloaded `gpg-cpp-sdk.v1.3.zip` to
+        `~/pie_noon/dependencies/gpg-cpp-sdk`.
 
 #### Building
 
