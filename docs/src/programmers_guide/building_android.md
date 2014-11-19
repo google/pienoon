@@ -63,7 +63,7 @@ To build the project:
 For example:
 
     cd pie_noon
-    ./dependencies/fplutil/bin/build_all_android -E dependencies
+    ./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs
 
 # Installing and running the game.
 
@@ -73,7 +73,7 @@ For example, the following will install and run the game on a device attached
 to the workstation with serial number `ADA123123`.
 
     cd pie_noon
-    ./dependencies/fplutil/bin/build_all_android -E dependencies -d ADA123123 -i -r -S
+    ./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs -d ADA123123 -i -r -S
 
 If only one device is attached to a workstation, the `-d` argument
 (which selects a device) can be ommitted.

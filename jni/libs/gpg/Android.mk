@@ -15,7 +15,7 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-PIE_NOON_DIR:=$(LOCAL_PATH)/../..
+PIE_NOON_DIR:=$(LOCAL_PATH)/../../..
 include $(PIE_NOON_DIR)/jni/android_config.mk
 
 LOCAL_PATH:=$(DEPENDENCIES_GPG_DIR)
