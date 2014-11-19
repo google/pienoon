@@ -30,7 +30,8 @@ void Bus::UpdateDuckGain(WorldTime delta_time) {
     // Fading to duck gain.
     float fade_in_time = bus_def_->duck_fade_in_time();
     if (fade_in_time > 0) {
-      float delta_seconds = delta_time * kMillisecondsPerSecond;
+      float delta_seconds =
+          delta_time * static_cast<float>(kMillisecondsPerSecond);
       transition_percentage_ += delta_seconds / fade_in_time;
       transition_percentage_ = std::min(transition_percentage_, 1.0f);
     } else {
@@ -40,7 +41,8 @@ void Bus::UpdateDuckGain(WorldTime delta_time) {
     // Fading to standard gain.
     float fade_out_time = bus_def_->duck_fade_out_time();
     if (fade_out_time > 0) {
-      float delta_seconds = delta_time * kMillisecondsPerSecond;
+      float delta_seconds =
+          delta_time * static_cast<float>(kMillisecondsPerSecond);
       transition_percentage_ -= delta_seconds / fade_out_time;
       transition_percentage_ = std::max(transition_percentage_, 0.0f);
     } else {
@@ -75,4 +77,3 @@ void Bus::DecrementSoundCounter() {
 }
 
 }  // namespace fpl
-

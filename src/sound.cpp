@@ -23,10 +23,6 @@ const int kPlayStreamError = -1;
 const int kLoopForever = -1;
 const int kPlayOnce = 0;
 
-static void LogAudioLoadingError(const char* filename) {
-  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't load %s\n", filename);
-}
-
 SoundBuffer::~SoundBuffer() {
   if (data_) {
     Mix_FreeChunk(data_);
