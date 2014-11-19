@@ -35,18 +35,22 @@ void Texture::Finalize() {
   }
 }
 
+void Texture::Set(size_t unit) {
+  GL_CALL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL_CALL(glBindTexture(GL_TEXTURE_2D, id_));
+}
+
+void Texture::Delete() {
+  GL_CALL(glDeleteTextures(1, &id_));
+}
+
 void Material::Set(Renderer &renderer) {
   renderer.SetBlendMode(blend_mode_);
-  for (size_t i = 0; i < textures_.size(); i++) {
-    GL_CALL(glActiveTexture(GL_TEXTURE0 + i));
-    GL_CALL(glBindTexture(GL_TEXTURE_2D, textures_[i]->id()));
-  }
+  for (size_t i = 0; i < textures_.size(); i++) textures_[i]->Set(i);
 }
 
 void Material::DeleteTextures() {
-  for (size_t i = 0; i < textures_.size(); i++) {
-    GL_CALL(glDeleteTextures(1, &textures_[i]->id()));
-  }
+  for (size_t i = 0; i < textures_.size(); i++) textures_[i]->Delete();
 }
 
 }  // namespace fpl

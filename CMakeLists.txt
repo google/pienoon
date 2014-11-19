@@ -197,6 +197,8 @@ set(pie_noon_SRCS
     src/gpg_manager.h
     src/gui_menu.cpp
     src/gui_menu.h
+    src/imgui.h
+    src/imgui.cpp
     src/impel_common.h
     src/impel_engine.cpp
     src/impel_engine.h

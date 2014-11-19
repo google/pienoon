@@ -48,6 +48,7 @@ Win32/
 
 # qt creator
 *.cbp
+CMakeLists.txt.user.*
 
 # Misc generated files
 tags

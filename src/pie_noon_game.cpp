@@ -20,6 +20,7 @@
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
+#include "imgui.h"
 #include "impel_flatbuffers.h"
 #include "impel_processor_overshoot.h"
 #include "impel_processor_smooth.h"
@@ -774,8 +775,11 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       // When we initialized assets, we kicked off a thread to load all
       // textures. Here we check if those have finished loading.
       // We also leave the loading screen up for a minimum amount of time.
-      if (!Fading() && matman_.TryFinalize() &&
-          (time - state_entry_time_) > config.min_loading_time()) {
+      if (!Fading() && matman_.TryFinalize()
+#         if !IMGUI_TEST
+          && (time - state_entry_time_) > config.min_loading_time()
+#         endif  // IMGUI_TEST
+          ) {
         // If we've already displayed the tutorial before, jump straight to
         // the game. If we don't have the capability to record our previous
         // tutorial views, also jump straight to the game.
@@ -1522,6 +1526,11 @@ void PieNoonGame::Run() {
 
         // Render any UI/HUD/Splash on top.
         Render2DElements();
+
+        // TEMP: testing GUI on top of everything else.
+#       if IMGUI_TEST
+        gui::TestGUI(matman_, input_);
+#       endif  // IMGUI_TEST
 
         // Output debug information.
         if (config.print_character_states()) {

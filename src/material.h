@@ -47,6 +47,9 @@ class Texture : public AsyncResource {
   virtual void Load();
   virtual void Finalize();
 
+  void Set(size_t unit);
+  void Delete();
+
   const GLuint &id() const { return id_; }
   vec2i size() { return size_; }
   const vec2i size() const { return size_; }
