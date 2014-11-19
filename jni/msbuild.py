@@ -69,7 +69,9 @@ def main():
   if len(msbuilds) == 0:
     print "Unable to find MSBuild.\n"
     return -1;
-  return subprocess.call([msbuilds[0]['exe'], sys.argv[1:]])
+  cmd = [msbuilds[0]['exe']]
+  cmd.extend(sys.argv[1:])
+  return subprocess.call(cmd)
 
 if __name__ == '__main__':
   sys.exit(main())
