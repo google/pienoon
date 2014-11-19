@@ -105,11 +105,14 @@ only on Android builds. The game can be compiled using [Linux][], [OS X][] or
 
 ## Download
 
-[Pie Noon][] can be downloaded from [GitHub](http://github.com/google/pienoon)
-or the [releases page](http://github.com/google/pienoon/releases).
+[Pie Noon][] can be downloaded from:
+   * [GitHub][] (source)
+   * [GitHub Releases Page](http://github.com/google/pienoon/releases) (source)
+   * [Google Play](http://play.google.com/store/apps/details?id=com.google.fpl.pie_noon)
+     (binary for Android)
 
-**Important**: Pie Noon uses submodules to reference other components it depends
-upon, so download the source using:
+**Important**: Pie Noon uses submodules to reference other components it
+depends upon, so download the source from [GitHub][] using:
 
 ~~~{.sh}
     git clone --recursive https://github.com/google/pienoon.git
@@ -145,3 +148,4 @@ upon, so download the source using:
   [x86]: http://en.wikipedia.org/wiki/X86
   [Google Play Games Services]: https://developer.android.com/google/play-services/games.html
   [WebP]: https://developers.google.com/speed/webp
+  [GitHub]: http://github.com/google/pienoon

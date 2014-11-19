@@ -19,11 +19,14 @@ via support for the [Nexus Player][], an [Android TV][] device.
 
 ## Downloading
 
-[Pie Noon][] can be downloaded from [GitHub](http://github.com/google/pienoon)
-or the [releases page](http://github.com/google/pienoon/releases).
+[Pie Noon][] can be downloaded from:
+   * [GitHub][] (source)
+   * [GitHub Releases Page](http://github.com/google/pienoon/releases) (source)
+   * [Google Play](http://play.google.com/store/apps/details?id=com.google.fpl.pie_noon)
+     (binary for Android)
 
 **Important**: Pie Noon uses submodules to reference other components it
-depends upon, so download the source using:
+depends upon, so download the source from [GitHub][] using:
 
 ~~~{.sh}
     git clone --recursive https://github.com/google/pienoon.git
@@ -59,3 +62,4 @@ you would leave it in.
   [Pie Noon]: http://google.github.io/pienoon/
   [Programmer's Guide]: http://google.github.io/pienoon/pie_noon_guide_overview.html
   [CONTRIBUTING]: http://github.com/google/pienoon/blob/master/CONTRIBUTING
+  [GitHub]: http://github.com/google/pienoon
