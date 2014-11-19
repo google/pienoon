@@ -1156,8 +1156,13 @@ HTML_EXTRA_STYLESHEET  =
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       =
-
+HTML_EXTRA_FILES       = \
+  "programmers_guide/info_panel_data_driven_flatbuffers.png" \
+  "programmers_guide/info_panel_google_play_games.png" \
+  "programmers_guide/info_panel_multiple_control_schemes.png" \
+  "programmers_guide/info_panel_normal_mapping.png" \
+  "programmers_guide/info_panel_procedural_animation_mathfu.png" \
+  "programmers_guide/info_panel_webp_textures.png"
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the stylesheet and background images according to
