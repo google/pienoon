@@ -91,7 +91,7 @@ scalability.
 You can add your own custom animation algorithms by deriving classes from
 `ImpelProcessor`. To create a class that animates a one-dimensional variable,
 derive from `ImpelProcessor<float>`. For a two-dimensional variable,
-derive from `ImpelProcessor<mathfu::vec2:>`, etc.
+derive from `ImpelProcessor<mathfu::vec2>`, etc.
 
 For example, here is a simple one-dimensional algorithm that moves linearly
 from the current value to the target value, in the target time.

@@ -20,10 +20,10 @@ The following table maps each set of [JSON][] files in `src/rawassets` to
 | `buses.json`                       | `buses.fbs`                       |
 | `character_state_machine_def.json` | `character_state_machine_def.fbs` |
 | `config.json`                      | `config.fbs`                      |
-| `materials\*.json`                 | `materials.fbs`                   |
+| `materials/*.json`                 | `materials.fbs`                   |
 | `rendering_assets.json`            | `rendering_assets.fbs`            |
 | `sound_assets.json`                | `sound_assets.fbs`                |
-| `sounds\*.json`                    | `sound_collection_def.fbs`        |
+| `sounds/*.json`                    | `sound_collection_def.fbs`        |
 
 ### Building
 
@@ -110,74 +110,75 @@ Where `cardboard_front` the the billboard rendered in the foreground and
 illusion of depth.  The materials used for popsicle sticks (rendered if
 `stick` is true) are configured using `stick_front` and `stick_back`.
 
-##### Characters
+* Characters
 
-The renderables used for characters are configured using the
-*Character State Machine* (see section below).
+  The renderables used for characters are configured using the
+  *Character State Machine* (see section below).
 
-##### Character Accessories
+* Character Accessories
 
-Character accessories (`pie_noonter_accessories` and `health_accessories`) are
-rendered next to each character.  For example, the health display is rendered
-alongside the character to illustrate the characters remaining health.
+  Character accessories (`pie_noonter_accessories` and `health_accessories`)
+  are rendered next to each character.  For example, the health display is
+  rendered alongside the character to illustrate the characters remaining
+  health.
 
-##### Props
+* Props
 
-Props (`Prop`) are static billboards that are positioned in the scene with
-positions relative to world coordinates.  Props are configured using the
-`props` field and are unconditionally rendered.
+  Props (`Prop`) are static billboards that are positioned in the scene with
+  positions relative to world coordinates.  Props are configured using the
+  `props` field and are unconditionally rendered.
 
-##### Materials
+* Materials
 
-Each renderable must be associated with a material which specifies how the
-renderable is rendered.  Material [JSON][] files are located in
-`src/rawassets/materials` and use the `src/flatbufferschemas/materials.fbs`
-[Flatbuffers][] schema.
+  Each renderable must be associated with a material which specifies how the
+  renderable is rendered.  Material [JSON][] files are located in
+  `src/rawassets/materials` and use the `src/flatbufferschemas/materials.fbs`
+  [Flatbuffers][] schema.
 
-Fields that reference materials (`cardboard_front`, `cardboard_back`,
-`stick_front` and `stick_back`) specify the path of the material .bin file
-*generated* from the [JSON][] in `src/rawassets/materials`.  For example,
-to use `src/rawassets/materials/pie_small.json` the designer should specify
-`materials/pie_small.bin` string.
+  Fields that reference materials (`cardboard_front`, `cardboard_back`,
+  `stick_front` and `stick_back`) specify the path of the material .bin file
+  *generated* from the [JSON][] in `src/rawassets/materials`.  For example,
+  to use `src/rawassets/materials/pie_small.json` the designer should specify
+  `materials/pie_small.bin` string.
 
-The `shader_basename` references a vertex, fragment shader pair from
-`assets/shaders` to use to render the material.  For example, the string
-`shaders/textured` will cause the game to load the
-`assets/shaders/textured.glslf` fragment shader and the
-`assets/shaders/textured.glslv` vertex shader.
+  The `shader_basename` references a vertex, fragment shader pair from
+  `assets/shaders` to use to render the material.  For example, the string
+  `shaders/textured` will cause the game to load the
+  `assets/shaders/textured.glslf` fragment shader and the
+  `assets/shaders/textured.glslv` vertex shader.
 
-Textures are associated with a material using `texture_filenames` where the
-filenames - in a similar fashion to shader paths - are relative to the
-`assets` directory.  Each material can be associated with multiple textures,
-where the use of each texture depends upon the shader associated wih the
-material.
+  Textures are associated with a material using `texture_filenames` where the
+  filenames - in a similar fashion to shader paths - are relative to the
+  `assets` directory.  Each material can be associated with multiple textures,
+  where the use of each texture depends upon the shader associated wih the
+  material.
 
-##### Shaders
+* Shaders
 
-###### shaders/color
+  - `shaders/color`
 
-`shaders/color` does not take texture input and simply renders polygons using
-vertex colors specified by the game.
+    `shaders/color` does not take texture input and simply renders polygons using
+    vertex colors specified by the game.
 
-###### shaders/lit_textured_normal
+  - `shaders/lit_textured_normal`
 
-`shaders/lit_textured_normal` is a generic shader for rendering polygons with
-a normal map.  This uses the first texture specified in the `texture_filenames`
-list as the diffuse texture and the second texture as a normal map.  Ambient
-and specular lighting of the material is controlled by the normal map and the
-light position in the world (see `light_positions` in
-`src/flatbufferschemas/config.fbs`).
+    `shaders/lit_textured_normal` is a generic shader for rendering polygons
+    with a normal map.  This uses the first texture specified in the
+    `texture_filenames` list as the diffuse texture and the second texture as a
+    normal map.  Ambient and specular lighting of the material is controlled by
+    the normal map and the light position in the world (see `light_positions`
+    in `src/flatbufferschemas/config.fbs`).
 
-###### shaders/simple_shadow
+  - `shaders/simple_shadow`
 
-`shaders/simple_shadow` projects a shadow onto the ground plane (X-Z plane)
-away from the light position (see `light_positions` in
-`src/flatbufferschemas/config.fbs`).
+    `shaders/simple_shadow` projects a shadow onto the ground plane (X-Z plane)
+    away from the light position (see `light_positions` in
+    `src/flatbufferschemas/config.fbs`).
 
-##### shaders/textured
+  - `shaders/textured`
 
-`shaders/textured` simply renders the first texture in `texture_filenames`
-with a color tint - supplied by the game runtime - with no lighting.
+    `shaders/textured` simply renders the first texture in `texture_filenames`
+    with a color tint - supplied by the game runtime - with no lighting.
 
 ### Audio
 
