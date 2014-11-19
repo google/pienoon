@@ -4,17 +4,21 @@ Pie Noon
 Pie Noon    {#pie_noon_index}
 ========
 
-[Pie Noon][] is a simple multiplayer party game where you can throw pies at your
-friends. It is written in cross-platform C++.
+[Pie Noon][] is a simple multiplayer party game where you can throw pies at
+your friends. It is written in cross-platform C++.
+
+\htmlonly
+<iframe width="560" height="315"
+  src="http://www.youtube.com/embed/p1F6HRFnLoo?rel=0"
+  frameborder="0" allowfullscreen>
+</iframe>
+\endhtmlonly
 
 ## Motivation
 
 [Pie Noon][] demonstrates a quick and fun party game for the living room
-via support for the [Nexus Player][], an [Android TV][] device.
-
-[Pie Noon][] shows how to use several simple open source technology components
-developed by Google.
-
+via support for the [Nexus Player][], an [Android TV][] device.  The game
+shows how to use several open source technology components developed by Google.
 <table style="border: 0; padding: 3em">
 <tr>
   <td>
@@ -28,7 +32,7 @@ developed by Google.
   <td>
     <img src="info_panel_webp_textures.png"
     style="height: 20em" />
-   [WebP][], a image compression technology, is used to compress textures
+   [WebP][], an image compression technology, is used to compress textures
    which reduces the size of the final game package and ultimately reduces
    download time.
   </td>
@@ -73,7 +77,6 @@ developed by Google.
 </table>
 In addition, [fplutil][] is used to build, deploy, and run the game,
 build and archive the game, and profile the game's CPU performance.
-
 
 ## Functionality
 
