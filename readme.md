@@ -5,6 +5,15 @@ PieNoon Version 0.1.0
 PieNoon is a simple multiplayer party game where you can throw pies at your
 friends.
 
+For applications on Google Play that are derived from this application, usage
+is tracked.
+This tracking is done automatically using the embedded version string
+(kVersion), and helps us continue to optimize it. Aside from
+consuming a few extra bytes in your application binary, it shouldn't affect
+your application at all. We use this information to let us know if Pie Noon
+is useful and if we should continue to invest in it. Since this is open
+source, you are free to remove the version string but we would appreciate if
+you would leave it in.
 
   [adb]: http://developer.android.com/tools/help/adb.html
   [ADT]: http://developer.android.com/tools/sdk/eclipse-adt.html

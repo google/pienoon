@@ -204,6 +204,9 @@ class PieNoonGame {
 
   int next_achievement_index_;
 
+  // String version number of the game.
+  const char *version_;
+
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
 # endif
