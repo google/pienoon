@@ -43,10 +43,14 @@ script which requires:
 *   `flatc` ([Flatbuffers compiler][]) to convert [JSON][] text files to .bin
     files in the `pie_noon/assets` directory.
 *   [cwebp][] is required to convert `png` images to the [webp][] format.
-    Install [cwebp][] by downloading the libwebp archive for your operating
-    system (see [WebP Precompiled Utilities][]) unpack somewhere on your
-    system and add the directory containing the [cwebp][] binary to the `PATH`
-    variable.
+    * Install [cwebp][] by downloading the libwebp archive for your operating
+      system (see [WebP Precompiled Utilities][])
+    * Unpack somewhere on your system and add the directory containing the
+      [cwebp][] binary to the `PATH` variable.  See prerequisites for the
+      your operating system configuration instructions:
+        * [Linux prerequisites](@ref building_linux_prerequisites)
+        * [OS X prerequisites](@ref building_osx_prerequisites)
+        * [Windows prerequisites](@ref building_windows_prerequisites)
 
 After modifying the data in the `pie_noon/src/rawassets` directory, the assets
 need to be rebuilt by running the following command:
@@ -356,3 +360,4 @@ and `CharacterLoad2` 0.5 seconds after the timeline started playback:
   [Python]: http://python.org/
   [webp]: https://developers.google.com/speed/webp/
   [Windows]: http://windows.microsoft.com/
+  [WebP Precompiled Utilities]: https://developers.google.com/speed/webp/docs/precompiled
