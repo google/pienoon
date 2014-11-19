@@ -71,6 +71,16 @@ static inline const UiGroup* TitleScreenButtons(const Config& config) {
 #endif
 }
 
+/// kVersion is used by Google developers to identify which
+/// applications uploaded to Google Play are derived from this application.
+/// This allows the development team at Google to determine the popularity of
+/// this application.
+/// How it works: Applications that are uploaded to the Google Play Store are
+/// scanned for this version string.  We track which applications are using it
+/// to measure popularity.  You are free to remove it (of course) but we would
+/// appreciate if you left it in.
+static const char kVersion[] = "Pie Noon 1.0.0";
+
 PieNoonGame::PieNoonGame()
     : state_(kUninitialized),
       state_entry_time_(0),
@@ -91,6 +101,7 @@ PieNoonGame::PieNoonGame()
       ambience_channel_(AudioEngine::kInvalidChannel),
       stinger_channel_(AudioEngine::kInvalidChannel),
       next_achievement_index_(0) {
+  version_ = kVersion;
 }
 
 PieNoonGame::~PieNoonGame() {
