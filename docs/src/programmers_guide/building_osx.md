@@ -7,10 +7,10 @@ You can use [cmake][] to generate an [Xcode][] project for PieNoon on [OS X][].
 
 These are the minimum required versions for building PieNoon on OS X:
 
--   OS X: Mavericks 10.9.1.
--   Xcode: 5.1.1 or newer
--   Xquartz: 2.7.5 (xorg-server 1.14.4)
--   cmake: 2.8.12 or newer
+-   [OS X][]: Mavericks 10.9.1.
+-   [Xcode][]: 5.1.1 or newer
+-   [Xquartz][]: 2.7.5 (xorg-server 1.14.4)
+-   [cmake][]: 2.8.12 or newer
 
 #### Before Building
 
@@ -21,7 +21,7 @@ These are the minimum required versions for building PieNoon on OS X:
 #### Creating the Xcode project using [cmake][]
 
 When working directly with the source, you can generate the [Xcode][]
-project using [cmake][].  For example, the following generates the Xcode
+project using [cmake][].  For example, the following generates the [Xcode][]
 project in the pie_noon directory.
 
     cd pie_noon

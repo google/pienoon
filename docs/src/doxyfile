@@ -756,7 +756,6 @@ INPUT                  = "index.md" \
                          "programmers_guide/gameplay.md" \
                          "programmers_guide/gui.md" \
                          "programmers_guide/impel.md" \
-                         "programmers_guide/installing.md" \
                          "programmers_guide/pie_noon_game.md" \
                          "../../readme.md" \
                          "groups"

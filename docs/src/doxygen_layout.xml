@@ -16,7 +16,6 @@
   <navindex>
     <tab type="mainpage" visible="no" title=""/>
     <tab type="user" url="@ref pie_noon_readme" title="Readme"/>
-    <tab type="user" url="@ref pie_noon_guide_installing_and_running" title="Installing and Running"/>
     <tab type="user" url="@ref pie_noon_guide_gameplay" title="Gameplay"/>
     <tab type="usergroup" url="@ref pie_noon_guide_overview" title="Programmer's Guide">
       <tab type="usergroup" url="@ref pie_noon_guide_building" title="Building">
