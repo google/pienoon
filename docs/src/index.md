@@ -7,6 +7,8 @@ Pie Noon    {#pie_noon_index}
 [Pie Noon][] is a simple multiplayer party game where you can throw pies at your
 friends.
 
+<img src="splash.png" style="width: 50%;" />
+
 [Pie Noon][] is a cross-platform, open-source game that supports,
 
    * up to 4 players using Bluetooth controllers,
@@ -107,7 +109,10 @@ only on Android builds. The game can be compiled using [Linux][], [OS X][] or
    * Discuss Pie Noon with other developers and users on the
      [Pie Noon Google Group][].
    * File issues on the [Pie Noon Issues Tracker][].
-   * Post your questions to [stackoverflow.com][] with a mention of **pienoon**.
+   * Post your questions to [stackoverflow.com][] with a mention of
+     **pienoon**.
+
+<br>
 
   [Android]: http://www.android.com
   [Android TV]: http://www.android.com/tv/
