@@ -35,6 +35,7 @@ See our online documentation for how to [Build and Run Pie Noon][], and for a
 [Programmer's Guide][] that details the overall structure of the game and all
 of it's subsystems.
 
+To contribute the this project see [CONTRIBUTING][].
 
 For applications on Google Play that are derived from this application, usage
 is tracked.
@@ -57,3 +58,4 @@ you would leave it in.
   [Nexus Player]: http://www.google.com/nexus/player/
   [Pie Noon]: http://google.github.io/pienoon/
   [Programmer's Guide]: http://google.github.io/pienoon/pie_noon_guide_overview.html
+  [CONTRIBUTING]: http://github.com/google/pienoon/blob/master/CONTRIBUTING

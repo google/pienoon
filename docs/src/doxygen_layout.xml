@@ -43,6 +43,7 @@
       </tab>
     </tab>
     <tab type="user" url="@ref pie_noon_readme" title="Readme"/>
+    <tab type="user" url="@ref contributing" title="Contributing"/>
   </navindex>
 
   <!-- Layout definition for a class page -->
