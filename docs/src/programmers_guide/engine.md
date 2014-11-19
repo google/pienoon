@@ -1,12 +1,12 @@
 Pie Noon Engine {#pie_noon_guide_engine}
 ===============
 
-## Introduction
+# Introduction {#engine_introduction}
 
 This document outlines the engine components upon which the rest
 of Pie Noon is built.
 
-## SDL
+# SDL {#engine_sdl}
 
 We use [SDL][] (Simple Directmedia Layer) as our lowest level layer. SDL is an
 Open Source cross platform layer providing OpenGL context creation, input, and
@@ -18,7 +18,7 @@ and even is available for the web through asm.js.
 SDL together with OpenGL(ES) and C++ provide an excellent basis for making great
 cross platform games.
 
-## Components
+# Components {#engine_components}
 
 Directly on top of SDL sit two systems, the renderer and input systems.
 On top of the renderer sits two more (optional) systems, material manager and
@@ -28,7 +28,7 @@ The renderer also depends upon our [Pie Noon] library for all its vector and
 matrix datatypes. The (optional) material manager depends on our [FlatBuffers]
 serialization library.
 
-## Renderer
+# Renderer {#engine_renderer}
 
 The Renderer (`renderer.h/.cpp`) is the core of the engine, and is responsible
 for creating the OpenGL context and OpenGL resources such as
@@ -66,7 +66,7 @@ The basic flow of using this lower level layer is as follows:
   `model_view_projection()`), ready to be used by the shader.
 * Finally, calling `Render` on your mesh will display it on screen.
 
-## Material Manager
+# Material Manager {#engine_matman}
 
 The renderer is deliberately a bare minimum system that takes care of creating
 and using resources, but not *managing* them. The material manager takes care
@@ -100,7 +100,7 @@ to a binary file by our [FlatBuffers] serialization library, the result
 of which can be passed to `LoadMaterial` that will load all referenced
 textures and create a `Material` object (which can be attached to `Mesh`).
 
-## Asynchronous Loader
+# Asynchronous Loader {#engine_async_loader}
 
 Loading resources can take a long time, and can be sped up by loading
 heavy resources (such as textures, WebP in particular) in parallel with the
@@ -124,7 +124,7 @@ relatively simple:
   your loading screen textures first. If the `Texture::id()` is non-zero,
   it can already be used.
 
-## Input System
+# Input System {#engine_input}
 
 `InputSystem` (`input.h/.cpp`) deals with time, touch/mouse/keyboard/gamepad
 input, and lifecycle events.
@@ -144,8 +144,13 @@ on platform) or a gamepad button, and you can see if it went down or up
 this last frame, or wether it is currently down. The `Pointer` objects can
 tell you more about their current position.
 
+The Pie Noon game does not normally process input events directly, but rather
+passes them through to the [Controller][] system, where they are normalized into
+a common set of inputs that is independent of the physical input device.
+
 
 
   [SDL]: https://www.libsdl.org/
   [Pie Noon]: http://google.github.io/mathfu
   [FlatBuffers]: http://google.github.io/flatbuffers/
+  [Controller]: @ref pie_noon_guide_controllers
