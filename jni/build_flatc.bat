@@ -51,7 +51,7 @@ if %visual_studio_version% GEQ 10 (
 
 rem Generate Visual Studio solution.
 echo Generating solution for %cmake_generator%. >&2
-%cmake% -G"%cmake_generator%"
+%cmake% -G"%cmake_generator%" -Dpie_noon_only_flatc=ON
 if %ERRORLEVEL% NEQ 0 (
     exit /B %ERRORLEVEL%
 )

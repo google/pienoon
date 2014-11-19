@@ -72,6 +72,9 @@ option(pie_noon_build_tests "Build tests for this project." ON)
 # Option to enable / disable the build of cwebp from source.
 option(pie_noon_build_cwebp "Build cwebp from source." OFF)
 
+# Option to only build flatc
+option(pie_noon_only_flatc "Only build FlatBuffers compiler." OFF)
+
 if(pie_noon_build_cwebp)
   # Depend upon the cwebp target to build assets.
   set(CWEBP_TARGET cwebp)
@@ -99,23 +102,33 @@ set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
 if(APPLE)
   set(SDL_AUDIO_DRIVER_COREAUDIO 1)
 endif(APPLE)
-add_subdirectory(${dependencies_sdl_dir} ${tmp_dir}/sdl)
+if(NOT pie_noon_only_flatc)
+  add_subdirectory(${dependencies_sdl_dir} ${tmp_dir}/sdl)
+endif()
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
 # Include libogg.
-add_subdirectory("${dependencies_libogg_cmake_dir}" ${tmp_dir}/libogg)
+if(NOT pie_noon_only_flatc)
+  add_subdirectory("${dependencies_libogg_cmake_dir}" ${tmp_dir}/libogg)
+endif()
 
 # Include libvorbis.
-add_subdirectory("${dependencies_libvorbis_cmake_dir}" ${tmp_dir}/libvorbis)
+if(NOT pie_noon_only_flatc)
+  add_subdirectory("${dependencies_libvorbis_cmake_dir}" ${tmp_dir}/libvorbis)
+endif()
 
 # Include SDL Mixer.
 set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
-add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" ${tmp_dir}/sdl_mixer)
+if(NOT pie_noon_only_flatc)
+  add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" ${tmp_dir}/sdl_mixer)
+endif()
 
 # Include Webp in this project, and force build in release mode for speed.
 set(original_build_type ${CMAKE_BUILD_TYPE})
 set(CMAKE_BUILD_TYPE Release)
-add_subdirectory("${dependencies_webp_cmake_dir}" ${tmp_dir}/webp)
+if(NOT pie_noon_only_flatc)
+  add_subdirectory("${dependencies_webp_cmake_dir}" ${tmp_dir}/webp)
+endif()
 set(CMAKE_BUILD_TYPE ${original_build_type})
 
 # Include FlatBuffers in this project.
@@ -307,8 +320,10 @@ target_link_libraries(pie_noon
   webp)
 
 # Tests.
-if(pie_noon_build_tests)
-  add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+if(NOT pie_noon_only_flatc)
+  if(pie_noon_build_tests)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+  endif()
 endif()
 
 # Create a zipped tar of all the necessary files to run the game.

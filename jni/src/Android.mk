@@ -70,12 +70,13 @@ endef
 endif
 ifeq (Linux,$(PROJECT_OS))
 define build_flatc_recipe
-	cd $(PIE_NOON_DIR) && $(CMAKE) . && $(MAKE) flatc
+	cd $(PIE_NOON_DIR) && $(CMAKE) -Dpie_noon_only_flatc=ON . && $(MAKE) flatc
 endef
 endif
 ifeq (Darwin,$(PROJECT_OS))
 define build_flatc_recipe
-	cd $(PIE_NOON_DIR) && "$(CMAKE)" -GXcode . && xcodebuild -target flatc
+	cd $(PIE_NOON_DIR) && "$(CMAKE)" -GXcode -Dpie_noon_only_flatc=ON . && \
+        xcodebuild -target flatc
 endef
 endif
 ifeq (,$(build_flatc_recipe))
@@ -133,7 +134,7 @@ $(foreach schema,$(FLATBUFFERS_SCHEMAS),\
 generated_includes: $(GENERATED_INCLUDES)
 
 clean_generated_includes:
-	$(hide) $(host-rm) $(GENERATED_INCLUDES)
+	$(hide) $(call host-rm,$(GENERATED_INCLUDES))
 endif
 
 # Build rule which builds assets for the game.
