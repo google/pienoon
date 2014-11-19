@@ -126,7 +126,7 @@ add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
 # directory.
 set(FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
-file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src *.fbs)
+file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src/*.fbs)
 
 # Generate rules to build the set of output files from the set of input
 # schema files.
