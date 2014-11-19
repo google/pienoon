@@ -752,6 +752,7 @@ INPUT                  = "index.md" \
                          "programmers_guide/building_windows.md" \
                          "programmers_guide/controllers.md" \
                          "programmers_guide/assets.md" \
+                         "programmers_guide/audio.md" \
                          "programmers_guide/engine.md" \
                          "programmers_guide/gameplay.md" \
                          "programmers_guide/gui.md" \
