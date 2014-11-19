@@ -23,7 +23,7 @@ The following table maps each set of [JSON][] files in `src/rawassets` to
 | `materials\*.json`                 | `materials.fbs`                   |
 | `rendering_assets.json`            | `rendering_assets.fbs`            |
 | `sound_assets.json`                | `sound_assets.fbs`                |
-| `sounds\*.json`                    | `sound.fbs`                       |
+| `sounds\*.json`                    | `sound_collection_def.fbs`        |
 
 ### Building
 
