@@ -28,19 +28,65 @@ upon, so download the source using:
 
 ## Functionality
 
-[Pie Noon][] uses several simple open source technology components developed by
-Google.
+<table style="border: 0; padding: 3em">
+<tr>
+  <td>
+    <img src="info_panel_google_play_games.png"
+     style="height: 20em" />
+	[Google Play Games Services][] is used to share scores and reward players
+	with achievements.
+  </td>
+</tr>
+<tr>
+  <td>
+    <img src="info_panel_webp_textures.png"
+	  style="height: 20em" />
+	 [WebP][], a image compression technology, is used to compress textures
+	 which reduces the size of the final game package and ultimately reduces
+	 download time.
+  </td>
+</tr>
+<tr>
+  <td>
+    <img src="info_panel_data_driven_flatbuffers.png"
+     style="height: 20em" />
+	 [FlatBuffers][], a fast serialization system is used to store the
+	 game's data. The game configuration data is stored in [JSON][] files
+	 which are converted to FlatBuffer binary files using the flatc compiler.
+  </td>
+</tr>
+<tr>
+  <td>
+    <img src="info_panel_procedural_animation_mathfu.png"
+     style="height: 20em" />
+	 [MathFu][], a geometry math library optimized for [ARM][] and [x86][]
+	 processors. The game uses [MathFu][] data types for two and three
+     dimensional vectors, and for the 4x4 matrices used by the rendering
+	 and procedural animation system.
+  </td>
+</tr>
+<tr>
+  <td>
+    <img src="info_panel_multiple_control_schemes.png"
+     style="height: 20em" />
+	 The game uses an [input device abstraction](@ref pie_noon_controllers)
+	 which enables it to work effectively with multiple control schemes
+	 including touch for [Android][], joypads on [Android TV][] and
+	 keyboards on desktop platforms.
+  </td>
+</tr>
+<tr>
+  <td>
+    <img src="info_panel_normal_mapping.png"
+     style="height: 20em" />
+	 The [Renderer](@ref pie_noon_guide_engine_renderer) is used
+	 conjunction with a normal mapping shader to provide cardboard rendering.
+  </td>
+</tr>
+</table>
 
-   * [FlatBuffers][], a fast serialization system. The game configuration data
-     is stored in [JSON][] files which are converted to FlatBuffer binary files
-     using the flatc compiler.
-   * [MathFu][], a geometry math library optimized for [ARM][] and [x86][]
-     processors. The game uses Pie Noon data types for two and three dimensional
-     vectors, and for the 4x4 matrices used by the rendering system.
-   * [fplutil][], a collection of small utilities to aid native Android
-     development. The game uses scripts in fplutil to build, deploy, and run
-     the game, build and archive the game, and profile the game's CPU
-     performance.
+In addition, [fplutil][] is used to build, deploy, and run the game,
+build and archive the game, and profile the game's CPU performance.
 
 ## Supported Platforms
 
@@ -79,3 +125,5 @@ only on Android builds. The game can be compiled using [Linux][], [OS X][] or
   [stackoverflow.com]: http://www.stackoverflow.com
   [Windows]: http://windows.microsoft.com/
   [x86]: http://en.wikipedia.org/wiki/X86
+  [Google Play Games Services]: https://developer.android.com/google/play-services/games.html
+  [WebP]: https://developers.google.com/speed/webp
