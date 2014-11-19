@@ -1,20 +1,10 @@
 Pie Noon   {#pie_noon_readme}
 ========
 
-Pie Noon Version 0.1.0
+Pie Noon Version 1.0.0
 
 [Pie Noon][] is a simple multiplayer party game where you can throw pies at
 your friends.
-
-For applications on Google Play that are derived from this application, usage
-is tracked.
-This tracking is done automatically using the embedded version string
-(kVersion), and helps us continue to optimize it. Aside from
-consuming a few extra bytes in your application binary, it shouldn't affect
-your application at all. We use this information to let us know if Pie Noon
-is useful and if we should continue to invest in it. Since this is open
-source, you are free to remove the version string but we would appreciate if
-you would leave it in.
 
 ## Motivation
 
@@ -32,8 +22,8 @@ via support for the [Nexus Player][], an [Android TV][] device.
 [Pie Noon][] can be downloaded from [GitHub](http://github.com/google/pienoon)
 or the [releases page](http://github.com/google/pienoon/releases).
 
-**Important**: Pie Noon uses submodules to reference other components it depends
-upon, so download the source using:
+**Important**: Pie Noon uses submodules to reference other components it
+depends upon, so download the source using:
 
 ~~~{.sh}
     git clone --recursive https://github.com/google/pienoon.git
@@ -46,6 +36,17 @@ See our online documentation for how to [Build and Run Pie Noon][], and for a
 of it's subsystems.
 
 
+For applications on Google Play that are derived from this application, usage
+is tracked.
+This tracking is done automatically using the embedded version string
+(kVersion), and helps us continue to optimize it. Aside from
+consuming a few extra bytes in your application binary, it shouldn't affect
+your application at all. We use this information to let us know if Pie Noon
+is useful and if we should continue to invest in it. Since this is open
+source, you are free to remove the version string but we would appreciate if
+you would leave it in.
+
+
   [Android TV]: http://www.android.com/tv/
   [Build and Run Pie Noon]: http://google.github.io/pienoon/pie_noon_guide_building.html
   [Engine]: http://google.github.io/pienoon/pie_noon_guide_engine.html
@@ -56,4 +57,3 @@ of it's subsystems.
   [Nexus Player]: http://www.google.com/nexus/player/
   [Pie Noon]: http://google.github.io/pienoon/
   [Programmer's Guide]: http://google.github.io/pienoon/pie_noon_guide_overview.html
-
