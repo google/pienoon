@@ -1,17 +1,14 @@
 Overview    {#pie_noon_guide_overview}
 ========
 
-## Motivation
+## Downloading
 
-Pie Noon is a cross-platform multi-player game written in C++.
+[Pie Noon][] can be downloaded from [GitHub](http://github.com/google/pienoon)
+or the [releases page](http://github.com/google/pienoon/releases).
 
-It is a demonstration for several technologies, including the [FlatBuffers][]
-serialization system, the [MathFu][] geometry library, and the [fplutil][]
-utility library for Android C++ development. It also uses simple rendering,
-audio, GUI, and animation subsystems.
-
-Pie Noon demonstrates a quick and fun party game for the living room via support
-for the [Nexus Player][], an [Android TV][] device.
+~~~{.sh}
+    git clone --recursive https://github.com/google/pienoon.git
+~~~
 
 ## Subsystems
 
@@ -62,6 +59,7 @@ The following bullets describe the directory structure of the game.
   [Impel]: @ref pie_noon_guide_impel
   [MathFu]: http://googledevelopers.blogspot.ca/2014/11/geometry-math-library-for-c-game.html
   [Nexus Player]: http://www.google.com/nexus/player/
+  [Pie Noon]: @ref pie_noon_index
   [PieNoonGame]: @ref pie_noon_guide_pie_noon_game
   [SDL]: https://www.libsdl.org/
   [SDL-mixer]: http://www.libsdl.org/projects/SDL_mixer/

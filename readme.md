@@ -1,9 +1,10 @@
-PieNoon Version 0.1.0
+Pie Noon   {#pie_noon_readme}
+========
 
-# PieNoon {#pie_noon_readme}
+Pie Noon Version 0.1.0
 
-PieNoon is a simple multiplayer party game where you can throw pies at your
-friends.
+[Pie Noon][] is a simple multiplayer party game where you can throw pies at
+your friends.
 
 For applications on Google Play that are derived from this application, usage
 is tracked.
@@ -15,28 +16,44 @@ is useful and if we should continue to invest in it. Since this is open
 source, you are free to remove the version string but we would appreciate if
 you would leave it in.
 
-  [adb]: http://developer.android.com/tools/help/adb.html
-  [ADT]: http://developer.android.com/tools/sdk/eclipse-adt.html
-  [Android NDK]: http://developer.android.com/tools/sdk/ndk/index.html
-  [Android SDK]: http://developer.android.com/sdk/index.html
-  [cmake]: http://www.cmake.org
-  [Cygwin installation]: http://www.cygwin.com/
-  [cygwin]: http://www.cygwin.com/
-  [cwebp]: https://developers.google.com/speed/webp/docs/cwebp
-  [WebP Precompiled Utilities]: https://developers.google.com/speed/webp/docs/precompiled
-  [DirectX SDK]: http://www.microsoft.com/en-us/download/details.aspx?id=6812
-  [Finite-state machine]: http://en.wikipedia.org/wiki/Finite-state_machine
+## Motivation
+
+[Pie Noon][] is a demonstration for several technologies, including the
+[FlatBuffers][] serialization system, the [MathFu][] geometry math library,
+and the [fplutil][] utility library for Android C++ development.
+It also uses simple rendering, audio, GUI, and animation subsystems
+(see [Engine][] and [Impel][]).
+
+Pie Noon is also an example of a quick and fun party game for the living room
+via support for the [Nexus Player][], an [Android TV][] device.
+
+## Downloading
+
+[Pie Noon][] can be downloaded from [GitHub](http://github.com/google/pienoon)
+or the [releases page](http://github.com/google/pienoon/releases).
+
+**Important**: Pie Noon uses submodules to reference other components it depends
+upon, so download the source using:
+
+~~~{.sh}
+    git clone --recursive https://github.com/google/pienoon.git
+~~~
+
+## Documentation
+
+See our online documentation for how to [Build and Run Pie Noon][], and for a
+[Programmer's Guide][] that details the overall structure of the game and all
+of it's subsystems.
+
+
+  [Android TV]: http://www.android.com/tv/
+  [Build and Run Pie Noon]: http://google.github.io/pienoon/pie_noon_guide_building.html
+  [Engine]: http://google.github.io/pienoon/pie_noon_guide_engine.html
   [Flatbuffers]: http://google.github.io/flatbuffers/
-  [Flatbuffers compiler]: http://google.github.io/flatbuffers/md__compiler.html
-  [Flatbuffers schema]: http://google.github.io/flatbuffers/md__schemas.html
-  [Linux]: http://en.wikipedia.org/wiki/Linux
-  [JSON]: http://json.org/
-  [managing avds]: http://developer.android.com/tools/devices/managing-avds.html
-  [NDK Eclipse plugin]: http://developer.android.com/sdk/index.html
-  [OS X]: http://www.apple.com/osx/
-  [Python]: http://python.org/
-  [Ubuntu]: http://www.ubuntu.com
-  [Visual Studio]: http://www.visualstudio.com/
-  [Windows]: http://windows.microsoft.com/
-  [webp]: https://developers.google.com/speed/webp/
+  [fplutil]: http://android-developers.blogspot.ca/2014/11/utilities-for-cc-android-developers.html
+  [Impel]: http://google.github.io/pienoon/pie_noon_guide_impel.html
+  [MathFu]: http://googledevelopers.blogspot.ca/2014/11/geometry-math-library-for-c-game.html
+  [Nexus Player]: http://www.google.com/nexus/player/
+  [Pie Noon]: http://google.github.io/pienoon/
+  [Programmer's Guide]: http://google.github.io/pienoon/pie_noon_guide_overview.html
 

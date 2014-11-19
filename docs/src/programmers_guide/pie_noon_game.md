@@ -114,10 +114,9 @@ The [JSON][] files are compiled by the asset pipeline into bin files with the
 command `make assets`. This command runs `flatc` to convert config.fbs with
 config.fbs into config.bin, for instance.
 
-See [Asset Modification][] for further details.
+See [Modifying Assets][] for further details.
 
 <br>
 
-  [Asset Modification]: @ref pie_noon_guide_assets
   [JSON]: http://json.org/
   [Modifying Assets]: @ref pie_noon_guide_assets
