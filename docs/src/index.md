@@ -99,7 +99,8 @@ build and archive the game, and profile the game's CPU performance.
    * [OS X][]
    * [Windows][]
 
-The game is written entirely in C++ with the exception of one Java file used
+We use [SDL] as our cross platform layer.
+The game is written entirely in C++, with the exception of one Java file used
 only on Android builds. The game can be compiled using [Linux][], [OS X][] or
 [Windows][].
 
@@ -143,6 +144,7 @@ depends upon, so download the source from [GitHub][] using:
   [Pie Noon]: @ref pie_noon_index
   [Pie Noon Google Group]: http://group.google.com/group/pienoon
   [Pie Noon Issues Tracker]: http://github.com/google/pienoon/issues
+  [SDL]: https://www.libsdl.org/
   [stackoverflow.com]: http://www.stackoverflow.com
   [Windows]: http://windows.microsoft.com/
   [x86]: http://en.wikipedia.org/wiki/X86
