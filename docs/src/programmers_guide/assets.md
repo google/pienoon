@@ -20,10 +20,10 @@ The following table maps each set of [JSON][] files in `src/rawassets` to
 | `buses.json`                       | `buses.fbs`                       |
 | `character_state_machine_def.json` | `character_state_machine_def.fbs` |
 | `config.json`                      | `config.fbs`                      |
-| `materials/*.json`                 | `materials.fbs`                   |
+| `materials\*.json`                 | `materials.fbs`                   |
 | `rendering_assets.json`            | `rendering_assets.fbs`            |
 | `sound_assets.json`                | `sound_assets.fbs`                |
-| `sounds/*.json`                    | `sound.fbs`                       |
+| `sounds\*.json`                    | `sound.fbs`                       |
 
 ### Building
 
@@ -347,9 +347,11 @@ and `CharacterLoad2` 0.5 seconds after the timeline started playback:
 
 <br>
 
+  [cwebp]: https://developers.google.com/speed/webp/docs/cwebp
   [Flatbuffers]: http://google.github.io/flatbuffers/
   [Flatbuffers compiler]: http://google.github.io/flatbuffers/md__compiler.html
   [Flatbuffers schema]: http://google.github.io/flatbuffers/md__schemas.html
   [JSON]: http://json.org/
   [Python]: http://python.org/
+  [webp]: https://developers.google.com/speed/webp/
   [Windows]: http://windows.microsoft.com/
