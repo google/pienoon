@@ -74,10 +74,10 @@ The states and their transitions are described below.
 
     If the back button is selected, the game exits.
 
-  * `kJoining` -- The game counts down to game start. During the countdown, players
-    can join the game by triggering any input on their controller. When joining,
-    the player's character will jump, change color, and sparkle. This is
-    intended to let the player see which character he or she is playing.
+  * `kJoining` -- The game counts down to game start. During the countdown,
+    players can join the game by triggering any input on their controller.
+    When joining, the player's character will jump, change color, and sparkle.
+    This is intended to let the player see which character he or she is playing.
 
     Once the countdown completes, the game transitions to kPlaying.
 
@@ -99,8 +99,8 @@ The states and their transitions are described below.
 
 ## Configuration
 
-Game constants are kept in configuration files in [JSON][] format. The configuration
-files are in the src/rawasset directory.
+Game constants are kept in configuration files in [JSON][] format.
+The configuration files are in the src/rawasset directory.
 
 *  config.json -- majority of game constants
 *  character_state_machine_def.json -- game rules and character animations
@@ -114,10 +114,9 @@ The [JSON][] files are compiled by the asset pipeline into bin files with the
 command `make assets`. This command runs `flatc` to convert config.fbs with
 config.fbs into config.bin, for instance.
 
-See [Asset Modification][] for further details.
+See [Modifying Assets][] for further details.
 
 <br>
 
-  [Asset Modification]: @ref pie_noon_guide_assets
   [JSON]: http://json.org/
   [Modifying Assets]: @ref pie_noon_guide_assets

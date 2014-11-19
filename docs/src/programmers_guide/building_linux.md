@@ -4,24 +4,31 @@ Building for Linux    {#pie_noon_guide_building_linux}
 # Version Requirements
 
 Following are the minimum required versions for the tools and libraries you
-need for building PieNoon for Linux:
+need for building [Pie Noon][] for Linux:
 
--   OpenGL: libglapi-mesa 8.0.4 (tested with libglapi-mesa 8.0.4-0ubuntu0)
--   GLU: libglu1-mesa-dev 8.0.4 (tested with libglu1-mesa-dev 8.0.4.0ubuntu0)
--   cmake: 2.8.12 or newer
--   automake: 1.141 or newer
--   autoconf: 2.69 or newer
--   libtool: 2.4.2 or newer
+-   [OpenGL][]: libglapi-mesa 8.0.4 (tested with libglapi-mesa 8.0.4-0ubuntu0)
+-   [GLU][]: libglu1-mesa-dev 8.0.4 (tested with
+    libglu1-mesa-dev 8.0.4.0ubuntu0)
+-   [cmake][]: 2.8.12 or newer
+-   [automake][]: 1.141 or newer
+-   [autoconf][]: 2.69 or newer
+-   [libtool][]: 2.4.2 or newer
+-   [Python][]: 2.7.*
+-   [cwebp][]: 0.4.0 or newer (available from the
+    [WebP Precompiled Utilities][] page)
 
-# Before Building
+# Before Building    {#building_linux_prerequisites}
 
 Prior to building, install the following components using the [Linux][]
 distribution's package manager:
--    [cmake][]. You can also manually install from [cmake.org]
-     (http://cmake.org).
--    OpenGL (`libglapi-mesa`).
--    GLU (`libglu1-mesa-dev`).
--    autoconf, automake, and libtool
+
+-    [cmake][]. You can also manually install from
+     [cmake.org](http://cmake.org).
+-    [OpenGL][] (`libglapi-mesa`).
+-    [GLU][] (`libglu1-mesa-dev`).
+-    [autoconf][], [automake][], and [libtool][]
+-    [Python][]: 2.7.*
+-    [cwebp][]: 0.4.0 or newer
 
 For example, on Ubuntu:
 
@@ -29,13 +36,13 @@ For example, on Ubuntu:
     sudo apt-get install libglapi-mesa
     sudo apt-get install libglu1-mesa-dev
     sudo apt-get install autoconf automake libtool
-
-The sample applications require OpenGL and GLU.
+    sudo apt-get install python
+    sudo apt-get install cwebp
 
 # Building
 
 -   Generate makefiles from the [cmake][] project in the `pie_noon` directory.
--   Execute `make` to build the library and sample applications.
+-   Execute `make` to build the game.
 
 For example:
 
@@ -71,9 +78,16 @@ For example:
 
     ./bin/pie_noon
 
-
 <br>
 
+  [autoconf]: http://www.gnu.org/software/autoconf/
+  [automake]: http://www.gnu.org/software/automake/
+  [libtool]: http://www.gnu.org/software/libtool/
   [cmake]: http://www.cmake.org/
   [Linux]: http://en.wikipedia.org/wiki/Linux
   [Pie Noon]: @ref pie_noon_guide_overview
+  [OpenGL]: http://www.mesa3d.org/
+  [GLU]: http://www.mesa3d.org/
+  [Python]: http://www.python.org/download/releases/2.7/
+  [cwebp]: https://developers.google.com/speed/webp/docs/cwebp
+  [WebP Precompiled Utilities]: https://developers.google.com/speed/webp/docs/precompiled

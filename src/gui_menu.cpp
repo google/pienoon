@@ -94,10 +94,10 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
 
     const int num_textures = image_def.texture()->Length();
     std::vector<Material*> materials(num_textures);
-    for (int i = 0; i < num_textures; ++i) {
-      const char* material_name = TextureName(*image_def.texture()->Get(i));
-      materials[i] = matman->FindMaterial(material_name);
-      if (materials[i] == nullptr) {
+    for (int j = 0; j < num_textures; ++j) {
+      const char* material_name = TextureName(*image_def.texture()->Get(j));
+      materials[j] = matman->FindMaterial(material_name);
+      if (materials[j] == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                      "Static image '%s' not found", material_name);
       }
@@ -281,4 +281,3 @@ void GuiMenu::SetFocus(ButtonId new_focus) {
 
 }  // pie_noon
 }  // fpl
-

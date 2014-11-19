@@ -2,64 +2,81 @@ Building for Android    {#pie_noon_guide_building_android}
 ====================
 
 
-#### Version Requirements
+# Version Requirements
 
 Following are the minimum required versions for the tools and libraries you
-need for building PieNoon for Android:
+need for building [Pie Noon][] for Android:
 
--   Android SDK:  Android 4.4 (API Level 19)
--   ADT: 20140702
--   NDK: android-ndk-r10
+-   [Android SDK][]:  Android 5.0 (API Level 21)
+-   [ADT][]: 20140702
+-   [Android NDK][]: android-ndk-r10c
 -   NDK plugn for Eclipse: Bundled with ADT
+-   [Google Play Games C++ SDK][]: 1.3 or above
+-   [cmake][]: 2.8.12 or newer
+-   [Python][]: 2.7.*
+-   [cwebp][]: 0.4.0 or newer (download from the
+    [WebP Precompiled Utilities][])
 
-#### Before Building
+# Before Building
 
--   Install the [Android SDK].
--   Install the [Android NDK].
--   Download the [Google Play Games C++ SDK] and unpack into Pie Noon's
+-   Install prerequisites for the developer machine's operating system.
+    -   [Linux prerequisites](@ref building_linux_prerequisites)
+    -   [OS X prerequisites](@ref building_osx_prerequisites)
+    -   [Windows prerequisites](@ref building_windows_prerequisites)
+-   Install [fplutil prerequisites][]
+-   Install the [Android SDK][].
+-   Install the [Android NDK][].
+-   Download the [Google Play Games C++ SDK][] and unpack into Pie Noon's
     `dependencies/gpg-cpp-sdk` directory.
     -   For example, if you've fetched Pie Noon to `~/pie_noon/`, unpack
         the downloaded `gpg-cpp-sdk.v1.3.zip` to
         `~/pie_noon/dependencies/gpg-cpp-sdk`.
 
-#### Building
+## Set up Google Play Games Services
 
-The PieNoon project has an `AndroidManifest.xml` file which contains details
-about how to build an Android package (apk).
+Optionally, to use the [Google Play Games Services][] features in the game,
+follow the steps below to set up [Google Play Games Services][] IDs:
+
+-   Create an App ID with new package name in the
+    [Google Play Developer Console][].
+    -   Replace `app_id` with the newly created one in
+        `res/values/strings.xml`.
+    -   Update the package name in `AndroidManifest.xml` and java files.
+        - For example, rename `com.google.fpl.pie_noon` to
+          `com.mystudio.coolgame`.
+-   Create 5 achievement IDs and 14 leaderboards in the
+    [Google Play Developer Console][].
+    -   Replace Google Play Games IDs in `pie_noon_game.cpp`
+        (`achievements[]` and `gpg_ids[]`).
+
+# Building
+
+The [Pie Noon][] project has an `AndroidManifest.xml` file which contains
+details about how to build an Android package (apk).
 
 To build the project:
 
 -   Open a command line window.
--   Go to the working directory containing the project to build.
--   Execute `build_apk_sdl.sh` to build.
+-   Go to the [Pie Noon][] directory.
+-   Run [build_all_android][] to build the project.
 
 For example:
 
     cd pie_noon
-    ./build_apk_sdl.sh DEPLOY=0 LAUNCH=0
+    ./dependencies/fplutil/bin/build_all_android -E dependencies
 
-#### Installing and running the game.
+# Installing and running the game.
 
-`build_apk_sdl.sh` will also install and run the game after a build is
-complete.
+Install the game using [build_all_android][].
 
 For example, the following will install and run the game on a device attached
 to the workstation with serial number `ADA123123`.
 
     cd pie_noon
-    ./build_apk_sdl.sh ADB_DEVICE=ADA123123
+    ./dependencies/fplutil/bin/build_all_android -E dependencies -d ADA123123 -i -r -S
 
-If only one device is attached to a workstation, the `ADB_DEVICE1 argument
-can be ommitted.
-
-#### Code Generation
-
-By default, code is generated for devices that support the `armeabi-v7a` ABI.
-Alternatively, you can generate a fat `.apk` that includes code for all ABIs.
-To do so, override APP\_ABI on ndk-build's command line via `build_apk_sdl.sh`:
-
-    ./build_apk_sdl.sh APP_ABI=all
-
+If only one device is attached to a workstation, the `-d` argument
+(which selects a device) can be ommitted.
 
 <br>
 
@@ -74,3 +91,11 @@ To do so, override APP\_ABI on ndk-build's command line via `build_apk_sdl.sh`:
   [fplutil]: http://google.github.io/fplutil
   [fplutil prerequisites]: http://google.github.io/fplutil/fplutil_prerequisites.html
   [managing avds]: http://developer.android.com/tools/devices/managing-avds.html
+  [Google Play Games C++ SDK]: http://developers.google.com/games/services/downloads/
+  [Google Play Games Services]: http://developer.android.com/google/play-services/games.html
+  [build_all_android]: http://google.github.io/fplutil/build_all_android.html
+  [cmake]: http://www.cmake.org/
+  [Python]: http://www.python.org/download/releases/2.7/
+  [cwebp]: http://developers.google.com/speed/webp/docs/cwebp
+  [WebP Precompiled Utilities]: http://developers.google.com/speed/webp/docs/precompiled
+  [Google Play Developer Console]: http://play.google.com/apps/publish/

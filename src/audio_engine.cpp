@@ -341,7 +341,7 @@ ChannelId AudioEngine::PlaySound(SoundId sound_id) {
   // Prune sounds that have finished playing.
   EraseFinishedSounds();
 
-  bool stream = collection->GetSoundCollectionDef()->stream();
+  bool stream = collection->GetSoundCollectionDef()->stream() != 0;
   ChannelId new_channel = FindFreeChannel(stream);
 
   // If there are no empty channels, clear out the one with the lowest

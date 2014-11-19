@@ -23,7 +23,7 @@ The following table maps each set of [JSON][] files in `src/rawassets` to
 | `materials/*.json`                 | `materials.fbs`                   |
 | `rendering_assets.json`            | `rendering_assets.fbs`            |
 | `sound_assets.json`                | `sound_assets.fbs`                |
-| `sounds/*.json`                    | `sound.fbs`                       |
+| `sounds/*.json`                    | `sound_collection_def.fbs`        |
 
 ### Building
 
@@ -43,10 +43,14 @@ script which requires:
 *   `flatc` ([Flatbuffers compiler][]) to convert [JSON][] text files to .bin
     files in the `pie_noon/assets` directory.
 *   [cwebp][] is required to convert `png` images to the [webp][] format.
-    Install [cwebp][] by downloading the libwebp archive for your operating
-    system (see [WebP Precompiled Utilities][]) unpack somewhere on your
-    system and add the directory containing the [cwebp][] binary to the `PATH`
-    variable.
+    * Install [cwebp][] by downloading the libwebp archive for your operating
+      system (see [WebP Precompiled Utilities][])
+    * Unpack somewhere on your system and add the directory containing the
+      [cwebp][] binary to the `PATH` variable.  See prerequisites for the
+      your operating system configuration instructions:
+        * [Linux prerequisites](@ref building_linux_prerequisites)
+        * [OS X prerequisites](@ref building_osx_prerequisites)
+        * [Windows prerequisites](@ref building_windows_prerequisites)
 
 After modifying the data in the `pie_noon/src/rawassets` directory, the assets
 need to be rebuilt by running the following command:
@@ -110,74 +114,75 @@ Where `cardboard_front` the the billboard rendered in the foreground and
 illusion of depth.  The materials used for popsicle sticks (rendered if
 `stick` is true) are configured using `stick_front` and `stick_back`.
 
-##### Characters
+* Characters
 
-The renderables used for characters are configured using the
-*Character State Machine* (see section below).
+  The renderables used for characters are configured using the
+  *Character State Machine* (see section below).
 
-##### Character Accessories
+* Character Accessories
 
-Character accessories (`pie_noonter_accessories` and `health_accessories`) are
-rendered next to each character.  For example, the health display is rendered
-alongside the character to illustrate the characters remaining health.
+  Character accessories (`pie_noonter_accessories` and `health_accessories`)
+  are rendered next to each character.  For example, the health display is
+  rendered alongside the character to illustrate the characters remaining
+  health.
 
-##### Props
+* Props
 
-Props (`Prop`) are static billboards that are positioned in the scene with
-positions relative to world coordinates.  Props are configured using the
-`props` field and are unconditionally rendered.
+  Props (`Prop`) are static billboards that are positioned in the scene with
+  positions relative to world coordinates.  Props are configured using the
+  `props` field and are unconditionally rendered.
 
-##### Materials
+* Materials
 
-Each renderable must be associated with a material which specifies how the
-renderable is rendered.  Material [JSON][] files are located in
-`src/rawassets/materials` and use the `src/flatbufferschemas/materials.fbs`
-[Flatbuffers][] schema.
+  Each renderable must be associated with a material which specifies how the
+  renderable is rendered.  Material [JSON][] files are located in
+  `src/rawassets/materials` and use the `src/flatbufferschemas/materials.fbs`
+  [Flatbuffers][] schema.
 
-Fields that reference materials (`cardboard_front`, `cardboard_back`,
-`stick_front` and `stick_back`) specify the path of the material .bin file
-*generated* from the [JSON][] in `src/rawassets/materials`.  For example,
-to use `src/rawassets/materials/pie_small.json` the designer should specify
-`materials/pie_small.bin` string.
+  Fields that reference materials (`cardboard_front`, `cardboard_back`,
+  `stick_front` and `stick_back`) specify the path of the material .bin file
+  *generated* from the [JSON][] in `src/rawassets/materials`.  For example,
+  to use `src/rawassets/materials/pie_small.json` the designer should specify
+  `materials/pie_small.bin` string.
 
-The `shader_basename` references a vertex, fragment shader pair from
-`assets/shaders` to use to render the material.  For example, the string
-`shaders/textured` will cause the game to load the
-`assets/shaders/textured.glslf` fragment shader and the
-`assets/shaders/textured.glslv` vertex shader.
+  The `shader_basename` references a vertex, fragment shader pair from
+  `assets/shaders` to use to render the material.  For example, the string
+  `shaders/textured` will cause the game to load the
+  `assets/shaders/textured.glslf` fragment shader and the
+  `assets/shaders/textured.glslv` vertex shader.
 
-Textures are associated with a material using `texture_filenames` where the
-filenames - in a similar fashion to shader paths - are relative to the
-`assets` directory.  Each material can be associated with multiple textures,
-where the use of each texture depends upon the shader associated wih the
-material.
+  Textures are associated with a material using `texture_filenames` where the
+  filenames - in a similar fashion to shader paths - are relative to the
+  `assets` directory.  Each material can be associated with multiple textures,
+  where the use of each texture depends upon the shader associated wih the
+  material.
 
-##### Shaders
+* Shaders
 
-###### shaders/color
+  - `shaders/color`
 
-`shaders/color` does not take texture input and simply renders polygons using
-vertex colors specified by the game.
+    `shaders/color` does not take texture input and simply renders polygons using
+    vertex colors specified by the game.
 
-###### shaders/lit_textured_normal
+  - `shaders/lit_textured_normal`
 
-`shaders/lit_textured_normal` is a generic shader for rendering polygons with
-a normal map.  This uses the first texture specified in the `texture_filenames`
-list as the diffuse texture and the second texture as a normal map.  Ambient
-and specular lighting of the material is controlled by the normal map and the
-light position in the world (see `light_positions` in
-`src/flatbufferschemas/config.fbs`).
+    `shaders/lit_textured_normal` is a generic shader for rendering polygons
+    with a normal map.  This uses the first texture specified in the
+    `texture_filenames` list as the diffuse texture and the second texture as a
+    normal map.  Ambient and specular lighting of the material is controlled by
+    the normal map and the light position in the world (see `light_positions`
+    in `src/flatbufferschemas/config.fbs`).
 
-###### shaders/simple_shadow
+  - `shaders/simple_shadow`
 
-`shaders/simple_shadow` projects a shadow onto the ground plane (X-Z plane)
-away from the light position (see `light_positions` in
-`src/flatbufferschemas/config.fbs`).
+    `shaders/simple_shadow` projects a shadow onto the ground plane (X-Z plane)
+    away from the light position (see `light_positions` in
+    `src/flatbufferschemas/config.fbs`).
 
-##### shaders/textured
+  - `shaders/textured`
 
-`shaders/textured` simply renders the first texture in `texture_filenames`
-with a color tint - supplied by the game runtime - with no lighting.
+    `shaders/textured` simply renders the first texture in `texture_filenames`
+    with a color tint - supplied by the game runtime - with no lighting.
 
 ### Audio
 
@@ -347,9 +352,12 @@ and `CharacterLoad2` 0.5 seconds after the timeline started playback:
 
 <br>
 
+  [cwebp]: https://developers.google.com/speed/webp/docs/cwebp
   [Flatbuffers]: http://google.github.io/flatbuffers/
   [Flatbuffers compiler]: http://google.github.io/flatbuffers/md__compiler.html
   [Flatbuffers schema]: http://google.github.io/flatbuffers/md__schemas.html
   [JSON]: http://json.org/
   [Python]: http://python.org/
+  [webp]: https://developers.google.com/speed/webp/
   [Windows]: http://windows.microsoft.com/
+  [WebP Precompiled Utilities]: https://developers.google.com/speed/webp/docs/precompiled
