@@ -53,14 +53,11 @@ rem Generate Visual Studio solution.
 echo Generating solution for %cmake_generator%. >&2
 %cmake% -G"%cmake_generator%"
 if %ERRORLEVEL% NEQ 0 (
-exit /B %ERRORLEVEL%
+    exit /B %ERRORLEVEL%
 )
 
 rem Build flatc
-call jni\msbuild.bat obj\flatbuffers\flatc.vcxproj
-if !ERRORLEVEL! NEQ 0 set build_succeeded=0
+python jni\msbuild.py obj\flatbuffers\flatc.vcxproj
+if ERRORLEVEL 1 exit /B 1
 
-rem Report whether the build succeeded.
-if %build_succeeded% equ 0 exit /B 1
-exit /B 0
 
