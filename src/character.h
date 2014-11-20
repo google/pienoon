@@ -92,6 +92,9 @@ class Character {
   // Calculate the renderable id for the character at 'anim_time'.
   uint16_t RenderableId(WorldTime anim_time) const;
 
+  // On-screen color. Used in shader when rendering.
+  mathfu::vec4 Color() const;
+
   // Returns the timeline of the current state.
   const Timeline* CurrentTimeline() const {
     return state_machine_.current_state()->timeline();
