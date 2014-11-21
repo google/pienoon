@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "precompiled.h"
+#include "analytics_tracking.h"
 #include "angle.h"
 #include "audio_config_generated.h"
 #include "audio_engine.h"
@@ -41,6 +42,22 @@ namespace pie_noon {
 
 static const int kQuadNumVertices = 4;
 static const int kQuadNumIndices = 6;
+
+static const char* kCategoryUi = "Ui";
+static const char* kActionClickedButton = "Clicked button";
+static const char* kActionViewedTutorialSlide = "Viewed tutorial slide";
+static const char* kLabelSlideDurationFmt = "Slide #%i duration";
+static const char* kLabelSignInOutButton = "Sign In/Out";
+static const char* kLabelLicenseButton = "License";
+static const char* kLabelAboutButton = "About";
+static const char* kLabelStartButton = "Start";
+static const char* kLabelPauseButton = "Pause";
+static const char* kLabelUnpauseButton = "Unpause";
+static const char* kLabelAchievementsButton = "Achievements";
+static const char* kLabelExtrasButton = "Extras";
+static const char* kLabelExtrasBackButton = "Extras back button";
+static const char* kLabelHowToPlayButton = "How to play";
+static const char* kLabelLeaderboardButton = "Leaderboard";
 
 static const unsigned short kQuadIndices[] = { 0, 1, 2, 2, 1, 3 };
 
@@ -134,7 +151,8 @@ bool PieNoonGame::InitializeRenderer() {
   const Config& config = GetConfig();
 
 #ifdef __ANDROID__
-  auto max_screen_size = pie_noon::Vec2i(kAndroidMaxScreenWidth, kAndroidMaxScreenHeight);
+  auto max_screen_size = pie_noon::Vec2i(kAndroidMaxScreenWidth,
+                                         kAndroidMaxScreenHeight);
   auto window_size = &max_screen_size;
 #else
   auto window_size = config.window_size();
@@ -428,7 +446,8 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
     return false;
 # endif
 
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "PieNoon initialization complete\n");
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+              "PieNoon initialization complete\n");
   return true;
 }
 
@@ -578,7 +597,8 @@ void PieNoonGame::Render2DElements() {
   if (gpg_text)
     gpg_text->set_current_material_index(material_index);
 
-  auto achievements_button = gui_menu_.FindButtonById(ButtonId_MenuAchievements);
+  auto achievements_button =
+      gui_menu_.FindButtonById(ButtonId_MenuAchievements);
   if (achievements_button)
     achievements_button->set_is_active(is_logged_in);
   auto leaderboards_button = gui_menu_.FindButtonById(ButtonId_MenuLeaderboard);
@@ -724,6 +744,7 @@ ButtonId PieNoonGame::CurrentlyAnimatingJoinImage(WorldTime time) const {
 }
 
 PieNoonState PieNoonGame::UpdatePieNoonState() {
+  const Config& config = GetConfig();
   const WorldTime time = CurrentWorldTime();
   // If a full screen fade is active.
   if (Fading()) {
@@ -738,7 +759,6 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
   }
   switch (state_) {
     case kLoadingInitialMaterials: {
-      const Config& config = GetConfig();
       if (matman_.FindMaterial(
             config.loading_material()->c_str())->textures()[0]->id() &&
           matman_.FindMaterial(
@@ -751,7 +771,6 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       break;
     }
     case kLoading: {
-      const Config& config = GetConfig();
       // When we initialized assets, we kicked off a thread to load all
       // textures. Here we check if those have finished loading.
       // We also leave the loading screen up for a minimum amount of time.
@@ -763,6 +782,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         int displayed_tutorial = ReadPreference("displayed_tutorial", 0, 1);
         const PieNoonState first_state =
             displayed_tutorial ? kFinished : kTutorial;
+        tutorial_slide_time_ = time;
 
         // Fade out the loading screen and fade in the scene or tutorial.
         FadeToPieNoonState(first_state, config.full_screen_fade_time(),
@@ -779,8 +799,6 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
 
       // We've moved to animating a new pie.
       if (id != join_id_) {
-        const Config& config = GetConfig();
-
         // Vanish the previous pie.
         StaticImage* prev_image = gui_menu_.FindImageById(join_id_);
         if (prev_image != nullptr) {
@@ -808,6 +826,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
 
       // After a few seconds, start the game.
       if (join_id_ == ButtonId_Undefined) {
+        game_state_.PreGameLogging();
         // Fade to the game
         FadeToPieNoonState(kPlaying, GetConfig().full_screen_fade_time(),
                            mathfu::kZeros4f, true);
@@ -818,24 +837,28 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       if (input_.GetButton(SDLK_AC_BACK).went_down() ||
           input_.GetButton(SDLK_p).went_down() ||
           input_.minimized_frame() == input_.frames()) {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelPauseButton);
+        pause_time_ = time;
         return kPaused;
       }
       if (game_state_.IsGameOver() &&
           stinger_channel_ != AudioEngine::kInvalidChannel &&
           !AudioEngine::Playing(stinger_channel_)) {
+        game_state_.PostGameLogging();
         return kFinished;
       }
       break;
     }
     case kPaused: {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelUnpauseButton,
+                         time - pause_time_);
         input_.exit_requested_ = true;
       }
-      return HandleMenuButtons();
+      return HandleMenuButtons(time);
     }
     case kFinished: {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
-        const Config& config = GetConfig();
         const bool in_extras_menu = gui_menu_.menu_def() ==
                                     config.extras_screen_buttons();
         if (in_extras_menu) {
@@ -844,10 +867,9 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
           input_.exit_requested_ = true;
         }
       }
-      return HandleMenuButtons();
+      return HandleMenuButtons(time);
     }
     case kTutorial: {
-      const Config& config = GetConfig();
       const bool past_last_slide =
           tutorial_slide_index_ >=
           static_cast<int>(config.tutorial_slides()->Length());
@@ -895,7 +917,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
         audio_engine_.PlaySound(SoundId_StartMatch);
         audio_engine_.PlaySound(SoundId_MusicAction);
         ambience_channel_ = audio_engine_.PlaySound(SoundId_Ambience);
-        game_state_.Reset();
+        game_state_.Reset(GameState::kTrackAnalytics);
       } else {
         audio_engine_.Pause(false);
       }
@@ -921,7 +943,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
           // Players will have to press A again to get themselves re-assigned.
           // Find unused AI character:
           for (auto it = active_controllers_.begin();
-                   it != active_controllers_.end(); ++it) {
+               it != active_controllers_.end(); ++it) {
             if ((*it)->controller_type() == Controller::kTypeAI &&
                 (*it)->character_id() == kNoCharacter) {
               character->controller()->set_character_id(kNoCharacter);
@@ -1115,7 +1137,7 @@ void PieNoonGame::HandlePlayersJoining() {
     Controller* controller = it->get();
     const bool has_input = controller != nullptr &&
                            (controller->went_up() || controller->went_down());
-    if(has_input) {
+    if (has_input) {
       HandlePlayersJoining(controller);
     }
   }
@@ -1194,7 +1216,7 @@ static void DisplayDialogBox(const char* title, const char* text_file_name,
 #endif
 }
 
-PieNoonState PieNoonGame::HandleMenuButtons() {
+PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
   const ButtonId previous_focus = gui_menu_.GetFocus();
   for (size_t i = 0; i < active_controllers_.size(); i++) {
     Controller* controller = active_controllers_[i].get();
@@ -1211,23 +1233,33 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
        menu_selection.button_id != ButtonId_Undefined;
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
-      case ButtonId_MenuSignIn:
+      case ButtonId_MenuSignIn: {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Menu: SIGN IN/OUT");
+        bool signed_in = false;
         audio_engine_.PlaySound(SoundId_JoinMatch);
 #       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        signed_in = gpg_manager.LoggedIn();
         gpg_manager.ToggleSignIn();
 #       endif
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelSignInOutButton, signed_in);
         break;
+      }
       case ButtonId_MenuLicense:
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelLicenseButton);
         audio_engine_.PlaySound(SoundId_JoinMatch);
         DisplayDialogBox("Open Source Licenses", "licenses.txt", false);
         break;
       case ButtonId_MenuAbout:
+        SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelAboutButton);
         audio_engine_.PlaySound(SoundId_JoinMatch);
         DisplayDialogBox("About", "about.html", true);
         break;
       case ButtonId_MenuStart:
         if (state_ == kFinished) {
+          SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                           kLabelStartButton);
           audio_engine_.PlaySound(SoundId_JoinMatch);
           if (menu_selection.controller_id == kTouchController) {
             // When a touch controller exists, we assume it is the unique
@@ -1240,11 +1272,15 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
         }
         break;
       case ButtonId_MenuResume:
+        SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelUnpauseButton,
+                         pause_time_ - time);
         if (state_ == kPaused) {
           return kPlaying;
         }
         break;
       case ButtonId_MenuAchievements:
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelAchievementsButton);
 #       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.ShowAchievements();
 #       endif
@@ -1253,18 +1289,26 @@ PieNoonState PieNoonGame::HandleMenuButtons() {
         audio_engine_.PlaySound(SoundId_InvalidInput);
         break;
       case ButtonId_MenuExtras: {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelExtrasButton);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.extras_screen_buttons(), &matman_);
         break;
       }
       case ButtonId_MenuBack: {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelExtrasBackButton);
         const Config& config = GetConfig();
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         break;
       }
       case ButtonId_MenuHowToPlay:
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelHowToPlayButton);
+        tutorial_slide_time_ = time;
         return kTutorial;
       case ButtonId_MenuLeaderboard:
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelLeaderboardButton);
         UploadAndShowLeaderboards();
         break;
       default:
@@ -1412,7 +1456,7 @@ void PieNoonGame::Run() {
   const WorldTime max_update_time = config.max_update_time();
   prev_world_time_ = CurrentWorldTime() - min_update_time;
   TransitionToPieNoonState(kLoadingInitialMaterials);
-  game_state_.Reset();
+  game_state_.Reset(GameState::kNoAnalytics);
 
   while (!input_.exit_requested_ &&
          !input_.GetButton(SDLK_ESCAPE).went_down()) {
@@ -1468,9 +1512,9 @@ void PieNoonGame::Run() {
         // Update audio engine state.
         audio_engine_.AdvanceFrame(world_time);
 
-        // Populate 'scene' from the game state--all the positions, orientations,
-        // and renderable-ids (which specify materials) of the characters and
-        // props. Also specify the camera matrix.
+        // Populate 'scene' from the game state--all the positions,
+        // orientations, and renderable-ids (which specify materials) of the
+        // characters and props. Also specify the camera matrix.
         game_state_.PopulateScene(&scene_);
 
         // Issue draw calls for the 'scene'.
@@ -1504,11 +1548,11 @@ void PieNoonGame::Run() {
           // For testing, show UI:
           UploadAndShowLeaderboards();
         }
-  #     ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.Update();
         WritePreference("logged_in", static_cast<int>(gpg_manager.LoggedIn()));
         CheckForNewAchievements();
-  #     endif
+#       endif
         break;
       }
 
@@ -1559,7 +1603,7 @@ void PieNoonGame::Run() {
         matman_.TryFinalize();
 
         if (UpdatePieNoonStateAndTransition() == kFinished) {
-          game_state_.Reset();
+          game_state_.Reset(GameState::kNoAnalytics);
         }
         break;
 
@@ -1598,8 +1642,15 @@ void PieNoonGame::Run() {
             // Unload current slide to save memory.
             matman_.UnloadMaterial(slide_name);
 
+            char slide_number[32];
+            sprintf(slide_number, kLabelSlideDurationFmt,
+                    tutorial_slide_index_);
+            SendTrackerEvent(kCategoryUi, kActionViewedTutorialSlide,
+                             slide_number, world_time - tutorial_slide_time_);
+
             // When completely dark, transition to the next slide.
             tutorial_slide_index_++;
+            tutorial_slide_time_ = world_time;
           }
         }
 

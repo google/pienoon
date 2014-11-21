@@ -38,6 +38,11 @@ struct ReceivedPie;
 
 class GameState {
  public:
+  enum AnalyticsMode{
+    kNoAnalytics,
+    kTrackAnalytics
+  };
+
   GameState();
   ~GameState();
 
@@ -45,10 +50,16 @@ class GameState {
   bool IsGameOver() const;
 
   // Return to default configuration.
-  void Reset();
+  // If demo mode is set, no analytics tracking will be performed.
+  void Reset(AnalyticsMode analytics_mode);
 
   // Update controller and state machine for each character.
   void AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine);
+
+  // To be run before starting a game and after ending one to log data about
+  // gameplay.
+  void PreGameLogging() const;
+  void PostGameLogging() const;
 
   // Fill in the position of the characters and pies.
   void PopulateScene(SceneDescription* scene) const;
@@ -109,7 +120,8 @@ private:
                      const Character& character,
                      WorldTime delta_time) const;
   void CreatePie(CharacterId original_source_id, CharacterId source_id,
-                 CharacterId target_id, int damage);
+                 CharacterId target_id, CharacterHealth original_damage,
+                 CharacterHealth damage);
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
   void ProcessEvent(Character* character,
                     unsigned int event,
@@ -154,6 +166,7 @@ private:
   const Config* config_;
   const CharacterArrangement* arrangement_;
   ParticleManager particle_manager_;
+  AnalyticsMode analytics_mode_;
 };
 
 }  // pie_noon

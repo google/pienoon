@@ -134,13 +134,14 @@ void Character::ResetStats() {
 // orientation_ and position_ are set each frame in GameState::Advance.
 AirbornePie::AirbornePie(CharacterId original_source, CharacterId source,
                          CharacterId target, WorldTime start_time,
-                         WorldTime flight_time, CharacterHealth damage,
-                         float height, int rotations)
+                         WorldTime flight_time, CharacterHealth original_damage,
+                         CharacterHealth damage, float height, int rotations)
     : original_source_(original_source),
       source_(source),
       target_(target),
       start_time_(start_time),
       flight_time_(flight_time),
+      original_damage_(original_damage),
       damage_(damage),
       height_(height),
       rotations_(rotations),

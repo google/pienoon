@@ -96,7 +96,7 @@ class PieNoonGame {
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining(Controller* controller);
   void HandlePlayersJoining();
-  PieNoonState HandleMenuButtons();
+  PieNoonState HandleMenuButtons(WorldTime time);
   //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
@@ -109,8 +109,10 @@ class PieNoonGame {
   void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
                               Material* material);
 
-  int ReadPreference(const char *key, int initial_value, int failure_value);
-  void WritePreference(const char *key, int value);
+  static int ReadPreference(const char *key, int initial_value,
+                            int failure_value);
+  static void WritePreference(const char *key, int value);
+
   void CheckForNewAchievements();
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
@@ -202,10 +204,16 @@ class PieNoonGame {
   // Our current slide of the tutorial. Valid when state_ is kTutorial.
   int tutorial_slide_index_;
 
+  // The Worldtime when the curent tutorial slide was displayed.
+  WorldTime tutorial_slide_time_;
+
   int next_achievement_index_;
 
   // String version number of the game.
   const char *version_;
+
+  // The Worldtime when the game was paused, used just for analytics.
+  WorldTime pause_time_;
 
 # ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;

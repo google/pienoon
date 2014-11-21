@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "precompiled.h"
+#include "analytics_tracking.h"
 #include "audio_config_generated.h"
 #include "audio_engine.h"
 #include "character_state_machine.h"
@@ -39,6 +40,25 @@ using mathfu::mat4;
 namespace fpl {
 namespace pie_noon {
 
+static const char* kCategoryGame = "Game";
+static const char* kActionStartedGame = "Started game";
+static const char* kActionFinishedGameDuration = "Finished game duration";
+static const char* kActionFinishedGameHumanWinners =
+    "Finished game human winners";
+static const char* kActionAiThrewPie = "AI threw pie";
+static const char* kActionHumanThrewPie = "Human threw pie";
+static const char* kActionHitAi = "Hit Ai";
+static const char* kActionHitPlayer = "Hit player";
+static const char* kActionAiDeflected = "AI deflected pie";
+static const char* kActionPlayerDeflected = "Player deflected pie";
+static const char* kLabelKnockOut = "Knock out";
+static const char* kLabelDirectHit = "Direct";
+static const char* kLabelIndirectHit = "Indirect";
+static const char* kLabelHitSelf = "Hit self";
+static const char* kLabelHitOther = "Hit other";
+static const char* kLabelSize = "Size";
+static const char* kLabelSizeDelta = "Size delta";
+
 static const mat4 kRotate90DegreesAboutXAxis(1,  0, 0, 0,
                                              0,  0, 1, 0,
                                              0, -1, 0, 0,
@@ -49,6 +69,7 @@ struct ReceivedPie {
   CharacterId original_source_id;
   CharacterId source_id;
   CharacterId target_id;
+  CharacterHealth original_damage;
   CharacterHealth damage;
 };
 
@@ -170,13 +191,14 @@ bool GameState::IsGameOver() const {
 }
 
 // Reset the game back to initial configuration.
-void GameState::Reset() {
+void GameState::Reset(AnalyticsMode analytics_mode) {
   time_ = 0;
   camera_base_.position = LoadVec3(config_->camera_position());
   camera_base_.target = LoadVec3(config_->camera_target());
   camera_.Initialize(camera_base_, &impel_engine_);
   pies_.clear();
   arrangement_ = GetBestArrangement(config_, characters_.size());
+  analytics_mode_ = analytics_mode;
 
   // Load the impeller specifications. Skip over "None".
   impel::OvershootImpelInit impeller_inits[ImpellerSpecification_Count];
@@ -227,7 +249,7 @@ void GameState::Reset() {
 // Sets up the players in joining mode, where all they can do is jump up
 // and down.
 void GameState::EnterJoiningMode() {
-  Reset();
+  Reset(kNoAnalytics);
   for (CharacterId id = 0;
       id < static_cast<CharacterId>(characters_.size()); ++id) {
     characters_[id]->state_machine()->SetCurrentState(StateId_Joining, time_);
@@ -264,6 +286,7 @@ void GameState::ProcessSounds(AudioEngine* audio_engine,
 void GameState::CreatePie(CharacterId original_source_id,
                           CharacterId source_id,
                           CharacterId target_id,
+                          CharacterHealth original_damage,
                           CharacterHealth damage) {
   float height = config_->pie_arc_height();
   height += config_->pie_arc_height_variance() *
@@ -273,7 +296,8 @@ void GameState::CreatePie(CharacterId original_source_id,
   rotations += variance ? (rand() % (variance * 2)) - variance : 0;
   pies_.push_back(std::unique_ptr<AirbornePie>(
       new AirbornePie(original_source_id, source_id, target_id, time_,
-                      config_->pie_flight_time(), damage, height, rotations)));
+                      config_->pie_flight_time(), original_damage, damage,
+                      height, rotations)));
   UpdatePiePosition(pies_.back().get());
 }
 
@@ -317,6 +341,8 @@ static GameCameraMovement CalculateCameraMovement(
 void GameState::ProcessEvent(Character* character,
                              unsigned int event,
                              const EventData& event_data) {
+  bool is_ai_player =
+      character->controller()->controller_type() == Controller::kTypeAI;
   switch (event) {
     case EventId_TakeDamage: {
       CharacterHealth total_damage = 0;
@@ -326,6 +352,22 @@ void GameState::ProcessEvent(Character* character,
         total_damage += pie.damage;
         if (config_->game_mode() == GameMode_Survival) {
           character->set_health(character->health() - pie.damage);
+        }
+        if (analytics_mode_ == kTrackAnalytics) {
+          bool hit_self = pie.original_source_id == pie.target_id;
+          bool direct = pie.original_damage == pie.damage;
+          const char* action = is_ai_player ? kActionHitAi : kActionHitPlayer;
+          SendTrackerEvent(kCategoryGame, action,
+                           hit_self ? kLabelHitSelf : kLabelHitOther,
+                           pie.damage);
+          SendTrackerEvent(kCategoryGame, action,
+                           direct ? kLabelDirectHit : kLabelIndirectHit,
+                           pie.damage);
+          SendTrackerEvent(kCategoryGame, action, kLabelSizeDelta,
+                           pie.original_damage - pie.damage);
+          if (character->health() <= 0) {
+            SendTrackerEvent(kCategoryGame, action, kLabelKnockOut, time_);
+          }
         }
         ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitByPie,
                          pie.damage, character);
@@ -357,8 +399,14 @@ void GameState::ProcessEvent(Character* character,
     }
     case EventId_ReleasePie: {
       CreatePie(character->id(), character->id(), character->target(),
-                character->pie_damage());
+                character->pie_damage(), character->pie_damage());
       character->IncrementStat(kAttacks);
+      if (analytics_mode_ == kTrackAnalytics) {
+        const char* action =
+            is_ai_player ? kActionAiThrewPie : kActionHumanThrewPie;
+        SendTrackerEvent(kCategoryGame, action, kLabelSize,
+                         character->pie_damage());
+      }
       ApplyScoringRule(config_->scoring_rules(), ScoreEvent_ThrewPie,
                        character->pie_damage(), character);
       break;
@@ -373,11 +421,17 @@ void GameState::ProcessEvent(Character* character,
             pie.damage + config_->pie_damage_change_when_deflected();
         if (deflected_pie_damage > 0) {
           CreatePie(pie.source_id, character->id(),
-                    DetermineDeflectionTarget(pie), deflected_pie_damage);
+                    DetermineDeflectionTarget(pie), pie.original_damage,
+                    deflected_pie_damage);
         }
         CreatePieSplatter(*character, 1);
         character->IncrementStat(kBlocks);
         characters_[pie.source_id]->IncrementStat(kMisses);
+        if (analytics_mode_ == kTrackAnalytics) {
+          const char* action =
+              is_ai_player ? kActionAiDeflected : kActionPlayerDeflected;
+          SendTrackerEvent(kCategoryGame, action, kLabelSize, pie.damage);
+        }
         ApplyScoringRule(config_->scoring_rules(), ScoreEvent_DeflectedPie,
                          character->pie_damage(), character);
       }
@@ -839,7 +893,7 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   std::vector<EventData> event_data(characters_.size());
 
   // Update controller to gather state machine inputs.
-  for (unsigned int i = 0; i < characters_.size(); ++i) {
+  for (size_t i = 0; i < characters_.size(); ++i) {
     auto& character = characters_[i];
     character->UpdatePreviousState();
     Controller* controller = character->controller();
@@ -877,7 +931,11 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     if (time_since_launch >= pie->flight_time()) {
       auto& character = characters_[pie->target()];
       ReceivedPie received_pie = {
-        pie->original_source(), pie->source(), pie->target(), pie->damage()
+        pie->original_source(),
+        pie->source(),
+        pie->target(),
+        pie->original_damage(),
+        pie->damage()
       };
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
@@ -930,6 +988,20 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   }
 
   camera_.AdvanceFrame(delta_time);
+}
+
+void GameState::PreGameLogging() const {
+  SendTrackerEvent(kCategoryGame, kActionStartedGame,
+                   EnumNameGameMode(config_->game_mode()),
+                   NumActiveCharacters(true));
+}
+
+void GameState::PostGameLogging() const {
+  SendTrackerEvent(kCategoryGame, kActionFinishedGameDuration,
+                   EnumNameGameMode(config_->game_mode()), time());
+  SendTrackerEvent(kCategoryGame, kActionFinishedGameHumanWinners,
+                   EnumNameGameMode(config_->game_mode()),
+                   NumActiveCharacters(true));
 }
 
 // Get the camera matrix used for rendering.

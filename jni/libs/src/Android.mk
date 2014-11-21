@@ -166,6 +166,7 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR) \
 LOCAL_SRC_FILES := \
   $(subst $(LOCAL_PATH)/,,$(DEPENDENCIES_SDL_DIR))/src/main/android/SDL_android_main.c \
   $(PIE_NOON_RELATIVE_DIR)/src/ai_controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/analytics_tracking.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/async_loader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/audio_engine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/bus.cpp \

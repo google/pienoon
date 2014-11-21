@@ -17,31 +17,45 @@
 
 package com.google.fpl.pie_noon;
 
-import org.libsdl.app.SDLActivity;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Point;
+import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Display;
-import android.widget.TextView;
-import android.widget.ScrollView;
-import android.app.AlertDialog;
-import android.util.Log;
-import android.util.TypedValue;
-import android.graphics.Point;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import org.libsdl.app.SDLActivity;
 
 public class FPLActivity extends SDLActivity {
+
+  private final String PROPERTY_ID = "XX-XXXXXXXX-X";
+  private Tracker tracker = null;
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    tracker = GoogleAnalytics.getInstance(this).newTracker(PROPERTY_ID);
+  }
+
   // GPG's GUIs need activity lifecycle events to function properly, but
   // they don't have access to them. This code is here to route these events
   // back to GPG through our C++ code.
@@ -149,10 +163,10 @@ public class FPLActivity extends SDLActivity {
   @Override
   public boolean dispatchKeyEvent(KeyEvent event)
   {
-  if ((event.getSource() &
-      (InputDevice.SOURCE_JOYSTICK | InputDevice.SOURCE_GAMEPAD)) != 0) {
-          nativeOnGamepadInput(event.getDeviceId(), event.getAction(),
-                               event.getKeyCode(), 0.0f, 0.0f);
+    if ((event.getSource() &
+        (InputDevice.SOURCE_JOYSTICK | InputDevice.SOURCE_GAMEPAD)) != 0) {
+      nativeOnGamepadInput(event.getDeviceId(), event.getAction(),
+                           event.getKeyCode(), 0.0f, 0.0f);
     }
     return super.dispatchKeyEvent(event);
   }
@@ -183,6 +197,30 @@ public class FPLActivity extends SDLActivity {
     // Convert the dps to pixels, based on density scale
     return (int)TypedValue.applyDimension(
       TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+  }
+
+  public void SendTrackerEvent(String category, String action) {
+    tracker.send(new HitBuilders.EventBuilder()
+           .setCategory(category)
+           .setAction(action)
+           .build());
+  }
+
+  public void SendTrackerEvent(String category, String action, String label) {
+    tracker.send(new HitBuilders.EventBuilder()
+           .setCategory(category)
+           .setAction(action)
+           .setLabel(label)
+           .build());
+  }
+
+  public void SendTrackerEvent(String category, String action, String label, int value) {
+    tracker.send(new HitBuilders.EventBuilder()
+           .setCategory(category)
+           .setAction(action)
+           .setLabel(label)
+           .setValue(value)
+           .build());
   }
 
   // Implemented in C++. (gpg_manager.cpp)

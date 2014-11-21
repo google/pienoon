@@ -170,9 +170,11 @@ endif()
 set(pie_noon_SRCS
     src/ai_controller.cpp
     src/ai_controller.h
-    src/async_loader.h
-    src/async_loader.cpp
+    src/analytics_tracking.cpp
+    src/analytics_tracking.h
     src/angle.h
+    src/async_loader.cpp
+    src/async_loader.h
     src/audio_engine.cpp
     src/audio_engine.h
     src/bezier.h

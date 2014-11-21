@@ -212,18 +212,19 @@ class Character {
 
 };
 
-
 class AirbornePie {
  public:
   AirbornePie(CharacterId original_source, CharacterId source,
               CharacterId target, WorldTime start_time, WorldTime flight_time,
-              CharacterHealth damage, float height, int rotations);
+              CharacterHealth original_damage, CharacterHealth damage,
+              float height, int rotations);
 
   CharacterId original_source() const { return original_source_; }
   CharacterId source() const { return source_; }
   CharacterId target() const { return target_; }
   WorldTime start_time() const { return start_time_; }
   WorldTime flight_time() const { return flight_time_; }
+  CharacterHealth original_damage() const { return original_damage_; }
   CharacterHealth damage() const { return damage_; }
   float height() const { return height_; }
   int rotations() const { return rotations_; }
@@ -239,6 +240,7 @@ class AirbornePie {
   CharacterId target_;
   WorldTime start_time_;
   WorldTime flight_time_;
+  CharacterHealth original_damage_;
   CharacterHealth damage_;
   float height_;
   int rotations_;
