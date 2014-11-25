@@ -1642,9 +1642,10 @@ void PieNoonGame::Run() {
             // Unload current slide to save memory.
             matman_.UnloadMaterial(slide_name);
 
-            char slide_number[32];
-            sprintf(slide_number, kLabelSlideDurationFmt,
-                    tutorial_slide_index_);
+            const unsigned int SLIDE_NUMBER_BUFFER_SIZE = 32;
+            char slide_number[SLIDE_NUMBER_BUFFER_SIZE];
+            snprintf(slide_number, sizeof(slide_number), kLabelSlideDurationFmt,
+                     tutorial_slide_index_);
             SendTrackerEvent(kCategoryUi, kActionViewedTutorialSlide,
                              slide_number, world_time - tutorial_slide_time_);
 
