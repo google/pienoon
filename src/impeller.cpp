@@ -12,28 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IMPEL_FLATBUFFERS_H_
-#define IMPEL_FLATBUFFERS_H_
+#include "impeller.h"
+#include "impel_engine.h"
 
 namespace impel {
 
-class OvershootImpelInit;
-struct OvershootParameters;
-class SmoothImpelInit;
-struct SmoothParameters;
-struct Settled1f;
-struct Settled1fParameters;
 
-void OvershootInitFromFlatBuffers(const OvershootParameters& params,
-                                  OvershootImpelInit* init);
+void ImpellerBase::Initialize(const ImpelInit& init, ImpelEngine* engine) {
+  // Unregister ourselves with our existing ImpelProcessor.
+  Invalidate();
 
-void SmoothInitFromFlatBuffers(const SmoothParameters& params,
-                               SmoothImpelInit* init);
+  // The ImpelProcessors are held centrally in the ImpelEngine. There is only
+  // one processor per type. Get that processor.
+  ImpelProcessorBase* processor = engine->Processor(init.type());
 
-void Settled1fFromFlatBuffers(const Settled1fParameters& params,
-                              Settled1f* settled);
+  // Register and initialize ourselves with the ImpelProcessor.
+  processor->InitializeImpeller(init, engine, this);
+}
 
 
 } // namespace impel
-
-#endif // IMPEL_FLATBUFFERS_H_

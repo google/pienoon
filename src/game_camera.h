@@ -18,7 +18,7 @@
 #include <queue>
 #include "mathfu/glsl_mappings.h"
 #include "impeller.h"
-#include "impel_processor_smooth.h"
+#include "impel_init.h"
 
 namespace fpl {
 namespace pie_noon {

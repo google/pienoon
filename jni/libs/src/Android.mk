@@ -181,8 +181,10 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/gui_menu.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/impel_engine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/impel_flatbuffers.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/impel_processor.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/impel_processor_overshoot.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/impel_processor_smooth.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/impeller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/input.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/main.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/material.cpp \

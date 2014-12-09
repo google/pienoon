@@ -45,6 +45,8 @@ set(dependencies_gtest_dir "${fpl_root}/googletest"
     CACHE PATH "Directory containing the GoogleTest library.")
 set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
+set(dependencies_fplutil_dir "${fpl_root}/fplutil"
+    CACHE PATH "Directory containing the fplutil library.")
 set(dependencies_pindrop_dir "${fpl_root}/audio_engine"
     CACHE PATH "Directory containing the pindrop library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
@@ -214,14 +216,13 @@ set(pie_noon_SRCS
     src/impel_engine.h
     src/impel_flatbuffers.cpp
     src/impel_flatbuffers.h
-    src/impel_id_map.h
+    src/impel_init.h
+    src/impel_processor.cpp
     src/impel_processor.h
-    src/impel_processor_base_classes.h
     src/impel_processor_overshoot.cpp
-    src/impel_processor_overshoot.h
     src/impel_processor_smooth.cpp
-    src/impel_processor_smooth.h
     src/impel_util.h
+    src/impeller.cpp
     src/impeller.h
     src/input.cpp
     src/input.h
@@ -268,6 +269,7 @@ endif()
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${PINDROP_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
+include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_pindrop_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/src)

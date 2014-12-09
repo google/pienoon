@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "impel_id_map.h"
-
 #include "precompiled.h"
 #include <math.h>
 
@@ -21,7 +19,7 @@
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "impel_flatbuffers.h"
-#include "impel_processor_overshoot.h"
+#include "impel_init.h"
 #include "impel_util.h"
 #include "pie_noon_common_generated.h"
 #include "scoring_rules_generated.h"

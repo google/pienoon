@@ -15,33 +15,56 @@
 #ifndef IMPEL_PROCESSOR_H_
 #define IMPEL_PROCESSOR_H_
 
+#include <vector>
+
 #include "impel_common.h"
-#include "impel_engine.h"
+#include "fplutil/index_allocator.h"
+
 
 namespace impel {
 
 class ImpellerBase;
+class ImpelEngine;
 
 
 // Basic creation and deletion functions, common across processors of any
 // dimension.
 class ImpelProcessorBase {
  public:
-  virtual ~ImpelProcessorBase() {}
+  ImpelProcessorBase() :
+      allocator_callbacks_(this),
+      index_allocator_(allocator_callbacks_) {
+  }
+  virtual ~ImpelProcessorBase();
 
-  // Advance the simulation by delta_time. Should only be called by
-  // ImpelEngine.
-  virtual void AdvanceFrame(ImpelTime delta_time) = 0;
-
-  // Creation an impeller and return a unique id representing it.
+  // Instantiate impeller data inside the ImpelProcessor, and initialize
+  // 'impeller' as a reference to that data.
   // The 'engine' is required if the ImpelProcessor itself creates child
   // Impellers. This function should only be called by Impeller::Initialize().
-  virtual ImpelId InitializeImpeller(const ImpelInit& init,
-                                     ImpelEngine* engine) = 0;
+  void InitializeImpeller(const ImpelInit& init, ImpelEngine* engine,
+                          ImpellerBase* impeller);
 
-  // Remove an impeller and return it's unique id to the pile of allocatable
-  // ids.
-  virtual void RemoveImpeller(ImpelId id) = 0;
+  // Remove an impeller and return its index to the pile of allocatable indices.
+  // Should only be called by Impeller::Invalidate().
+  void RemoveImpeller(ImpelIndex index);
+
+  // Transfer ownership of the impeller at 'index' to 'new_impeller'.
+  // Resets the Impeller that currently owns 'index' and initializes
+  // 'new_impeller'.
+  // Should only be called by Impeller copy operations.
+  void TransferImpeller(ImpelIndex index, ImpellerBase* new_impeller);
+
+  // Returns true if 'index' is currently driving an impeller.
+  bool ValidIndex(ImpelIndex index) const;
+
+  // Returns true if 'index' is currently driving 'impeller'.
+  bool ValidImpeller(ImpelIndex index, const ImpellerBase* impeller) const {
+    return ValidIndex(index) && impellers_[index] == impeller;
+  }
+
+  // Advance the simulation by delta_time.
+  // Should only be called by ImpelEngine::AdvanceFrame.
+  virtual void AdvanceFrame(ImpelTime delta_time) = 0;
 
   // Return GUID representing the Impeller's type. Must be implemented by
   // derived class.
@@ -53,17 +76,90 @@ class ImpelProcessorBase {
 
   // Set simulation values. Some simulation values are independent of the
   // number of dimensions, so we put them in the base class.
-  virtual void SetTargetTime(ImpelId /*id*/, float /*target_time*/) {}
+  virtual void SetTargetTime(ImpelIndex /*index*/, float /*target_time*/) {}
 
   // For aggregate Impellers, get the sub-Impellers. See comments in Impeller
   // for details.
-  virtual int ChildImpellerCount(ImpelId /*id*/) const { return 0; }
-  virtual const ImpellerBase* ChildImpeller(ImpelId /*id*/, int /*i*/) const {
+  virtual int ChildImpellerCount(ImpelIndex /*index*/) const { return 0; }
+  virtual const ImpellerBase* ChildImpeller(ImpelIndex /*index*/,
+                                            int /*child_index*/) const {
     return nullptr;
   }
-  virtual ImpellerBase* ChildImpeller(ImpelId /*id*/, int /*i*/) {
+  virtual ImpellerBase* ChildImpeller(ImpelIndex /*index*/,
+                                      int /*child_index*/) {
     return nullptr;
   }
+
+ protected:
+  // Initialize data at 'index'. The meaning of 'index' is determined by the
+  // ImpelProcessor implementation (most likely it is the index into one or
+  // more data_ arrays though).
+  // ImpelProcessorBase tries to keep the 'index' as low as possible, by
+  // recycling ones that have been freed, and by providing a Defragment()
+  // function to move later indices to indices that have been freed.
+  virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
+                               ImpelEngine* engine) = 0;
+
+  // Reset data at 'index'. See comment above InitializeIndex for meaning of
+  // 'index'. If your ImpelProcessor stores data in a plain array, you
+  // probably have nothing to do. But if you use dynamic memory per index,
+  // (which you really shouldn't - too slow!), you should deallocate it here.
+  // For debugging, it might be nice to invalidate the data.
+  virtual void RemoveIndex(ImpelIndex index) = 0;
+
+  // Move the data at 'old_index' into 'new_index'. Used by Defragment().
+  // Note that 'new_index' is guaranteed to be inactive.
+  virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) = 0;
+
+  virtual void SetNumIndices(ImpelIndex num_indices) = 0;
+
+  void MoveIndexBase(ImpelIndex old_index, ImpelIndex new_index);
+  void SetNumIndicesBase(ImpelIndex num_indices);
+
+  // When an index is moved, the Impeller that references that index is updated.
+  // Can be called at the discretion of your ImpelProcessor, but normally called
+  // at the beginning of your ImpelProcessor::AdvanceFrame.
+  void Defragment() {
+    index_allocator_.Defragment();
+  }
+
+ private:
+  // Proxy callbacks from IndexAllocator into ImpelProcessorBase.
+  class AllocatorCallbacks :
+      public fpl::IndexAllocator<ImpelIndex>::CallbackInterface {
+   public:
+    AllocatorCallbacks(ImpelProcessorBase* processor) : processor_(processor) {}
+    virtual void SetNumIndices(ImpelIndex num_indices) {
+      processor_->SetNumIndicesBase(num_indices);
+    }
+    virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
+      processor_->MoveIndexBase(old_index, new_index);
+    }
+   private:
+    ImpelProcessorBase* processor_;
+  };
+
+  // Back-pointer to the Impellers for each index. The Impellers reference this
+  // ImpelProcessor and a specific index into the ImpelProcessor, so when the
+  // index is moved, or when the ImpelProcessor itself is destroyed, we need
+  // to update the Impeller.
+  // Note that we only keep a reference to a single Impeller per index. When
+  // a copy of an Impeller is made, the old Impeller is Reset and the reference
+  // here is updated.
+  std::vector<ImpellerBase*> impellers_;
+
+  // Proxy calbacks into ImpelProcessorBase. The other option is to derive
+  // ImpelProcessorBase from IndexAllocator::CallbackInterface, but that would
+  // create a messier API, and not be great OOP.
+  // This member should be initialized before index_allocator_ is initialized.
+  AllocatorCallbacks allocator_callbacks_;
+
+  // When an index is freed, we keep track of it here. When an index is
+  // allocated, we use one off this array, if one exists.
+  // When Defragment() is called, we empty this array by filling all the
+  // unused indices with the highest allocated indices. This reduces the total
+  // size of the data arrays.
+  fpl::IndexAllocator<ImpelIndex> index_allocator_;
 };
 
 
@@ -97,13 +193,15 @@ class ImpelProcessor : public ImpelProcessorBase {
  public:
   virtual ~ImpelProcessor() {}
   virtual int Dimensions() const { return ValueDetails<T>::kDimensions; }
-  virtual T Value(ImpelId /*id*/) const { return T(0.0f); }
-  virtual T Velocity(ImpelId /*id*/) const { return T(0.0f); }
-  virtual T TargetValue(ImpelId /*id*/) const { return T(0.0f); }
-  virtual void SetValue(ImpelId /*id*/, const T& /*value*/) {}
-  virtual void SetVelocity(ImpelId /*id*/, const T& /*velocity*/) {}
-  virtual void SetTargetValue(ImpelId /*id*/, const T& /*target_value*/) {}
-  virtual T Difference(ImpelId id) const { return TargetValue(id) - Value(id); }
+  virtual T Value(ImpelIndex /*index*/) const { return T(0.0f); }
+  virtual T Velocity(ImpelIndex /*index*/) const { return T(0.0f); }
+  virtual T TargetValue(ImpelIndex /*index*/) const { return T(0.0f); }
+  virtual T Difference(ImpelIndex index) const {
+    return TargetValue(index) - Value(index);
+  }
+  virtual void SetValue(ImpelIndex /*index*/, const T& /*value*/) {}
+  virtual void SetVelocity(ImpelIndex /*index*/, const T& /*velocity*/) {}
+  virtual void SetTargetValue(ImpelIndex /*index*/, const T& /*target_value*/){}
 };
 
 // ImpelProcessors of various dimensions. All ImpelProcessors operate with
@@ -130,16 +228,6 @@ struct ImpelProcessorFunctions {
       : create(create), destroy(destroy) {
   }
 };
-
-// Add this to the public interface of your ImpelProcessors. These are required
-// for the ImpelEngine to access impellers of your type.
-#define IMPEL_PROCESSOR_REGISTER(Type, InitType) \
-    static ImpelProcessorBase* Create() { return new Type(); } \
-    static void Destroy(ImpelProcessorBase* p) { delete p; } \
-    static void Register() { \
-      const ImpelProcessorFunctions functions(Create, Destroy); \
-      ImpelEngine::RegisterProcessorFactory(InitType::kType, functions); \
-    }
 
 
 } // namespace impel

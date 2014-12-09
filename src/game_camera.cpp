@@ -16,8 +16,7 @@
 #include "config_generated.h"
 #include "common.h"
 #include "impel_flatbuffers.h"
-#include "impel_processor_overshoot.h"
-#include "impel_processor_smooth.h"
+#include "impel_init.h"
 #include "game_camera.h"
 #include "utilities.h"
 

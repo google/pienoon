@@ -22,8 +22,7 @@
 #include "controller.h"
 #include "game_state.h"
 #include "impel_flatbuffers.h"
-#include "impel_processor_overshoot.h"
-#include "impel_processor_smooth.h"
+#include "impel_init.h"
 #include "impel_util.h"
 #include "pie_noon_common_generated.h"
 #include "pindrop/audio_engine.h"
@@ -223,9 +222,10 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
     const float shake_scale = prop->shake_scale();
     impel::OvershootImpelInit scaled_shake_init =
         impeller_inits[impeller_spec];
-    scaled_shake_init.min *= shake_scale;
-    scaled_shake_init.max *= shake_scale;
-    scaled_shake_init.accel_per_difference *= shake_scale;
+    scaled_shake_init.set_min(scaled_shake_init.min() * shake_scale);
+    scaled_shake_init.set_max(scaled_shake_init.max() * shake_scale);
+    scaled_shake_init.set_accel_per_difference(
+        scaled_shake_init.accel_per_difference() * shake_scale);
     prop_shake_[i].Initialize(scaled_shake_init, &impel_engine_);
   }
 

@@ -79,6 +79,8 @@ endfunction()
 test_executable(angle ../src/angle.h)
 test_executable(character_state_machine ../src/character_state_machine.cpp)
 test_executable(impel ../src/impel_engine.cpp
+                ../src/impeller.cpp
+                ../src/impel_processor.cpp
                 ../src/impel_processor_overshoot.cpp
                 ../src/impel_processor_smooth.cpp)
 

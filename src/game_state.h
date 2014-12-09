@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include "character.h"
+#include "impel_engine.h"
 #include "impel_processor.h"
 #include "impel_util.h"
 #include "particles.h"

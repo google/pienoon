@@ -22,8 +22,7 @@
 #include "config_generated.h"
 #include "imgui.h"
 #include "impel_flatbuffers.h"
-#include "impel_processor_overshoot.h"
-#include "impel_processor_smooth.h"
+#include "impel_init.h"
 #include "pie_noon_common_generated.h"
 #include "pie_noon_game.h"
 #include "pindrop/audio_engine.h"
@@ -345,8 +344,8 @@ bool PieNoonGame::InitializeGameState() {
   game_state_.set_config(&config);
 
   // Register the impeller types with the ImpelEngine.
-  impel::OvershootImpelProcessor::Register();
-  impel::SmoothImpelProcessor::Register();
+  impel::OvershootImpelInit::Register();
+  impel::SmoothImpelInit::Register();
 
   // Load flatbuffer into buffer.
   if (!LoadFile("character_state_machine_def.bin", &state_machine_source_)) {

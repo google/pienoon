@@ -16,9 +16,10 @@
 #define IMPELLER_H
 
 #include "impel_processor.h"
-#include "impel_engine.h"
 
 namespace impel {
+
+class ImpelEngine;
 
 
 // Non-templatized base class of Impeller. Holds all the functions unrelated to
@@ -26,38 +27,43 @@ namespace impel {
 // Impellers.
 class ImpellerBase {
  public:
-  ImpellerBase() : processor_(nullptr), id_(kImpelIdInvalid) {}
+  ImpellerBase() : processor_(nullptr), index_(kImpelIndexInvalid) {}
   ImpellerBase(const ImpelInit& init, ImpelEngine* engine) {
     Initialize(init, engine);
   }
+
+  // Allow Impellers to be copied so that they can be put into vectors.
+  // Transfer ownership of impeller to new impeller. Old impeller is reset and
+  // can no longer be used.
+  ImpellerBase(const ImpellerBase& original) {
+    original.processor_->TransferImpeller(original.index_, this);
+  }
+  ImpellerBase& operator=(const ImpellerBase& original) {
+    Invalidate();
+    original.processor_->TransferImpeller(original.index_, this);
+    return *this;
+  }
+
+  // Remove ourselves from the ImpelProcessor when we're deleted.
   ~ImpellerBase() { Invalidate(); }
 
   // Initialize this Impeller to the type specified in init.type.
-  void Initialize(const ImpelInit& init, ImpelEngine* engine) {
-    // Unregister ourselves with our existing ImpelProcessor.
-    Invalidate();
-
-    // The ImpelProcessors are held centrally in the ImpelEngine. There is only
-    // one processor per type. Get that processor.
-    processor_ = engine->Processor(init.type);
-
-    // Register and initialize ourselves with the ImpelProcessor.
-    id_ = processor_->InitializeImpeller(init, engine);
-  }
+  void Initialize(const ImpelInit& init, ImpelEngine* engine);
 
   // Detatch this Impeller from its ImpelProcessor. Functions other than
   // Initialize can no longer be called after Invalidate has been called.
   void Invalidate() {
-    if (Valid()) {
-      processor_->RemoveImpeller(id_);
-      processor_ = nullptr;
-      id_ = kImpelIdInvalid;
+    if (processor_ != nullptr) {
+      processor_->RemoveImpeller(index_);
     }
   }
 
   // Return true if this Impeller is currently being driven by an
   // ImpelProcessor. That is, it has been successfully initialized.
-  bool Valid() const { return processor_ != nullptr; }
+  // Also check for a consistent internal state.
+  bool Valid() const {
+    return processor_ != nullptr && processor_->ValidImpeller(index_, this);
+  }
 
   // Return the GUID representing the type Impeller we've been initilized to.
   // An Impeller can take on any type, provided the dimensions match.
@@ -73,23 +79,38 @@ class ImpellerBase {
   // Set simulation values. Some simulation values are independent of the
   // number of dimensions, so we put them in the base class.
   void SetTargetTime(float target_time) {
-    return processor_->SetTargetTime(id_, target_time);
+    assert(Valid());
+    return processor_->SetTargetTime(index_, target_time);
   }
 
   // More complicated impellers are aggregates of impellers. For example, a
   // composite impeller might emit a 3D vector by aggregating three 1D
   // impellers. These functions allow you to traverse the tree of impellers.
   int ChildImpellerCount() const {
-    return processor_->ChildImpellerCount(id_);
+    assert(Valid());
+    return processor_->ChildImpellerCount(index_);
   }
   const ImpellerBase* ChildImpeller(int i) const {
-    return processor_->ChildImpeller(id_, i);
+    assert(Valid());
+    return processor_->ChildImpeller(index_, i);
   }
   ImpellerBase* ChildImpeller(int i) {
-    return processor_->ChildImpeller(id_, i);
+    assert(Valid());
+    return processor_->ChildImpeller(index_, i);
   }
 
  protected:
+  // The processor uses the functions below. Does not modify data directly.
+  friend ImpelProcessorBase;
+
+  // These should only be called by ImpelProcessorBase!
+  void Init(ImpelProcessorBase* processor, ImpelIndex index) {
+    processor_ = processor;
+    index_ = index;
+  }
+  void Reset() { Init(nullptr, kImpelIndexInvalid); }
+  const ImpelProcessorBase* Processor() const { return processor_; }
+
   // All calls to an Impeller are proxied to an ImpellerProcessor. Impeller
   // data and processing is centralized to allow for scalable optimizations
   // (e.g. SIMD or parallelization).
@@ -98,7 +119,7 @@ class ImpellerBase {
   // An ImpelProcessor processes one ImpellerType, and hosts every Impeller of
   // that type. The id here uniquely identifies this Impeller to the
   // ImpelProcessor.
-  ImpelId id_;
+  ImpelIndex index_;
 };
 
 // Impeller
@@ -156,39 +177,59 @@ class ImpellerBase {
 template<class Converter>
 class Impeller : public ImpellerBase {
  public:
-  typedef typename Converter::ExternalApiType T;
+  typedef typename Converter::ExternalType T;
+
+  Impeller() {}
+
+  // Copy functions. Transfers ownership from 'original' to this.
+  // Note that even though 'original' is const, the ImpelProcessor has a
+  // non-const pointer to it, so it will be invalidated by the end of this call.
+  Impeller(const Impeller& original) : ImpellerBase(original) {}
+  Impeller& operator=(const Impeller& original) {
+    ImpellerBase::operator=(original);
+    return *this;
+  }
 
   // Get current impeller values from the processor.
-  T Value() const { return Converter::To(Processor().Value(id_)); }
-  T Velocity() const { return Converter::To(Processor().Velocity(id_)); }
+  T Value() const {
+    return Converter::To(Processor().Value(index_));
+  }
+  T Velocity() const {
+    return Converter::To(Processor().Velocity(index_));
+  }
   T TargetValue() const {
-    return Converter::To(Processor().TargetValue(id_));
+    return Converter::To(Processor().TargetValue(index_));
+  }
+
+  // Return the TargetValue() minus the Value(). If we're impelling a modular
+  // type (e.g. an angle), this may not be the naive subtraction.
+  T Difference() const {
+    return Converter::To(Processor().Difference(index_));
   }
 
   // Set current impeller values in the processor. Processors may choose to
   // ignore whichever values make sense for them to ignore.
   void SetValue(const T& value) {
-    return Processor().SetValue(id_, Converter::From(value));
+    return Processor().SetValue(index_, Converter::From(value));
   }
   void SetVelocity(const T& velocity) {
-    return Processor().SetVelocity(id_, Converter::From(velocity));
+    return Processor().SetVelocity(index_, Converter::From(velocity));
   }
   void SetTargetValue(const T& target_value) {
-    return Processor().SetTargetValue(id_, Converter::From(target_value));
+    return Processor().SetTargetValue(index_, Converter::From(target_value));
   }
 
-  // Return the TargetValue() minus the Value(). If we're impelling a modular
-  // type (e.g. an angle), this may not be the naive subtraction.
-  T Difference() const { return Converter::To(Processor().Difference(id_)); }
-
  private:
-  typedef ImpelProcessor<T> ProcessorType;
+  typedef typename Converter::ExternalType InternalType;
+  typedef ImpelProcessor<InternalType> ProcessorType;
 
   ProcessorType& Processor() {
+    assert(Valid());
     return *static_cast<ProcessorType*>(processor_);
   }
 
   const ProcessorType& Processor() const {
+    assert(Valid());
     return *static_cast<const ProcessorType*>(processor_);
   }
 };
@@ -198,9 +239,10 @@ class Impeller : public ImpellerBase {
 // values in your native math type. This degenerate converter just sticks with
 // the original mathfu type. Define your own if you're not using mathfu.
 template<class T>
-class MathFuConverter {
+class PassThroughConverter {
  public:
-  typedef T ExternalApiType;
+  typedef T ExternalType;
+  typedef T InternalType;
   static T To(const T& x) { return x; }
   static T From(const T& x) { return x; }
 };
@@ -209,11 +251,11 @@ class MathFuConverter {
 // vector library, you can define your own types with a suitable Converter.
 // Note that ImpelProcessors use mathfu types, so the Converter is required to
 // convert to and from your vector library to mathfu.
-typedef Impeller< MathFuConverter<float> > Impeller1f;
-typedef Impeller< MathFuConverter<mathfu::vec2> > Impeller2f;
-typedef Impeller< MathFuConverter<mathfu::vec3> > Impeller3f;
-typedef Impeller< MathFuConverter<mathfu::vec4> > Impeller4f;
-typedef Impeller< MathFuConverter<mathfu::mat4> > ImpellerMatrix4f;
+typedef Impeller<PassThroughConverter<float>> Impeller1f;
+typedef Impeller<PassThroughConverter<mathfu::vec2>> Impeller2f;
+typedef Impeller<PassThroughConverter<mathfu::vec3>> Impeller3f;
+typedef Impeller<PassThroughConverter<mathfu::vec4>> Impeller4f;
+typedef Impeller<PassThroughConverter<mathfu::mat4>> ImpellerMatrix4f;
 
 
 } // namespace impel

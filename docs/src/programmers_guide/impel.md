@@ -30,6 +30,10 @@ The following example illustrates how to animate the face-angle of a character.
 The comments describe, in brief, what is going on internally.
 
 ~~~{.cpp}
+// Since we will be using the ‘smooth’ animation algorithm, we must register it
+// with the engine.
+impel::SmoothImpelInit::Register();
+
 // The engine is the central place where animation data is stored and processed.
 impel::ImpelEngine engine;
 
