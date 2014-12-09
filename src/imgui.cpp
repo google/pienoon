@@ -42,7 +42,7 @@ class Group {
   Group(bool _vertical, Alignment _align, int _spacing, size_t _element_idx)
     : vertical_(_vertical), align_(_align), spacing_(_spacing),
       size_(mathfu::kZeros2i), position_(mathfu::kZeros2i),
-      element_idx_(_element_idx) {}
+      element_idx_(_element_idx), margin_(mathfu::kZeros4i) {}
 
   // Extend this group with the size of a new element, and possibly spacing
   // if it wasn't the first element.
@@ -60,6 +60,7 @@ class Group {
   vec2i size_;
   vec2i position_;
   size_t element_idx_;
+  vec4i margin_;
 };
 
 // This holds transient state used while a GUI is being laid out / rendered.
@@ -95,6 +96,11 @@ class InternalState : Group {
 
   ~InternalState() {
     state = nullptr;
+  }
+
+  template<int D> mathfu::Vector<int, D> VirtualToPhysical(
+                                           const mathfu::Vector<float, D> &v) {
+    return mathfu::Vector<int, D>(v * pixel_scale_ + 0.5f);
   }
 
   // Initialize the scaling factor for the virtual resolution.
@@ -194,7 +200,7 @@ class InternalState : Group {
           vec2(tex->size().x() * ysize / tex->size().y(), ysize);
       // Map the size to real screen pixels, rounding to the nearest int
       // for pixel-aligned rendering.
-      auto size = vec2i(virtual_image_size * pixel_scale_ + 0.5f);
+      auto size = VirtualToPhysical(virtual_image_size);
       NewElement(texture_name, size);
       Extend(size);
     } else {
@@ -233,17 +239,23 @@ class InternalState : Group {
     assert(group_stack_.size());
 
     auto size = size_;
+    auto fullsize = size + margin_.xy() + margin_.zw();
     auto element_idx = element_idx_;
     *static_cast<Group *>(this) = group_stack_.back();
     group_stack_.pop_back();
     if (layout_pass_) {
       // Contribute the size of this group to its parent.
-      Extend(size);
+      Extend(fullsize);
       // Set the size of this group as the size of the element tracking it.
       elements_[element_idx].size = size;
     } else {
-      Advance(size);
+      Advance(fullsize);
     }
+  }
+
+  void SetMargin(const Margin &margin) {
+    margin_ = VirtualToPhysical(margin.borders);
+    position_ += margin_.xy();
   }
 
   bool layout_pass_;
@@ -258,8 +270,7 @@ class InternalState : Group {
 };
 
 void Run(MaterialManager &matman, InputSystem &input,
-         const std::function<void ()> &gui_definition)
-{
+         const std::function<void ()> &gui_definition) {
 
   // Create our new temporary state.
   InternalState internal_state(matman, input);
@@ -303,6 +314,8 @@ void EndGroup() {
   Gui()->EndGroup();
 }
 
+void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
+
 void PositionUI(const vec2i &canvas_size, float virtual_resolution,
                 Layout horizontal, Layout vertical) {
   Gui()->PositionUI(canvas_size, virtual_resolution, GetAlignment(horizontal),
@@ -325,6 +338,7 @@ void TestGUI(MaterialManager &matman, InputSystem &input) {
         Image("textures/text_about.webp", 30);
       EndGroup();
       StartGroup(LAYOUT_VERTICAL_RIGHT, 0);
+        SetMargin(Margin(100));
         Image("textures/text_about.webp", 50);
         Image("textures/text_about.webp", 40);
         Image("textures/text_about.webp", 30);

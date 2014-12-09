@@ -80,6 +80,19 @@ enum Layout {
   LAYOUT_VERTICAL_RIGHT,
 };
 
+// Specify margins for a group, in units of virtual resolution.
+struct Margin {
+  // Create a margin with all 4 sides equal size.
+  Margin(float m) : borders(m) {}
+  // Create a margin with left/right set to x, and top/bottom to y.
+  Margin(float x, float y) : borders(x, x, y, y) {}
+  // Create a margin specifying all 4 sides individually.
+  Margin(float left, float top, float right, float bottom)
+    : borders(left, top, right, bottom) {}
+
+  vec4 borders;
+};
+
 // Not implemented yet.
 Event Button(const char *id);
 
@@ -95,6 +108,9 @@ void Image(const char *texture_name, float ysize);
 // layouts.
 void StartGroup(Layout layout, int spacing = 0);
 void EndGroup();
+
+// Sets the margin for the current group (call after StartGroup).
+void SetMargin(const Margin &margin);
 
 // The default virtual resolution used if none is set.
 const float IMGUI_DEFAULT_VIRTUAL_RESOLUTION = 1000.0f;

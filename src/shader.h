@@ -17,10 +17,12 @@
 
 namespace fpl {
 
-using mathfu::vec2i;
 using mathfu::vec2;
+using mathfu::vec2i;
 using mathfu::vec3;
+using mathfu::vec3i;
 using mathfu::vec4;
+using mathfu::vec4i;
 using mathfu::mat4;
 
 class Renderer;
