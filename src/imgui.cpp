@@ -70,7 +70,7 @@ class Group {
 class InternalState;
 InternalState *state = nullptr;
 
-class InternalState : Group {
+class InternalState : public Group {
  public:
   struct Element {
     Element(const char *_id, const vec2i &_size)
@@ -217,17 +217,19 @@ class InternalState : Group {
 
   // An element that has sub-elements. Tracks its state in an instance of
   // Layout, that is pushed/popped from the stack as needed.
-  void StartGroup(bool vertical, Alignment align, int spacing) {
-    auto group_id = "__group__";
+  void StartGroup(bool vertical, Alignment align, int spacing, const char *id) {
     Group layout(vertical, align, spacing, elements_.size());
     group_stack_.push_back(*this);
     if (layout_pass_) {
-      NewElement(group_id, mathfu::kZeros2i);
+      NewElement(id, mathfu::kZeros2i);
     } else {
-      auto element = NextElement(group_id);
+      auto element = NextElement(id);
       if (element) {
         layout.position_ = Position(*element);
         layout.size_ = element->size;
+        // Make layout refer to element it originates from, iterator points
+        // to next element after the current one.
+        layout.element_idx_ = element_it_ - elements_.begin() - 1;
       }
     }
     *static_cast<Group *>(this) = layout;
@@ -258,6 +260,32 @@ class InternalState : Group {
     position_ += margin_.xy();
   }
 
+  void RecordId(const char *id) { element_id_mouse_down_ = id; }
+  bool SameId(const char *id) { return !strcmp(id, element_id_mouse_down_); }
+
+  Event CheckEvent() {
+    if (!layout_pass_) {
+      // We only fire events during the second pass.
+      // TODO: this is currently hardcoded to pointer 0, and we should support
+      // multiple fingers hitting buttons in an overlapping way.
+      // Putting a loop around this a bit inefficient, we should only test
+      // InRange2D for fingers 1-9 when they are down (finger 0 we always test,
+      // to have mouse functionality).
+      if (mathfu::InRange2D(input_.pointers_[0].mousepos, position_,
+                            position_ + size_)) {
+        auto &button = input_.GetPointerButton(0);
+        int event = 0;
+        auto id = elements_[element_idx_].id;
+        if (button.went_down()) { RecordId(id); event |= EVENT_WENT_DOWN; }
+        if (button.went_up() && SameId(id)) event |= EVENT_WENT_UP;
+        else if (button.is_down() && SameId(id)) event |= EVENT_IS_DOWN;
+        if (!event) event = EVENT_HOVER;
+        return static_cast<Event>(event);
+      }
+    }
+    return EVENT_NONE;
+  }
+
   bool layout_pass_;
   std::vector<Element> elements_;
   std::vector<Element>::const_iterator element_it_;
@@ -267,7 +295,13 @@ class InternalState : Group {
   float pixel_scale_;
   MaterialManager &matman_;
   InputSystem &input_;
+
+  // Intra-frame persistent state.
+  static const char *element_id_mouse_down_;
 };
+
+const char *InternalState::element_id_mouse_down_ = "__null_id__";
+
 
 void Run(MaterialManager &matman, InputSystem &input,
          const std::function<void ()> &gui_definition) {
@@ -306,8 +340,8 @@ void Image(const char *texture_name, float size)
   Gui()->Image(texture_name, size);
 }
 
-void StartGroup(Layout layout, int spacing) {
-  Gui()->StartGroup(IsVertical(layout), GetAlignment(layout), spacing);
+void StartGroup(Layout layout, int spacing, const char *id) {
+  Gui()->StartGroup(IsVertical(layout), GetAlignment(layout), spacing, id);
 }
 
 void EndGroup() {
@@ -316,10 +350,22 @@ void EndGroup() {
 
 void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
 
+Event CheckEvent() { return Gui()->CheckEvent(); }
+
 void PositionUI(const vec2i &canvas_size, float virtual_resolution,
                 Layout horizontal, Layout vertical) {
   Gui()->PositionUI(canvas_size, virtual_resolution, GetAlignment(horizontal),
                     GetAlignment(vertical));
+}
+
+// Example how to create a button. We will provide convenient pre-made
+// buttons like this, but it is expected many games will make custom buttons.
+Event ImageButton(const char *texture_name, float size, const char *id) {
+  StartGroup(LAYOUT_VERTICAL_LEFT, size, id);
+    auto event = CheckEvent();
+    Image(texture_name, size);
+  EndGroup();
+  return event;
 }
 
 void TestGUI(MaterialManager &matman, InputSystem &input) {
@@ -328,7 +374,9 @@ void TestGUI(MaterialManager &matman, InputSystem &input) {
                LAYOUT_VERTICAL_RIGHT);
     StartGroup(LAYOUT_HORIZONTAL_TOP);
       StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-        Image("textures/text_about.webp", 50);
+        if (ImageButton("textures/text_about.webp", 50, "my_id") ==
+            EVENT_WENT_UP)
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
         Image("textures/text_about.webp", 40);
         Image("textures/text_about.webp", 30);
       EndGroup();

@@ -93,9 +93,6 @@ struct Margin {
   vec4 borders;
 };
 
-// Not implemented yet.
-Event Button(const char *id);
-
 // Render an image as a GUI element.
 // texture_name: filename of the image, must have been loaded with
 // the material manager before.
@@ -106,11 +103,15 @@ void Image(const char *texture_name, float ysize);
 // Create a group of elements with the given layout and intra-element spacing.
 // Start/end calls must be matched and may be nested to create more complex
 // layouts.
-void StartGroup(Layout layout, int spacing = 0);
+void StartGroup(Layout layout, int spacing = 0,
+                const char *id = "__group_id__");
 void EndGroup();
 
 // Sets the margin for the current group (call after StartGroup).
 void SetMargin(const Margin &margin);
+
+// Check for events
+Event CheckEvent();
 
 // The default virtual resolution used if none is set.
 const float IMGUI_DEFAULT_VIRTUAL_RESOLUTION = 1000.0f;
