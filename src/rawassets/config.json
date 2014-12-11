@@ -1,7 +1,421 @@
 {
-  "character_count": 4,
+    "entity_list": [
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentStageFront,
+              "position": { "x": 0, "y": -4.1, "z":0 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
 
-  "character_arrangements": [
+      // Sky:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentSky,
+              "position": { "x": 0, "y": 0, "z":12 },
+              "scale": { "x": 1.3, "y": 0.9, "z":1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Ambient occlusion shadow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentAmbientOcclusionShadow,
+              "position": { "x": -8.5, "y": 0.005, "z":4 },
+              "scale": { "x": 80, "y": 1, "z":1 },
+              "orientation": { "x": 90, "y": -40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Ambient occlusion shadow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentAmbientOcclusionShadow,
+              "position": { "x": 2.5, "y": 0.01, "z":6.7 },
+              "scale": { "x": 160, "y": 2, "z":1 },
+              "orientation": { "x": 90, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Sun glow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentSunGlow,
+              "position": { "x": 4, "y": 5.5, "z":7 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "orientation": { "x": 0, "y": 10, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Store Front:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentStoreFront,
+              "position": { "x": -8.5, "y": 0, "z":5 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "orientation": { "x": 0, "y": -40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Store room:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentStoreRoom,
+              "position": { "x": 2.5, "y": -0.3, "z":7.6 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // sun:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentSun,
+              "position":  { "x": 4, "y": 12.5, "z":6.9 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 6, "z": 0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Pendulum,
+              "shake_scale": 1.0,
+              "shake_axis": Z
+            }
+          }
+        ]
+      },
+
+      // cloud:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentCloud,
+              "position": { "x": -4, "y": 12, "z":6.5 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": -10, "z":0 },
+              "origin_point": { "x": 0, "y": 4.6, "z": 0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Pendulum,
+              "shake_scale": 0.7,
+              "shake_axis": Z
+            }
+          }
+        ]
+      },
+
+      // Cloud Shadow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentCloudShadow,
+              "position": { "x": -2.5, "y": 5.5, "z":6.8 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": -10, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": -2.8, "y": -0.1, "z":6.7 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": -4.5, "y": 0, "z":5.7 },
+              "scale": { "x": 0.6, "y": 0.6, "z": 0.6 },
+              "orientation": { "x": 0, "y": -20, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Tree:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentTree,
+              "position": { "x": 7.5, "y": 0, "z":4.5 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 0.6
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": 9, "y": 0, "z":1 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 20, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Tree:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentTree,
+              "position": { "x": -8.5, "y": 0, "z":0.7 },
+              "scale": { "x": -0.8, "y": 0.7, "z": 1 },
+              "orientation": { "x": 0, "y": -60, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 0.6
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": -7.5, "y": 0, "z":0.5 },
+              "scale": { "x": 0.7, "y": 0.7, "z": 0.7 },
+              "orientation": { "x": 0, "y": -40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Tree
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentTree,
+              "position": { "x": -10, "y": 0, "z":0.7 },
+              "scale": { "x": -0.8, "y": 0.7, "z": 1 },
+              "orientation": { "x": 0, "y": -80, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_impeller": Sway,
+              "shake_scale": 0.6
+            }
+          }
+        ]
+      }
+    ],
+
+    "splatter_def" : {
+      "component_list": [
+        {
+          "data_type": SceneObjectDef,
+          "data": {
+            "renderable_id": Splatter1,
+            "position": { "x": 0, "y": -4.1, "z":0 },
+            "scale": { "x": 1, "y": 1, "z":1 },
+            "origin_point": { "x": 0, "y": 0, "z":0 },
+            "orientation": { "x": 0, "y": 0, "z":0 },
+            "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+          }
+        },
+        {
+          "data_type":ChildObjectDef,
+          "data": {
+            "offset": { "x": 0, "y": 2, "z":-0.1 },
+            "orientation": { "x": 0, "y": 0, "z":0 },
+            "scale": { "x": 1, "y": 1, "z":1 }
+          }
+        },
+        {
+          "data_type":DripAndVanishDef,
+          "data": {
+            "total_lifetime": 12.0,
+            "time_spent_dripping": 6.0,
+            "distance_dripped": 1.0
+          }
+        }
+      ]
+    },
+
+    "splatter_range_min": { "x": -2.0, "y": 0.0, "z":  -0.05 },
+    "splatter_range_max": { "x": 2.0, "y": 1.0, "z":  -0.15 },
+    "splatter_scale_min": 0.7,
+    "splatter_scale_max": 1.5,
+    "splatter_radius_squared": 25,
+
+    "character_count": 4,
+    "character_arrangements": [
     {
       "character_data": [
         {
@@ -1089,154 +1503,6 @@
       "location": { "x": 70, "y": 45 },
       "scale": {"x": 0.13, "y": 0.13 },
       "renderable": "Health"
-    }
-  ],
-
-  "props": [
-    {
-      "renderable": "RenderableId.EnvironmentStageFront",
-      "position": { "x": 0, "y": -4.1, "z":0 },
-      "rotation": 0,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z":1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentSky",
-      "position": { "x": 0, "y": 0, "z":8 },
-      "rotation": 0,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 0.9, "z":1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentStoreFront",
-      "position": { "x": -8.5, "y": 0, "z":5 },
-      "rotation": -40,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 },
-      "shake_impeller": "Sway",
-      "shake_scale": 0.1
-    },
-    {
-      "renderable": "RenderableId.EnvironmentAmbientOcclusionShadow",
-      "position": { "x": -8.5, "y": 0.005, "z":4 },
-      "rotation": -40,
-      "orientation": "Horizontal",
-      "scale": { "x": 80, "y": 1, "z":1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentStoreRoom",
-      "position": { "x": 2.5, "y": -0.3, "z":7.6 },
-      "rotation": 0,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 },
-      "shake_impeller": "Sway",
-      "shake_scale": 0.1
-    },
-    {
-      "renderable": "RenderableId.EnvironmentAmbientOcclusionShadow",
-      "position": { "x": 2.5, "y": 0.01, "z":6.7 },
-      "rotation": 0,
-      "orientation": "Horizontal",
-      "scale": { "x": 160, "y": 2, "z":1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentSunGlow",
-      "position": { "x": 4, "y": 5.5, "z":7 },
-      "rotation": 10,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentSun",
-      "position": { "x": 4, "y": 6.5, "z":6.9 },
-      "rotation": 10,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 },
-      "shake_impeller": "Pendulum",
-      "shake_scale": 1.0,
-      "shake_center": { "x": 0, "y": 6, "z": 0 },
-      "shake_axis": "Z"
-    },
-    {
-      "renderable": "RenderableId.EnvironmentCloud",
-      "position": { "x": -4, "y": 7, "z":6.5 },
-      "rotation": -10,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 },
-      "shake_impeller": "Pendulum",
-      "shake_scale": 0.7,
-      "shake_center": { "x": 0, "y": 4.6, "z": 0 },
-      "shake_axis": "Z"
-    },
-    {
-      "renderable": "RenderableId.EnvironmentCloudShadow",
-      "position": { "x": -2.5, "y": 5.5, "z":6.8 },
-      "rotation": -10,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 }
-    },
-    {
-      "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -2.8, "y": -0.1, "z":6.7 },
-      "rotation": 0,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 },
-      "shake_impeller": "Sway",
-      "shake_scale": 1.0
-    },
-    {
-      "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -4.5, "y": 0, "z":5.7 },
-      "rotation": -20,
-      "orientation": "Vertical",
-      "scale": { "x": 0.6, "y": 0.6, "z": 0.6 },
-      "shake_impeller": "Sway",
-      "shake_scale": 1.0
-    },
-    {
-      "renderable": "RenderableId.EnvironmentTree",
-      "position": { "x": 7.5, "y": 0, "z":4.5 },
-      "rotation": 40,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 },
-      "shake_impeller": "Sway",
-      "shake_scale": 0.6
-    },
-    {
-      "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": 9, "y": 0, "z":1 },
-      "rotation": 20,
-      "orientation": "Vertical",
-      "scale": { "x": 1, "y": 1, "z": 1 },
-      "shake_impeller": "Sway",
-      "shake_scale": 1.0
-    },
-    {
-      "renderable": "RenderableId.EnvironmentTree",
-      "position": { "x": -8.5, "y": 0, "z":0.7 },
-      "rotation": -60,
-      "orientation": "Vertical",
-      "scale": { "x": -0.8, "y": 0.7, "z": 1 },
-      "shake_impeller": "Sway",
-      "shake_scale": 0.6
-    },
-    {
-      "renderable": "RenderableId.EnvironmentBush",
-      "position": { "x": -7.5, "y": 0, "z":0.5 },
-      "rotation": -40,
-      "orientation": "Vertical",
-      "scale": { "x": 0.7, "y": 0.7, "z": 0.7 },
-      "shake_impeller": "Sway",
-      "shake_scale": 1.0
-    },
-    {
-      "renderable": "RenderableId.EnvironmentTree",
-      "position": { "x": -10, "y": 0, "z":0.7 },
-      "rotation": -80,
-      "orientation": "Vertical",
-      "scale": { "x": -0.8, "y": 0.7, "z": 1 },
-      "shake_impeller": "Sway",
-      "shake_scale": 0.6
     }
   ],
 

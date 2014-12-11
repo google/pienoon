@@ -15,9 +15,10 @@
 #ifndef FPL_RENDERER_H
 #define FPL_RENDERER_H
 
-#include "shader.h"
+#include "mathfu/glsl_mappings.h"
 #include "material.h"
 #include "mesh.h"
+#include "shader.h"
 
 #ifdef __ANDROID__
 #include "renderer_android.h"

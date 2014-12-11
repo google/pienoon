@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-include "pie_noon_common.fbs";
 include "audio_config.fbs";
+include "components.fbs";
 include "impel.fbs";
 include "particles.fbs";
+include "pie_noon_common.fbs";
 include "scoring_rules.fbs";
 
 namespace fpl.pie_noon;
@@ -75,14 +76,6 @@ enum GameMode : ushort {
 
   // First player to reach a certain score wins.
   ReachTarget
-}
-
-enum ImpellerSpecification : ushort {
-  None,
-  Sway,
-  Pendulum,
-
-  Count // Must come last
 }
 
 table ButtonTexture {
@@ -169,42 +162,6 @@ table FixedAccessory {
 table AccessoryGroup {
   // Indices into an array of FixedAccessory's.
   indices:[byte];
-}
-
-table Prop {
-  // The object to render. See RenderableId enum.
-  // TODO: change to ushort once padding warning is fixed.
-  renderable:uint;
-
-  // Placement of the object.
-  position:Vec3;
-
-  // Rotation about the vertical axis, in degrees.
-  rotation:float;
-
-  // Initial rotation we should apply, before performing 'rotation'.
-  orientation:Orientation;
-
-  // Scale along each axis. Scale is performed before rotation.
-  scale:Vec3;
-
-  // Type of shaking this prop should follow. Defined below in
-  // 'impeller_specifications'.
-  shake_impeller:ImpellerSpecification = None;
-
-  // Amount this prop should shake when damage occurs nearby. If 0, never
-  // moves. If 1, moves a lot.
-  shake_scale:float;
-
-  // Center of shaking. The default is the origin of the renderable,
-  // which is in the bottom middle.
-  shake_center:Vec3;
-
-  // Axis that is animated by the shaking.
-  // X -- lean forward and back
-  // Y -- twist side-to-side
-  // Z -- swing left to right
-  shake_axis:Axis = X;
 }
 
 table CharacterData {
@@ -301,6 +258,24 @@ table CameraMovementToSubject {
 }
 
 table Config {
+
+  // List of all entities that we spawn automatically at game start.
+  entity_list:[EntityDefinition];
+
+  // Definition for splatters that appear on background props:
+  splatter_def:EntityDefinition;
+
+  // Values for the size and location of splatters when they appear on
+  // background props:
+  splatter_range_min:Vec3;
+  splatter_range_max:Vec3;
+  splatter_scale_min:float;
+  splatter_scale_max:float;
+
+  // Square of the radius for how close shakeable props need to be to
+  // a pie hit in order to receive a splatter.
+  splatter_radius_squared:float;
+
   // Temporary variable to control number of players until we can configure it
   // from in the game
   character_count:uint;
@@ -554,9 +529,6 @@ table Config {
   // Where hearts should appear on a character. One heart appears per point of
   // health remaining.
   health_accessories:[FixedAccessory];
-
-  // Initial configuration of stage and environment.
-  props:[Prop];
 
   // Describe the model for each item that can be rendered.
   // Array of length RenderableId_Count.

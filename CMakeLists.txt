@@ -211,6 +211,19 @@ set(pie_noon_SRCS
     src/font_manager.h
     src/spline.cpp
     src/spline.h
+    src/components/childobject.cpp
+    src/components/childobject.h
+    src/components/drip_and_vanish.cpp
+    src/components/drip_and_vanish.h
+    src/components/scene_object.cpp
+    src/components/scene_object.h
+    src/components/shakeable_prop.cpp
+    src/components/shakeable_prop.h
+    src/entity/component_interface.h
+    src/entity/entity.h
+    src/entity/entity_manager.cpp
+    src/entity/entity_manager.h
+    src/entity/vector_pool.h
     src/full_screen_fader.cpp
     src/full_screen_fader.h
     src/game_camera.cpp
