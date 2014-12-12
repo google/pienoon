@@ -199,7 +199,8 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/utilities.cpp
+  $(PIE_NOON_RELATIVE_DIR)/src/utilities.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/imgui.cpp
 
 # Make each source file dependent upon the generated_includes and build_assets
 # targets.
