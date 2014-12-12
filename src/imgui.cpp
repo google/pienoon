@@ -200,9 +200,9 @@ class InternalState : public Group {
   // (render pass): return the position of the current element, as a function
   // of the group's current position and the alignment.
   vec2i Position(const Element &element) {
-    return position_ +
+    return position_ + margin_.xy() +
            AlignDimension(align_, vertical_ ? 0 : 1,
-                          size_ - element.size);
+                          size_ - element.size - margin_.xy() - margin_.zw());
   }
 
   void RenderQuad(const char *shader, const vec4 &color, const vec2i &pos,
@@ -263,23 +263,23 @@ class InternalState : public Group {
     assert(group_stack_.size());
 
     auto size = size_;
-    auto fullsize = size + margin_.xy() + margin_.zw();
+    auto margin = margin_.xy() + margin_.zw();
     auto element_idx = element_idx_;
     *static_cast<Group *>(this) = group_stack_.back();
     group_stack_.pop_back();
     if (layout_pass_) {
+      size += margin;
       // Contribute the size of this group to its parent.
-      Extend(fullsize);
+      Extend(size);
       // Set the size of this group as the size of the element tracking it.
       elements_[element_idx].size = size;
     } else {
-      Advance(fullsize);
+      Advance(size);
     }
   }
 
   void SetMargin(const Margin &margin) {
     margin_ = VirtualToPhysical(margin.borders);
-    position_ += margin_.xy();
   }
 
   void RecordId(const char *id, int i) { pointer_element_id_[i] = id; }
@@ -393,6 +393,7 @@ void PositionUI(const vec2i &canvas_size, float virtual_resolution,
 // buttons like this, but it is expected many games will make custom buttons.
 Event ImageButton(const char *texture_name, float size, const char *id) {
   StartGroup(LAYOUT_VERTICAL_LEFT, size, id);
+    SetMargin(Margin(10));
     auto event = CheckEvent();
     if (event & EVENT_IS_DOWN) ColorBackGround(vec4(1.0f, 1.0f, 1.0f, 0.5f));
     else if (event & EVENT_HOVER) ColorBackGround(vec4(0.5f, 0.5f, 0.5f, 0.5f));
@@ -405,7 +406,7 @@ void TestGUI(MaterialManager &matman, InputSystem &input) {
   Run(matman, input, [&matman]() {
     PositionUI(matman.renderer().window_size(), 1000, LAYOUT_HORIZONTAL_CENTER,
                LAYOUT_VERTICAL_RIGHT);
-    StartGroup(LAYOUT_HORIZONTAL_TOP);
+    StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
       StartGroup(LAYOUT_VERTICAL_LEFT, 20);
         if (ImageButton("textures/text_about.webp", 50, "my_id") ==
             EVENT_WENT_UP)
