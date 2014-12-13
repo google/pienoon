@@ -74,12 +74,8 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
   // TODO: Update the implemenation using
   // texture atlas + font cache + vbo for a better performance.
 
-  // Using fixed font size temporary.
-  // TODO: retrieve glyph metrices from FreeType.
-  float y_size = 32.0;
-
   // Set freetype settings.
-  FT_Set_Pixel_Sizes(face_, 0, y_size);
+  FT_Set_Pixel_Sizes(face_, 0, ysize);
 
   size_t length = strlen(text);
 
@@ -95,18 +91,23 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
 
   // Retrieve layout info.
   uint32_t glyph_count;
-
-  // TODO: retrieve glyph metrices from FreeType & harfbuzz.
-  // hb_glyph_info_t     *glyph_info
-  //   = hb_buffer_get_glyph_infos(harfbuzz_buf_, &glyph_count);
+  hb_glyph_info_t *glyph_info
+    = hb_buffer_get_glyph_infos(harfbuzz_buf_, &glyph_count);
   hb_glyph_position_t *glyph_pos
     = hb_buffer_get_glyph_positions(harfbuzz_buf_, &glyph_count);
 
+  // Retrieve a width of the string.
+  uint32_t string_width = 0;
+  for (uint32_t i = 0; i < glyph_count; ++i) {
+    string_width += glyph_pos[i].x_advance;
+  }
+  string_width /= kFreeTypeUnit;
+
   // TODO: retrieve glyph metrices from FreeType
   // and don't generate texture for each label.
-  int32_t width = 512;
-  int32_t height = y_size;
-  int32_t base = 23;
+  int32_t width = mathfu::RoundUpToPowerOf2(string_width);
+  int32_t height = mathfu::RoundUpToPowerOf2(ysize);
+  int32_t base = 18;
 
   // rasterized image format in FreeType is 8 bit gray scale format.
   std::unique_ptr<uint8_t[]> image(new uint8_t[width * height]);
@@ -118,9 +119,12 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
   uint32_t atlasY = kGlyphPadding;
   FT_GlyphSlot g = face_->glyph;
 
-  for (size_t i = 0; i < length; ++i) {
+  for (size_t i = 0; i < glyph_count; ++i) {
     FT_Error err;
-    if ((err = FT_Load_Char(face_, text[i], FT_LOAD_RENDER))) {
+
+    // Load glyph using harfbuzz layout information.
+    // Note that harfbuzz takes care of ligatures.
+    if ((err = FT_Load_Glyph(face_, glyph_info[i].codepoint, FT_LOAD_RENDER))) {
       // Error. This could happen typically the loaded font does not support
       // particular glyph.
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -137,8 +141,7 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
           >= (height - kGlyphPadding)) {
       // Error exceeding the texture size.
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                   "The specified text does not fit into the texture.\
-                   Currently it's using fixed size texture (512x32)\n");
+                   "The specified text does not fit into the texture.\n");
       return nullptr;
     }
 
@@ -160,19 +163,23 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
   }
 
   // Create new texture.
-  Texture *texture = new Texture(*renderer_);
-  texture->LoadFromMemory(image.get(),
+  Texture *tex = new Texture(*renderer_);
+  tex->LoadFromMemory(image.get(),
                           vec2i(width, height), kFormatLuminance, false);
+
+  // Setup UV.
+  tex->set_uv(vec4(0.0f, 0.0f,
+                   static_cast<float>(string_width) / static_cast<float>(width),
+                   static_cast<float>(ysize) / static_cast<float>(height)));
 
   // Cleanup buffer contents.
   hb_buffer_clear_contents(harfbuzz_buf_);
 
   // Put to the dic.
-  map_textures_[text] = std::unique_ptr<Texture>(texture);
+  map_textures_[text] = std::unique_ptr<Texture>(tex);
 
-  return texture;
+  return tex;
 }
-
 
 bool FontManager::Open(const char *font_name) {
   assert(!face_initialized_);
@@ -200,7 +207,8 @@ bool FontManager::Open(const char *font_name) {
   if (!harfbuzz_font_) {
     // Failed to open font.
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                 "Failed to initialize harfbuzz layout information:%s\n", font_name);
+                 "Failed to initialize harfbuzz layout information:%s\n",
+                 font_name);
     font_data_.clear();
     FT_Done_Face(face_);
     return false;

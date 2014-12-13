@@ -267,9 +267,10 @@ class InternalState : public Group {
   {
     auto size = VirtualToPhysical(vec2(0, ysize));
     auto tex = fontman_.GetTexture(text, size.y());
+    auto uv = tex->uv();
     if (layout_pass_) {
-      auto virtual_image_size = vec2(tex->size().x() * ysize /
-                                     tex->size().y(), ysize);
+      auto virtual_image_size = vec2(tex->size().x() * (uv.z() - uv.x()),
+                                     ysize);
       // Map the size to real screen pixels, rounding to the nearest int
       // for pixel-aligned rendering.
       auto size = VirtualToPhysical(virtual_image_size);
@@ -571,10 +572,10 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
                LAYOUT_VERTICAL_RIGHT);
     StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
       StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-        if (ImageButton("textures/text_about.webp", 50, "my_id1") ==
+        if (ImageButton("textures/text_about.webp", 50, "my_id") ==
             EVENT_WENT_UP)
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
-        Label("Property Test WAWA", 30);
+        Label("Property Test ffWAWÄテスト", 30);
         Label("My great label", 30);
         Label("Another neat label", 30);
         Image("textures/text_about.webp", 30);
