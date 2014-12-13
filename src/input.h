@@ -161,7 +161,7 @@ class Gamepad {
   }
 
   void AdvanceFrame();
-  Button &GetButton(int i);
+  Button &GetButton(GamepadInputButton i);
 
   AndroidInputDeviceId controller_id() { return controller_id_; }
   void set_controller_id(AndroidInputDeviceId controller_id) {
@@ -235,7 +235,7 @@ class InputSystem {
   // Get the ID either from an android event, or by checking a known gamepad.
   Gamepad &GetGamepad(AndroidInputDeviceId gamepad_device_id);
 
-  const std::map<int, Gamepad> &GamepadMap() const {
+  const std::map<AndroidInputDeviceId, Gamepad> &GamepadMap() const {
     return gamepad_map_;
   }
 

@@ -73,11 +73,12 @@ InternalState *state = nullptr;
 class InternalState : public Group {
  public:
   struct Element {
-    Element(const char *_id, const vec2i &_size)
-      : id(_id), size(_size) {}
+    Element(const vec2i &_size, const char *_id)
+      : size(_size), id(_id), interactive(false) {}
 
-    const char *id;
-    vec2i size;
+    vec2i size;        // Minimum size computed by layout pass.
+    const char *id;    // Id specified by the user.
+    bool interactive;  // Wants to respond to user input.
   };
 
   InternalState(MaterialManager &matman, FontManager &fontman,
@@ -86,7 +87,9 @@ class InternalState : public Group {
         layout_pass_(true), canvas_size_(matman.renderer().window_size()),
         virtual_resolution_(IMGUI_DEFAULT_VIRTUAL_RESOLUTION),
         matman_(matman), input_(input),
-        fontman_(fontman), pointer_max_active_index_(-1) {
+        fontman_(fontman), pointer_max_active_index_(-1),
+        gamepad_has_focus_element(false),
+        gamepad_event(EVENT_HOVER) {
     SetScale();
 
     // Cache the state of multiple pointers, so we have to do less work per
@@ -94,7 +97,6 @@ class InternalState : public Group {
     pointer_max_active_index_ = 0;  // Mouse is always active.
     // TODO: pointer_max_active_index_ should start at -1 if on a touchscreen.
     for (int i = 0; i < InputSystem::kMaxSimultanuousPointers; i++) {
-      if (!pointer_element_id_[i]) pointer_element_id_[i] = "__null_id__";
       pointer_buttons_[i] = &input.GetPointerButton(i);
       if(pointer_buttons_[i]->is_down() ||
          pointer_buttons_[i]->went_down() ||
@@ -113,10 +115,24 @@ class InternalState : public Group {
     assert(image_shader_);
     font_shader_ = matman_.LoadShader("shaders/font");
     assert(font_shader_);
+    color_shader_ = matman_.LoadShader("shaders/color");
+    assert(color_shader_);
   }
 
   ~InternalState() {
     state = nullptr;
+  }
+
+  bool EqualId(const char *id1, const char *id2) {
+    // We can do pointer compare, because we receive these ids from the user
+    // and then store them.
+    // We require the user to provide storage for the id as long as the GUI
+    // is active, which guarantees pointer identity.
+    // TODO: we either need to provide a way to clear persistent ids once a
+    // GUI goes away entirely, or tell users not ever pass a c_str().
+    // Better yet, replace this by hashes, as that makes generating ids in
+    // loops easier. Bit expensive though.
+    return id1 == id2;
   }
 
   template<int D> mathfu::Vector<int, D> VirtualToPhysical(
@@ -171,6 +187,8 @@ class InternalState : public Group {
 
     layout_pass_ = false;
     element_it_ = elements_.begin();
+
+    CheckGamePadNavigation();
   }
 
   // (render pass): retrieve the next corresponding cached element we
@@ -183,7 +201,7 @@ class InternalState : public Group {
       // doesn't is if an event handler caused an element to removed.
       auto &element = *element_it_;
       ++element_it_;
-      if (!strcmp(element.id, id)) return &element;
+      if (EqualId(element.id, id)) return &element;
     }
     // Didn't find this id at all, which means an event handler just caused
     // this element to be added, so we skip it.
@@ -192,8 +210,8 @@ class InternalState : public Group {
   }
 
   // (layout pass): create a new element.
-  void NewElement(const char *id, const vec2i &size) {
-    elements_.push_back(Element(id, size));
+  void NewElement(const vec2i &size, const char *id) {
+    elements_.push_back(Element(size, id));
   }
 
   // (render pass): move the group's current position past an element of
@@ -212,11 +230,11 @@ class InternalState : public Group {
                           size_ - element.size - margin_.xy() - margin_.zw());
   }
 
-  void RenderQuad(const char *shader, const vec4 &color, const vec2i &pos,
+  void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
                   const vec2i &size) {
     auto &renderer = matman_.renderer();
     renderer.color() = color;
-    matman_.LoadShader(shader)->Set(renderer);
+    sh->Set(renderer);
     Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0),
                              vec3(vec2(pos + size), 0));
   }
@@ -231,16 +249,14 @@ class InternalState : public Group {
       // Map the size to real screen pixels, rounding to the nearest int
       // for pixel-aligned rendering.
       auto size = VirtualToPhysical(virtual_image_size);
-      NewElement(texture_name, size);
+      NewElement(size, texture_name);
       Extend(size);
     } else {
       auto element = NextElement(texture_name);
       if (element) {
         auto position = Position(*element);
-        image_shader_->Set(matman_.renderer());
         tex->Set(0);
-        Mesh::RenderAAQuadAlongX(vec3(vec2(position), 0),
-                                 vec3(vec2(position + element->size), 0));
+        RenderQuad(image_shader_, mathfu::kOnes4f, position, element->size);
         Advance(element->size);
       }
     }
@@ -257,18 +273,14 @@ class InternalState : public Group {
       // Map the size to real screen pixels, rounding to the nearest int
       // for pixel-aligned rendering.
       auto size = VirtualToPhysical(virtual_image_size);
-      NewElement(text, size);
+      NewElement(size, text);
       Extend(size);
     } else {
       auto element = NextElement(text);
       if (element) {
         auto position = Position(*element);
-        font_shader_->Set(matman_.renderer());
-        matman_.renderer().SetBlendMode(kBlendModeAlpha);
         tex->Set(0);
-        Mesh::RenderAAQuadAlongX(vec3(vec2(position), 0),
-                                 vec3(vec2(position + element->size), 0));
-        matman_.renderer().SetBlendMode(kBlendModeTest);
+        RenderQuad(font_shader_, mathfu::kOnes4f, position, element->size);
         Advance(element->size);
       }
     }
@@ -280,7 +292,7 @@ class InternalState : public Group {
     Group layout(vertical, align, spacing, elements_.size());
     group_stack_.push_back(*this);
     if (layout_pass_) {
-      NewElement(id, mathfu::kZeros2i);
+      NewElement(mathfu::kZeros2i, id);
     } else {
       auto element = NextElement(id);
       if (element) {
@@ -319,37 +331,118 @@ class InternalState : public Group {
     margin_ = VirtualToPhysical(margin.borders);
   }
 
-  void RecordId(const char *id, int i) { pointer_element_id_[i] = id; }
+  void RecordId(const char *id, int i) { persistent_.pointer_element[i] = id; }
   bool SameId(const char *id, int i) {
-    return !strcmp(id, pointer_element_id_[i]);
+    return EqualId(id, persistent_.pointer_element[i]);
   }
 
   Event CheckEvent() {
-    // We only fire events during the second pass.
-    if (!layout_pass_) {
-      // pointer_max_active_index_ is typically 0, so not expensive.
+    auto &element = elements_[element_idx_];
+    if (layout_pass_) {
+      element.interactive = true;
+    } else {
+      // We only fire events during the second pass.
+      auto id = element.id;
+      // pointer_max_active_index_ is typically 0, so loop not expensive.
       for (int i = 0; i <= pointer_max_active_index_; i++) {
         if (mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
                               position_ + size_)) {
           auto &button = *pointer_buttons_[i];
           int event = 0;
-          auto id = elements_[element_idx_].id;
-          if (button.went_down()) { RecordId(id, i); event |= EVENT_WENT_DOWN; }
-          if (button.went_up() && SameId(id, i)) event |= EVENT_WENT_UP;
-          else if (button.is_down() && SameId(id, i)) event |= EVENT_IS_DOWN;
+
+          if (button.went_down()) {
+            RecordId(id, i);
+            event |= EVENT_WENT_DOWN;
+          }
+          if (button.went_up() && SameId(id, i)) {
+            event |= EVENT_WENT_UP;
+          }
+          else if (button.is_down() && SameId(id, i)) {
+            event |= EVENT_IS_DOWN;
+            // Record the last element we received an up on, as the target
+            // for keyboard input.
+            persistent_.keyboard_focus = id;
+          }
           if (!event) event = EVENT_HOVER;
           // We only report an event for the first finger to touch an element.
           // This is intentional.
           return static_cast<Event>(event);
         }
       }
+      // Generate hover events for the current element the gamepad is focused
+      // on.
+      if (EqualId(persistent_.gamepad_focus, id)) {
+        gamepad_has_focus_element = true;
+        return gamepad_event;
+      }
     }
     return EVENT_NONE;
   }
 
-  void ColorBackGround(const vec4 &color) {
-    RenderQuad("shaders/color", color, position_, size_);
+  void CheckGamePadFocus() {
+    if (!gamepad_has_focus_element)
+      // This may happen when a GUI first appears or when elements get removed.
+      // TODO: only do this when there's an actual gamepad connected.
+      persistent_.gamepad_focus = NextInteractiveElement(-1, 1);
   }
+
+  void CheckGamePadNavigation() {
+    int dir = 0;
+    // FIXME: this should work on other platforms too.
+#   ifdef ANDROID_GAMEPAD
+    auto &gamepads = input_.GamepadMap();
+    for (auto &gamepad : gamepads) {
+      dir = CheckButtons(gamepad.second.GetButton(Gamepad::kLeft),
+                         gamepad.second.GetButton(Gamepad::kRight),
+                         gamepad.second.GetButton(Gamepad::kButtonA));
+    }
+#   endif
+    // For testing, also support keyboard:
+    dir = CheckButtons(input_.GetButton(SDLK_LEFT),
+                       input_.GetButton(SDLK_RIGHT),
+                       input_.GetButton(SDLK_RETURN));
+    // Now find the current element, and move to the next.
+    if (dir) {
+      for (auto &e : elements_) {
+        if (EqualId(e.id, persistent_.gamepad_focus)) {
+          persistent_.gamepad_focus =
+            NextInteractiveElement(&e - &elements_[0], dir);
+          break;
+        }
+      }
+    }
+  }
+
+  int CheckButtons(const Button &left, const Button &right,
+                   const Button &action) {
+    int dir = 0;
+    if (left.went_up()) dir = -1;
+    if (right.went_up()) dir = 1;
+    if (action.went_up()) gamepad_event = EVENT_WENT_UP;
+    if (action.went_down()) gamepad_event = EVENT_WENT_DOWN;
+    if (action.is_down()) gamepad_event = EVENT_IS_DOWN;
+    return dir;
+  }
+
+  const char *NextInteractiveElement(int start, int direction) {
+    auto range = static_cast<int>(elements_.size());
+    for (auto i = start; ; ) {
+      i += direction;
+      // Wrap around.. just once.
+      if (i < 0) i = range - 1;
+      else if (i >= range) i = -1;
+      // Back where we started, either there's no interactive elements, or
+      // the vector is empty.
+      if (i == start) return dummy_id();
+      if (elements_[i].interactive) return elements_[i].id;
+    }
+  }
+
+  void ColorBackground(const vec4 &color) {
+    RenderQuad(color_shader_, color, position_, size_);
+  }
+
+  static const char *dummy_id() { return "__null_id__"; }
 
   bool layout_pass_;
   std::vector<Element> elements_;
@@ -358,21 +451,42 @@ class InternalState : public Group {
   vec2i canvas_size_;
   float virtual_resolution_;
   float pixel_scale_;
+
   MaterialManager &matman_;
   InputSystem &input_;
   FontManager &fontman_;
   Shader *image_shader_;
   Shader *font_shader_;
+  Shader *color_shader_;
 
   int pointer_max_active_index_;
   const Button *pointer_buttons_[InputSystem::kMaxSimultanuousPointers];
+  bool gamepad_has_focus_element;
+  Event gamepad_event;
 
   // Intra-frame persistent state.
-  static const char *pointer_element_id_[InputSystem::kMaxSimultanuousPointers];
+  static struct PersistentState {
+    PersistentState() {
+      // This is effectively a global, so no memory allocation or other
+      // complex initialization here.
+      for (int i = 0; i < InputSystem::kMaxSimultanuousPointers; i++) {
+        pointer_element[i] = dummy_id();
+      }
+      gamepad_focus = keyboard_focus = dummy_id();
+    }
+
+    // For each pointer, the element id that last received a down event.
+    const char *pointer_element[InputSystem::kMaxSimultanuousPointers];
+    // The element the gamepad is currently "over", simulates the mouse
+    // hovering over an element.
+    const char *gamepad_focus;
+    // The element that last received an up event. Keystrokes should be
+    // directed to this element, e.g. for a text edit widget
+    const char *keyboard_focus;
+  } persistent_;
 };
 
-const char *InternalState::pointer_element_id_[] = { nullptr };
-
+InternalState::PersistentState InternalState::persistent_;
 
 void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
          const std::function<void ()> &gui_definition) {
@@ -400,6 +514,8 @@ void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
   renderer.DepthTest(false);
 
   gui_definition();
+
+  internal_state.CheckGamePadFocus();
 }
 
 InternalState *Gui() { assert(state); return state; }
@@ -427,7 +543,7 @@ void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
 
 Event CheckEvent() { return Gui()->CheckEvent(); }
 
-void ColorBackGround(const vec4 &color) { Gui()->ColorBackGround(color); }
+void ColorBackground(const vec4 &color) { Gui()->ColorBackground(color); }
 
 void PositionUI(const vec2i &canvas_size, float virtual_resolution,
                 Layout horizontal, Layout vertical) {
@@ -441,8 +557,8 @@ Event ImageButton(const char *texture_name, float size, const char *id) {
   StartGroup(LAYOUT_VERTICAL_LEFT, size, id);
     SetMargin(Margin(10));
     auto event = CheckEvent();
-    if (event & EVENT_IS_DOWN) ColorBackGround(vec4(1.0f, 1.0f, 1.0f, 0.5f));
-    else if (event & EVENT_HOVER) ColorBackGround(vec4(0.5f, 0.5f, 0.5f, 0.5f));
+    if (event & EVENT_IS_DOWN) ColorBackground(vec4(1.0f, 1.0f, 1.0f, 0.5f));
+    else if (event & EVENT_HOVER) ColorBackground(vec4(0.5f, 0.5f, 0.5f, 0.5f));
     Image(texture_name, size);
   EndGroup();
   return event;
@@ -455,7 +571,7 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
                LAYOUT_VERTICAL_RIGHT);
     StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
       StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-        if (ImageButton("textures/text_about.webp", 50, "my_id") ==
+        if (ImageButton("textures/text_about.webp", 50, "my_id1") ==
             EVENT_WENT_UP)
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
         Label("Property Test WAWA", 30);
@@ -464,7 +580,9 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
         Image("textures/text_about.webp", 30);
       EndGroup();
       StartGroup(LAYOUT_VERTICAL_CENTER, 40);
-        Image("textures/text_about.webp", 50);
+        if (ImageButton("textures/text_about.webp", 50, "my_id2") ==
+            EVENT_WENT_UP)
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked 2!");
         Image("textures/text_about.webp", 40);
         Image("textures/text_about.webp", 30);
       EndGroup();

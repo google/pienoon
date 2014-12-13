@@ -126,7 +126,7 @@ void SetMargin(const Margin &margin);
 Event CheckEvent();
 
 // Set the background for the group. May use alpha.
-void ColorBackGround(const vec4 &color);
+void ColorBackground(const vec4 &color);
 
 // The default virtual resolution used if none is set.
 const float IMGUI_DEFAULT_VIRTUAL_RESOLUTION = 1000.0f;

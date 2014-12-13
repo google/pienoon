@@ -484,7 +484,7 @@ void Gamepad::AdvanceFrame() {
   }
 }
 
-Button &Gamepad::GetButton(int index) {
+Button &Gamepad::GetButton(GamepadInputButton index) {
   assert(index >= 0 && index < Gamepad::kControlCount &&
          "Gamepad Button Index out of range");
   return button_list_[index];
