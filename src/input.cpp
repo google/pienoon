@@ -174,6 +174,9 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
         HandleJoystickEvent(event);
         break;
       }
+      case SDL_TEXTEDITING:
+      case SDL_TEXTINPUT:
+        break;
       default: {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "----Unknown SDL event!\n");
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
