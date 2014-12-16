@@ -1,5 +1,5 @@
 {
-  "id": "PlayerWon",
+  "name": "PlayerWon",
   "bus": "voices",
   "audio_sample_set": [
     {

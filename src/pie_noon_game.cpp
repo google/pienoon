@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "precompiled.h"
+#include "SDL_timer.h"
 #include "analytics_tracking.h"
 #include "angle.h"
 #include "audio_config_generated.h"
-#include "audio_engine.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
@@ -26,10 +26,10 @@
 #include "impel_processor_smooth.h"
 #include "pie_noon_common_generated.h"
 #include "pie_noon_game.h"
+#include "pindrop/audio_engine.h"
 #include "timeline_generated.h"
 #include "touchscreen_controller.h"
 #include "utilities.h"
-#include "SDL_timer.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -116,8 +116,8 @@ PieNoonGame::PieNoonGame()
       debug_previous_states_(),
       full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized),
-      ambience_channel_(AudioEngine::kInvalidChannel),
-      stinger_channel_(AudioEngine::kInvalidChannel),
+      ambience_channel_(pindrop::AudioEngine::kInvalidChannel),
+      stinger_channel_(pindrop::AudioEngine::kInvalidChannel),
       next_achievement_index_(0) {
   version_ = kVersion;
 }
@@ -383,8 +383,7 @@ bool PieNoonGame::InitializeGameState() {
     AiController* controller = new AiController();
     controller->Initialize(&game_state_, &config, i);
     game_state_.characters().push_back(std::unique_ptr<Character>(
-        new Character(i, controller, config, state_machine_def,
-                      &audio_engine_)));
+        new Character(i, controller, config, state_machine_def)));
     AddController(controller);
     controller->Initialize(&game_state_, &config, i);
   }
@@ -396,7 +395,7 @@ bool PieNoonGame::InitializeGameState() {
 
 class AudioEngineVolumeControl {
  public:
-  AudioEngineVolumeControl(AudioEngine* audio) : audio_(audio) {}
+  AudioEngineVolumeControl(pindrop::AudioEngine* audio) : audio_(audio) {}
   void operator()(SDL_Event* event) {
     switch (event->type) {
       case SDL_APP_WILLENTERBACKGROUND:
@@ -410,7 +409,7 @@ class AudioEngineVolumeControl {
     }
   }
  private:
-  AudioEngine* audio_;
+  pindrop::AudioEngine* audio_;
 };
 
 // Initialize each member in turn. This is logically just one function, since
@@ -437,6 +436,7 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
   // strictly necessary for gameplay, so don't die if the audio engine fails to
   // initialize.
   audio_engine_.Initialize(GetConfig().audio());
+  audio_engine_.LoadSoundBank("sound_banks/sound_assets.bin");
   input_.AddAppEventCallback(AudioEngineVolumeControl(&audio_engine_));
 
   if (!InitializeGameState())
@@ -822,7 +822,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         join_id_ = id;
 
         // Play a sound to aid with the countdown feeling.
-        audio_engine_.PlaySound(SoundId_StartMatch);
+        audio_engine_.PlaySound("StartMatch");
       }
 
       // Scale the pie to show some pleasing movement.
@@ -849,8 +849,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         return kPaused;
       }
       if (game_state_.IsGameOver() &&
-          stinger_channel_ != AudioEngine::kInvalidChannel &&
-          !AudioEngine::Playing(stinger_channel_)) {
+          stinger_channel_ != pindrop::AudioEngine::kInvalidChannel &&
+          !pindrop::AudioEngine::Playing(stinger_channel_)) {
         game_state_.PostGameLogging();
         return kFinished;
       }
@@ -921,9 +921,9 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
                       config.touchscreen_zones(), &matman_);
 
       if (state_ != kPaused) {
-        audio_engine_.PlaySound(SoundId_StartMatch);
-        audio_engine_.PlaySound(SoundId_MusicAction);
-        ambience_channel_ = audio_engine_.PlaySound(SoundId_Ambience);
+        audio_engine_.PlaySound("StartMatch");
+        audio_engine_.PlaySound("MusicAction");
+        ambience_channel_ = audio_engine_.PlaySound("Ambience");
         game_state_.Reset(GameState::kTrackAnalytics);
       } else {
         audio_engine_.Pause(false);
@@ -937,11 +937,11 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     }
     case kFinished: {
       gui_menu_.Setup(TitleScreenButtons(config), &matman_);
-      if (ambience_channel_ != AudioEngine::kInvalidChannel) {
+      if (ambience_channel_ != pindrop::AudioEngine::kInvalidChannel) {
         audio_engine_.Stop(ambience_channel_);
       }
-      stinger_channel_ = AudioEngine::kInvalidChannel;
-      audio_engine_.PlaySound(SoundId_MusicMenu);
+      stinger_channel_ = pindrop::AudioEngine::kInvalidChannel;
+      audio_engine_.PlaySound("MusicMenu");
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
         if (character->controller()->controller_type() !=
@@ -1233,7 +1233,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
     }
   }
   if (previous_focus != gui_menu_.GetFocus()) {
-    audio_engine_.PlaySound(SoundId_FocusMenuItem);
+    audio_engine_.PlaySound("FocusMenuItem");
   }
 
   for (MenuSelection menu_selection = gui_menu_.GetRecentSelection();
@@ -1243,7 +1243,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       case ButtonId_MenuSignIn: {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Menu: SIGN IN/OUT");
         bool signed_in = false;
-        audio_engine_.PlaySound(SoundId_JoinMatch);
+        audio_engine_.PlaySound("JoinMatch");
 #       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         signed_in = gpg_manager.LoggedIn();
         gpg_manager.ToggleSignIn();
@@ -1255,19 +1255,19 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       case ButtonId_MenuLicense:
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelLicenseButton);
-        audio_engine_.PlaySound(SoundId_JoinMatch);
+        audio_engine_.PlaySound("JoinMatch");
         DisplayDialogBox("Open Source Licenses", "licenses.txt", false);
         break;
       case ButtonId_MenuAbout:
         SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelAboutButton);
-        audio_engine_.PlaySound(SoundId_JoinMatch);
+        audio_engine_.PlaySound("JoinMatch");
         DisplayDialogBox("About", "about.html", true);
         break;
       case ButtonId_MenuStart:
         if (state_ == kFinished) {
           SendTrackerEvent(kCategoryUi, kActionClickedButton,
                            kLabelStartButton);
-          audio_engine_.PlaySound(SoundId_JoinMatch);
+          audio_engine_.PlaySound("JoinMatch");
           if (menu_selection.controller_id == kTouchController) {
             // When a touch controller exists, we assume it is the unique
             // input system for the game. We make the touch controller join the
@@ -1293,7 +1293,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
 #       endif
         break;
       case ButtonId_InvalidInput:
-        audio_engine_.PlaySound(SoundId_InvalidInput);
+        audio_engine_.PlaySound("InvalidInput");
         break;
       case ButtonId_MenuExtras: {
         SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelExtrasButton);
@@ -1350,7 +1350,7 @@ void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
   }
 }
 
-ChannelId PieNoonGame::PlayStinger() {
+pindrop::AudioEngine::ChannelId PieNoonGame::PlayStinger() {
   auto& characters = game_state_.characters();
   int player_winners = 0;
   int ai_winners = 0;
@@ -1369,11 +1369,11 @@ ChannelId PieNoonGame::PlayStinger() {
   // If more than one character won, or if they all lost, play the draw stinger.
   // This logic should work equally well for all game modes.
   if (player_winners == 1 && ai_winners == 0) {
-    return audio_engine_.PlaySound(SoundId_StingerWin);
+    return audio_engine_.PlaySound("StingerWin");
   } else if (player_winners == 0 && ai_winners > 0) {
-    return audio_engine_.PlaySound(SoundId_StingerLose);
+    return audio_engine_.PlaySound("StingerLose");
   } else {
-    return audio_engine_.PlaySound(SoundId_StingerDraw);
+    return audio_engine_.PlaySound("StingerDraw");
   }
 }
 
@@ -1510,7 +1510,7 @@ void PieNoonGame::Run() {
         }
 
         if (state_ == kPlaying &&
-            stinger_channel_ == AudioEngine::kInvalidChannel &&
+            stinger_channel_ == pindrop::AudioEngine::kInvalidChannel &&
             game_state_.IsGameOver()) {
           game_state_.DetermineWinnersAndLosers();
           stinger_channel_ = PlayStinger();

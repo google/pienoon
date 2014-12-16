@@ -1,5 +1,5 @@
 {
-  "id": "HitWithMediumPie",
+  "name": "HitWithMediumPie",
   "bus": "game_sound_effects",
   "audio_sample_set": [
     {

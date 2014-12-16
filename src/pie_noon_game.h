@@ -20,12 +20,12 @@
 #endif
 
 #include "ai_controller.h"
-#include "audio_engine.h"
 #include "full_screen_fader.h"
 #include "game_state.h"
 #include "gui_menu.h"
 #include "input.h"
 #include "material_manager.h"
+#include "pindrop/audio_engine.h"
 #include "player_controller.h"
 #include "renderer.h"
 #include "scene_description.h"
@@ -100,7 +100,7 @@ class PieNoonGame {
   //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
-  ChannelId PlayStinger();
+  pindrop::AudioEngine::ChannelId PlayStinger();
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
   bool AnyControllerPresses();
@@ -136,7 +136,7 @@ class PieNoonGame {
   MaterialManager matman_;
 
   // Manage ownership and playing of audio assets.
-  AudioEngine audio_engine_;
+  pindrop::AudioEngine audio_engine_;
 
   // Map RenderableId to rendering mesh.
   std::vector<Mesh*> cardboard_fronts_;
@@ -195,11 +195,11 @@ class PieNoonGame {
   PieNoonState fade_exit_state_;
 
   // Channel used to play the ambience sound effect.
-  ChannelId ambience_channel_;
+  pindrop::AudioEngine::ChannelId ambience_channel_;
 
   // A stinger will play before transition to the finished state. Don't
   // transition until the stinger is complete.
-  ChannelId stinger_channel_;
+  pindrop::AudioEngine::ChannelId stinger_channel_;
 
   // Our current slide of the tutorial. Valid when state_ is kTutorial.
   int tutorial_slide_index_;

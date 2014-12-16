@@ -1,5 +1,5 @@
 {
-  "id": "MusicAction",
+  "name": "MusicAction",
   "bus": "music",
   "stream": true,
   "loop": true,
