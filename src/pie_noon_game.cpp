@@ -482,6 +482,9 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
     // TODO: check amount of lights.
     renderer_.light_pos() = world_matrix_inverse * (*scene.lights()[0]);
 
+    // The popsicle stick and cardboard back are always uncolored.
+    renderer_.color() = mathfu::kOnes4f;
+
     // Note: Draw order is back-to-front, so draw the cardboard back, then
     // popsicle stick, then cardboard front--in that order.
     //
