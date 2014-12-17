@@ -51,6 +51,8 @@ Win32/
 CMakeLists.txt.user.*
 
 # Misc generated files
+.tags
+.tags_sorted_by_file
 tags
 pie_noon.tar.gz
 docs/html/
