@@ -213,8 +213,12 @@ set(pie_noon_SRCS
     src/common.h
     src/controller.cpp
     src/controller.h
+    src/curve.cpp
+    src/curve.h
     src/font_manager.cpp
     src/font_manager.h
+    src/spline.cpp
+    src/spline.h
     src/full_screen_fader.cpp
     src/full_screen_fader.h
     src/game_camera.cpp
@@ -263,6 +267,7 @@ set(pie_noon_SRCS
     src/player_controller.cpp
     src/player_controller.h
     src/precompiled.h
+    src/range.h
     src/renderer.cpp
     src/renderer.h
     src/scene_description.h

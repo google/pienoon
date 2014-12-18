@@ -13,15 +13,15 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "bezier.h"
+#include "spline.h"
 #include "impel_engine.h"
 #include "impel_init.h"
 
 
 namespace impel {
 
-typedef fpl::BezierCurve<float, float> BezierCurve1f;
 
+typedef fpl::DualCubicSpline SmoothSpline;
 
 struct SmoothImpelData  {
   void Initialize(const SmoothImpelInit& init_param) {
@@ -46,7 +46,7 @@ struct SmoothImpelData  {
   float time;
 
   // Time at which 'curve' has reached the target.
-  float end_time;
+  float target_time;
 
   // When the current or target state is overridden, the polynomial should be
   // re-calculated. We only want to calculate once per frame, though, so we do
@@ -54,7 +54,7 @@ struct SmoothImpelData  {
   bool curve_valid;
 
   // Polynomial with the curve of our motion over time.
-  BezierCurve1f curve;
+  SmoothSpline curve;
 
   // Keep a local copy of the init params.
   SmoothImpelInit init;
@@ -97,11 +97,11 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
       }
 
       // Update the current simulation time. A time of 0 is the start of the
-      // curve, and a time of end_time is the end of the curve.
+      // curve, and a time of target_time is the end of the curve.
       d->time += delta_time;
 
       // We've we're at the end of the curve then we're already at the target.
-      const bool at_target = d->time >= d->end_time;
+      const bool at_target = d->time >= d->target_time;
       if (at_target) {
         // Optimize the case when we're already at the target.
         d->value = d->target_value;
@@ -131,7 +131,7 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
   }
   virtual void SetTargetTime(ImpelIndex index, float target_time) {
     SmoothImpelData& d = Data(index);
-    d.end_time = target_time;
+    d.target_time = target_time;
     d.curve_valid = false;
   }
 
@@ -166,11 +166,12 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
   }
 
   void CalculateCurve(SmoothImpelData* d) const {
-    if (d->end_time > 0.0f) {
-      d->curve.Initialize(d->value, d->velocity, d->target_value, 0.0f, 0.0f,
-                          d->end_time);
+    if (d->target_time > 0.0f) {
+      const fpl::SplineControlPoint start(0.0f, d->value, d->velocity);
+      const fpl::SplineControlPoint end(d->target_time, d->target_value, 0.0f);
+      d->curve.Initialize(start, end);
     } else {
-      d->curve = BezierCurve1f();
+      d->curve = SmoothSpline();
     }
     d->time = 0.0f;
     d->curve_valid = true;
