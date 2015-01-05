@@ -84,9 +84,23 @@ class InternalState : public Group {
       : Group(true, ALIGN_TOPLEFT, 0, 0),
         layout_pass_(true), canvas_size_(matman.renderer().window_size()),
         virtual_resolution_(IMGUI_DEFAULT_VIRTUAL_RESOLUTION),
-        matman_(matman),
-        input_(input) {
+        matman_(matman), input_(input),
+        pointer_max_active_index_(-1) {
     SetScale();
+
+    // Cache the state of multiple pointers, so we have to do less work per
+    // interactive element.
+    pointer_max_active_index_ = 0;  // Mouse is always active.
+    // TODO: pointer_max_active_index_ should start at -1 if on a touchscreen.
+    for (int i = 0; i < InputSystem::kMaxSimultanuousPointers; i++) {
+      if (!pointer_element_id_[i]) pointer_element_id_[i] = "__null_id__";
+      pointer_buttons_[i] = &input.GetPointerButton(i);
+      if(pointer_buttons_[i]->is_down() ||
+         pointer_buttons_[i]->went_down() ||
+         pointer_buttons_[i]->went_up()) {
+        pointer_max_active_index_ = std::max(pointer_max_active_index_, i);
+      }
+    }
 
     // If this assert hits, you likely are trying to created nested GUIs.
     assert(!state);
@@ -268,27 +282,29 @@ class InternalState : public Group {
     position_ += margin_.xy();
   }
 
-  void RecordId(const char *id) { element_id_mouse_down_ = id; }
-  bool SameId(const char *id) { return !strcmp(id, element_id_mouse_down_); }
+  void RecordId(const char *id, int i) { pointer_element_id_[i] = id; }
+  bool SameId(const char *id, int i) {
+    return !strcmp(id, pointer_element_id_[i]);
+  }
 
   Event CheckEvent() {
+    // We only fire events during the second pass.
     if (!layout_pass_) {
-      // We only fire events during the second pass.
-      // TODO: this is currently hardcoded to pointer 0, and we should support
-      // multiple fingers hitting buttons in an overlapping way.
-      // Putting a loop around this a bit inefficient, we should only test
-      // InRange2D for fingers 1-9 when they are down (finger 0 we always test,
-      // to have mouse functionality).
-      if (mathfu::InRange2D(input_.pointers_[0].mousepos, position_,
-                            position_ + size_)) {
-        auto &button = input_.GetPointerButton(0);
-        int event = 0;
-        auto id = elements_[element_idx_].id;
-        if (button.went_down()) { RecordId(id); event |= EVENT_WENT_DOWN; }
-        if (button.went_up() && SameId(id)) event |= EVENT_WENT_UP;
-        else if (button.is_down() && SameId(id)) event |= EVENT_IS_DOWN;
-        if (!event) event = EVENT_HOVER;
-        return static_cast<Event>(event);
+      // pointer_max_active_index_ is typically 0, so not expensive.
+      for (int i = 0; i <= pointer_max_active_index_; i++) {
+        if (mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
+                              position_ + size_)) {
+          auto &button = *pointer_buttons_[i];
+          int event = 0;
+          auto id = elements_[element_idx_].id;
+          if (button.went_down()) { RecordId(id, i); event |= EVENT_WENT_DOWN; }
+          if (button.went_up() && SameId(id, i)) event |= EVENT_WENT_UP;
+          else if (button.is_down() && SameId(id, i)) event |= EVENT_IS_DOWN;
+          if (!event) event = EVENT_HOVER;
+          // We only report an event for the first finger to touch an element.
+          // This is intentional.
+          return static_cast<Event>(event);
+        }
       }
     }
     return EVENT_NONE;
@@ -308,11 +324,14 @@ class InternalState : public Group {
   MaterialManager &matman_;
   InputSystem &input_;
 
+  int pointer_max_active_index_;
+  const Button *pointer_buttons_[InputSystem::kMaxSimultanuousPointers];
+
   // Intra-frame persistent state.
-  static const char *element_id_mouse_down_;
+  static const char *pointer_element_id_[InputSystem::kMaxSimultanuousPointers];
 };
 
-const char *InternalState::element_id_mouse_down_ = "__null_id__";
+const char *InternalState::pointer_element_id_[] = { nullptr };
 
 
 void Run(MaterialManager &matman, InputSystem &input,

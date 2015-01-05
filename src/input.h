@@ -200,9 +200,10 @@ class InputSystem {
   InputSystem() : exit_requested_(false), minimized_(false),
       frame_time_(0), last_millis_(0), start_time_(0), frames_(0),
       minimized_frame_(0) {
-    const int kMaxSimultanuousPointers = 10;  // All current touch screens.
     pointers_.assign(kMaxSimultanuousPointers, Pointer());
   }
+
+  static const int kMaxSimultanuousPointers = 10;  // All current touch screens.
 
   // Initialize the input system. Call this after SDL is initialized by
   // the renderer.

@@ -143,6 +143,12 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
         UpdateDragPosition(event.tfinger, event.type, *window_size);
         break;
       }
+#     else
+      // These fire from e.g. OS X touchpads. Ignore them because we just
+      // want the mouse events.
+      case SDL_FINGERDOWN: break;
+      case SDL_FINGERUP: break;
+      case SDL_FINGERMOTION: break;
 #     endif
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP: {
