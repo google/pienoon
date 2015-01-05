@@ -107,11 +107,17 @@ void StartGroup(Layout layout, int spacing = 0,
                 const char *id = "__group_id__");
 void EndGroup();
 
-// Sets the margin for the current group (call after StartGroup).
+// The following functions are specific to a group and should be called
+// after StartGroup (and before any elements):
+
+// Sets the margin for the current group.
 void SetMargin(const Margin &margin);
 
-// Check for events
+// Check for events on the current group.
 Event CheckEvent();
+
+// Set the background for the group. May use alpha.
+void ColorBackGround(const vec4 &color);
 
 // The default virtual resolution used if none is set.
 const float IMGUI_DEFAULT_VIRTUAL_RESOLUTION = 1000.0f;

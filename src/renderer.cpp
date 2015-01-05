@@ -146,7 +146,7 @@ void Renderer::AdvanceFrame(bool minimized) {
 #else
   GL_CALL(glViewport(0, 0, window_size_.x(), window_size_.y()));
 #endif
-  GL_CALL(glEnable(GL_DEPTH_TEST));
+  DepthTest(true);
 }
 
 void Renderer::ShutDown() {

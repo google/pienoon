@@ -191,6 +191,15 @@ class InternalState : public Group {
                           size_ - element.size);
   }
 
+  void RenderQuad(const char *shader, const vec4 &color, const vec2i &pos,
+                  const vec2i &size) {
+    auto &renderer = matman_.renderer();
+    renderer.color() = color;
+    matman_.LoadShader(shader)->Set(renderer);
+    Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0),
+                             vec3(vec2(pos + size), 0));
+  }
+
   // An image element.
   void Image(const char *texture_name, float ysize) {
     auto tex = matman_.FindTexture(texture_name);
@@ -208,8 +217,7 @@ class InternalState : public Group {
       if (element) {
         auto position = Position(*element);
         tex->Set(0);
-        Mesh::RenderAAQuadAlongX(vec3(vec2(position), 0),
-                                 vec3(vec2(position + element->size), 0));
+        RenderQuad("shaders/textured", mathfu::kOnes4f, position, element->size);
         Advance(element->size);
       }
     }
@@ -286,6 +294,10 @@ class InternalState : public Group {
     return EVENT_NONE;
   }
 
+  void ColorBackGround(const vec4 &color) {
+    RenderQuad("shaders/color", color, position_, size_);
+  }
+
   bool layout_pass_;
   std::vector<Element> elements_;
   std::vector<Element>::const_iterator element_it_;
@@ -325,10 +337,8 @@ void Run(MaterialManager &matman, InputSystem &input,
       -1.0f, 1.0f);
   renderer.model_view_projection() = ortho_mat;
 
-  // TODO: must be user configurable.
-  //renderer.SetBlendMode(kBlendModeOff);
-  renderer.color() = mathfu::kOnes4f;
-  matman.LoadShader("shaders/textured")->Set(renderer);
+  renderer.SetBlendMode(kBlendModeAlpha);
+  renderer.DepthTest(false);
 
   gui_definition();
 }
@@ -352,6 +362,8 @@ void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
 
 Event CheckEvent() { return Gui()->CheckEvent(); }
 
+void ColorBackGround(const vec4 &color) { Gui()->ColorBackGround(color); }
+
 void PositionUI(const vec2i &canvas_size, float virtual_resolution,
                 Layout horizontal, Layout vertical) {
   Gui()->PositionUI(canvas_size, virtual_resolution, GetAlignment(horizontal),
@@ -363,6 +375,8 @@ void PositionUI(const vec2i &canvas_size, float virtual_resolution,
 Event ImageButton(const char *texture_name, float size, const char *id) {
   StartGroup(LAYOUT_VERTICAL_LEFT, size, id);
     auto event = CheckEvent();
+    if (event & EVENT_IS_DOWN) ColorBackGround(vec4(1.0f, 1.0f, 1.0f, 0.5f));
+    else if (event & EVENT_HOVER) ColorBackGround(vec4(0.5f, 0.5f, 0.5f, 0.5f));
     Image(texture_name, size);
   EndGroup();
   return event;
