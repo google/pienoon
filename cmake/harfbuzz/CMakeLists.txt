@@ -39,6 +39,7 @@ include_directories(${dependencies_freetype_distr_dir}/include)
 
 # Include harfbuzz header files.
 include_directories(${harfbuzz_dir}/src)
+include_directories(${harfbuzz_dir}/src/hb-ucdn)
 
 # Include harfbuzz source files.
 set(libharfbuzz_SRCS
@@ -48,11 +49,14 @@ set(libharfbuzz_SRCS
     ${harfbuzz_dir}/src/hb-common.cc
     ${harfbuzz_dir}/src/hb-face.cc
     ${harfbuzz_dir}/src/hb-font.cc
+    ${harfbuzz_dir}/src/hb-ft.cc
     ${harfbuzz_dir}/src/hb-ot-tag.cc
     ${harfbuzz_dir}/src/hb-set.cc
     ${harfbuzz_dir}/src/hb-shape.cc
     ${harfbuzz_dir}/src/hb-shape-plan.cc
     ${harfbuzz_dir}/src/hb-shaper.cc
+    ${harfbuzz_dir}/src/hb-ucdn/ucdn.c
+    ${harfbuzz_dir}/src/hb-ucdn.cc
     ${harfbuzz_dir}/src/hb-unicode.cc
     ${harfbuzz_dir}/src/hb-warning.cc
     ${harfbuzz_dir}/src/hb-ot-font.cc

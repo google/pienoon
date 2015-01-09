@@ -26,6 +26,9 @@ add_definitions(-DFT2_BUILD_LIBRARY)
 # Including freetype source files.
 # Note that it includes top level .c module files
 # that includes other files.
+add_definitions(
+    -DFT_CONFIG_MODULES_H=\"${dependencies_freetype_cmake_dir}/ftmodule.h\")
+
 set(libfreetype_SRCS
     ${freetype_dir}/src/base/ftbbox.c
     ${freetype_dir}/src/base/ftbitmap.c
@@ -39,6 +42,7 @@ set(libfreetype_SRCS
     ${freetype_dir}/src/base/ftsystem.c
     ${freetype_dir}/src/base/ftinit.c
     ${freetype_dir}/src/base/ftgasp.c
+    ${freetype_dir}/src/gzip/ftgzip.c
     ${freetype_dir}/src/raster/raster.c
     ${freetype_dir}/src/sfnt/sfnt.c
     ${freetype_dir}/src/smooth/smooth.c

@@ -173,12 +173,14 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/font_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/full_screen_fader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gamepad_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/game_camera.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/game_state.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gpg_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gui_menu.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/imgui.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/impel_engine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/impel_flatbuffers.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/impel_processor.cpp \
@@ -201,8 +203,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/utilities.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/imgui.cpp
+  $(PIE_NOON_RELATIVE_DIR)/src/utilities.cpp
 
 # Make each source file dependent upon the generated_includes and build_assets
 # targets.

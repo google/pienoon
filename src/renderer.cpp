@@ -316,6 +316,12 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
                            GL_RGB, GL_UNSIGNED_BYTE, buffer));
       break;
     }
+    case kFormatLuminance: {
+      assert(!has_alpha);
+      GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, size.x(), size.y(),
+                           0, GL_LUMINANCE, GL_UNSIGNED_BYTE, buffer));
+      break;
+    }
     default: assert(0);
   }
   GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));

@@ -36,6 +36,7 @@ enum TextureFormat {
   kFormat888,
   kFormat5551,
   kFormat565,
+  kFormatLuminance,
 };
 
 class Texture : public AsyncResource {
@@ -43,8 +44,17 @@ class Texture : public AsyncResource {
   Texture(Renderer &renderer, const std::string &filename)
     : AsyncResource(filename), renderer_(&renderer), id_(0),
       size_(mathfu::kZeros2i), has_alpha_(false), desired_(kFormatAuto) {}
+  Texture(Renderer &renderer)
+    : AsyncResource(""), renderer_(&renderer), id_(0),
+    size_(mathfu::kZeros2i), has_alpha_(false), desired_(kFormatAuto) {}
+  ~Texture() {
+    Delete();
+  }
 
   virtual void Load();
+  virtual void LoadFromMemory(const uint8_t *data,
+                              const vec2i size,
+                              const TextureFormat format, const bool has_alpha);
   virtual void Finalize();
 
   void Set(size_t unit);

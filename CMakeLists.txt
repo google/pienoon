@@ -213,6 +213,8 @@ set(pie_noon_SRCS
     src/common.h
     src/controller.cpp
     src/controller.h
+    src/font_manager.cpp
+    src/font_manager.h
     src/full_screen_fader.cpp
     src/full_screen_fader.h
     src/game_camera.cpp
@@ -304,7 +306,7 @@ include_directories(${dependencies_sdl_mixer_distr_dir})
 include_directories(${dependencies_harfbuzz_distr_dir}/src)
 
 # freetype includes.
-include_directories(${dependencies_freetype_distr_dir}/src)
+include_directories(${dependencies_freetype_distr_dir}/include)
 
 # Detect clang
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

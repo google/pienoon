@@ -80,12 +80,13 @@ class InternalState : public Group {
     vec2i size;
   };
 
-  InternalState(MaterialManager &matman, InputSystem &input)
+  InternalState(MaterialManager &matman, FontManager &fontman,
+                InputSystem &input)
       : Group(true, ALIGN_TOPLEFT, 0, 0),
         layout_pass_(true), canvas_size_(matman.renderer().window_size()),
         virtual_resolution_(IMGUI_DEFAULT_VIRTUAL_RESOLUTION),
         matman_(matman), input_(input),
-        pointer_max_active_index_(-1) {
+        fontman_(fontman), pointer_max_active_index_(-1) {
     SetScale();
 
     // Cache the state of multiple pointers, so we have to do less work per
@@ -106,6 +107,12 @@ class InternalState : public Group {
     assert(!state);
 
     state = this;
+
+    // Load shaders ahead.
+    image_shader_ = matman_.LoadShader("shaders/textured");
+    assert(image_shader_);
+    font_shader_ = matman_.LoadShader("shaders/font");
+    assert(font_shader_);
   }
 
   ~InternalState() {
@@ -230,8 +237,38 @@ class InternalState : public Group {
       auto element = NextElement(texture_name);
       if (element) {
         auto position = Position(*element);
+        image_shader_->Set(matman_.renderer());
         tex->Set(0);
-        RenderQuad("shaders/textured", mathfu::kOnes4f, position, element->size);
+        Mesh::RenderAAQuadAlongX(vec3(vec2(position), 0),
+                                 vec3(vec2(position + element->size), 0));
+        Advance(element->size);
+      }
+    }
+  }
+
+  // Text label.
+  void Label(const char *text, float ysize)
+  {
+    auto size = VirtualToPhysical(vec2(0, ysize));
+    auto tex = fontman_.GetTexture(text, size.y());
+    if (layout_pass_) {
+      auto virtual_image_size = vec2(tex->size().x() * ysize /
+                                     tex->size().y(), ysize);
+      // Map the size to real screen pixels, rounding to the nearest int
+      // for pixel-aligned rendering.
+      auto size = VirtualToPhysical(virtual_image_size);
+      NewElement(text, size);
+      Extend(size);
+    } else {
+      auto element = NextElement(text);
+      if (element) {
+        auto position = Position(*element);
+        font_shader_->Set(matman_.renderer());
+        matman_.renderer().SetBlendMode(kBlendModeAlpha);
+        tex->Set(0);
+        Mesh::RenderAAQuadAlongX(vec3(vec2(position), 0),
+                                 vec3(vec2(position + element->size), 0));
+        matman_.renderer().SetBlendMode(kBlendModeTest);
         Advance(element->size);
       }
     }
@@ -323,6 +360,9 @@ class InternalState : public Group {
   float pixel_scale_;
   MaterialManager &matman_;
   InputSystem &input_;
+  FontManager &fontman_;
+  Shader *image_shader_;
+  Shader *font_shader_;
 
   int pointer_max_active_index_;
   const Button *pointer_buttons_[InputSystem::kMaxSimultanuousPointers];
@@ -334,11 +374,11 @@ class InternalState : public Group {
 const char *InternalState::pointer_element_id_[] = { nullptr };
 
 
-void Run(MaterialManager &matman, InputSystem &input,
+void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
          const std::function<void ()> &gui_definition) {
 
   // Create our new temporary state.
-  InternalState internal_state(matman, input);
+  InternalState internal_state(matman, fontman, input);
 
   // Run two passes, one for layout, one for rendering.
   // First pass:
@@ -368,6 +408,12 @@ void Image(const char *texture_name, float size)
 {
   Gui()->Image(texture_name, size);
 }
+
+void Label(const char *text, float size)
+{
+  Gui()->Label(text, size);
+}
+
 
 void StartGroup(Layout layout, int spacing, const char *id) {
   Gui()->StartGroup(IsVertical(layout), GetAlignment(layout), spacing, id);
@@ -402,8 +448,9 @@ Event ImageButton(const char *texture_name, float size, const char *id) {
   return event;
 }
 
-void TestGUI(MaterialManager &matman, InputSystem &input) {
-  Run(matman, input, [&matman]() {
+void TestGUI(MaterialManager &matman, FontManager &fontman,
+             InputSystem &input) {
+  Run(matman, fontman, input, [&matman]() {
     PositionUI(matman.renderer().window_size(), 1000, LAYOUT_HORIZONTAL_CENTER,
                LAYOUT_VERTICAL_RIGHT);
     StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
@@ -411,7 +458,9 @@ void TestGUI(MaterialManager &matman, InputSystem &input) {
         if (ImageButton("textures/text_about.webp", 50, "my_id") ==
             EVENT_WENT_UP)
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
-        Image("textures/text_about.webp", 40);
+        Label("Property Test WAWA", 30);
+        Label("My great label", 30);
+        Label("Another neat label", 30);
         Image("textures/text_about.webp", 30);
       EndGroup();
       StartGroup(LAYOUT_VERTICAL_CENTER, 40);

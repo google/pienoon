@@ -1531,7 +1531,13 @@ void PieNoonGame::Run() {
 
         // TEMP: testing GUI on top of everything else.
 #       if IMGUI_TEST
-        gui::TestGUI(matman_, input_);
+        // Open OpenType font
+        static FontManager fontman;
+        if (!fontman.FontLoaded()) {
+          fontman.Open("fonts/NotoSansCJKjp-Bold.otf");
+          fontman.SetRenderer(renderer_);
+        }
+        gui::TestGUI(matman_, fontman, input_);
 #       endif  // IMGUI_TEST
 
         // Output debug information.

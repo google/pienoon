@@ -27,6 +27,16 @@ void Texture::Load() {
   }
 }
 
+void Texture::LoadFromMemory(const uint8_t *data,
+                             const vec2i size,
+                             const TextureFormat format, const bool has_alpha)
+{
+  size_ = size;
+  has_alpha_ = has_alpha;
+  desired_ = format;
+  id_ = renderer_->CreateTexture(data, size_, has_alpha_, desired_);
+}
+
 void Texture::Finalize() {
   if (data_) {
     id_ = renderer_->CreateTexture(data_, size_, has_alpha_, desired_);
@@ -41,7 +51,10 @@ void Texture::Set(size_t unit) {
 }
 
 void Texture::Delete() {
-  GL_CALL(glDeleteTextures(1, &id_));
+  if (id_) {
+    GL_CALL(glDeleteTextures(1, &id_));
+    id_ = 0;
+  }
 }
 
 void Material::Set(Renderer &renderer) {

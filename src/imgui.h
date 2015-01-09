@@ -18,7 +18,10 @@
 #include <functional>
 
 #include <material_manager.h>
+#include <font_manager.h>
+
 #include <input.h>
+#include <utilities.h>
 
 namespace fpl {
 namespace gui {
@@ -28,7 +31,7 @@ namespace gui {
 // gui_definition: a function that defines all GUI elements using the GUI
 // element construction functions.
 // It will be run twice, once for layout, once for rendering & events.
-void Run(MaterialManager &matman, InputSystem &input,
+void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
                 const std::function<void ()> &gui_definition);
 
 // Event types returned by most interactive elements. These are flags because
@@ -100,6 +103,12 @@ struct Margin {
 // automatically based on the image dimensions.
 void Image(const char *texture_name, float ysize);
 
+// Render an label as a GUI element.
+// text: label string in UTF8
+// ysize: vertical size in virtual resolution. xsize will be derived
+// automatically based on the text length.
+void Label(const unsigned char *text, float ysize);
+
 // Create a group of elements with the given layout and intra-element spacing.
 // Start/end calls must be matched and may be nested to create more complex
 // layouts.
@@ -138,7 +147,7 @@ void PositionUI(const vec2i &canvas_size, float virtual_resolution,
 
 // TODO: Move into a test application.
 #define IMGUI_TEST 0
-void TestGUI(MaterialManager &matman, InputSystem &input);
+void TestGUI(MaterialManager &matman, FontManager &fontman, InputSystem &input);
 
 }  // namespace gui
 }  // namespace fpl
