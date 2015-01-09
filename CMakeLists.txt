@@ -69,6 +69,14 @@ set(dependencies_webp_cmake_dir "${CMAKE_MODULE_PATH}/webp"
     CACHE PATH "Directory containing the Webp cmake project.")
 set(dependencies_webp_distr_dir "${third_party_root}/webp"
     CACHE PATH "Directory containing the Webp distribution.")
+set(dependencies_harfbuzz_cmake_dir "${CMAKE_MODULE_PATH}/harfbuzz"
+    CACHE PATH "Directory containing the harfbuzz cmake project.")
+set(dependencies_harfbuzz_distr_dir "${third_party_root}/harfbuzz"
+    CACHE PATH "Directory containing the harfbuzz library.")
+set(dependencies_freetype_cmake_dir "${CMAKE_MODULE_PATH}/freetype"
+    CACHE PATH "Directory containing the freetype cmake project.")
+set(dependencies_freetype_distr_dir "${third_party_root}/freetype"
+    CACHE PATH "Directory containing the freetype library.")
 
 # Option to enable / disable the test build.
 option(pie_noon_build_tests "Build tests for this project." ON)
@@ -124,6 +132,12 @@ endif()
 # Include libvorbis.
 if(NOT pie_noon_only_flatc AND NOT TARGET libvorbis)
   add_subdirectory("${dependencies_libvorbis_cmake_dir}" ${tmp_dir}/libvorbis)
+endif()
+
+# Include harfbuzz and freetype.
+if(NOT pie_noon_only_flatc)
+  add_subdirectory("${dependencies_harfbuzz_cmake_dir}" ${tmp_dir}/harfbuzz)
+  add_subdirectory("${dependencies_freetype_cmake_dir}" ${tmp_dir}/freetype)
 endif()
 
 # Include SDL Mixer.
@@ -286,6 +300,12 @@ include_directories(${dependencies_libvorbis_distr_dir}/include)
 # SDL Mixer includes.
 include_directories(${dependencies_sdl_mixer_distr_dir})
 
+# harfbuzz includes.
+include_directories(${dependencies_harfbuzz_distr_dir}/src)
+
+# freetype includes.
+include_directories(${dependencies_freetype_distr_dir}/src)
+
 # Detect clang
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_COMPILER_IS_CLANGXX 1)
@@ -330,6 +350,8 @@ target_link_libraries(pie_noon
   sdl_mixer
   libvorbis
   libogg
+  libharfbuzz
+  libfreetype
   ${OPENGL_LIBRARIES}
   webp)
 
