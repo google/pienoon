@@ -196,6 +196,8 @@ set(pie_noon_SRCS
     src/audio_engine.cpp
     src/audio_engine.h
     src/bezier.h
+    src/bulk_spline_evaluator.cpp
+    src/bulk_spline_evaluator.h
     src/bus.cpp
     src/bus.h
     src/character.cpp
@@ -203,14 +205,16 @@ set(pie_noon_SRCS
     src/character_state_machine.cpp
     src/character_state_machine.h
     src/common.h
+    src/compact_spline.cpp
+    src/compact_spline.h
     src/controller.cpp
     src/controller.h
     src/curve.cpp
     src/curve.h
+    src/dual_cubic.cpp
+    src/dual_cubic.h
     src/font_manager.cpp
     src/font_manager.h
-    src/spline.cpp
-    src/spline.h
     src/components/childobject.cpp
     src/components/childobject.h
     src/components/drip_and_vanish.cpp

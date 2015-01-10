@@ -17,17 +17,10 @@
 */
 
 #include "gtest/gtest.h"
-#include "spline.h"
+#include "bulk_spline_evaluator.h"
 #include "common.h"
 
-using fpl::SplineControlPoint;
-using fpl::QuadraticCurve;
-using fpl::CubicCurve;
-using fpl::CubicInitWithWidth;
-using fpl::DualCubicSpline;
 using fpl::Range;
-using mathfu::vec2;
-using mathfu::vec2i;
 
 
 static const float kInf = std::numeric_limits<float>::infinity();

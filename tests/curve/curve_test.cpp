@@ -17,14 +17,12 @@
 */
 
 #include "gtest/gtest.h"
-#include "spline.h"
+#include "bulk_spline_evaluator.h"
 #include "common.h"
 
-using fpl::SplineControlPoint;
 using fpl::QuadraticCurve;
 using fpl::CubicCurve;
-using fpl::CubicInitWithWidth;
-using fpl::DualCubicSpline;
+using fpl::CubicInit;
 using fpl::Range;
 using mathfu::vec2;
 using mathfu::vec2i;
@@ -97,7 +95,7 @@ TEST_F(CurveTests, QuadraticCriticalPoint) {
 }
 
 TEST_F(CurveTests, CubicWithWidth) {
-  const CubicInitWithWidth init(1.0f, -8.0f, 0.3f, -4.0f, 1.0f);
+  const CubicInit init(1.0f, -8.0f, 0.3f, -4.0f, 1.0f);
   const CubicCurve c(init);
   const float epsilon = c.Epsilon();
   EXPECT_LT(fabs(c.Evaluate(init.width_x) - init.end_y), epsilon);

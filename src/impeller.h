@@ -81,13 +81,6 @@ class ImpellerBase {
   // fixed.
   int Dimensions() const { return processor_->Dimensions(); }
 
-  // Set simulation values. Some simulation values are independent of the
-  // number of dimensions, so we put them in the base class.
-  void SetTargetTime(float target_time) {
-    assert(Valid());
-    return processor_->SetTargetTime(index_, target_time);
-  }
-
   // More complicated impellers are aggregates of impellers. For example, a
   // composite impeller might emit a 3D vector by aggregating three 1D
   // impellers. These functions allow you to traverse the tree of impellers.
@@ -126,6 +119,48 @@ class ImpellerBase {
   // ImpelProcessor.
   ImpelIndex index_;
 };
+
+
+template<class Converter>
+class ImpellerState {
+ public:
+  typedef typename Converter::ExternalType T;
+  typedef typename Converter::InternalType InternalT;
+  typedef typename ImpelProcessor<InternalT>::ImpellerState InternalState;
+
+  void Reset() { s_.valid = 0; }
+  void SetValue(const T& value) {
+    s_.value = Converter::From(value);
+    s_.valid |= kValueValid;
+  }
+  void SetVelocity(const T& velocity) {
+    s_.velocity = Converter::From(velocity);
+    s_.valid |= kVelocityValid;
+  }
+  void SetTargetValue(const T& target_value) {
+    s_.target_value = Converter::From(target_value);
+    s_.valid |= kTargetValueValid;
+  }
+  void SetTargetVelocity(const T& target_velocity) {
+    s_.target_velocity = Converter::From(target_velocity);
+    s_.valid |= kTargetVelocityValid;
+  }
+  void SetTargetTime(float target_time) {
+    s_.target_time = Converter::From(target_time);
+    s_.valid |= kTargetTimeValid;
+  }
+  void SetWaypoints(const fpl::CompactSpline& waypoints, float start_time) {
+    s_.waypoints_start_time = start_time;
+    s_.waypoints = &waypoints;
+    s_.valid |= kTargetWaypointsValid;
+  }
+
+  const InternalState& State() const { return s_; }
+
+ private:
+  InternalState s_;
+};
+
 
 // Impeller
 // ========
@@ -183,6 +218,8 @@ template<class Converter>
 class Impeller : public ImpellerBase {
  public:
   typedef typename Converter::ExternalType T;
+  typedef typename Converter::InternalType InternalT;
+  typedef ImpellerState<Converter> State;
 
   Impeller() {}
 
@@ -195,6 +232,13 @@ class Impeller : public ImpellerBase {
     return *this;
   }
 
+  // Variant that lets you set the state as well.
+  void InitializeWithState(const ImpelInit& init, ImpelEngine* engine,
+                           const State& state) {
+    Initialize(init, engine);
+    SetState(state);
+  }
+
   // Get current impeller values from the processor.
   T Value() const {
     return Converter::To(Processor().Value(index_));
@@ -205,6 +249,12 @@ class Impeller : public ImpellerBase {
   T TargetValue() const {
     return Converter::To(Processor().TargetValue(index_));
   }
+  T TargetVelocity() const {
+    return Converter::To(Processor().TargetVelocity(index_));
+  }
+  float TargetTime() const {
+    return Processor().TargetTime(index_);
+  }
 
   // Return the TargetValue() minus the Value(). If we're impelling a modular
   // type (e.g. an angle), this may not be the naive subtraction.
@@ -214,19 +264,12 @@ class Impeller : public ImpellerBase {
 
   // Set current impeller values in the processor. Processors may choose to
   // ignore whichever values make sense for them to ignore.
-  void SetValue(const T& value) {
-    return Processor().SetValue(index_, Converter::From(value));
-  }
-  void SetVelocity(const T& velocity) {
-    return Processor().SetVelocity(index_, Converter::From(velocity));
-  }
-  void SetTargetValue(const T& target_value) {
-    return Processor().SetTargetValue(index_, Converter::From(target_value));
+  void SetState(const State& state) {
+    return Processor().SetState(index_, state.State());
   }
 
  private:
-  typedef typename Converter::ExternalType InternalType;
-  typedef ImpelProcessor<InternalType> ProcessorType;
+  typedef ImpelProcessor<InternalT> ProcessorType;
 
   ProcessorType& Processor() {
     assert(Valid());
@@ -261,6 +304,12 @@ typedef Impeller<PassThroughConverter<mathfu::vec2>> Impeller2f;
 typedef Impeller<PassThroughConverter<mathfu::vec3>> Impeller3f;
 typedef Impeller<PassThroughConverter<mathfu::vec4>> Impeller4f;
 typedef Impeller<PassThroughConverter<mathfu::mat4>> ImpellerMatrix4f;
+
+typedef ImpellerState<PassThroughConverter<float>> ImpellerState1f;
+typedef ImpellerState<PassThroughConverter<mathfu::vec2>> ImpellerState2f;
+typedef ImpellerState<PassThroughConverter<mathfu::vec3>> ImpellerState3f;
+typedef ImpellerState<PassThroughConverter<mathfu::vec4>> ImpellerState4f;
+typedef ImpellerState<PassThroughConverter<mathfu::mat4>> ImpellerMatrixState4f;
 
 
 } // namespace impel

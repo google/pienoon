@@ -15,7 +15,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include "spline.h"
+#include "bulk_spline_evaluator.h"
 
 
 using mathfu::vec2;
@@ -79,8 +79,11 @@ void QuadraticCurve::Roots(std::vector<float>* roots) const {
 
   // Positive discriminant means two roots. We use the quadratic formula.
   const float sqrt_discriminant = sqrt(discriminant);
-  roots->push_back( (-c_[1] - sqrt_discriminant) * divisor );
-  roots->push_back( (-c_[1] + sqrt_discriminant) * divisor );
+  const float root_minus = (-c_[1] - sqrt_discriminant) * divisor;
+  const float root_plus = (-c_[1] + sqrt_discriminant) * divisor;
+  assert(root_minus != root_plus);
+  roots->push_back(std::min(root_minus, root_plus));
+  roots->push_back(std::max(root_minus, root_plus));
   return;
 }
 
@@ -139,37 +142,7 @@ void QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
 }
 
 
-void CubicCurve::Init(const CubicInitWithDerivatives& init) {
-  //  f(x) = dx^3 + cx^2 + bx + a
-  //
-  // Solve for a and b by substituting with x = 0.
-  //  y0 = f(0) = a
-  //  s0 = f'(0) = b
-  //
-  // Solve for c and d by substituting with x = init.width_x = w. Gives two
-  // linear equations with unknowns 'c' and 'd'.
-  //  y1 = f(1) = d + c + b + a
-  //  s1 = f'(1) = 3d + 2c + b
-  //    ==> 3*y1 - s1 = (3d + 3c + 3b + 3a) - (3d + 2c + b)
-  //        3*y1 - s1 = c + 2b + 3a
-  //                c = 3*y1 - s1 - 2b - 3a
-  //                c = 3*y1 - s1 - 2*s0 - 3*y0
-  //                c = 3*(y1 - y0) - s1 - 2*s0
-  //    ==> 2*y1 - s1 = (2d + 2c + 2b + 2a) - (3d + 2c + b)
-  //        2*y1 - s1 = -d + b + 2a
-  //                d = -2*y1 + s1 + b + 2a
-  //                d = -2*y1 + s1 + s0 + 2*y0
-  //                d = 2*(y0 - y1) + s1 + s0
-  c_[0] = init.start_y;
-  c_[1] = init.start_derivative;
-  c_[2] = 3.0f * (init.end_y - init.start_y) - init.end_derivative -
-          2.0f * init.start_derivative;
-  c_[3] = 2.0f * (init.start_y - init.end_y) + init.end_derivative +
-          init.start_derivative;
-}
-
-
-void CubicCurve::Init(const CubicInitWithWidth& init) {
+void CubicCurve::Init(const CubicInit& init) {
   //  f(x) = dx^3 + cx^2 + bx + a
   //
   // Solve for a and b by substituting with x = 0.

@@ -173,9 +173,11 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/analytics_tracking.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/async_loader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/audio_engine.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/bulk_spline_evaluator.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/bus.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/compact_spline.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/childobject.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/drip_and_vanish.cpp \
@@ -183,6 +185,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/shakeable_prop.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/curve.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/dual_cubic.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/entity/entity_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/font_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/full_screen_fader.cpp \
@@ -211,7 +214,11 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/shader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/sound.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/sound_collection.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/spline.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/childobject.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/drip_and_vanish.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/shakeable_prop.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/entity/entity_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \

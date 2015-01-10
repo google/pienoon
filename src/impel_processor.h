@@ -20,11 +20,35 @@
 #include "impel_common.h"
 #include "fplutil/index_allocator.h"
 
+namespace fpl { class CompactSpline; }
 
 namespace impel {
 
 class ImpellerBase;
 class ImpelEngine;
+
+// Impellers have a subset of this state. Not all impellers types have all
+// of this state. For example, some impellers may be simple physics driven
+// movement, and not support waypoints.
+enum ImpellerStateItem {
+  kValue,
+  kVelocity,
+  kTargetValue,
+  kTargetVelocity,
+  kTargetTime,
+  kTargetWaypoints,
+};
+
+// Bitfields of the types above. Used in ImpelProcessor::ImpellerState::valid
+// to specify which fields are being set in ImpelProcessor::SetState().
+enum ImpellerStateValidity {
+  kValueValid = 1 << kValue,
+  kVelocityValid = 1 << kVelocity,
+  kTargetValueValid = 1 << kTargetValue,
+  kTargetVelocityValid = 1 << kTargetVelocity,
+  kTargetTimeValid = 1 << kTargetTime,
+  kTargetWaypointsValid = 1 << kTargetWaypoints,
+};
 
 
 // Basic creation and deletion functions, common across processors of any
@@ -73,10 +97,6 @@ class ImpelProcessorBase {
   // The number of floats (or doubles) being animated. For example, a position
   // in 3D space would return 3.
   virtual int Dimensions() const = 0;
-
-  // Set simulation values. Some simulation values are independent of the
-  // number of dimensions, so we put them in the base class.
-  virtual void SetTargetTime(ImpelIndex /*index*/, float /*target_time*/) {}
 
   // For aggregate Impellers, get the sub-Impellers. See comments in Impeller
   // for details.
@@ -191,17 +211,33 @@ class ImpelProcessorBase {
 template<class T>
 class ImpelProcessor : public ImpelProcessorBase {
  public:
+  // An Impeller's state is set in bulk via the SetState call. All the state
+  // is set in one call because SetState will generally involve a lot of
+  // initialization work. We don't want that to happen twice on one frame
+  // if we set both 'value' and 'velocity'.
+  struct ImpellerState {
+    ImpellerState() : valid(0) {}
+    T value;
+    T velocity;
+    T target_value;
+    T target_velocity;
+    uint32_t valid;     // bitfield. See ImpellerStateValidity.
+    float target_time;
+    float waypoints_start_time;
+    const fpl::CompactSpline* waypoints;
+  };
+
   virtual ~ImpelProcessor() {}
   virtual int Dimensions() const { return ValueDetails<T>::kDimensions; }
   virtual T Value(ImpelIndex /*index*/) const { return T(0.0f); }
   virtual T Velocity(ImpelIndex /*index*/) const { return T(0.0f); }
   virtual T TargetValue(ImpelIndex /*index*/) const { return T(0.0f); }
+  virtual T TargetVelocity(ImpelIndex /*index*/) const { return T(0.0f); }
   virtual T Difference(ImpelIndex index) const {
     return TargetValue(index) - Value(index);
   }
-  virtual void SetValue(ImpelIndex /*index*/, const T& /*value*/) {}
-  virtual void SetVelocity(ImpelIndex /*index*/, const T& /*velocity*/) {}
-  virtual void SetTargetValue(ImpelIndex /*index*/, const T& /*target_value*/){}
+  virtual void SetState(ImpelIndex /*index*/,
+                        const ImpellerState& /*state*/) = 0;
 };
 
 // ImpelProcessors of various dimensions. All ImpelProcessors operate with

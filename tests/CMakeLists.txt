@@ -83,14 +83,19 @@ test_executable(audio_engine ../src/audio_engine.cpp ../src/sound_collection.cpp
                 ../src/sound.cpp ../src/bus.cpp)
 test_executable(character_state_machine ../src/character_state_machine.cpp)
 test_executable(impel ../src/curve.cpp
+                ../src/bulk_spline_evaluator.cpp
+                ../src/compact_spline.cpp
+                ../src/dual_cubic.cpp
                 ../src/impel_engine.cpp
                 ../src/impeller.cpp
                 ../src/impel_processor.cpp
                 ../src/impel_processor_overshoot.cpp
-                ../src/impel_processor_smooth.cpp
-                ../src/spline.cpp)
+                ../src/impel_processor_smooth.cpp)
 test_executable(range ../src/range.h)
 test_executable(curve ../src/curve.cpp)
-test_executable(spline ../src/curve.cpp ../src/spline.cpp)
+test_executable(spline ../src/bulk_spline_evaluator.cpp
+                ../src/compact_spline.cpp
+                ../src/curve.cpp 
+                ../src/dual_cubic.cpp)
 test_executable(font_manager)
 

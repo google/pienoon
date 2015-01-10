@@ -72,18 +72,21 @@ class OvershootImpelProcessor : public ImpelProcessor<float> {
   virtual float TargetValue(ImpelIndex index) const {
     return Data(index).target_value;
   }
-  virtual void SetValue(ImpelIndex index, const float& value) {
-    Data(index).value = value;
-  }
-  virtual void SetVelocity(ImpelIndex index, const float& velocity) {
-    Data(index).velocity = velocity;
-  }
-  virtual void SetTargetValue(ImpelIndex index, const float& target_value) {
-    Data(index).target_value = target_value;
-  }
   virtual float Difference(ImpelIndex index) const {
     const OvershootImpelData& d = Data(index);
     return d.init.Normalize(d.target_value - d.value);
+  }
+  virtual void SetState(ImpelIndex index, const ImpellerState& state) {
+    OvershootImpelData& data = Data(index);
+    if (state.valid & kValueValid) {
+      data.value = state.value;
+    }
+    if (state.valid & kVelocityValid) {
+      data.velocity = state.velocity;
+    }
+    if (state.valid & kTargetValueValid) {
+      data.target_value = state.target_value;
+    }
   }
 
  protected:

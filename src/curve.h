@@ -15,12 +15,12 @@
 #ifndef FPL_CURVE_H_
 #define FPL_CURVE_H_
 
+#include <string>
 #include "common.h"
 #include "range.h"
 
 
 namespace fpl {
-
 
 enum CurveValueType {
   kCurveValue,
@@ -152,33 +152,22 @@ class QuadraticCurve {
 
 
 // Match start and end y-values and derivatives.
-// Start is x = 0. End is x = 1.
-struct CubicInitWithDerivatives {
-  CubicInitWithDerivatives(const float start_y, const float start_derivative,
-                           const float end_y, const float end_derivative) :
+// Start is x = 0. End is x = width_x.
+struct CubicInit {
+  CubicInit(const float start_y, const float start_derivative,
+            const float end_y, const float end_derivative,
+            const float width_x) :
       start_y(start_y),
       start_derivative(start_derivative),
       end_y(end_y),
-      end_derivative(end_derivative) {
+      end_derivative(end_derivative),
+      width_x(width_x) {
   }
                           // short-form in comments:
   float start_y;          // y0
   float start_derivative; // s0
   float end_y;            // y1
   float end_derivative;   // s1
-};
-
-// Match start and end y-values and derivatives.
-// Start is x = 0. End is x = width_x.
-struct CubicInitWithWidth : public CubicInitWithDerivatives {
-  CubicInitWithWidth(const float start_y, const float start_derivative,
-                     const float end_y, const float end_derivative,
-                     const float width_x) :
-      CubicInitWithDerivatives(start_y, start_derivative, end_y,
-                               end_derivative),
-      width_x(width_x) {
-  }
-                          // short-form in comments:
   float width_x;          // w
 };
 
@@ -194,10 +183,8 @@ class CubicCurve {
     c_[3] = c3; c_[2] = c2; c_[1] = c1; c_[0] = c0;
   }
   CubicCurve(const float* c) { memcpy(c_, c, sizeof(c_)); }
-  CubicCurve(const CubicInitWithDerivatives& init) { Init(init); }
-  CubicCurve(const CubicInitWithWidth& init) { Init(init); }
-  void Init(const CubicInitWithDerivatives& init);
-  void Init(const CubicInitWithWidth& init);
+  CubicCurve(const CubicInit& init) { Init(init); }
+  void Init(const CubicInit& init);
 
   // f(x) = c3*x^3 + c2*x^2 + c1*x + c0
   float Evaluate(const float x) const {
@@ -252,7 +239,7 @@ class CubicCurve {
 // The size of the graph in (horizontal characters, vertical lines) is given
 // by 'size'.
 std::string Graph2DPoints(const mathfu::vec2* points, const int num_points,
-                          const mathfu::vec2i& size);
+                          const mathfu::vec2i& size = kDefaultGraphSize);
 
 // Slow function that returns one of the possible values that this curve
 // can evaluate. Useful for debugging.

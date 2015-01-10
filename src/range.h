@@ -49,12 +49,43 @@ class RangeT {
   // whichever is closer to 'x'.
   // Behavior is undefined for invalid regions.
   T Clamp(const T x) const { return mathfu::Clamp(x, start_, end_); }
+
+  // Returns distances outside of the range. If inside the range, returns 0.
+  // Behavior is undefined for invalid regions.
   T DistanceFrom(const T x) const { return fabs(x - Clamp(x)); }
+
+  // Lerps between the start and the end.
+  // 'percent' of 0 returns start. 'percent' of 1 returns end.
+  // Behavior is undefined for invalid regions.
+  T Lerp(const float percent) const {
+    return mathfu::Lerp(start_, end_, percent);
+  }
+
+  // Returns percent 0~1, from start to end. *Not* clamped to 0~1.
+  // 0 ==> start;  1 ==> end;  0.5 ==> Middle();  -1 ==> start - Length()
+  float Percent(const T x) const { return (x - start_) / Length(); }
+
+  // Returns percent 0~1, from start to end. Clamped to 0~1.
+  // 0 ==> start or earlier;  1 ==> end or later;  0.5 ==> Middle()
+  T PercentClamped(const T x) const {
+    return mathfu::Clamp(Percent(x), 0.0f, 1.0f);
+  }
+
+  bool Contains(const T x) const {
+    return start_ <= x && x <= end_;
+  }
 
   // Swap start and end. When 'a' and 'b' don't overlap, if you invert the
   // return value of Range::Intersect(a, b), you'll get the gap between
   // 'a' and 'b'.
   RangeT Invert() const { return RangeT(end_, start_); }
+
+  // Returns a range that is 'percent' longer. If 'percent' is < 1.0, then
+  // returned range will actually be shorter.
+  RangeT Lengthen(const float percent) const {
+    const T extra = static_cast<T>(Length() * percent * 0.5f);
+    return RangeT(start_ - extra, end_ + extra);
+  }
 
   // Equality is strict. No epsilon checking here.
   bool operator==(const RangeT& rhs) const {
@@ -171,6 +202,13 @@ class RangeT {
   T start_; // Start of the range. Range is valid if start_ <= end_.
   T end_;   // End of the range. Range is inclusive of start_ and end_.
 };
+
+
+template<class T>
+RangeT<T> CreateValidRange(const T a, const T b) {
+  return RangeT<T>(std::min<T>(a, b), std::max<T>(a, b));
+}
+
 
 // Instantiate for various scalar.
 typedef RangeT<float> RangeFloat;

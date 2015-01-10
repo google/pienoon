@@ -13,48 +13,24 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "spline.h"
+#include "bulk_spline_evaluator.h"
 #include "impel_engine.h"
 #include "impel_init.h"
 
 
 namespace impel {
 
+using fpl::CompactSpline;
+using fpl::BulkSplineEvaluator;
 
-typedef fpl::DualCubicSpline SmoothSpline;
 
 struct SmoothImpelData  {
   void Initialize(const SmoothImpelInit& init_param) {
-    value = 0.0f;
-    velocity = 0.0f;
-    target_value = 0.0f;
-    time = 0.0f;
-    curve_valid = false;
+    local_spline.Clear();
     init = init_param;
   }
 
-  // What we are animating. Returned when Impeller::Value() called.
-  float value;
-
-  // The rate of change of value. Returned when Impeller::Velocity() called.
-  float velocity;
-
-  // What we are striving to hit. Returned when Impeller::TargetValue() called.
-  float target_value;
-
-  // Current time into 'curve'.
-  float time;
-
-  // Time at which 'curve' has reached the target.
-  float target_time;
-
-  // When the current or target state is overridden, the polynomial should be
-  // re-calculated. We only want to calculate once per frame, though, so we do
-  // it lazily.
-  bool curve_valid;
-
-  // Polynomial with the curve of our motion over time.
-  SmoothSpline curve;
+  CompactSpline local_spline;
 
   // Keep a local copy of the init params.
   SmoothImpelInit init;
@@ -68,71 +44,53 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
   virtual ImpellerType Type() const { return SmoothImpelInit::kType; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value(ImpelIndex index) const { return Data(index).value; }
+  virtual float Value(ImpelIndex index) const { return interpolator_.Y(index); }
   virtual float Velocity(ImpelIndex index) const {
-    return Data(index).velocity;
+    return interpolator_.Derivative(index);
   }
   virtual float TargetValue(ImpelIndex index) const {
-    return Data(index).target_value;
+    return interpolator_.EndY(index);
   }
   virtual float Difference(ImpelIndex index) const {
     const SmoothImpelData& d = Data(index);
-    return d.init.Normalize(d.target_value - d.value);
+    return d.init.Normalize(interpolator_.EndY(index) -
+                            interpolator_.Y(index));
   }
 
   virtual void AdvanceFrame(ImpelTime delta_time) {
     Defragment();
+    interpolator_.AdvanceFrame(delta_time);
+  }
 
-    // Loop through every impeller one at a time.
-    // TODO OPT: reorder data and then optimize with SIMD to process in groups
-    // of 4 floating-point or 8 fixed-point values.
-    for (auto it = data_.begin(); it < data_.end(); ++it) {
-      SmoothImpelData* d = &(*it);
+  virtual void SetState(ImpelIndex index, const ImpellerState& s) {
+    SmoothImpelData& d = Data(index);
 
-      // If the current or target parameters have changed, we need to recalculate
-      // the curve that we're following. We do this lazily to avoid recalculating
-      // more than once when both the current value and target value are set.
-      if (!d->curve_valid) {
-        CalculateCurve(d);
-      }
+    if (s.valid & kTargetWaypointsValid) {
+      // Initialize spline to follow way points.
+      // Snaps the current value and velocity to the way point's start value
+      // and velocity.
+      d.local_spline.Clear();
+      interpolator_.SetSpline(index, *s.waypoints, s.waypoints_start_time);
 
-      // Update the current simulation time. A time of 0 is the start of the
-      // curve, and a time of target_time is the end of the curve.
-      d->time += delta_time;
+    } else {
+      // Initialize spline to match specified parameters. We maintain current
+      // values for any parameters that aren't specified.
+      const float start_y = (s.valid & kValueValid) ? s.value :
+                            interpolator_.X(index);
+      const float start_derivative = (s.valid & kVelocityValid) ? s.velocity :
+                                     interpolator_.Derivative(index);
+      const float end_y = (s.valid & kTargetValueValid) ? s.target_value :
+                          interpolator_.EndY(index);
+      const float end_derivative = (s.valid & kTargetVelocityValid) ?
+                                   s.target_velocity : 0.0f;
+      const float end_x = (s.valid & kTargetTimeValid) ? s.target_time :
+                          interpolator_.EndX(index);
 
-      // We've we're at the end of the curve then we're already at the target.
-      const bool at_target = d->time >= d->target_time;
-      if (at_target) {
-        // Optimize the case when we're already at the target.
-        d->value = d->target_value;
-        d->velocity = 0.0f;
-      } else {
-        // Evaluate the polynomial at the current time.
-        d->value = d->init.Normalize(d->curve.Evaluate(d->time));
-        d->velocity = d->curve.Derivative(d->time);
-      }
+      d.local_spline.Init(fpl::CreateValidRange(start_y, end_y), 1.0f, 2);
+      d.local_spline.AddNode(0.0f, start_y, start_derivative);
+      d.local_spline.AddNode(end_x, end_y, end_derivative);
+      interpolator_.SetSpline(index, d.local_spline);
     }
-  }
-
-  virtual void SetValue(ImpelIndex index, const float& value) {
-    SmoothImpelData& d = Data(index);
-    d.value = value;
-    d.curve_valid = false;
-  }
-  virtual void SetVelocity(ImpelIndex index, const float& velocity) {
-    SmoothImpelData& d = Data(index);
-    d.velocity = velocity;
-    d.curve_valid = false;
-  }
-  virtual void SetTargetValue(ImpelIndex index, const float& target_value) {
-    SmoothImpelData& d = Data(index);
-    d.target_value = target_value;
-    d.curve_valid = false;
-  }
-  virtual void SetTargetTime(ImpelIndex index, float target_time) {
-    SmoothImpelData& d = Data(index);
-    d.target_time = target_time;
-    d.curve_valid = false;
   }
 
  protected:
@@ -148,12 +106,13 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
 
   virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
     data_[new_index] = data_[old_index];
+    interpolator_.MoveIndex(old_index, new_index);
   }
 
   virtual void SetNumIndices(ImpelIndex num_indices) {
     data_.resize(num_indices);
+    interpolator_.SetNumIndices(num_indices);
   }
-
 
   const SmoothImpelData& Data(ImpelIndex index) const {
     assert(ValidIndex(index));
@@ -165,20 +124,8 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
     return data_[index];
   }
 
-  void CalculateCurve(SmoothImpelData* d) const {
-    if (d->target_time > 0.0f) {
-      const fpl::SplineControlPoint start(0.0f, d->value, d->velocity);
-      const fpl::SplineControlPoint end(d->target_time, d->target_value, 0.0f);
-      d->curve.Initialize(start, end);
-
-    } else {
-      d->curve = SmoothSpline();
-    }
-    d->time = 0.0f;
-    d->curve_valid = true;
-  }
-
   std::vector<SmoothImpelData> data_;
+  BulkSplineEvaluator interpolator_;
 };
 
 IMPEL_INSTANCE(SmoothImpelInit, SmoothImpelProcessor);

@@ -51,8 +51,9 @@ struct Settled1f {
 inline void Twitch(TwitchDirection direction, float velocity,
                    const Settled1f& settled, Impeller1f* impeller) {
   if (direction != kTwitchDirectionNone && settled.Settled(*impeller)) {
-    impeller->SetVelocity(direction == kTwitchDirectionPositive ? velocity :
-                                                                  -velocity);
+    ImpellerState1f s;
+    s.SetVelocity(direction == kTwitchDirectionPositive ? velocity : -velocity);
+    impeller->SetState(s);
   }
 }
 

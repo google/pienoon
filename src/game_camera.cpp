@@ -29,6 +29,11 @@ using mathfu::mat4;
 namespace fpl {
 namespace pie_noon {
 
+
+static const float kEpsilonForPercent = 0.001f;
+static const float kFullPercent = 1.0f - kEpsilonForPercent;
+
+
 vec3 GameCamera::Position() const {
   return percent_.Valid() ?
          vec3::Lerp(start_.position, end_.position, percent_.Value()) :
@@ -59,7 +64,8 @@ void GameCamera::AdvanceFrame(WorldTime /*delta_time*/) {
 
   // If the camera has finished zooming in, transition to zoom out.
   // Transition to next movement that's been queued.
-  if (!movements_.empty() && (!percent_.Valid() || percent_.Value() == 1.0f)) {
+  if (!movements_.empty() && (!percent_.Valid() ||
+      percent_.Value() >= kFullPercent)) {
     ExecuteMovement(movements_.front());
     movements_.pop();
   }
@@ -72,11 +78,12 @@ void GameCamera::ExecuteMovement(const GameCameraMovement& movement) {
   end_ = movement.end;
 
   // Initialize the Impeller.
-  percent_.Initialize(movement.init, engine_);
-  percent_.SetValue(0.0f);
-  percent_.SetVelocity(movement.start_velocity);
-  percent_.SetTargetValue(1.0f);
-  percent_.SetTargetTime(movement.time);
+  impel::ImpellerState1f s;
+  s.SetValue(0.0f);
+  s.SetVelocity(movement.start_velocity);
+  s.SetTargetValue(1.0f);
+  s.SetTargetTime(movement.time);
+  percent_.InitializeWithState(movement.init, engine_, s);
 }
 
 void GameCamera::TerminateMovements() {
@@ -84,9 +91,11 @@ void GameCamera::TerminateMovements() {
   start_ = state;
   end_ = state;
   if (percent_.Valid()) {
-    percent_.SetValue(1.0f);
-    percent_.SetTargetValue(1.0f);
-    percent_.SetVelocity(0.0f);
+    impel::ImpellerState1f s;
+    s.SetValue(1.0f);
+    s.SetTargetValue(1.0f);
+    s.SetVelocity(0.0f);
+    percent_.SetState(s);
   }
   movements_ = std::queue<GameCameraMovement>();
 }

@@ -814,10 +814,12 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         // Reset the impeller animation, if we've moved to a new image.
         impel::OvershootImpelInit init;
         impel::OvershootInitFromFlatBuffers(*config.join_impeller_def(), &init);
-        join_impeller_.Initialize(init, &game_state_.impel_engine());
-        join_impeller_.SetValue(config.join_impeller_start_value());
-        join_impeller_.SetTargetValue(config.join_impeller_target_value());
-        join_impeller_.SetVelocity(config.join_impeller_start_velocity());
+        impel::ImpellerState1f s;
+        s.SetValue(config.join_impeller_start_value());
+        s.SetTargetValue(config.join_impeller_target_value());
+        s.SetVelocity(config.join_impeller_start_velocity());
+        join_impeller_.InitializeWithState(init, &game_state_.impel_engine(),
+                                           s);
         join_id_ = id;
 
         // Play a sound to aid with the countdown feeling.
