@@ -29,9 +29,8 @@ else()
 # This process is required to generate header files
 set(configure_cmd "./autogen.sh")
 set(make_cmd "make")
-set(make_args "config")
 execute_process(COMMAND ${configure_cmd} WORKING_DIRECTORY ${harfbuzz_dir})
-execute_process(COMMAND ${make_cmd} ${make_args} WORKING_DIRECTORY ${harfbuzz_dir})
+execute_process(COMMAND ${make_cmd} WORKING_DIRECTORY ${harfbuzz_dir})
 endif()
 
 # Include freetype header files.

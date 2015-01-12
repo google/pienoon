@@ -28,6 +28,7 @@ These are the minimum required versions for building PieNoon on OS X:
         following line should be added to the user's bash resource file
         `~/.bashrc`.<br>
         `export PATH="$PATH:/home/dev/cwebp/bin"`
+-   Install [Ragel][] using package manager(e.g. brew install ragel).
 
 # Creating the Xcode project using cmake
 
@@ -76,3 +77,4 @@ For example, in the pie_noon directory:
   [Python]: http://www.python.org/download/releases/2.7/
   [cwebp]: https://developers.google.com/speed/webp/docs/cwebp
   [WebP Precompiled Utilities]: https://developers.google.com/speed/webp/docs/precompiled
+  [Ragel]: http://www.colm.net/open-source/ragel/
