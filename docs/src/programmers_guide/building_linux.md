@@ -38,6 +38,7 @@ For example, on Ubuntu:
     sudo apt-get install autoconf automake libtool
     sudo apt-get install python
     sudo apt-get install cwebp
+    sudo apt-get install ragel
 
 # Building
 
