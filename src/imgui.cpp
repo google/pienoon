@@ -239,6 +239,16 @@ class InternalState : public Group {
                              vec3(vec2(pos + size), 0));
   }
 
+  void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
+                  const vec2i &size, const vec4 &uv) {
+    auto &renderer = matman_.renderer();
+    renderer.color() = color;
+    sh->Set(renderer);
+    Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0),
+                             vec3(vec2(pos + size), 0),
+                             uv.xy(), uv.zw());
+  }
+
   // An image element.
   void Image(const char *texture_name, float ysize) {
     auto tex = matman_.FindTexture(texture_name);
@@ -281,7 +291,13 @@ class InternalState : public Group {
       if (element) {
         auto position = Position(*element);
         tex->Set(0);
-        RenderQuad(font_shader_, mathfu::kOnes4f, position, element->size);
+        // Note that some glyphs may render outside of element boundary.
+        vec2i pos = position -
+                    vec2i(0, tex->metrics().internal_leading());
+        vec2i size = vec2i(element->size) +
+                     vec2i(0, tex->metrics().internal_leading() -
+                     tex->metrics().external_leading());
+        RenderQuad(font_shader_, mathfu::kOnes4f, pos, size, uv);
         Advance(element->size);
       }
     }
@@ -575,7 +591,11 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
         if (ImageButton("textures/text_about.webp", 50, "my_id") ==
             EVENT_WENT_UP)
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
-        Label("Property Test ffWAWÄテスト", 30);
+        StartGroup(LAYOUT_HORIZONTAL_TOP, 0);
+          Label("Property T", 30);
+          Label("Test ", 30);
+          Label("ffWAWÄテスト", 30);
+        EndGroup();
         Label("My great label", 30);
         Label("Another neat label", 30);
         Image("textures/text_about.webp", 30);

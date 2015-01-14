@@ -64,7 +64,7 @@ void FontManager::Terminate() {
   ft_ = nullptr;
 }
 
-Texture* FontManager::GetTexture(const char *text, const float ysize) {
+FontTexture* FontManager::GetTexture(const char *text, const float ysize) {
   // Check cache if we already have a texture.
   auto t = map_textures_.find(text);
   if (t != map_textures_.end())
@@ -103,11 +103,14 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
   }
   string_width /= kFreeTypeUnit;
 
-  // TODO: retrieve glyph metrices from FreeType
-  // and don't generate texture for each label.
+  // Calculate texture size. The texture may be expanded later depending on
+  // glyph sizes.
   int32_t width = mathfu::RoundUpToPowerOf2(string_width);
   int32_t height = mathfu::RoundUpToPowerOf2(ysize);
-  int32_t base = 18;
+
+  // Initialize font metrics parameters.
+  int32_t b = ysize * face_->ascender / face_->units_per_EM;
+  FontMetrics initial_metrics(b, 0, b, b - ysize, 0);
 
   // rasterized image format in FreeType is 8 bit gray scale format.
   std::unique_ptr<uint8_t[]> image(new uint8_t[width * height]);
@@ -132,12 +135,37 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
       return nullptr;
     }
 
+    // Calculate internal/external leading value and expand a buffer if
+    // necessary.
+    if (g->bitmap_top > initial_metrics.ascender() ||
+        g->bitmap_top - g->bitmap.rows < initial_metrics.descender() ) {
+      FontMetrics new_metrics = initial_metrics;
+      new_metrics.set_internal_leading(std::max(
+                                       initial_metrics.internal_leading(),
+                                       g->bitmap_top -
+                                       initial_metrics.ascender()));
+      new_metrics.set_external_leading(std::min(
+                                       initial_metrics.external_leading(),
+                                       g->bitmap_top - g->bitmap.rows -
+                                       initial_metrics.descender()));
+      new_metrics.set_base_line(new_metrics.internal_leading() +
+                                new_metrics.ascender());
+
+      if (new_metrics.total() != initial_metrics.total()) {
+        // Expand buffer and update height if necessary.
+        if (ExpandBuffer(width, height, initial_metrics, new_metrics, &image)) {
+          height = mathfu::RoundUpToPowerOf2(new_metrics.total());
+        }
+      }
+      initial_metrics = new_metrics;
+    }
+
     if ((atlasX + g->bitmap.width + g->bitmap_left) >= (width - kGlyphPadding)) {
       atlasY += ysize + kGlyphPadding;
       atlasX = kGlyphPadding;
     }
 
-    if (atlasY + base + g->bitmap.rows - g->bitmap_top
+    if (atlasY + initial_metrics.base_line() + g->bitmap.rows - g->bitmap_top
           >= (height - kGlyphPadding)) {
       // Error exceeding the texture size.
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -148,9 +176,8 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
     // Copy the texture
     for (int32_t y = 0; y < g->bitmap.rows; ++y) {
       for (int32_t x = 0; x < g->bitmap.width; ++x) {
-        int32_t y_offset = base - g->bitmap_top;
-        if (y_offset + y >= 0)
-        {
+        int32_t y_offset = initial_metrics.base_line() - g->bitmap_top;
+        if (y_offset + y >= 0) {
           image[ (atlasY + y + y_offset) * width + atlasX + x + g->bitmap_left]
             = g->bitmap.buffer[ y * g->bitmap.width + x ];
         }
@@ -163,22 +190,75 @@ Texture* FontManager::GetTexture(const char *text, const float ysize) {
   }
 
   // Create new texture.
-  Texture *tex = new Texture(*renderer_);
+  FontTexture *tex = new FontTexture(*renderer_);
   tex->LoadFromMemory(image.get(),
                           vec2i(width, height), kFormatLuminance, false);
 
   // Setup UV.
   tex->set_uv(vec4(0.0f, 0.0f,
                    static_cast<float>(string_width) / static_cast<float>(width),
-                   static_cast<float>(ysize) / static_cast<float>(height)));
+                   static_cast<float>(initial_metrics.total()) /
+                   static_cast<float>(height)));
+
+  // Setup font metrics.
+  tex->set_metrics(initial_metrics);
 
   // Cleanup buffer contents.
   hb_buffer_clear_contents(harfbuzz_buf_);
 
   // Put to the dic.
-  map_textures_[text] = std::unique_ptr<Texture>(tex);
+  map_textures_[text] = std::unique_ptr<FontTexture>(tex);
 
   return tex;
+}
+
+bool FontManager::ExpandBuffer(const int32_t width, const int32_t height,
+                               const FontMetrics &original_metrics,
+                               const FontMetrics &new_metrics,
+                               std::unique_ptr<uint8_t[]> *image) {
+  // Returns immediately if the size has not been changed.
+  if (original_metrics.total() == new_metrics.total()) {
+    return false;
+  }
+
+  int32_t new_height = mathfu::RoundUpToPowerOf2(new_metrics.total());
+  int32_t internal_leading_change = new_metrics.internal_leading() -
+                                    original_metrics.internal_leading();
+  // Internal leading tracks max value of it in rendering glyphs, so we can
+  // assume internal_leading_change >= 0.
+  assert(internal_leading_change >= 0);
+
+  if (height != new_height) {
+    // Reallocate buffer.
+    std::unique_ptr<uint8_t[]> old_image = std::move(*image);
+    image->reset(new uint8_t[width * new_height]);
+
+    // Copy existing contents.
+    memcpy(&(*image)[width * internal_leading_change], old_image.get(),
+           width * original_metrics.total());
+
+    // Clear top.
+    memset(image->get(), 0, width * internal_leading_change);
+
+    // Clear bottom.
+    int32_t clear_offset = original_metrics.total() + internal_leading_change;
+    memset(&(*image)[width * clear_offset], 0, width *
+           (new_height - clear_offset));
+    return true;
+  } else {
+    if (internal_leading_change > 0) {
+      // Move existing contents down and make a space for additional internal
+      // leading.
+      memcpy(&(*image)[width * internal_leading_change], image->get(),
+             width * original_metrics.total());
+
+      // Clear the top
+      memset(image->get(), 0, width * internal_leading_change);
+    }
+    // Bottom doesn't have to be cleared since the part is already clean.
+  }
+
+  return false;
 }
 
 bool FontManager::Open(const char *font_name) {
