@@ -1,0 +1,50 @@
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+namespace fpl;
+
+// Representation of an audio bus similar to a bus on a mixing desk. Buses are
+// hierarchical where the gain of each parent bus is applied to each of the
+// children.
+table BusDef {
+  // Identifier of the bus that can be referenced by other Bus objects. A bus
+  // called "master" must be defined as the root playback bus.
+  name:string;
+
+  // Linear gain that is applied to all Sound objects played on this bus.
+  gain:float = 1.0;
+
+  // Identifiers of children of this bus.
+  child_buses:[string];
+
+  // Identifiers of buses that should be ducked when sounds are played on this
+  // bus.
+  duck_buses:[string];
+
+  // Gain applied to duck_buses when a sound plays on this bus.
+  duck_gain:float;
+
+  // Time (in seconds) for gain to duck_gain transition.
+  duck_fade_in_time:float;
+
+  // Time (in seconds) for duck_gain to gain transition.
+  duck_fade_out_time:float;
+}
+
+table BusDefList {
+  buses:[BusDef];
+}
+
+root_type BusDefList;
+

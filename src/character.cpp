@@ -14,15 +14,15 @@
 
 #include "precompiled.h"
 #include <math.h>
-
+#include "audio_engine.h"
 #include "character.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "impel_flatbuffers.h"
 #include "impel_init.h"
 #include "impel_util.h"
-#include "pie_noon_common_generated.h"
 #include "scoring_rules_generated.h"
+#include "pie_noon_common_generated.h"
 #include "timeline_generated.h"
 #include "utilities.h"
 
@@ -37,7 +37,8 @@ namespace pie_noon {
 
 Character::Character(
     CharacterId id, Controller* controller, const Config& config,
-    const CharacterStateMachineDef* character_state_machine_def)
+    const CharacterStateMachineDef* character_state_machine_def,
+    AudioEngine* audio_engine)
     : config_(&config),
       id_(id),
       target_(0),
@@ -47,7 +48,8 @@ Character::Character(
       controller_(controller),
       just_joined_game_(false),
       state_machine_(character_state_machine_def),
-      victory_state_(kResultUnknown) {
+      victory_state_(kResultUnknown),
+      audio_engine_(audio_engine) {
   ResetStats();
 }
 
@@ -103,6 +105,10 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 
   // Return the renderable id for 'anim_time'.
   return renderable->renderable();
+}
+
+void Character::PlaySound(SoundId sound_id) const {
+  audio_engine_->PlaySound(sound_id);
 }
 
 mathfu::vec4 Character::Color() const {

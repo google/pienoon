@@ -1,5 +1,5 @@
 {
-  "name": "Loading_2",
+  "id": "Loading_2",
   "bus": "game_sound_effects",
   "gain": 0.2,
   "priority": 0.4,

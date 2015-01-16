@@ -36,9 +36,9 @@ struct TimelineAccessory {
   offset:PixelOffset; // Offset in pixels from bottom left of renderable.
 }
 
-table TimelineSound {
+struct TimelineSound {
   time:ushort;        // Time of event. Time 0 is start of timeline.
-  sound:string;       // Identify the sound to start playing at 'time'.
+  sound:SoundId;      // Identify the sound to start playing at 'time'.
                       // For PieNoon, use SoundId in pie_noon_common.fbs.
 }
 

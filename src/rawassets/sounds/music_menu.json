@@ -1,5 +1,5 @@
 {
-  "name": "MusicMenu",
+  "id": "MusicMenu",
   "bus": "title_screen_music",
   "stream": true,
   "loop": true,

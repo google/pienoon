@@ -43,10 +43,6 @@ PREBUILTS_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
                                               os.path.pardir, os.path.pardir,
                                               'prebuilts'))
 
-PINDROP_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
-                                            os.path.pardir, os.path.pardir,
-                                            'libs', "audio_engine"))
-
 # Directories that may contains the FlatBuffers compiler.
 FLATBUFFERS_PATHS = [
     os.path.join(PROJECT_ROOT, 'bin'),
@@ -75,9 +71,6 @@ RAW_ASSETS_PATH = os.path.join(PROJECT_ROOT, 'src', 'rawassets')
 # Directory where unprocessed sound flatbuffer data can be found.
 RAW_SOUND_PATH = os.path.join(RAW_ASSETS_PATH, 'sounds')
 
-# Directory where unprocessed sound flatbuffer data can be found.
-RAW_SOUND_BANK_PATH = os.path.join(RAW_ASSETS_PATH, 'sound_banks')
-
 # Directory where unprocessed material flatbuffer data can be found.
 RAW_MATERIAL_PATH = os.path.join(RAW_ASSETS_PATH, 'materials')
 
@@ -85,10 +78,7 @@ RAW_MATERIAL_PATH = os.path.join(RAW_ASSETS_PATH, 'materials')
 RAW_TEXTURE_PATH = os.path.join(RAW_ASSETS_PATH, 'textures')
 
 # Directory where unprocessed assets can be found.
-SCHEMA_PATHS = [
-    os.path.join(PROJECT_ROOT, 'src', 'flatbufferschemas'),
-    os.path.join(PINDROP_ROOT, 'schemas')
-]
+SCHEMA_PATH = os.path.join(PROJECT_ROOT, 'src', 'flatbufferschemas')
 
 # Windows uses the .exe extension on executables.
 EXECUTABLE_EXTENSION = '.exe' if platform.system() == 'Windows' else ''
@@ -118,37 +108,27 @@ class FlatbuffersConversionData(object):
     self.input_files = input_files
 
 
-def find_in_paths(name, paths):
-  """Searches for a file with named `name` in the given paths and returns it."""
-  for path in paths:
-    full_path = os.path.join(path, name)
-    if os.path.isfile(full_path):
-      return full_path
-  # If not found, just assume it's in the PATH.
-  return name
-
-
 # A list of json files and their schemas that will be converted to binary files
 # by the flatbuffer compiler.
 FLATBUFFERS_CONVERSION_DATA = [
     FlatbuffersConversionData(
-        schema=find_in_paths('config.fbs', SCHEMA_PATHS),
+        schema=os.path.join(SCHEMA_PATH, 'config.fbs'),
         input_files=[os.path.join(RAW_ASSETS_PATH, 'config.json')]),
     FlatbuffersConversionData(
-        schema=find_in_paths('buses.fbs', SCHEMA_PATHS),
+        schema=os.path.join(SCHEMA_PATH, 'buses.fbs'),
         input_files=[os.path.join(RAW_ASSETS_PATH, 'buses.json')]),
     FlatbuffersConversionData(
-        schema=find_in_paths('sound_bank_def.fbs', SCHEMA_PATHS),
-        input_files=glob.glob(os.path.join(RAW_SOUND_BANK_PATH, '*.json'))),
+        schema=os.path.join(SCHEMA_PATH, 'sound_assets.fbs'),
+        input_files=[os.path.join(RAW_ASSETS_PATH, 'sound_assets.json')]),
     FlatbuffersConversionData(
-        schema=find_in_paths('character_state_machine_def.fbs', SCHEMA_PATHS),
+        schema=os.path.join(SCHEMA_PATH, 'character_state_machine_def.fbs'),
         input_files=[os.path.join(RAW_ASSETS_PATH,
                                   'character_state_machine_def.json')]),
     FlatbuffersConversionData(
-        schema=find_in_paths('sound_collection_def.fbs', SCHEMA_PATHS),
+        schema=os.path.join(SCHEMA_PATH, 'sound_collection_def.fbs'),
         input_files=glob.glob(os.path.join(RAW_SOUND_PATH, '*.json'))),
     FlatbuffersConversionData(
-        schema=find_in_paths('materials.fbs', SCHEMA_PATHS),
+        schema=os.path.join(SCHEMA_PATH, 'materials.fbs'),
         input_files=glob.glob(os.path.join(RAW_MATERIAL_PATH, '*.json')))
 ]
 
@@ -165,11 +145,23 @@ def processed_texture_path(path, target_directory):
 # PNG files to convert to webp.
 PNG_TEXTURES = glob.glob(os.path.join(RAW_TEXTURE_PATH, '*.png'))
 
+
+def find_executable(name, paths):
+  """Searches for a file with named `name` in the given paths and returns it.
+  """
+  for path in paths:
+    full_path = os.path.join(path, name)
+    if os.path.isfile(full_path):
+      return full_path
+  # If not found, just assume it's in the PATH.
+  return name
+
+
 # Location of FlatBuffers compiler.
-FLATC = find_in_paths(FLATC_EXECUTABLE_NAME, FLATBUFFERS_PATHS)
+FLATC = find_executable(FLATC_EXECUTABLE_NAME, FLATBUFFERS_PATHS)
 
 # Location of webp compression tool.
-CWEBP = find_in_paths(CWEBP_EXECUTABLE_NAME, CWEBP_PATHS)
+CWEBP = find_executable(CWEBP_EXECUTABLE_NAME, CWEBP_PATHS)
 
 
 class BuildError(Exception):
@@ -204,10 +196,7 @@ def convert_json_to_flatbuffer_binary(flatc, json, schema, out_dir):
   Raises:
     BuildError: Process return code was nonzero.
   """
-  command = [flatc, '-o', out_dir]
-  for path in SCHEMA_PATHS:
-    command.extend(['-I', path])
-  command.extend(['-b', schema, json])
+  command = [flatc, '-o', out_dir, '-b', schema, json]
   run_subprocess(command)
 
 

@@ -1,5 +1,5 @@
 {
-  "name": "JoinMatch",
+  "id": "JoinMatch",
   "bus": "ui_sound_effects",
   "audio_sample_set": [
     {

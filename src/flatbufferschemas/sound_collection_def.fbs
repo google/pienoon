@@ -1,0 +1,70 @@
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+include "pie_noon_common.fbs"; // Required for enumerations used in PieNoon.
+
+namespace fpl;
+
+// Reference to audio data (a sample) and basic attributes that affect its
+// playback at runtime.
+table AudioSample {
+  // Linear gain (0.0 .. 1.0) of the sample when played back by the audio
+  // system.
+  gain:float = 1.0;
+
+  // String identifier for the sample.
+  filename:string;
+}
+
+// Entry in a set of AudioSample objects which is used to perform a random
+// sample selection.
+table AudioSampleSetEntry {
+  // Probability of this sample being selected to relative to others in a set.
+  playback_probability:float = 1.0;
+
+  // Sample associated with this set entry.
+  audio_sample:AudioSample;
+}
+
+// Basic triggered sound object.
+table SoundCollectionDef {
+  // Identifier for the sound that can be referenced by other objects.
+  id:SoundId;
+
+  // Priority of this sound relative to all other Sound objects. If the
+  // application requests the playback of more Sound objects than playback
+  // channels available in the system, only the highest priority Sounds are
+  // played back.
+  priority:float = 1.0;
+
+  // Overall linear gain (0.0 .. 1.0) of the sound when played back by the audio
+  // system.
+  gain:float = 1.0;
+
+  // Name of the bus this sound should be played on.
+  bus:string;
+
+  // Whether the sound should loop.
+  loop:bool = false;
+
+  // Set of samples from which a weighted random selection is performed to
+  // determine which sample to play when Sound playback is triggered.
+  audio_sample_set:[AudioSampleSetEntry];
+
+  // Whether this sound should be streamed or loaded into a buffer.
+  // Generally music is streamed and sound effects are loaded into a buffer.
+  stream:bool = false;
+}
+
+root_type SoundCollectionDef;

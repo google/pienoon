@@ -1,5 +1,5 @@
 {
-  "name": "StingerDraw",
+  "id": "StingerDraw",
   "bus": "stingers",
   "stream": true,
   "audio_sample_set": [

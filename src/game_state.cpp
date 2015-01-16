@@ -15,6 +15,7 @@
 #include "precompiled.h"
 #include "analytics_tracking.h"
 #include "audio_config_generated.h"
+#include "audio_engine.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "common.h"
@@ -24,9 +25,8 @@
 #include "impel_flatbuffers.h"
 #include "impel_init.h"
 #include "impel_util.h"
-#include "pie_noon_common_generated.h"
-#include "pindrop/audio_engine.h"
 #include "scene_description.h"
+#include "pie_noon_common_generated.h"
 #include "timeline_generated.h"
 #include "utilities.h"
 
@@ -86,6 +86,7 @@ static T EnumerationValueForPieDamage(
       damage, 0, lookup_vector.Length() - 1);
   return static_cast<T>(lookup_vector.Get(clamped_damage));
 }
+
 
 GameState::GameState()
     : time_(0),
@@ -259,9 +260,10 @@ WorldTime GameState::GetAnimationTime(const Character& character) const {
   return time_ - character.state_machine()->current_state_start_time();
 }
 
-void GameState::ProcessSounds(pindrop::AudioEngine* audio_engine,
+void GameState::ProcessSounds(AudioEngine* audio_engine,
                               const Character& character,
                               WorldTime delta_time) const {
+  (void)audio_engine;
   // Process sounds in timeline.
   const Timeline* const timeline = character.CurrentTimeline();
   if (!timeline)
@@ -274,13 +276,11 @@ void GameState::ProcessSounds(pindrop::AudioEngine* audio_engine,
                                                anim_time + delta_time);
   for (int i = start_index; i < end_index; ++i) {
     const TimelineSound& timeline_sound = *sounds->Get(i);
-    audio_engine->PlaySound(timeline_sound.sound()->c_str());
+    character.PlaySound(timeline_sound.sound());
   }
 
   // If the character is trying to turn, play the turn sound.
-  if (RequestedTurn(character.id())) {
-    audio_engine->PlaySound("Turning");
-  }
+  if (RequestedTurn(character.id())) character.PlaySound(SoundId_Turning);
 }
 
 void GameState::CreatePie(CharacterId original_source_id,
@@ -338,8 +338,7 @@ static GameCameraMovement CalculateCameraMovement(
   return movement;
 }
 
-void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
-                             Character* character,
+void GameState::ProcessEvent(Character* character,
                              unsigned int event,
                              const EventData& event_data) {
   bool is_ai_player =
@@ -415,13 +414,8 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
     case EventId_DeflectPie: {
       for (unsigned int i = 0; i < event_data.received_pies.size(); ++i) {
         const ReceivedPie& pie = event_data.received_pies[i];
-
-        const CharacterHealth index = mathfu::Clamp<CharacterHealth>(
-            pie.damage, 0,
-            config_->blocked_sound_id_for_pie_damage()->Length() - 1);
-        const auto& sound_name =
-            config_->blocked_sound_id_for_pie_damage()->Get(index);
-        audio_engine->PlaySound(sound_name->c_str());
+        character->PlaySound(EnumerationValueForPieDamage<SoundId>(
+            pie.damage, *(config_->blocked_sound_id_for_pie_damage())));
 
         const CharacterHealth deflected_pie_damage =
             pie.damage + config_->pie_damage_change_when_deflected();
@@ -430,7 +424,7 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
                     DetermineDeflectionTarget(pie), pie.original_damage,
                     deflected_pie_damage);
         }
-        CreatePieSplatter(audio_engine, *character, 1);
+        CreatePieSplatter(*character, 1);
         character->IncrementStat(kBlocks);
         characters_[pie.source_id]->IncrementStat(kMisses);
         if (analytics_mode_ == kTrackAnalytics) {
@@ -456,8 +450,7 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
   }
 }
 
-void GameState::ProcessEvents(pindrop::AudioEngine* audio_engine,
-                              Character* character,
+void GameState::ProcessEvents(Character* character,
                               EventData* event_data,
                               WorldTime delta_time) {
   // Process events in timeline.
@@ -474,7 +467,7 @@ void GameState::ProcessEvents(pindrop::AudioEngine* audio_engine,
   for (int i = start_index; i < end_index; ++i) {
     const TimelineEvent* event = events->Get(i);
     event_data->pie_damage = event->modifier();
-    ProcessEvent(audio_engine, character, event->event(), *event_data);
+    ProcessEvent(character, event->event(), *event_data);
   }
 }
 
@@ -487,8 +480,7 @@ void GameState::PopulateConditionInputs(ConditionInputs* condition_inputs,
   condition_inputs->current_time = time_;
 }
 
-void GameState::ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
-                                         Character* character,
+void GameState::ProcessConditionalEvents(Character* character,
                                          EventData* event_data) {
   auto current_state = character->state_machine()->current_state();
   if (current_state && current_state->conditional_events()) {
@@ -502,7 +494,7 @@ void GameState::ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
                             condition_inputs)) {
         unsigned int event = conditional_event->event();
         event_data->pie_damage = conditional_event->modifier();
-        ProcessEvent(audio_engine, character, event, *event_data);
+        ProcessEvent(character, event, *event_data);
       }
     }
   }
@@ -807,18 +799,15 @@ uint32_t GameState::AllLogicalInputs() const {
 }
 
 // Creates a bunch of particles when a character gets hit by a pie.
-void GameState::CreatePieSplatter(pindrop::AudioEngine* audio_engine,
-                                  const Character& character,
+void GameState::CreatePieSplatter(const Character& character,
                                   CharacterHealth damage) {
   const ParticleDef * def = config_->pie_splatter_def();
   SpawnParticles(character.position(), def, static_cast<int>(damage) *
                  config_->pie_noon_particles_per_damage());
   // Play a pie hit sound based upon the amount of damage applied (size of the
   // pie).
-  const CharacterHealth index = mathfu::Clamp<CharacterHealth>(
-      damage, 0, config_->hit_sound_id_for_pie_damage()->Length() - 1);
-  const auto& sound_name = config_->hit_sound_id_for_pie_damage()->Get(index);
-  audio_engine->PlaySound(sound_name->c_str());
+  character.PlaySound(EnumerationValueForPieDamage<SoundId>(
+      damage, *(config_->hit_sound_id_for_pie_damage())));
 }
 
 // Creates confetti when a character presses buttons on the join screen.
@@ -882,8 +871,7 @@ void GameState::SpawnParticles(const mathfu::vec3 &position,
   }
 }
 
-void GameState::AdvanceFrame(WorldTime delta_time,
-                             pindrop::AudioEngine* audio_engine) {
+void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // Increment the world time counter. This happens at the start of the
   // function so that functions that reference the current world time will
   // include the delta_time. For example, GetAnimationTime needs to compare
@@ -952,7 +940,7 @@ void GameState::AdvanceFrame(WorldTime delta_time,
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
       if (character->State() != StateId_Blocking)
-        CreatePieSplatter(audio_engine, *character, pie->damage());
+        CreatePieSplatter(*character, pie->damage());
       it = pies_.erase(it);
     }
     else {
@@ -987,11 +975,11 @@ void GameState::AdvanceFrame(WorldTime delta_time,
 
   // Look to timeline to see what's happening. Make it happen.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessEvents(audio_engine, characters_[i].get(), &event_data[i], delta_time);
+    ProcessEvents(characters_[i].get(), &event_data[i], delta_time);
   }
 
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessConditionalEvents(audio_engine, characters_[i].get(), &event_data[i]);
+    ProcessConditionalEvents(characters_[i].get(), &event_data[i]);
   }
 
   // Play the sounds that need to be played at this point in time.

@@ -1,5 +1,5 @@
 {
-  "name": "ThrowPie",
+  "id": "ThrowPie",
   "bus": "game_sound_effects",
   "audio_sample_set": [
     {

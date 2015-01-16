@@ -24,12 +24,9 @@
 #include "particles.h"
 #include "game_camera.h"
 
-namespace pindrop {
-class AudioEngine;
-}  // namespace pindrop
-
 namespace fpl {
 
+class AudioEngine;
 class InputSystem;
 class SceneDescription;
 
@@ -58,7 +55,7 @@ class GameState {
   void Reset(AnalyticsMode analytics_mode);
 
   // Update controller and state machine for each character.
-  void AdvanceFrame(WorldTime delta_time, pindrop::AudioEngine* audio_engine);
+  void AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine);
 
   // To be run before starting a game and after ending one to log data about
   // gameplay.
@@ -120,15 +117,14 @@ class GameState {
 
 private:
   WorldTime GetAnimationTime(const Character& character) const;
-  void ProcessSounds(pindrop::AudioEngine* audio_engine,
+  void ProcessSounds(AudioEngine* audio_engine,
                      const Character& character,
                      WorldTime delta_time) const;
   void CreatePie(CharacterId original_source_id, CharacterId source_id,
                  CharacterId target_id, CharacterHealth original_damage,
                  CharacterHealth damage);
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
-  void ProcessEvent(pindrop::AudioEngine* audio_engine,
-                    Character* character,
+  void ProcessEvent(Character* character,
                     unsigned int event,
                     const EventData& event_data);
   void PopulateConditionInputs(ConditionInputs* condition_inputs,
@@ -137,11 +133,8 @@ private:
                                     const mathfu::mat4& character_matrix,
                                     int num_accessories, int damage,
                                     int health) const;
-  void ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
-                                Character* character,
-                                EventData* event_data);
-  void ProcessEvents(pindrop::AudioEngine* audio_engine,
-                     Character* character,
+  void ProcessConditionalEvents(Character* character, EventData* event_data);
+  void ProcessEvents(Character* character,
                      EventData* data,
                      WorldTime delta_time);
   void UpdatePiePosition(AirbornePie* pie) const;
@@ -153,8 +146,7 @@ private:
   Angle TiltTowardsStageFront(const Angle angle) const;
   impel::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
-  void CreatePieSplatter(pindrop::AudioEngine* audio_engine,
-                         const Character& character, int damage);
+  void CreatePieSplatter(const Character& character, int damage);
   void CreateJoinConfettiBurst(const Character& character);
   void SpawnParticles(const mathfu::vec3 &position, const ParticleDef * def,
                       const int particle_count,

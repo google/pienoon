@@ -419,9 +419,9 @@ table Config {
   renderable_id_for_pie_damage:[RenderableId];
 
   // Map pie damage to a sound ID.
-  hit_sound_id_for_pie_damage:[string];
+  hit_sound_id_for_pie_damage:[SoundId];
   // Map pie damage to a blocked / deflected sound ID.
-  blocked_sound_id_for_pie_damage:[string];
+  blocked_sound_id_for_pie_damage:[SoundId];
 
   // Defines how props shake when nearby characters are damaged.
   impeller_specifications:[OvershootParameters];
