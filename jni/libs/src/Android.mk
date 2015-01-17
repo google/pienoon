@@ -163,6 +163,7 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR) \
                     $(DEPENDENCIES_HARFBUZZ_DIR)/src \
                     $(DEPENDENCIES_GPG_DIR)/include \
                     $(DEPENDENCIES_WEBP_DIR)/src \
+                    ${PIE_NOON_DIR}/external/include/harfbuzz \
                     $(PIE_NOON_DIR)/$(GENERATED_INCLUDES_PATH) \
                     src
 
@@ -217,7 +218,7 @@ $(foreach src,$(LOCAL_SRC_FILES),$(eval $(LOCAL_PATH)/$$(src): build_assets))
 
 clean: clean_assets clean_generated_includes
 
-LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp SDL2 SDL2_mixer
+LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp SDL2 SDL2_mixer libfreetype libharfbuzz
 
 LOCAL_SHARED_LIBRARIES :=
 
