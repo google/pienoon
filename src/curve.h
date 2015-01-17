@@ -223,14 +223,7 @@ class CubicCurve {
 
   // Returns true if always curving upward or always curving downward on the
   // specified x_limits.
-  bool UniformCurvature(const Range& x_limits) const {
-    // Curvature is given by the second derivative. The second derivative is
-    // linear. So, the curvature is uniformly positive or negative iff
-    //     Sign(f''(x_limits.start)) == Sign(f''(x_limits.end))
-    const float start_second_derivative = SecondDerivative(x_limits.start());
-    const float end_second_derivative = SecondDerivative(x_limits.end());
-    return start_second_derivative * end_second_derivative >= 0.0f;
-  }
+  bool UniformCurvature(const Range& x_limits) const;
 
   // Return a value below which floating point precision is unreliable.
   // If we're testing for zero, for instance, we should test against this
@@ -247,6 +240,8 @@ class CubicCurve {
 
   // Returns the number of coefficients in this curve.
   int NumCoeff() const { return kNumCoeff; }
+
+  std::string Text() const;
 
  private:
   float c_[kNumCoeff]; // c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
@@ -291,7 +286,7 @@ std::string GraphCurveOnXRange(
     x += inc_x;
   }
 
-  // Output the
+  // Output the points in an ASCII-art graph.
   return Graph2DPoints(&points[0], num_points, size);
 }
 
@@ -300,8 +295,8 @@ template<class T>
 std::string GraphCurve(
     const T& curve, const CurveValueType value_type,
     const mathfu::vec2i& size = kDefaultGraphSize) {
-  return GraphCurveOnXRange(curve, value_type,
-                            Range(curve.StartX(), curve.EndX()), size);
+  return curve.Text() + "\n" + GraphCurveOnXRange(curve, value_type,
+                                  Range(curve.StartX(), curve.EndX()), size);
 }
 
 

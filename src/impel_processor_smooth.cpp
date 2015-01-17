@@ -170,6 +170,7 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
       const fpl::SplineControlPoint start(0.0f, d->value, d->velocity);
       const fpl::SplineControlPoint end(d->target_time, d->target_value, 0.0f);
       d->curve.Initialize(start, end);
+
     } else {
       d->curve = SmoothSpline();
     }

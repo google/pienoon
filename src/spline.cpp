@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include "spline.h"
 
@@ -168,9 +169,20 @@ Range DualCubicSpline::CalculateValidMidRange(const SplineControlPoint& start,
 
 // static
 SplineControlPoint DualCubicSpline::CalculateMidPoint(
-    const SplineControlPoint& start, const SplineControlPoint& end,
+    const SplineControlPoint& start_wide, const SplineControlPoint& end_wide,
     const float k) {
   using mathfu::Lerp;
+
+  // The equations are set up for x running from 0 ~ 1. Convert inputs to this
+  // format.
+  const float x_width = end_wide.x - start_wide.x;
+  const SplineControlPoint start(0.0f, start_wide.y,
+                                 start_wide.derivative * x_width,
+                                 start_wide.second_derivative *
+                                 x_width * x_width);
+  const SplineControlPoint end(1.0f, end_wide.y,
+                               end_wide.derivative * x_width,
+                               end_wide.second_derivative * x_width * x_width);
 
   // The mid point is at x = Lerp(start.x, end.x, k)
   // It has y value of 'y' and slope of 's', defined as:
@@ -194,12 +206,25 @@ SplineControlPoint DualCubicSpline::CalculateMidPoint(
                                  j * j * end.second_derivative;
 
   const float s = 3.0f * y_diff - 2.0f * derivative_k - 0.5f * second_k_squared;
-  const float y = y_k + k * j * (-2.0f / 3.0f * s_diff + 1.0f / 6.0f * second_k);
-  const float x = Lerp(start.x, end.x, k);
+  const float y = y_k + k * j * (-2.0f / 3.0f * s_diff +
+                                  1.0f / 6.0f * second_k);
+  const float x = Lerp(start_wide.x, end_wide.x, k);
 
-  return SplineControlPoint(x, y, s, 0.0f);
+  return SplineControlPoint(x, y, s / x_width, 0.0f);
 }
 
+std::string DualCubicSpline::Text() const {
+  std::ostringstream text;
+  text << "start, mid, end x: (" <<
+      start_x_ << ", " << Evaluate(start_x_) << ", " <<
+      Derivative(start_x_) << ", " << SecondDerivative(start_x_) << "), (" <<
+      mid_x_ << ", " << Evaluate(mid_x_) << ", " <<
+      Derivative(mid_x_) << ", " << SecondDerivative(mid_x_) << "), (" <<
+      end_x_ << ", " << Evaluate(end_x_) << ", " <<
+      Derivative(end_x_) << ", " << SecondDerivative(end_x_) <<  "); " <<
+      "Start: " << start_.Text() << ", End: " << end_.Text();
+  return text.str();
+}
 
 
 } // namespace fpl

@@ -39,24 +39,39 @@ protected:
   virtual void TearDown() {}
 };
 
+static void PrintSpline(const DualCubicSpline& s) {
+  const float x_inc = s.WidthX() / (kNumCheckPoints - 1);
+  float x = s.StartX();
+  for (int i = 0; i < kNumCheckPoints; ++i) {
+    printf("%f, %f, %f, %f, %f\n",
+           x, s.Evaluate(x), s.Derivative(x), s.SecondDerivative(x),
+           s.ThirdDerivative(x));
+    x += x_inc;
+  }
+
+  printf("\n%s\n\n", GraphCurve(s, fpl::kCurveValue).c_str());
+}
+
 // Ensure we wrap around from pi to -pi.
 TEST_F(SplineTests, Overshoot) {
   DualCubicSpline s;
   SplineControlPoint start(0.0f, 1.0f, -8.0f, 60.0f);
   SplineControlPoint end(1.0f, 0.0f, 0.0f, 0.001f);
   s.Initialize(start, end);
-
-  float x = 0.0f;
-  for (int i = 0; i < kNumCheckPoints; ++i) {
-    printf("%f, %f, %f, %f, %f\n",
-           x, s.Evaluate(x), s.Derivative(x), s.SecondDerivative(x),
-           s.ThirdDerivative(x));
-    x += 1.0f / (kNumCheckPoints - 1);
-  }
-
-  printf("\n%s\n\n", GraphCurve(s, fpl::kCurveValue).c_str());
+  PrintSpline(s);
 
   // Ensure the cubics have uniform curvature.
+  EXPECT_TRUE(s.Valid());
+}
+
+// Ensure splines with wide x range, but narrow y range still turn out ok.
+TEST_F(SplineTests, WideDomain) {
+  DualCubicSpline s;
+  SplineControlPoint start(0.0f, 0.0f, 0.014f);
+  SplineControlPoint end(170.0f, 1.0f, 0.0f);
+  s.Initialize(start, end);
+  PrintSpline(s);
+
   EXPECT_TRUE(s.Valid());
 }
 

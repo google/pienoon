@@ -430,7 +430,7 @@
     "position_from_base": {"x": 1.0, "y": 0.8, "z": 1.0 },
     "target_from_subject": {"x": 0.5, "y": 0.0, "z": 1.1 },
     "target_from_base": {"x": 0.0, "y": 1.0, "z": 0.0 },
-    "start_velocity": 0.3,
+    "start_velocity": 0.014,
     "time": 170,
     "def": {
       "base": {

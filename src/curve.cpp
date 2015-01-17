@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include "spline.h"
 
@@ -22,6 +23,11 @@ using mathfu::vec2i;
 
 
 namespace fpl {
+
+static float ClampNearZero(const float x, const float epsilon) {
+  const bool is_near_zero = fabs(x) <= epsilon;
+  return is_near_zero ? 0.0f : x;
+}
 
 void QuadraticCurve::Init(const QuadraticInitWithStartDerivative& init) {
   //  f(u) = cu^2 + bu + a
@@ -39,8 +45,7 @@ float QuadraticCurve::ReliableDiscriminant(const float epsilon) const {
   // it as zero. It's possible that the discriminant is barely below zero due
   // to floating point error.
   const float discriminant = Discriminant();
-  const bool is_near_zero = -epsilon <= discriminant && discriminant <= epsilon;
-  return is_near_zero ? 0.0f : discriminant;
+  return ClampNearZero(discriminant, epsilon);
 }
 
 // See the Quadratic Formula for details:
@@ -198,6 +203,23 @@ void CubicCurve::Init(const CubicInitWithWidth& init) {
           one_over_w_sq * (init.end_derivative + init.start_derivative);
 }
 
+bool CubicCurve::UniformCurvature(const Range& x_limits) const {
+  // Curvature is given by the second derivative. The second derivative is
+  // linear. So, the curvature is uniformly positive or negative iff
+  //     Sign(f''(x_limits.start)) == Sign(f''(x_limits.end))
+  const float epsilon = Epsilon();
+  const float start_second_derivative =
+      ClampNearZero(SecondDerivative(x_limits.start()), epsilon);
+  const float end_second_derivative =
+      ClampNearZero(SecondDerivative(x_limits.end()), epsilon);
+  return start_second_derivative * end_second_derivative >= 0.0f;
+}
+
+std::string CubicCurve::Text() const {
+  std::ostringstream text;
+  text << c_[3] << "x^3 + " << c_[2] << "x^2 + " << c_[1] << "x + " << c_[0];
+  return text.str();
+}
 
 
 // TODO: Move these to mathfu and templatize.

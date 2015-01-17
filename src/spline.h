@@ -87,6 +87,7 @@ class DualCubicSpline {
   float EndX() const { return end_x_; }
   float WidthX() const { return EndX() - StartX(); }
   bool Valid() const;
+  std::string Text() const;
 
   static Range CalculateValidMidRange(const SplineControlPoint& start,
                                       const SplineControlPoint& end,
