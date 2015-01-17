@@ -162,6 +162,9 @@ class Gamepad {
 
   void AdvanceFrame();
   Button &GetButton(GamepadInputButton i);
+  const Button &GetButton(GamepadInputButton i) const {
+    return const_cast<Gamepad*>(this)->GetButton(i);
+  }
 
   AndroidInputDeviceId controller_id() { return controller_id_; }
   void set_controller_id(AndroidInputDeviceId controller_id) {

@@ -442,19 +442,19 @@ void InputSystem::HandleGamepadEvents() {
     unhandled_java_input_events_.pop();
 
     Gamepad &gamepad = GetGamepad(event.device_id);
-    int button_index;
+    Gamepad::GamepadInputButton button_index;
 
     switch(event.event_code) {
       case AKEY_EVENT_ACTION_DOWN:
-        button_index =
-            Gamepad::GetGamepadCodeFromJavaKeyCode(event.control_code);
+        button_index = static_cast<Gamepad::GamepadInputButton>(
+            Gamepad::GetGamepadCodeFromJavaKeyCode(event.control_code));
         if (button_index != Gamepad::kInvalid) {
           gamepad.GetButton(button_index).Update(true);
         }
         break;
       case AKEY_EVENT_ACTION_UP:
-        button_index =
-            Gamepad::GetGamepadCodeFromJavaKeyCode(event.control_code);
+        button_index = static_cast<Gamepad::GamepadInputButton>(
+            Gamepad::GetGamepadCodeFromJavaKeyCode(event.control_code));
         if (button_index != Gamepad::kInvalid) {
           gamepad.GetButton(button_index).Update(false);
         }

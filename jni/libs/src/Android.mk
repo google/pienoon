@@ -158,6 +158,9 @@ LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR) \
                     $(DEPENDENCIES_SDL_DIR)/include \
                     $(DEPENDENCIES_SDL_MIXER_DIR) \
                     $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
+                    $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include \
+                    $(DEPENDENCIES_FREETYPE_DIR)/include \
+                    $(DEPENDENCIES_HARFBUZZ_DIR)/src \
                     $(DEPENDENCIES_GPG_DIR)/include \
                     $(DEPENDENCIES_WEBP_DIR)/src \
                     $(PIE_NOON_DIR)/$(GENERATED_INCLUDES_PATH) \
@@ -173,6 +176,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/curve.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/font_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/full_screen_fader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gamepad_controller.cpp \
@@ -200,6 +204,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/shader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/sound.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/sound_collection.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/spline.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \
