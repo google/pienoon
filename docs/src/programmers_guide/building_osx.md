@@ -28,7 +28,9 @@ These are the minimum required versions for building PieNoon on OS X:
         following line should be added to the user's bash resource file
         `~/.bashrc`.<br>
         `export PATH="$PATH:/home/dev/cwebp/bin"`
--   Install [Ragel][] using package manager(e.g. brew install ragel).
+-   Install [Ragel][] using package manager
+    -   e.g. brew install ragel
+    -   e.g. sudo port install ragel
 
 # Creating the Xcode project using cmake
 
