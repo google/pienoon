@@ -28,16 +28,16 @@ using mathfu::vec3;
 // for splatters on the background.
 void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    ChildObjectData* co_data = entity_manager_->
-        GetComponentData<ChildObjectData>(iter->entity,
-                                          ComponentDataUnion_ChildObjectDef);
+    ChildObjectData* co_data =
+        entity_manager_->GetComponentData<ChildObjectData>(
+            iter->entity, ComponentDataUnion_ChildObjectDef);
     DripAndVanishData* dv_data = GetEntityData(iter->entity);
 
     dv_data->lifetime_remaining -= delta_time;
     if (dv_data->lifetime_remaining > 0) {
       if (dv_data->lifetime_remaining < dv_data->slide_time) {
-        float slide_amount = 1.0f - dv_data->lifetime_remaining /
-            dv_data->slide_time;
+        float slide_amount =
+            1.0f - dv_data->lifetime_remaining / dv_data->slide_time;
 
         vec3 relative_offset = vec3(co_data->relative_offset);
         vec3 relative_scale = vec3(co_data->relative_scale);
@@ -45,8 +45,8 @@ void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
         // The amount it moves is a cubic function, mostly because
         // that looked the prettiest.
         relative_offset.y() = vec3(dv_data->start_position).y() -
-            (slide_amount * slide_amount * slide_amount) *
-            dv_data->drip_distance;
+                              (slide_amount * slide_amount * slide_amount) *
+                                  dv_data->drip_distance;
 
         relative_scale = vec3(dv_data->start_scale) * (1.0f - slide_amount);
         co_data->relative_offset = relative_offset;
@@ -68,10 +68,10 @@ void DripAndVanishComponent::AddFromRawData(entity::EntityRef& entity,
       static_cast<const DripAndVanishDef*>(component_data->data());
 
   entity_data->drip_distance = dripandvanish_data->distance_dripped();
-  entity_data->lifetime_remaining = dripandvanish_data->total_lifetime() *
-      kMillisecondsPerSecond;
-  entity_data->slide_time = dripandvanish_data->time_spent_dripping() *
-      kMillisecondsPerSecond;
+  entity_data->lifetime_remaining =
+      dripandvanish_data->total_lifetime() * kMillisecondsPerSecond;
+  entity_data->slide_time =
+      dripandvanish_data->time_spent_dripping() * kMillisecondsPerSecond;
 }
 
 // Make sure we have an accessory.
@@ -86,14 +86,12 @@ void DripAndVanishComponent::InitEntity(entity::EntityRef& entity) {
 // just after creation.
 void DripAndVanishComponent::SetStartingValues(entity::EntityRef& entity) {
   DripAndVanishData* entity_data = GetEntityData(entity);
-  ChildObjectData* co_data = entity_manager_->
-      GetComponentData<ChildObjectData>(entity,
-                                        ComponentDataUnion_ChildObjectDef);
+  ChildObjectData* co_data = entity_manager_->GetComponentData<ChildObjectData>(
+      entity, ComponentDataUnion_ChildObjectDef);
 
   entity_data->start_position = co_data->relative_offset;
   entity_data->start_scale = co_data->relative_scale;
 }
 
-
-} // pie noon
-} // fpl
+}  // pie noon
+}  // fpl

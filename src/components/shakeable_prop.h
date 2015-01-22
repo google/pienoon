@@ -34,12 +34,10 @@ struct ShakeablePropData {
   impel::Impeller1f impeller;
 };
 
-
 class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
  public:
   virtual void UpdateAllEntities(entity::WorldTime delta_time);
-  virtual void AddFromRawData(entity::EntityRef& entity,
-                              const void* data);
+  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
   virtual void InitEntity(entity::EntityRef& entity);
   virtual void CleanupEntity(entity::EntityRef& entity);
 
@@ -54,9 +52,8 @@ class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
   const Config* config_;
   impel::ImpelEngine* impel_engine_;
   impel::OvershootImpelInit impeller_inits[ImpellerSpecification_Count];
-
 };
 
 }  // pie_noon
 }  // fpl
-#endif // COMPONENTS_SHAKEABLE_PROP_H_
+#endif  // COMPONENTS_SHAKEABLE_PROP_H_

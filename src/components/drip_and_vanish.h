@@ -36,8 +36,7 @@ struct DripAndVanishData {
 // and then they slowly drip down and vanish.
 class DripAndVanishComponent : public entity::Component<DripAndVanishData> {
  public:
-  virtual void AddFromRawData(entity::EntityRef& entity,
-                              const void* data);
+  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
   virtual void UpdateAllEntities(entity::WorldTime /*delta_time*/);
   virtual void InitEntity(entity::EntityRef& entity);
   void SetStartingValues(entity::EntityRef& entity);
@@ -45,4 +44,4 @@ class DripAndVanishComponent : public entity::Component<DripAndVanishData> {
 
 }  // pie_noon
 }  // fpl
-#endif // COMPONENTS_DRIPANDVANISH_H_
+#endif  // COMPONENTS_DRIPANDVANISH_H_

@@ -262,6 +262,9 @@ table Config {
   // List of all entities that we spawn automatically at game start.
   entity_list:[EntityDefinition];
 
+  // Definition for characters on the stage.
+  character_scene_object:EntityDefinition;
+
   // Definition for splatters that appear on background props:
   splatter_def:EntityDefinition;
 

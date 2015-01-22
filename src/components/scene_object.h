@@ -24,24 +24,22 @@ namespace fpl {
 namespace pie_noon {
 
 struct SceneObjectTransform {
-  SceneObjectTransform()
-    : position(mathfu::kZeros3f),
-      scale(mathfu::kOnes3f) {
+  SceneObjectTransform() : position(mathfu::kZeros3f), scale(mathfu::kOnes3f) {
     orientation = Quat::FromAngleAxis(0, mathfu::kOnes3f);
   }
   mathfu::vec3_packed position;
   mathfu::vec3_packed scale;
-  //TODO: Change to Quat_Packed, once it exists.
+  // TODO: Change to Quat_Packed, once it exists.
   Quat orientation;
 };
 
 // Data for scene object components.
 struct SceneObjectData {
   SceneObjectData()
-    : tint(mathfu::kOnes4f),
-      origin_point(mathfu::kZeros3f),
-      renderable_id(0),
-      visible(true) {}
+      : tint(mathfu::kOnes4f),
+        origin_point(mathfu::kZeros3f),
+        renderable_id(0),
+        visible(true) {}
   // the current transform on the object.  Probably modified by a lot of other
   // things.  Reset to the base at the start of every frame.
   SceneObjectTransform current_transform;
@@ -53,7 +51,6 @@ struct SceneObjectData {
   bool visible;
 };
 
-
 // A sceneobject is "a thing I want to place in the scene and move around."
 // So it contains basic drawing info.  (position, scale, orientation, tint.)
 // This is basically a helper component, that provides a friendlier interface
@@ -64,8 +61,7 @@ struct SceneObjectData {
 class SceneObjectComponent : public entity::Component<SceneObjectData> {
  public:
   virtual void UpdateAllEntities(entity::WorldTime delta_time);
-  virtual void AddFromRawData(entity::EntityRef& entity,
-                              const void* data);
+  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
   void PopulateScene(SceneDescription* scene);
   mathfu::mat4 CalculateMatrix(const SceneObjectData* data) const;
   mathfu::mat4 CalculateMatrix(const entity::EntityRef& entity) const;
@@ -73,4 +69,4 @@ class SceneObjectComponent : public entity::Component<SceneObjectData> {
 
 }  // pie_noon
 }  // fpl
-#endif // COMPONENTS_SCENEOBJECT_H_
+#endif  // COMPONENTS_SCENEOBJECT_H_

@@ -26,9 +26,9 @@ namespace pie_noon {
 // Data for accessory components.
 struct ChildObjectData {
   ChildObjectData()
-    : relative_scale(mathfu::kOnes3f),
-      relative_offset(mathfu::kOnes3f),
-      last_update(0) {
+      : relative_scale(mathfu::kOnes3f),
+        relative_offset(mathfu::kOnes3f),
+        last_update(0) {
     relative_orientation = Quat::FromAngleAxis(0, mathfu::kOnes3f);
   }
   // Scale of this object, relative to its parent:
@@ -49,10 +49,10 @@ struct ChildObjectData {
 class ChildObjectComponent : public entity::Component<ChildObjectData> {
  public:
   ChildObjectComponent() : current_update_id_(0) {}
-  virtual void AddFromRawData(entity::EntityRef& entity,
-                              const void* data);
+  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
   virtual void UpdateAllEntities(entity::WorldTime /*delta_time*/);
   virtual void InitEntity(entity::EntityRef& entity);
+
  private:
   void PositionAccessory(entity::EntityRef& entity);
   // Used to track the last time this entity's position was updated by the
@@ -65,4 +65,4 @@ class ChildObjectComponent : public entity::Component<ChildObjectData> {
 
 }  // pie_noon
 }  // fpl
-#endif // COMPONENTS_CHILDOBJECT_H_
+#endif  // COMPONENTS_CHILDOBJECT_H_

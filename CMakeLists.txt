@@ -215,6 +215,8 @@ set(pie_noon_SRCS
     src/components/childobject.h
     src/components/drip_and_vanish.cpp
     src/components/drip_and_vanish.h
+    src/components/player_character.cpp
+    src/components/player_character.h
     src/components/scene_object.cpp
     src/components/scene_object.h
     src/components/shakeable_prop.cpp

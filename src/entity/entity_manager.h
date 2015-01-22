@@ -150,6 +150,6 @@ class EntityFactoryInterface {
                                          EntityManager* entity_manager) = 0;
 };
 
-}  //entity
+}  // entity
 }  // fpl
-#endif // FPL_ENTITY_MANAGER_H_
+#endif  // FPL_ENTITY_MANAGER_H_

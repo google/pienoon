@@ -38,9 +38,12 @@ void ChildObjectComponent::PositionAccessory(entity::EntityRef& entity) {
   // not been updated yet this frame, and has a valid parent.
   if (ac_data != nullptr && ac_data->last_update != current_update_id_ &&
       ac_data->parent.IsValid()) {
-    SceneObjectData* so_data = entity_manager_->
-        GetComponentData<SceneObjectData>(entity,
-                                          ComponentDataUnion_SceneObjectDef);
+    SceneObjectData* so_data =
+        entity_manager_->GetComponentData<SceneObjectData>(
+            entity, ComponentDataUnion_SceneObjectDef);
+
+    // just do a quick check to make sure we don't have an obvious loop:
+    assert(ac_data->parent != entity);
 
     // Recursively update the parent's position first, if it hasn't been updated
     // yet.  We need to know where the (ultimate) parent of this object is
@@ -49,12 +52,12 @@ void ChildObjectComponent::PositionAccessory(entity::EntityRef& entity) {
 
     // At this point, the parent (and all of its parents) have their final
     // positions.
-    const SceneObjectData* parent_so_data = entity_manager_->
-        GetComponentData<SceneObjectData>(ac_data->parent,
-                                          ComponentDataUnion_SceneObjectDef);
+    const SceneObjectData* parent_so_data =
+        entity_manager_->GetComponentData<SceneObjectData>(
+            ac_data->parent, ComponentDataUnion_SceneObjectDef);
     const SceneObjectComponent* scene_object_component =
         static_cast<SceneObjectComponent*>(
-        entity_manager_->GetComponent(ComponentDataUnion_SceneObjectDef));
+            entity_manager_->GetComponent(ComponentDataUnion_SceneObjectDef));
 
     assert(scene_object_component);
     mat4 parent_transform =
@@ -87,7 +90,7 @@ void ChildObjectComponent::AddFromRawData(entity::EntityRef& entity,
   static const float kDegreesToRadians = static_cast<float>(M_PI / 180.0);
 
   entity_data->relative_orientation = Quat::FromEulerAngles(
-        LoadVec3(childobject_data->orientation()) * kDegreesToRadians);
+      LoadVec3(childobject_data->orientation()) * kDegreesToRadians);
   entity_data->parent = entity::EntityRef();
 }
 
@@ -101,6 +104,5 @@ void ChildObjectComponent::InitEntity(entity::EntityRef& entity) {
   GetEntityData(entity)->last_update = current_update_id_ - 1;
 }
 
-
-} // pie noon
-} // fpl
+}  // pie noon
+}  // fpl

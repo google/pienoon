@@ -21,14 +21,16 @@
 
 namespace fpl {
 
+enum AllocationLocation { kAddToFront, kAddToBack };
+
 // Pool allocator, implemented as a vector-based pair of linked lists.
-template <typename T> class VectorPool {
+template <typename T>
+class VectorPool {
   friend class Iterator;
   friend class VectorPoolReference;
   typedef uint32_t UniqueIdType;
 
  public:
-
   class Iterator;
 
   // ---------------------------
@@ -42,13 +44,23 @@ template <typename T> class VectorPool {
   class VectorPoolReference {
     friend class VectorPool<T>;
     friend class Iterator;
+
    public:
     VectorPoolReference() : container_(nullptr), index_(0), unique_id_(0) {}
 
     VectorPoolReference(VectorPool<T>* container, size_t index)
-      : container_(container),
-        index_(index) {
+        : container_(container), index_(index) {
       unique_id_ = container->GetElement(index)->unique_id;
+    }
+
+    // Standard equality operator
+    bool operator==(const VectorPoolReference& other) const {
+      return container_ == other.container_ && index_ == other.index_;
+    }
+
+    // Standard inequality operator
+    bool operator!=(const VectorPoolReference& other) const {
+      return !operator==(other);
     }
 
     // Check to make sure that the reference is still valid.  Will return false
@@ -56,7 +68,7 @@ template <typename T> class VectorPool {
     // later filled with a new object.
     bool IsValid() const {
       return container_ != nullptr &&
-          (container_->GetElement(index_)->unique_id == unique_id_);
+             (container_->GetElement(index_)->unique_id == unique_id_);
     }
 
     // Member access operator.  Returns a pointer to the data the
@@ -118,14 +130,10 @@ template <typename T> class VectorPool {
     }
 
     // Returns an iterator pointing at the element we're referencing
-    Iterator ToIterator() const {
-      return Iterator(container_, index_);
-    }
+    Iterator ToIterator() const { return Iterator(container_, index_); }
 
     // Returns the raw index into the underlying vector for this object.
-    size_t index() {
-      return index_;
-    }
+    size_t index() { return index_; }
 
    private:
     VectorPool<T>* container_;
@@ -139,60 +147,54 @@ template <typename T> class VectorPool {
   // over the active elements that the pool owns.
   class Iterator {
     friend class VectorPool<T>;
+
    public:
     Iterator(VectorPool<T>* container, size_t index)
-      : container_(container), index_(index) {}
+        : container_(container), index_(index) {}
     ~Iterator() {}
 
     // Standard equality operator
     bool operator==(const Iterator& other) const {
-       return container_ == other.container_ && index_ == other.index_;
+      return container_ == other.container_ && index_ == other.index_;
     }
 
     // Standard inequality operator
-    bool operator!=(const Iterator& other) const {
-      return !operator==(other);
-    }
+    bool operator!=(const Iterator& other) const { return !operator==(other); }
 
     // Prefix increment - moves the iterator one forward in the
     // list.
     Iterator& operator++() {
       index_ = container_->elements_[index_].next;
-      return(*this);
+      return (*this);
     }
 
     // Postfix increment - moves the iterator one forward in the
     // list, but returns the original (unincremented) iterator.
     Iterator operator++(int) {
-       Iterator temp = *this;
-       ++(*this);
-       return temp;
+      Iterator temp = *this;
+      ++(*this);
+      return temp;
     }
 
     // Prefix decrement - moves the iterator one back in the list
     Iterator& operator--() {
       index_ = container_->elements_[index_].prev;
-      return(*this);
+      return (*this);
     }
 
     // Prefix decrement - moves the iterator one back in the list, but
     // returns the original (undecremented) iterator.
     Iterator operator--(int) {
-       Iterator temp = *this;
-       --(*this);
-       return temp;
+      Iterator temp = *this;
+      --(*this);
+      return temp;
     }
 
     // Iterator dereference
-    T& operator*() {
-       return *(container_->GetElementData(index_));
-    }
+    T& operator*() { return *(container_->GetElementData(index_)); }
 
     // Member access on the object
-    T* operator->()
-    {
-       return container_->GetElementData(index_);
-    }
+    T* operator->() { return container_->GetElementData(index_); }
 
     // Converts the iterator into a VectorPoolReference, which is the preferred
     // way for holding onto references into the vector pool.
@@ -211,9 +213,7 @@ template <typename T> class VectorPool {
   static const UniqueIdType kInvalidId = 0;
   struct VectorPoolElement {
     VectorPoolElement()
-      : next(kOutOfBounds),
-        prev(kOutOfBounds),
-        unique_id(kInvalidId){}
+        : next(kOutOfBounds), prev(kOutOfBounds), unique_id(kInvalidId) {}
     T data;
     size_t next;
     size_t prev;
@@ -229,9 +229,7 @@ template <typename T> class VectorPool {
   const size_t kTotalReserved = 4;
 
   // Basic constructor.
-  VectorPool() : active_count_(0), next_unique_id_(kInvalidId+1) {
-    Clear();
-  }
+  VectorPool() : active_count_(0), next_unique_id_(kInvalidId + 1) { Clear(); }
 
   // Get data at the specified element index.
   // Returns a pointer to the data.  Asserts if the index is obviously illegal.
@@ -259,16 +257,25 @@ template <typename T> class VectorPool {
 
   // Returns a reference to a new element.  Grabs the first free element if one
   // exists, otherwise allocates a new one on the vector.
-  VectorPoolReference GetNewElement() {
+  VectorPoolReference GetNewElement(AllocationLocation alloc_location) {
     size_t index;
     if (elements_[kFirstFree].next != kLastFree) {
-        index = elements_[kFirstFree].next;
-        RemoveFromList(index);  // remove it from the list of free elements.
+      index = elements_[kFirstFree].next;
+      RemoveFromList(index);  // remove it from the list of free elements.
     } else {
-        index = elements_.size();
-        elements_.push_back(VectorPoolElement());
+      index = elements_.size();
+      elements_.push_back(VectorPoolElement());
     }
-    AddToList(index, kFirstUsed);
+    switch (alloc_location) {
+      case kAddToFront:
+        AddToListFront(index, kFirstUsed);
+        break;
+      case kAddToBack:
+        AddToListBack(index, kLastUsed);
+        break;
+      default:
+        assert(0);
+    }
     active_count_++;
     // Placement new, to make sure we always give back a cleanly constructed
     // element:
@@ -281,7 +288,7 @@ template <typename T> class VectorPool {
   // adds it to the front of the inactive list.
   void FreeElement(size_t index) {
     RemoveFromList(index);
-    AddToList(index, kFirstFree);
+    AddToListFront(index, kFirstFree);
     elements_[index].unique_id = kInvalidId;
     active_count_--;
   }
@@ -304,14 +311,10 @@ template <typename T> class VectorPool {
 
   // Returns the total size of the vector pool.  This is the total number of
   // allocated elements (used AND free) by the underlying vector.
-  size_t Size() const {
-    return elements_.size();
-  }
+  size_t Size() const { return elements_.size(); }
 
   // Returns the total number of active elements.
-  size_t active_count() const {
-    return active_count_;
-  }
+  size_t active_count() const { return active_count_; }
 
   // Clears out all elements of the vectorpool, and resizes the underlying
   // vector to the minimum.
@@ -326,15 +329,11 @@ template <typename T> class VectorPool {
 
   // Returns an iterator suitable for traversing all of the active elements
   // in the vectorpool
-  Iterator begin() {
-    return Iterator(this, elements_[kFirstUsed].next);
-  }
+  Iterator begin() { return Iterator(this, elements_[kFirstUsed].next); }
 
   // returns an iterator at the end of the vectorpool, suitible for use as
   // an end condition when iterating over the active elements.
-  Iterator end() {
-    return Iterator(this, kLastUsed);
-  }
+  Iterator end() { return Iterator(this, kLastUsed); }
 
   // Expands the vector until it is at least new_size.  If the vector
   // already contains at least new_size elements, then there is no effect.
@@ -345,9 +344,8 @@ template <typename T> class VectorPool {
     elements_.resize(new_size);
     for (; current_size < new_size; current_size++) {
       elements_[current_size].unique_id = kInvalidId;
-      AddToList(current_size, kFirstFree);
+      AddToListFront(current_size, kFirstFree);
     }
-
   }
 
  private:
@@ -364,14 +362,26 @@ template <typename T> class VectorPool {
   // Utility function to add an element to a list.  Adds it to whichever list is
   // specified.  (start_index is the start of the list we want to add it to,
   // usually either kFirstUsed or kFirstFree.
-  void AddToList(size_t index, size_t start_index) {
+  // This function adds to the front of the list.
+  void AddToListFront(size_t index, size_t start_index) {
     assert(index < elements_.size() && index >= kTotalReserved);
-    //size_t start_index = used ? kFirstUsed : kFirstFree;
-    VectorPoolElement &list_start = elements_[start_index];
+    VectorPoolElement& list_start = elements_[start_index];
     elements_[list_start.next].prev = index;
     elements_[index].prev = start_index;
     elements_[index].next = list_start.next;
     list_start.next = index;
+  }
+
+  // Same as AddToListFront, except it sends it to the back of the list.
+  // Note that this means you have to give it the end of a list instead of
+  // the front of one.  (i. e. kLastUsed instead of kFirstUsed, etc.)
+  void AddToListBack(size_t index, size_t end_index) {
+    assert(index < elements_.size() && index >= kTotalReserved);
+    VectorPoolElement& list_end = elements_[end_index];
+    elements_[list_end.prev].next = index;
+    elements_[index].next = end_index;
+    elements_[index].prev = list_end.prev;
+    list_end.prev = index;
   }
 
   // Returns an element specified by an index.  Note that this is different from
@@ -406,7 +416,6 @@ template <typename T> class VectorPool {
   UniqueIdType next_unique_id_;
 };
 
-} // fpl
+}  // fpl
 
-#endif // VECTOR_POOL_H
-
+#endif  // VECTOR_POOL_H

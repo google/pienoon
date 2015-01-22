@@ -25,7 +25,7 @@ EntityManager::EntityManager() : entity_factory_(nullptr) {
 }
 
 EntityRef EntityManager::AllocateNewEntity() {
-  return EntityRef(entities_.GetNewElement());
+  return EntityRef(entities_.GetNewElement(kAddToFront));
 }
 
 // Note: This function doesn't actually delete the entity immediately -
@@ -85,15 +85,16 @@ void EntityManager::RegisterComponent(ComponentInterface* new_component,
 
 void* EntityManager::GetComponentDataAsVoid(EntityRef entity,
                                             ComponentId component_id) {
-  return components_[component_id] ?
-      components_[component_id]->GetEntityDataAsVoid(entity) :
-      nullptr;
+  return components_[component_id]
+             ? components_[component_id]->GetEntityDataAsVoid(entity)
+             : nullptr;
 }
 
-const void* EntityManager::GetComponentDataAsVoid(EntityRef entity,
-                                            ComponentId component_id) const {
-  return components_[component_id] ?
-      components_[component_id]->GetEntityDataAsVoid(entity) : nullptr;
+const void* EntityManager::GetComponentDataAsVoid(
+    EntityRef entity, ComponentId component_id) const {
+  return components_[component_id]
+             ? components_[component_id]->GetEntityDataAsVoid(entity)
+             : nullptr;
 }
 
 void EntityManager::UpdateComponents(float delta_time) {
@@ -120,7 +121,5 @@ EntityRef EntityManager::CreateEntityFromData(const void* data) {
   return entity_factory_->CreateEntityFromData(data, this);
 }
 
-}  //entity
+}  // entity
 }  // fpl
-
-

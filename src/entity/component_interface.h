@@ -57,8 +57,7 @@ class ComponentInterface {
   // Called just after an entity is added to this component.
   virtual void InitEntity(EntityRef& entity) = 0;
   // Used to build entities from data.  All components need to implement one.
-  virtual void AddFromRawData(EntityRef& entity,
-                              const void* data) = 0;
+  virtual void AddFromRawData(EntityRef& entity, const void* data) = 0;
   // Called just before removal from the entitymanager.
   virtual void Cleanup() = 0;
   // Called when the entity is removed from the manager.
@@ -75,5 +74,4 @@ class ComponentInterface {
 }  // entity
 }  // fpl
 
-#endif // FPL_BASE_COMPONENT_H_
-
+#endif  // FPL_BASE_COMPONENT_H_

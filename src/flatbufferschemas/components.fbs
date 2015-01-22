@@ -38,6 +38,10 @@ table ChildObjectDef {
   orientation:Vec3;
 }
 
+// no data, (never loaded from raw data) but we need it to be a thing so
+// that it ends up in the enum.
+table PlayerCharacterDef {}
+
 table DripAndVanishDef {
   //time, in seconds, that we take to drip.
   total_lifetime:float;
@@ -87,13 +91,21 @@ table CardboardSceneryDef {
 //-----------------------------------
 // Data for defining the entities themselves:
 // Union containing every possible component.
+// Note: This will also be the order the components
+// execute their updates in.
+// Note: SceneObjectDef should be as early as
+// possible, so it can reset all the transformations before everyone else
+// messes with them.  Similarly, ChildObjectDef should be as late
+// in the order as possible, to make sure it takes any other components'
+// changes into account when resolving the object hierarchy.
 union ComponentDataUnion {
+  SceneObjectDef,   // Ideally this should be first.
   ImpellerObjectDef,
   CardboardSceneryDef,
-  SceneObjectDef,
   ShakeablePropDef,
-  ChildObjectDef,
-  DripAndVanishDef
+  DripAndVanishDef,
+  PlayerCharacterDef,
+  ChildObjectDef  // Ideally, this should be last.
 }
 
 // Actual definition for each component.  Wrapped in a table because

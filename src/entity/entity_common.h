@@ -13,12 +13,13 @@
 // limitations under the License.
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifndef FPL_ENTITY_COMMON_H_
 #define FPL_ENTITY_COMMON_H_
 
 namespace fpl {
-namespace entity{
+namespace entity {
 
 // Maximum number of components in the system.  This should be set with care,
 // because it affects the size of each entity.  Ideally this should be set
@@ -42,15 +43,10 @@ const ComponentId kInvalidComponent = 0xffffffffL;
 static const ComponentId kMaxComponentCount = FPL_ENTITY_MAX_COMPONENT_COUNT;
 
 typedef int WorldTime;
-typedef int ComponentIndex;
 const int kMillisecondsPerSecond = 1000;
+typedef uint16_t ComponentIndex;
 static const ComponentIndex kUnusedComponentIndex = -1;
-
 
 }  // entity
 }  // fpl
-#endif // FPL_ENTITY_COMMON_H_
-
-
-
-
+#endif  // FPL_ENTITY_COMMON_H_

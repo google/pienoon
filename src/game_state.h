@@ -21,6 +21,7 @@
 #include "impel_engine.h"
 #include "components/childobject.h"
 #include "components/drip_and_vanish.h"
+#include "components/player_character.h"
 #include "components/scene_object.h"
 #include "components/shakeable_prop.h"
 #include "entity/entity.h"
@@ -127,8 +128,8 @@ class GameState {
   // and down.
   void EnterJoiningMode();
 
-private:
   WorldTime GetAnimationTime(const Character& character) const;
+ private:
   void ProcessSounds(AudioEngine* audio_engine,
                      const Character& character,
                      WorldTime delta_time) const;
@@ -141,10 +142,6 @@ private:
                     const EventData& event_data);
   void PopulateConditionInputs(ConditionInputs* condition_inputs,
                                const Character& character) const;
-  void PopulateCharacterAccessories(SceneDescription* scene, uint16_t renderable_id,
-                                    const mathfu::mat4& character_matrix,
-                                    int num_accessories, int damage,
-                                    int health) const;
   void ProcessConditionalEvents(Character* character, EventData* event_data);
   void ProcessEvents(Character* character,
                      EventData* data,
@@ -194,6 +191,8 @@ private:
   ChildObjectComponent childobject_component_;
   // Component for scenery-splatter behavior.
   DripAndVanishComponent drip_and_vanish_component_;
+  // Component for drawing player characters:
+  PlayerCharacterComponent player_character_component_;
 };
 
 }  // pie_noon

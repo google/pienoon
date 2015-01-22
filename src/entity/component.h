@@ -28,7 +28,8 @@ namespace entity {
 // All components should should extend this class.  The type T is used to
 // specify the structure of the data that needs to be associated with each
 // entity.
-template <typename T> class Component : public ComponentInterface {
+template <typename T>
+class Component : public ComponentInterface {
  public:
   // Structure associated with each entity.
   // Contains the template struct, as well as a pointer back to the
@@ -39,38 +40,36 @@ template <typename T> class Component : public ComponentInterface {
   };
   typedef typename VectorPool<EntityData>::Iterator EntityIterator;
 
-  Component()
-    : entity_manager_(nullptr),
-      component_id_(kInvalidComponent) {}
+  Component() : entity_manager_(nullptr), component_id_(kInvalidComponent) {}
 
-  virtual ~Component(){}
+  virtual ~Component() {}
 
   // AddEntity is a much better function, but we can't have it in the
   // interface class, since it needs to know about type T for the return
   // value.  This provides an alternate way to add things if you don't
   // care about the returned data structure, and you don't feel like
   // casting the BaseComponent into something more specific.
-  virtual void AddEntityGenerically(EntityRef& entity) {
-    AddEntity(entity);
-  }
+  virtual void AddEntityGenerically(EntityRef& entity) { AddEntity(entity); }
 
   // Adds an entity to the list of things this component is tracking.
   // Returns the data structure associated with the component.
   // Note that If we're already registered for this component, this
   // will just return a reference to the existing data and not change anything.
-  T* AddEntity(EntityRef& entity) {
+  T* AddEntity(EntityRef& entity, AllocationLocation alloc_location) {
     if (entity->IsRegisteredForComponent(component_id_)) {
       return GetEntityData(entity);
     }
     // No existing data, so we allocate some and return it:
-    size_t index = entity_data_.GetNewElement().index();
+    size_t index = entity_data_.GetNewElement(alloc_location).index();
     entity->SetComponentDataIndex(component_id_, index);
     EntityData* entity_data = entity_data_.GetElementData(index);
     entity_data->entity = entity;
-    new(&(entity_data->data)) T();
+    new (&(entity_data->data)) T();
     InitEntity(entity);
     return &(entity_data->data);
   }
+
+  T* AddEntity(EntityRef entity) { return AddEntity(entity, kAddToBack); }
 
   // Removes an entity from our list, and frees up any data we were associating
   // with it.
@@ -81,15 +80,11 @@ template <typename T> class Component : public ComponentInterface {
   }
 
   // Gets an iterator that will iterate over every entity in the component.
-  virtual EntityIterator begin() {
-    return entity_data_.begin();
-  }
+  virtual EntityIterator begin() { return entity_data_.begin(); }
 
   // Gets an iterator which points to the end of the list of all entities in the
   // component.
-  virtual EntityIterator end() {
-    return entity_data_.end();
-  }
+  virtual EntityIterator end() { return entity_data_.end(); }
 
   // Removes an entity from our list, and frees up any data we were associating
   // with it.
@@ -112,17 +107,22 @@ template <typename T> class Component : public ComponentInterface {
   }
 
   // Return the data we have stored at a given index.
-  // Returns null if the data does not exist.
+  // Returns null if data_index indicates this component isn't present.
   T* GetEntityData(size_t data_index) {
-    return (data_index < entity_data_.size()) ?
-          entity_data_.GetElementData(data_index) : nullptr;
+    if (data_index == kUnusedComponentIndex) {
+      return nullptr;
+    }
+    return entity_data_.GetElementData(data_index)->data;
   }
 
-  // Return our data for a given entity.
-  // Returns null if the data does not exist.
+  // Return the data we have stored at a given index.
+  // Returns null if data_index indicates this component isn't present.
   T* GetEntityData(const EntityRef& entity) {
-    EntityData* element_data = entity_data_.GetElementData(
-          entity->GetComponentDataIndex(component_id_));
+    ComponentIndex index = entity->GetComponentDataIndex(component_id_);
+    if (index == kUnusedComponentIndex) {
+      return nullptr;
+    }
+    EntityData* element_data = entity_data_.GetElementData(index);
     return (element_data != nullptr) ? &(element_data->data) : nullptr;
   }
 
@@ -140,16 +140,16 @@ template <typename T> class Component : public ComponentInterface {
 
   // Clears all tracked entity data.
   void virtual ClearEntityData() {
-    for (auto iter = entity_data_.begin();
-         iter != entity_data_.end();
-         iter = RemoveEntity(iter)) {}
+    for (auto iter = entity_data_.begin(); iter != entity_data_.end();
+         iter = RemoveEntity(iter)) {
+    }
   }
 
   // Utility function for getting the component data for a specific component.
   template <typename ComponentDataType>
   ComponentDataType* Data(const EntityRef& entity, ComponentId component_id) {
-    return entity_manager_->
-        GetComponentData<ComponentDataType>(entity, component_id);
+    return entity_manager_->GetComponentData<ComponentDataType>(entity,
+                                                                component_id);
   }
 
   // Virtual methods we inherrited from component_interface:
@@ -157,19 +157,19 @@ template <typename T> class Component : public ComponentInterface {
   // Override this with any code that we want to execute when the component
   // is added to the entity manager.  (i. e. once, at the beginning of the
   // game, before any entities are added.)
-  virtual void Init(){}
+  virtual void Init() {}
 
   // Override this with code that we want to execute when an entity is added.
-  virtual void InitEntity(EntityRef& /*entity*/){}
+  virtual void InitEntity(EntityRef& /*entity*/) {}
 
   // Override this with code that executes when this component is removed from
   // the entity manager.  (i. e. usually when the game/state is over and
   // everythingis shutting down.)
-  virtual void Cleanup(){}
+  virtual void Cleanup() {}
 
   // Override this with any code that needs to execute when an entity is
   // removed from this component.
-  virtual void CleanupEntity(EntityRef& /*entity*/){}
+  virtual void CleanupEntity(EntityRef& /*entity*/) {}
 
   // get the component id for this component.  Assigned by entitymanager.
   virtual ComponentId GetComponentId() const { return component_id_; }
@@ -195,4 +195,4 @@ template <typename T> class Component : public ComponentInterface {
 }  // entity
 }  // fpl
 
-#endif // FPL_COMPONENT_H_
+#endif  // FPL_COMPONENT_H_

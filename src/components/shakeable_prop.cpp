@@ -29,13 +29,12 @@ void ShakeablePropComponent::UpdateAllEntities(
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
     entity::EntityRef entity = iter->entity;
     ShakeablePropData* sp_data = GetEntityData(iter->entity);
-    SceneObjectData* so_data = entity_manager_->
-        GetComponentData<SceneObjectData>(entity,
-                                          ComponentDataUnion_SceneObjectDef);
+    SceneObjectData* so_data =
+        entity_manager_->GetComponentData<SceneObjectData>(
+            entity, ComponentDataUnion_SceneObjectDef);
     assert(so_data != nullptr && sp_data != nullptr);
 
     if (sp_data->impeller.Valid()) {
-
       so_data->current_transform.orientation =
           so_data->current_transform.orientation *
           Quat::FromAngleAxis(sp_data->impeller.Value(),
@@ -71,7 +70,7 @@ void ShakeablePropComponent::AddFromRawData(entity::EntityRef& entity,
     scaled_shake_init.set_max(scaled_shake_init.max() *
                               entity_data->shake_scale);
     scaled_shake_init.set_accel_per_difference(
-          scaled_shake_init.accel_per_difference() * entity_data->shake_scale);
+        scaled_shake_init.accel_per_difference() * entity_data->shake_scale);
 
     entity_data->impeller.Initialize(scaled_shake_init, impel_engine_);
   }
@@ -92,22 +91,22 @@ void ShakeablePropComponent::LoadImpellerSpecs() {
 // Invalidate all our impellers before we get removed.
 void ShakeablePropComponent::CleanupEntity(entity::EntityRef& entity) {
   ShakeablePropData* sp_data = GetEntityData(entity);
-    sp_data->impeller.Invalidate();
+  sp_data->impeller.Invalidate();
 }
 
 // General function to shake props when something hits near them.
 // Usually called by gamestate, in response to a pie landing.
-void ShakeablePropComponent::ShakeProps(
-    float damage_percent, const vec3& damage_position) {
-  (void) damage_percent;
-  (void) damage_position;
+void ShakeablePropComponent::ShakeProps(float damage_percent,
+                                        const vec3& damage_position) {
+  (void)damage_percent;
+  (void)damage_position;
 
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
     ShakeablePropData* data = &iter->data;
 
-    SceneObjectData* so_data = entity_manager_->
-        GetComponentData<SceneObjectData>(iter->entity,
-                                          ComponentDataUnion_SceneObjectDef);
+    SceneObjectData* so_data =
+        entity_manager_->GetComponentData<SceneObjectData>(
+            iter->entity, ComponentDataUnion_SceneObjectDef);
 
     float shake_scale = data->shake_scale;
     if (shake_scale == 0.0f) {
@@ -122,9 +121,10 @@ void ShakeablePropComponent::ShakeProps(
     // The closer the prop is to the damage_position, the more it should shake.
     // The effect trails off with distance squared.
     const vec3 prop_position = vec3(so_data->current_transform.position);
-    const float closeness = mathfu::Clamp(
-        config_->prop_shake_identity_distance_sq() /
-        (damage_position - prop_position).LengthSquared(), 0.01f, 1.0f);
+    const float closeness =
+        mathfu::Clamp(config_->prop_shake_identity_distance_sq() /
+                          (damage_position - prop_position).LengthSquared(),
+                      0.01f, 1.0f);
 
     // Velocity added is the product of all the factors.
     const float delta_velocity = current_direction * damage_percent *
@@ -135,5 +135,5 @@ void ShakeablePropComponent::ShakeProps(
   }
 }
 
-} // pie noon
-} // fpl
+}  // pie noon
+}  // fpl

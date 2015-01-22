@@ -59,8 +59,8 @@ void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
   static const float kDegreesToRadians = static_cast<float>(M_PI / 180.0);
   mathfu::vec3 orientation_in_degrees =
       LoadVec3(scene_object_data->orientation());
-  entity_data->base_transform.orientation = Quat::FromEulerAngles(
-        orientation_in_degrees * kDegreesToRadians);
+  entity_data->base_transform.orientation =
+      Quat::FromEulerAngles(orientation_in_degrees * kDegreesToRadians);
   entity_data->origin_point = LoadVec3(scene_object_data->origin_point());
   entity_data->base_transform.scale = LoadVec3(scene_object_data->scale());
   entity_data->renderable_id = scene_object_data->renderable_id();
@@ -72,12 +72,12 @@ void SceneObjectComponent::PopulateScene(SceneDescription* scene) {
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
     entity::EntityRef entity = iter->entity;
     SceneObjectData* data = GetEntityData(entity);
-    scene->renderables().push_back(std::unique_ptr<Renderable>(
-        new Renderable(data->renderable_id, CalculateMatrix(data),
-                       vec4(data->tint))));
+    if (data->visible) {
+      scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
+          data->renderable_id, CalculateMatrix(data), vec4(data->tint))));
+    }
   }
 }
 
-
-} // pie noon
-} // fpl
+}  // pie noon
+}  // fpl

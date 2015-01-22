@@ -211,14 +211,17 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
                                     ComponentDataUnion_ChildObjectDef);
   entity_manager_.RegisterComponent(&drip_and_vanish_component_,
                                     ComponentDataUnion_DripAndVanishDef);
+  entity_manager_.RegisterComponent(&player_character_component_,
+                                    ComponentDataUnion_PlayerCharacterDef);
 
   // Shakable Prop Component needs to know about some of our structures:
   shakeable_prop_component_.set_impel_engine(&impel_engine_);
   shakeable_prop_component_.set_config(config_);
   shakeable_prop_component_.LoadImpellerSpecs();
+  player_character_component_.set_config(config_);
 
   entity_manager_.set_entity_factory(&pie_noon_entity_factory_);
-
+  player_character_component_.set_gamestate_ptr(this);
   // Load Entities from flatbuffer!
   for (size_t i = 0; i < config_->entity_list()->size(); i++) {
     entity_manager_.CreateEntityFromData(config_->entity_list()->Get(i));
@@ -236,6 +239,15 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
         InitialFaceAngle(arrangement_, id, target_id),
         LoadVec3(arrangement_->character_data()->Get(id)->position()),
         &impel_engine_);
+  }
+
+  // Create player character entities:
+  for (CharacterId id = 0;
+      id < static_cast<CharacterId>(characters_.size()); ++id) {
+    entity::EntityRef entity = entity_manager_.AllocateNewEntity();
+    PlayerCharacterData* pc_data =
+        player_character_component_.AddEntity(entity);
+    pc_data->character_id = id;
   }
 
   particle_manager_.RemoveAllParticles();
@@ -949,9 +961,6 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // Update all the particles.
   particle_manager_.AdvanceFrame(static_cast<TimeStep>(delta_time));
 
-  // Update entities.
-  entity_manager_.UpdateComponents(delta_time);
-
   // Update pies. Modify state machine input when character hit by pie.
   for (auto it = pies_.begin(); it != pies_.end(); ) {
     auto& pie = *it;
@@ -1018,6 +1027,9 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
     ProcessSounds(audio_engine, *characters_[i].get(), delta_time);
   }
 
+  // Update entities.
+  entity_manager_.UpdateComponents(delta_time);
+
   camera_.AdvanceFrame(delta_time);
 }
 
@@ -1040,50 +1052,6 @@ mat4 GameState::CameraMatrix() const {
   return mat4::LookAt(camera_.Target(), camera_.Position(), mathfu::kAxisY3f);
 }
 
-static const mat4 CalculateAccessoryMatrix(
-    const vec2& location, const vec2& scale, const mat4& character_matrix,
-    uint16_t renderable_id, int num_accessories, const Config& config) {
-  // Grab the offset of the base renderable. The renderable's texture is moved
-  // by this amount, so we have to move the same to match.
-  auto renderable = config.renderables()->Get(renderable_id);
-  const vec3 renderable_offset = renderable->offset() == nullptr ?
-                                 mathfu::kZeros3f :
-                                 LoadVec3(renderable->offset());
-
-  // Calculate the accessory offset, in character space.
-  // Ensure accessories don't z-fight by rendering them at slightly different z
-  // depths. Note that the character_matrix has it's z axis oriented so that
-  // it is always pointing towards the camera. Therefore, our z-offset should
-  // always be positive here.
-  const vec3 accessory_offset = vec3(
-      location.x() * config.pixel_to_world_scale(),
-      location.y() * config.pixel_to_world_scale(),
-      config.accessory_z_offset() +
-          num_accessories * config.accessory_z_increment());
-
-  // Apply offset to character matrix.
-  const vec3 offset = renderable_offset + accessory_offset;
-  const vec3 scale3d(scale[0], scale[1], 1.0f);
-  const mat4 offset_matrix = mat4::FromTranslationVector(offset);
-  const mat4 scale_matrix = mat4::FromScaleVector(scale3d);
-  const mat4 accessory_matrix =
-      character_matrix * offset_matrix * scale_matrix;
-  return accessory_matrix;
-}
-
-static mat4 CalculateUiArrowMatrix(const vec3& position, const Angle& angle,
-                                   const Config& config) {
-  // First rotate to horizontal, then scale to correct size, then center and
-  // translate forward slightly.
-  const vec3 offset = LoadVec3(config.ui_arrow_offset());
-  const vec3 scale = LoadVec3(config.ui_arrow_scale());
-  return mat4::FromTranslationVector(position) *
-         mat4::FromRotationMatrix(angle.ToXZRotationMatrix()) *
-         mat4::FromTranslationVector(offset) *
-         mat4::FromScaleVector(scale) *
-         kRotate90DegreesAboutXAxis;
-}
-
 // Helper class for std::sort. Sorts Characters by distance from camera.
 class CharacterDepthComparer {
 public:
@@ -1103,62 +1071,6 @@ private:
   // Pointer to force alignment, which MSVC std::sort ignores
   std::unique_ptr<vec3> camera_position_;
 };
-
-void GameState::PopulateCharacterAccessories(
-    SceneDescription* scene, uint16_t renderable_id,
-    const mat4& character_matrix, int num_accessories, CharacterHealth damage,
-    CharacterHealth health) const {
-  auto renderable = config_->renderables()->Get(renderable_id);
-
-  // Loop twice. First for damage splatters, then for health hearts.
-  struct {
-    int key;
-    vec2i offset;
-    const flatbuffers::Vector<flatbuffers::Offset<AccessoryGroup>>*
-        indices;
-    const flatbuffers::Vector<flatbuffers::Offset<FixedAccessory>>*
-        fixed_accessories;
-  } accessories[] = {
-    {
-      damage,
-      LoadVec2i(renderable->splatter_offset()),
-      config_->splatter_map(),
-      config_->splatter_accessories()
-    },
-    {
-      health,
-      LoadVec2i(renderable->health_offset()),
-      config_->health_map(),
-      config_->health_accessories()
-    }
-  };
-
-  for (size_t j = 0; j < ARRAYSIZE(accessories); ++j) {
-    // Get the set of indices into the fixed_accessories array.
-    const int max_key = accessories[j].indices->Length() - 1;
-    const int key = mathfu::Clamp(accessories[j].key, 0, max_key);
-    auto indices = accessories[j].indices->Get(key)->indices();
-    const int num_fixed_accessories = static_cast<int>(indices->Length());
-
-    // Add each accessory slightly in front of the character, with a slight
-    // z-offset so that they don't z-fight when they overlap, and for a
-    // nice parallax look.
-    for (int i = 0; i < num_fixed_accessories; ++i) {
-      const int index = indices->Get(i);
-      const FixedAccessory* accessory =
-          accessories[j].fixed_accessories->Get(index);
-      const vec2 location(LoadVec2i(accessory->location())
-                          + accessories[j].offset);
-      const vec2 scale(LoadVec2(accessory->scale()));
-      scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(static_cast<uint16_t>(accessory->renderable()),
-              CalculateAccessoryMatrix(location, scale, character_matrix,
-                                       renderable_id, num_accessories,
-                                       *config_))));
-      num_accessories++;
-    }
-  }
-}
 
 // Add anything in the list of particles into the scene description:
 void GameState::AddParticlesToScene(SceneDescription* scene) const {
@@ -1198,82 +1110,6 @@ void GameState::PopulateScene(SceneDescription* scene) {
     }
   }
 
-  // Characters and accessories.
-  if (config_->draw_characters()) {
-    // Sort characters by farthest-to-closest to the camera.
-    std::vector<Character*> sorted_characters(characters_.size());
-    for (size_t i = 0; i < characters_.size(); ++i) {
-      sorted_characters[i] = characters_[i].get();
-    }
-    const CharacterDepthComparer comparer(camera_.Position());
-    std::sort(sorted_characters.begin(), sorted_characters.end(), comparer);
-
-    // Render all parts of the character. Note that order matters here. For
-    // example, the arrow appears partially behind the character billboard
-    // (because the arrow is flat on the ground) so it has to be rendered first.
-    for (size_t i = 0; i < sorted_characters.size(); ++i) {
-      Character* character = sorted_characters[i];
-      // UI arrow
-      if (config_->draw_ui_arrows()) {
-        const Angle arrow_angle = TargetFaceAngle(character->id());
-        scene->renderables().push_back(std::unique_ptr<Renderable>(
-            new Renderable(RenderableId_UiArrow, CalculateUiArrowMatrix(
-                character->position(), arrow_angle, *config_))));
-      }
-
-      // Render accessories and splatters on the camera-facing side
-      // of the character.
-      const Angle towards_camera_angle = Angle::FromXZVector(
-          camera_.Position() - character->position());
-      const Angle face_to_camera_angle =
-          character->FaceAngle() - towards_camera_angle;
-      const bool facing_camera = face_to_camera_angle.ToRadians() < 0.0f;
-
-      // Character.
-      const WorldTime anim_time = GetAnimationTime(*character);
-      const uint16_t renderable_id = character->RenderableId(anim_time);
-      const mat4 character_matrix = character->CalculateMatrix(facing_camera);
-      scene->renderables().push_back(
-          std::unique_ptr<Renderable>(
-              new Renderable(renderable_id, character_matrix,
-                             character->Color())));
-
-      // Accessories.
-      int num_accessories = 0;
-      const Timeline* const timeline = character->CurrentTimeline();
-      if (timeline) {
-        // Get accessories that are valid for the current time.
-        const std::vector<int> accessory_indices =
-            TimelineIndicesWithTime(timeline->accessories(), anim_time);
-
-        // Create a renderable for each accessory.
-        for (auto it = accessory_indices.begin();
-             it != accessory_indices.end(); ++it) {
-          const TimelineAccessory& accessory =
-              *timeline->accessories()->Get(*it);
-          const vec2 location(accessory.offset().x(), accessory.offset().y());
-          scene->renderables().push_back(std::unique_ptr<Renderable>(
-              new Renderable(
-                  accessory.renderable(),
-                  CalculateAccessoryMatrix(location, mathfu::kOnes2f,
-                                           character_matrix, renderable_id,
-                                           num_accessories, *config_))));
-          num_accessories++;
-        }
-      }
-
-      // Splatter and health accessories.
-      // First pass through renders splatter accessories.
-      // Second pass through renders health accessories.
-      const CharacterHealth health =
-          config_->game_mode() == GameMode_Survival ? character->health() : 0;
-      const CharacterHealth damage =
-          config_->character_health() - character->health();
-      PopulateCharacterAccessories(scene, renderable_id, character_matrix,
-                                   num_accessories, damage, health);
-    }
-  }
-
   // Axes. Useful for debugging.
   // Positive x axis is long. Positive z axis is short.
   // Positive y axis is shortest.
@@ -1307,37 +1143,6 @@ void GameState::PopulateScene(SceneDescription* scene) {
             static_cast<uint16_t>(config_->draw_fixed_renderable()),
             mat4::FromRotationMatrix(
                 Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
-  }
-
-  if (config_->draw_character_lineup()) {
-    static const int kFirstRenderableId = RenderableId_CharacterIdle;
-    static const int kLastRenderableId = RenderableId_CharacterWin;
-    static const int kNumRenderableIds =
-        kLastRenderableId - kFirstRenderableId;
-    static const float kXSeparation = 2.5f;
-    static const float kZSeparation = 0.5f;
-    static const float kXOffset = -kXSeparation * 0.5f * kNumRenderableIds;
-    static const float kZOffset = 4.0f;
-
-    for (int i = kFirstRenderableId; i <= kLastRenderableId; ++i) {
-      // Orient the characters facing the front of the stage in a line.
-      const vec3 position(i * kXSeparation + kXOffset, 0.0f,
-                          i * kZSeparation + kZOffset);
-      const mat4 character_matrix = mat4::FromTranslationVector(position) *
-              mat4::FromRotationMatrix(
-                  Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix());
-      uint16_t renderable_id = static_cast<uint16_t>(i);
-
-      // Draw the characters.
-      scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(renderable_id, character_matrix)));
-
-      // Draw the accessories, if requested.
-      if (config_->draw_lineup_accessories()) {
-        PopulateCharacterAccessories(
-            scene, renderable_id, character_matrix, 0, 10, 10);
-      }
-    }
   }
 }
 

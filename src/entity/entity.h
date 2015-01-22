@@ -38,7 +38,7 @@ class Entity {
 
   // Sets the index for the data associated with this entity in the specified
   // component.
-  void SetComponentDataIndex(ComponentId componentId, int value) {
+  void SetComponentDataIndex(ComponentId componentId, ComponentIndex value) {
     componentDataIndex_[componentId] = value;
   }
 
@@ -49,9 +49,7 @@ class Entity {
   }
 
   // Member variable getter
-  bool marked_for_deletion() const {
-    return marked_for_deletion_;
-  }
+  bool marked_for_deletion() const { return marked_for_deletion_; }
 
   // Member variable setter
   void set_marked_for_deletion(bool marked_for_deletion) {
