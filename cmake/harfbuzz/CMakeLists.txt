@@ -29,8 +29,16 @@ else()
 # This process is required to generate header files
 set(configure_cmd "./autogen.sh")
 set(make_cmd "make")
-execute_process(COMMAND ${configure_cmd} WORKING_DIRECTORY ${harfbuzz_dir})
-execute_process(COMMAND ${make_cmd} WORKING_DIRECTORY ${harfbuzz_dir})
+execute_process(COMMAND ${configure_cmd} WORKING_DIRECTORY ${harfbuzz_dir}
+                RESULT_VARIABLE autogen_result)
+execute_process(COMMAND ${make_cmd} WORKING_DIRECTORY ${harfbuzz_dir}
+                RESULT_VARIABLE make_result)
+if (NOT ${autogen_result} EQUAL 0 OR NOT ${make_result} EQUAL 0)
+    message(FATAL_ERROR
+            "CMake encountered an error while configuring harfbuzz.\n"
+            "You must have autoconf, automake, lib tool, pkg-config and ragel\n"
+            "installed to build on Linux/OSX.")
+endif()
 endif()
 
 # Include freetype header files.
