@@ -189,6 +189,7 @@ TEST_F(ImpelTests, Defragment) {
   }
 }
 
+// Copy a valid impeller. Ensure original impeller gets invalidated.
 TEST_F(ImpelTests, CopyConstructor) {
   Impeller1f orig_impeller;
   InitOvershootImpeller(&orig_impeller);
@@ -199,6 +200,15 @@ TEST_F(ImpelTests, CopyConstructor) {
   EXPECT_FALSE(orig_impeller.Valid());
   EXPECT_TRUE(new_impeller.Valid());
   EXPECT_EQ(new_impeller.Value(), value);
+}
+
+// Copy an invalid impeller.
+TEST_F(ImpelTests, CopyConstructorInvalid) {
+  Impeller1f invalid_impeller;
+  EXPECT_FALSE(invalid_impeller.Valid());
+
+  Impeller1f copy_of_invalid(invalid_impeller);
+  EXPECT_FALSE(copy_of_invalid.Valid());
 }
 
 TEST_F(ImpelTests, AssignmentOperator) {

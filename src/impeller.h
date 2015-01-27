@@ -36,7 +36,12 @@ class ImpellerBase {
   // Transfer ownership of impeller to new impeller. Old impeller is reset and
   // can no longer be used.
   ImpellerBase(const ImpellerBase& original) {
-    original.processor_->TransferImpeller(original.index_, this);
+    if (original.Valid()) {
+      original.processor_->TransferImpeller(original.index_, this);
+    } else {
+      processor_ = nullptr;
+      index_ = kImpelIndexInvalid;
+    }
   }
   ImpellerBase& operator=(const ImpellerBase& original) {
     Invalidate();
