@@ -1,0 +1,109 @@
+// Copyright 2014 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+include "pie_noon_common.fbs";
+include "impel.fbs";
+
+namespace fpl.pie_noon;
+
+// Data definitions for all of components:
+// ---------------------------------------------
+table SceneObjectDef {
+  position:Vec3;
+  scale:Vec3;
+  orientation:Vec3;
+  origin_point:Vec3;
+  tint:Vec4;
+  renderable_id:RenderableId;
+  visible:bool = true;
+}
+
+table ChildObjectDef {
+  // xyz offset from the parent unit's point of origin.
+  offset:Vec3;
+  // xyz scale, relative to the parent's scale.  (1.0 = no change)
+  scale:Vec3;
+  // orientation in euler values, relative to the parent.
+  orientation:Vec3;
+}
+
+table DripAndVanishDef {
+  //time, in seconds, that we take to drip.
+  total_lifetime:float;
+  time_spent_dripping:float;
+  distance_dripped:float;
+}
+
+union ImpellerDataUnion {
+  OvershootParameters,
+  SmoothParameters,
+  TwitchParameters
+}
+
+table ImpellerObjectDef {
+  data:ImpellerDataUnion;
+}
+
+enum ImpellerSpecification : ushort {
+  None,
+  Sway,
+  Pendulum,
+
+  Count // Must come last
+}
+
+table ShakeablePropDef {
+  // Type of shaking this prop should follow. Defined below in
+  // 'impeller_specifications'.
+  shake_impeller:ImpellerSpecification = None;
+
+  // Amount this prop should shake when damage occurs nearby. If 0, never
+  // moves. If 1, moves a lot.
+  shake_scale:float;
+
+  // Axis that is animated by the shaking.
+  // X -- lean forward and back
+  // Y -- twist side-to-side
+  // Z -- swing left to right
+  shake_axis:Axis = X;
+}
+
+// Component for Cardboard Scenery.  It doesn't have any data, but we
+// still need be able to apply it to entities.
+table CardboardSceneryDef {
+}
+
+//-----------------------------------
+// Data for defining the entities themselves:
+// Union containing every possible component.
+union ComponentDataUnion {
+  ImpellerObjectDef,
+  CardboardSceneryDef,
+  SceneObjectDef,
+  ShakeablePropDef,
+  ChildObjectDef,
+  DripAndVanishDef
+}
+
+// Actual definition for each component.  Wrapped in a table because
+// you can't make arrays of raw unions.
+table ComponentDefInstance {
+  data:ComponentDataUnion;
+}
+
+// An entity is just a list of what components it has, and what their
+// starting values should be.
+table EntityDefinition {
+  component_list:[ComponentDefInstance];
+}

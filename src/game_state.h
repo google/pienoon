@@ -19,10 +19,16 @@
 #include <memory>
 #include "character.h"
 #include "impel_engine.h"
+#include "components/childobject.h"
+#include "components/drip_and_vanish.h"
+#include "components/scene_object.h"
+#include "components/shakeable_prop.h"
+#include "entity/entity.h"
+#include "entity/entity_manager.h"
+#include "game_camera.h"
 #include "impel_processor.h"
 #include "impel_util.h"
 #include "particles.h"
-#include "game_camera.h"
 
 namespace fpl {
 
@@ -36,6 +42,12 @@ struct Config;
 struct CharacterArrangement;
 struct EventData;
 struct ReceivedPie;
+
+class PieNoonEntityFactory : public entity::EntityFactoryInterface {
+ public:
+  virtual entity::EntityRef CreateEntityFromData(const void* data,
+                                         entity::EntityManager* entity_manager);
+};
 
 class GameState {
  public:
@@ -63,7 +75,7 @@ class GameState {
   void PostGameLogging() const;
 
   // Fill in the position of the characters and pies.
-  void PopulateScene(SceneDescription* scene) const;
+  void PopulateScene(SceneDescription* scene);
 
   // Angle between two characters.
   Angle AngleBetweenCharacters(CharacterId source_id,
@@ -152,6 +164,7 @@ private:
                       const int particle_count,
                       const mathfu::vec4 &base_tint = mathfu::vec4(1, 1, 1, 1));
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
+  void AddSplatterToProp(entity::EntityRef prop);
 
   WorldTime time_;
   // countdown_time_ is in seconds and is derived from the length of the game
@@ -163,11 +176,24 @@ private:
   std::vector<std::unique_ptr<Character>> characters_;
   std::vector<std::unique_ptr<AirbornePie>> pies_;
   impel::ImpelEngine impel_engine_;
-  std::vector<impel::Impeller1f> prop_shake_;
   const Config* config_;
   const CharacterArrangement* arrangement_;
   ParticleManager particle_manager_;
   AnalyticsMode analytics_mode_;
+
+  // Entity manager that tracks all of our entities.
+  entity::EntityManager entity_manager_;
+  // Entity factory for creating entities from flatbuffers:
+  PieNoonEntityFactory pie_noon_entity_factory_;
+
+  // Component for handling movable objects in the scene.
+  SceneObjectComponent sceneobject_component_;
+  // Component for handling static, swaying props in the background.
+  ShakeablePropComponent shakeable_prop_component_;
+  // Component for managing accessories.
+  ChildObjectComponent childobject_component_;
+  // Component for scenery-splatter behavior.
+  DripAndVanishComponent drip_and_vanish_component_;
 };
 
 }  // pie_noon

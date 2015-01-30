@@ -206,6 +206,11 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/sound.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/sound_collection.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/spline.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/childobject.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/drip_and_vanish.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/shakeable_prop.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/entity/entity_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \

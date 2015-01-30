@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <math.h>
 #include "precompiled.h"
 #include "analytics_tracking.h"
 #include "audio_config_generated.h"
@@ -87,6 +88,23 @@ static T EnumerationValueForPieDamage(
   return static_cast<T>(lookup_vector.Get(clamped_damage));
 }
 
+// Factory method for the entity manager, for converting data (in our case.
+// flatbuffer definitions) into entities and sticking them into the system.
+entity::EntityRef PieNoonEntityFactory::CreateEntityFromData(
+    const void* data, entity::EntityManager* entity_manager) {
+  const EntityDefinition* def = static_cast<const EntityDefinition*>(data);
+  assert(def != nullptr);
+  entity::EntityRef entity = entity_manager->AllocateNewEntity();
+  for (size_t i = 0; i < def->component_list()->size(); i++) {
+    const ComponentDefInstance* currentInstance =
+        def->component_list()->Get(i);
+    entity::ComponentInterface* component =
+        entity_manager->GetComponent(currentInstance->data_type());
+    assert(component != nullptr);
+    component->AddFromRawData(entity, currentInstance);
+  }
+  return entity;
+}
 
 GameState::GameState()
     : time_(0),
@@ -97,11 +115,6 @@ GameState::GameState()
 }
 
 GameState::~GameState() {
-  // Invalidate all the prop Impellers before their processor is deleted.
-  // TODO: processors should invalidate their Impellers when they are destroyed.
-  for (size_t i = 0; i < prop_shake_.size(); ++i) {
-    prop_shake_[i].Invalidate();
-  }
 }
 
 // Calculate the direction a character is facing at the start of the game.
@@ -136,32 +149,22 @@ static const CharacterArrangement* GetBestArrangement(const Config* config,
   return best_arrangement;
 }
 
-// Given some amount of damage happening at a
+// All shakeable props are tracked and handled by the shakeable prop component.
 void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
-  for (size_t i = 0; i < config_->props()->Length(); ++i) {
-    const auto prop = config_->props()->Get(i);
-    const float shake_scale = prop->shake_scale();
-    if (shake_scale == 0.0f)
-      continue;
+  shakeable_prop_component_.ShakeProps(damage_percent, damage_position);
 
-    // We always want to add to the speed, so if the current velocity is
-    // negative, we add a negative amount.
-    const float current_velocity = prop_shake_[i].Velocity();
-    const float current_direction = current_velocity >= 0.0f ? 1.0f : -1.0f;
+  for (auto iter = shakeable_prop_component_.begin();
+       iter != shakeable_prop_component_.end(); ++iter) {
 
-    // The closer the prop is to the damage_position, the more it should shake.
-    // The effect trails off with distance squared.
-    const vec3 prop_position = LoadVec3(prop->position());
-    const float closeness = mathfu::Clamp(
-        config_->prop_shake_identity_distance_sq() /
-        (damage_position - prop_position).LengthSquared(), 0.01f, 1.0f);
-
-    // Velocity added is the product of all the factors.
-    const float delta_velocity = current_direction * damage_percent *
-                                 closeness * shake_scale *
-                                 config_->prop_shake_velocity();
-    const float new_velocity = current_velocity + delta_velocity;
-    prop_shake_[i].SetVelocity(new_velocity);
+    const SceneObjectData* so_data = entity_manager_.
+        GetComponentData<SceneObjectData>(iter->entity,
+                                          ComponentDataUnion_SceneObjectDef);
+    assert(so_data != nullptr);
+    float dist_squared = (vec3(so_data->current_transform.position) -
+                          damage_position).LengthSquared();
+    if (dist_squared < config_->splatter_radius_squared()) {
+      AddSplatterToProp(iter->entity);
+    }
   }
 }
 
@@ -199,35 +202,26 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   arrangement_ = GetBestArrangement(config_, characters_.size());
   analytics_mode_ = analytics_mode;
 
-  // Load the impeller specifications. Skip over "None".
-  impel::OvershootImpelInit impeller_inits[ImpellerSpecification_Count];
-  auto impeller_specifications = config_->impeller_specifications();
-  assert(impeller_specifications->Length() == ImpellerSpecification_Count);
-  for (int i = ImpellerSpecification_None + 1; i < ImpellerSpecification_Count;
-       ++i) {
-    auto specification = impeller_specifications->Get(i);
-    impel::OvershootInitFromFlatBuffers(*specification, &impeller_inits[i]);
-  }
+  entity_manager_.Clear();
+  entity_manager_.RegisterComponent(&sceneobject_component_,
+                                    ComponentDataUnion_SceneObjectDef);
+  entity_manager_.RegisterComponent(&shakeable_prop_component_,
+                                    ComponentDataUnion_ShakeablePropDef);
+  entity_manager_.RegisterComponent(&childobject_component_,
+                                    ComponentDataUnion_ChildObjectDef);
+  entity_manager_.RegisterComponent(&drip_and_vanish_component_,
+                                    ComponentDataUnion_DripAndVanishDef);
 
-  // Initialize the prop shake Impellers.
-  const int num_props = config_->props()->Length();
-  prop_shake_.resize(num_props);
-  for (int i = 0; i < num_props; ++i) {
-    const auto prop = config_->props()->Get(i);
-    const ImpellerSpecification impeller_spec = prop->shake_impeller();
-    if (impeller_spec == ImpellerSpecification_None)
-      continue;
+  // Shakable Prop Component needs to know about some of our structures:
+  shakeable_prop_component_.set_impel_engine(&impel_engine_);
+  shakeable_prop_component_.set_config(config_);
+  shakeable_prop_component_.LoadImpellerSpecs();
 
-    // Bigger props have a smaller shake scale. We want them to shake more
-    // slowly, and with less amplitude.
-    const float shake_scale = prop->shake_scale();
-    impel::OvershootImpelInit scaled_shake_init =
-        impeller_inits[impeller_spec];
-    scaled_shake_init.set_min(scaled_shake_init.min() * shake_scale);
-    scaled_shake_init.set_max(scaled_shake_init.max() * shake_scale);
-    scaled_shake_init.set_accel_per_difference(
-        scaled_shake_init.accel_per_difference() * shake_scale);
-    prop_shake_[i].Initialize(scaled_shake_init, &impel_engine_);
+  entity_manager_.set_entity_factory(&pie_noon_entity_factory_);
+
+  // Load Entities from flatbuffer!
+  for (size_t i = 0; i < config_->entity_list()->size(); i++) {
+    entity_manager_.CreateEntityFromData(config_->entity_list()->Get(i));
   }
 
   // Reset characters to their initial state.
@@ -243,6 +237,7 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
         LoadVec3(arrangement_->character_data()->Get(id)->position()),
         &impel_engine_);
   }
+
   particle_manager_.RemoveAllParticles();
 }
 
@@ -447,6 +442,39 @@ void GameState::ProcessEvent(Character* character,
     default: {
       assert(0);
     }
+  }
+}
+
+void GameState::AddSplatterToProp(entity::EntityRef prop) {
+  static RenderableId id_list[] = { RenderableId_Splatter1,
+                                    RenderableId_Splatter2,
+                                    RenderableId_Splatter3 };
+  if (prop->IsRegisteredForComponent(ComponentDataUnion_SceneObjectDef)) {
+    entity::EntityRef splatter =
+        entity_manager_.CreateEntityFromData(config_->splatter_def());
+    auto so_data = entity_manager_.GetComponentData<SceneObjectData>(
+        splatter, ComponentDataUnion_SceneObjectDef);
+
+    auto co_data = entity_manager_.GetComponentData<ChildObjectData>(
+        splatter, ComponentDataUnion_ChildObjectDef);
+
+    so_data->renderable_id = id_list[mathfu::RandomInRange(0, 3)];
+    co_data->parent = prop;
+
+    vec3 min_range = LoadVec3(config_->splatter_range_min());
+    vec3 max_range = LoadVec3(config_->splatter_range_max());
+
+    co_data->relative_offset = mathfu::RandomInRange(min_range, max_range);
+
+    Quat rotation = Quat::FromAngleAxis(
+          mathfu::RandomInRange(-M_PI_2, M_PI_2),
+          mathfu::kAxisZ3f);
+    co_data->relative_orientation = rotation;
+
+    float scale = mathfu::RandomInRange(config_->splatter_scale_min(),
+                                        config_->splatter_scale_max());
+    co_data->relative_scale = vec3(scale);
+    drip_and_vanish_component_.SetStartingValues(splatter);
   }
 }
 
@@ -921,6 +949,9 @@ void GameState::AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine) {
   // Update all the particles.
   particle_manager_.AdvanceFrame(static_cast<TimeStep>(delta_time));
 
+  // Update entities.
+  entity_manager_.UpdateComponents(delta_time);
+
   // Update pies. Modify state machine input when character hit by pie.
   for (auto it = pies_.begin(); it != pies_.end(); ) {
     auto& pie = *it;
@@ -1040,28 +1071,6 @@ static const mat4 CalculateAccessoryMatrix(
   return accessory_matrix;
 }
 
-static mat4 CalculatePropWorldMatrix(const Prop& prop, Angle shake) {
-  const vec3 scale = LoadVec3(prop.scale());
-  const vec3 position = LoadVec3(prop.position());
-  const Angle rotation = Angle::FromDegrees(prop.rotation());
-  const Quat quat = Quat::FromAngleAxis(rotation.ToRadians(),
-                                        mathfu::kAxisY3f);
-  const vec3 shake_axis = LoadAxis(prop.shake_axis());
-  const Quat shake_quat = Quat::FromAngleAxis(shake.ToRadians(), shake_axis);
-  const vec3 shake_center(prop.shake_center() == nullptr ? mathfu::kZeros3f :
-                          LoadVec3(prop.shake_center()));
-  const mat4 vertical_orientation_matrix =
-      mat4::FromTranslationVector(position) *
-      mat4::FromRotationMatrix(quat.ToMatrix()) *
-      mat4::FromTranslationVector(shake_center) *
-      mat4::FromRotationMatrix(shake_quat.ToMatrix()) *
-      mat4::FromTranslationVector(-shake_center) *
-      mat4::FromScaleVector(scale);
-  return prop.orientation() == Orientation_Horizontal ?
-         vertical_orientation_matrix * kRotate90DegreesAboutXAxis :
-         vertical_orientation_matrix;
-}
-
 static mat4 CalculateUiArrowMatrix(const vec3& position, const Angle& angle,
                                    const Config& config) {
   // First rotate to horizontal, then scale to correct size, then center and
@@ -1161,27 +1170,20 @@ void GameState::AddParticlesToScene(SceneDescription* scene) const {
   }
 }
 
-// TODO: Make this function a member of GameState, once that class has been
-// submitted to git. Then populate from the values in GameState.
-void GameState::PopulateScene(SceneDescription* scene) const {
+void GameState::PopulateScene(SceneDescription* scene) {
   scene->Clear();
-
   // Camera.
   scene->set_camera(CameraMatrix());
-
   AddParticlesToScene(scene);
+  sceneobject_component_.PopulateScene(scene);
 
-  // Populate scene description with environment items.
-  if (config_->draw_props()) {
-    auto props = config_->props();
-    for (size_t i = 0; i < props->Length(); ++i) {
-      const Prop& prop = *props->Get(i);
-      const Angle shake(prop_shake_[i].Valid() ?
-                        prop_shake_[i].Value() : 0.0f);
-      scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(static_cast<uint16_t>(prop.renderable()),
-                         CalculatePropWorldMatrix(prop, shake))));
-    }
+  // Add all lights from configuration file to the scene.
+  // Important note: The renderer will break if there isn't at least one
+  // light in the scene.
+  const auto lights = config_->light_positions();
+  for (auto it = lights->begin(); it != lights->end(); ++it) {
+    const vec3 light_position = LoadVec3(*it);
+    scene->lights().push_back(std::unique_ptr<vec3>(new vec3(light_position)));
   }
 
   // Pies.
@@ -1336,13 +1338,6 @@ void GameState::PopulateScene(SceneDescription* scene) const {
             scene, renderable_id, character_matrix, 0, 10, 10);
       }
     }
-  }
-
-  // Lights. Push all lights from configuration file.
-  const auto lights = config_->light_positions();
-  for (auto it = lights->begin(); it != lights->end(); ++it) {
-    const vec3 light_position = LoadVec3(*it);
-    scene->lights().push_back(std::unique_ptr<vec3>(new vec3(light_position)));
   }
 }
 

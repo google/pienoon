@@ -31,6 +31,7 @@
 #include "scene_description.h"
 #include "touchscreen_button.h"
 #include "touchscreen_controller.h"
+
 #ifdef ANDROID_GAMEPAD
 #include "gamepad_controller.h"
 #endif // ANDROID_GAMEPAD
