@@ -22,15 +22,23 @@ namespace impel {
 
 using fpl::CompactSpline;
 using fpl::BulkSplineEvaluator;
+using fpl::Range;
+
+
+// Add some buffer to the y-range to allow for intermediate nodes
+// that go above or below the supplied nodes.
+static const float kYRangeBufferPercent = 1.2f;
 
 
 struct SmoothImpelData  {
+  SmoothImpelData() : local_spline(nullptr) {}
+
   void Initialize(const SmoothImpelInit& init_param) {
-    local_spline.Clear();
     init = init_param;
   }
 
-  CompactSpline local_spline;
+  // If we own the spline, recycle it in the spline pool.
+  CompactSpline* local_spline;
 
   // Keep a local copy of the init params.
   SmoothImpelInit init;
@@ -39,7 +47,11 @@ struct SmoothImpelData  {
 
 class SmoothImpelProcessor : public ImpelProcessor<float> {
  public:
-  virtual ~SmoothImpelProcessor() {}
+  virtual ~SmoothImpelProcessor() {
+    for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
+      delete *(it);
+    }
+  }
 
   virtual ImpellerType Type() const { return SmoothImpelInit::kType; }
 
@@ -65,11 +77,15 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
   virtual void SetState(ImpelIndex index, const ImpellerState& s) {
     SmoothImpelData& d = Data(index);
 
-    if (s.valid & kTargetWaypointsValid) {
+    const bool use_external_spline = s.valid & kTargetWaypointsValid;
+    if (use_external_spline) {
+      // Return the local spline to the spline pool. We use external
+      // splines now.
+      FreeSpline(d.local_spline);
+
       // Initialize spline to follow way points.
       // Snaps the current value and velocity to the way point's start value
       // and velocity.
-      d.local_spline.Clear();
       interpolator_.SetSpline(index, *s.waypoints, s.waypoints_start_time);
 
     } else {
@@ -85,13 +101,26 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
                                    s.target_velocity : 0.0f;
       const float end_x = (s.valid & kTargetTimeValid) ? s.target_time :
                           interpolator_.EndX(index);
+      const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
+      const Range y_range =
+          fpl::CreateValidRange(start_y, end_y).Lengthen(kYRangeBufferPercent);
 
-      d.local_spline.Init(fpl::CreateValidRange(start_y, end_y), 1.0f, 2);
-      d.local_spline.AddNode(0.0f, start_y, start_derivative);
-      d.local_spline.AddNode(end_x, end_y, end_derivative);
-      interpolator_.SetSpline(index, d.local_spline);
+      // Ensure we have a local spline available, allocated from our
+      // pool of splines.
+      if (d.local_spline == nullptr) {
+        d.local_spline = AllocateSpline();
+      }
+
+      // An intermediate node might be inserted to make the cubic curve well
+      // behaved, so reserve 3 nodes in the spline.
+      d.local_spline->Init(y_range, x_granularity, 3);
+      d.local_spline->AddNode(0.0f, start_y, start_derivative);
+      d.local_spline->AddNode(end_x, end_y, end_derivative);
+      interpolator_.SetSpline(index, *d.local_spline);
     }
   }
+
+  virtual int Priority() const { return 0; }
 
  protected:
   virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
@@ -101,7 +130,10 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
   }
 
   virtual void RemoveIndex(ImpelIndex index) {
-    Data(index).Initialize(SmoothImpelInit());
+    // Return the spline to the pool of splines.
+    SmoothImpelData& d = Data(index);
+    FreeSpline(d.local_spline);
+    d.local_spline = nullptr;
   }
 
   virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
@@ -124,7 +156,35 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
     return data_[index];
   }
 
+  CompactSpline* AllocateSpline() {
+    // Only create a new spline if there are no left in the pool.
+    if (spline_pool_.empty())
+      return new CompactSpline();
+
+    // Return a spline from the pool. Eventually we'll reach a high water mark
+    // and we will stop allocating new splines.
+    CompactSpline* spline = spline_pool_.back();
+    spline_pool_.pop_back();
+    return spline;
+  }
+
+  void FreeSpline(CompactSpline* spline) {
+    if (spline != nullptr) {
+      spline_pool_.push_back(spline);
+    }
+  }
+
+  // Hold index-specific data, for example the init params and a pointer
+  // to the spline allocated from 'spline_pool_'.
   std::vector<SmoothImpelData> data_;
+
+  // Holds unused splines. When we need another local spline (because we're
+  // supplied with target values but not the actual curve to get there),
+  // try to recycle an old one from this pool first.
+  std::vector<CompactSpline*> spline_pool_;
+
+  // Perform the spline evaluation, over time. Indices in 'interpolator_'
+  // are the same as the ImpelIndex values in this class.
   BulkSplineEvaluator interpolator_;
 };
 

@@ -27,7 +27,8 @@ void ImpelEngine::RegisterProcessorFactory(ImpellerType type,
 }
 
 void ImpelEngine::Reset() {
-  for (Map::iterator it = processors_.begin(); it != processors_.end(); ++it) {
+  for (ProcessorMap::iterator it = mapped_processors_.begin();
+       it != mapped_processors_.end(); ++it) {
     // Get the factory for each processor. Factory must exist since it is what
     // created the processor in the first place.
     const ImpelProcessorFunctions& fns = function_map_.find(it->first)->second;
@@ -38,13 +39,13 @@ void ImpelEngine::Reset() {
   }
 
   // Remove all elements from the map. Their processors have all been destroyed.
-  processors_.clear();
+  mapped_processors_.clear();
 }
 
 ImpelProcessorBase* ImpelEngine::Processor(ImpellerType type) {
   // If processor already exists, return it.
-  Map::iterator it = processors_.find(type);
-  if (it != processors_.end())
+  ProcessorMap::iterator it = mapped_processors_.find(type);
+  if (it != mapped_processors_.end())
     return it->second;
 
   // Look up the processor-creation-function in the registry.
@@ -56,7 +57,10 @@ ImpelProcessorBase* ImpelEngine::Processor(ImpellerType type) {
   // Remember processor for next time. We only want at most one processor per
   // type in an engine.
   ImpelProcessorBase* processor = fns.create();
-  processors_.insert(Pair(type, processor));
+  mapped_processors_.insert(ProcessorPair(type, processor));
+
+
+  sorted_processors_.insert(processor);
   return processor;
 }
 
@@ -67,8 +71,10 @@ void ImpelEngine::AdvanceFrame(ImpelTime delta_time) {
   // which might in turn depend on the output of a *different* item in
   // processor A. In this case, we have to do two passes. For now, just
   // assume that one pass is sufficient.
-  for (Map::iterator it = processors_.begin(); it != processors_.end(); ++it) {
-    it->second->AdvanceFrame(delta_time);
+  for (ProcessorSet::iterator it = sorted_processors_.begin();
+       it != sorted_processors_.end(); ++it) {
+    ImpelProcessorBase* processor = *it;
+    processor->AdvanceFrame(delta_time);
   }
 }
 

@@ -110,6 +110,12 @@ class ImpelProcessorBase {
     return nullptr;
   }
 
+  // The lower the number, the sooner the ImpelProcessor gets updated.
+  // Should never change. We want a static ordering of processors.
+  // Some ImpelProcessors use the output of other ImpelProcessors, so
+  // we impose a strict ordering here.
+  virtual int Priority() const = 0;
+
  protected:
   // Initialize data at 'index'. The meaning of 'index' is determined by the
   // ImpelProcessor implementation (most likely it is the index into one or
@@ -236,8 +242,7 @@ class ImpelProcessor : public ImpelProcessorBase {
   virtual T Difference(ImpelIndex index) const {
     return TargetValue(index) - Value(index);
   }
-  virtual void SetState(ImpelIndex /*index*/,
-                        const ImpellerState& /*state*/) = 0;
+  virtual void SetState(ImpelIndex /*index*/, const ImpellerState& /*state*/) {}
 };
 
 // ImpelProcessors of various dimensions. All ImpelProcessors operate with

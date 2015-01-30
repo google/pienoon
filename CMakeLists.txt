@@ -251,6 +251,7 @@ set(pie_noon_SRCS
     src/impel_init.h
     src/impel_processor.cpp
     src/impel_processor.h
+    src/impel_processor_matrix.cpp
     src/impel_processor_overshoot.cpp
     src/impel_processor_smooth.cpp
     src/impel_util.h

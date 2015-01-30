@@ -20,6 +20,20 @@
 
 namespace impel {
 
+enum MatrixOperationType {
+  kInvalidMatrixOperation,
+  kRotateAboutX,
+  kRotateAboutY,
+  kRotateAboutZ,
+  kTranslateX,
+  kTranslateY,
+  kTranslateZ,
+  kScaleX,
+  kScaleY,
+  kScaleZ,
+  kScaleUniformly,
+};
+
 // ImpelProcessors that derive from ImpelProcessorWithVelocity should have an
 // ImpelInit that derives from this struct (ImpelInitWithVelocity).
 class ModularImpelInit : public ImpelInit {
@@ -27,9 +41,9 @@ class ModularImpelInit : public ImpelInit {
   // The derived type must call this constructor with it's ImpelType identifier.
   explicit ModularImpelInit(ImpellerType type) :
       ImpelInit(type),
-      modular_(false),
       min_(0.0f),
-      max_(0.0f) {
+      max_(0.0f),
+      modular_(false) {
   }
 
   // Ensure position 'x' is within the valid constraint range.
@@ -60,11 +74,6 @@ class ModularImpelInit : public ImpelInit {
   void set_max(float max) { max_ = max; }
 
  private:
-  // A modular value wraps around from min to max. For example, an angle
-  // is modular, where -pi is equivalent to +pi. Setting this to true ensures
-  // that arithmetic wraps around instead of clamping to min/max.
-  bool modular_;
-
   // Minimum value for Impeller::Value(). Clamped or wrapped-around when we
   // reach this boundary.
   float min_;
@@ -72,6 +81,11 @@ class ModularImpelInit : public ImpelInit {
   // Maximum value for Impeller::Value(). Clamped or wrapped-around when we
   // reach this boundary.
   float max_;
+
+  // A modular value wraps around from min to max. For example, an angle
+  // is modular, where -pi is equivalent to +pi. Setting this to true ensures
+  // that arithmetic wraps around instead of clamping to min/max.
+  bool modular_;
 };
 
 
@@ -165,6 +179,94 @@ class SmoothImpelInit : public ModularImpelInit {
   SmoothImpelInit() : ModularImpelInit(kType) {}
 };
 
+
+struct MatrixOperationInit {
+  // Matrix operation never changes. Always use 'const_value'.
+  MatrixOperationInit(MatrixOperationType type, float const_value)
+      : init(nullptr),
+        type(type),
+        has_initial_value(true),
+        initial_value(const_value) {
+  }
+
+  // Matrix operation is driven by Impeller defined by 'init'.
+  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init)
+      : init(&init),
+        type(type),
+        has_initial_value(false),
+        initial_value(0.0f) {
+  }
+
+  // Matrix operation is driven by Impeller defined by 'init'. Specify initial
+  // value as well.
+  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
+                      float initial_value)
+      : init(&init),
+        type(type),
+        has_initial_value(true),
+        initial_value(initial_value) {
+  }
+
+  const ImpelInit* init;
+  MatrixOperationType type;
+  bool has_initial_value;
+  float initial_value;
+};
+
+// Initialize an ImpellerMatrix4f with these initialization parameters to
+// create an impeller that generates a 4x4 matrix from a series of basic
+// matrix operations. The basic matrix operations are driven by 1 dimensional
+// impellers.
+//
+// The series of operations can transform an object from the coordinate space
+// in which it was authored, to world (or local) space. For example, if you
+// have a penguin that is authored at (0,0,0) facing up the x-axis, you can
+// move it to it's target position with four operations:
+//
+//      kScaleUniformly --> to make penguin the correct size
+//      kRotateAboutY --> to make penguin face the correct direction
+//      kTranslateX } --> to move penguin along to ground to target position
+//      kTranslateZ }
+class MatrixImpelInit : public ImpelInit {
+ public:
+  IMPEL_INTERFACE();
+  typedef typename std::vector<MatrixOperationInit> OpVector;
+
+  // By default expect a relatively high number of ops. Cost for allocating
+  // a bit too much temporary memory is small compared to cost of reallocating
+  // that memory.
+  explicit MatrixImpelInit(int expected_num_ops = 8)
+      : ImpelInit(kType) {
+    ops_.reserve(expected_num_ops);
+  }
+
+  void Clear() { ops_.clear(); }
+
+  // Operation is constant. For example, use to put something flat on the
+  // ground, with 'type' = kRotateAboutX and 'const_value' = pi/2.
+  void AddOp(MatrixOperationType type, float const_value) {
+    ops_.push_back(MatrixOperationInit(type, const_value));
+  }
+
+  // Operation is driven by a 1-dimensional impeller. For example, you can
+  // control the face angle of a standing object with 'type' = kRotateAboutY
+  // and 'init' a curve specified by SmoothImpelInit.
+  void AddOp(MatrixOperationType type, const ImpelInit& init) {
+    ops_.push_back(MatrixOperationInit(type, init));
+  }
+
+  // Operation is driven by a 1-dimensional impeller, and initial value
+  // is specified.
+  void AddOp(MatrixOperationType type, const ImpelInit& init,
+             float initial_value) {
+    ops_.push_back(MatrixOperationInit(type, init, initial_value));
+  }
+
+  const OpVector& ops() const { return ops_; }
+
+ private:
+  OpVector ops_;
+};
 
 } // namespace impel
 

@@ -28,7 +28,8 @@ class ImpelEngine;
 class ImpellerBase {
  public:
   ImpellerBase() : processor_(nullptr), index_(kImpelIndexInvalid) {}
-  ImpellerBase(const ImpelInit& init, ImpelEngine* engine) {
+  ImpellerBase(const ImpelInit& init, ImpelEngine* engine)
+      : processor_(nullptr), index_(kImpelIndexInvalid) {
     Initialize(init, engine);
   }
 
@@ -128,6 +129,8 @@ class ImpellerState {
   typedef typename Converter::InternalType InternalT;
   typedef typename ImpelProcessor<InternalT>::ImpellerState InternalState;
 
+  ImpellerState() {}
+  explicit ImpellerState(const T& value) { SetConstant(value); }
   void Reset() { s_.valid = 0; }
   void SetValue(const T& value) {
     s_.value = Converter::From(value);
@@ -146,13 +149,22 @@ class ImpellerState {
     s_.valid |= kTargetVelocityValid;
   }
   void SetTargetTime(float target_time) {
-    s_.target_time = Converter::From(target_time);
+    s_.target_time = target_time;
     s_.valid |= kTargetTimeValid;
   }
   void SetWaypoints(const fpl::CompactSpline& waypoints, float start_time) {
     s_.waypoints_start_time = start_time;
     s_.waypoints = &waypoints;
     s_.valid |= kTargetWaypointsValid;
+  }
+  void SetConstant(const T& value) {
+    s_.value = Converter::From(value);
+    s_.velocity = Converter::From(static_cast<T>(0));
+    s_.target_value = s_.value;
+    s_.target_velocity = s_.velocity;
+    s_.target_time = 0.0f;
+    s_.valid |= kValueValid | kVelocityValid | kTargetValueValid |
+               kTargetVelocityValid | kTargetTimeValid;
   }
 
   const InternalState& State() const { return s_; }
@@ -222,6 +234,9 @@ class Impeller : public ImpellerBase {
   typedef ImpellerState<Converter> State;
 
   Impeller() {}
+  Impeller(const ImpelInit& init, ImpelEngine* engine)
+      : ImpellerBase(init, engine) {
+  }
 
   // Copy functions. Transfers ownership from 'original' to this.
   // Note that even though 'original' is const, the ImpelProcessor has a

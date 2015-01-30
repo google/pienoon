@@ -89,6 +89,7 @@ test_executable(impel ../src/curve.cpp
                 ../src/impel_engine.cpp
                 ../src/impeller.cpp
                 ../src/impel_processor.cpp
+                ../src/impel_processor_matrix.cpp
                 ../src/impel_processor_overshoot.cpp
                 ../src/impel_processor_smooth.cpp)
 test_executable(range ../src/range.h)

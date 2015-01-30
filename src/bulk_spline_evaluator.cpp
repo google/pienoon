@@ -25,7 +25,7 @@ namespace fpl {
 void BulkSplineEvaluator::SetNumIndices(const Index num_indices) {
   cubics_.resize(num_indices);
   domains_.resize(num_indices);
-  sources_.resize(num_indices);
+  splines_.resize(num_indices, nullptr);
   results_.resize(num_indices);
 }
 
@@ -33,16 +33,16 @@ void BulkSplineEvaluator::MoveIndex(const Index old_index,
                                     const Index new_index) {
   cubics_[new_index] = cubics_[old_index];
   domains_[new_index] = domains_[old_index];
-  sources_[new_index] = sources_[old_index];
+  splines_[new_index] = splines_[old_index];
   results_[new_index] = results_[old_index];
 }
 
 void BulkSplineEvaluator::SetSpline(const Index index,
                                     const CompactSpline& spline,
                                     const float start_x) {
+  splines_[index] = &spline;
   domains_[index].x = start_x;
-  sources_[index].spline = &spline;
-  sources_[index].x_index = static_cast<CompactSplineIndex>(-1);
+  domains_[index].x_index = kInvalidSplineIndex;
   InitCubic(index);
   EvaluateIndex(index);
 }
@@ -55,11 +55,11 @@ void BulkSplineEvaluator::EvaluateIndex(const Index index) {
 }
 
 void BulkSplineEvaluator::AdvanceFrame(const float delta_x) {
-  const Index num_splines = NumIndices();
+  const Index num_indices = NumIndices();
 
   // Update x. We traverse the 'domains_' array linearly, which helps with
   // cache performance. TODO OPT: Add cache prefetching.
-  for (Index index = 0; index < num_splines; ++index) {
+  for (Index index = 0; index < num_indices; ++index) {
     Domain& d = domains_[index];
     d.x += delta_x;
 
@@ -72,34 +72,33 @@ void BulkSplineEvaluator::AdvanceFrame(const float delta_x) {
 
   // Evaluate the cubics. We traverse the 'cubics_' array linearly, which helps
   // with cache performance. TODO OPT: Add cache prefetching.
-  for (Index index = 0; index < num_splines; ++index) {
+  for (Index index = 0; index < num_indices; ++index) {
     EvaluateIndex(index);
   }
 }
 
 bool BulkSplineEvaluator::Valid(const Index index) const {
-  return 0 <= index && index < NumIndices() &&
-         sources_[index].spline != nullptr;
+  return 0 <= index && index < NumIndices() && splines_[index] != nullptr;
 }
 
 void BulkSplineEvaluator::InitCubic(const Index index) {
   // Do nothing if the requested index has no spline.
-  Domain& d = domains_[index];
-  SourceData& s = sources_[index];
-  if (s.spline == nullptr)
+  const CompactSpline* spline = splines_[index];
+  if (spline == nullptr)
     return;
 
   // Do nothing if the current cubic matches the current spline segment.
-  const CompactSplineIndex x_index = s.spline->IndexForX(d.x, s.x_index + 1);
-  if (s.x_index == x_index)
+  Domain& d = domains_[index];
+  const CompactSplineIndex x_index = spline->IndexForX(d.x, d.x_index + 1);
+  if (d.x_index == x_index)
     return;
 
   // Update the x-related values.
-  s.x_index = x_index;
-  d.range = s.spline->RangeX(x_index);
+  d.x_index = x_index;
+  d.range = spline->RangeX(x_index);
 
   // Initialize the cubic to interpolate the new spline segment.
-  const CubicInit init = s.spline->CreateCubicInit(x_index);
+  const CubicInit init = spline->CreateCubicInit(x_index);
   cubics_[index].Init(init);
 }
 

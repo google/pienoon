@@ -16,13 +16,14 @@
 #define IMPEL_ENGINE_H_
 
 #include <map>
+#include <set>
 
 #include "impel_common.h"
+#include "impel_processor.h"
 
 namespace impel {
 
 
-class ImpelProcessorBase;
 struct ImpelProcessorFunctions;
 
 // The engine holds all of the processors, and updates them all when
@@ -31,8 +32,16 @@ struct ImpelProcessorFunctions;
 // minimize the number of engines in your game. As more Impellers are added to
 // the processors, you start to get economies of scale.
 class ImpelEngine {
-  typedef std::map<ImpellerType, ImpelProcessorBase*> Map;
-  typedef std::pair<ImpellerType, ImpelProcessorBase*> Pair;
+  struct ComparePriority {
+    bool operator()(const ImpelProcessorBase* lhs,
+                    const ImpelProcessorBase* rhs) {
+      return lhs->Priority() < rhs->Priority();
+    }
+  };
+
+  typedef std::map<ImpellerType, ImpelProcessorBase*> ProcessorMap;
+  typedef std::pair<ImpellerType, ImpelProcessorBase*> ProcessorPair;
+  typedef std::multiset<ImpelProcessorBase*, ComparePriority> ProcessorSet;
   typedef std::map<ImpellerType, ImpelProcessorFunctions> FunctionMap;
   typedef std::pair<ImpellerType, ImpelProcessorFunctions> FunctionPair;
  public:
@@ -46,9 +55,14 @@ class ImpelEngine {
  private:
   // Map from the ImpellerType to the ImpelProcessor. Only one ImpelProcessor
   // per type per engine. This is to maximize centralization of data.
-  Map processors_;
+  ProcessorMap mapped_processors_;
 
-  // Map from the ImpellerType to the factory that creates the ImpelProcessor.
+  // Sort the ImpelProcessors by priority. Low numbered priorities run first.
+  // This allows high number priorities to have child impellers, as long as
+  // the child impellers have lower priority.
+  ProcessorSet sorted_processors_;
+
+  // ProcessorMap from the ImpellerType to the factory that creates the ImpelProcessor.
   // We only create an ImpelProcessor when one is needed.
   static FunctionMap function_map_;
 };

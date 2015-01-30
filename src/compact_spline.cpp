@@ -259,7 +259,8 @@ CompactSplineIndex CompactSpline::IndexForX(
     return kAfterSplineIndex;
 
   // Check the guess value first.
-  const CompactSplineXGrain compact_x = static_cast<CompactSplineXGrain>(quantized_x);
+  const CompactSplineXGrain compact_x =
+      static_cast<CompactSplineXGrain>(quantized_x);
   if (IndexContainsX(compact_x, guess_index))
     return guess_index;
 

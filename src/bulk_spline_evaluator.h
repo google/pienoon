@@ -66,9 +66,11 @@ class BulkSplineEvaluator {
   bool Valid(const Index index) const;
   float X(const Index index) const { return domains_[index].x; }
   float Y(const Index index) const { return results_[index].y; }
-  float Derivative(const Index index) const { return results_[index].derivative; }
+  float Derivative(const Index index) const {
+    return results_[index].derivative;
+  }
   const CompactSpline* SourceSpline(const Index index) const {
-    return sources_[index].spline;
+    return splines_[index];
   }
 
   // Get the raw cubic curve for 'index'. Useful if you need to calculate the
@@ -77,41 +79,32 @@ class BulkSplineEvaluator {
   const CubicCurve& Cubic(const Index index) const { return cubics_[index]; }
   float CubicX(const Index index) const {
     const Domain& d = domains_[index];
-    return d.x - d.range.start();
+    return OutsideSpline(d.x_index) ? 0.0f : d.x - d.range.start();
   }
 
   // Get state at end of the spline.
-  float EndX(const Index index) const { return sources_[index].spline->EndX(); }
-  float EndY(const Index index) const { return sources_[index].spline->EndY(); }
+  float EndX(const Index index) const { return splines_[index]->EndX(); }
+  float EndY(const Index index) const { return splines_[index]->EndY(); }
   float EndDerivative(const Index index) const {
-    return sources_[index].spline->EndDerivative();
+    return splines_[index]->EndDerivative();
   }
 
  private:
   void InitCubic(const Index index);
   void EvaluateIndex(const Index index);
-  Index NumIndices() const { return static_cast<Index>(sources_.size()); }
-
-  struct SourceData {
-    SourceData() : spline(nullptr), x_index(-1) {}
-
-    // Pointer to the spline nodes. We instantiate only the current segment of
-    // the spline, in 'cubics_'. Spline data is owned externally. We neither
-    // allocate or free this pointer here.
-    const CompactSpline* spline;
-
-    // Index of 'x' in 'spline'. This is the current spline node segment.
-    CompactSplineIndex x_index;
-  };
+  Index NumIndices() const { return static_cast<Index>(splines_.size()); }
 
   struct Domain {
-    Domain() : x(0.0f) {}
+    Domain() : x(0.0f), x_index(kInvalidSplineIndex) {}
 
     // The start and end 'x' values for the current Cubic.
     Range range;
 
     // The current 'x' value. We evaluate the cubic at x - range.start.
     float x;
+
+    // Index of 'x' in 'spline'. This is the current spline node segment.
+    CompactSplineIndex x_index;
   };
 
   struct Result {
@@ -136,9 +129,20 @@ class BulkSplineEvaluator {
   // So, we'll have a few reallocs (which are slow) until the highwater mark is
   // reached. Then the cost of reallocs disappears. In this way we have a
   // reasonable tradeoff between memory conservation and runtime performance.
-  std::vector<SourceData> sources_;
+
+  // Pointers to the source spline nodes. Spline data is owned externally.
+  // We neither allocate or free this pointer here.
+  std::vector<const CompactSpline*> splines_;
+
+  // Currently active segment of splines_.
+  // Instantiated from splines_[i].CreateInitCubic(domains_[i].x_index).
   std::vector<CubicCurve> cubics_;
+
+  // X-related values. We keep them together so that we can quickly check if
+  // x is still in the valid range of the current 'cubic_'.
   std::vector<Domain> domains_;
+
+  // Result of evaluating the current cubic at the current x.
   std::vector<Result> results_;
 };
 

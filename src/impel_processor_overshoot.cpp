@@ -89,6 +89,8 @@ class OvershootImpelProcessor : public ImpelProcessor<float> {
     }
   }
 
+  virtual int Priority() const { return 1; }
+
  protected:
   virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
                                ImpelEngine* engine) {
