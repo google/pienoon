@@ -118,11 +118,9 @@ class Component : public ComponentInterface {
   // Return the data we have stored at a given index.
   // Returns null if data_index indicates this component isn't present.
   T* GetEntityData(const EntityRef& entity) {
-    ComponentIndex index = entity->GetComponentDataIndex(component_id_);
-    if (index == kUnusedComponentIndex) {
-      return nullptr;
-    }
-    EntityData* element_data = entity_data_.GetElementData(index);
+    size_t data_index = entity->GetComponentDataIndex(component_id_);
+    if (data_index >= entity_data_.Size()) { return nullptr; }
+    EntityData* element_data = entity_data_.GetElementData(data_index);
     return (element_data != nullptr) ? &(element_data->data) : nullptr;
   }
 
