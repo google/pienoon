@@ -149,6 +149,9 @@ void PositionUI(const vec2i &canvas_size, float virtual_resolution,
 #define IMGUI_TEST 0
 void TestGUI(MaterialManager &matman, FontManager &fontman, InputSystem &input);
 
+// Use glyph cache for a font rendering
+#define USE_GLYPHCACHE (1)
+
 }  // namespace gui
 }  // namespace fpl
 

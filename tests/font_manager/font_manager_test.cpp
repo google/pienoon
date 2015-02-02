@@ -70,7 +70,7 @@ TEST_F(FontManagerTests, Glyph_Cache_SimpleEntries) {
        i < cache_size.y() / (image_height + fpl::kGlyphCachePaddingY); ++i)
     for (int32_t j = 0;
          j < cache_size.x() / (image_width + fpl::kGlyphCachePaddingX); ++j) {
-      entry.set_codepoint(k);
+      entry.set_code_point(k);
       cache->Set(image.get(), image_height, entry);
       k++;
     }
@@ -115,7 +115,7 @@ TEST_F(FontManagerTests, Glyph_Cache_InvolveEviction) {
        i < cache_size.y() / (image_height + fpl::kGlyphCachePaddingY); ++i)
     for (int32_t j = 0;
          j < cache_size.x() / (image_width + fpl::kGlyphCachePaddingX); ++j) {
-      entry.set_codepoint(k);
+      entry.set_code_point(k);
       cache->Set(image.get(), image_height, entry);
       k++;
     }
@@ -128,10 +128,10 @@ TEST_F(FontManagerTests, Glyph_Cache_InvolveEviction) {
       for (int32_t j = 0;
            j < cache_size.x() / (image_width + fpl::kGlyphCachePaddingX); ++j) {
         // Increment counter.
-        cache->Update();
+        cache->set_counter(cache->get_counter() + 1);
         auto p = cache->Find(k, image_height);
         if (p == nullptr) {
-          entry.set_codepoint(k);
+          entry.set_code_point(k);
           cache->Set(image.get(), image_height, entry);
         }
         k++;

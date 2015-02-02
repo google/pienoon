@@ -37,7 +37,7 @@ namespace fpl {
 //
 // When looking up a cached entry, the API looks up unordered_map which is O(1)
 // operation.
-// If there is no cached entry for given codepoint, the caller needs to invoke
+// If there is no cached entry for given code point, the caller needs to invoke
 // Set() API to fill in a cache.
 // Set() operation takes
 // O(log N (N=# of rows)) when there is a room in the cache for the request,
@@ -70,16 +70,20 @@ class GlyphCacheEntry {
       uint64_t, std::unique_ptr<GlyphCacheEntry>>::iterator iterator;
   typedef std::list<GlyphCacheRow>::iterator iterator_row;
 
-  GlyphCacheEntry() : codepoint_(0), size_(0, 0) {}
+  GlyphCacheEntry() : code_point_(0), size_(0, 0), offset_(0, 0) {}
 
-  // Setter/Getter of codepoint.
-  // Codepoint is an entry in a font file, not a direct transform of Unicode.
-  uint32_t get_codepoint() const { return codepoint_; }
-  void set_codepoint(const uint32_t codepoint) { codepoint_ = codepoint; }
+  // Setter/Getter of code point.
+  // Code point is an entry in a font file, not a direct transform of Unicode.
+  uint32_t get_code_point() const { return code_point_; }
+  void set_code_point(const uint32_t code_point) { code_point_ = code_point; }
 
   // Setter/Getter of cache entry size.
   mathfu::vec2i get_size() const { return size_; }
   void set_size(const mathfu::vec2i& size) { size_ = size; }
+
+  // Setter/Getter of cache entry offset.
+  mathfu::vec2i get_offset() const { return offset_; }
+  void set_offset(const mathfu::vec2i& offset) { offset_ = offset; }
 
   // Setter/Getter of UV
   mathfu::vec4 get_uv() const { return uv_; }
@@ -91,13 +95,16 @@ class GlyphCacheEntry {
   template <typename T>
   friend class GlyphCache;
 
-  // Codepoint of the glyph.
-  uint32_t codepoint_;
+  // Code point of the glyph.
+  uint32_t code_point_;
 
   // Cache entry sizes.
   mathfu::vec2i size_;
 
-  // UV
+  // Glyph image's offset value relative to font metrics origin.
+  mathfu::vec2i offset_;
+
+  // Glyph image's UV in the texture atlas.
   mathfu::vec4 uv_;
 
   // Iterator to the row entry.
@@ -137,7 +144,7 @@ class GlyphCacheRow {
   }
 
   // Check if the row has a room for a requested width and height.
-  bool DoesFit(const mathfu::vec2i& size) {
+  bool DoesFit(const mathfu::vec2i& size) const {
     return !(size.x() > remaining_width_ || size.y() > size_.y());
   }
 
@@ -147,14 +154,14 @@ class GlyphCacheRow {
     assert(DoesFit(size));
 
     // Update row info.
-    int32_t pos = size.x() - remaining_width_;
+    int32_t pos = size_.x() - remaining_width_;
     remaining_width_ -= size.x();
     cached_entries_.push_back(it);
     return pos;
   }
 
   // Setter/Getter of last used counter.
-  uint32_t get_last_used_counter() { return last_used_counter_; }
+  uint32_t get_last_used_counter() const { return last_used_counter_; }
   void set_last_used_counter(const uint32_t counter) {
     last_used_counter_ = counter;
   }
@@ -171,7 +178,8 @@ class GlyphCacheRow {
   int32_t get_num_glyphs() const { return cached_entries_.size(); }
 
   // Setter/Getter of iterator to row LRU.
-  std::list<GlyphCacheEntry::iterator_row>::iterator get_it_lru_row() {
+  const std::list<GlyphCacheEntry::iterator_row>::iterator get_it_lru_row()
+      const {
     return it_lru_row_;
   }
   void set_it_lru_row(
@@ -179,8 +187,18 @@ class GlyphCacheRow {
     it_lru_row_ = it_lru_row;
   }
 
+  // Setter/Getter of iterator to row height map.
+  std::multimap<int32_t, GlyphCacheEntry::iterator_row>::iterator
+  get_it_row_height_map() const {
+    return it_row_height_map_;
+  }
+  void set_it_row_height_map(const std::multimap<
+      int32_t, GlyphCacheEntry::iterator_row>::iterator it_row_height_map) {
+    it_row_height_map_ = it_row_height_map;
+  }
+
   // Getter of cached glyph entries.
-  std::vector<GlyphCacheEntry::iterator> get_cached_entries() {
+  std::vector<GlyphCacheEntry::iterator>& get_cached_entries() {
     return cached_entries_;
   }
 
@@ -202,6 +220,10 @@ class GlyphCacheRow {
   // Iterator to the row LRU list.
   std::list<GlyphCacheEntry::iterator_row>::iterator it_lru_row_;
 
+  // Iterator to the row height map.
+  std::multimap<int32_t, GlyphCacheEntry::iterator_row>::iterator
+      it_row_height_map_;
+
   // Tracking cached entries in the row.
   // When flushing the row, entries in the map is removed using the vector.
   std::vector<GlyphCacheEntry::iterator> cached_entries_;
@@ -213,7 +235,8 @@ class GlyphCache {
   // Constructor with parameters.
   // width: width of the glyph cache texture. Rounded up to power of 2.
   // height: height of the glyph cache texture. Rounded up to power of 2.
-  GlyphCache(mathfu::vec2i& size) {
+  GlyphCache(const mathfu::vec2i& size)
+      : counter_(0), revision_(0), dirty_(false) {
     // Round up cache sizes to power of 2.
     size_.x() = mathfu::RoundUpToPowerOf2(size.x());
     size_.y() = mathfu::RoundUpToPowerOf2(size.y());
@@ -221,7 +244,10 @@ class GlyphCache {
     // Allocate the glyph cache buffer.
     // A buffer format can be 8/32 bpp (32 bpp is mostly used for Emoji).
     buffer_.reset(new T[size_.x() * size_.y()]);
-    memset(buffer_.get(), 0, size_.x() * size_.y() * sizeof(T));
+
+    // Clearing allocated buffer.
+    const int32_t kCacheClearValue = 0x0;
+    memset(buffer_.get(), kCacheClearValue, size_.x() * size_.y() * sizeof(T));
 
     // Create first (empty) row entry.
     InsertNewRow(0, size_, list_row_.end());
@@ -235,13 +261,13 @@ class GlyphCache {
   // Look up a cached entries.
   // Return value: A pointer to a cached glyph entry.
   // nullptr if not found.
-  const GlyphCacheEntry* Find(const uint32_t codepoint, const int32_t y_size) {
+  const GlyphCacheEntry* Find(const uint32_t code_point, const int32_t y_size) {
 #ifdef GLYPH_CACHE_STATS
     // Update debug variable.
     stats_lookup_++;
 #endif
     auto it =
-        map_entries_.find(static_cast<uint64_t>(codepoint) << 32 | y_size);
+        map_entries_.find(static_cast<uint64_t>(code_point) << 32 | y_size);
     if (it != map_entries_.end()) {
       // Found an entry!
 
@@ -266,24 +292,25 @@ class GlyphCache {
   // Set an entry to the cache.
   // Return value: true if caching succeeded. false if there is no room in the
   // cache for a requested entry.
-  bool Set(const T* const image, const int32_t y_size,
-           const GlyphCacheEntry& entry) {
+  // Returns a pointer to inserted entry.
+  const GlyphCacheEntry* Set(const T* const image, const int32_t y_size,
+                             const GlyphCacheEntry& entry) {
     // Lookup entries if the entry is already stored in the cache.
-    auto p = Find(entry.get_codepoint(), y_size);
+    auto p = Find(entry.get_code_point(), y_size);
 #ifdef GLYPH_CACHE_STATS
     // Adjust debug variable.
     stats_lookup_--;
 #endif
     if (p) {
       // Make sure cached entry has same properties.
-      // The cache only support one entry per a glyph codepoint for now.
+      // The cache only support one entry per a glyph code point for now.
       assert(p->get_size().x() == entry.get_size().x());
       assert(p->get_size().y() == entry.get_size().y());
 #ifdef GLYPH_CACHE_STATS
       // Adjust debug variable.
       stats_hit_--;
 #endif
-      return true;
+      return p;
     }
 
     // Adjust requested height & width.
@@ -303,6 +330,7 @@ class GlyphCache {
       it++;
     }
 
+    GlyphCacheEntry* ret;
     if (it != map_row_.end()) {
       // Found sufficient space in the buffer.
       auto it_row = it->second;
@@ -316,6 +344,14 @@ class GlyphCache {
         if (original_height - req_height >= kGlyphCacheHeightRound) {
           // Create new row for free space.
           it_row->set_size(mathfu::vec2i(size_.x(), req_height));
+
+          // Update row height map key as well.
+          map_row_.erase(it_row->get_it_row_height_map());
+          auto it_map =
+              map_row_.insert(std::pair<int32_t, GlyphCacheEntry::iterator_row>(
+                  req_height, it_row));
+          it_row->set_it_row_height_map(it_map);
+
           InsertNewRow(original_y_pos + req_height,
                        mathfu::vec2i(size_.x(), original_height - req_height),
                        list_row_.end());
@@ -325,9 +361,10 @@ class GlyphCache {
       // Create new entry in the look-up map.
       auto pair = map_entries_.insert(
           std::pair<uint64_t, std::unique_ptr<GlyphCacheEntry>>(
-              static_cast<uint64_t>(entry.get_codepoint()) << 32 | y_size,
+              static_cast<uint64_t>(entry.get_code_point()) << 32 | y_size,
               std::unique_ptr<GlyphCacheEntry>(new GlyphCacheEntry(entry))));
       auto it_entry = pair.first;
+      ret = it_entry->second.get();
 
       // Reserve a region in the row.
       auto pos = mathfu::vec2i(
@@ -337,22 +374,19 @@ class GlyphCache {
       // Store given image into the buffer.
       CopyImage(pos, image, it_entry->second.get());
 
-      // TODO: Update texture atlas dirty rect.
-
       // Update UV of the entry.
-      auto uv1 = pos / size_;
-      auto uv2 = (pos + entry.get_size()) / size_;
-      auto p = mathfu::vec4(uv1.x(), uv1.y(), uv2.x(), uv2.y());
-      it_entry->second->set_uv(p);
+      auto p = mathfu::vec4(
+          mathfu::vec2(pos) / mathfu::vec2(size_),
+          mathfu::vec2(pos + entry.get_size()) / mathfu::vec2(size_));
+      ret->set_uv(p);
 
       // Establish links.
-      it_entry->second->it_row = it_row;
-      it_entry->second->it_lru_row_ = it_row->get_it_lru_row();
+      ret->it_row = it_row;
+      ret->it_lru_row_ = it_row->get_it_lru_row();
 
       // Update row LRU entry.
       lru_row_.splice(lru_row_.end(), lru_row_, it_row->get_it_lru_row());
       it_row->set_last_used_counter(counter_);
-
     } else {
       // Couldn't find sufficient row entry nor free space to create new row.
 
@@ -360,10 +394,11 @@ class GlyphCache {
       // height from LRU list.
       for (auto row : lru_row_) {
         if (row->get_last_used_counter() == counter_) {
-          // Rows are used in current cycle. We can not evict any of rows.
-          break;
+          // The row is being used in current rendering cycle.
+          // We can not evict the row.
+          continue;
         }
-        if (row->get_size().y() <= req_width) {
+        if (row->get_size().y() >= req_height) {
           // Now flush & initialize the row.
           FlushRow(row);
           row->Initialize(row->get_y_pos(), row->get_size());
@@ -376,16 +411,17 @@ class GlyphCache {
       stats_set_fail_++;
 #endif
       // TODO: Try to flush multiple rows and merge them to free up space.
+      // TODO: Evaluate re-allocate solution.
       // Now we don't have any space in the cache.
       // It's caller's responsivility to recover from the situation.
       // Possible work arounds are:
       // - Draw glyphs with current glyph cache contents and then flush them,
       // start new caching.
       // - Just increase cache size.
-      return false;
+      return nullptr;
     }
 
-    return true;
+    return ret;
   }
 
   // Flush all cache entries.
@@ -398,17 +434,22 @@ class GlyphCache {
     list_row_.clear();
     map_row_.clear();
 
+    // Update cache revision.
+    revision_ = counter_;
+
     // Create first (empty) row entry.
     InsertNewRow(0, size_, list_row_.end());
+
+    dirty_ = false;
+
     return true;
   }
 
-  // Update internal counter, check dierty rect and update OpenGL texture if
-  // necessary.
-  void Update() {
-    counter_++;
-    // TODO: Upload OpenGL texture and clear a dirty rect.
-  }
+  // Increment a cycle counter of the cache.
+  // Invoke this API for each rendering cycle.
+  // The counter is used to determine which cache entries can be evicted when
+  // cache entries are full.
+  void Update() { counter_++; }
 
   // Debug API to show cache statistics.
   void Status() {
@@ -421,8 +462,9 @@ class GlyphCache {
     auto total_glyph = 0;
     for (auto row : list_row_) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "Row start:%d height:%d glyphs:%d", row.get_y_pos(),
-                  row.get_size().y(), row.get_num_glyphs());
+                  "Row start:%d height:%d glyphs:%d counter:%d",
+                  row.get_y_pos(), row.get_size().y(), row.get_num_glyphs(),
+                  row.get_last_used_counter());
       total_glyph += row.get_num_glyphs();
     }
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Cached glyphs: %d", total_glyph);
@@ -431,6 +473,25 @@ class GlyphCache {
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Set fail: %d", stats_set_fail_);
 #endif
   }
+
+  // Getter/Setter of the counter.
+  uint32_t get_revision() const { return revision_; }
+  void set_revision(const uint32_t revision) { revision_ = revision; }
+
+  // Getter/Setter of dirty state.
+  bool get_dirty_state() const {
+    return dirty_;
+  };
+  void set_dirty_state(const bool dirty) { dirty_ = dirty; }
+
+  // Getter of dirty rect.
+  const mathfu::vec4i& get_dirty_rect() const { return dirty_rect_; }
+
+  // Getter of allocated glyph cache buffer.
+  const T* get_buffer() const { return buffer_.get(); }
+
+  // Getter of the cache size.
+  const mathfu::vec2i& get_size() const { return size_; }
 
  private:
   // Insert new row to the row list with a given size.
@@ -457,11 +518,12 @@ class GlyphCache {
     // Insert new row.
     auto it = list_row_.insert(pos, GlyphCacheRow(y_pos, size));
     auto it_lru_row = lru_row_.insert(lru_row_.end(), it);
-    map_row_.insert(
+    auto it_map = map_row_.insert(
         std::pair<int32_t, GlyphCacheEntry::iterator_row>(size.y(), it));
 
     // Update a link.
     it->set_it_lru_row(it_lru_row);
+    it->set_it_row_height_map(it_map);
   }
 
   void FlushRow(const GlyphCacheEntry::iterator_row row) {
@@ -469,9 +531,40 @@ class GlyphCache {
     for (auto entry : row->get_cached_entries()) {
       map_entries_.erase(entry);
     }
+
+    // Update cache revision.
+    // It's setting revision equal to the current counter value so that it just
+    // change the revision once a rendering cycle even multiple cache flush
+    // happens in a cycle.
+    revision_ = counter_;
+
 #ifdef GLYPH_CACHE_STATS
     stats_row_flush_++;
 #endif
+  }
+
+  // Copy glyph image into the buffer.
+  void CopyImage(const mathfu::vec2i& pos, const T* const image,
+                 const GlyphCacheEntry* entry) {
+    auto buffer = buffer_.get();
+    auto size = entry->get_size().x() * sizeof(T);
+    for (int32_t y = 0; y < entry->get_size().y(); ++y) {
+      memcpy(buffer + pos.x() + (pos.y() + y) * size_.x(),
+             image + y * entry->get_size().x(), size);
+    }
+    UpdateDirtyRect(vec4i(pos, pos + entry->get_size()));
+  }
+
+  // Update dirty rect.
+  void UpdateDirtyRect(const vec4i& rect) {
+    if (!dirty_) {
+      // Initialize dirty rect.
+      dirty_rect_ = mathfu::vec4i(size_, mathfu::kZeros2i);
+    }
+
+    dirty_ = true;
+    dirty_rect_ = vec4i(mathfu::vec2i::Min(dirty_rect_.xy(), rect.xy()),
+                        mathfu::vec2i::Max(dirty_rect_.zw(), rect.zw()));
   }
 
 #ifdef GLYPH_CACHE_STATS
@@ -483,16 +576,6 @@ class GlyphCache {
     stats_set_fail_ = 0;
   }
 #endif
-
-  void CopyImage(const mathfu::vec2i& pos, const T* const image,
-                 const GlyphCacheEntry* entry) {
-    for (int32_t y = 0; y < entry->get_size().y(); ++y) {
-      for (int32_t x = 0; x < entry->get_size().x(); ++x) {
-        buffer_.get()[pos.x() + x + (pos.y() + y) * size_.x()] =
-            image[x + y * entry->get_size().x()];
-      }
-    }
-  }
 
   // A time counter of the cache.
   // In each rendering cycle, the counter is incremented.
@@ -508,8 +591,8 @@ class GlyphCache {
 
   // Hash map to the cache entries
   // This map is the primary place to look up the cache entries.
-  // Key: a combination of a codepoint in a font file and glyph size.
-  // Note that the codepoint is an index in the
+  // Key: a combination of a code point in a font file and glyph size.
+  // Note that the code point is an index in the
   // font file and not a Unicode value.
   std::unordered_map<uint64_t, std::unique_ptr<GlyphCacheEntry>> map_entries_;
 
@@ -525,6 +608,22 @@ class GlyphCache {
   // Key: height of the row. With the map, an API can have quick access to a row
   // with a given height.
   std::multimap<int32_t, GlyphCacheEntry::iterator_row> map_row_;
+
+  // Revision of the buffer.
+  // Each time one or more cache entry is evicted, a revision of the cache is
+  // updated.
+  // The revision  is used to determine if caller can make sure referencing
+  // glyph cache entries are still in the cache.
+  // Note that the revision is not changed when new glyph entries are added
+  // because existing entries are still valid in that case.
+  uint32_t revision_;
+
+  // Flag indicates if the cache is dirty. If it's dirty, corresponding font
+  // atlas texture needs to be uploaded.
+  bool dirty_;
+
+  // Dirty region in the buffer.
+  mathfu::vec4i dirty_rect_;
 
 #ifdef GLYPH_CACHE_STATS
   // Variables to track usage stats.
