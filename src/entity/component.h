@@ -99,7 +99,7 @@ template <typename T> class Component : public ComponentInterface {
   }
 
   // Updates all entities.  Normally called by EntityManager, once per frame.
-  virtual void UpdateAllEntities(float /*delta_time*/) {}
+  virtual void UpdateAllEntities(WorldTime /*delta_time*/) {}
 
   // Returns the data for an entity as a void pointer.  The calling function
   // is expected to know what to do with it.
