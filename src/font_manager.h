@@ -15,9 +15,9 @@
 #ifndef FONT_MANAGER_H
 #define FONT_MANAGER_H
 
-#include <unordered_map>
-
 #include "renderer.h"
+#include "glyph_cache.h"
+// TODO: Add API using font cache + texture atlas.
 #include "common.h"
 
 // Forward decls for FreeType & Harfbuzz

@@ -233,6 +233,7 @@ set(pie_noon_SRCS
     src/game_state.cpp
     src/game_state.h
     src/glplatform.h
+    src/glyph_cache.h
     src/gpg_manager.h
     src/gui_menu.cpp
     src/gui_menu.h

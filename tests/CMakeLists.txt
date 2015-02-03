@@ -92,4 +92,5 @@ test_executable(impel ../src/curve.cpp
 test_executable(range ../src/range.h)
 test_executable(curve ../src/curve.cpp)
 test_executable(spline ../src/curve.cpp ../src/spline.cpp)
+test_executable(font_manager)
 
