@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <memory>
-#include "components_generated.h"
 #include "character.h"
 #include "pie_noon_common_generated.h"
 #include "player_character.h"
@@ -41,8 +40,7 @@ void PlayerCharacterComponent::UpdateAllEntities(
 
 // Make sure the character is correctly positioned and facing the correct way:
 void PlayerCharacterComponent::UpdateCharacterFacing(entity::EntityRef entity) {
-  SceneObjectData* so_data =
-      Data<SceneObjectData>(entity, ComponentDataUnion_SceneObjectDef);
+  SceneObjectData* so_data = Data<SceneObjectData>(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
 
@@ -74,17 +72,14 @@ void PlayerCharacterComponent::UpdateCharacterFacing(entity::EntityRef entity) {
 // Keep the circle underfoot up to date and pointing the right way:
 void PlayerCharacterComponent::UpdateUiArrow(entity::EntityRef entity) {
   PlayerCharacterData* pc_data = GetEntityData(entity);
-  SceneObjectData* so_data =
-      Data<SceneObjectData>(entity, ComponentDataUnion_SceneObjectDef);
+  SceneObjectData* so_data = Data<SceneObjectData>(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
   std::unique_ptr<Character>& character =
       character_vector[pc_data->character_id];
 
   // Base UI arrow circle:
-  SceneObjectData* circle_so_data =
-      entity_manager_->GetComponentData<SceneObjectData>(
-          pc_data->base_circle, ComponentDataUnion_SceneObjectDef);
+  SceneObjectData* circle_so_data = Data<SceneObjectData>(pc_data->base_circle);
   const Angle arrow_angle = gamestate_ptr_->TargetFaceAngle(character->id());
   circle_so_data->current_transform.orientation =
       Quat::FromAngleAxis(-arrow_angle.ToRadians(), mathfu::kAxisY3f) *
@@ -122,12 +117,10 @@ int PlayerCharacterComponent::PopulatePieAccessories(entity::EntityRef entity,
           pc_data->accessories[num_accessories];
 
       SceneObjectData* accessory_so_data =
-          entity_manager_->GetComponentData<SceneObjectData>(
-              accessory_entity, ComponentDataUnion_SceneObjectDef);
+          Data<SceneObjectData>(accessory_entity);
 
       ChildObjectData* accessory_co_data =
-          entity_manager_->GetComponentData<ChildObjectData>(
-              accessory_entity, ComponentDataUnion_ChildObjectDef);
+          Data<ChildObjectData>(accessory_entity);
 
       accessory_so_data->visible = true;
       accessory_co_data->relative_offset =
@@ -204,12 +197,10 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
             pc_data->accessories[num_accessories];
 
         SceneObjectData* accessory_so_data =
-            entity_manager_->GetComponentData<SceneObjectData>(
-                accessory_entity, ComponentDataUnion_SceneObjectDef);
+            Data<SceneObjectData>(accessory_entity);
 
         ChildObjectData* accessory_co_data =
-            entity_manager_->GetComponentData<ChildObjectData>(
-                accessory_entity, ComponentDataUnion_ChildObjectDef);
+            Data<ChildObjectData>(accessory_entity);
 
         accessory_so_data->visible = true;
         accessory_co_data->relative_offset =
@@ -228,9 +219,7 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
     // make sure everything else is turned off:
     for (; num_accessories < kMaxAccessories; num_accessories++) {
       SceneObjectData* accessory_so_data =
-          entity_manager_->GetComponentData<SceneObjectData>(
-              pc_data->accessories[num_accessories],
-              ComponentDataUnion_SceneObjectDef);
+          Data<SceneObjectData>(pc_data->accessories[num_accessories]);
       accessory_so_data->visible = false;
     }
   }
@@ -253,9 +242,7 @@ void PlayerCharacterComponent::InitEntity(entity::EntityRef& entity) {
   entity_manager_->AddEntityToComponent(pc_data->base_circle,
                                         ComponentDataUnion_SceneObjectDef);
 
-  SceneObjectData* circle_so_data =
-      entity_manager_->GetComponentData<SceneObjectData>(
-          pc_data->base_circle, ComponentDataUnion_SceneObjectDef);
+  SceneObjectData* circle_so_data = Data<SceneObjectData>(pc_data->base_circle);
 
   circle_so_data->renderable_id = RenderableId_UiArrow;
   circle_so_data->base_transform.orientation =
@@ -268,20 +255,14 @@ void PlayerCharacterComponent::InitEntity(entity::EntityRef& entity) {
     entity_manager_->AddEntityToComponent(accessory,
                                           ComponentDataUnion_SceneObjectDef);
 
-    SceneObjectData* accessory_so_data =
-        entity_manager_->GetComponentData<SceneObjectData>(
-            accessory, ComponentDataUnion_SceneObjectDef);
+    SceneObjectData* accessory_so_data = Data<SceneObjectData>(accessory);
 
     accessory_so_data->visible = false;
 
     entity_manager_->AddEntityToComponent(accessory,
                                           ComponentDataUnion_ChildObjectDef);
 
-    ChildObjectData* accessory_co_data =
-        entity_manager_->GetComponentData<ChildObjectData>(
-            accessory, ComponentDataUnion_ChildObjectDef);
-
-    accessory_co_data->parent = entity;
+    Data<ChildObjectData>(accessory)->parent = entity;
   }
 }
 

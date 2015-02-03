@@ -17,6 +17,7 @@
 
 #include "entity/component.h"
 #include "common.h"
+#include "components_generated.h"
 #include "scene_description.h"
 #include "mathfu/constants.h"
 
@@ -69,4 +70,9 @@ class SceneObjectComponent : public entity::Component<SceneObjectData> {
 
 }  // pie_noon
 }  // fpl
+
+FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::SceneObjectComponent,
+                              fpl::pie_noon::SceneObjectData,
+                              fpl::pie_noon::ComponentDataUnion_SceneObjectDef)
+
 #endif  // COMPONENTS_SCENEOBJECT_H_

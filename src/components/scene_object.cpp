@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "scene_object.h"
-#include "components_generated.h"
 #include "utilities.h"
 
 namespace fpl {

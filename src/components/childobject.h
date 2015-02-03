@@ -17,6 +17,7 @@
 
 #include "entity/component.h"
 #include "common.h"
+#include "components_generated.h"
 #include "scene_description.h"
 #include "mathfu/constants.h"
 
@@ -65,4 +66,10 @@ class ChildObjectComponent : public entity::Component<ChildObjectData> {
 
 }  // pie_noon
 }  // fpl
+
+FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::ChildObjectComponent,
+                              fpl::pie_noon::ChildObjectData,
+                              fpl::pie_noon::ComponentDataUnion_ChildObjectDef)
+
 #endif  // COMPONENTS_CHILDOBJECT_H_
+

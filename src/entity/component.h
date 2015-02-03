@@ -15,11 +15,12 @@
 #ifndef FPL_COMPONENT_H_
 #define FPL_COMPONENT_H_
 
+#include "component_id_lookup.h"
+#include "component_interface.h"
 #include "entity.h"
 #include "entity_common.h"
 #include "entity_manager.h"
 #include "vector_pool.h"
-#include "component_interface.h"
 
 namespace fpl {
 namespace entity {
@@ -40,7 +41,7 @@ class Component : public ComponentInterface {
   };
   typedef typename VectorPool<EntityData>::Iterator EntityIterator;
 
-  Component() : entity_manager_(nullptr), component_id_(kInvalidComponent) {}
+  Component() : entity_manager_(nullptr) {}
 
   virtual ~Component() {}
 
@@ -56,12 +57,12 @@ class Component : public ComponentInterface {
   // Note that If we're already registered for this component, this
   // will just return a reference to the existing data and not change anything.
   T* AddEntity(EntityRef& entity, AllocationLocation alloc_location) {
-    if (entity->IsRegisteredForComponent(component_id_)) {
+    if (entity->IsRegisteredForComponent(GetComponentId())) {
       return GetEntityData(entity);
     }
     // No existing data, so we allocate some and return it:
     size_t index = entity_data_.GetNewElement(alloc_location).index();
-    entity->SetComponentDataIndex(component_id_, index);
+    entity->SetComponentDataIndex(GetComponentId(), index);
     EntityData* entity_data = entity_data_.GetElementData(index);
     entity_data->entity = entity;
     new (&(entity_data->data)) T();
@@ -75,8 +76,9 @@ class Component : public ComponentInterface {
   // with it.
   virtual void RemoveEntity(EntityRef& entity) {
     CleanupEntity(entity);
-    entity_data_.FreeElement(entity->GetComponentDataIndex(component_id_));
-    entity->SetComponentDataIndex(component_id_, kUnusedComponentIndex);
+    ComponentId component_id = GetComponentId();
+    entity_data_.FreeElement(entity->GetComponentDataIndex(component_id));
+    entity->SetComponentDataIndex(component_id, kUnusedComponentIndex);
   }
 
   // Gets an iterator that will iterate over every entity in the component.
@@ -118,8 +120,10 @@ class Component : public ComponentInterface {
   // Return the data we have stored at a given index.
   // Returns null if data_index indicates this component isn't present.
   T* GetEntityData(const EntityRef& entity) {
-    size_t data_index = entity->GetComponentDataIndex(component_id_);
-    if (data_index >= entity_data_.Size()) { return nullptr; }
+    size_t data_index = entity->GetComponentDataIndex(GetComponentId());
+    if (data_index >= entity_data_.Size()) {
+      return nullptr;
+    }
     EntityData* element_data = entity_data_.GetElementData(data_index);
     return (element_data != nullptr) ? &(element_data->data) : nullptr;
   }
@@ -145,9 +149,15 @@ class Component : public ComponentInterface {
 
   // Utility function for getting the component data for a specific component.
   template <typename ComponentDataType>
-  ComponentDataType* Data(const EntityRef& entity, ComponentId component_id) {
-    return entity_manager_->GetComponentData<ComponentDataType>(entity,
-                                                                component_id);
+  ComponentDataType* Data(EntityRef& entity) {
+    return entity_manager_->GetComponentData<ComponentDataType>(entity);
+  }
+
+  // Utility function for getting the component object for a specific component.
+  template <typename ComponentDataType>
+  ComponentDataType* GetComponent() {
+    return static_cast<ComponentDataType*>(entity_manager_->GetComponent(
+        ComponentIdLookup<ComponentDataType>::kComponentId));
   }
 
   // Virtual methods we inherrited from component_interface:
@@ -169,25 +179,20 @@ class Component : public ComponentInterface {
   // removed from this component.
   virtual void CleanupEntity(EntityRef& /*entity*/) {}
 
-  // get the component id for this component.  Assigned by entitymanager.
-  virtual ComponentId GetComponentId() const { return component_id_; }
-
-  // Sets the ID of this component.  Usually called by EntityManager when
-  // the component is registered.
-  virtual void SetComponentId(entity::ComponentId component_id) {
-    component_id_ = component_id;
-  }
-
   // Set the entity manager for this component.  (used as the main point of
   // contact for components that need to talk to other things.)
   virtual void SetEntityManager(EntityManager* entity_manager) {
     entity_manager_ = entity_manager;
   }
 
+  // Returns the ID of this component.
+  ComponentId GetComponentId() {
+    return ComponentIdLookup<T>::kComponentId;
+  }
+
  protected:
   VectorPool<EntityData> entity_data_;
   EntityManager* entity_manager_;
-  ComponentId component_id_;
 };
 
 }  // entity

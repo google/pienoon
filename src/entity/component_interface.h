@@ -62,13 +62,11 @@ class ComponentInterface {
   virtual void Cleanup() = 0;
   // Called when the entity is removed from the manager.
   virtual void CleanupEntity(EntityRef& entity) = 0;
-  // get the component id for this component.  Assigned by entitymanager.
-  virtual ComponentId GetComponentId() const = 0;
-  virtual void SetComponentId(ComponentId component_id) = 0;
-
   // Set the entity manager for this component.  (used as the main point of
   // contact for components that need to talk to other things.)
+  // (Normally assigned by entitymanager)
   virtual void SetEntityManager(EntityManager* entity_manager) = 0;
+  // Returns the ID for this component.
 };
 
 }  // entity
