@@ -39,7 +39,7 @@ TEST_F(FontManagerTests, Glyph_Cache_Initialize) {
   // Set some value
   fpl::GlyphCacheEntry entry;
   entry.set_size(mathfu::vec2i(image_width, image_height));
-  cache->Set(image.get(), image_height, &entry);
+  cache->Set(image.get(), image_height, entry);
 
   cache->Status();
 
@@ -71,7 +71,7 @@ TEST_F(FontManagerTests, Glyph_Cache_SimpleEntries) {
     for (int32_t j = 0;
          j < cache_size.x() / (image_width + fpl::kGlyphCachePaddingX); ++j) {
       entry.set_codepoint(k);
-      cache->Set(image.get(), image_height, &entry);
+      cache->Set(image.get(), image_height, entry);
       k++;
     }
 
@@ -116,7 +116,7 @@ TEST_F(FontManagerTests, Glyph_Cache_InvolveEviction) {
     for (int32_t j = 0;
          j < cache_size.x() / (image_width + fpl::kGlyphCachePaddingX); ++j) {
       entry.set_codepoint(k);
-      cache->Set(image.get(), image_height, &entry);
+      cache->Set(image.get(), image_height, entry);
       k++;
     }
 
@@ -132,7 +132,7 @@ TEST_F(FontManagerTests, Glyph_Cache_InvolveEviction) {
         auto p = cache->Find(k, image_height);
         if (p == nullptr) {
           entry.set_codepoint(k);
-          cache->Set(image.get(), image_height, &entry);
+          cache->Set(image.get(), image_height, entry);
         }
         k++;
       }

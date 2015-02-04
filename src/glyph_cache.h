@@ -66,7 +66,8 @@ const int32_t kGlyphCachePaddingY = 1;
 class GlyphCacheEntry {
  public:
   // Typedef for cache entry map's iterator.
-  typedef std::unordered_map<uint64_t, GlyphCacheEntry>::iterator iterator;
+  typedef std::unordered_map<
+      uint64_t, std::unique_ptr<GlyphCacheEntry>>::iterator iterator;
   typedef std::list<GlyphCacheRow>::iterator iterator_row;
 
   GlyphCacheEntry() : codepoint_(0), size_(0, 0) {}
@@ -245,16 +246,16 @@ class GlyphCache {
       // Found an entry!
 
       // Mark the row as being used in current cycle.
-      it->second.it_row->set_last_used_counter(counter_);
+      it->second->it_row->set_last_used_counter(counter_);
 
       // Update row LRU entry. The row is now most recently used.
-      lru_row_.splice(lru_row_.end(), lru_row_, it->second.it_lru_row_);
+      lru_row_.splice(lru_row_.end(), lru_row_, it->second->it_lru_row_);
 
 #ifdef GLYPH_CACHE_STATS
       // Update debug variable.
       stats_hit_++;
 #endif
-      return &it->second;
+      return it->second.get();
     }
 
     // Didn't find a cached entry. A caller may call Store() function to store
@@ -265,9 +266,10 @@ class GlyphCache {
   // Set an entry to the cache.
   // Return value: true if caching succeeded. false if there is no room in the
   // cache for a requested entry.
-  bool Set(const T* const image, const int32_t y_size, GlyphCacheEntry* entry) {
+  bool Set(const T* const image, const int32_t y_size,
+           const GlyphCacheEntry& entry) {
     // Lookup entries if the entry is already stored in the cache.
-    auto p = Find(entry->get_codepoint(), y_size);
+    auto p = Find(entry.get_codepoint(), y_size);
 #ifdef GLYPH_CACHE_STATS
     // Adjust debug variable.
     stats_lookup_--;
@@ -275,8 +277,8 @@ class GlyphCache {
     if (p) {
       // Make sure cached entry has same properties.
       // The cache only support one entry per a glyph codepoint for now.
-      assert(p->get_size().x() == entry->get_size().x());
-      assert(p->get_size().y() == entry->get_size().y());
+      assert(p->get_size().x() == entry.get_size().x());
+      assert(p->get_size().y() == entry.get_size().y());
 #ifdef GLYPH_CACHE_STATS
       // Adjust debug variable.
       stats_hit_--;
@@ -287,8 +289,8 @@ class GlyphCache {
     // Adjust requested height & width.
     // Height is rounded up to multiple of kGlyphCacheHeightRound.
     // Expecting kGlyphCacheHeightRound is base 2.
-    int32_t req_width = entry->get_size().x() + kGlyphCachePaddingX;
-    int32_t req_height = ((entry->get_size().y() + kGlyphCachePaddingY +
+    int32_t req_width = entry.get_size().x() + kGlyphCachePaddingX;
+    int32_t req_height = ((entry.get_size().y() + kGlyphCachePaddingY +
                            (kGlyphCacheHeightRound - 1)) &
                           ~(kGlyphCacheHeightRound - 1));
 
@@ -321,9 +323,10 @@ class GlyphCache {
       }
 
       // Create new entry in the look-up map.
-      auto pair = map_entries_.insert(std::pair<uint64_t, GlyphCacheEntry>(
-          static_cast<uint64_t>(entry->get_codepoint()) << 32 | y_size,
-          *entry));
+      auto pair = map_entries_.insert(
+          std::pair<uint64_t, std::unique_ptr<GlyphCacheEntry>>(
+              static_cast<uint64_t>(entry.get_codepoint()) << 32 | y_size,
+              std::unique_ptr<GlyphCacheEntry>(new GlyphCacheEntry(entry))));
       auto it_entry = pair.first;
 
       // Reserve a region in the row.
@@ -332,19 +335,19 @@ class GlyphCache {
           it_row->get_y_pos());
 
       // Store given image into the buffer.
-      CopyImage(pos, image, entry);
+      CopyImage(pos, image, it_entry->second.get());
 
       // TODO: Update texture atlas dirty rect.
 
       // Update UV of the entry.
       auto uv1 = pos / size_;
-      auto uv2 = (pos + entry->get_size()) / size_;
+      auto uv2 = (pos + entry.get_size()) / size_;
       auto p = mathfu::vec4(uv1.x(), uv1.y(), uv2.x(), uv2.y());
-      it_entry->second.set_uv(p);
+      it_entry->second->set_uv(p);
 
       // Establish links.
-      it_entry->second.it_row = it_row;
-      it_entry->second.it_lru_row_ = it_row->get_it_lru_row();
+      it_entry->second->it_row = it_row;
+      it_entry->second->it_lru_row_ = it_row->get_it_lru_row();
 
       // Update row LRU entry.
       lru_row_.splice(lru_row_.end(), lru_row_, it_row->get_it_lru_row());
@@ -508,7 +511,7 @@ class GlyphCache {
   // Key: a combination of a codepoint in a font file and glyph size.
   // Note that the codepoint is an index in the
   // font file and not a Unicode value.
-  std::unordered_map<uint64_t, GlyphCacheEntry> map_entries_;
+  std::unordered_map<uint64_t, std::unique_ptr<GlyphCacheEntry>> map_entries_;
 
   // list of rows in the cache.
   std::list<GlyphCacheRow> list_row_;
