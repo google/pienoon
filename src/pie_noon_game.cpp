@@ -346,6 +346,7 @@ bool PieNoonGame::InitializeGameState() {
   // Register the impeller types with the ImpelEngine.
   impel::OvershootImpelInit::Register();
   impel::SmoothImpelInit::Register();
+  impel::MatrixImpelInit::Register();
 
   // Load flatbuffer into buffer.
   if (!LoadFile("character_state_machine_def.bin", &state_machine_source_)) {

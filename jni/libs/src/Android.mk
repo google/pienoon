@@ -62,7 +62,6 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/compact_spline.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/components/childobject.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/drip_and_vanish.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/player_character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \

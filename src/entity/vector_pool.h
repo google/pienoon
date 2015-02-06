@@ -202,6 +202,10 @@ class VectorPool {
       return VectorPoolReference(container_, index_);
     }
 
+    size_t index() const {
+      return index_;
+    }
+
    private:
     VectorPool<T>* container_;
     size_t index_;

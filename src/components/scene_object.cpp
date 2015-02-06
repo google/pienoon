@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include "scene_object.h"
+#include "angle.h"
+#include "components_generated.h"
+#include "impel_init.h"
 #include "utilities.h"
 
 namespace fpl {
@@ -22,26 +25,42 @@ using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
 
-mat4 SceneObjectComponent::CalculateMatrix(const SceneObjectData* data) const {
-  return mat4::FromTranslationVector(vec3(data->current_transform.position)) *
-         mat4::FromRotationMatrix(
-             data->current_transform.orientation.ToMatrix()) *
-         mat4::FromTranslationVector(-vec3(data->origin_point)) *
-         mat4::FromScaleVector(vec3(data->current_transform.scale));
-}
+// Basic matrix operation for each component of the 'transform_'
+// Matrix Impeller.
+static const impel::MatrixOperationType kTransformOperations[] = {
+  impel::kTranslateX,     // kTranslateX
+  impel::kTranslateY,     // kTranslateY
+  impel::kTranslateZ,     // kTranslateZ
+  impel::kRotateAboutX,   // kRotateAboutX
+  impel::kRotateAboutY,   // kRotateAboutY
+  impel::kRotateAboutZ,   // kRotateAboutZ
+  impel::kRotateAboutX,   // kPreRotateAboutX
+  impel::kRotateAboutY,   // kPreRotateAboutY
+  impel::kRotateAboutZ,   // kPreRotateAboutZ
+  impel::kTranslateX,     // kTranslateToOriginX
+  impel::kTranslateY,     // kTranslateToOriginY
+  impel::kTranslateZ,     // kTranslateToOriginZ
+  impel::kScaleX,         // kScaleX
+  impel::kScaleY,         // kScaleY
+  impel::kScaleZ,         // kScaleZ
+};
 
-mathfu::mat4 SceneObjectComponent::CalculateMatrix(
-    const entity::EntityRef& entity) const {
-  const SceneObjectData* data = GetEntityData(entity);
-  return CalculateMatrix(data);
-}
+void SceneObjectData::Initialize(impel::ImpelEngine* impel_engine) {
+  MATHFU_STATIC_ASSERT(ARRAYSIZE(kTransformOperations) ==
+                       kNumTransformMatrixOperations);
 
-void SceneObjectComponent::UpdateAllEntities(entity::WorldTime /*delta_time*/) {
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    SceneObjectData* sp_data = GetEntityData(iter->entity);
-    // Reset our transform.
-    sp_data->current_transform = sp_data->base_transform;
+  // Create init structure for the 'transform_' Matrix Impeller.
+  // TODO: This structure is the same every time. Change MatrixImpelInit to be
+  // constructable from POD so that this can be a constexpr.
+  impel::MatrixImpelInit init(ARRAYSIZE(kTransformOperations));
+  for (size_t i = 0; i < ARRAYSIZE(kTransformOperations); ++i) {
+    impel::MatrixOperationType op = kTransformOperations[i];
+    const float default_value = impel::kScaleX <= op && op <= impel::kScaleZ
+                              ? 1.0f : 0.0f;
+    init.AddOp(op, default_value);
   }
+
+  transform_.Initialize(init, impel_engine);
 }
 
 void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
@@ -53,27 +72,76 @@ void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
   const SceneObjectDef* scene_object_data =
       static_cast<const SceneObjectDef*>(component_data->data());
 
-  entity_data->base_transform.position =
-      LoadVec3(scene_object_data->position());
-  static const float kDegreesToRadians = static_cast<float>(M_PI / 180.0);
   mathfu::vec3 orientation_in_degrees =
       LoadVec3(scene_object_data->orientation());
-  entity_data->base_transform.orientation =
-      Quat::FromEulerAngles(orientation_in_degrees * kDegreesToRadians);
-  entity_data->origin_point = LoadVec3(scene_object_data->origin_point());
-  entity_data->base_transform.scale = LoadVec3(scene_object_data->scale());
-  entity_data->renderable_id = scene_object_data->renderable_id();
-  entity_data->tint = LoadVec4(scene_object_data->tint());
-  entity_data->visible = scene_object_data->visible();
+
+  entity_data->SetTranslation(LoadVec3(scene_object_data->position()));
+  entity_data->SetRotation(orientation_in_degrees * kDegreesToRadians);
+  entity_data->SetScale(LoadVec3(scene_object_data->scale()));
+  entity_data->SetOriginPoint(LoadVec3(scene_object_data->origin_point()));
+
+  entity_data->set_renderable_id(scene_object_data->renderable_id());
+  entity_data->set_tint(LoadVec4(scene_object_data->tint()));
+  entity_data->set_visible(scene_object_data->visible());
+}
+
+void SceneObjectComponent::InitEntity(entity::EntityRef& entity) {
+  SceneObjectData* data = GetEntityData(entity);
+  data->Initialize(impel_engine_);
+}
+
+void SceneObjectComponent::UpdateGlobalMatrix(
+    entity::EntityRef& entity,
+    std::vector<bool>& matrix_updated) {
+  const size_t data_index = GetEntityDataIndex(entity);
+  SceneObjectData* data = GetEntityData(data_index);
+
+  if (data->HasParent()) {
+    // Recurse into parent if its matrix has not been calculated.
+    const size_t parent_index = GetEntityDataIndex(data->parent());
+    if (!matrix_updated[parent_index]) {
+      UpdateGlobalMatrix(data->parent(), matrix_updated);
+    }
+
+    // Multiply our local matrix by our parent's global matrix to get our
+    // global matrix.
+    SceneObjectData* parent = GetEntityData(parent_index);
+    data->set_global_matrix(parent->global_matrix() * data->LocalMatrix());
+  } else {
+
+    // No parent means that our local matrix equals the global matrix.
+    data->set_global_matrix(data->LocalMatrix());
+  }
+
+  // Remember that we've calculated this matrix so we don't try to calculate
+  // it again.
+  matrix_updated[data_index] = true;
+}
+
+// Traverse scene hierarchy convert local matrices into global matrices.
+void SceneObjectComponent::UpdateGlobalMatrices() {
+  std::vector<bool> matrix_updated(entity_data_.Size(), false);
+
+  // Loop through every entity and update its global matrix.
+  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
+
+    // The update process is recursive, so we may have already calculated a
+    // matrix by the time we get there. If so, skip over it.
+    if (!matrix_updated[iter.index()] && iter->data.visible()) {
+      UpdateGlobalMatrix(iter->entity, matrix_updated);
+    }
+  }
 }
 
 void SceneObjectComponent::PopulateScene(SceneDescription* scene) {
+  UpdateGlobalMatrices();
+
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
     entity::EntityRef entity = iter->entity;
     SceneObjectData* data = GetEntityData(entity);
-    if (data->visible) {
+    if (data->visible()) {
       scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
-          data->renderable_id, CalculateMatrix(data), vec4(data->tint))));
+          data->renderable_id(), data->global_matrix(), data->tint())));
     }
   }
 }

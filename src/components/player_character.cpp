@@ -56,17 +56,14 @@ void PlayerCharacterComponent::UpdateCharacterFacing(entity::EntityRef entity) {
       character_face_angle - towards_camera_angle;
   const bool facing_camera = face_to_camera_angle.ToRadians() < 0.0f;
 
-  vec3 scale = vec3(so_data->base_transform.scale);
-  scale.z() = facing_camera ? 1.0 : -1.0;
-  so_data->base_transform.scale = scale;
-  so_data->base_transform.orientation =
-      Quat::FromAngleAxis(-character_face_angle.ToRadians(), mathfu::kAxisY3f);
+  so_data->SetScaleZ(facing_camera ? 1.0f : -1.0f);
+  so_data->SetRotationAboutY((-character_face_angle).ToRadians());
 
   const WorldTime anim_time = gamestate_ptr_->GetAnimationTime(*character);
   const uint16_t renderable_id = character->RenderableId(anim_time);
 
-  so_data->renderable_id = renderable_id;
-  so_data->base_transform.position = character->position();
+  so_data->set_renderable_id(renderable_id);
+  so_data->SetTranslation(character->position());
 }
 
 // Keep the circle underfoot up to date and pointing the right way:
@@ -81,12 +78,10 @@ void PlayerCharacterComponent::UpdateUiArrow(entity::EntityRef entity) {
   // Base UI arrow circle:
   SceneObjectData* circle_so_data = Data<SceneObjectData>(pc_data->base_circle);
   const Angle arrow_angle = gamestate_ptr_->TargetFaceAngle(character->id());
-  circle_so_data->current_transform.orientation =
-      Quat::FromAngleAxis(-arrow_angle.ToRadians(), mathfu::kAxisY3f) *
-      circle_so_data->base_transform.orientation;
-  circle_so_data->base_transform.position = so_data->base_transform.position;
-  circle_so_data->origin_point = LoadVec3(config_->ui_arrow_offset());
-  circle_so_data->base_transform.scale = LoadVec3(config_->ui_arrow_scale());
+  circle_so_data->SetRotationAboutY((-arrow_angle).ToRadians());
+  circle_so_data->SetTranslation(so_data->Translation());
+  circle_so_data->SetOriginPoint(LoadVec3(config_->ui_arrow_offset()));
+  circle_so_data->SetScale(LoadVec3(config_->ui_arrow_scale()));
 }
 
 // Add the accessories that are part of the character's timeline animation.
@@ -119,17 +114,15 @@ int PlayerCharacterComponent::PopulatePieAccessories(entity::EntityRef entity,
       SceneObjectData* accessory_so_data =
           Data<SceneObjectData>(accessory_entity);
 
-      ChildObjectData* accessory_co_data =
-          Data<ChildObjectData>(accessory_entity);
-
-      accessory_so_data->visible = true;
-      accessory_co_data->relative_offset =
-          vec3(accessory.offset().x() * config_->pixel_to_world_scale(),
+      accessory_so_data->set_visible(true);
+      const vec3 offset(
+               accessory.offset().x() * config_->pixel_to_world_scale(),
                accessory.offset().y() * config_->pixel_to_world_scale(),
                (num_accessories + 1) * config_->accessory_z_increment());
+      accessory_so_data->SetTranslation(offset);
 
-      accessory_so_data->renderable_id = accessory.renderable();
-      accessory_co_data->relative_scale = vec3(1, 1, 1);
+      accessory_so_data->set_renderable_id(accessory.renderable());
+      accessory_so_data->SetScale(mathfu::kOnes3f);
 
       num_accessories++;
     }
@@ -199,17 +192,15 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
         SceneObjectData* accessory_so_data =
             Data<SceneObjectData>(accessory_entity);
 
-        ChildObjectData* accessory_co_data =
-            Data<ChildObjectData>(accessory_entity);
-
-        accessory_so_data->visible = true;
-        accessory_co_data->relative_offset =
-            vec3(location.x() * config_->pixel_to_world_scale(),
+        accessory_so_data->set_visible(true);
+        const vec3 offset(
+                 location.x() * config_->pixel_to_world_scale(),
                  location.y() * config_->pixel_to_world_scale(),
                  (num_accessories + 1) * config_->accessory_z_increment());
+        accessory_so_data->SetTranslation(offset);
 
-        accessory_so_data->renderable_id = accessory->renderable();
-        accessory_co_data->relative_scale = vec3(scale.x(), scale.y(), 1);
+        accessory_so_data->set_renderable_id(accessory->renderable());
+        accessory_so_data->SetScale(vec3(scale.x(), scale.y(), 1));
 
         num_accessories++;
       }
@@ -220,7 +211,7 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
     for (; num_accessories < kMaxAccessories; num_accessories++) {
       SceneObjectData* accessory_so_data =
           Data<SceneObjectData>(pc_data->accessories[num_accessories]);
-      accessory_so_data->visible = false;
+      accessory_so_data->set_visible(false);
     }
   }
   return num_accessories;
@@ -244,9 +235,8 @@ void PlayerCharacterComponent::InitEntity(entity::EntityRef& entity) {
 
   SceneObjectData* circle_so_data = Data<SceneObjectData>(pc_data->base_circle);
 
-  circle_so_data->renderable_id = RenderableId_UiArrow;
-  circle_so_data->base_transform.orientation =
-      Quat::FromAngleAxis(kDegreesToRadians * 90, mathfu::kAxisX3f);
+  circle_so_data->set_renderable_id(RenderableId_UiArrow);
+  circle_so_data->SetPreRotationAboutX(kDegreesToRadians * 90);
 
   // set up slots for accessories:
   for (int i = 0; i < kMaxAccessories; i++) {
@@ -257,12 +247,8 @@ void PlayerCharacterComponent::InitEntity(entity::EntityRef& entity) {
 
     SceneObjectData* accessory_so_data = Data<SceneObjectData>(accessory);
 
-    accessory_so_data->visible = false;
-
-    entity_manager_->AddEntityToComponent(accessory,
-                                          ComponentDataUnion_ChildObjectDef);
-
-    Data<ChildObjectData>(accessory)->parent = entity;
+    accessory_so_data->set_visible(false);
+    accessory_so_data->set_parent(entity);
   }
 }
 

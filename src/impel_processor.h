@@ -210,13 +210,30 @@ class ImpelProcessorMatrix4f : public ImpelProcessor {
   // Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(ImpelIndex index) const = 0;
 
+  // Get current values of the components that create the matrix.
+  virtual float ChildValue1f(ImpelIndex index,
+                             ImpelChildIndex child_index) const = 0;
+  virtual mathfu::vec3 ChildValue3f(ImpelIndex index,
+                                    ImpelChildIndex child_index) const {
+    return mathfu::vec3(ChildValue1f(index, child_index),
+                        ChildValue1f(index, child_index + 1),
+                        ChildValue1f(index, child_index + 2));
+  }
+
   // Set child values. Matrices are composed from child components.
   virtual void SetChildTarget1f(ImpelIndex /*index*/,
                                 ImpelChildIndex /*child_index*/,
-                                ImpelTarget1f& /*t*/) {}
+                                const ImpelTarget1f& /*t*/) {}
   virtual void SetChildValue1f(ImpelIndex /*index*/,
                                ImpelChildIndex /*child_index*/,
                                float /*value*/) {}
+  virtual void SetChildValue3f(ImpelIndex index,
+                               ImpelChildIndex child_index,
+                               const mathfu::vec3& value) {
+    for (int i = 0; i < 3; ++i) {
+      SetChildValue1f(index, child_index + i, value[i]);
+    }
+  }
 };
 
 

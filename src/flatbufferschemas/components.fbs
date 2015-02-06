@@ -29,15 +29,6 @@ table SceneObjectDef {
   visible:bool = true;
 }
 
-table ChildObjectDef {
-  // xyz offset from the parent unit's point of origin.
-  offset:Vec3;
-  // xyz scale, relative to the parent's scale.  (1.0 = no change)
-  scale:Vec3;
-  // orientation in euler values, relative to the parent.
-  orientation:Vec3;
-}
-
 // no data, (never loaded from raw data) but we need it to be a thing so
 // that it ends up in the enum.
 table PlayerCharacterDef {}
@@ -95,17 +86,14 @@ table CardboardSceneryDef {
 // execute their updates in.
 // Note: SceneObjectDef should be as early as
 // possible, so it can reset all the transformations before everyone else
-// messes with them.  Similarly, ChildObjectDef should be as late
-// in the order as possible, to make sure it takes any other components'
-// changes into account when resolving the object hierarchy.
+// messes with them.
 union ComponentDataUnion {
   SceneObjectDef,   // Ideally this should be first.
   ImpellerObjectDef,
   CardboardSceneryDef,
   ShakeablePropDef,
   DripAndVanishDef,
-  PlayerCharacterDef,
-  ChildObjectDef  // Ideally, this should be last.
+  PlayerCharacterDef
 }
 
 // Actual definition for each component.  Wrapped in a table because

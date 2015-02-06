@@ -33,10 +33,7 @@ void ShakeablePropComponent::UpdateAllEntities(
     assert(so_data != nullptr && sp_data != nullptr);
 
     if (sp_data->impeller.Valid()) {
-      so_data->current_transform.orientation =
-          so_data->current_transform.orientation *
-          Quat::FromAngleAxis(sp_data->impeller.Value(),
-                              vec3(sp_data->shake_axis));
+      so_data->SetPreRotationAboutAxis(sp_data->impeller.Value(), sp_data->axis);
     }
   }
 }
@@ -57,7 +54,7 @@ void ShakeablePropComponent::AddFromRawData(entity::EntityRef& entity,
   const ShakeablePropDef* sp_data =
       static_cast<const ShakeablePropDef*>(component_data->data());
 
-  entity_data->shake_axis = LoadAxis(sp_data->shake_axis());
+  entity_data->axis = sp_data->shake_axis();
   entity_data->shake_scale = sp_data->shake_scale();
 
   if (sp_data->shake_impeller() != ImpellerSpecification_None) {
@@ -116,7 +113,7 @@ void ShakeablePropComponent::ShakeProps(float damage_percent,
 
     // The closer the prop is to the damage_position, the more it should shake.
     // The effect trails off with distance squared.
-    const vec3 prop_position = vec3(so_data->current_transform.position);
+    const vec3 prop_position = so_data->GlobalPosition();
     const float closeness =
         mathfu::Clamp(config_->prop_shake_identity_distance_sq() /
                           (damage_position - prop_position).LengthSquared(),

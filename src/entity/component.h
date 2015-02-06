@@ -77,7 +77,7 @@ class Component : public ComponentInterface {
   virtual void RemoveEntity(EntityRef& entity) {
     CleanupEntity(entity);
     ComponentId component_id = GetComponentId();
-    entity_data_.FreeElement(entity->GetComponentDataIndex(component_id));
+    entity_data_.FreeElement(GetEntityDataIndex(entity));
     entity->SetComponentDataIndex(component_id, kUnusedComponentIndex);
   }
 
@@ -114,18 +114,18 @@ class Component : public ComponentInterface {
     if (data_index == kUnusedComponentIndex) {
       return nullptr;
     }
-    return entity_data_.GetElementData(data_index)->data;
+    EntityData* element_data = entity_data_.GetElementData(data_index);
+    return (element_data != nullptr) ? &(element_data->data) : nullptr;
   }
 
   // Return the data we have stored at a given index.
   // Returns null if data_index indicates this component isn't present.
   T* GetEntityData(const EntityRef& entity) {
-    size_t data_index = entity->GetComponentDataIndex(GetComponentId());
+    size_t data_index = GetEntityDataIndex(entity);
     if (data_index >= entity_data_.Size()) {
       return nullptr;
     }
-    EntityData* element_data = entity_data_.GetElementData(data_index);
-    return (element_data != nullptr) ? &(element_data->data) : nullptr;
+    return GetEntityData(data_index);
   }
 
   // Return the data we have stored at a given index.
@@ -186,11 +186,15 @@ class Component : public ComponentInterface {
   }
 
   // Returns the ID of this component.
-  ComponentId GetComponentId() {
+  static ComponentId GetComponentId() {
     return ComponentIdLookup<T>::kComponentId;
   }
 
  protected:
+  size_t GetEntityDataIndex(const EntityRef& entity) const {
+    return entity->GetComponentDataIndex(GetComponentId());
+  }
+
   VectorPool<EntityData> entity_data_;
   EntityManager* entity_manager_;
 };

@@ -19,7 +19,6 @@
 #include <memory>
 #include "character.h"
 #include "impel_engine.h"
-#include "components/childobject.h"
 #include "components/drip_and_vanish.h"
 #include "components/player_character.h"
 #include "components/scene_object.h"
@@ -192,8 +191,6 @@ class GameState {
   SceneObjectComponent sceneobject_component_;
   // Component for handling static, swaying props in the background.
   ShakeablePropComponent shakeable_prop_component_;
-  // Component for managing accessories.
-  ChildObjectComponent childobject_component_;
   // Component for scenery-splatter behavior.
   DripAndVanishComponent drip_and_vanish_component_;
   // Component for drawing player characters:

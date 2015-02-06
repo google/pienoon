@@ -108,10 +108,9 @@ entity::EntityRef PieNoonEntityFactory::CreateEntityFromData(
 
 GameState::GameState()
     : time_(0),
-      characters_(),
-      pies_(),
-      config_(),
-      arrangement_() {
+      config_(nullptr),
+      arrangement_(nullptr),
+      sceneobject_component_(&impel_engine_) {
 }
 
 GameState::~GameState() {
@@ -159,7 +158,7 @@ void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
     const SceneObjectData* so_data = entity_manager_.
         GetComponentData<SceneObjectData>(iter->entity);
     assert(so_data != nullptr);
-    float dist_squared = (vec3(so_data->current_transform.position) -
+    float dist_squared = (so_data->GlobalPosition() -
                           damage_position).LengthSquared();
     if (dist_squared < config_->splatter_radius_squared()) {
       AddSplatterToProp(iter->entity);
@@ -206,8 +205,6 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
       &sceneobject_component_);
   entity_manager_.RegisterComponent<ShakeablePropComponent>(
         &shakeable_prop_component_);
-  entity_manager_.RegisterComponent<ChildObjectComponent>(
-        &childobject_component_);
   entity_manager_.RegisterComponent<DripAndVanishComponent>(
         &drip_and_vanish_component_);
   entity_manager_.RegisterComponent<PlayerCharacterComponent>(
@@ -473,25 +470,23 @@ void GameState::AddSplatterToProp(entity::EntityRef prop) {
     auto so_data = entity_manager_.GetComponentData<SceneObjectData>(
         splatter);
 
-    auto co_data = entity_manager_.GetComponentData<ChildObjectData>(
-        splatter);
-
-    so_data->renderable_id = id_list[mathfu::RandomInRange(0, 3)];
-    co_data->parent = prop;
+    so_data->set_renderable_id(id_list[mathfu::RandomInRange(0, 3)]);
+    so_data->set_parent(prop);
 
     vec3 min_range = LoadVec3(config_->splatter_range_min());
     vec3 max_range = LoadVec3(config_->splatter_range_max());
 
-    co_data->relative_offset = mathfu::RandomInRange(min_range, max_range);
+    const vec3 offset = mathfu::RandomInRange(min_range, max_range);
+    so_data->SetTranslation(offset);
 
-    Quat rotation = Quat::FromAngleAxis(
-          mathfu::RandomInRange(-M_PI_2, M_PI_2),
-          mathfu::kAxisZ3f);
-    co_data->relative_orientation = rotation;
+    const Angle rotation_angle = Angle::FromWithinThreePi(
+        mathfu::RandomInRange(-M_PI_2, M_PI_2));
+    so_data->SetRotationAboutZ(rotation_angle.ToRadians());
 
     float scale = mathfu::RandomInRange(config_->splatter_scale_min(),
                                         config_->splatter_scale_max());
-    co_data->relative_scale = vec3(scale);
+    so_data->SetScale(vec3(scale));
+
     drip_and_vanish_component_.SetStartingValues(splatter);
   }
 }
@@ -1022,9 +1017,6 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     character->TwitchFaceAngle(twitch);
   }
 
-  // Update all Impellers. Impeller updates are done in bulk for scalability.
-  impel_engine_.AdvanceFrame(delta_time);
-
   // Look to timeline to see what's happening. Make it happen.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
     ProcessEvents(audio_engine, characters_[i].get(), &event_data[i], delta_time);
@@ -1041,6 +1033,11 @@ void GameState::AdvanceFrame(WorldTime delta_time,
 
   // Update entities.
   entity_manager_.UpdateComponents(delta_time);
+
+  // Update all Impellers. Impeller updates are done in bulk for scalability.
+  // Must come after entity_manager_'s update because matrix Impellers are
+  // modified by Components.
+  impel_engine_.AdvanceFrame(delta_time);
 
   camera_.AdvanceFrame(delta_time);
 }

@@ -390,14 +390,6 @@
           }
         },
         {
-          "data_type":ChildObjectDef,
-          "data": {
-            "offset": { "x": 0, "y": 2, "z":-0.1 },
-            "orientation": { "x": 0, "y": 0, "z":0 },
-            "scale": { "x": 1, "y": 1, "z":1 }
-          }
-        },
-        {
           "data_type":DripAndVanishDef,
           "data": {
             "total_lifetime": 12.0,

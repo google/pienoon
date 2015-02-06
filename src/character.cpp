@@ -83,13 +83,6 @@ void Character::TwitchFaceAngle(impel::TwitchDirection twitch) {
   impel::Twitch(twitch, velocity, settled, &face_angle_);
 }
 
-mat4 Character::CalculateMatrix(bool facing_camera) const {
-  const Angle face_angle = FaceAngle();
-  return mat4::FromTranslationVector(position_) *
-         mat4::FromRotationMatrix(face_angle.ToXZRotationMatrix()) *
-         mat4::FromScaleVector(vec3(1.0f, 1.0f, facing_camera ? 1.0f : -1.0f));
-}
-
 uint16_t Character::RenderableId(WorldTime anim_time) const {
   // The timeline for the current state has an array of renderable ids.
   const Timeline* timeline = state_machine_.current_state()->timeline();

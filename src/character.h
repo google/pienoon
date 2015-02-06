@@ -79,9 +79,6 @@ class Character {
   // Sets the character's target and our target face angle.
   void SetTarget(CharacterId target, Angle angle_to_target);
 
-  // Convert the position and face angle into a matrix for rendering.
-  mathfu::mat4 CalculateMatrix(bool facing_camera) const;
-
   // Calculate the renderable id for the character at 'anim_time'.
   uint16_t RenderableId(WorldTime anim_time) const;
 

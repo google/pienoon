@@ -31,7 +31,7 @@ namespace pie_noon {
 struct ShakeablePropData {
   ShakeablePropData() {}
   float shake_scale;
-  mathfu::vec3_packed shake_axis;
+  Axis axis;
   impel::Impeller1f impeller;
 };
 

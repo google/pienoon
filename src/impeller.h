@@ -174,8 +174,12 @@ class Impeller1f : public Impeller {
 // Internally, we use mathfu::mat4 as our matrix type, but external we allow
 // any matrix type to be specified via the Matrix4f template parameter.
 //
-template<class Matrix4f>
+template<class VectorConverter>
 class ImpellerMatrix4fTemplate : public Impeller {
+  typedef VectorConverter C;
+  typedef typename VectorConverter::ExternalMatrix4 Mat4;
+  typedef typename VectorConverter::ExternalVector3 Vec3;
+
  public:
   ImpellerMatrix4fTemplate() {}
   ImpellerMatrix4fTemplate(const ImpelInit& init, ImpelEngine* engine)
@@ -185,15 +189,20 @@ class ImpellerMatrix4fTemplate : public Impeller {
   // Return the current value of the Impeller. The processor returns a
   // vector-aligned matrix, so the cast should be valid for any user-defined
   // matrix type.
-  const Matrix4f& Value() const {
-    return *reinterpret_cast<const Matrix4f*>(&Processor().Value(index_));
+  const Mat4& Value() const { return C::To(Processor().Value(index_)); }
+
+  float ChildValue1f(ImpelChildIndex child_index) const {
+    return Processor().ChildValue1f(index_, child_index);
+  }
+  Vec3 ChildValue3f(ImpelChildIndex child_index) const {
+    return C::To(Processor().ChildValue3f(index_, child_index));
   }
 
   // Set the target for a child impeller. Each basic matrix transformations
   // can be driven by a child impeller. This call lets us control each
   // transformation.
   void SetChildTarget1f(ImpelChildIndex child_index, const ImpelTarget1f& t) {
-    Processor().SetChildState(index_, child_index, t);
+    Processor().SetChildTarget1f(index_, child_index, t);
   }
 
   // Set the constant value of a child. Each basic matrix transformation
@@ -201,6 +210,9 @@ class ImpellerMatrix4fTemplate : public Impeller {
   // values.
   void SetChildValue1f(ImpelChildIndex child_index, float value) {
     Processor().SetChildValue1f(index_, child_index, value);
+  }
+  void SetChildValue3f(ImpelChildIndex child_index, const Vec3& value) {
+    Processor().SetChildValue3f(index_, child_index, C::From(value));
   }
 
  private:
@@ -212,7 +224,18 @@ class ImpellerMatrix4fTemplate : public Impeller {
   }
 };
 
-typedef ImpellerMatrix4fTemplate<mathfu::mat4> ImpellerMatrix4f;
+// External types are also mathfu in this converter. Create your own converter
+// if you'd like to use your own vector types in ImpelMatrix's external API.
+class PassThroughVectorConverter {
+ public:
+  typedef mathfu::mat4 ExternalMatrix4;
+  typedef mathfu::vec3 ExternalVector3;
+  static const ExternalMatrix4& To(const mathfu::mat4& m) { return m; }
+  static ExternalVector3 To(const mathfu::vec3& v) { return v; }
+  static const mathfu::vec3& From(const ExternalVector3& v) { return v; }
+};
+
+typedef ImpellerMatrix4fTemplate<PassThroughVectorConverter> ImpellerMatrix4f;
 
 
 } // namespace impel

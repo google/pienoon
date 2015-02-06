@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "drip_and_vanish.h"
-#include "childobject.h"
+#include "scene_object.h"
 #include "utilities.h"
 
 namespace fpl {
@@ -27,7 +27,7 @@ using mathfu::vec3;
 // for splatters on the background.
 void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    ChildObjectData* co_data = Data<ChildObjectData>(iter->entity);
+    SceneObjectData* so_data = Data<SceneObjectData>(iter->entity);
     DripAndVanishData* dv_data = GetEntityData(iter->entity);
 
     dv_data->lifetime_remaining -= delta_time;
@@ -36,8 +36,8 @@ void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
         float slide_amount =
             1.0f - dv_data->lifetime_remaining / dv_data->slide_time;
 
-        vec3 relative_offset = vec3(co_data->relative_offset);
-        vec3 relative_scale = vec3(co_data->relative_scale);
+        vec3 relative_offset = so_data->Translation();
+        vec3 relative_scale = so_data->Scale();
 
         // The amount it moves is a cubic function, mostly because
         // that looked the prettiest.
@@ -46,8 +46,9 @@ void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
                                   dv_data->drip_distance;
 
         relative_scale = vec3(dv_data->start_scale) * (1.0f - slide_amount);
-        co_data->relative_offset = relative_offset;
-        co_data->relative_scale = relative_scale;
+
+        so_data->SetTranslation(relative_offset);
+        so_data->SetScale(relative_scale);
       }
     } else {
       entity_manager_->DeleteEntity(iter->entity);
@@ -74,7 +75,7 @@ void DripAndVanishComponent::AddFromRawData(entity::EntityRef& entity,
 // Make sure we have an accessory.
 void DripAndVanishComponent::InitEntity(entity::EntityRef& entity) {
   ComponentInterface* scene_object_component =
-      GetComponent<ChildObjectComponent>();
+      GetComponent<SceneObjectComponent>();
   assert(scene_object_component);
   scene_object_component->AddEntityGenerically(entity);
 }
@@ -83,10 +84,10 @@ void DripAndVanishComponent::InitEntity(entity::EntityRef& entity) {
 // just after creation.
 void DripAndVanishComponent::SetStartingValues(entity::EntityRef& entity) {
   DripAndVanishData* entity_data = GetEntityData(entity);
-  ChildObjectData* co_data = Data<ChildObjectData>(entity);
+  SceneObjectData* so_data = Data<SceneObjectData>(entity);
 
-  entity_data->start_position = co_data->relative_offset;
-  entity_data->start_scale = co_data->relative_scale;
+  entity_data->start_position = so_data->Translation();
+  entity_data->start_scale = so_data->Scale();
 }
 
 }  // pie noon

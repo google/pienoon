@@ -16,11 +16,12 @@
 #include "bulk_spline_evaluator.h"
 #include "impel_engine.h"
 #include "impel_init.h"
+#include "angle.h"
 
 
 using mathfu::vec4;
 using mathfu::mat4;
-
+using fpl::Angle;
 
 namespace impel {
 
@@ -29,6 +30,10 @@ static const vec4 kIdentityColumn1(0.0f, 1.0f, 0.0f, 0.0f);
 static const vec4 kIdentityColumn2(0.0f, 0.0f, 1.0f, 0.0f);
 static const vec4 kIdentityColumn3(0.0f, 0.0f, 0.0f, 1.0f);
 
+
+static inline bool IsRotation(MatrixOperationType type) {
+  return type <= kRotateAboutZ;
+}
 
 // Runtime structure to hold one operation and the input value of that
 // operation. Kept as small as possible to conserve memory, since every
@@ -110,7 +115,8 @@ class MatrixOperation {
   }
 
   void SetValue1f(float value) {
-    assert(animation_type_ == kConstValueAnimation);
+    assert(animation_type_ == kConstValueAnimation &&
+           (!IsRotation(Type()) || Angle::IsAngleInRange(value)));
     value_.const_value = value;
   }
 
@@ -334,8 +340,13 @@ class MatrixImpelProcessor : public ImpelProcessorMatrix4f {
     return Data(index).result_matrix();
   }
 
+  virtual float ChildValue1f(ImpelIndex index,
+                             ImpelChildIndex child_index) const {
+    return Data(index).Op(child_index).Value();
+  }
+
   virtual void SetChildTarget1f(ImpelIndex index, ImpelChildIndex child_index,
-                                ImpelTarget1f& t) {
+                                const ImpelTarget1f& t) {
     Data(index).Op(child_index).SetTarget1f(t);
   }
 
