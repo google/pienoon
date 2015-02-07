@@ -39,7 +39,7 @@ struct OvershootImpelData {
   OvershootImpelInit init;
 };
 
-class OvershootImpelProcessor : public ImpelProcessor<float> {
+class OvershootImpelProcessor : public ImpelProcessor1f {
  public:
   virtual ~OvershootImpelProcessor() {}
 
@@ -63,6 +63,7 @@ class OvershootImpelProcessor : public ImpelProcessor<float> {
   }
 
   virtual ImpellerType Type() const { return OvershootImpelInit::kType; }
+  virtual int Priority() const { return 1; }
 
   // Accessors to allow the user to get and set simluation values.
   virtual float Value(ImpelIndex index) const { return Data(index).value; }
@@ -72,24 +73,25 @@ class OvershootImpelProcessor : public ImpelProcessor<float> {
   virtual float TargetValue(ImpelIndex index) const {
     return Data(index).target_value;
   }
+  virtual float TargetVelocity(ImpelIndex /*index*/) const { return 0.0f; }
   virtual float Difference(ImpelIndex index) const {
     const OvershootImpelData& d = Data(index);
     return d.init.Normalize(d.target_value - d.value);
   }
-  virtual void SetState(ImpelIndex index, const ImpellerState& state) {
-    OvershootImpelData& data = Data(index);
-    if (state.valid & kValueValid) {
-      data.value = state.value;
+  // TODO: Implement this after converting Overshoot to use splines.
+  virtual float TargetTime(ImpelIndex /*index*/) const { return -1.0f; }
+  virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
+    OvershootImpelData& d = Data(index);
+    if (t.Valid(kValue)) {
+      d.value = t.Value();
     }
-    if (state.valid & kVelocityValid) {
-      data.velocity = state.velocity;
+    if (t.Valid(kVelocity)) {
+      d.velocity = t.Velocity();
     }
-    if (state.valid & kTargetValueValid) {
-      data.target_value = state.target_value;
+    if (t.Valid(kTargetValue)) {
+      d.target_value = t.TargetValue();
     }
   }
-
-  virtual int Priority() const { return 1; }
 
  protected:
   virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,

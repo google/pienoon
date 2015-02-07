@@ -33,7 +33,7 @@ using impel::Impeller1f;
 using impel::ImpellerMatrix4f;
 using impel::ImpelTime;
 using impel::ImpelInit;
-using impel::ImpellerState1f;
+using impel::ImpelTarget1f;
 using impel::OvershootImpelInit;
 using impel::SmoothImpelInit;
 using impel::MatrixImpelInit;
@@ -103,11 +103,8 @@ protected:
   void InitImpeller(const ImpelInit& init, float start_value,
                     float start_velocity, float target_value,
                     Impeller1f* impeller) {
-    ImpellerState1f s;
-    s.SetValue(start_value);
-    s.SetVelocity(start_velocity);
-    s.SetTargetValue(target_value);
-    impeller->InitializeWithState(init, &engine_, s);
+    const ImpelTarget1f t(start_value, start_velocity, target_value);
+    impeller->InitializeWithTarget(init, &engine_, t);
   }
 
   void InitOvershootImpeller(Impeller1f* impeller) {

@@ -23,8 +23,8 @@
 namespace impel {
 
 
-class ImpelProcessorBase;
-class ImpellerBase;
+class ImpelProcessor;
+class Impeller;
 
 // Impeller type is used for run-time type information. It's implemented as a
 // pointer to a string, in each derivation of ImpelInit.
@@ -36,6 +36,11 @@ static const ImpellerType kImpelTypeInvalid = nullptr;
 // proxied to the ImpelProcessor.
 typedef uint32_t ImpelIndex;
 static const ImpelIndex kImpelIndexInvalid = static_cast<ImpelIndex>(-1);
+
+// Impellers can have child components. For example, a matrix impeller is
+// composed of a series of basic matrix operations. Each operation is a
+// child component.
+typedef uint32_t ImpelChildIndex;
 
 // Time units are defined by the user. We use integer instead of floating
 // point to avoid a loss of precision as time accumulates.
@@ -69,10 +74,10 @@ class ImpelInit {
 // Example usage,
 //    IMPEL_INSTANCE(AwesomeImpelInit, AwesomeImpelProcessor);
 #define IMPEL_INSTANCE(InitType, ProcessorType) \
-    static impel::ImpelProcessorBase* ProcessorType##Create() { \
+    static impel::ImpelProcessor* ProcessorType##Create() { \
       return new ProcessorType(); \
     } \
-    static void ProcessorType##Destroy(ImpelProcessorBase* p) { delete p; } \
+    static void ProcessorType##Destroy(ImpelProcessor* p) { delete p; } \
     void InitType::Register() { \
       const ImpelProcessorFunctions functions(ProcessorType##Create,\
                                               ProcessorType##Destroy); \

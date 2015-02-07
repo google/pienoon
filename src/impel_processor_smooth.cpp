@@ -28,7 +28,9 @@ using fpl::Range;
 // Add some buffer to the y-range to allow for intermediate nodes
 // that go above or below the supplied nodes.
 static const float kYRangeBufferPercent = 1.2f;
-
+static const float kDefaultTargetValue = 0.0f;
+static const float kDefaultTargetVelocity = 0.0f;
+static const float kDefaultTargetTime = 1000.0f;
 
 struct SmoothImpelData  {
   SmoothImpelData() : local_spline(nullptr) {}
@@ -45,7 +47,7 @@ struct SmoothImpelData  {
 };
 
 
-class SmoothImpelProcessor : public ImpelProcessor<float> {
+class SmoothImpelProcessor : public ImpelProcessor1f {
  public:
   virtual ~SmoothImpelProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
@@ -53,74 +55,81 @@ class SmoothImpelProcessor : public ImpelProcessor<float> {
     }
   }
 
+  virtual void AdvanceFrame(ImpelTime delta_time) {
+    Defragment();
+    interpolator_.AdvanceFrame(delta_time);
+  }
+
   virtual ImpellerType Type() const { return SmoothImpelInit::kType; }
+  virtual int Priority() const { return 0; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value(ImpelIndex index) const { return interpolator_.Y(index); }
+  virtual float Value(ImpelIndex index) const {
+    return interpolator_.Y(index);
+  }
   virtual float Velocity(ImpelIndex index) const {
     return interpolator_.Derivative(index);
   }
   virtual float TargetValue(ImpelIndex index) const {
     return interpolator_.EndY(index);
   }
+  virtual float TargetVelocity(ImpelIndex index) const {
+    return interpolator_.EndDerivative(index);
+  }
   virtual float Difference(ImpelIndex index) const {
     const SmoothImpelData& d = Data(index);
     return d.init.Normalize(interpolator_.EndY(index) -
                             interpolator_.Y(index));
   }
-
-  virtual void AdvanceFrame(ImpelTime delta_time) {
-    Defragment();
-    interpolator_.AdvanceFrame(delta_time);
+  virtual float TargetTime(ImpelIndex index) const {
+    return interpolator_.EndX(index);
   }
 
-  virtual void SetState(ImpelIndex index, const ImpellerState& s) {
+  virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
     SmoothImpelData& d = Data(index);
 
-    const bool use_external_spline = s.valid & kTargetWaypointsValid;
-    if (use_external_spline) {
-      // Return the local spline to the spline pool. We use external
-      // splines now.
-      FreeSpline(d.local_spline);
+    // Initialize spline to match specified parameters. We maintain current
+    // values for any parameters that aren't specified.
+    const float start_y = t.Valid(kValue) ? t.Value() : Value(index);
+    const float start_derivative = t.Valid(kVelocity)
+                                 ? t.Velocity() : Velocity(index);
+    const float end_y = t.Valid(kTargetValue)
+                      ? t.TargetValue() : kDefaultTargetValue;
+    const float end_derivative = t.Valid(kTargetVelocity)
+                               ? t.TargetVelocity() : kDefaultTargetVelocity;
+    const float end_x = t.Valid(kTargetTime)
+                      ? t.TargetTime() : kDefaultTargetTime;
+    const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
+    const Range y_range =
+        fpl::CreateValidRange(start_y, end_y).Lengthen(kYRangeBufferPercent);
 
-      // Initialize spline to follow way points.
-      // Snaps the current value and velocity to the way point's start value
-      // and velocity.
-      interpolator_.SetSpline(index, *s.waypoints, s.waypoints_start_time);
-
-    } else {
-      // Initialize spline to match specified parameters. We maintain current
-      // values for any parameters that aren't specified.
-      const float start_y = (s.valid & kValueValid) ? s.value :
-                            interpolator_.X(index);
-      const float start_derivative = (s.valid & kVelocityValid) ? s.velocity :
-                                     interpolator_.Derivative(index);
-      const float end_y = (s.valid & kTargetValueValid) ? s.target_value :
-                          interpolator_.EndY(index);
-      const float end_derivative = (s.valid & kTargetVelocityValid) ?
-                                   s.target_velocity : 0.0f;
-      const float end_x = (s.valid & kTargetTimeValid) ? s.target_time :
-                          interpolator_.EndX(index);
-      const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
-      const Range y_range =
-          fpl::CreateValidRange(start_y, end_y).Lengthen(kYRangeBufferPercent);
-
-      // Ensure we have a local spline available, allocated from our
-      // pool of splines.
-      if (d.local_spline == nullptr) {
-        d.local_spline = AllocateSpline();
-      }
-
-      // An intermediate node might be inserted to make the cubic curve well
-      // behaved, so reserve 3 nodes in the spline.
-      d.local_spline->Init(y_range, x_granularity, 3);
-      d.local_spline->AddNode(0.0f, start_y, start_derivative);
-      d.local_spline->AddNode(end_x, end_y, end_derivative);
-      interpolator_.SetSpline(index, *d.local_spline);
+    // Ensure we have a local spline available, allocated from our
+    // pool of splines.
+    if (d.local_spline == nullptr) {
+      d.local_spline = AllocateSpline();
     }
+
+    // An intermediate node might be inserted to make the cubic curve well
+    // behaved, so reserve 3 nodes in the spline.
+    d.local_spline->Init(y_range, x_granularity, 3);
+    d.local_spline->AddNode(0.0f, start_y, start_derivative);
+    d.local_spline->AddNode(end_x, end_y, end_derivative);
+    interpolator_.SetSpline(index, *d.local_spline);
   }
 
-  virtual int Priority() const { return 0; }
+  virtual void SetWaypoints(ImpelIndex index,
+                            const fpl::CompactSpline& waypoints,
+                            float start_time) {
+    SmoothImpelData& d = Data(index);
+
+    // Return the local spline to the spline pool. We use external splines now.
+    FreeSpline(d.local_spline);
+
+    // Initialize spline to follow way points.
+    // Snaps the current value and velocity to the way point's start value
+    // and velocity.
+    interpolator_.SetSpline(index, waypoints, start_time);
+  }
 
  protected:
   virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,

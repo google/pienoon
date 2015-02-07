@@ -42,7 +42,7 @@ void ImpelEngine::Reset() {
   mapped_processors_.clear();
 }
 
-ImpelProcessorBase* ImpelEngine::Processor(ImpellerType type) {
+ImpelProcessor* ImpelEngine::Processor(ImpellerType type) {
   // If processor already exists, return it.
   ProcessorMap::iterator it = mapped_processors_.find(type);
   if (it != mapped_processors_.end())
@@ -56,7 +56,7 @@ ImpelProcessorBase* ImpelEngine::Processor(ImpellerType type) {
 
   // Remember processor for next time. We only want at most one processor per
   // type in an engine.
-  ImpelProcessorBase* processor = fns.create();
+  ImpelProcessor* processor = fns.create();
   mapped_processors_.insert(ProcessorPair(type, processor));
 
 
@@ -73,7 +73,7 @@ void ImpelEngine::AdvanceFrame(ImpelTime delta_time) {
   // assume that one pass is sufficient.
   for (ProcessorSet::iterator it = sorted_processors_.begin();
        it != sorted_processors_.end(); ++it) {
-    ImpelProcessorBase* processor = *it;
+    ImpelProcessor* processor = *it;
     processor->AdvanceFrame(delta_time);
   }
 }

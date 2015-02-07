@@ -17,56 +17,57 @@
 
 #include <vector>
 
-#include "impel_common.h"
 #include "fplutil/index_allocator.h"
+#include "impel_common.h"
 
 namespace fpl { class CompactSpline; }
 
 namespace impel {
 
-class ImpellerBase;
+class Impeller;
 class ImpelEngine;
-
-// Impellers have a subset of this state. Not all impellers types have all
-// of this state. For example, some impellers may be simple physics driven
-// movement, and not support waypoints.
-enum ImpellerStateItem {
-  kValue,
-  kVelocity,
-  kTargetValue,
-  kTargetVelocity,
-  kTargetTime,
-  kTargetWaypoints,
-};
-
-// Bitfields of the types above. Used in ImpelProcessor::ImpellerState::valid
-// to specify which fields are being set in ImpelProcessor::SetState().
-enum ImpellerStateValidity {
-  kValueValid = 1 << kValue,
-  kVelocityValid = 1 << kVelocity,
-  kTargetValueValid = 1 << kTargetValue,
-  kTargetVelocityValid = 1 << kTargetVelocity,
-  kTargetTimeValid = 1 << kTargetTime,
-  kTargetWaypointsValid = 1 << kTargetWaypoints,
-};
+class ImpelTarget1f;
 
 
-// Basic creation and deletion functions, common across processors of any
-// dimension.
-class ImpelProcessorBase {
+// ImpelProcessor
+// ==============
+// An ImpelProcessor processes *all* instances of one type of Impeller.
+// Or, at least, all instances within a given ImpelEngine.
+//
+// We pool the processing for potential optimization opportunities. We may have
+// hundreds of smoothly-interpolating one-dimensional Impellers, for example.
+// It's nice to be able to update those 4 or 8 or 16 at a time using SIMD.
+// And it's nice to have the data gathered in one spot if we want to use
+// multiple threads.
+//
+// ImpelProcessors exists in the internal API. For the external API, please see
+// Impeller.
+//
+// Users can create their own Impeller algorithms by deriving from
+// ImpelProcessor. ImpelProcessors must have a factory that's registered with
+// the ImpelEngine (please see ImpelEngine for details). Once registered,
+// you can use your new Impeller algorithm by calling Impeller::Initialize()
+// with ImpelInit::type set to your ImpelProcessor's ImpellerType.
+//
+// ImpelProcessors run on mathfu types. Please see the specializations below
+// for ImpelProcessors of various dimensions. Note that Impeller expects the
+// ImpelProcessor to return a mathfu type, so you shouldn't try to specialize
+// ImpelProcessor<> with any of your native types.
+//
+class ImpelProcessor {
  public:
-  ImpelProcessorBase() :
+  ImpelProcessor() :
       allocator_callbacks_(this),
       index_allocator_(allocator_callbacks_) {
   }
-  virtual ~ImpelProcessorBase();
+  virtual ~ImpelProcessor();
 
   // Instantiate impeller data inside the ImpelProcessor, and initialize
   // 'impeller' as a reference to that data.
   // The 'engine' is required if the ImpelProcessor itself creates child
   // Impellers. This function should only be called by Impeller::Initialize().
   void InitializeImpeller(const ImpelInit& init, ImpelEngine* engine,
-                          ImpellerBase* impeller);
+                          Impeller* impeller);
 
   // Remove an impeller and return its index to the pile of allocatable indices.
   // Should only be called by Impeller::Invalidate().
@@ -76,13 +77,13 @@ class ImpelProcessorBase {
   // Resets the Impeller that currently owns 'index' and initializes
   // 'new_impeller'.
   // Should only be called by Impeller copy operations.
-  void TransferImpeller(ImpelIndex index, ImpellerBase* new_impeller);
+  void TransferImpeller(ImpelIndex index, Impeller* new_impeller);
 
   // Returns true if 'index' is currently driving an impeller.
   bool ValidIndex(ImpelIndex index) const;
 
   // Returns true if 'index' is currently driving 'impeller'.
-  bool ValidImpeller(ImpelIndex index, const ImpellerBase* impeller) const {
+  bool ValidImpeller(ImpelIndex index, const Impeller* impeller) const {
     return ValidIndex(index) && impellers_[index] == impeller;
   }
 
@@ -98,18 +99,6 @@ class ImpelProcessorBase {
   // in 3D space would return 3.
   virtual int Dimensions() const = 0;
 
-  // For aggregate Impellers, get the sub-Impellers. See comments in Impeller
-  // for details.
-  virtual int ChildImpellerCount(ImpelIndex /*index*/) const { return 0; }
-  virtual const ImpellerBase* ChildImpeller(ImpelIndex /*index*/,
-                                            int /*child_index*/) const {
-    return nullptr;
-  }
-  virtual ImpellerBase* ChildImpeller(ImpelIndex /*index*/,
-                                      int /*child_index*/) {
-    return nullptr;
-  }
-
   // The lower the number, the sooner the ImpelProcessor gets updated.
   // Should never change. We want a static ordering of processors.
   // Some ImpelProcessors use the output of other ImpelProcessors, so
@@ -120,7 +109,7 @@ class ImpelProcessorBase {
   // Initialize data at 'index'. The meaning of 'index' is determined by the
   // ImpelProcessor implementation (most likely it is the index into one or
   // more data_ arrays though).
-  // ImpelProcessorBase tries to keep the 'index' as low as possible, by
+  // ImpelProcessor tries to keep the 'index' as low as possible, by
   // recycling ones that have been freed, and by providing a Defragment()
   // function to move later indices to indices that have been freed.
   virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
@@ -150,11 +139,11 @@ class ImpelProcessorBase {
   }
 
  private:
-  // Proxy callbacks from IndexAllocator into ImpelProcessorBase.
+  // Proxy callbacks from IndexAllocator into ImpelProcessor.
   class AllocatorCallbacks :
       public fpl::IndexAllocator<ImpelIndex>::CallbackInterface {
    public:
-    AllocatorCallbacks(ImpelProcessorBase* processor) : processor_(processor) {}
+    AllocatorCallbacks(ImpelProcessor* processor) : processor_(processor) {}
     virtual void SetNumIndices(ImpelIndex num_indices) {
       processor_->SetNumIndicesBase(num_indices);
     }
@@ -162,7 +151,7 @@ class ImpelProcessorBase {
       processor_->MoveIndexBase(old_index, new_index);
     }
    private:
-    ImpelProcessorBase* processor_;
+    ImpelProcessor* processor_;
   };
 
   // Back-pointer to the Impellers for each index. The Impellers reference this
@@ -172,10 +161,10 @@ class ImpelProcessorBase {
   // Note that we only keep a reference to a single Impeller per index. When
   // a copy of an Impeller is made, the old Impeller is Reset and the reference
   // here is updated.
-  std::vector<ImpellerBase*> impellers_;
+  std::vector<Impeller*> impellers_;
 
-  // Proxy calbacks into ImpelProcessorBase. The other option is to derive
-  // ImpelProcessorBase from IndexAllocator::CallbackInterface, but that would
+  // Proxy calbacks into ImpelProcessor. The other option is to derive
+  // ImpelProcessor from IndexAllocator::CallbackInterface, but that would
   // create a messier API, and not be great OOP.
   // This member should be initialized before index_allocator_ is initialized.
   AllocatorCallbacks allocator_callbacks_;
@@ -189,76 +178,51 @@ class ImpelProcessorBase {
 };
 
 
-// ImpelProcessor
-// ==============
-// An ImpelProcessor processes *all* instances of one type of Impeller.
-// Or, at least, all instances within a given ImpelEngine.
-//
-// We pool the processing for potential optimization opportunities. We may have
-// hundreds of smoothly-interpolating one-dimensional Impellers, for example.
-// It's nice to be able to update those 4 or 8 or 16 at a time using SIMD.
-// And it's nice to have the data gathered in one spot if we want to use
-// multiple threads.
-//
-// ImpelProcessors exists in the internal API. For the external API, please see
-// Impeller.
-//
-// Users can create their own Impeller algorithms by deriving from
-// ImpelProcessor. ImpelProcessors must have a factory that's registered with
-// the ImpelEngine (please see ImpelEngine for details). Once registered,
-// you can use your new Impeller algorithm by calling Impeller::Initialize()
-// with ImpelInit::type set to your ImpelProcessor's ImpellerType.
-//
-// ImpelProcessors run on mathfu types. Please see the specializations below
-// for ImpelProcessors of various dimensions. Note that Impeller expects the
-// ImpelProcessor to return a mathfu type, so you shouldn't try to specialize
-// ImpelProcessor<> with any of your native types.
-//
-template<class T>
-class ImpelProcessor : public ImpelProcessorBase {
+// Interface for impeller types that drive a single float value.
+// That is, for ImpelProcessors that interface with Impeller1f's.
+class ImpelProcessor1f : public ImpelProcessor {
  public:
-  // An Impeller's state is set in bulk via the SetState call. All the state
-  // is set in one call because SetState will generally involve a lot of
-  // initialization work. We don't want that to happen twice on one frame
-  // if we set both 'value' and 'velocity'.
-  struct ImpellerState {
-    ImpellerState() : valid(0) {}
-    T value;
-    T velocity;
-    T target_value;
-    T target_velocity;
-    uint32_t valid;     // bitfield. See ImpellerStateValidity.
-    float target_time;
-    float waypoints_start_time;
-    const fpl::CompactSpline* waypoints;
-  };
+  virtual int Dimensions() const { return 1; }
 
-  virtual ~ImpelProcessor() {}
-  virtual int Dimensions() const { return ValueDetails<T>::kDimensions; }
-  virtual T Value(ImpelIndex /*index*/) const { return T(0.0f); }
-  virtual T Velocity(ImpelIndex /*index*/) const { return T(0.0f); }
-  virtual T TargetValue(ImpelIndex /*index*/) const { return T(0.0f); }
-  virtual T TargetVelocity(ImpelIndex /*index*/) const { return T(0.0f); }
-  virtual T Difference(ImpelIndex index) const {
-    return TargetValue(index) - Value(index);
-  }
-  virtual void SetState(ImpelIndex /*index*/, const ImpellerState& /*state*/) {}
+  // Get current impeller values from the processor.
+  virtual float Value(ImpelIndex index) const = 0;
+  virtual float Velocity(ImpelIndex index) const = 0;
+  virtual float TargetValue(ImpelIndex index) const = 0;
+  virtual float TargetVelocity(ImpelIndex index) const = 0;
+  virtual float Difference(ImpelIndex index) const = 0;
+  virtual float TargetTime(ImpelIndex index) const = 0;
+
+  // At least one of these should be implemented. Otherwise, there will be
+  // no way to drive the Impeller towards a target.
+  virtual void SetTarget(ImpelIndex /*index*/, const ImpelTarget1f& /*t*/) {}
+  virtual void SetWaypoints(ImpelIndex /*index*/,
+                            const fpl::CompactSpline& /*waypoints*/,
+                            float /*start_time*/) {}
 };
 
-// ImpelProcessors of various dimensions. All ImpelProcessors operate with
-// mathfu types in their API. In the Impeller interface, you can convert from
-// mathfu to your own vector types if you wish. See MathfuConverter for a
-// example.
-typedef ImpelProcessor<float> ImpelProcessor1f;
-typedef ImpelProcessor<mathfu::vec2> ImpelProcessor2f;
-typedef ImpelProcessor<mathfu::vec3> ImpelProcessor3f;
-typedef ImpelProcessor<mathfu::vec4> ImpelProcessor4f;
-typedef ImpelProcessor<mathfu::mat4> ImpelProcessorMatrix4f;
+
+// Interface for impeller types that drive a 4x4 float matrix.
+// That is, for ImpelProcessors that interface with ImpellerMatrix4f's.
+class ImpelProcessorMatrix4f : public ImpelProcessor {
+ public:
+  virtual int Dimensions() const { return 16; }
+
+  // Get the current matrix value from the processor.
+  virtual const mathfu::mat4& Value(ImpelIndex index) const = 0;
+
+  // Set child values. Matrices are composed from child components.
+  virtual void SetChildTarget1f(ImpelIndex /*index*/,
+                                ImpelChildIndex /*child_index*/,
+                                ImpelTarget1f& /*t*/) {}
+  virtual void SetChildValue1f(ImpelIndex /*index*/,
+                               ImpelChildIndex /*child_index*/,
+                               float /*value*/) {}
+};
 
 
 // Static functions in ImpelProcessor-derived classes.
-typedef ImpelProcessorBase* ImpelProcessorCreateFn();
-typedef void ImpelProcessorDestroyFn(ImpelProcessorBase* p);
+typedef ImpelProcessor* ImpelProcessorCreateFn();
+typedef void ImpelProcessorDestroyFn(ImpelProcessor* p);
 
 struct ImpelProcessorFunctions {
   ImpelProcessorCreateFn* create;

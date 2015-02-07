@@ -18,13 +18,13 @@
 namespace impel {
 
 
-void ImpellerBase::Initialize(const ImpelInit& init, ImpelEngine* engine) {
+void Impeller::Initialize(const ImpelInit& init, ImpelEngine* engine) {
   // Unregister ourselves with our existing ImpelProcessor.
   Invalidate();
 
   // The ImpelProcessors are held centrally in the ImpelEngine. There is only
   // one processor per type. Get that processor.
-  ImpelProcessorBase* processor = engine->Processor(init.type());
+  ImpelProcessor* processor = engine->Processor(init.type());
 
   // Register and initialize ourselves with the ImpelProcessor.
   processor->InitializeImpeller(init, engine, this);

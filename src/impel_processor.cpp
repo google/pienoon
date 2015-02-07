@@ -18,7 +18,7 @@
 
 namespace impel {
 
-ImpelProcessorBase::~ImpelProcessorBase() {
+ImpelProcessor::~ImpelProcessor() {
   // Reset all of the Impellers that we're currently driving.
   // We don't want any of them to reference us after we've been destroyed.
   for (ImpelIndex index = 0; index < index_allocator_.num_indices(); ++index) {
@@ -31,8 +31,8 @@ ImpelProcessorBase::~ImpelProcessorBase() {
   assert(index_allocator_.Empty());
 }
 
-void ImpelProcessorBase::InitializeImpeller(
-    const ImpelInit& init, ImpelEngine* engine, ImpellerBase* impeller) {
+void ImpelProcessor::InitializeImpeller(
+    const ImpelInit& init, ImpelEngine* engine, Impeller* impeller) {
   // Assign an 'index' to reference the new Impeller. All interactions between
   // the Impeller and ImpelProcessor use this 'index' to identify the data.
   const ImpelIndex index = index_allocator_.Alloc();
@@ -49,7 +49,7 @@ void ImpelProcessorBase::InitializeImpeller(
   InitializeIndex(init, index, engine);
 }
 
-void ImpelProcessorBase::RemoveImpeller(ImpelIndex index) {
+void ImpelProcessor::RemoveImpeller(ImpelIndex index) {
   assert(ValidIndex(index));
 
   // Call the ImpelProcessor-specific remove routine.
@@ -66,13 +66,13 @@ void ImpelProcessorBase::RemoveImpeller(ImpelIndex index) {
   index_allocator_.Free(index);
 }
 
-void ImpelProcessorBase::TransferImpeller(ImpelIndex index,
-                                          ImpellerBase* new_impeller) {
+void ImpelProcessor::TransferImpeller(ImpelIndex index,
+                                          Impeller* new_impeller) {
   assert(ValidIndex(index));
 
   // Ensure old Impeller does not reference us anymore. Only one Impeller is
   // allowed to reference 'index'.
-  ImpellerBase* old_impeller = impellers_[index];
+  Impeller* old_impeller = impellers_[index];
   old_impeller->Reset();
 
   // Set up new_impeller to reference 'index'.
@@ -82,13 +82,13 @@ void ImpelProcessorBase::TransferImpeller(ImpelIndex index,
   impellers_[index] = new_impeller;
 }
 
-bool ImpelProcessorBase::ValidIndex(ImpelIndex index) const {
+bool ImpelProcessor::ValidIndex(ImpelIndex index) const {
   return index < index_allocator_.num_indices() &&
          impellers_[index] != nullptr &&
          impellers_[index]->Processor() == this;
 }
 
-void ImpelProcessorBase::SetNumIndicesBase(ImpelIndex num_indices) {
+void ImpelProcessor::SetNumIndicesBase(ImpelIndex num_indices) {
   // When the size decreases, we don't bother reallocating the size of the
   // 'impellers_' vector. We want to avoid reallocating as much as possible,
   // so we let it grow to its high-water mark.
@@ -102,13 +102,13 @@ void ImpelProcessorBase::SetNumIndicesBase(ImpelIndex num_indices) {
   SetNumIndices(num_indices);
 }
 
-void ImpelProcessorBase::MoveIndexBase(ImpelIndex old_index,
+void ImpelProcessor::MoveIndexBase(ImpelIndex old_index,
                                        ImpelIndex new_index) {
   // Assert we're moving something valid onto something invalid.
   assert(impellers_[new_index] == nullptr && impellers_[old_index] != nullptr);
 
   // Reinitialize the impeller to point to the new index.
-  ImpellerBase* impeller = impellers_[old_index];
+  Impeller* impeller = impellers_[old_index];
   impeller->Init(this, new_index);
 
   // Swap the pointer values stored at indices.

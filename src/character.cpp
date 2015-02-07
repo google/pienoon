@@ -66,16 +66,16 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   impel::OvershootImpelInit init;
   OvershootInitFromFlatBuffers(*config_->face_angle_def(), &init);
 
-  impel::ImpellerState1f s;
-  s.SetValue(face_angle.ToRadians());
-  face_angle_.InitializeWithState(init, impel_engine, s);
+  impel::ImpelTarget1f t;
+  t.SetValue(face_angle.ToRadians());
+  face_angle_.InitializeWithTarget(init, impel_engine, t);
 }
 
 void Character::SetTarget(CharacterId target, Angle angle_to_target) {
   target_ = target;
-  impel::ImpellerState1f s;
-  s.SetTargetValue(angle_to_target.ToRadians());
-  face_angle_.SetState(s);
+  impel::ImpelTarget1f t;
+  t.SetTargetValue(angle_to_target.ToRadians());
+  face_angle_.SetTarget(t);
 }
 
 void Character::TwitchFaceAngle(impel::TwitchDirection twitch) {

@@ -58,7 +58,7 @@ class MatrixOperation {
 
         // Initialize the state if required.
         if (init.has_initial_value) {
-          value_.impeller.SetState(ImpellerState1f(init.initial_value));
+          value_.impeller.SetTarget(ImpelTarget1f(init.initial_value));
         }
         break;
       }
@@ -102,6 +102,16 @@ class MatrixOperation {
 
   const Impeller1f* ValueImpeller() const {
     return animation_type_ == kImpellerAnimation ? &value_.impeller : nullptr;
+  }
+
+  void SetTarget1f(const ImpelTarget1f& t) {
+    assert(animation_type_ == kImpellerAnimation);
+    value_.impeller.SetTarget(t);
+  }
+
+  void SetValue1f(float value) {
+    assert(animation_type_ == kConstValueAnimation);
+    value_.const_value = value;
   }
 
  private:
@@ -302,15 +312,9 @@ class MatrixImpelData  {
 
 
 // See comments on MatrixImpelInit for details on this class.
-class MatrixImpelProcessor : public ImpelProcessor<mat4> {
+class MatrixImpelProcessor : public ImpelProcessorMatrix4f {
  public:
   virtual ~MatrixImpelProcessor() {}
-
-  virtual ImpellerType Type() const { return MatrixImpelInit::kType; }
-
-  virtual mat4 Value(ImpelIndex index) const {
-    return Data(index).result_matrix();
-  }
 
   virtual void AdvanceFrame(ImpelTime /*delta_time*/) {
     Defragment();
@@ -323,20 +327,22 @@ class MatrixImpelProcessor : public ImpelProcessor<mat4> {
     }
   }
 
-  virtual int ChildImpellerCount(ImpelIndex index) const {
-    return Data(index).num_ops();
-  }
-
-  virtual const ImpellerBase* ChildImpeller(ImpelIndex index,
-                                            int child_index) const {
-    return Data(index).Op(child_index).ValueImpeller();
-  }
-
-  virtual ImpellerBase* ChildImpeller(ImpelIndex index, int child_index) {
-    return Data(index).Op(child_index).ValueImpeller();
-  }
-
+  virtual ImpellerType Type() const { return MatrixImpelInit::kType; }
   virtual int Priority() const { return 2; }
+
+  virtual const mat4& Value(ImpelIndex index) const {
+    return Data(index).result_matrix();
+  }
+
+  virtual void SetChildTarget1f(ImpelIndex index, ImpelChildIndex child_index,
+                                ImpelTarget1f& t) {
+    Data(index).Op(child_index).SetTarget1f(t);
+  }
+
+  virtual void SetChildValue1f(ImpelIndex index, ImpelChildIndex child_index,
+                               float value) {
+    Data(index).Op(child_index).SetValue1f(value);
+  }
 
  protected:
   ImpelIndex NumIndices() const {

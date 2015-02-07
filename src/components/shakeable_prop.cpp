@@ -131,9 +131,9 @@ void ShakeablePropComponent::ShakeProps(float damage_percent,
                                  closeness * shake_scale *
                                  config_->prop_shake_velocity();
     const float new_velocity = current_velocity + delta_velocity;
-    impel::ImpellerState1f s;
-    s.SetVelocity(new_velocity);
-    data->impeller.SetState(s);
+    impel::ImpelTarget1f t;
+    t.SetVelocity(new_velocity);
+    data->impeller.SetTarget(t);
   }
 }
 

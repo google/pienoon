@@ -33,20 +33,20 @@ struct ImpelProcessorFunctions;
 // the processors, you start to get economies of scale.
 class ImpelEngine {
   struct ComparePriority {
-    bool operator()(const ImpelProcessorBase* lhs,
-                    const ImpelProcessorBase* rhs) {
+    bool operator()(const ImpelProcessor* lhs,
+                    const ImpelProcessor* rhs) {
       return lhs->Priority() < rhs->Priority();
     }
   };
-
-  typedef std::map<ImpellerType, ImpelProcessorBase*> ProcessorMap;
-  typedef std::pair<ImpellerType, ImpelProcessorBase*> ProcessorPair;
-  typedef std::multiset<ImpelProcessorBase*, ComparePriority> ProcessorSet;
+  typedef std::map<ImpellerType, ImpelProcessor*> ProcessorMap;
+  typedef std::pair<ImpellerType, ImpelProcessor*> ProcessorPair;
+  typedef std::multiset<ImpelProcessor*, ComparePriority> ProcessorSet;
   typedef std::map<ImpellerType, ImpelProcessorFunctions> FunctionMap;
   typedef std::pair<ImpellerType, ImpelProcessorFunctions> FunctionPair;
+
  public:
   void Reset();
-  ImpelProcessorBase* Processor(ImpellerType type);
+  ImpelProcessor* Processor(ImpellerType type);
   void AdvanceFrame(ImpelTime delta_time);
 
   static void RegisterProcessorFactory(ImpellerType type,
@@ -62,8 +62,8 @@ class ImpelEngine {
   // the child impellers have lower priority.
   ProcessorSet sorted_processors_;
 
-  // ProcessorMap from the ImpellerType to the factory that creates the ImpelProcessor.
-  // We only create an ImpelProcessor when one is needed.
+  // ProcessorMap from the ImpellerType to the factory that creates the
+  // ImpelProcessor. We only create an ImpelProcessor when one is needed.
   static FunctionMap function_map_;
 };
 

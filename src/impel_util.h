@@ -16,6 +16,7 @@
 #define IMPEL_UTIL_H_
 
 #include "impeller.h"
+#include "impel_target.h"
 
 namespace impel {
 
@@ -51,9 +52,9 @@ struct Settled1f {
 inline void Twitch(TwitchDirection direction, float velocity,
                    const Settled1f& settled, Impeller1f* impeller) {
   if (direction != kTwitchDirectionNone && settled.Settled(*impeller)) {
-    ImpellerState1f s;
-    s.SetVelocity(direction == kTwitchDirectionPositive ? velocity : -velocity);
-    impeller->SetState(s);
+    ImpelTarget1f t;
+    t.SetVelocity(direction == kTwitchDirectionPositive ? velocity : -velocity);
+    impeller->SetTarget(t);
   }
 }
 
