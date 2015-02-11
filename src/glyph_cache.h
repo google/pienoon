@@ -21,6 +21,7 @@
 
 #include "SDL_log.h"
 #include "common.h"
+#include "mathfu/constants.h"
 
 namespace fpl {
 
@@ -552,19 +553,19 @@ class GlyphCache {
       memcpy(buffer + pos.x() + (pos.y() + y) * size_.x(),
              image + y * entry->get_size().x(), size);
     }
-    UpdateDirtyRect(vec4i(pos, pos + entry->get_size()));
+    UpdateDirtyRect(mathfu::vec4i(pos, pos + entry->get_size()));
   }
 
   // Update dirty rect.
-  void UpdateDirtyRect(const vec4i& rect) {
+  void UpdateDirtyRect(const mathfu::vec4i& rect) {
     if (!dirty_) {
       // Initialize dirty rect.
       dirty_rect_ = mathfu::vec4i(size_, mathfu::kZeros2i);
     }
 
     dirty_ = true;
-    dirty_rect_ = vec4i(mathfu::vec2i::Min(dirty_rect_.xy(), rect.xy()),
-                        mathfu::vec2i::Max(dirty_rect_.zw(), rect.zw()));
+    dirty_rect_ = mathfu::vec4i(mathfu::vec2i::Min(dirty_rect_.xy(), rect.xy()),
+                  mathfu::vec2i::Max(dirty_rect_.zw(), rect.zw()));
   }
 
 #ifdef GLYPH_CACHE_STATS

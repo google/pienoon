@@ -17,8 +17,8 @@
 */
 
 #include "gtest/gtest.h"
-#include "glyph_cache.h"
 #include "common.h"
+#include "glyph_cache.h"
 
 class FontManagerTests : public ::testing::Test {
  protected:
@@ -128,7 +128,7 @@ TEST_F(FontManagerTests, Glyph_Cache_InvolveEviction) {
       for (int32_t j = 0;
            j < cache_size.x() / (image_width + fpl::kGlyphCachePaddingX); ++j) {
         // Increment counter.
-        cache->set_counter(cache->get_counter() + 1);
+        cache->set_revision(cache->get_revision() + 1);
         auto p = cache->Find(k, image_height);
         if (p == nullptr) {
           entry.set_code_point(k);
