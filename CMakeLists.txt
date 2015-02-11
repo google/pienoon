@@ -47,6 +47,8 @@ set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"
     CACHE PATH "Directory containing the fplutil library.")
+set(dependencies_pindrop_dir "${fpl_root}/audio_engine"
+    CACHE PATH "Directory containing the pindrop library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
 set(dependencies_sdl_dir "${third_party_root}/sdl"
@@ -112,18 +114,23 @@ set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
 if(APPLE)
   set(SDL_AUDIO_DRIVER_COREAUDIO 1)
 endif(APPLE)
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET SDL2-static)
   add_subdirectory(${dependencies_sdl_dir} ${tmp_dir}/sdl)
 endif()
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
+# Include pindrop.
+if(NOT pie_noon_only_flatc AND NOT TARGET pindrop)
+  add_subdirectory("${dependencies_pindrop_dir}" ${tmp_dir}/pindrop)
+endif()
+
 # Include libogg.
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET libogg)
   add_subdirectory("${dependencies_libogg_cmake_dir}" ${tmp_dir}/libogg)
 endif()
 
 # Include libvorbis.
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET libvorbis)
   add_subdirectory("${dependencies_libvorbis_cmake_dir}" ${tmp_dir}/libvorbis)
 endif()
 
@@ -135,27 +142,32 @@ endif()
 
 # Include SDL Mixer.
 set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET sdl_mixer)
   add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" ${tmp_dir}/sdl_mixer)
 endif()
 
 # Include Webp in this project, and force build in release mode for speed.
 set(original_build_type ${CMAKE_BUILD_TYPE})
 set(CMAKE_BUILD_TYPE Release)
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET webp)
   add_subdirectory("${dependencies_webp_cmake_dir}" ${tmp_dir}/webp)
 endif()
 set(CMAKE_BUILD_TYPE ${original_build_type})
 
 # Include FlatBuffers in this project.
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
-add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
+if(NOT TARGET flatc)
+  add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
+endif()
 
 # Generate source files for all FlatBuffers schema files under the src
 # directory.
 set(FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src/*.fbs)
+
+# Include FlatBuffer schemas from external projects.
+set(FLATBUFFERS_SCHEMA_INCLUDE_DIRS ${dependencies_pindrop_dir}/schemas)
 
 # Generate rules to build the set of output files from the set of input
 # schema files.
@@ -166,8 +178,8 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
   add_custom_command(
     OUTPUT ${flatbuffers_include}
     COMMAND flatc --gen-includes -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        -c ${flatbuffers_schema}
-    DEPENDS flatc ${flatbuffers_schema})
+        -I ${FLATBUFFERS_SCHEMA_INCLUDE_DIRS} -c ${flatbuffers_schema}
+    DEPENDS flatc pindrop ${flatbuffers_schema})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
@@ -193,13 +205,9 @@ set(pie_noon_SRCS
     src/angle.h
     src/async_loader.cpp
     src/async_loader.h
-    src/audio_engine.cpp
-    src/audio_engine.h
     src/bezier.h
     src/bulk_spline_evaluator.cpp
     src/bulk_spline_evaluator.h
-    src/bus.cpp
-    src/bus.h
     src/character.cpp
     src/character.h
     src/character_state_machine.cpp
@@ -286,10 +294,6 @@ set(pie_noon_SRCS
     src/scene_description.h
     src/shader.cpp
     src/shader.h
-    src/sound.cpp
-    src/sound.h
-    src/sound_collection.cpp
-    src/sound_collection.h
     src/pie_noon_game.cpp
     src/pie_noon_game.h
     src/touchscreen_button.h
@@ -304,10 +308,11 @@ include_directories(src)
 if(WIN32)
   include_directories(external/include/windows)
 endif()
-include_directories(${dependencies_webp_distr_dir}/include)
+include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${PINDROP_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
-include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${dependencies_pindrop_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/src)
 
@@ -369,6 +374,7 @@ mathfu_configure_flags(pie_noon)
 add_dependencies(pie_noon generated_includes assets)
 target_link_libraries(pie_noon
   ${SDL_LIBRARIES}
+  pindrop
   sdl_mixer
   libvorbis
   libogg

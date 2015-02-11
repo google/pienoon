@@ -18,124 +18,7 @@ LOCAL_PATH:=$(call my-dir)
 PIE_NOON_RELATIVE_DIR:=../../..
 PIE_NOON_DIR:=$(LOCAL_PATH)/$(PIE_NOON_RELATIVE_DIR)
 include $(PIE_NOON_DIR)/jni/android_config.mk
-
-# relative to project root
-
-PROJECT_OS:=$(OS)
-ifeq (,$(OS))
-PROJECT_OS:=$(shell uname -s)
-else
-ifneq ($(findstring Windows,$(PROJECT_OS)),)
-PROJECT_OS:=Windows
-endif
-endif
-
-# The following block generates build rules which result in headers being
-# rebuilt from flatbuffers schemas.
-
-# Directory that contains the FlatBuffers compiler.
-FLATBUFFERS_FLATC_PATH?=$(PIE_NOON_DIR)/bin
-ifeq (Windows,$(PROJECT_OS))
-FLATBUFFERS_FLATC:=$(FLATBUFFERS_FLATC_PATH)/Debug/flatc.exe
-endif
-ifeq (Linux,$(PROJECT_OS))
-FLATBUFFERS_FLATC:=$(FLATBUFFERS_FLATC_PATH)/flatc
-endif
-ifeq (Darwin,$(PROJECT_OS))
-FLATBUFFERS_FLATC:=$(FLATBUFFERS_FLATC_PATH)/Debug/flatc
-endif
-
-# Search for cmake.
-CMAKE_ROOT:=$(realpath $(PIE_NOON_DIR)/../../../../prebuilts/cmake)
-ifeq (,$(CMAKE))
-ifeq (Linux,$(PROJECT_OS))
-CMAKE:=$(wildcard $(CMAKE_ROOT)/linux-x86/current/bin/cmake*)
-endif
-ifeq (Darwin,$(PROJECT_OS))
-CMAKE:=$(wildcard $(CMAKE_ROOT)/darwin-x86_64/current/*.app/Contents/bin/cmake)
-endif
-ifeq (Windows,$(PROJECT_OS))
-CMAKE:=$(wildcard $(CMAKE_ROOT)/windows/current/bin/cmake*)
-endif
-endif
-ifeq (,$(CMAKE))
-CMAKE:=cmake
-endif
-
-# Generate a host build rule for the flatbuffers compiler.
-ifeq (Windows,$(PROJECT_OS))
-define build_flatc_recipe
-	cd $(PIE_NOON_DIR) & jni\build_flatc.bat $(CMAKE)
-endef
-endif
-ifeq (Linux,$(PROJECT_OS))
-define build_flatc_recipe
-	cd $(PIE_NOON_DIR) && $(CMAKE) -Dpie_noon_only_flatc=ON . && $(MAKE) flatc
-endef
-endif
-ifeq (Darwin,$(PROJECT_OS))
-define build_flatc_recipe
-	cd $(PIE_NOON_DIR) && "$(CMAKE)" -GXcode -Dpie_noon_only_flatc=ON . && \
-        xcodebuild -target flatc
-endef
-endif
-ifeq (,$(build_flatc_recipe))
-ifeq (,$(FLATBUFFERS_FLATC))
-$(error flatc binary not found!)
-endif
-endif
-
-# Generated includes directory (relative to PIE_NOON_DIR).
-GENERATED_INCLUDES_PATH := gen/include
-# Flatbuffers schemas used to generate includes.
-FLATBUFFERS_SCHEMAS := $(wildcard $(PIE_NOON_DIR)/src/flatbufferschemas/*.fbs)
-
-# Generate a build rule for flatc.
-ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
-ifeq ($(strip $(FLATBUFFERS_FLATC)),)
-flatc_target:=build_flatc
-.PHONY: $(flatc_target)
-else
-flatc_target:=$(FLATBUFFERS_FLATC)
-endif
-$(flatc_target):
-	$(call build_flatc_recipe)
-endif
-
-# Convert the specified fbs path to a Flatbuffers generated header path.
-# For example: src/flatbuffers/schemas/config.fbs will be converted to
-# gen/include/config.h.
-define flatbuffers_fbs_to_h
-$(subst src/flatbufferschemas,$(GENERATED_INCLUDES_PATH),\
-	$(patsubst %.fbs,%_generated.h,$(1)))
-endef
-
-# Generate a build rule that will convert a Flatbuffers schema to a generated
-# header derived from the schema filename using flatbuffers_fbs_to_h.
-define flatbuffers_header_build_rule
-$(eval \
-  $(call flatbuffers_fbs_to_h,$(1)): $(1) $(flatc_target)
-	$(call host-echo-build-step,generic,Generate) \
-		$(subst $(PIE_NOON_DIR)/,,$(call flatbuffers_fbs_to_h,$(1)))
-	$(hide) $$(FLATBUFFERS_FLATC) --gen-includes -o $$(dir $$@) -c $$<)
-endef
-
-# Create the list of generated headers.
-GENERATED_INCLUDES := \
-	$(foreach schema,$(FLATBUFFERS_SCHEMAS),\
-		$(call flatbuffers_fbs_to_h,$(schema)))
-
-# Generate a build rule for each header.
-ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
-$(foreach schema,$(FLATBUFFERS_SCHEMAS),\
-	$(call flatbuffers_header_build_rule,$(schema)))
-
-.PHONY: generated_includes
-generated_includes: $(GENERATED_INCLUDES)
-
-clean_generated_includes:
-	$(hide) $(call host-rm,$(GENERATED_INCLUDES))
-endif
+include $(DEPENDENCIES_FLATBUFFERS_DIR)/android/jni/include.mk
 
 # Build rule which builds assets for the game.
 ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
@@ -154,27 +37,27 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := main
 LOCAL_ARM_MODE := arm
 
-LOCAL_C_INCLUDES := $(DEPENDENCIES_SDL_DIR) \
-                    $(DEPENDENCIES_SDL_DIR)/include \
-                    $(DEPENDENCIES_SDL_MIXER_DIR) \
-                    $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
-                    $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include \
-                    $(DEPENDENCIES_FREETYPE_DIR)/include \
-                    $(DEPENDENCIES_HARFBUZZ_DIR)/src \
-                    $(DEPENDENCIES_GPG_DIR)/include \
-                    $(DEPENDENCIES_WEBP_DIR)/src \
-                    ${PIE_NOON_DIR}/external/include/harfbuzz \
-                    $(PIE_NOON_DIR)/$(GENERATED_INCLUDES_PATH) \
-                    src
+PIE_NOON_GENERATED_OUTPUT_DIR := $(PIE_NOON_DIR)/gen/include
+
+LOCAL_C_INCLUDES := \
+  $(DEPENDENCIES_SDL_DIR) \
+  $(DEPENDENCIES_SDL_DIR)/include \
+  $(DEPENDENCIES_SDL_MIXER_DIR) \
+  $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include \
+  $(DEPENDENCIES_FREETYPE_DIR)/include \
+  $(DEPENDENCIES_HARFBUZZ_DIR)/src \
+  $(DEPENDENCIES_GPG_DIR)/include \
+  $(DEPENDENCIES_WEBP_DIR)/src \
+  ${PIE_NOON_DIR}/external/include/harfbuzz \
+  $(PIE_NOON_GENERATED_OUTPUT_DIR) \
+  src
 
 LOCAL_SRC_FILES := \
   $(subst $(LOCAL_PATH)/,,$(DEPENDENCIES_SDL_DIR))/src/main/android/SDL_android_main.c \
   $(PIE_NOON_RELATIVE_DIR)/src/ai_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/analytics_tracking.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/async_loader.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/audio_engine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/bulk_spline_evaluator.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/bus.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/compact_spline.cpp \
@@ -213,21 +96,49 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/renderer.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/renderer_android.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/shader.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/sound.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/sound_collection.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/utilities.cpp
 
-# Make each source file dependent upon the generated_includes and build_assets
-# targets.
-$(foreach src,$(LOCAL_SRC_FILES),$(eval $(LOCAL_PATH)/$$(src): generated_includes))
+PIE_NOON_SCHEMA_DIR := $(PIE_NOON_DIR)/src/flatbufferschemas
+
+PIE_NOON_SCHEMA_FILES := \
+  $(PIE_NOON_SCHEMA_DIR)/character_state_machine_def.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/config.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/components.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/impel.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/materials.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/particles.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/pie_noon_common.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/scoring_rules.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/timeline.fbs
+
+# Make each source file dependent upon the assets
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $(LOCAL_PATH)/$$(src): build_assets))
+
+ifeq (,$(PIE_NOON_RUN_ONCE))
+PIE_NOON_RUN_ONCE := 1
+$(call flatbuffers_header_build_rules,\
+  $(PIE_NOON_SCHEMA_FILES),\
+  $(PIE_NOON_SCHEMA_DIR),\
+  $(PIE_NOON_GENERATED_OUTPUT_DIR),\
+  $(DEPENDENCIES_PINDROP_DIR)/schemas,\
+  $(LOCAL_SRC_FILES))
+endif
 
 clean: clean_assets clean_generated_includes
 
-LOCAL_STATIC_LIBRARIES := libgpg libmathfu libwebp SDL2 SDL2_mixer libfreetype libharfbuzz
+LOCAL_STATIC_LIBRARIES := \
+  libgpg \
+  libmathfu \
+  libwebp \
+  SDL2 \
+  SDL2_mixer \
+  libpindrop \
+  libfreetype \
+  libharfbuzz \
+  libflatbuffers
 
 LOCAL_SHARED_LIBRARIES :=
 
@@ -235,9 +146,13 @@ LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz -lEGL -landroid
 
 include $(BUILD_SHARED_LIBRARY)
 
+$(call import-add-path,$(DEPENDENCIES_FLATBUFFERS_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_PINDROP_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_WEBP_DIR)/..)
 
+$(call import-module,flatbuffers/android/jni)
+$(call import-module,audio_engine/jni)
 $(call import-module,mathfu/jni)
 $(call import-module,webp)
 

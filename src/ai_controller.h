@@ -16,16 +16,17 @@
 #define AI_CONTROLLER_H_
 
 #include "precompiled.h"
+
 #include <vector>
-#include "game_state.h"
-#include "controller.h"
-#include "common.h"
-#include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
-#include "pie_noon_common_generated.h" // TODO: put in alphabetical order when
-                                    // FlatBuffers predeclare bug fixed.
+
 #include "audio_config_generated.h"
+#include "character_state_machine_def_generated.h"
+#include "common.h"
 #include "config_generated.h"
+#include "controller.h"
+#include "game_state.h"
+#include "pie_noon_common_generated.h"
+#include "timeline_generated.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -57,3 +58,4 @@ class AiController : public Controller {
 }  // fpl
 
 #endif  // AI_CONTROLLER_H_
+

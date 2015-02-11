@@ -1,5 +1,5 @@
 {
-  "id": "Ambience",
+  "name": "Ambience",
   "bus": "ambience",
   "loop": true,
   "priority": 10.0,

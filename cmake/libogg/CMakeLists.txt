@@ -20,38 +20,38 @@ set(libogg_dir ${dependencies_libogg_distr_dir})
 include_directories(${libogg_dir}/include)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux"
-    AND NOT EXISTS "${libogg_dir}/include/ogg/config_types.h")
-    # Run libogg's autogen.sh to create ogg/config_types.h, needed under Linux.
-    message(STATUS "Running libogg's autogen.sh to create ogg/config_types.h.")
-    execute_process(COMMAND autoconf --version
-                    OUTPUT_VARIABLE autoconf_version
-                    RESULT_VARIABLE has_autoconf)
-    if (NOT ${has_autoconf} EQUAL 0)
-        message(WARNING "Warning: autoconf not found, libogg may not build.")
-    endif()
-    execute_process(COMMAND automake --version
-                    OUTPUT_VARIABLE automake_version
-                    RESULT_VARIABLE has_automake)
-    if (NOT ${has_automake} EQUAL 0)
-        message(WARNING "Warning: automake not found, libogg may not build.")
-    endif()
-    execute_process(COMMAND libtool --version
-                    OUTPUT_VARIABLE libtool_version
-                    RESULT_VARIABLE has_libtool)
-    if (NOT ${has_libtool} EQUAL 0)
-        message(WARNING "Warning: libtool not found, libogg may not build.")
-    endif()
-    execute_process(COMMAND ${libogg_dir}/autogen.sh
-                    WORKING_DIRECTORY ${libogg_dir}
-                    RESULT_VARIABLE autogen_result)
-    if (NOT ${autogen_result} EQUAL 0)
-      # Maybe make this fatal in the future, but the build seems to run fine
-      # even with this error.
-      message(STATUS
-          "CMake encountered an error running libogg's autogen.sh.\n"
-          "You must have autoconf, automake, and libtool installed to "
-          "build on Linux.")
-    endif()
+   AND NOT EXISTS "${libogg_dir}/include/ogg/config_types.h")
+  # Run libogg's autogen.sh to create ogg/config_types.h, needed under Linux.
+  message(STATUS "Running libogg's autogen.sh to create ogg/config_types.h.")
+  execute_process(COMMAND autoconf --version
+                  OUTPUT_VARIABLE autoconf_version
+                  RESULT_VARIABLE has_autoconf)
+  if (NOT ${has_autoconf} EQUAL 0)
+      message(WARNING "Warning: autoconf not found, libogg may not build.")
+  endif()
+  execute_process(COMMAND automake --version
+                  OUTPUT_VARIABLE automake_version
+                  RESULT_VARIABLE has_automake)
+  if (NOT ${has_automake} EQUAL 0)
+      message(WARNING "Warning: automake not found, libogg may not build.")
+  endif()
+  execute_process(COMMAND libtool --version
+                  OUTPUT_VARIABLE libtool_version
+                  RESULT_VARIABLE has_libtool)
+  if (NOT ${has_libtool} EQUAL 0)
+      message(WARNING "Warning: libtool not found, libogg may not build.")
+  endif()
+  execute_process(COMMAND ${libogg_dir}/autogen.sh
+                  WORKING_DIRECTORY ${libogg_dir}
+                  RESULT_VARIABLE autogen_result)
+  if (NOT ${autogen_result} EQUAL 0)
+    # Maybe make this fatal in the future, but the build seems to run fine
+    # even with this error.
+    message(STATUS
+        "CMake encountered an error running libogg's autogen.sh.\n"
+        "You must have autoconf, automake, and libtool installed to "
+        "build on Linux.")
+  endif()
 endif()
 
 set(libogg_SRCS
