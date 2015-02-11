@@ -16,9 +16,10 @@ attribute vec4 aPosition;
 attribute vec2 aTexCoord;
 varying vec2 vTexCoord;
 uniform mat4 model_view_projection;
+uniform vec3 pos_offset;
+
 void main()
 {
-  // TODO: Update the shader to texture atlas + vbo
-  gl_Position = model_view_projection * aPosition;
+  gl_Position = model_view_projection * (aPosition + vec4(pos_offset, 0.0));
   vTexCoord = aTexCoord;
 }

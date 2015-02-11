@@ -117,6 +117,10 @@ class InternalState : public Group {
     assert(font_shader_);
     color_shader_ = matman_.LoadShader("shaders/color");
     assert(color_shader_);
+
+    text_color_ = mathfu::kOnes4f;
+
+    fontman_.StartLayoutPass();
   }
 
   ~InternalState() {
@@ -182,6 +186,9 @@ class InternalState : public Group {
   void StartRenderPass() {
     // If you hit this assert, you are missing an EndGroup().
     assert(!group_stack_.size());
+
+    // Update font manager if they need to upload font atlas texture.
+    fontman_.StartRenderPass();
 
     size_ = elements_[0].size;
 
@@ -271,21 +278,72 @@ class InternalState : public Group {
       }
     }
   }
-
   // Text label.
   void Label(const char *text, float ysize)
   {
+    // Set text color.
+    matman_.renderer().color() = text_color_;
+
+#ifdef USE_GLYPHCACHE
+    auto size = VirtualToPhysical(vec2(0, ysize));
+    auto buffer = fontman_.GetBuffer(text, size.y());
+    if (layout_pass_) {
+      if (buffer == nullptr) {
+        // Upload a texture & flush glyph cache
+        fontman_.FlushAndUpdate();
+
+        // Try to create buffer again.
+        buffer = fontman_.GetBuffer(text, size.y());
+        if (buffer == nullptr) {
+          SDL_LogError(SDL_LOG_CATEGORY_ERROR, "The given text '%s' with ",
+                       "size:%d does not fit a glyph cache. Try to "
+                       "increase a cache size or use GetTexture() API ",
+                       "instead.\n", text, size.y());
+        }
+      }
+      NewElement(buffer->get_size(), text);
+      Extend(buffer->get_size());
+    } else {
+      // Check if texture atlas needs to be updated.
+      if (buffer->get_pass() > 0) {
+        fontman_.StartRenderPass();
+      }
+
+      auto element = NextElement(text);
+      if (element) {
+        auto position = Position(*element);
+        fontman_.GetAtlasTexture()->Set(0);
+
+        font_shader_->Set(matman_.renderer());
+        font_shader_->SetUniform("pos_offset",
+                                 vec3(position.x(), position.y(),
+                                      0.f));
+
+        const Attribute kFormat[] = { kPosition3f, kTexCoord2f, kEND };
+        Mesh::RenderArray(GL_TRIANGLES, buffer->get_indices()->size(),
+                          kFormat,
+                          sizeof(FontVertex),
+                          reinterpret_cast<const char *>
+                          (buffer->get_vertices()->data()),
+                          buffer->get_indices()->data());
+
+        Advance(element->size);
+      }
+    }
+#else
+    font_shader_->SetUniform("pos_offset", vec3(0.0f, 0.0f, 0.f));
+
     auto size = VirtualToPhysical(vec2(0, ysize));
     auto tex = fontman_.GetTexture(text, size.y());
     auto uv = tex->uv();
+    auto scale = static_cast<float>(size.y()) /
+                 static_cast<float>(tex->metrics().ascender()
+                                    - tex->metrics().descender());
     if (layout_pass_) {
-      auto virtual_image_size = vec2(tex->size().x() * (uv.z() - uv.x()),
-                                     ysize);
-      // Map the size to real screen pixels, rounding to the nearest int
-      // for pixel-aligned rendering.
-      auto size = VirtualToPhysical(virtual_image_size);
-      NewElement(size, text);
-      Extend(size);
+      auto image_size = vec2i(tex->size().x() * (uv.z() - uv.x()) * scale,
+                              size.y());
+      NewElement(image_size, text);
+      Extend(image_size);
     } else {
       auto element = NextElement(text);
       if (element) {
@@ -293,14 +351,15 @@ class InternalState : public Group {
         tex->Set(0);
         // Note that some glyphs may render outside of element boundary.
         vec2i pos = position -
-                    vec2i(0, tex->metrics().internal_leading());
+                    vec2i(0, tex->metrics().internal_leading() * scale);
         vec2i size = vec2i(element->size) +
-                     vec2i(0, tex->metrics().internal_leading() -
-                     tex->metrics().external_leading());
+                     vec2i(0, (tex->metrics().internal_leading() -
+                     tex->metrics().external_leading()) * scale);
         RenderQuad(font_shader_, mathfu::kOnes4f, pos, size, uv);
         Advance(element->size);
       }
     }
+#endif
   }
 
   // An element that has sub-elements. Tracks its state in an instance of
@@ -459,6 +518,11 @@ class InternalState : public Group {
     RenderQuad(color_shader_, color, position_, size_);
   }
 
+  // Set Label's text color.
+  void SetTextColor(const vec4 &color) {
+    text_color_ = color;
+  }
+
   static const char *dummy_id() { return "__null_id__"; }
 
   bool layout_pass_;
@@ -475,6 +539,9 @@ class InternalState : public Group {
   Shader *image_shader_;
   Shader *font_shader_;
   Shader *color_shader_;
+
+  // Widget properties.
+  mathfu::vec4 text_color_;
 
   int pointer_max_active_index_;
   const Button *pointer_buttons_[InputSystem::kMaxSimultanuousPointers];
@@ -558,6 +625,8 @@ void EndGroup() {
 
 void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
 
+void SetTextColor(const mathfu::vec4 &color) { Gui()->SetTextColor(color); }
+
 Event CheckEvent() { return Gui()->CheckEvent(); }
 
 void ColorBackground(const vec4 &color) { Gui()->ColorBackground(color); }
@@ -583,6 +652,9 @@ Event ImageButton(const char *texture_name, float size, const char *id) {
 
 void TestGUI(MaterialManager &matman, FontManager &fontman,
              InputSystem &input) {
+  static float f = 0.0f;
+  f += 0.04f;
+
   Run(matman, fontman, input, [&matman]() {
     PositionUI(matman.renderer().window_size(), 1000, LAYOUT_HORIZONTAL_CENTER,
                LAYOUT_VERTICAL_RIGHT);
@@ -593,12 +665,14 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
           SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
         StartGroup(LAYOUT_HORIZONTAL_TOP, 0);
           Label("Property T", 30);
+          SetTextColor(mathfu::vec4(1.0f, 0.0f, 0.0f, 1.0f));
           Label("Test ", 30);
+          SetTextColor(mathfu::kOnes4f);
           Label("ffWAWÄテスト", 30);
         EndGroup();
-        Label("My great label", 30);
-        Label("Another neat label", 30);
-        Image("textures/text_about.webp", 30);
+        Label("The quick brown fox jumps over the lazy dog", 32);
+        Label("The quick brown fox jumps over the lazy dog", 24);
+        Label("The quick brown fox jumps over the lazy dog", 20);
       EndGroup();
       StartGroup(LAYOUT_VERTICAL_CENTER, 40);
         if (ImageButton("textures/text_about.webp", 50, "my_id2") ==
