@@ -57,7 +57,7 @@ void EntityManager::DeleteMarkedEntities() {
 }
 
 void EntityManager::RemoveAllComponents(EntityRef entity) {
-  for (size_t i = 0; i < kMaxComponentCount; i++) {
+  for (ComponentId i = 0; i < kMaxComponentCount; i++) {
     if (entity->IsRegisteredForComponent(i)) {
       components_[i]->RemoveEntity(entity);
     }
@@ -97,7 +97,7 @@ const void* EntityManager::GetComponentDataAsVoid(
              : nullptr;
 }
 
-void EntityManager::UpdateComponents(float delta_time) {
+void EntityManager::UpdateComponents(WorldTime delta_time) {
   // Update all the registered components.
   for (size_t i = 0; i < kMaxComponentCount; i++) {
     if (components_[i]) components_[i]->UpdateAllEntities(delta_time);

@@ -222,11 +222,11 @@ class VectorPool {
 
   // Constants for our first/last elements. They're never given actual data,
   //  but are used as list demarcations.
-  const size_t kFirstUsed = 0;
-  const size_t kLastUsed = 1;
-  const size_t kFirstFree = 2;
-  const size_t kLastFree = 3;
-  const size_t kTotalReserved = 4;
+  static const size_t kFirstUsed = 0;
+  static const size_t kLastUsed = 1;
+  static const size_t kFirstFree = 2;
+  static const size_t kLastFree = 3;
+  static const size_t kTotalReserved = 4;
 
   // Basic constructor.
   VectorPool() : active_count_(0), next_unique_id_(kInvalidId + 1) { Clear(); }

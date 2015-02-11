@@ -93,7 +93,7 @@ class EntityManager {
 
   // Iterates through all registered components, and causes them to update.
   // delta_time represents the timestep since last update.
-  void UpdateComponents(float delta_time);
+  void UpdateComponents(WorldTime delta_time);
 
   // Clears all data from all components, then dumps the list of components
   // themselves, and then dumps the list of entities.  Basically resets

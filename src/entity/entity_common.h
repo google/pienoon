@@ -45,7 +45,8 @@ static const ComponentId kMaxComponentCount = FPL_ENTITY_MAX_COMPONENT_COUNT;
 typedef int WorldTime;
 const int kMillisecondsPerSecond = 1000;
 typedef uint16_t ComponentIndex;
-static const ComponentIndex kUnusedComponentIndex = -1;
+static const ComponentIndex kUnusedComponentIndex =
+    static_cast<ComponentIndex>(-1);
 
 }  // entity
 }  // fpl
