@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <assert.h>
+#include "component_id_lookup.h"
 #include "entity_manager.h"
 
 namespace fpl {
@@ -71,15 +72,13 @@ void EntityManager::AddEntityToComponent(EntityRef entity,
   component->AddEntityGenerically(entity);
 }
 
-void EntityManager::RegisterComponent(ComponentInterface* new_component,
-                                      ComponentId id) {
+void EntityManager::RegisterComponentHelper(ComponentInterface* new_component,
+                                            ComponentId id) {
   assert(id < kMaxComponentCount);
   // Make sure this ID isn't already associated with a component.
   assert(components_[id] == nullptr);
   components_[id] = new_component;
-  new_component->SetComponentId(id);
   new_component->SetEntityManager(this);
-
   new_component->Init();
 }
 

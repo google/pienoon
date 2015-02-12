@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include "common.h"
+#include "components_generated.h"
 #include "config_generated.h"
 #include "entity/component.h"
 #include "impel_flatbuffers.h"
@@ -56,4 +57,9 @@ class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
 
 }  // pie_noon
 }  // fpl
+
+FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::ShakeablePropComponent,
+    fpl::pie_noon::ShakeablePropData,
+    fpl::pie_noon::ComponentDataUnion_ShakeablePropDef)
+
 #endif  // COMPONENTS_SHAKEABLE_PROP_H_

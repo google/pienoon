@@ -15,6 +15,7 @@
 #ifndef FPL_ENTITY_MANAGER_H_
 #define FPL_ENTITY_MANAGER_H_
 
+#include "component_id_lookup.h"
 #include "component_interface.h"
 #include "entity.h"
 #include "entity_common.h"
@@ -26,6 +27,7 @@ namespace entity {
 typedef VectorPool<Entity>::VectorPoolReference EntityRef;
 
 class EntityFactoryInterface;
+class ComponentInterface;
 
 // Entity Manager is the main piece of code that manages all entities and
 // components in the game.  Normally the game will instantiate one instance
@@ -43,15 +45,37 @@ class EntityManager {
   // Helper function for marshalling data from a component.
   // Returns nullptr if it couldn't find it for any reason.
   template <typename T>
-  T* GetComponentData(EntityRef entity, ComponentId component_id) {
-    return static_cast<T*>(GetComponentDataAsVoid(entity, component_id));
+  T* GetComponentData(EntityRef& entity) {
+    return static_cast<T*>(GetComponentDataAsVoid(
+        entity, ComponentIdLookup<T>::kComponentId));
   }
 
   // Helper function for marshalling data from a component.
   // Returns nullptr if it couldn't find it for any reason.
   template <typename T>
-  const T* GetComponentData(EntityRef entity, ComponentId component_id) const {
-    return static_cast<T*>(GetComponentDataAsVoid(entity, component_id));
+  const T* GetComponentData(const EntityRef& entity) const {
+    return static_cast<const T*>(GetComponentDataAsVoid(
+        entity, ComponentIdLookup<T>::kComponentId));
+  }
+
+  // Helper function for getting a particular component, given its datatype.
+  // Asserts if it doesn't exist.
+  template <typename T>
+  T* GetComponent() {
+    ComponentId id = ComponentIdLookup<T>::kComponentId;
+    assert(id != kInvalidComponent);
+    assert(id < kMaxComponentCount);
+    return static_cast<T*>(components_[id]);
+  }
+
+  // Helper function for getting a particular component, given its datatype.
+  // Asserts if it doesn't exist.
+  template <typename T>
+  const T* GetComponent() const {
+    ComponentId id = ComponentIdLookup<T>::kComponentId;
+    assert(id != kInvalidComponent);
+    assert(id < kMaxComponentCount);
+    return static_cast<const T*>(components_[id]);
   }
 
   // Helper function for getting a particular component, given the component ID.
@@ -85,7 +109,10 @@ class EntityManager {
   // Adds a new component to the entity manager.  The id represents a unique
   // identifier for that component, which will other code can use to
   // reference that component.
-  void RegisterComponent(ComponentInterface* new_component, ComponentId id);
+  template <typename T>
+  void RegisterComponent(ComponentInterface* new_component) {
+    RegisterComponentHelper(new_component, ComponentIdLookup<T>::kComponentId);
+  }
 
   // Removes all components from an entity, causing any associated components
   // to drop any data they have allocated for the entity.
@@ -123,9 +150,25 @@ class EntityManager {
   void AddEntityToComponent(EntityRef entity, ComponentId component_id);
 
  private:
-  // EntityManager is the only one allowed to keep actual pointers to entities.
-  // anyone else can request weak pointers.
+  // Does all the real work of registering a component, aside from template fun.
+  // In particular, verifies that the requested ID isn't already in use,
+  // puts a pointer to the new component in our components_ array, and
+  // sets starting variables and preforms initialization on the component.
+  void RegisterComponentHelper(ComponentInterface* new_component,
+                               ComponentId id);
+
+  // Given a component ID and an entity, returns all data associated
+  // with that entity from the given component.  Will assert if the inputs
+  // are not valid.  (entity is no longer active or component is invalid)
+  // Data is returned as a void pointer - the caller is expected to know how
+  // to interpret it.
   void* GetComponentDataAsVoid(EntityRef entity, ComponentId component_id);
+
+  // Given a component ID and an entity, returns all data associated
+  // with that entity from the given component.  Will assert if the inputs
+  // are not valid.  (entity is no longer active or component is invalid)
+  // Data is returned as a void pointer - the caller is expected to know how
+  // to interpret it.
   const void* GetComponentDataAsVoid(EntityRef entity,
                                      ComponentId component_id) const;
 

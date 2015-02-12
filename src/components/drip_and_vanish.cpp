@@ -14,7 +14,6 @@
 
 #include "drip_and_vanish.h"
 #include "childobject.h"
-#include "components_generated.h"
 #include "utilities.h"
 
 namespace fpl {
@@ -28,9 +27,7 @@ using mathfu::vec3;
 // for splatters on the background.
 void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    ChildObjectData* co_data =
-        entity_manager_->GetComponentData<ChildObjectData>(
-            iter->entity, ComponentDataUnion_ChildObjectDef);
+    ChildObjectData* co_data = Data<ChildObjectData>(iter->entity);
     DripAndVanishData* dv_data = GetEntityData(iter->entity);
 
     dv_data->lifetime_remaining -= delta_time;
@@ -77,7 +74,7 @@ void DripAndVanishComponent::AddFromRawData(entity::EntityRef& entity,
 // Make sure we have an accessory.
 void DripAndVanishComponent::InitEntity(entity::EntityRef& entity) {
   ComponentInterface* scene_object_component =
-      entity_manager_->GetComponent(ComponentDataUnion_ChildObjectDef);
+      GetComponent<ChildObjectComponent>();
   assert(scene_object_component);
   scene_object_component->AddEntityGenerically(entity);
 }
@@ -86,8 +83,7 @@ void DripAndVanishComponent::InitEntity(entity::EntityRef& entity) {
 // just after creation.
 void DripAndVanishComponent::SetStartingValues(entity::EntityRef& entity) {
   DripAndVanishData* entity_data = GetEntityData(entity);
-  ChildObjectData* co_data = entity_manager_->GetComponentData<ChildObjectData>(
-      entity, ComponentDataUnion_ChildObjectDef);
+  ChildObjectData* co_data = Data<ChildObjectData>(entity);
 
   entity_data->start_position = co_data->relative_offset;
   entity_data->start_scale = co_data->relative_scale;

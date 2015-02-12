@@ -29,9 +29,7 @@ void ShakeablePropComponent::UpdateAllEntities(
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
     entity::EntityRef entity = iter->entity;
     ShakeablePropData* sp_data = GetEntityData(iter->entity);
-    SceneObjectData* so_data =
-        entity_manager_->GetComponentData<SceneObjectData>(
-            entity, ComponentDataUnion_SceneObjectDef);
+    SceneObjectData* so_data = Data<SceneObjectData>(entity);
     assert(so_data != nullptr && sp_data != nullptr);
 
     if (sp_data->impeller.Valid()) {
@@ -104,9 +102,7 @@ void ShakeablePropComponent::ShakeProps(float damage_percent,
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
     ShakeablePropData* data = &iter->data;
 
-    SceneObjectData* so_data =
-        entity_manager_->GetComponentData<SceneObjectData>(
-            iter->entity, ComponentDataUnion_SceneObjectDef);
+    SceneObjectData* so_data = Data<SceneObjectData>(iter->entity);
 
     float shake_scale = data->shake_scale;
     if (shake_scale == 0.0f) {

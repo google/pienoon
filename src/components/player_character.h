@@ -17,6 +17,7 @@
 
 #include "character.h"
 #include "common.h"
+#include "components_generated.h"
 #include "config_generated.h"
 #include "entity/component.h"
 #include "mathfu/constants.h"
@@ -61,5 +62,9 @@ class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
 
 }  // pie_noon
 }  // fpl
+
+FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::PlayerCharacterComponent,
+    fpl::pie_noon::PlayerCharacterData,
+    fpl::pie_noon::ComponentDataUnion_PlayerCharacterDef)
 
 #endif  // COMPONENTS_PLAYER_CHARACTER_H_

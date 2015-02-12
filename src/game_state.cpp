@@ -157,8 +157,7 @@ void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
        iter != shakeable_prop_component_.end(); ++iter) {
 
     const SceneObjectData* so_data = entity_manager_.
-        GetComponentData<SceneObjectData>(iter->entity,
-                                          ComponentDataUnion_SceneObjectDef);
+        GetComponentData<SceneObjectData>(iter->entity);
     assert(so_data != nullptr);
     float dist_squared = (vec3(so_data->current_transform.position) -
                           damage_position).LengthSquared();
@@ -203,16 +202,16 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   analytics_mode_ = analytics_mode;
 
   entity_manager_.Clear();
-  entity_manager_.RegisterComponent(&sceneobject_component_,
-                                    ComponentDataUnion_SceneObjectDef);
-  entity_manager_.RegisterComponent(&shakeable_prop_component_,
-                                    ComponentDataUnion_ShakeablePropDef);
-  entity_manager_.RegisterComponent(&childobject_component_,
-                                    ComponentDataUnion_ChildObjectDef);
-  entity_manager_.RegisterComponent(&drip_and_vanish_component_,
-                                    ComponentDataUnion_DripAndVanishDef);
-  entity_manager_.RegisterComponent(&player_character_component_,
-                                    ComponentDataUnion_PlayerCharacterDef);
+  entity_manager_.RegisterComponent<SceneObjectComponent>(
+      &sceneobject_component_);
+  entity_manager_.RegisterComponent<ShakeablePropComponent>(
+        &shakeable_prop_component_);
+  entity_manager_.RegisterComponent<ChildObjectComponent>(
+        &childobject_component_);
+  entity_manager_.RegisterComponent<DripAndVanishComponent>(
+        &drip_and_vanish_component_);
+  entity_manager_.RegisterComponent<PlayerCharacterComponent>(
+        &player_character_component_);
 
   // Shakable Prop Component needs to know about some of our structures:
   shakeable_prop_component_.set_impel_engine(&impel_engine_);
@@ -465,10 +464,10 @@ void GameState::AddSplatterToProp(entity::EntityRef prop) {
     entity::EntityRef splatter =
         entity_manager_.CreateEntityFromData(config_->splatter_def());
     auto so_data = entity_manager_.GetComponentData<SceneObjectData>(
-        splatter, ComponentDataUnion_SceneObjectDef);
+        splatter);
 
     auto co_data = entity_manager_.GetComponentData<ChildObjectData>(
-        splatter, ComponentDataUnion_ChildObjectDef);
+        splatter);
 
     so_data->renderable_id = id_list[mathfu::RandomInRange(0, 3)];
     co_data->parent = prop;

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "childobject.h"
-#include "components_generated.h"
 #include "utilities.h"
 #include "scene_object.h"
 
@@ -38,26 +37,22 @@ void ChildObjectComponent::PositionAccessory(entity::EntityRef& entity) {
   // not been updated yet this frame, and has a valid parent.
   if (ac_data != nullptr && ac_data->last_update != current_update_id_ &&
       ac_data->parent.IsValid()) {
-    SceneObjectData* so_data =
-        entity_manager_->GetComponentData<SceneObjectData>(
-            entity, ComponentDataUnion_SceneObjectDef);
+    SceneObjectData* so_data = Data<SceneObjectData>(entity);
 
     // just do a quick check to make sure we don't have an obvious loop:
     assert(ac_data->parent != entity);
 
     // Recursively update the parent's position first, if it hasn't been updated
-    // yet.  We need to know where the (ultimate) parent of this object is
+    // yet.  We need to know where the (ultimate) parent of this objec is
     // before we can correctly position it in the scene.
     PositionAccessory(ac_data->parent);
 
     // At this point, the parent (and all of its parents) have their final
     // positions.
     const SceneObjectData* parent_so_data =
-        entity_manager_->GetComponentData<SceneObjectData>(
-            ac_data->parent, ComponentDataUnion_SceneObjectDef);
+        Data<SceneObjectData>(ac_data->parent);
     const SceneObjectComponent* scene_object_component =
-        static_cast<SceneObjectComponent*>(
-            entity_manager_->GetComponent(ComponentDataUnion_SceneObjectDef));
+        GetComponent<SceneObjectComponent>();
 
     assert(scene_object_component);
     mat4 parent_transform =
@@ -96,7 +91,7 @@ void ChildObjectComponent::AddFromRawData(entity::EntityRef& entity,
 
 void ChildObjectComponent::InitEntity(entity::EntityRef& entity) {
   ComponentInterface* scene_object_component =
-      entity_manager_->GetComponent(ComponentDataUnion_SceneObjectDef);
+      GetComponent<SceneObjectComponent>();
   assert(scene_object_component);
   scene_object_component->AddEntityGenerically(entity);
   // Initialized to be marked as stale, so it will get an update the first

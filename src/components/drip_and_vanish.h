@@ -17,6 +17,7 @@
 
 #include "entity/component.h"
 #include "common.h"
+#include "components_generated.h"
 #include "scene_description.h"
 #include "mathfu/constants.h"
 
@@ -44,4 +45,9 @@ class DripAndVanishComponent : public entity::Component<DripAndVanishData> {
 
 }  // pie_noon
 }  // fpl
+
+FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::DripAndVanishComponent,
+                              fpl::pie_noon::DripAndVanishData,
+                              fpl::pie_noon::ComponentDataUnion_DripAndVanishDef)
+
 #endif  // COMPONENTS_DRIPANDVANISH_H_
