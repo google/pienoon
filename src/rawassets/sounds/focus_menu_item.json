@@ -1,5 +1,5 @@
 {
-  "id": "FocusMenuItem",
+  "name": "FocusMenuItem",
   "bus": "ui_sound_effects",
   "audio_sample_set": [
     {

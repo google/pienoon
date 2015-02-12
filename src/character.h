@@ -16,7 +16,6 @@
 #define PIE_NOON_CHARACTER_H_
 
 #include "angle.h"
-#include "audio_config_generated.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
@@ -24,18 +23,13 @@
 #include "impeller.h"
 #include "player_controller.h"
 #include "pie_noon_common_generated.h"
-#include "sound_collection_def_generated.h"
 #include "timeline_generated.h"
 
 namespace impel {
   class ImpelEngine;
-}
+}  // impel
 
 namespace fpl {
-
-class AudioEngine;
-using pie_noon::SoundId;
-
 namespace pie_noon {
 
 class Controller;
@@ -67,8 +61,7 @@ class Character {
   // The Character does not take ownership of the controller or
   // character_state_machine_def pointers.
   Character(CharacterId id, Controller* controller, const Config& config,
-            const CharacterStateMachineDef* character_state_machine_def,
-            AudioEngine* audio_engine);
+            const CharacterStateMachineDef* character_state_machine_def);
 
   // Resets the character to the start-of-game state.
   void Reset(CharacterId target, CharacterHealth health,
@@ -119,7 +112,7 @@ class Character {
   bool Active() const { return State() != StateId_KO; }
 
   // Play a sound associated with this character.
-  void PlaySound(SoundId sound_id) const;
+  void PlaySound(const char* sound) const;
 
   CharacterHealth health() const { return health_; }
   void set_health(CharacterHealth health) { health_ = health; }
@@ -203,9 +196,6 @@ class Character {
 
   // If this character is one of the winners or losers of the match.
   VictoryState victory_state_;
-
-  // Used to play sounds associated with the character.
-  AudioEngine* audio_engine_;
 
   // What state the character was in last update.
   uint16_t state_last_update_;

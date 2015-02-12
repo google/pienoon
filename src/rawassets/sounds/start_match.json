@@ -1,5 +1,5 @@
 {
-  "id": "StartMatch",
+  "name": "StartMatch",
   "bus": "ui_sound_effects",
   "audio_sample_set": [
     {

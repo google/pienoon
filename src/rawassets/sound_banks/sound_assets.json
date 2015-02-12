@@ -1,5 +1,5 @@
 {
-  "sounds": [
+  "filenames": [
     // SoundDefs must be in the order specified by the SoundId enum.
     // See pie_noon_common.fbs for the SoundId enum.
     // ThrowPie

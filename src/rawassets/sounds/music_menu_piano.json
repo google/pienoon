@@ -1,5 +1,5 @@
 {
-  "id": "MusicMenuPiano",
+  "name": "MusicMenuPiano",
   "bus": "title_screen_music",
   "stream": true,
   "loop": true,

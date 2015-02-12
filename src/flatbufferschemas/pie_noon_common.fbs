@@ -57,35 +57,6 @@ enum RenderableId : ushort {
   Count  // Must be last
 }
 
-enum SoundId : ushort {
-  ThrowPie,
-  HitWithSmallPie,
-  HitWithMediumPie,
-  HitWithLargePie,
-  BlockedSmallPie,
-  BlockedMediumPie,
-  BlockedLargePie,
-  Loading_1,
-  Loading_2,
-  Loading_3,
-  Turning,
-  PlayerWon,
-  PlayerLost,
-  JoinMatch,
-  StartMatch,
-  MusicMenu,
-  MusicMenuPiano,
-  MusicAction,
-  StingerWin,
-  StingerDraw,
-  StingerLose,
-  Ambience,
-  FocusMenuItem,
-  InvalidInput,
-
-  Count  // Must be last
-}
-
 enum EventId : ushort {
   TakeDamage,
   ReleasePie,

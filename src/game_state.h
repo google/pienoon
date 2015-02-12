@@ -31,9 +31,12 @@
 #include "impel_util.h"
 #include "particles.h"
 
+namespace pindrop {
+class AudioEngine;
+}  // namespace pindrop
+
 namespace fpl {
 
-class AudioEngine;
 class InputSystem;
 class SceneDescription;
 
@@ -46,16 +49,13 @@ struct ReceivedPie;
 
 class PieNoonEntityFactory : public entity::EntityFactoryInterface {
  public:
-  virtual entity::EntityRef CreateEntityFromData(const void* data,
-                                         entity::EntityManager* entity_manager);
+  virtual entity::EntityRef CreateEntityFromData(
+      const void* data, entity::EntityManager* entity_manager);
 };
 
 class GameState {
  public:
-  enum AnalyticsMode{
-    kNoAnalytics,
-    kTrackAnalytics
-  };
+  enum AnalyticsMode { kNoAnalytics, kTrackAnalytics };
 
   GameState();
   ~GameState();
@@ -68,7 +68,7 @@ class GameState {
   void Reset(AnalyticsMode analytics_mode);
 
   // Update controller and state machine for each character.
-  void AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine);
+  void AdvanceFrame(WorldTime delta_time, pindrop::AudioEngine* audio_engine);
 
   // To be run before starting a game and after ending one to log data about
   // gameplay.
@@ -129,23 +129,27 @@ class GameState {
   void EnterJoiningMode();
 
   WorldTime GetAnimationTime(const Character& character) const;
+
  private:
-  void ProcessSounds(AudioEngine* audio_engine,
-                     const Character& character,
-                     WorldTime delta_time) const;
+  void ProcessSounds(pindrop::AudioEngine* audio_engine,
+                     const Character& character, WorldTime delta_time) const;
   void CreatePie(CharacterId original_source_id, CharacterId source_id,
                  CharacterId target_id, CharacterHealth original_damage,
                  CharacterHealth damage);
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
-  void ProcessEvent(Character* character,
-                    unsigned int event,
-                    const EventData& event_data);
+  void ProcessEvent(pindrop::AudioEngine* audio_engine, Character* character,
+                    unsigned int event, const EventData& event_data);
   void PopulateConditionInputs(ConditionInputs* condition_inputs,
                                const Character& character) const;
-  void ProcessConditionalEvents(Character* character, EventData* event_data);
-  void ProcessEvents(Character* character,
-                     EventData* data,
-                     WorldTime delta_time);
+  void PopulateCharacterAccessories(SceneDescription* scene,
+                                    uint16_t renderable_id,
+                                    const mathfu::mat4& character_matrix,
+                                    int num_accessories, int damage,
+                                    int health) const;
+  void ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
+                                Character* character, EventData* event_data);
+  void ProcessEvents(pindrop::AudioEngine* audio_engine, Character* character,
+                     EventData* data, WorldTime delta_time);
   void UpdatePiePosition(AirbornePie* pie) const;
   CharacterId CalculateCharacterTarget(CharacterId id) const;
   float CalculateCharacterFacingAngleVelocity(const Character* character,
@@ -155,11 +159,12 @@ class GameState {
   Angle TiltTowardsStageFront(const Angle angle) const;
   impel::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
-  void CreatePieSplatter(const Character& character, int damage);
+  void CreatePieSplatter(pindrop::AudioEngine* audio_engine,
+                         const Character& character, int damage);
   void CreateJoinConfettiBurst(const Character& character);
-  void SpawnParticles(const mathfu::vec3 &position, const ParticleDef * def,
+  void SpawnParticles(const mathfu::vec3& position, const ParticleDef* def,
                       const int particle_count,
-                      const mathfu::vec4 &base_tint = mathfu::vec4(1, 1, 1, 1));
+                      const mathfu::vec4& base_tint = mathfu::vec4(1, 1, 1, 1));
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
   void AddSplatterToProp(entity::EntityRef prop);
 
