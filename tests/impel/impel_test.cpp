@@ -58,6 +58,7 @@ typedef mathfu::Matrix<float, 3> mat3;
 static const ImpelTime kTimePerFrame = 10;
 static const ImpelTime kMaxTime = 10000;
 static const float kMatrixEpsilon = 0.00001f;
+static const float kAngleEpsilon = 0.01f;
 
 
 class ImpelTests : public ::testing::Test {
@@ -96,6 +97,10 @@ protected:
     smooth_angle_init_.set_modular(true);
     smooth_angle_init_.set_min(-3.14159265359f);
     smooth_angle_init_.set_max(3.14159265359f);
+
+    smooth_scalar_init_.set_modular(false);
+    smooth_scalar_init_.set_min(-100.0f);
+    smooth_scalar_init_.set_max(100.0f);
   }
   virtual void TearDown() {}
 
@@ -132,6 +137,7 @@ protected:
   OvershootImpelInit overshoot_angle_init_;
   OvershootImpelInit overshoot_percent_init_;
   SmoothImpelInit smooth_angle_init_;
+  SmoothImpelInit smooth_scalar_init_;
 };
 
 // Ensure we wrap around from pi to -pi.
@@ -277,6 +283,28 @@ TEST_F(ImpelTests, VectorResize) {
   }
 }
 
+TEST_F(ImpelTests, SmoothModular) {
+  static const float kMargin = 0.1f;
+  static const ImpelTime kTime = 10;
+  static const float kStart = kPi - kMargin;
+  static const float kEnd = -kPi + kMargin;
+  const ImpelTarget1f t(kStart, 0.0f, kEnd, 0.0f, kTime);
+  Impeller1f angle(smooth_angle_init_, &engine_, t);
+
+  // The difference should be the short way around, across kPi.
+  EXPECT_NEAR(angle.Value(), kStart, kAngleEpsilon);
+  EXPECT_NEAR(angle.Difference(), 2.0f * kMargin, kAngleEpsilon);
+
+  // Ensure that we're always near kPi, never near 0. We want to go the
+  // short way around.
+  for (ImpelTime t = 0; t < kTime; ++t) {
+    EXPECT_TRUE(kStart - kAngleEpsilon <= angle.Value() ||
+                angle.Value() <= kEnd + kAngleEpsilon);
+    engine_.AdvanceFrame(1);
+  }
+  EXPECT_NEAR(angle.Value(), kEnd, kAngleEpsilon);
+}
+
 // Print matrices with columns vertically.
 static void PrintMatrix(const char* name, const mat4& m) {
   (void)name; (void)m;
@@ -343,7 +371,7 @@ static void TestMatrixImpeller(const MatrixImpelInit& matrix_init,
 // Test the matrix operation kTranslateX.
 TEST_F(ImpelTests, MatrixTranslateX) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateX, smooth_angle_init_, 2.0f);
+  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, 2.0f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 
@@ -378,16 +406,16 @@ TEST_F(ImpelTests, MatrixRotateAboutZ) {
 // Test the matrix operation kScaleX.
 TEST_F(ImpelTests, MatrixScaleX) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kScaleX, smooth_angle_init_, -3.0f);
+  matrix_init.AddOp(impel::kScaleX, smooth_scalar_init_, -3.0f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for translating XYZ.
 TEST_F(ImpelTests, MatrixTranslateXYZ) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateX, smooth_angle_init_, 2.0f);
-  matrix_init.AddOp(impel::kTranslateY, smooth_angle_init_, -3.0f);
-  matrix_init.AddOp(impel::kTranslateZ, smooth_angle_init_, 0.5f);
+  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, 2.0f);
+  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, -3.0f);
+  matrix_init.AddOp(impel::kTranslateZ, smooth_scalar_init_, 0.5f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 
@@ -404,52 +432,52 @@ TEST_F(ImpelTests, MatrixRotateAboutXYZ) {
 // Test the series of matrix operations for scaling XYZ non-uniformly.
 TEST_F(ImpelTests, MatrixScaleXYZ) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kScaleX, smooth_angle_init_, -3.0f);
-  matrix_init.AddOp(impel::kScaleY, smooth_angle_init_, 2.2f);
-  matrix_init.AddOp(impel::kScaleZ, smooth_angle_init_, 1.01f);
+  matrix_init.AddOp(impel::kScaleX, smooth_scalar_init_, -3.0f);
+  matrix_init.AddOp(impel::kScaleY, smooth_scalar_init_, 2.2f);
+  matrix_init.AddOp(impel::kScaleZ, smooth_scalar_init_, 1.01f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 
 // Test the matrix operation kScaleUniformly.
 TEST_F(ImpelTests, MatrixScaleUniformly) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kScaleUniformly, smooth_angle_init_, 10.1f);
+  matrix_init.AddOp(impel::kScaleUniformly, smooth_scalar_init_, 10.1f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for translating and rotating.
 TEST_F(ImpelTests, MatrixTranslateRotateTranslateBack) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateY, smooth_angle_init_, 1.0f);
+  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, 1.0f);
   matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  matrix_init.AddOp(impel::kTranslateY, smooth_angle_init_, -1.0f);
+  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, -1.0f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for translating, rotating, and scaling.
 TEST_F(ImpelTests, MatrixTranslateRotateScale) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateY, smooth_angle_init_, 1.0f);
+  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, 1.0f);
   matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  matrix_init.AddOp(impel::kScaleZ, smooth_angle_init_, -1.4f);
+  matrix_init.AddOp(impel::kScaleZ, smooth_scalar_init_, -1.4f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 
 // Test a complex the series of matrix operations.
 TEST_F(ImpelTests, MatrixTranslateRotateScaleGoneWild) {
   MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateY, smooth_angle_init_, 1.0f);
-  matrix_init.AddOp(impel::kTranslateX, smooth_angle_init_, -1.6f);
+  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, 1.0f);
+  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, -1.6f);
   matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, kHalfPi * 0.1f);
   matrix_init.AddOp(impel::kRotateAboutY, smooth_angle_init_, kHalfPi * 0.33f);
-  matrix_init.AddOp(impel::kScaleZ, smooth_angle_init_, -1.4f);
+  matrix_init.AddOp(impel::kScaleZ, smooth_scalar_init_, -1.4f);
   matrix_init.AddOp(impel::kRotateAboutY, smooth_angle_init_, -kHalfPi * 0.33f);
-  matrix_init.AddOp(impel::kTranslateX, smooth_angle_init_, -1.2f);
-  matrix_init.AddOp(impel::kTranslateY, smooth_angle_init_, -1.5f);
-  matrix_init.AddOp(impel::kTranslateZ, smooth_angle_init_, -2.2f);
+  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, -1.2f);
+  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, -1.5f);
+  matrix_init.AddOp(impel::kTranslateZ, smooth_scalar_init_, -2.2f);
   matrix_init.AddOp(impel::kRotateAboutZ, smooth_angle_init_, -kHalfPi * 0.5f);
-  matrix_init.AddOp(impel::kScaleX, smooth_angle_init_, 2.0f);
-  matrix_init.AddOp(impel::kScaleY, smooth_angle_init_, 4.1f);
+  matrix_init.AddOp(impel::kScaleX, smooth_scalar_init_, 2.0f);
+  matrix_init.AddOp(impel::kScaleY, smooth_scalar_init_, 4.1f);
   TestMatrixImpeller(matrix_init, &engine_);
 }
 

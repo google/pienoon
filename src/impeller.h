@@ -130,6 +130,10 @@ class Impeller1f : public Impeller {
   Impeller1f(const ImpelInit& init, ImpelEngine* engine)
       : Impeller(init, engine) {
   }
+  Impeller1f(const ImpelInit& init, ImpelEngine* engine, const ImpelTarget1f& t)
+      : Impeller(init, engine) {
+    SetTarget(t);
+  }
   void InitializeWithTarget(const ImpelInit& init, ImpelEngine* engine,
                             const ImpelTarget1f& t) {
     Initialize(init, engine);

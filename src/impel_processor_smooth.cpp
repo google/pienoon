@@ -65,13 +65,15 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
 
   // Accessors to allow the user to get and set simluation values.
   virtual float Value(ImpelIndex index) const {
-    return interpolator_.Y(index);
+    const SmoothImpelData& d = Data(index);
+    return d.init.Normalize(interpolator_.Y(index));
   }
   virtual float Velocity(ImpelIndex index) const {
     return interpolator_.Derivative(index);
   }
   virtual float TargetValue(ImpelIndex index) const {
-    return interpolator_.EndY(index);
+    const SmoothImpelData& d = Data(index);
+    return d.init.Normalize(interpolator_.EndY(index));
   }
   virtual float TargetVelocity(ImpelIndex index) const {
     return interpolator_.EndDerivative(index);
@@ -90,15 +92,24 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
 
     // Initialize spline to match specified parameters. We maintain current
     // values for any parameters that aren't specified.
-    const float start_y = t.Valid(kValue) ? t.Value() : Value(index);
-    const float start_derivative = t.Valid(kVelocity)
-                                 ? t.Velocity() : Velocity(index);
-    const float end_y = t.Valid(kTargetValue)
-                      ? t.TargetValue() : kDefaultTargetValue;
-    const float end_derivative = t.Valid(kTargetVelocity)
-                               ? t.TargetVelocity() : kDefaultTargetVelocity;
-    const float end_x = t.Valid(kTargetTime)
-                      ? t.TargetTime() : kDefaultTargetTime;
+    const float start_y_unnormalized =
+        t.Valid(kValue) ? t.Value() : Value(index);
+    const float end_y_unnormalized =
+        t.Valid(kTargetValue) ? t.TargetValue() : start_y_unnormalized;
+    const float start_derivative =
+        t.Valid(kVelocity) ? t.Velocity() : Velocity(index);
+    const float end_derivative =
+        t.Valid(kTargetVelocity) ? t.TargetVelocity() : kDefaultTargetVelocity;
+    const float end_x =
+        t.Valid(kTargetTime) ? t.TargetTime() : kDefaultTargetTime;
+
+    // Normalize the starting y value. Ensure the target y value takes the
+    // shortest route, even if that means going outside the normalized range.
+    const float start_y = d.init.Normalize(start_y_unnormalized);
+    const float y_diff = d.init.Normalize(end_y_unnormalized - start_y);
+    const float end_y = start_y + y_diff;
+
+    // Calculate the spline quantization parameters.
     const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
     const Range y_range =
         fpl::CreateValidRange(start_y, end_y).Lengthen(kYRangeBufferPercent);
@@ -167,8 +178,7 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
 
   CompactSpline* AllocateSpline() {
     // Only create a new spline if there are no left in the pool.
-    if (spline_pool_.empty())
-      return new CompactSpline();
+    if (spline_pool_.empty()) return new CompactSpline();
 
     // Return a spline from the pool. Eventually we'll reach a high water mark
     // and we will stop allocating new splines.
@@ -199,7 +209,4 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
 
 IMPEL_INSTANCE(SmoothImpelInit, SmoothImpelProcessor);
 
-
-} // namespace impel
-
-
+}  // namespace impel
