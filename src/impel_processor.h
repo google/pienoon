@@ -187,7 +187,7 @@ class ImpelProcessor1f : public ImpelProcessor {
   virtual float TargetValue(ImpelIndex index) const = 0;
   virtual float TargetVelocity(ImpelIndex index) const = 0;
   virtual float Difference(ImpelIndex index) const = 0;
-  virtual float TargetTime(ImpelIndex index) const = 0;
+  virtual ImpelTime TargetTime(ImpelIndex index) const = 0;
 
   // At least one of these should be implemented. Otherwise, there will be
   // no way to drive the Impeller towards a target.

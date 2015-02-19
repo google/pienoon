@@ -28,7 +28,6 @@ using fpl::Range;
 static const float kYRangeBufferPercent = 1.2f;
 static const float kDefaultTargetValue = 0.0f;
 static const float kDefaultTargetVelocity = 0.0f;
-static const float kDefaultTargetTime = 1000.0f;
 
 struct SmoothImpelData {
   SmoothImpelData() : local_spline(nullptr) {}
@@ -77,11 +76,14 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
     const SmoothImpelData& d = Data(index);
     return d.init.Normalize(interpolator_.EndY(index) - interpolator_.Y(index));
   }
-  virtual float TargetTime(ImpelIndex index) const {
-    return interpolator_.EndX(index);
+  virtual ImpelTime TargetTime(ImpelIndex index) const {
+    return static_cast<ImpelTime>(interpolator_.EndX(index) -
+                                  interpolator_.X(index));
   }
 
   virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
+    // Doesn't makes sense to recycle the target time from current values.
+    assert(t.Valid(kTargetTime));
     SmoothImpelData& d = Data(index);
 
     // Initialize spline to match specified parameters. We maintain current
@@ -94,8 +96,7 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
         t.Valid(kVelocity) ? t.Velocity() : Velocity(index);
     const float end_derivative =
         t.Valid(kTargetVelocity) ? t.TargetVelocity() : kDefaultTargetVelocity;
-    const float end_x =
-        t.Valid(kTargetTime) ? t.TargetTime() : kDefaultTargetTime;
+    const float end_x = static_cast<float>(t.TargetTime());
 
     // Normalize the starting y value. Ensure the target y value takes the
     // shortest route, even if that means going outside the normalized range.

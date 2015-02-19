@@ -86,11 +86,7 @@ void GameCamera::TerminateMovements() {
   start_ = state;
   end_ = state;
   if (percent_.Valid()) {
-    impel::ImpelTarget1f t;
-    t.SetValue(1.0f);
-    t.SetTargetValue(1.0f);
-    t.SetVelocity(0.0f);
-    percent_.SetTarget(t);
+    percent_.SetTarget(impel::ImpelTarget1f(1.0f));
   }
   movements_ = std::queue<GameCameraMovement>();
 }

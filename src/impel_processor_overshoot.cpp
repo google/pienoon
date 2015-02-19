@@ -78,7 +78,10 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
     return d.init.Normalize(d.target_value - d.value);
   }
   // TODO: Implement this after converting Overshoot to use splines.
-  virtual float TargetTime(ImpelIndex /*index*/) const { return -1.0f; }
+  virtual ImpelTime TargetTime(ImpelIndex /*index*/) const {
+    assert(false);
+    return -1;
+  }
   virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
     OvershootImpelData& d = Data(index);
     if (t.Valid(kValue)) {

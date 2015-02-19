@@ -89,7 +89,7 @@ class ImpelTarget1f {
   }
 
   ImpelTarget1f(float value, float velocity, float target_value,
-                float target_velocity, float target_time)
+                float target_velocity, ImpelTime target_time)
       : valid_items_(0) {
     SetValue(value);
     SetVelocity(velocity);
@@ -120,7 +120,7 @@ class ImpelTarget1f {
     valid_items_ |= kTargetVelocityValid;
   }
 
-  void SetTargetTime(float target_time) {
+  void SetTargetTime(ImpelTime target_time) {
     target_time_ = target_time;
     valid_items_ |= kTargetTimeValid;
   }
@@ -163,7 +163,7 @@ class ImpelTarget1f {
     return target_velocity_;
   }
 
-  float TargetTime() const {
+  ImpelTime TargetTime() const {
     assert(Valid(kTargetTime));
     return target_time_;
   }
@@ -172,7 +172,7 @@ class ImpelTarget1f {
 
  private:
   uint32_t valid_items_;  // bitfield. See ImpelTarget1fValidity.
-  float target_time_;
+  ImpelTime target_time_;
   float value_;
   float velocity_;
   float target_value_;

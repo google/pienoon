@@ -146,7 +146,9 @@ class Impeller1f : public Impeller {
   // Returns TargetValue() minus Value(). If we're impelling a
   // modular type (e.g. an angle), this may not be the naive subtraction.
   float Difference() const { return Processor().Difference(index_); }
-  float TargetTime() const { return Processor().TargetTime(index_); }
+
+  // Returns time remaining until target is reached.
+  ImpelTime TargetTime() const { return Processor().TargetTime(index_); }
 
   // Set current impeller values in the processor. Processors may choose to
   // ignore whichever values make sense for them to ignore.
