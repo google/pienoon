@@ -30,10 +30,6 @@ namespace fpl {
 namespace pie_noon {
 
 
-static const float kEpsilonForPercent = 0.001f;
-static const float kFullPercent = 1.0f - kEpsilonForPercent;
-
-
 vec3 GameCamera::Position() const {
   return percent_.Valid() ?
          vec3::Lerp(start_.position, end_.position, percent_.Value()) :
@@ -65,7 +61,7 @@ void GameCamera::AdvanceFrame(WorldTime /*delta_time*/) {
   // If the camera has finished zooming in, transition to zoom out.
   // Transition to next movement that's been queued.
   if (!movements_.empty() && (!percent_.Valid() ||
-      percent_.Value() >= kFullPercent)) {
+      percent_.Difference() == 0.0f)) {
     ExecuteMovement(movements_.front());
     movements_.pop();
   }
