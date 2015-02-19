@@ -84,14 +84,12 @@ bool BulkSplineEvaluator::Valid(const Index index) const {
 void BulkSplineEvaluator::InitCubic(const Index index) {
   // Do nothing if the requested index has no spline.
   const CompactSpline* spline = splines_[index];
-  if (spline == nullptr)
-    return;
+  if (spline == nullptr) return;
 
   // Do nothing if the current cubic matches the current spline segment.
   Domain& d = domains_[index];
   const CompactSplineIndex x_index = spline->IndexForX(d.x, d.x_index + 1);
-  if (d.x_index == x_index)
-    return;
+  if (d.x_index == x_index) return;
 
   // Update the x-related values.
   d.x_index = x_index;
@@ -102,4 +100,4 @@ void BulkSplineEvaluator::InitCubic(const Index index) {
   cubics_[index].Init(init);
 }
 
-} // namespace fpl
+}  // namespace fpl

@@ -24,13 +24,13 @@ namespace pie_noon {
 GuiMenu::GuiMenu() {}
 
 static const char* TextureName(const ButtonTexture& button_texture) {
-  const bool touch_screen = button_texture.touch_screen() != nullptr &&
-                            TouchScreenDevice();
-  return touch_screen ? button_texture.touch_screen()->c_str() :
-                        button_texture.standard()->c_str();
+  const bool touch_screen =
+      button_texture.touch_screen() != nullptr && TouchScreenDevice();
+  return touch_screen ? button_texture.touch_screen()->c_str()
+                      : button_texture.standard()->c_str();
 }
 
-template<class T>
+template <class T>
 static inline size_t ArrayLength(const T* array) {
   return array == nullptr ? 0 : array->Length();
 }
@@ -41,7 +41,7 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     button_list_.resize(0);
     image_list_.resize(0);
     current_focus_ = ButtonId_Undefined;
-    return;   // Nothing to set up.  Just clearing things out.
+    return;  // Nothing to set up.  Just clearing things out.
   }
   assert(menu_def->cannonical_window_height() > 0);
   const size_t length_button_list = ArrayLength(menu_def->button_list());
@@ -61,18 +61,19 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
       button_list_[i].set_up_material(j, matman->FindMaterial(texture_name));
     }
     if (button->texture_pressed()) {
-      button_list_[i].set_down_material(matman->FindMaterial(
-          TextureName(*button->texture_pressed())));
+      button_list_[i].set_down_material(
+          matman->FindMaterial(TextureName(*button->texture_pressed())));
     }
 
-    const char* shader_name = (button->shader() == nullptr) ?
-        menu_def->default_shader()->c_str() :
-        button->shader()->c_str();
+    const char* shader_name = (button->shader() == nullptr)
+                                  ? menu_def->default_shader()->c_str()
+                                  : button->shader()->c_str();
     Shader* shader = matman->FindShader(shader_name);
 
-    const char* inactive_shader_name = (button->inactive_shader() == nullptr) ?
-        menu_def->default_inactive_shader()->c_str() :
-        button->inactive_shader()->c_str();
+    const char* inactive_shader_name =
+        (button->inactive_shader() == nullptr)
+            ? menu_def->default_inactive_shader()->c_str()
+            : button->inactive_shader()->c_str();
     Shader* inactive_shader = matman->FindShader(inactive_shader_name);
 
     if (shader == nullptr) {
@@ -102,9 +103,9 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
                      "Static image '%s' not found", material_name);
       }
     }
-    const char* shader_name = (image_def.shader() == nullptr) ?
-        menu_def->default_shader()->c_str() :
-        image_def.shader()->c_str();
+    const char* shader_name = (image_def.shader() == nullptr)
+                                  ? menu_def->default_shader()->c_str()
+                                  : image_def.shader()->c_str();
     Shader* shader = matman->FindShader(shader_name);
     if (shader == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
@@ -161,13 +162,13 @@ void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
   for (size_t i = 0; i < button_list_.size(); i++) {
     TouchscreenButton& current_button = button_list_[i];
     current_button.AdvanceFrame(delta_time, input, window_size);
-    current_button.set_is_highlighted(
-        current_focus_ == current_button.GetId());
+    current_button.set_is_highlighted(current_focus_ == current_button.GetId());
 
     if (current_button.IsTriggered()) {
-      unhandled_selections_.push(MenuSelection(
-          current_button.is_active() ? current_button.GetId() :
-          ButtonId_InvalidInput, kTouchController));
+      unhandled_selections_.push(MenuSelection(current_button.is_active()
+                                                   ? current_button.GetId()
+                                                   : ButtonId_InvalidInput,
+                                               kTouchController));
     }
   }
 }
@@ -175,8 +176,7 @@ void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
 // Utility function for finding indexes.
 TouchscreenButton* GuiMenu::FindButtonById(ButtonId id) {
   for (size_t i = 0; i < button_list_.size(); i++) {
-    if (button_list_[i].GetId() == id)
-      return &button_list_[i];
+    if (button_list_[i].GetId() == id) return &button_list_[i];
   }
   return nullptr;
 }
@@ -184,8 +184,7 @@ TouchscreenButton* GuiMenu::FindButtonById(ButtonId id) {
 // Utility function for finding indexes.
 StaticImage* GuiMenu::FindImageById(ButtonId id) {
   for (size_t i = 0; i < image_list_.size(); i++) {
-    if (image_list_[i].GetId() == id)
-      return &image_list_[i];
+    if (image_list_[i].GetId() == id) return &image_list_[i];
   }
   return nullptr;
 }
@@ -238,9 +237,10 @@ void GuiMenu::HandleControllerInput(uint32_t logical_input,
   }
 
   if (logical_input & LogicalInputs_Select) {
-    unhandled_selections_.push(MenuSelection(
-        current_focus_button_->is_active() ?
-        current_focus_ : ButtonId_InvalidInput, controller_id));
+    unhandled_selections_.push(MenuSelection(current_focus_button_->is_active()
+                                                 ? current_focus_
+                                                 : ButtonId_InvalidInput,
+                                             controller_id));
   }
   if (logical_input & LogicalInputs_Cancel) {
     unhandled_selections_.push(MenuSelection(ButtonId_Cancel, controller_id));
@@ -255,10 +255,8 @@ void GuiMenu::UpdateFocus(
   // buttons are not required to provide a destination list for all directions.
   if (destination_list != nullptr) {
     for (size_t i = 0; i < destination_list->Length(); i++) {
-      ButtonId destination_id =
-          static_cast<ButtonId>(destination_list->Get(i));
-      TouchscreenButton* destination =
-          FindButtonById(destination_id);
+      ButtonId destination_id = static_cast<ButtonId>(destination_list->Get(i));
+      TouchscreenButton* destination = FindButtonById(destination_id);
       if (destination != nullptr && destination->is_visible()) {
         SetFocus(destination_id);
         return;
@@ -267,17 +265,13 @@ void GuiMenu::UpdateFocus(
   }
   // if we didn't find an active button to move to, we just return and
   // leave everything unchanged.  And maybe play a noise.
-  unhandled_selections_.push(MenuSelection(ButtonId_InvalidInput,
-                                           kTouchController));
+  unhandled_selections_.push(
+      MenuSelection(ButtonId_InvalidInput, kTouchController));
 }
 
-ButtonId GuiMenu::GetFocus() const {
-  return current_focus_;
-}
+ButtonId GuiMenu::GetFocus() const { return current_focus_; }
 
-void GuiMenu::SetFocus(ButtonId new_focus) {
-  current_focus_  = new_focus;
-}
+void GuiMenu::SetFocus(ButtonId new_focus) { current_focus_ = new_focus; }
 
 }  // pie_noon
 }  // fpl

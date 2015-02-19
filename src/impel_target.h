@@ -17,7 +17,6 @@
 
 namespace impel {
 
-
 // Impellers have a subset of this state. Not all impellers types have all
 // of this state. For example, some impellers may be simple physics driven
 // movement, and not support waypoints.
@@ -38,7 +37,6 @@ enum ImpelTarget1fValidity {
   kTargetVelocityValid = 1 << kTargetVelocity,
   kTargetTimeValid = 1 << kTargetTime,
 };
-
 
 // Override the current and target state for a one-dimensional Impeller.
 // It is valid to set a subset of the parameters here. For example, if you
@@ -69,7 +67,7 @@ class ImpelTarget1f {
   // such calls on a separate line.
   explicit ImpelTarget1f(float value) { SetConstant(value); }
 
-  ImpelTarget1f(float value, float velocity) : valid_items_(0){
+  ImpelTarget1f(float value, float velocity) : valid_items_(0) {
     SetValue(value);
     SetVelocity(velocity);
   }
@@ -173,7 +171,7 @@ class ImpelTarget1f {
   uint32_t valid_items() const { return valid_items_; }
 
  private:
-  uint32_t valid_items_;     // bitfield. See ImpelTarget1fValidity.
+  uint32_t valid_items_;  // bitfield. See ImpelTarget1fValidity.
   float target_time_;
   float value_;
   float velocity_;
@@ -181,8 +179,6 @@ class ImpelTarget1f {
   float target_velocity_;
 };
 
+}  // namespace impel
 
-} // namespace impel
-
-#endif // IMPEL_TARGET_H
-
+#endif  // IMPEL_TARGET_H

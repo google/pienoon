@@ -17,7 +17,6 @@
 
 namespace impel {
 
-
 void Impeller::Initialize(const ImpelInit& init, ImpelEngine* engine) {
   // Unregister ourselves with our existing ImpelProcessor.
   Invalidate();
@@ -30,5 +29,4 @@ void Impeller::Initialize(const ImpelInit& init, ImpelEngine* engine) {
   processor->InitializeImpeller(init, engine, this);
 }
 
-
-} // namespace impel
+}  // namespace impel

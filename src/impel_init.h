@@ -17,7 +17,6 @@
 
 #include "impel_util.h"
 
-
 namespace impel {
 
 enum MatrixOperationType {
@@ -39,18 +38,13 @@ enum MatrixOperationType {
 class ModularImpelInit : public ImpelInit {
  public:
   // The derived type must call this constructor with it's ImpelType identifier.
-  explicit ModularImpelInit(ImpellerType type) :
-      ImpelInit(type),
-      min_(0.0f),
-      max_(0.0f),
-      modular_(false) {
-  }
+  explicit ModularImpelInit(ImpellerType type)
+      : ImpelInit(type), min_(0.0f), max_(0.0f), modular_(false) {}
 
   // Ensure position 'x' is within the valid constraint range.
   float Normalize(float x) const {
     // For non-modular values, do nothing.
-    if (!modular_)
-      return x;
+    if (!modular_) return x;
 
     // For modular values, ensures 'x' is in the constraints (min, max].
     // That is, exclusive of min, inclusive of max.
@@ -88,18 +82,16 @@ class ModularImpelInit : public ImpelInit {
   bool modular_;
 };
 
-
 class OvershootImpelInit : public ModularImpelInit {
  public:
   IMPEL_INTERFACE();
 
-  OvershootImpelInit() :
-      ModularImpelInit(kType),
-      max_velocity_(0.0f),
-      accel_per_difference_(0.0f),
-      wrong_direction_multiplier_(0.0f),
-      max_delta_time_(0)
-  {}
+  OvershootImpelInit()
+      : ModularImpelInit(kType),
+        max_velocity_(0.0f),
+        accel_per_difference_(0.0f),
+        wrong_direction_multiplier_(0.0f),
+        max_delta_time_(0) {}
 
   // Ensure velocity is within the reasonable limits.
   float ClampVelocity(float velocity) const {
@@ -125,7 +117,9 @@ class OvershootImpelInit : public ModularImpelInit {
   const Settled1f& at_target() const { return at_target_; }
   Settled1f& at_target() { return at_target_; }
   float accel_per_difference() const { return accel_per_difference_; }
-  float wrong_direction_multiplier() const { return wrong_direction_multiplier_; }
+  float wrong_direction_multiplier() const {
+    return wrong_direction_multiplier_;
+  }
   ImpelTime max_delta_time() const { return max_delta_time_; }
 
   void set_max_velocity(float max_velocity) { max_velocity_ = max_velocity; }
@@ -171,7 +165,6 @@ class OvershootImpelInit : public ModularImpelInit {
   ImpelTime max_delta_time_;
 };
 
-
 class SmoothImpelInit : public ModularImpelInit {
  public:
   IMPEL_INTERFACE();
@@ -179,23 +172,20 @@ class SmoothImpelInit : public ModularImpelInit {
   SmoothImpelInit() : ModularImpelInit(kType) {}
 };
 
-
 struct MatrixOperationInit {
   // Matrix operation never changes. Always use 'const_value'.
   MatrixOperationInit(MatrixOperationType type, float const_value)
       : init(nullptr),
         type(type),
         has_initial_value(true),
-        initial_value(const_value) {
-  }
+        initial_value(const_value) {}
 
   // Matrix operation is driven by Impeller defined by 'init'.
   MatrixOperationInit(MatrixOperationType type, const ImpelInit& init)
       : init(&init),
         type(type),
         has_initial_value(false),
-        initial_value(0.0f) {
-  }
+        initial_value(0.0f) {}
 
   // Matrix operation is driven by Impeller defined by 'init'. Specify initial
   // value as well.
@@ -204,8 +194,7 @@ struct MatrixOperationInit {
       : init(&init),
         type(type),
         has_initial_value(true),
-        initial_value(initial_value) {
-  }
+        initial_value(initial_value) {}
 
   const ImpelInit* init;
   MatrixOperationType type;
@@ -235,8 +224,7 @@ class MatrixImpelInit : public ImpelInit {
   // By default expect a relatively high number of ops. Cost for allocating
   // a bit too much temporary memory is small compared to cost of reallocating
   // that memory.
-  explicit MatrixImpelInit(int expected_num_ops = 8)
-      : ImpelInit(kType) {
+  explicit MatrixImpelInit(int expected_num_ops = 8) : ImpelInit(kType) {
     ops_.reserve(expected_num_ops);
   }
 
@@ -268,7 +256,6 @@ class MatrixImpelInit : public ImpelInit {
   OpVector ops_;
 };
 
-} // namespace impel
+}  // namespace impel
 
-#endif // IMPEL_INIT_H_
-
+#endif  // IMPEL_INIT_H_

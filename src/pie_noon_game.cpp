@@ -59,10 +59,10 @@ static const char* kLabelExtrasBackButton = "Extras back button";
 static const char* kLabelHowToPlayButton = "How to play";
 static const char* kLabelLeaderboardButton = "Leaderboard";
 
-static const unsigned short kQuadIndices[] = { 0, 1, 2, 2, 1, 3 };
+static const unsigned short kQuadIndices[] = {0, 1, 2, 2, 1, 3};
 
-static const Attribute kQuadMeshFormat[] =
-    { kPosition3f, kTexCoord2f, kNormal3f, kTangent4f, kEND };
+static const Attribute kQuadMeshFormat[] = {kPosition3f, kTexCoord2f, kNormal3f,
+                                            kTangent4f, kEND};
 
 static const char kAssetsDir[] = "assets";
 
@@ -76,9 +76,7 @@ static const int kAndroidMaxScreenHeight = 1080;
 // Return the elapsed milliseconds since the start of the program. This number
 // will loop back to 0 after about 49 days; always take the difference to
 // properly handle the wrap-around case.
-static inline WorldTime CurrentWorldTime() {
-  return SDL_GetTicks();
-}
+static inline WorldTime CurrentWorldTime() { return SDL_GetTicks(); }
 
 static inline const UiGroup* TitleScreenButtons(const Config& config) {
 #ifdef __ANDROID__
@@ -151,8 +149,8 @@ bool PieNoonGame::InitializeRenderer() {
   const Config& config = GetConfig();
 
 #ifdef __ANDROID__
-  auto max_screen_size = pie_noon::Vec2i(kAndroidMaxScreenWidth,
-                                         kAndroidMaxScreenHeight);
+  auto max_screen_size =
+      pie_noon::Vec2i(kAndroidMaxScreenWidth, kAndroidMaxScreenHeight);
   auto window_size = &max_screen_size;
 #else
   auto window_size = config.window_size();
@@ -161,7 +159,7 @@ bool PieNoonGame::InitializeRenderer() {
   if (!renderer_.Initialize(LoadVec2i(window_size),
                             config.window_title()->c_str())) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Renderer initialization error: %s\n",
-            renderer_.last_error().c_str());
+                 renderer_.last_error().c_str());
     return false;
   }
 
@@ -206,7 +204,6 @@ static void CreateVerticalQuad(const vec3& offset, const vec2& geo_size,
 Mesh* PieNoonGame::CreateVerticalQuadMesh(
     const flatbuffers::String* material_name, const vec3& offset,
     const vec2& pixel_bounds, float pixel_to_world_scale) {
-
   // Don't try to load obviously invalid materials. Suppresses error logs from
   // the material manager.
   if (material_name == nullptr || material_name->c_str()[0] == '\0')
@@ -215,8 +212,7 @@ Mesh* PieNoonGame::CreateVerticalQuadMesh(
   // Load the material from file, and check validity.
   Material* material = matman_.LoadMaterial(material_name->c_str());
   bool material_valid = material != nullptr && material->textures().size() > 0;
-  if (!material_valid)
-    return nullptr;
+  if (!material_valid) return nullptr;
 
   // Create vertex geometry in proportion to the texture size.
   // This is nice for the artist since everything is at the scale of the
@@ -263,23 +259,25 @@ bool PieNoonGame::InitializeRenderingAssets() {
   const vec3 back_z_offset(0.0f, 0.0f, config.cardboard_back_z_offset());
   for (int id = 0; id < RenderableId_Count; ++id) {
     auto renderable = config.renderables()->Get(id);
-    const vec3 offset = renderable->offset() == nullptr ? mathfu::kZeros3f :
-                        LoadVec3(renderable->offset());
+    const vec3 offset = renderable->offset() == nullptr
+                            ? mathfu::kZeros3f
+                            : LoadVec3(renderable->offset());
     const vec3 front_offset = offset + front_z_offset;
     const vec3 back_offset = offset + back_z_offset;
     const auto pixel_bounds_ptr = renderable->pixel_bounds();
-    const vec2 pixel_bounds(pixel_bounds_ptr == nullptr ? mathfu::kZeros2i :
-                            LoadVec2i(pixel_bounds_ptr));
-    const float pixel_to_world_scale = renderable->geometry_scale() *
-                                       config.pixel_to_world_scale();
+    const vec2 pixel_bounds(pixel_bounds_ptr == nullptr
+                                ? mathfu::kZeros2i
+                                : LoadVec2i(pixel_bounds_ptr));
+    const float pixel_to_world_scale =
+        renderable->geometry_scale() * config.pixel_to_world_scale();
 
-    cardboard_fronts_[id] = CreateVerticalQuadMesh(
-        renderable->cardboard_front(), front_offset, pixel_bounds,
-        pixel_to_world_scale);
+    cardboard_fronts_[id] =
+        CreateVerticalQuadMesh(renderable->cardboard_front(), front_offset,
+                               pixel_bounds, pixel_to_world_scale);
 
-    cardboard_backs_[id] = CreateVerticalQuadMesh(
-        renderable->cardboard_back(), back_offset, pixel_bounds,
-        pixel_to_world_scale);
+    cardboard_backs_[id] =
+        CreateVerticalQuadMesh(renderable->cardboard_back(), back_offset,
+                               pixel_bounds, pixel_to_world_scale);
   }
 
   // We default to the invalid texture, so it has to exist.
@@ -293,10 +291,9 @@ bool PieNoonGame::InitializeRenderingAssets() {
                                 config.stick_front_z_offset());
   const vec3 stick_back_offset(0.0f, config.stick_y_offset(),
                                config.stick_back_z_offset());
-  stick_front_ = CreateVerticalQuadMesh(config.stick_front(),
-                                        stick_front_offset,
-                                        LoadVec2(config.stick_bounds()),
-                                        config.pixel_to_world_scale());
+  stick_front_ = CreateVerticalQuadMesh(
+      config.stick_front(), stick_front_offset, LoadVec2(config.stick_bounds()),
+      config.pixel_to_world_scale());
   stick_back_ = CreateVerticalQuadMesh(config.stick_back(), stick_back_offset,
                                        LoadVec2(config.stick_bounds()),
                                        config.pixel_to_world_scale());
@@ -308,11 +305,9 @@ bool PieNoonGame::InitializeRenderingAssets() {
   shader_simple_shadow_ = matman_.LoadShader("shaders/simple_shadow");
   shader_textured_ = matman_.LoadShader("shaders/textured");
   shader_grayscale_ = matman_.LoadShader("shaders/grayscale");
-  if (!(shader_lit_textured_normal_ &&
-        shader_cardboard &&
-        shader_simple_shadow_ &&
-        shader_textured_ &&
-        shader_grayscale_)) return false;
+  if (!(shader_lit_textured_normal_ && shader_cardboard &&
+        shader_simple_shadow_ && shader_textured_ && shader_grayscale_))
+    return false;
 
   // Load shadow material:
   shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.bin");
@@ -326,8 +321,8 @@ bool PieNoonGame::InitializeRenderingAssets() {
   gui_menu_.LoadAssets(config.extras_screen_buttons(), &matman_);
 
   // Configure the full screen fader.
-  full_screen_fader_.set_material(matman_.FindMaterial(
-      config.fade_material()->c_str()));
+  full_screen_fader_.set_material(
+      matman_.FindMaterial(config.fade_material()->c_str()));
   full_screen_fader_.set_shader(shader_textured_);
 
   // Start the thread that actually loads all assets we requested above.
@@ -408,6 +403,7 @@ class AudioEngineVolumeControl {
         break;
     }
   }
+
  private:
   pindrop::AudioEngine* audio_;
 };
@@ -418,17 +414,13 @@ class AudioEngineVolumeControl {
 bool PieNoonGame::Initialize(const char* const binary_directory) {
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "PieNoon initializing...\n");
 
-  if (!ChangeToUpstreamDir(binary_directory, kAssetsDir))
-    return false;
+  if (!ChangeToUpstreamDir(binary_directory, kAssetsDir)) return false;
 
-  if (!InitializeConfig())
-    return false;
+  if (!InitializeConfig()) return false;
 
-  if (!InitializeRenderer())
-    return false;
+  if (!InitializeRenderer()) return false;
 
-  if (!InitializeRenderingAssets())
-    return false;
+  if (!InitializeRenderingAssets()) return false;
 
   input_.Initialize();
 
@@ -446,13 +438,12 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
 
   input_.AddAppEventCallback(AudioEngineVolumeControl(&audio_engine_));
 
-  if (!InitializeGameState())
-    return false;
+  if (!InitializeGameState()) return false;
 
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   if (!gpg_manager.Initialize(ReadPreference("logged_in", 1, 1) != 0))
     return false;
-# endif
+#endif
 
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
               "PieNoon initialization complete\n");
@@ -470,7 +461,7 @@ Mesh* PieNoonGame::GetCardboardFront(int renderable_id) {
 }
 
 void PieNoonGame::RenderCardboard(const SceneDescription& scene,
-                                const mat4& camera_transform) {
+                                  const mat4& camera_transform) {
   const Config& config = GetConfig();
 
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
@@ -483,8 +474,8 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
 
     // Set the camera and light positions in object space.
     const mat4 world_matrix_inverse = renderable->world_matrix().Inverse();
-    renderer_.camera_pos() = world_matrix_inverse *
-                             game_state_.camera().Position();
+    renderer_.camera_pos() =
+        world_matrix_inverse * game_state_.camera().Position();
 
     // TODO: check amount of lights.
     renderer_.light_pos() = world_matrix_inverse * (*scene.lights()[0]);
@@ -514,16 +505,15 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
 
     if (config.renderables()->Get(id)->cardboard()) {
       shader_cardboard->Set(renderer_);
-      shader_cardboard->SetUniform("ambient_material",
-          LoadVec3(config.cardboard_ambient_material()));
-      shader_cardboard->SetUniform("diffuse_material",
-          LoadVec3(config.cardboard_diffuse_material()));
-      shader_cardboard->SetUniform("specular_material",
-          LoadVec3(config.cardboard_specular_material()));
-      shader_cardboard->SetUniform("shininess",
-          config.cardboard_shininess());
+      shader_cardboard->SetUniform(
+          "ambient_material", LoadVec3(config.cardboard_ambient_material()));
+      shader_cardboard->SetUniform(
+          "diffuse_material", LoadVec3(config.cardboard_diffuse_material()));
+      shader_cardboard->SetUniform(
+          "specular_material", LoadVec3(config.cardboard_specular_material()));
+      shader_cardboard->SetUniform("shininess", config.cardboard_shininess());
       shader_cardboard->SetUniform("normalmap_scale",
-          config.cardboard_normalmap_scale());
+                                   config.cardboard_normalmap_scale());
     } else {
       shader_textured_->Set(renderer_);
     }
@@ -554,8 +544,8 @@ void PieNoonGame::Render(const SceneDescription& scene) {
   const float ground_width = 16.4f;
   const float ground_depth = 8.0f;
   Mesh::RenderAAQuadAlongX(vec3(-ground_width, 0, 0),
-                           vec3(ground_width, 0, ground_depth),
-                           vec2(0, 0), vec2(1.0f, 1.0f));
+                           vec3(ground_width, 0, ground_depth), vec2(0, 0),
+                           vec2(1.0f, 1.0f));
   const vec4 world_scale_bias(1.0f / (2.0f * ground_width), 1.0f / ground_depth,
                               0.5f, 0.0f);
 
@@ -589,40 +579,35 @@ void PieNoonGame::Render2DElements() {
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
   // and the bottom right the windows size in pixels.
   auto res = renderer_.window_size();
-  auto ortho_mat = mathfu::OrthoHelper<float>(
-      0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()), 0.0f,
-      -1.0f, 1.0f);
+  auto ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
+                                              static_cast<float>(res.y()), 0.0f,
+                                              -1.0f, 1.0f);
   renderer_.model_view_projection() = ortho_mat;
 
-  // Update the currently drawing Google Play Games image. Displays "Sign In"
-  // when currently signed-out, and "Sign Out" when currently signed in.
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+// Update the currently drawing Google Play Games image. Displays "Sign In"
+// when currently signed-out, and "Sign Out" when currently signed in.
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   bool is_logged_in = gpg_manager.LoggedIn();
   const int material_index = is_logged_in ? 0 : 1;
 
   auto gpg_button = gui_menu_.FindButtonById(ButtonId_MenuSignIn);
-  if (gpg_button)
-    gpg_button->set_current_up_material(material_index);
+  if (gpg_button) gpg_button->set_current_up_material(material_index);
 
   auto gpg_text = gui_menu_.FindImageById(ButtonId_MenuSignInText);
-  if (gpg_text)
-    gpg_text->set_current_material_index(material_index);
+  if (gpg_text) gpg_text->set_current_material_index(material_index);
 
   auto achievements_button =
       gui_menu_.FindButtonById(ButtonId_MenuAchievements);
-  if (achievements_button)
-    achievements_button->set_is_active(is_logged_in);
+  if (achievements_button) achievements_button->set_is_active(is_logged_in);
   auto leaderboards_button = gui_menu_.FindButtonById(ButtonId_MenuLeaderboard);
-  if (leaderboards_button)
-    leaderboards_button->set_is_active(is_logged_in);
+  if (leaderboards_button) leaderboards_button->set_is_active(is_logged_in);
 
-# endif
+#endif
 
   // Loop through the 2D elements. Draw each subsequent one slightly closer
   // to the camera so that they appear on top of the previous ones.
   gui_menu_.Render(&renderer_);
 }
-
 
 // Debug function to print out state machine transitions.
 void PieNoonGame::DebugPrintCharacterStates() {
@@ -632,8 +617,8 @@ void PieNoonGame::DebugPrintCharacterStates() {
     auto id = character->state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "character %d - Health %2d, State %s [%d]\n",
-                  i, character->health(), EnumNameStateId(id), id);
+                  "character %d - Health %2d, State %s [%d]\n", i,
+                  character->health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
     }
   }
@@ -656,7 +641,7 @@ const Config& PieNoonGame::GetConfig() const {
 
 const CharacterStateMachineDef* PieNoonGame::GetStateMachine() const {
   return fpl::pie_noon::GetCharacterStateMachineDef(
-    state_machine_source_.c_str());
+      state_machine_source_.c_str());
 }
 
 struct ButtonToTranslation {
@@ -669,16 +654,15 @@ void PieNoonGame::DebugCamera() {
   const Config& config = GetConfig();
 
   // Only move the camera if the left mouse button (or first finger) is down.
-  if (!input_.GetButton(SDLK_POINTER1).is_down())
-    return;
+  if (!input_.GetButton(SDLK_POINTER1).is_down()) return;
 
   static const ButtonToTranslation kDebugCameraButtons[] = {
-    { 'd', mathfu::kAxisX3f },
-    { 'a', -mathfu::kAxisX3f },
-    { 'w', mathfu::kAxisZ3f },
-    { 's', -mathfu::kAxisZ3f },
-    { 'q', mathfu::kAxisY3f },
-    { 'e', -mathfu::kAxisY3f },
+      {'d', mathfu::kAxisX3f},
+      {'a', -mathfu::kAxisX3f},
+      {'w', mathfu::kAxisZ3f},
+      {'s', -mathfu::kAxisZ3f},
+      {'q', mathfu::kAxisY3f},
+      {'e', -mathfu::kAxisY3f},
   };
 
   // Convert key presses to translations along camera axes.
@@ -699,8 +683,7 @@ void PieNoonGame::DebugCamera() {
                          camera_translation[1] != 0.0f ||
                          camera_translation[2] != 0.0f;
   const bool rotate = mouse_delta[0] != 0.0f || mouse_delta[1] != 0.0f;
-  if (!translate && !rotate)
-    return;
+  if (!translate && !rotate) return;
 
   // Calculate the ortho-normal axes of camera space.
   GameCamera& camera = game_state_.camera();
@@ -711,16 +694,16 @@ void PieNoonGame::DebugCamera() {
   // Convert translation from camera space to world space and scale.
   if (translate) {
     const vec3 scale = LoadVec3(config.button_to_camera_translation_scale());
-    const vec3 world_translation = scale * (camera_translation[0] * side +
-                                            camera_translation[1] * up +
-                                            camera_translation[2] * forward);
+    const vec3 world_translation =
+        scale * (camera_translation[0] * side + camera_translation[1] * up +
+                 camera_translation[2] * forward);
     const vec3 new_position = camera.Position() + world_translation;
     camera.OverridePosition(new_position);
 
     if (config.print_camera_orientation()) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                   "camera position (%.5ff, %.5ff, %.5ff)\n",
-                   new_position[0], new_position[1], new_position[2]);
+                  "camera position (%.5ff, %.5ff, %.5ff)\n", new_position[0],
+                  new_position[1], new_position[2]);
     }
   }
 
@@ -737,8 +720,8 @@ void PieNoonGame::DebugCamera() {
 
     if (config.print_camera_orientation()) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "camera target (%.5ff, %.5ff, %.5ff)\n",
-                  new_target[0], new_target[1], new_target[2]);
+                  "camera target (%.5ff, %.5ff, %.5ff)\n", new_target[0],
+                  new_target[1], new_target[2]);
     }
   }
 }
@@ -770,14 +753,16 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
   }
   switch (state_) {
     case kLoadingInitialMaterials: {
-      if (matman_.FindMaterial(
-            config.loading_material()->c_str())->textures()[0]->id() &&
-          matman_.FindMaterial(
-            config.loading_logo()->c_str())->textures()[0]->id() &&
+      if (matman_.FindMaterial(config.loading_material()->c_str())
+              ->textures()[0]
+              ->id() &&
+          matman_.FindMaterial(config.loading_logo()->c_str())
+              ->textures()[0]
+              ->id() &&
           full_screen_fader_.material()->textures()[0]->id()) {
         // Fade in the loading screen.
         FadeToPieNoonState(kLoading, config.full_screen_fade_time(),
-                         mathfu::kZeros4f, false);
+                           mathfu::kZeros4f, false);
       }
       break;
     }
@@ -786,10 +771,10 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       // textures. Here we check if those have finished loading.
       // We also leave the loading screen up for a minimum amount of time.
       if (!Fading() && matman_.TryFinalize()
-#         if !IMGUI_TEST
+#if !IMGUI_TEST
           && (time - state_entry_time_) > config.min_loading_time()
-#         endif  // IMGUI_TEST
-          ) {
+#endif  // IMGUI_TEST
+              ) {
         // If we've already displayed the tutorial before, jump straight to
         // the game. If we don't have the capability to record our previous
         // tutorial views, also jump straight to the game.
@@ -875,8 +860,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
     }
     case kFinished: {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
-        const bool in_extras_menu = gui_menu_.menu_def() ==
-                                    config.extras_screen_buttons();
+        const bool in_extras_menu =
+            gui_menu_.menu_def() == config.extras_screen_buttons();
         if (in_extras_menu) {
           gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         } else {
@@ -925,9 +910,10 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       break;
     }
     case kPlaying: {
-      gui_menu_.Setup(touch_controller_->character_id() == kNoCharacter ?
-                      nullptr :
-                      config.touchscreen_zones(), &matman_);
+      gui_menu_.Setup(touch_controller_->character_id() == kNoCharacter
+                          ? nullptr
+                          : config.touchscreen_zones(),
+                      &matman_);
 
       if (state_ != kPaused) {
         audio_engine_.PlaySound("StartMatch");
@@ -953,8 +939,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       audio_engine_.PlaySound("MusicMenu");
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
-        if (character->controller()->controller_type() !=
-            Controller::kTypeAI) {
+        if (character->controller()->controller_type() != Controller::kTypeAI) {
           // Assign characters AI characters while the menu is up.
           // Players will have to press A again to get themselves re-assigned.
           // Find unused AI character:
@@ -1009,9 +994,9 @@ PieNoonState PieNoonGame::UpdatePieNoonStateAndTransition() {
 // Queue up a transition to the specified game state with a full screen fade
 // between the states.
 void PieNoonGame::FadeToPieNoonState(PieNoonState next_state,
-                                 const WorldTime& fade_time,
-                                 const mathfu::vec4& color,
-                                 const bool fade_in) {
+                                     const WorldTime& fade_time,
+                                     const mathfu::vec4& color,
+                                     const bool fade_in) {
   if (!Fading()) {
     full_screen_fader_.Start(CurrentWorldTime(), fade_time, color, fade_in);
     fade_exit_state_ = next_state;
@@ -1020,66 +1005,63 @@ void PieNoonGame::FadeToPieNoonState(PieNoonState next_state,
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 static GPGManager::GPGIds gpg_ids[] = {
-  { "CgkI97yope0IEAIQAw", "CgkI97yope0IEAIQCg" },  // kWins
-  { "CgkI97yope0IEAIQBA", "CgkI97yope0IEAIQCw" },  // kLosses
-  { "CgkI97yope0IEAIQBQ", "CgkI97yope0IEAIQDA" },  // kDraws
-  { "CgkI97yope0IEAIQAg", "CgkI97yope0IEAIQCQ" },  // kAttacks
-  { "CgkI97yope0IEAIQBg", "CgkI97yope0IEAIQDQ" },  // kHits
-  { "CgkI97yope0IEAIQBw", "CgkI97yope0IEAIQDg" },  // kBlocks
-  { "CgkI97yope0IEAIQCA", "CgkI97yope0IEAIQDw" },  // kMisses
+    {"CgkI97yope0IEAIQAw", "CgkI97yope0IEAIQCg"},  // kWins
+    {"CgkI97yope0IEAIQBA", "CgkI97yope0IEAIQCw"},  // kLosses
+    {"CgkI97yope0IEAIQBQ", "CgkI97yope0IEAIQDA"},  // kDraws
+    {"CgkI97yope0IEAIQAg", "CgkI97yope0IEAIQCQ"},  // kAttacks
+    {"CgkI97yope0IEAIQBg", "CgkI97yope0IEAIQDQ"},  // kHits
+    {"CgkI97yope0IEAIQBw", "CgkI97yope0IEAIQDg"},  // kBlocks
+    {"CgkI97yope0IEAIQCA", "CgkI97yope0IEAIQDw"},  // kMisses
 };
-static_assert(sizeof(gpg_ids) / sizeof(GPGManager::GPGIds) ==
-              kMaxStats, "update leaderboard_ids");
+static_assert(sizeof(gpg_ids) / sizeof(GPGManager::GPGIds) == kMaxStats,
+              "update leaderboard_ids");
 #endif
 
 void PieNoonGame::UploadEvents() {
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   // Now upload all stats:
   // TODO: this assumes player 0 == the logged in player.
   Character* character = game_state_.characters()[0].get();
   for (int ps = kWins; ps < kMaxStats; ps++) {
-    gpg_manager.IncrementEvent(gpg_ids[ps].event,
-      character->GetStat(static_cast<PlayerStats>(ps)));
+    gpg_manager.IncrementEvent(
+        gpg_ids[ps].event, character->GetStat(static_cast<PlayerStats>(ps)));
   }
   character->ResetStats();
-# endif
+#endif
 }
-
 
 // Called every frame to see if we've gotten any new achievements.
 void PieNoonGame::CheckForNewAchievements() {
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   // We're assuming that player 0 is the one who's stats we care about.
   Character* character = game_state_.characters()[0].get();
   if (character->State() == StateId_Throwing &&
       character->state_last_update() != StateId_Throwing) {
-    static const char* achievements[] = {
-       "CgkI97yope0IEAIQEA",    // 100
-       "CgkI97yope0IEAIQEQ",    // 250
-       "CgkI97yope0IEAIQEg",    // 1000
-       "CgkI97yope0IEAIQEw",    // 2500
-       "CgkI97yope0IEAIQFA" };  // 10000
-    int list_size = sizeof(achievements) / sizeof(char *);
+    static const char* achievements[] = {"CgkI97yope0IEAIQEA",   // 100
+                                         "CgkI97yope0IEAIQEQ",   // 250
+                                         "CgkI97yope0IEAIQEg",   // 1000
+                                         "CgkI97yope0IEAIQEw",   // 2500
+                                         "CgkI97yope0IEAIQFA"};  // 10000
+    int list_size = sizeof(achievements) / sizeof(char*);
     for (int i = 0; i < list_size; i++) {
       gpg_manager.IncrementAchievement(achievements[i]);
     }
   }
-# endif
+#endif
 }
 
 void PieNoonGame::UploadAndShowLeaderboards() {
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-  gpg_manager.ShowLeaderboards(gpg_ids, sizeof(gpg_ids) /
-                                        sizeof(GPGManager::GPGIds));
-# endif
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  gpg_manager.ShowLeaderboards(gpg_ids,
+                               sizeof(gpg_ids) / sizeof(GPGManager::GPGIds));
+#endif
 }
 
 void PieNoonGame::UpdateGamepadControllers() {
 #ifdef ANDROID_GAMEPAD
   // Iterate over list of currently known gamepads.
-  for (auto it = input_.GamepadMap().begin();
-       it != input_.GamepadMap().end(); ++it) {
-
+  for (auto it = input_.GamepadMap().begin(); it != input_.GamepadMap().end();
+       ++it) {
     int device_id = it->first;
     // if we find one that doesn't have a player associated with it...
     if (gamepad_to_controller_map_.find(device_id) ==
@@ -1089,7 +1071,7 @@ void PieNoonGame::UpdateGamepadControllers() {
       gamepad_to_controller_map_[device_id] = AddController(controller);
     }
   }
-#endif // ANDROID_GAMEPAD
+#endif  // ANDROID_GAMEPAD
 }
 
 // Returns the characterId of the first AI player we can find.
@@ -1113,8 +1095,7 @@ ControllerId PieNoonGame::AddController(Controller* new_controller) {
        new_id < static_cast<ControllerId>(active_controllers_.size());
        new_id++) {
     if (active_controllers_[new_id].get() == nullptr) {
-      active_controllers_[new_id] = std::unique_ptr<Controller>(
-          new_controller);
+      active_controllers_[new_id] = std::unique_ptr<Controller>(new_controller);
       return new_id;
     }
   }
@@ -1124,20 +1105,18 @@ ControllerId PieNoonGame::AddController(Controller* new_controller) {
 
 // Returns a controller as specified by its ID
 Controller* PieNoonGame::GetController(ControllerId id) {
-  return (id >= 0 &&
-          id < static_cast<ControllerId>(active_controllers_.size())) ?
-        active_controllers_[id].get() : nullptr;
+  return (id >= 0 && id < static_cast<ControllerId>(active_controllers_.size()))
+             ? active_controllers_[id].get()
+             : nullptr;
 }
 
 void PieNoonGame::HandlePlayersJoining(Controller* controller) {
-  if (controller == nullptr ||
-      controller->character_id() != kNoCharacter ||
+  if (controller == nullptr || controller->character_id() != kNoCharacter ||
       controller->controller_type() == Controller::kTypeAI)
     return;
 
   CharacterId open_slot = FindAiPlayer();
-  if (open_slot == kNoCharacter)
-    return;
+  if (open_slot == kNoCharacter) return;
 
   auto character = game_state_.characters()[open_slot].get();
   character->controller()->set_character_id(kNoCharacter);
@@ -1159,44 +1138,44 @@ void PieNoonGame::HandlePlayersJoining() {
   }
 }
 
-int PieNoonGame::ReadPreference(const char *key, int initial_value,
+int PieNoonGame::ReadPreference(const char* key, int initial_value,
                                 int failure_value) {
-# ifdef __ANDROID__
+#ifdef __ANDROID__
   (void)failure_value;
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
   jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID read_preference = env->GetMethodID(
-      fpl_class, "ReadPreference", "(Ljava/lang/String;I)I");
+  jmethodID read_preference =
+      env->GetMethodID(fpl_class, "ReadPreference", "(Ljava/lang/String;I)I");
   jstring text = env->NewStringUTF(key);
   int read = env->CallIntMethod(activity, read_preference, text, initial_value);
   env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(text);
   env->DeleteLocalRef(activity);
   return read;
-# else
+#else
   (void)key;
   (void)initial_value;
   return failure_value;
-# endif
+#endif
 }
 
-void PieNoonGame::WritePreference(const char *key, int value) {
-# ifdef __ANDROID__
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+void PieNoonGame::WritePreference(const char* key, int value) {
+#ifdef __ANDROID__
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
   jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID write_preference = env->GetMethodID(
-      fpl_class, "WritePreference", "(Ljava/lang/String;I)V");
+  jmethodID write_preference =
+      env->GetMethodID(fpl_class, "WritePreference", "(Ljava/lang/String;I)V");
   jstring text = env->NewStringUTF(key);
   env->CallVoidMethod(activity, write_preference, text, value);
   env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(text);
   env->DeleteLocalRef(activity);
-# else
+#else
   (void)key;
   (void)value;
-# endif
+#endif
 }
 
 static void DisplayDialogBox(const char* title, const char* text_file_name,
@@ -1207,16 +1186,16 @@ static void DisplayDialogBox(const char* title, const char* text_file_name,
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load %s", text_file_name);
     return;
   }
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
   jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID is_text_dialog_open = env->GetMethodID(
-      fpl_class, "isTextDialogOpen", "()Z");
+  jmethodID is_text_dialog_open =
+      env->GetMethodID(fpl_class, "isTextDialogOpen", "()Z");
   jboolean open = env->CallBooleanMethod(activity, is_text_dialog_open);
   if (!open) {
-    jmethodID show_text_dialog = env->GetMethodID(
-        fpl_class, "showTextDialog",
-        "(Ljava/lang/String;Ljava/lang/String;Z)V");
+    jmethodID show_text_dialog =
+        env->GetMethodID(fpl_class, "showTextDialog",
+                         "(Ljava/lang/String;Ljava/lang/String;Z)V");
     jstring titlej = env->NewStringUTF(title);
     jstring dialog_textj = env->NewStringUTF(dialog_text.c_str());
     env->CallVoidMethod(activity, show_text_dialog, titlej, dialog_textj, html);
@@ -1253,10 +1232,10 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Menu: SIGN IN/OUT");
         bool signed_in = false;
         audio_engine_.PlaySound("JoinMatch");
-#       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         signed_in = gpg_manager.LoggedIn();
         gpg_manager.ToggleSignIn();
-#       endif
+#endif
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelSignInOutButton, signed_in);
         break;
@@ -1297,9 +1276,9 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       case ButtonId_MenuAchievements:
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelAchievementsButton);
-#       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.ShowAchievements();
-#       endif
+#endif
         break;
       case ButtonId_InvalidInput:
         audio_engine_.PlaySound("InvalidInput");
@@ -1392,8 +1371,7 @@ const char* PieNoonGame::TutorialSlideName(int slide_index) {
   const Config& config = GetConfig();
   const auto slides = config.tutorial_slides();
   const int num_slides = static_cast<int>(slides->Length());
-  if (slide_index < 0 || slide_index >= num_slides)
-    return nullptr;
+  if (slide_index < 0 || slide_index >= num_slides) return nullptr;
 
   return slides->Get(slide_index)->c_str();
 }
@@ -1409,8 +1387,7 @@ bool PieNoonGame::AnyControllerPresses() {
   for (auto it = active_controllers_.begin(); it != active_controllers_.end();
        ++it) {
     const Controller* controller = it->get();
-    if (ControllerHasPress(controller))
-      return true;
+    if (ControllerHasPress(controller)) return true;
   }
   return input_.GetPointerButton(0).went_down();
 }
@@ -1420,8 +1397,7 @@ bool PieNoonGame::AnyControllerPresses() {
 void PieNoonGame::LoadTutorialSlide(int slide_index) {
   const Config& config = GetConfig();
   const int num_slides = static_cast<int>(config.tutorial_slides()->Length());
-  if (slide_index < 0 || slide_index >= num_slides)
-    return;
+  if (slide_index < 0 || slide_index >= num_slides) return;
 
   const char* slide_name = TutorialSlideName(slide_index);
   matman_.LoadMaterial(slide_name);
@@ -1440,14 +1416,15 @@ void PieNoonGame::LoadInitialTutorialSlides() {
 
 // Scale material by (aspect_ratio, 1) and then scale again so that it covers as
 // much of the screen as possible.
-void PieNoonGame::RenderInMiddleOfScreen(
-    const mat4& ortho_mat, float aspect_ratio, Material* material) {
+void PieNoonGame::RenderInMiddleOfScreen(const mat4& ortho_mat,
+                                         float aspect_ratio,
+                                         Material* material) {
   // Calculate the texture scale. We want to fill the screen as much as we can,
   // but not change the aspect ratio. That means we letterbox either
   // horizontally or vertically.
   const vec2 window_size = vec2(renderer_.window_size());
-  const vec2 texture_size = vec2(material->textures()[0]->size()) *
-                            vec2(aspect_ratio, 1.0f);
+  const vec2 texture_size =
+      vec2(material->textures()[0]->size()) * vec2(aspect_ratio, 1.0f);
   const vec2 scale_xy = window_size / texture_size;
   const float scale = std::min(scale_xy.x(), scale_xy.y());
 
@@ -1480,8 +1457,8 @@ void PieNoonGame::Run() {
     // CPU, enforce a minimum time between updates. For example, if
     // min_update_time is 1, we will not exceed 1000Hz update time.
     const WorldTime world_time = CurrentWorldTime();
-    const WorldTime delta_time = std::min(world_time - prev_world_time_,
-                                          max_update_time);
+    const WorldTime delta_time =
+        std::min(world_time - prev_world_time_, max_update_time);
     if (delta_time < min_update_time) {
       SDL_Delay(min_update_time - delta_time);
       continue;
@@ -1502,8 +1479,8 @@ void PieNoonGame::Run() {
     // Update the full screen fader dimensions.
     const auto res = renderer_.window_size();
     const auto ortho_mat = mathfu::OrthoHelper<float>(
-        0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()),
-        0.0f, -1.0f, 1.0f);
+        0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()), 0.0f,
+        -1.0f, 1.0f);
     full_screen_fader_.set_ortho_mat(ortho_mat);
     full_screen_fader_.set_extents(res);
 
@@ -1539,8 +1516,8 @@ void PieNoonGame::Run() {
         // Render any UI/HUD/Splash on top.
         Render2DElements();
 
-        // TEMP: testing GUI on top of everything else.
-#       if IMGUI_TEST
+// TEMP: testing GUI on top of everything else.
+#if IMGUI_TEST
         // Open OpenType font
         static FontManager fontman;
         if (!fontman.FontLoaded()) {
@@ -1548,7 +1525,7 @@ void PieNoonGame::Run() {
           fontman.SetRenderer(renderer_);
         }
         gui::TestGUI(matman_, fontman, input_);
-#       endif  // IMGUI_TEST
+#endif  // IMGUI_TEST
 
         // Output debug information.
         if (config.print_character_states()) {
@@ -1575,11 +1552,11 @@ void PieNoonGame::Run() {
           // For testing, show UI:
           UploadAndShowLeaderboards();
         }
-#       ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.Update();
         WritePreference("logged_in", static_cast<int>(gpg_manager.LoggedIn()));
         CheckForNewAchievements();
-#       endif
+#endif
         break;
       }
 
@@ -1588,42 +1565,39 @@ void PieNoonGame::Run() {
         // screen, otherwise render the loading texture spinning and the
         // logo below.
         // Textures are still loading. Display a loading screen.
-        auto spinmat = matman_.FindMaterial(
-            config.loading_material()->c_str());
+        auto spinmat = matman_.FindMaterial(config.loading_material()->c_str());
         auto logomat = matman_.FindMaterial(config.loading_logo()->c_str());
         assert(spinmat && logomat);
         assert(spinmat->textures()[0]->id() && logomat->textures()[0]->id());
         const auto mid = res / 2;
         const float time = static_cast<float>(world_time) /
-          static_cast<float>(kMillisecondsPerSecond);
+                           static_cast<float>(kMillisecondsPerSecond);
         auto rot_mat = mat3::RotationZ(time * 3.0f);
-        renderer_.model_view_projection() = ortho_mat *
-            mat4::FromTranslationVector(
-                vec3(static_cast<float>(mid.x()),
-                     static_cast<float>(mid.y()) * 0.7f, 0.0f)) *
+        renderer_.model_view_projection() =
+            ortho_mat * mat4::FromTranslationVector(
+                            vec3(static_cast<float>(mid.x()),
+                                 static_cast<float>(mid.y()) * 0.7f, 0.0f)) *
             mat4::FromRotationMatrix(rot_mat);
         auto extend = vec2(spinmat->textures()[0]->size());
         renderer_.color() = mathfu::kOnes4f;
         spinmat->Set(renderer_);
         shader_textured_->Set(renderer_);
-        Mesh::RenderAAQuadAlongX(
-              vec3(-extend.x(),  extend.y(), 0),
-              vec3( extend.x(), -extend.y(), 0),
-              vec2(0, 1), vec2(1, 0));
+        Mesh::RenderAAQuadAlongX(vec3(-extend.x(), extend.y(), 0),
+                                 vec3(extend.x(), -extend.y(), 0), vec2(0, 1),
+                                 vec2(1, 0));
 
         extend = vec2(logomat->textures()[0]->size()) / 10;
-        renderer_.model_view_projection() = ortho_mat *
-            mat4::FromTranslationVector(
-                vec3(static_cast<float>(mid.x()),
-                     static_cast<float>(res.y()) * 0.7f, 0.0f));
+        renderer_.model_view_projection() =
+            ortho_mat * mat4::FromTranslationVector(
+                            vec3(static_cast<float>(mid.x()),
+                                 static_cast<float>(res.y()) * 0.7f, 0.0f));
         renderer_.color() = mathfu::kOnes4f;
         logomat->Set(renderer_);
         shader_textured_->Set(renderer_);
-        Mesh::RenderAAQuadAlongX(
-              vec3(-extend.x(),  extend.y(), 0),
-              vec3( extend.x(), -extend.y(), 0),
-              vec2(0, 1), vec2(1, 0));
-      } // Fallthrough
+        Mesh::RenderAAQuadAlongX(vec3(-extend.x(), extend.y(), 0),
+                                 vec3(extend.x(), -extend.y(), 0), vec2(0, 1),
+                                 vec2(1, 0));
+      }  // Fallthrough
 
       case kLoadingInitialMaterials:
         // Finalize the materials that have been loaded thus far.
@@ -1641,8 +1615,8 @@ void PieNoonGame::Run() {
             full_screen_fader_.Finished(world_time) && AnyControllerPresses();
         if (should_transition) {
           // Start fade-out --> fade-in transition.
-          full_screen_fader_.Start(
-              world_time, config.tutorial_fade_time(), mathfu::kZeros4f, false);
+          full_screen_fader_.Start(world_time, config.tutorial_fade_time(),
+                                   mathfu::kZeros4f, false);
 
           // Initiate asynchronous loading of a slide, several slides before
           // it is needed.
@@ -1694,4 +1668,3 @@ void PieNoonGame::Run() {
 
 }  // pie_noon
 }  // fpl
-

@@ -17,10 +17,8 @@
 #include <vector>
 #include "bulk_spline_evaluator.h"
 
-
 using mathfu::vec2;
 using mathfu::vec2i;
-
 
 namespace fpl {
 
@@ -57,23 +55,21 @@ void QuadraticCurve::Roots(std::vector<float>* roots) const {
   // x^2 coefficient of zero means that curve is linear or constant.
   if (fabs(c_[2]) < epsilon) {
     // If constant, even if zero, return no roots. This is arbitrary.
-    if (fabs(c_[1]) < epsilon)
-      return;
+    if (fabs(c_[1]) < epsilon) return;
 
     // Linear 0 = c1x + c0 ==> x = -c0 / c1.
-    roots->push_back( -c_[0] / c_[1] );
+    roots->push_back(-c_[0] / c_[1]);
     return;
   }
 
   // A negative discriminant means no real roots.
   const float discriminant = ReliableDiscriminant(epsilon);
-  if (discriminant < 0.0f)
-    return;
+  if (discriminant < 0.0f) return;
 
   // A zero discriminant means there is only one root.
   const float divisor = (1.0f / c_[2]) * 0.5f;
   if (discriminant == 0.0f) {
-    roots->push_back( -c_[1] * divisor );
+    roots->push_back(-c_[1] * divisor);
     return;
   }
 
@@ -88,7 +84,7 @@ void QuadraticCurve::Roots(std::vector<float>* roots) const {
 }
 
 void QuadraticCurve::RootsInRange(const Range& valid_x,
-                                   std::vector<float>* roots) const {
+                                  std::vector<float>* roots) const {
   Roots(roots);
 
   // We allow the roots to be slightly outside the bounds, since this may
@@ -101,8 +97,7 @@ void QuadraticCurve::RootsInRange(const Range& valid_x,
 }
 
 void QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
-                                         std::vector<Range>* matching) const {
-
+                                        std::vector<Range>* matching) const {
   // Gather the roots of the validity spline. These are transitions between
   // valid and invalid regions.
   std::vector<float> roots;
@@ -120,8 +115,7 @@ void QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
   assert(num_roots == 1 || valid_at_start == valid_at_end);
 
   // Starts invalid, and never crosses zero so never becomes valid.
-  if (num_roots == 0 && !valid_at_start)
-    return;
+  if (num_roots == 0 && !valid_at_start) return;
 
   // Starts valid, crosses zero to invalid, crosses zero again back to valid,
   // then ends valid.
@@ -136,11 +130,10 @@ void QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
   // If num_roots == 2: must start and end invalid, so valid range is between
   // roots.
   const float start = valid_at_start ? x_limits.start() : roots[0];
-  const float end = valid_at_end ? x_limits.end() :
-                    num_roots == 2 ? roots[1] : roots[0];
+  const float end =
+      valid_at_end ? x_limits.end() : num_roots == 2 ? roots[1] : roots[0];
   matching->push_back(Range(start, end));
 }
-
 
 void CubicCurve::Init(const CubicInit& init) {
   //  f(x) = dx^3 + cx^2 + bx + a
@@ -194,11 +187,8 @@ std::string CubicCurve::Text() const {
   return text.str();
 }
 
-
 // TODO: Move these to mathfu and templatize.
-static inline int Round(float f) {
-  return static_cast<int>(f + 0.5f);
-}
+static inline int Round(float f) { return static_cast<int>(f + 0.5f); }
 
 static inline vec2i Round(const vec2& v) {
   return vec2i(Round(v.x()), Round(v.y()));
@@ -219,8 +209,7 @@ static inline bool CompareBigYSmallX(const vec2i& a, const vec2i& b) {
 std::string Graph2DPoints(const vec2* points, const int num_points,
                           const vec2i& size) {
 #if defined(FPL_CURVE_GRAPH_FUNCTIONS)
-  if (num_points == 0)
-    return std::string();
+  if (num_points == 0) return std::string();
 
   // Calculate x extents.
   vec2 min = points[0];
@@ -257,10 +246,8 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
       if (q->x() == col && q->y() == row) {
         r += '*';
         q++;
-        if (q >= &p[num_points])
-          break;
-      }
-      else if (col == 0) {
+        if (q >= &p[num_points]) break;
+      } else if (col == 0) {
         r += '|';
       } else if (row == zero_row) {
         r += '-';
@@ -271,19 +258,16 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
       }
     }
     r += '\n';
-    if (q >= &p[num_points])
-      break;
+    if (q >= &p[num_points]) break;
   }
   r += "y = " + std::to_string(min.y()) + "\n";
   return r;
 #else
-  (void)points; (void)num_points; (void)size;
+  (void)points;
+  (void)num_points;
+  (void)size;
   return std::string();
-#endif // defined(FPL_CURVE_GRAPH_FUNCTIONS)
+#endif  // defined(FPL_CURVE_GRAPH_FUNCTIONS)
 }
 
-
-} // namespace fpl
-
-
-
+}  // namespace fpl

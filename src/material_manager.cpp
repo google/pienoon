@@ -20,14 +20,16 @@
 namespace fpl {
 
 static_assert(kBlendModeOff == static_cast<BlendMode>(matdef::BlendMode_OFF) &&
-              kBlendModeTest == static_cast<BlendMode>(matdef::BlendMode_TEST) &&
-              kBlendModeAlpha == static_cast<BlendMode>(matdef::BlendMode_ALPHA),
+                  kBlendModeTest ==
+                      static_cast<BlendMode>(matdef::BlendMode_TEST) &&
+                  kBlendModeAlpha ==
+                      static_cast<BlendMode>(matdef::BlendMode_ALPHA),
               "BlendMode enums in renderer.h and material.fbs must match.");
 static_assert(kBlendModeCount == kBlendModeAlpha + 1,
               "Please update static_assert above with new enum values.");
 
-template<typename T> T FindInMap(const std::map<std::string, T> &map,
-                                  const char *name) {
+template <typename T>
+T FindInMap(const std::map<std::string, T> &map, const char *name) {
   auto it = map.find(name);
   return it != map.end() ? it->second : 0;
 }
@@ -44,13 +46,12 @@ Shader *MaterialManager::LoadShader(const char *basename) {
   if (LoadFile(filename.c_str(), &vs_file)) {
     filename = std::string(basename) + ".glslf";
     if (LoadFile(filename.c_str(), &ps_file)) {
-      shader = renderer_.CompileAndLinkShader(vs_file.c_str(),
-                                              ps_file.c_str());
+      shader = renderer_.CompileAndLinkShader(vs_file.c_str(), ps_file.c_str());
       if (shader) {
         shader_map_[basename] = shader;
       } else {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                     "Shader Error:\n%s\n", renderer_.last_error().c_str());
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Shader Error:\n%s\n",
+                     renderer_.last_error().c_str());
       }
       return shader;
     }
@@ -76,13 +77,9 @@ Texture *MaterialManager::LoadTexture(const char *filename,
   return tex;
 }
 
-void MaterialManager::StartLoadingTextures() {
-  loader_.StartLoading();
-}
+void MaterialManager::StartLoadingTextures() { loader_.StartLoading(); }
 
-bool MaterialManager::TryFinalize() {
-  return loader_.TryFinalize();
-}
+bool MaterialManager::TryFinalize() { return loader_.TryFinalize(); }
 
 Material *MaterialManager::FindMaterial(const char *filename) {
   return FindInMap(material_map_, filename);
@@ -100,12 +97,12 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
     mat = new Material();
     mat->set_blend_mode(static_cast<BlendMode>(matdef->blendmode()));
     for (size_t i = 0; i < matdef->texture_filenames()->size(); i++) {
-      auto format = matdef->desired_format() &&
-                    i < matdef->desired_format()->size()
-          ? static_cast<TextureFormat>(matdef->desired_format()->Get(i))
-          : kFormatAuto;
-      auto tex = LoadTexture(matdef->texture_filenames()->Get(i)->c_str(),
-                             format);
+      auto format =
+          matdef->desired_format() && i < matdef->desired_format()->size()
+              ? static_cast<TextureFormat>(matdef->desired_format()->Get(i))
+              : kFormatAuto;
+      auto tex =
+          LoadTexture(matdef->texture_filenames()->Get(i)->c_str(), format);
       mat->textures().push_back(tex);
     }
     material_map_[filename] = mat;
@@ -126,4 +123,3 @@ void MaterialManager::UnloadMaterial(const char *filename) {
 }
 
 }  // namespace fpl
-

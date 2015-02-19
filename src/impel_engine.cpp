@@ -45,20 +45,17 @@ void ImpelEngine::Reset() {
 ImpelProcessor* ImpelEngine::Processor(ImpellerType type) {
   // If processor already exists, return it.
   ProcessorMap::iterator it = mapped_processors_.find(type);
-  if (it != mapped_processors_.end())
-    return it->second;
+  if (it != mapped_processors_.end()) return it->second;
 
   // Look up the processor-creation-function in the registry.
   const auto function_pair = function_map_.find(type);
-  if (function_pair == function_map_.end())
-    return nullptr;
+  if (function_pair == function_map_.end()) return nullptr;
   const ImpelProcessorFunctions& fns = function_pair->second;
 
   // Remember processor for next time. We only want at most one processor per
   // type in an engine.
   ImpelProcessor* processor = fns.create();
   mapped_processors_.insert(ProcessorPair(type, processor));
-
 
   sorted_processors_.insert(processor);
   return processor;
@@ -78,5 +75,4 @@ void ImpelEngine::AdvanceFrame(ImpelTime delta_time) {
   }
 }
 
-} // namespace impel
-
+}  // namespace impel

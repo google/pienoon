@@ -18,7 +18,6 @@
 #include "common.h"
 #include "curve.h"
 
-
 namespace fpl {
 
 class CompactSplineNode;
@@ -35,7 +34,6 @@ typedef uint16_t CompactSplineYRung;
 // Angles strictly between -90 and +90 can be represented. We record the angle
 // instead of the slope for more uniform distribution.
 typedef int16_t CompactSplineAngle;
-
 
 // Index into the spline. Some high values have special meaning (see below).
 typedef uint16_t CompactSplineIndex;
@@ -177,7 +175,6 @@ class CompactSpline {
   float x_granularity_;
 };
 
-} // namespace fpl
+}  // namespace fpl
 
-#endif // FPL_COMPACT_SPLINE_H_
-
+#endif  // FPL_COMPACT_SPLINE_H_

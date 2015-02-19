@@ -59,10 +59,8 @@ static const char* kLabelHitOther = "Hit other";
 static const char* kLabelSize = "Size";
 static const char* kLabelSizeDelta = "Size delta";
 
-static const mat4 kRotate90DegreesAboutXAxis(1,  0, 0, 0,
-                                             0,  0, 1, 0,
-                                             0, -1, 0, 0,
-                                             0,  0, 0, 1);
+static const mat4 kRotate90DegreesAboutXAxis(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0,
+                                             0, 0, 0, 0, 1);
 
 // The data on a pie that just hit a player this frame
 struct ReceivedPie {
@@ -79,12 +77,12 @@ struct EventData {
 };
 
 // Look up a value in a vector based upon pie damage.
-template<typename T>
+template <typename T>
 static T EnumerationValueForPieDamage(
     CharacterHealth damage,
-    const flatbuffers::Vector<uint16_t> &lookup_vector) {
-  const CharacterHealth clamped_damage = mathfu::Clamp<CharacterHealth>(
-      damage, 0, lookup_vector.Length() - 1);
+    const flatbuffers::Vector<uint16_t>& lookup_vector) {
+  const CharacterHealth clamped_damage =
+      mathfu::Clamp<CharacterHealth>(damage, 0, lookup_vector.Length() - 1);
   return static_cast<T>(lookup_vector.Get(clamped_damage));
 }
 
@@ -96,8 +94,7 @@ entity::EntityRef PieNoonEntityFactory::CreateEntityFromData(
   assert(def != nullptr);
   entity::EntityRef entity = entity_manager->AllocateNewEntity();
   for (size_t i = 0; i < def->component_list()->size(); i++) {
-    const ComponentDefInstance* currentInstance =
-        def->component_list()->Get(i);
+    const ComponentDefInstance* currentInstance = def->component_list()->Get(i);
     entity::ComponentInterface* component =
         entity_manager->GetComponent(currentInstance->data_type());
     assert(component != nullptr);
@@ -110,11 +107,9 @@ GameState::GameState()
     : time_(0),
       config_(nullptr),
       arrangement_(nullptr),
-      sceneobject_component_(&impel_engine_) {
-}
+      sceneobject_component_(&impel_engine_) {}
 
-GameState::~GameState() {
-}
+GameState::~GameState() {}
 
 // Calculate the direction a character is facing at the start of the game.
 // We want the characters to face their initial target.
@@ -154,12 +149,11 @@ void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
 
   for (auto iter = shakeable_prop_component_.begin();
        iter != shakeable_prop_component_.end(); ++iter) {
-
-    const SceneObjectData* so_data = entity_manager_.
-        GetComponentData<SceneObjectData>(iter->entity);
+    const SceneObjectData* so_data =
+        entity_manager_.GetComponentData<SceneObjectData>(iter->entity);
     assert(so_data != nullptr);
-    float dist_squared = (so_data->GlobalPosition() -
-                          damage_position).LengthSquared();
+    float dist_squared =
+        (so_data->GlobalPosition() - damage_position).LengthSquared();
     if (dist_squared < config_->splatter_radius_squared()) {
       AddSplatterToProp(iter->entity);
     }
@@ -170,8 +164,8 @@ void GameState::ShakeProps(float damage_percent, const vec3& damage_position) {
 bool GameState::IsGameOver() const {
   switch (config_->game_mode()) {
     case GameMode_Survival: {
-      return pies_.size() == 0 &&
-          (NumActiveCharacters(true) == 0 || NumActiveCharacters(false) <= 1);
+      return pies_.size() == 0 && (NumActiveCharacters(true) == 0 ||
+                                   NumActiveCharacters(false) <= 1);
     }
     case GameMode_HighScore: {
       return time_ >= config_->game_time();
@@ -204,11 +198,11 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   entity_manager_.RegisterComponent<SceneObjectComponent>(
       &sceneobject_component_);
   entity_manager_.RegisterComponent<ShakeablePropComponent>(
-        &shakeable_prop_component_);
+      &shakeable_prop_component_);
   entity_manager_.RegisterComponent<DripAndVanishComponent>(
-        &drip_and_vanish_component_);
+      &drip_and_vanish_component_);
   entity_manager_.RegisterComponent<PlayerCharacterComponent>(
-        &player_character_component_);
+      &player_character_component_);
 
   // Shakable Prop Component needs to know about some of our structures:
   shakeable_prop_component_.set_impel_engine(&impel_engine_);
@@ -230,16 +224,15 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   for (CharacterId id = 0; id < num_ids; ++id) {
     CharacterId target_id = (id + target_step) % num_ids;
     characters_[id]->Reset(
-        target_id,
-        config_->character_health(),
+        target_id, config_->character_health(),
         InitialFaceAngle(arrangement_, id, target_id),
         LoadVec3(arrangement_->character_data()->Get(id)->position()),
         &impel_engine_);
   }
 
   // Create player character entities:
-  for (CharacterId id = 0;
-      id < static_cast<CharacterId>(characters_.size()); ++id) {
+  for (CharacterId id = 0; id < static_cast<CharacterId>(characters_.size());
+       ++id) {
     entity::EntityRef entity = entity_manager_.AllocateNewEntity();
     PlayerCharacterData* pc_data =
         player_character_component_.AddEntity(entity);
@@ -253,8 +246,8 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
 // and down.
 void GameState::EnterJoiningMode() {
   Reset(kNoAnalytics);
-  for (CharacterId id = 0;
-      id < static_cast<CharacterId>(characters_.size()); ++id) {
+  for (CharacterId id = 0; id < static_cast<CharacterId>(characters_.size());
+       ++id) {
     characters_[id]->state_machine()->SetCurrentState(StateId_Joining, time_);
   }
 }
@@ -268,14 +261,13 @@ void GameState::ProcessSounds(pindrop::AudioEngine* audio_engine,
                               WorldTime delta_time) const {
   // Process sounds in timeline.
   const Timeline* const timeline = character.CurrentTimeline();
-  if (!timeline)
-    return;
+  if (!timeline) return;
 
   const WorldTime anim_time = GetAnimationTime(character);
   const auto sounds = timeline->sounds();
   const int start_index = TimelineIndexAfterTime(sounds, 0, anim_time);
-  const int end_index = TimelineIndexAfterTime(sounds, start_index,
-                                               anim_time + delta_time);
+  const int end_index =
+      TimelineIndexAfterTime(sounds, start_index, anim_time + delta_time);
   for (int i = start_index; i < end_index; ++i) {
     const TimelineSound& timeline_sound = *sounds->Get(i);
     audio_engine->PlaySound(timeline_sound.sound()->c_str());
@@ -287,26 +279,23 @@ void GameState::ProcessSounds(pindrop::AudioEngine* audio_engine,
   }
 }
 
-void GameState::CreatePie(CharacterId original_source_id,
-                          CharacterId source_id,
+void GameState::CreatePie(CharacterId original_source_id, CharacterId source_id,
                           CharacterId target_id,
                           CharacterHealth original_damage,
                           CharacterHealth damage) {
   float height = config_->pie_arc_height();
-  height += config_->pie_arc_height_variance() *
-            (mathfu::Random<float>() * 2 - 1);
+  height +=
+      config_->pie_arc_height_variance() * (mathfu::Random<float>() * 2 - 1);
   int rotations = config_->pie_rotations();
   int variance = config_->pie_rotation_variance();
   rotations += variance ? (rand() % (variance * 2)) - variance : 0;
-  pies_.push_back(std::unique_ptr<AirbornePie>(
-      new AirbornePie(original_source_id, source_id, target_id, time_,
-                      config_->pie_flight_time(), original_damage, damage,
-                      height, rotations)));
+  pies_.push_back(std::unique_ptr<AirbornePie>(new AirbornePie(
+      original_source_id, source_id, target_id, time_,
+      config_->pie_flight_time(), original_damage, damage, height, rotations)));
   UpdatePiePosition(pies_.back().get());
 }
 
-CharacterId GameState::DetermineDeflectionTarget(
-    const ReceivedPie& pie) const {
+CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
   switch (config_->pie_deflection_mode()) {
     case PieDeflectionMode_ToTargetOfTarget: {
       return characters_[pie.target_id]->target();
@@ -333,9 +322,8 @@ static GameCameraMovement CalculateCameraMovement(
   movement.end.position =
       subject_position * LoadVec3(m.position_from_subject()) +
       base.position * LoadVec3(m.position_from_base());
-  movement.end.target =
-      subject_position * LoadVec3(m.target_from_subject()) +
-      base.target * LoadVec3(m.target_from_base());
+  movement.end.target = subject_position * LoadVec3(m.target_from_subject()) +
+                        base.target * LoadVec3(m.target_from_base());
   movement.start_velocity = m.start_velocity();
   movement.time = static_cast<float>(m.time());
   SmoothInitFromFlatBuffers(*m.def(), &movement.init);
@@ -343,8 +331,7 @@ static GameCameraMovement CalculateCameraMovement(
 }
 
 void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
-                             Character* character,
-                             unsigned int event,
+                             Character* character, unsigned int event,
                              const EventData& event_data) {
   bool is_ai_player =
       character->controller()->controller_type() == Controller::kTypeAI;
@@ -376,13 +363,10 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
         }
         ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitByPie,
                          pie.damage, character);
-        ApplyScoringRule(config_->scoring_rules(),
-                         ScoreEvent_HitSomeoneWithPie,
+        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitSomeoneWithPie,
                          pie.damage, characters_[pie.source_id].get());
-        ApplyScoringRule(config_->scoring_rules(),
-                         ScoreEvent_YourPieHitSomeone,
-                         pie.damage,
-                         characters_[pie.original_source_id].get());
+        ApplyScoringRule(config_->scoring_rules(), ScoreEvent_YourPieHitSomeone,
+                         pie.damage, characters_[pie.original_source_id].get());
       }
 
       // Shake the nearby props. Amount of shake is a function of damage.
@@ -393,12 +377,12 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
       // Move the camera.
       if (total_damage >= config_->camera_move_on_damage_min_damage()) {
         camera_.TerminateMovements();
-        camera_.QueueMovement(CalculateCameraMovement(
-                                  *config_->camera_move_on_damage(),
-                                  character->position(), camera_base_));
-        camera_.QueueMovement(CalculateCameraMovement(
-                                  *config_->camera_move_to_base(),
-                                  character->position(), camera_base_));
+        camera_.QueueMovement(
+            CalculateCameraMovement(*config_->camera_move_on_damage(),
+                                    character->position(), camera_base_));
+        camera_.QueueMovement(
+            CalculateCameraMovement(*config_->camera_move_to_base(),
+                                    character->position(), camera_base_));
       }
       break;
     }
@@ -454,21 +438,17 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
       CreateJoinConfettiBurst(*character);
       break;
     }
-    default: {
-      assert(0);
-    }
+    default: { assert(0); }
   }
 }
 
 void GameState::AddSplatterToProp(entity::EntityRef prop) {
-  static RenderableId id_list[] = { RenderableId_Splatter1,
-                                    RenderableId_Splatter2,
-                                    RenderableId_Splatter3 };
+  static RenderableId id_list[] = {
+      RenderableId_Splatter1, RenderableId_Splatter2, RenderableId_Splatter3};
   if (prop->IsRegisteredForComponent(ComponentDataUnion_SceneObjectDef)) {
     entity::EntityRef splatter =
         entity_manager_.CreateEntityFromData(config_->splatter_def());
-    auto so_data = entity_manager_.GetComponentData<SceneObjectData>(
-        splatter);
+    auto so_data = entity_manager_.GetComponentData<SceneObjectData>(splatter);
 
     so_data->set_renderable_id(id_list[mathfu::RandomInRange(0, 3)]);
     so_data->set_parent(prop);
@@ -479,8 +459,8 @@ void GameState::AddSplatterToProp(entity::EntityRef prop) {
     const vec3 offset = mathfu::RandomInRange(min_range, max_range);
     so_data->SetTranslation(offset);
 
-    const Angle rotation_angle = Angle::FromWithinThreePi(
-        mathfu::RandomInRange(-M_PI_2, M_PI_2));
+    const Angle rotation_angle =
+        Angle::FromWithinThreePi(mathfu::RandomInRange(-M_PI_2, M_PI_2));
     so_data->SetRotationAboutZ(rotation_angle.ToRadians());
 
     float scale = mathfu::RandomInRange(config_->splatter_scale_min(),
@@ -492,19 +472,17 @@ void GameState::AddSplatterToProp(entity::EntityRef prop) {
 }
 
 void GameState::ProcessEvents(pindrop::AudioEngine* audio_engine,
-                              Character* character,
-                              EventData* event_data,
+                              Character* character, EventData* event_data,
                               WorldTime delta_time) {
   // Process events in timeline.
   const Timeline* const timeline = character->CurrentTimeline();
-  if (!timeline)
-    return;
+  if (!timeline) return;
 
   const WorldTime anim_time = GetAnimationTime(*character);
   const auto events = timeline->events();
   const int start_index = TimelineIndexAfterTime(events, 0, anim_time);
-  const int end_index = TimelineIndexAfterTime(events, start_index,
-                                               anim_time + delta_time);
+  const int end_index =
+      TimelineIndexAfterTime(events, start_index, anim_time + delta_time);
 
   for (int i = start_index; i < end_index; ++i) {
     const TimelineEvent* event = events->Get(i);
@@ -533,8 +511,7 @@ void GameState::ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
     for (auto it = current_state->conditional_events()->begin();
          it != current_state->conditional_events()->end(); ++it) {
       const ConditionalEvent* conditional_event = *it;
-      if (EvaluateCondition(conditional_event->condition(),
-                            condition_inputs)) {
+      if (EvaluateCondition(conditional_event->condition(), condition_inputs)) {
         unsigned int event = conditional_event->event();
         event_data->pie_damage = conditional_event->modifier();
         ProcessEvent(audio_engine, character, event, *event_data);
@@ -549,22 +526,21 @@ static Quat CalculatePieOrientation(Angle pie_angle, float percent,
   // than 360 degrees. Values are negative so that they rotate in the correct
   // direction.
   float initial_angle = -config->pie_initial_angle();
-  float target_angle = -(config->pie_target_angle() +
-                         rotations * kDegreesPerCircle);
+  float target_angle =
+      -(config->pie_target_angle() + rotations * kDegreesPerCircle);
   float delta = target_angle - initial_angle;
 
   Angle rotation_angle = Angle::FromDegrees(initial_angle + (delta * percent));
-  Quat pie_direction = Quat::FromAngleAxis(pie_angle.ToRadians(),
-                                           mathfu::kAxisY3f);
-  Quat pie_rotation = Quat::FromAngleAxis(rotation_angle.ToRadians(),
-                                          mathfu::kAxisZ3f);
+  Quat pie_direction =
+      Quat::FromAngleAxis(pie_angle.ToRadians(), mathfu::kAxisY3f);
+  Quat pie_rotation =
+      Quat::FromAngleAxis(rotation_angle.ToRadians(), mathfu::kAxisZ3f);
   return pie_direction * pie_rotation;
 }
 
 static vec3 CalculatePiePosition(const Character& source,
-                                 const Character& target,
-                                 float percent, float pie_height,
-                                 const Config* config) {
+                                 const Character& target, float percent,
+                                 float pie_height, const Config* config) {
   vec3 result = vec3::Lerp(source.position(), target.position(), percent);
 
   // Pie height follows a parabola such that y = -4a * (x)(x - 1)
@@ -584,15 +560,14 @@ void GameState::UpdatePiePosition(AirbornePie* pie) const {
   const auto& source = characters_[pie->source()];
   const auto& target = characters_[pie->target()];
 
-  const float time_since_launch =
-      static_cast<float>(time_ - pie->start_time());
+  const float time_since_launch = static_cast<float>(time_ - pie->start_time());
   float percent = time_since_launch / config_->pie_flight_time();
   percent = mathfu::Clamp(percent, 0.0f, 1.0f);
 
   Angle pie_angle = -AngleBetweenCharacters(pie->source(), pie->target());
 
-  const Quat pie_orientation = CalculatePieOrientation(
-      pie_angle, percent, pie->rotations(), config_);
+  const Quat pie_orientation =
+      CalculatePieOrientation(pie_angle, percent, pie->rotations(), config_);
   const vec3 pie_position = CalculatePiePosition(
       *source.get(), *target.get(), percent, pie->height(), config_);
 
@@ -610,8 +585,7 @@ static bool CharacterScore(const std::unique_ptr<Character>& a,
   return a->score() < b->score();
 }
 
-static bool CharacterIsVictorious(
-    const std::unique_ptr<Character>& character) {
+static bool CharacterIsVictorious(const std::unique_ptr<Character>& character) {
   return character->victory_state() == kVictorious;
 }
 
@@ -623,8 +597,8 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->Active()) {
           character->set_victory_state(kVictorious);
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "Player %i wins!\n", static_cast<int>(i) + 1);
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
+                      static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
@@ -633,15 +607,15 @@ void GameState::DetermineWinnersAndLosers() {
     }
     case GameMode_HighScore: {
       if (time_ >= config_->game_time()) {
-        const auto it = std::max_element(
-            characters_.begin(), characters_.end(), CharacterScore);
+        const auto it = std::max_element(characters_.begin(), characters_.end(),
+                                         CharacterScore);
         int high_score = (*it)->score();
         for (size_t i = 0; i < characters_.size(); ++i) {
           const auto& character = characters_[i];
           if (character->score() == high_score) {
             character->set_victory_state(kVictorious);
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                        "Player %i wins!\n", static_cast<int>(i) + 1);
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
+                        static_cast<int>(i) + 1);
           } else {
             character->set_victory_state(kFailure);
           }
@@ -649,9 +623,8 @@ void GameState::DetermineWinnersAndLosers() {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
         for (size_t i = 0; i < characters_.size(); ++i) {
           const auto& character = characters_[i];
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "  Player %i: %i\n", static_cast<int>(i) + 1,
-                      character->score());
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "  Player %i: %i\n",
+                      static_cast<int>(i) + 1, character->score());
         }
       }
       break;
@@ -661,8 +634,8 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->score() >= config_->target_score()) {
           character->set_victory_state(kVictorious);
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "Player %i wins!\n", static_cast<int>(i) + 1);
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
+                      static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
@@ -670,9 +643,8 @@ void GameState::DetermineWinnersAndLosers() {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
       for (size_t i = 0; i < characters_.size(); ++i) {
         const auto& character = characters_[i];
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "  Player %i: %i\n", static_cast<int>(i) + 1,
-                    character->score());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "  Player %i: %i\n",
+                    static_cast<int>(i) + 1, character->score());
       }
       break;
     }
@@ -681,7 +653,7 @@ void GameState::DetermineWinnersAndLosers() {
                                    CharacterIsVictorious);
   for (size_t i = 0; i < characters_.size(); ++i) {
     auto& character = characters_[i];
-    switch(winner_count) {
+    switch (winner_count) {
       // If there's no winners at all, everyone draws.
       case 0: {
         character->IncrementStat(kDraws);
@@ -730,8 +702,9 @@ int GameState::RequestedTurn(CharacterId id) const {
   const uint32_t logical_inputs = character->controller()->went_down();
   const int left_jump = arrangement_->character_data()->Get(id)->left_jump();
   const int target_delta =
-      (logical_inputs & LogicalInputs_Left) ? left_jump :
-      (logical_inputs & LogicalInputs_Right) ? -left_jump : 0;
+      (logical_inputs & LogicalInputs_Left)
+          ? left_jump
+          : (logical_inputs & LogicalInputs_Right) ? -left_jump : 0;
   return target_delta;
 }
 
@@ -742,17 +715,15 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
 
   // If you yourself are KO'd, then you can't change target.
   const int target_state = CharacterState(id);
-  if (target_state == StateId_KO)
-    return current_target;
+  if (target_state == StateId_KO) return current_target;
 
   // Check the inputs to see how requests for target change.
   const int requested_turn = RequestedTurn(id);
-  if (requested_turn == 0)
-    return current_target;
+  if (requested_turn == 0) return current_target;
 
   const CharacterId character_count =
       static_cast<CharacterId>(characters_.size());
-  for (CharacterId target_id = current_target + requested_turn; ;
+  for (CharacterId target_id = current_target + requested_turn;;
        target_id += requested_turn) {
     // Wrap around.
     if (target_id >= character_count) {
@@ -762,18 +733,15 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
     }
 
     // If we've looped around, no one else to target.
-    if (target_id == current_target)
-      return current_target;
+    if (target_id == current_target) return current_target;
 
     // Avoid targeting yourself.
     // Avoid looping around to the other side.
-    if (target_id == id)
-      return current_target;
+    if (target_id == id) return current_target;
 
     // Don't target KO'd characters.
     const int target_state = CharacterState(target_id);
-    if (target_state == StateId_KO)
-      continue;
+    if (target_state == StateId_KO) continue;
 
     // All targetting criteria satisfied.
     return target_id;
@@ -797,12 +765,12 @@ Angle GameState::TargetFaceAngle(CharacterId id) const {
 }
 
 Angle GameState::TiltTowardsStageFront(const Angle angle) const {
-    // Bias characters to face towards the camera.
-    vec3 angle_vec = angle.ToXZVector();
-    angle_vec.x() *= config_->cardboard_bias_towards_stage_front();
-    angle_vec.Normalize();
-    Angle result = Angle::FromXZVector(angle_vec);
-    return result;
+  // Bias characters to face towards the camera.
+  vec3 angle_vec = angle.ToXZVector();
+  angle_vec.x() *= config_->cardboard_bias_towards_stage_front();
+  angle_vec.Normalize();
+  Angle result = Angle::FromXZVector(angle_vec);
+  return result;
 }
 
 // Return true if the character cannot turn left or right.
@@ -825,8 +793,8 @@ impel::TwitchDirection GameState::FakeResponseToTurn(CharacterId id) const {
   const int requested_turn = RequestedTurn(id);
   if (requested_turn == 0) return impel::kTwitchDirectionNone;
 
-  return requested_turn > 0 ? impel::kTwitchDirectionPositive :
-                              impel::kTwitchDirectionNegative;
+  return requested_turn > 0 ? impel::kTwitchDirectionPositive
+                            : impel::kTwitchDirectionNegative;
 }
 
 uint32_t GameState::AllLogicalInputs() const {
@@ -845,9 +813,10 @@ uint32_t GameState::AllLogicalInputs() const {
 void GameState::CreatePieSplatter(pindrop::AudioEngine* audio_engine,
                                   const Character& character,
                                   CharacterHealth damage) {
-  const ParticleDef * def = config_->pie_splatter_def();
-  SpawnParticles(character.position(), def, static_cast<int>(damage) *
-                 config_->pie_noon_particles_per_damage());
+  const ParticleDef* def = config_->pie_splatter_def();
+  SpawnParticles(
+      character.position(), def,
+      static_cast<int>(damage) * config_->pie_noon_particles_per_damage());
   // Play a pie hit sound based upon the amount of damage applied (size of the
   // pie).
   const CharacterHealth index = mathfu::Clamp<CharacterHealth>(
@@ -858,19 +827,19 @@ void GameState::CreatePieSplatter(pindrop::AudioEngine* audio_engine,
 
 // Creates confetti when a character presses buttons on the join screen.
 void GameState::CreateJoinConfettiBurst(const Character& character) {
-  const ParticleDef * def = config_->joining_confetti_def();
+  const ParticleDef* def = config_->joining_confetti_def();
   vec3 character_color =
       LoadVec3(config_->character_colors()->Get(character.id()));
 
-  SpawnParticles(character.position(), def, config_->joining_confetti_count(),
+  SpawnParticles(
+      character.position(), def, config_->joining_confetti_count(),
       vec4(character_color.x(), character_color.y(), character_color.z(), 1));
 }
 
 // Spawns a particle at the given position, using a particle definition.
-void GameState::SpawnParticles(const mathfu::vec3 &position,
-                               const ParticleDef * def,
-                               const int particle_count,
-                               const mathfu::vec4 &base_tint) {
+void GameState::SpawnParticles(const mathfu::vec3& position,
+                               const ParticleDef* def, const int particle_count,
+                               const mathfu::vec4& base_tint) {
   const vec3 min_scale = LoadVec3(def->min_scale());
   const vec3 max_scale = LoadVec3(def->max_scale());
   const vec3 min_velocity = LoadVec3(def->min_velocity());
@@ -882,35 +851,34 @@ void GameState::SpawnParticles(const mathfu::vec3 &position,
   const vec3 min_orientation_offset = LoadVec3(def->min_orientation_offset());
   const vec3 max_orientation_offset = LoadVec3(def->max_orientation_offset());
 
-  for (int i = 0; i<particle_count; i++) {
-    Particle * p = particle_manager_.CreateParticle();
+  for (int i = 0; i < particle_count; i++) {
+    Particle* p = particle_manager_.CreateParticle();
     // if we got back a null, it means new particles can't be spawned right now.
     if (p == nullptr) {
       break;
     }
-    p->set_base_scale(def->preserve_aspect() ?
-        vec3(mathfu::RandomInRange(min_scale.x(), max_scale.x())) :
-        vec3::RandomInRange(min_scale, max_scale));
+    p->set_base_scale(
+        def->preserve_aspect()
+            ? vec3(mathfu::RandomInRange(min_scale.x(), max_scale.x()))
+            : vec3::RandomInRange(min_scale, max_scale));
 
     p->set_base_velocity(vec3::RandomInRange(min_velocity, max_velocity));
     p->set_acceleration(LoadVec3(def->acceleration()));
     p->set_renderable_id(def->renderable()->Get(
         mathfu::RandomInRange<int>(0, def->renderable()->size())));
-    mathfu::vec4 tint = LoadVec4(def->tint()->Get(
-        mathfu::RandomInRange<int>(0, def->tint()->size())));
-    p->set_base_tint(mathfu::vec4(tint.x() * base_tint.x(),
-                                  tint.y() * base_tint.y(),
-                                  tint.z() * base_tint.z(),
-                                  tint.w() * base_tint.w()));
+    mathfu::vec4 tint = LoadVec4(
+        def->tint()->Get(mathfu::RandomInRange<int>(0, def->tint()->size())));
+    p->set_base_tint(
+        mathfu::vec4(tint.x() * base_tint.x(), tint.y() * base_tint.y(),
+                     tint.z() * base_tint.z(), tint.w() * base_tint.w()));
     p->set_duration(static_cast<float>(mathfu::RandomInRange<int32_t>(
         def->min_duration(), def->max_duration())));
     p->set_base_position(position + vec3::RandomInRange(min_position_offset,
-        max_position_offset));
-    p->set_base_orientation(vec3::RandomInRange(min_orientation_offset,
-                            max_orientation_offset));
-    p->set_rotational_velocity(vec3::RandomInRange(
-                               min_angular_velocity,
-                               max_angular_velocity));
+                                                        max_position_offset));
+    p->set_base_orientation(
+        vec3::RandomInRange(min_orientation_offset, max_orientation_offset));
+    p->set_rotational_velocity(
+        vec3::RandomInRange(min_angular_velocity, max_angular_velocity));
     p->set_duration_of_shrink_out(
         static_cast<TimeStep>(def->shrink_duration()));
     p->set_duration_of_fade_out(static_cast<TimeStep>(def->fade_duration()));
@@ -928,8 +896,8 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     int countdown = (config_->game_time() - time_) / kMillisecondsPerSecond;
     if (countdown != countdown_timer_) {
       countdown_timer_ = countdown;
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "Timer remaining: %i\n", countdown_timer_);
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Timer remaining: %i\n",
+                  countdown_timer_);
     }
   }
   if (NumActiveCharacters(true) == 0) {
@@ -947,16 +915,17 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     const Timeline* timeline =
         character->state_machine()->current_state()->timeline();
     controller->SetLogicalInputs(LogicalInputs_JustHit, false);
-    controller->SetLogicalInputs(LogicalInputs_NoHealth,
-                                 config_->game_mode() == GameMode_Survival &&
-                                 character->health() <= 0);
-    controller->SetLogicalInputs(LogicalInputs_AnimationEnd, timeline &&
-        (GetAnimationTime(*character.get()) >= timeline->end_time()));
+    controller->SetLogicalInputs(
+        LogicalInputs_NoHealth,
+        config_->game_mode() == GameMode_Survival && character->health() <= 0);
+    controller->SetLogicalInputs(
+        LogicalInputs_AnimationEnd,
+        timeline &&
+            (GetAnimationTime(*character.get()) >= timeline->end_time()));
     controller->SetLogicalInputs(LogicalInputs_Won,
                                  character->victory_state() == kVictorious);
     controller->SetLogicalInputs(LogicalInputs_Lost,
                                  character->victory_state() == kFailure);
-
 
     bool just_joined = character->just_joined_game();
     controller->SetLogicalInputs(LogicalInputs_JoinedGame, just_joined);
@@ -969,7 +938,7 @@ void GameState::AdvanceFrame(WorldTime delta_time,
   particle_manager_.AdvanceFrame(static_cast<TimeStep>(delta_time));
 
   // Update pies. Modify state machine input when character hit by pie.
-  for (auto it = pies_.begin(); it != pies_.end(); ) {
+  for (auto it = pies_.begin(); it != pies_.end();) {
     auto& pie = *it;
     UpdatePiePosition(pie.get());
 
@@ -977,20 +946,15 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     const WorldTime time_since_launch = time_ - pie->start_time();
     if (time_since_launch >= pie->flight_time()) {
       auto& character = characters_[pie->target()];
-      ReceivedPie received_pie = {
-        pie->original_source(),
-        pie->source(),
-        pie->target(),
-        pie->original_damage(),
-        pie->damage()
-      };
+      ReceivedPie received_pie = {pie->original_source(), pie->source(),
+                                  pie->target(), pie->original_damage(),
+                                  pie->damage()};
       event_data[pie->target()].received_pies.push_back(received_pie);
       character->controller()->SetLogicalInputs(LogicalInputs_JustHit, true);
       if (character->State() != StateId_Blocking)
         CreatePieSplatter(audio_engine, *character, pie->damage());
       it = pies_.erase(it);
-    }
-    else {
+    } else {
       ++it;
     }
   }
@@ -1019,11 +983,13 @@ void GameState::AdvanceFrame(WorldTime delta_time,
 
   // Look to timeline to see what's happening. Make it happen.
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessEvents(audio_engine, characters_[i].get(), &event_data[i], delta_time);
+    ProcessEvents(audio_engine, characters_[i].get(), &event_data[i],
+                  delta_time);
   }
 
   for (unsigned int i = 0; i < characters_.size(); ++i) {
-    ProcessConditionalEvents(audio_engine, characters_[i].get(), &event_data[i]);
+    ProcessConditionalEvents(audio_engine, characters_[i].get(),
+                             &event_data[i]);
   }
 
   // Play the sounds that need to be played at this point in time.
@@ -1063,12 +1029,12 @@ mat4 GameState::CameraMatrix() const {
 
 // Helper class for std::sort. Sorts Characters by distance from camera.
 class CharacterDepthComparer {
-public:
+ public:
   CharacterDepthComparer(const vec3& camera_position)
-    : camera_position_(new vec3(camera_position)) {}
+      : camera_position_(new vec3(camera_position)) {}
 
   CharacterDepthComparer(const CharacterDepthComparer& comparer)
-    : camera_position_(new vec3(*comparer.camera_position_)) {}
+      : camera_position_(new vec3(*comparer.camera_position_)) {}
 
   bool operator()(const Character* a, const Character* b) const {
     const float a_dist_sq = (*camera_position_ - a->position()).LengthSquared();
@@ -1076,7 +1042,7 @@ public:
     return a_dist_sq > b_dist_sq;
   }
 
-private:
+ private:
   // Pointer to force alignment, which MSVC std::sort ignores
   std::unique_ptr<vec3> camera_position_;
 };
@@ -1111,11 +1077,10 @@ void GameState::PopulateScene(SceneDescription* scene) {
   if (config_->draw_pies()) {
     for (auto it = pies_.begin(); it != pies_.end(); ++it) {
       auto& pie = *it;
-      scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(
-              EnumerationValueForPieDamage<uint16_t>(
-                  pie->damage(), *(config_->renderable_id_for_pie_damage())),
-              pie->CalculateMatrix())));
+      scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
+          EnumerationValueForPieDamage<uint16_t>(
+              pie->damage(), *(config_->renderable_id_for_pie_damage())),
+          pie->CalculateMatrix())));
     }
   }
 
@@ -1125,20 +1090,20 @@ void GameState::PopulateScene(SceneDescription* scene) {
   if (config_->draw_axes()) {
     // TODO: add an arrow renderable instead of drawing with pies.
     for (int i = 0; i < 8; ++i) {
-      const mat4 axis_dot = mat4::FromTranslationVector(
-          vec3(static_cast<float>(i), 0.0f, 0.0f));
+      const mat4 axis_dot =
+          mat4::FromTranslationVector(vec3(static_cast<float>(i), 0.0f, 0.0f));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
           new Renderable(RenderableId_PieSmall, axis_dot)));
     }
     for (int i = 0; i < 4; ++i) {
-      const mat4 axis_dot = mat4::FromTranslationVector(
-          vec3(0.0f, 0.0f, static_cast<float>(i)));
+      const mat4 axis_dot =
+          mat4::FromTranslationVector(vec3(0.0f, 0.0f, static_cast<float>(i)));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
           new Renderable(RenderableId_PieSmall, axis_dot)));
     }
     for (int i = 0; i < 2; ++i) {
-      const mat4 axis_dot = mat4::FromTranslationVector(
-          vec3(0.0f, static_cast<float>(i), 0.0f));
+      const mat4 axis_dot =
+          mat4::FromTranslationVector(vec3(0.0f, static_cast<float>(i), 0.0f));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
           new Renderable(RenderableId_PieSmall, axis_dot)));
     }
@@ -1147,11 +1112,10 @@ void GameState::PopulateScene(SceneDescription* scene) {
   // Draw one renderable right in the middle of the world, for debugging.
   // Rotate about z-axis so that it faces the camera.
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
-    scene->renderables().push_back(std::unique_ptr<Renderable>(
-        new Renderable(
-            static_cast<uint16_t>(config_->draw_fixed_renderable()),
-            mat4::FromRotationMatrix(
-                Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
+    scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
+        static_cast<uint16_t>(config_->draw_fixed_renderable()),
+        mat4::FromRotationMatrix(
+            Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
   }
 }
 

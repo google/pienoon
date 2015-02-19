@@ -21,7 +21,6 @@
 
 namespace fpl {
 
-
 class MaterialManager {
  public:
   MaterialManager(Renderer &renderer) : renderer_(renderer) {}
@@ -77,4 +76,4 @@ class MaterialManager {
 
 }  // namespace fpl
 
-#endif // MATERIAL_MANAGER_H
+#endif  // MATERIAL_MANAGER_H

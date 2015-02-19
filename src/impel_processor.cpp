@@ -15,7 +15,6 @@
 #include "impel_processor.h"
 #include "impeller.h"
 
-
 namespace impel {
 
 ImpelProcessor::~ImpelProcessor() {
@@ -31,8 +30,9 @@ ImpelProcessor::~ImpelProcessor() {
   assert(index_allocator_.Empty());
 }
 
-void ImpelProcessor::InitializeImpeller(
-    const ImpelInit& init, ImpelEngine* engine, Impeller* impeller) {
+void ImpelProcessor::InitializeImpeller(const ImpelInit& init,
+                                        ImpelEngine* engine,
+                                        Impeller* impeller) {
   // Assign an 'index' to reference the new Impeller. All interactions between
   // the Impeller and ImpelProcessor use this 'index' to identify the data.
   const ImpelIndex index = index_allocator_.Alloc();
@@ -67,7 +67,7 @@ void ImpelProcessor::RemoveImpeller(ImpelIndex index) {
 }
 
 void ImpelProcessor::TransferImpeller(ImpelIndex index,
-                                          Impeller* new_impeller) {
+                                      Impeller* new_impeller) {
   assert(ValidIndex(index));
 
   // Ensure old Impeller does not reference us anymore. Only one Impeller is
@@ -84,8 +84,7 @@ void ImpelProcessor::TransferImpeller(ImpelIndex index,
 
 bool ImpelProcessor::ValidIndex(ImpelIndex index) const {
   return index < index_allocator_.num_indices() &&
-         impellers_[index] != nullptr &&
-         impellers_[index]->Processor() == this;
+         impellers_[index] != nullptr && impellers_[index]->Processor() == this;
 }
 
 void ImpelProcessor::SetNumIndicesBase(ImpelIndex num_indices) {
@@ -102,8 +101,7 @@ void ImpelProcessor::SetNumIndicesBase(ImpelIndex num_indices) {
   SetNumIndices(num_indices);
 }
 
-void ImpelProcessor::MoveIndexBase(ImpelIndex old_index,
-                                       ImpelIndex new_index) {
+void ImpelProcessor::MoveIndexBase(ImpelIndex old_index, ImpelIndex new_index) {
   // Assert we're moving something valid onto something invalid.
   assert(impellers_[new_index] == nullptr && impellers_[old_index] != nullptr);
 
@@ -119,5 +117,4 @@ void ImpelProcessor::MoveIndexBase(ImpelIndex old_index,
   MoveIndex(old_index, new_index);
 }
 
-
-} // namespace impel
+}  // namespace impel

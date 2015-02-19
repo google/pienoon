@@ -51,11 +51,10 @@ class GamepadController : public Controller {
 #ifdef ANDROID_GAMEPAD
   // The device ID of the controller we're listening to.
   AndroidInputDeviceId controller_id_;
-#endif // ANDROID_GAMEPAD
+#endif  // ANDROID_GAMEPAD
 };
 
 }  // pie_noon
 }  // fpl
 
 #endif  // GAMEPAD_CONTROLLER_H_
-

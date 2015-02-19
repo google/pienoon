@@ -28,16 +28,13 @@ struct GameCameraState {
   mathfu::vec3 target;
 
   GameCameraState() : position(mathfu::kZeros3f), target(mathfu::kZeros3f) {}
-  GameCameraState(const mathfu::vec3 &position, const mathfu::vec3 &target)
+  GameCameraState(const mathfu::vec3& position, const mathfu::vec3& target)
       : position(position), target(target) {}
 
   bool operator==(const GameCameraState& rhs) const {
-    return position[0] == rhs.position[0] &&
-           position[1] == rhs.position[1] &&
-           position[2] == rhs.position[2] &&
-           target[0] == rhs.target[0] &&
-           target[1] == rhs.target[1] &&
-           target[2] == rhs.target[2];
+    return position[0] == rhs.position[0] && position[1] == rhs.position[1] &&
+           position[2] == rhs.position[2] && target[0] == rhs.target[0] &&
+           target[1] == rhs.target[1] && target[2] == rhs.target[2];
   }
   bool operator!=(const GameCameraState& rhs) const { return !operator==(rhs); }
 };
@@ -49,7 +46,6 @@ struct GameCameraMovement {
   float time;
   impel::SmoothImpelInit init;
 };
-
 
 // Class that encapsilates camera motion.
 class GameCamera {
@@ -96,7 +92,9 @@ class GameCamera {
 
   // Unit vector from the top of the camera.
   // Forward(), Side(), and Up() make an orthonormal basis.
-  mathfu::vec3 Up() const { return mathfu::vec3::CrossProduct(side_, forward_);}
+  mathfu::vec3 Up() const {
+    return mathfu::vec3::CrossProduct(side_, forward_);
+  }
 
   // Distance of the camera from its target.
   float Dist() const { return (Target() - Position()).Length(); }
@@ -125,8 +123,7 @@ class GameCamera {
   std::queue<GameCameraMovement> movements_;
 };
 
-} // pie_noon
-} // fpl
+}  // pie_noon
+}  // fpl
 
-#endif // GAME_CAMERA_H_
-
+#endif  // GAME_CAMERA_H_

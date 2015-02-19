@@ -19,18 +19,16 @@
 namespace fpl {
 
 void Texture::Load() {
-  data_ = renderer_->LoadAndUnpackTexture(filename_.c_str(), &size_,
-                                          &has_alpha_);
+  data_ =
+      renderer_->LoadAndUnpackTexture(filename_.c_str(), &size_, &has_alpha_);
   if (!data_) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "texture load: %s: %s",
-                filename_.c_str(), renderer_->last_error().c_str());
+                 filename_.c_str(), renderer_->last_error().c_str());
   }
 }
 
-void Texture::LoadFromMemory(const uint8_t *data,
-                             const vec2i size,
-                             const TextureFormat format, const bool has_alpha)
-{
+void Texture::LoadFromMemory(const uint8_t *data, const vec2i size,
+                             const TextureFormat format, const bool has_alpha) {
   size_ = size;
   has_alpha_ = has_alpha;
   desired_ = format;

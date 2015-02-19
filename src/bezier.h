@@ -24,7 +24,7 @@ namespace fpl {
 // to keep the domain close to 0.
 // Bezier curves are nice because they are generally well behaved in between
 // the start and end points.
-template<class Vector, class Scalar>
+template <class Vector, class Scalar>
 class BezierCurve {
  public:
   BezierCurve()
@@ -33,8 +33,7 @@ class BezierCurve {
         c(static_cast<Vector>(0.0f)),
         d(static_cast<Vector>(0.0f)),
         start_x(static_cast<Scalar>(0.0f)),
-        one_over_width_x(static_cast<Scalar>(0.0f)) {
-  }
+        one_over_width_x(static_cast<Scalar>(0.0f)) {}
 
   void Initialize(const Vector& start_value, const Vector& start_derivative,
                   const Vector& end_value, const Vector& end_derivative,
@@ -73,10 +72,8 @@ class BezierCurve {
     const Scalar one_minus_x_cubed = one_minus_x_squared * one_minus_x;
     const Scalar x_squared = x * x;
     const Scalar x_cubed = x_squared * x;
-    return a * x_cubed +
-           b * x_squared * one_minus_x +
-           c * x * one_minus_x_squared +
-           d * one_minus_x_cubed;
+    return a * x_cubed + b * x_squared * one_minus_x +
+           c * x * one_minus_x_squared + d * one_minus_x_cubed;
   }
 
   Vector Derivative(Scalar unscaled_x) const {
@@ -86,8 +83,7 @@ class BezierCurve {
     //         c((1 - t)^2 + -2(1 - t)t)  -  3d(1 - t)^2
     //       = (3a - b)x^2  +  2(b - c)(x(1 - x)  +  (c - 3d)(1 - x)^2
     const Scalar one_minus_x = 1.0f - x;
-    return (3.0f * a - b) * x * x  +
-           2.0f * (b - c) * x * one_minus_x  +
+    return (3.0f * a - b) * x * x + 2.0f * (b - c) * x * one_minus_x +
            (c - 3.0f * d) * one_minus_x * one_minus_x;
   }
 
@@ -99,14 +95,14 @@ class BezierCurve {
     //        = (6a - 2b - 4b + 4c + 2c - 6d)x  + (2b - 2c - 2c + 6d)
     //        = (6a - 6b + 6c - 6d)x  +  (2b - 4c + 6d)
     //        = 6(a - b + c - d)x  +  2(b - 2c + 3d)
-    return 6.0f * (a - b + c - d) * x  +  2.0f * (b - 2.0f * c + 3.0f * d);
+    return 6.0f * (a - b + c - d) * x + 2.0f * (b - 2.0f * c + 3.0f * d);
   }
 
  private:
   Scalar ScaleX(Scalar unscaled_x) const {
-    return mathfu::Clamp<Scalar>(
-        (unscaled_x - start_x) * one_over_width_x,
-        static_cast<Scalar>(0.0f), static_cast<Scalar>(1.0f));
+    return mathfu::Clamp<Scalar>((unscaled_x - start_x) * one_over_width_x,
+                                 static_cast<Scalar>(0.0f),
+                                 static_cast<Scalar>(1.0f));
   }
 
   // B(x) = ax^3  +  bx^2(1 - x)  +  cx(1 - x)^2  +  d(1 - x)^3
@@ -120,7 +116,6 @@ class BezierCurve {
   Scalar one_over_width_x;
 };
 
-} // namespace fpl
+}  // namespace fpl
 
-#endif // BEZIER_CURVE_H_
-
+#endif  // BEZIER_CURVE_H_

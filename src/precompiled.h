@@ -26,11 +26,11 @@
 #include <algorithm>
 
 #if defined(_WIN32)
-#include <direct.h> // for _chdir
+#include <direct.h>  // for _chdir
 #define NOMINMAX
-#else // !defined(_WIN32)
-#include <unistd.h> // for chdir
-#endif // !defined(_WIN32)
+#else                // !defined(_WIN32)
+#include <unistd.h>  // for chdir
+#endif               // !defined(_WIN32)
 
 #include "flatbuffers/util.h"
 
@@ -53,6 +53,6 @@
 
 #ifdef _WIN32
 #pragma hdrstop
-#endif //  _WIN32
+#endif  //  _WIN32
 
-#endif // PIE_NOON_SRC_PRECOMPILED_H
+#endif  // PIE_NOON_SRC_PRECOMPILED_H

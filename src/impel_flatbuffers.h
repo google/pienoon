@@ -33,7 +33,6 @@ void SmoothInitFromFlatBuffers(const SmoothParameters& params,
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
                               Settled1f* settled);
 
+}  // namespace impel
 
-} // namespace impel
-
-#endif // IMPEL_FLATBUFFERS_H_
+#endif  // IMPEL_FLATBUFFERS_H_

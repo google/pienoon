@@ -39,18 +39,18 @@ class AiController : public Controller {
   AiController();
 
   // Give the AI everything it will need.
-  void Initialize(GameState* gamestate_ptr,
-                  const Config* config, int characterId);
+  void Initialize(GameState* gamestate_ptr, const Config* config,
+                  int characterId);
 
   // Decide what the robot is doing this frame.
   virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
   bool IsInDanger(CharacterId id) const;
-  WorldTime block_timer_;   // How many milliseconds we need to block.
+  WorldTime block_timer_;  // How many milliseconds we need to block.
 
-  GameState* gamestate_; // Pointer to the gamestate object
-  const Config* config_; // Pointer to the config structure
+  GameState* gamestate_;  // Pointer to the gamestate object
+  const Config* config_;  // Pointer to the config structure
   WorldTime time_to_next_action_;
 };
 
@@ -58,4 +58,3 @@ class AiController : public Controller {
 }  // fpl
 
 #endif  // AI_CONTROLLER_H_
-

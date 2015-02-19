@@ -90,11 +90,15 @@ class Renderer {
   // Set to compare fragment against Z-buffer before writing, or not.
   void DepthTest(bool on);
 
-  Renderer() : model_view_projection_(mat4::Identity()),
-               model_(mat4::Identity()), color_(mathfu::kOnes4f),
-               light_pos_(mathfu::kZeros3f), camera_pos_(mathfu::kZeros3f),
-               window_size_(mathfu::kZeros2i), window_(nullptr),
-               context_(nullptr) {}
+  Renderer()
+      : model_view_projection_(mat4::Identity()),
+        model_(mat4::Identity()),
+        color_(mathfu::kOnes4f),
+        light_pos_(mathfu::kZeros3f),
+        camera_pos_(mathfu::kZeros3f),
+        window_size_(mathfu::kZeros2i),
+        window_(nullptr),
+        context_(nullptr) {}
   ~Renderer() { ShutDown(); }
 
   // Shader uniform: model_view_projection

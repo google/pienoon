@@ -33,15 +33,15 @@ static const int kMaxTexturesPerShader = 8;
 // ids of standard uniforms. Use the Renderer class below to create these.
 class Shader {
  public:
-
   Shader(GLuint program, GLuint vs, GLuint ps)
-    : program_(program), vs_(vs), ps_(ps),
-      uniform_model_view_projection_(-1),
-      uniform_model_(-1),
-      uniform_color_(-1),
-      uniform_light_pos_(-1),
-      uniform_camera_pos_(-1)
-  {}
+      : program_(program),
+        vs_(vs),
+        ps_(ps),
+        uniform_model_view_projection_(-1),
+        uniform_model_(-1),
+        uniform_color_(-1),
+        uniform_light_pos_(-1),
+        uniform_camera_pos_(-1) {}
 
   ~Shader() {
     if (vs_) GL_CALL(glDeleteShader(vs_));
@@ -60,33 +60,34 @@ class Shader {
     return glGetUniformLocation(program_, uniform_name);
   }
 
-# ifdef _MSC_VER
-# pragma warning(push)
-# pragma warning(disable:4127) // conditional expression is constant
-# endif  // _MSC_VER
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4127)  // conditional expression is constant
+#endif                           // _MSC_VER
   // Set an non-standard uniform to a vec2/3/4 value.
   // Call this after Set() or FindUniform().
-  template<int N> void SetUniform(GLint uniform_loc,
-                                  const mathfu::Vector<float, N> &value) {
+  template <int N>
+  void SetUniform(GLint uniform_loc, const mathfu::Vector<float, N> &value) {
     // This should amount to a compile-time if-then.
     if (N == 2) {
       GL_CALL(glUniform2fv(uniform_loc, 1, &value[0]));
-    } else if(N == 3) {
+    } else if (N == 3) {
       GL_CALL(glUniform3fv(uniform_loc, 1, &value[0]));
-    } else if(N == 4) {
+    } else if (N == 4) {
       GL_CALL(glUniform4fv(uniform_loc, 1, &value[0]));
     } else {
       assert(0);
     }
   }
-# ifdef _MSC_VER
-# pragma warning(pop)
-# endif  // _MSC_VER
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif  // _MSC_VER
 
   // Convenience call that does a Lookup and a Set if found.
   // Call this after Set().
-  template<int N> bool SetUniform(const char *uniform_name,
-                                  const mathfu::Vector<float, N> &value) {
+  template <int N>
+  bool SetUniform(const char *uniform_name,
+                  const mathfu::Vector<float, N> &value) {
     auto loc = FindUniform(uniform_name);
     if (loc < 0) return false;
     SetUniform(loc, value);
@@ -103,7 +104,6 @@ class Shader {
   void InitializeUniforms();
 
  private:
-
   GLuint program_, vs_, ps_;
 
   GLint uniform_model_view_projection_;

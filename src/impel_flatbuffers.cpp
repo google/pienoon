@@ -48,5 +48,4 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
   settled->max_difference = params.max_difference();
 }
 
-} // namespace impel
-
+}  // namespace impel

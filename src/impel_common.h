@@ -19,9 +19,7 @@
 
 #include "mathfu/glsl_mappings.h"
 
-
 namespace impel {
-
 
 class ImpelProcessor;
 class Impeller;
@@ -64,47 +62,51 @@ class ImpelInit {
 // Add this to the public interface of your derivation of ImpelInit. It defines
 // a unique identifier for this type as kType. Your derivation's constructor
 // should construct base class with ImpelInit(kType).
-#define IMPEL_INTERFACE() \
-    static const char* kName; \
-    static const ImpellerType kType; \
-    static void Register()
+#define IMPEL_INTERFACE()          \
+  static const char* kName;        \
+  static const ImpellerType kType; \
+  static void Register()
 
 // Add this to the source file with your processor code. It instantiates the
 // static variables and functions declared in IMPEL_INTERFACE.
 // Example usage,
 //    IMPEL_INSTANCE(AwesomeImpelInit, AwesomeImpelProcessor);
-#define IMPEL_INSTANCE(InitType, ProcessorType) \
-    static impel::ImpelProcessor* ProcessorType##Create() { \
-      return new ProcessorType(); \
-    } \
-    static void ProcessorType##Destroy(ImpelProcessor* p) { delete p; } \
-    void InitType::Register() { \
-      const ImpelProcessorFunctions functions(ProcessorType##Create,\
-                                              ProcessorType##Destroy); \
-      ImpelEngine::RegisterProcessorFactory(InitType::kType, functions); \
-    } \
-    const char* InitType::kName = #ProcessorType; \
-    const impel::ImpellerType InitType::kType = &InitType::kName
+#define IMPEL_INSTANCE(InitType, ProcessorType)                        \
+  static impel::ImpelProcessor* ProcessorType##Create() {              \
+    return new ProcessorType();                                        \
+  }                                                                    \
+  static void ProcessorType##Destroy(ImpelProcessor* p) { delete p; }  \
+  void InitType::Register() {                                          \
+    const ImpelProcessorFunctions functions(ProcessorType##Create,     \
+                                            ProcessorType##Destroy);   \
+    ImpelEngine::RegisterProcessorFactory(InitType::kType, functions); \
+  }                                                                    \
+  const char* InitType::kName = #ProcessorType;                        \
+  const impel::ImpellerType InitType::kType = &InitType::kName
 
-
-template<class C> struct ValueDetails {};
-template<> struct ValueDetails<float> {
+template <class C>
+struct ValueDetails {};
+template <>
+struct ValueDetails<float> {
   static const int kDimensions = 1;
 };
-template<> struct ValueDetails<mathfu::vec2> {
+template <>
+struct ValueDetails<mathfu::vec2> {
   static const int kDimensions = 2;
 };
-template<> struct ValueDetails<mathfu::vec3> {
+template <>
+struct ValueDetails<mathfu::vec3> {
   static const int kDimensions = 3;
 };
-template<> struct ValueDetails<mathfu::vec4> {
+template <>
+struct ValueDetails<mathfu::vec4> {
   static const int kDimensions = 4;
 };
-template<> struct ValueDetails<mathfu::mat4> {
+template <>
+struct ValueDetails<mathfu::mat4> {
   static const int kDimensions = 16;
 };
 
+}  // namespace impel
 
-} // namespace impel
-
-#endif // IMPEL_COMMON_H_
+#endif  // IMPEL_COMMON_H_

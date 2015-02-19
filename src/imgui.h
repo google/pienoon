@@ -32,7 +32,7 @@ namespace gui {
 // element construction functions.
 // It will be run twice, once for layout, once for rendering & events.
 void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
-                const std::function<void ()> &gui_definition);
+         const std::function<void()> &gui_definition);
 
 // Event types returned by most interactive elements. These are flags because
 // multiple may occur during one frame, and thus should be tested using &.
@@ -91,7 +91,7 @@ struct Margin {
   Margin(float x, float y) : borders(x, x, y, y) {}
   // Create a margin specifying all 4 sides individually.
   Margin(float left, float top, float right, float bottom)
-    : borders(left, top, right, bottom) {}
+      : borders(left, top, right, bottom) {}
 
   vec4 borders;
 };

@@ -257,7 +257,7 @@ class GlyphCache {
     ResetStats();
 #endif
   }
-  ~GlyphCache() {};
+  ~GlyphCache(){};
 
   // Look up a cached entries.
   // Return value: A pointer to a cached glyph entry.
@@ -480,9 +480,7 @@ class GlyphCache {
   void set_revision(const uint32_t revision) { revision_ = revision; }
 
   // Getter/Setter of dirty state.
-  bool get_dirty_state() const {
-    return dirty_;
-  };
+  bool get_dirty_state() const { return dirty_; };
   void set_dirty_state(const bool dirty) { dirty_ = dirty; }
 
   // Getter of dirty rect.
@@ -564,8 +562,9 @@ class GlyphCache {
     }
 
     dirty_ = true;
-    dirty_rect_ = mathfu::vec4i(mathfu::vec2i::Min(dirty_rect_.xy(), rect.xy()),
-                  mathfu::vec2i::Max(dirty_rect_.zw(), rect.zw()));
+    dirty_rect_ =
+        mathfu::vec4i(mathfu::vec2i::Min(dirty_rect_.xy(), rect.xy()),
+                      mathfu::vec2i::Max(dirty_rect_.zw(), rect.zw()));
   }
 
 #ifdef GLYPH_CACHE_STATS

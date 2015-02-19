@@ -49,8 +49,8 @@ void Mesh::SetAttributes(GLuint vbo, const Attribute *attributes, int stride,
         break;
       case kColor4ub:
         GL_CALL(glEnableVertexAttribArray(kAttributeColor));
-        GL_CALL(glVertexAttribPointer(kAttributeColor, 4, GL_UNSIGNED_BYTE, true,
-                                      stride, buffer + offset));
+        GL_CALL(glVertexAttribPointer(kAttributeColor, 4, GL_UNSIGNED_BYTE,
+                                      true, stride, buffer + offset));
         offset += 4;
         break;
       case kEND:
@@ -99,7 +99,8 @@ Mesh::~Mesh() {
   }
 }
 
-void Mesh::AddIndices(const unsigned short *index_data, int count, Material *mat) {
+void Mesh::AddIndices(const unsigned short *index_data, int count,
+                      Material *mat) {
   indices_.push_back(Indices());
   auto &idxs = indices_.back();
   idxs.count = count;
@@ -132,28 +133,25 @@ void Mesh::RenderArray(GLenum primitive, int index_count,
 void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
                               const vec2 &tex_bottom_left,
                               const vec2 &tex_top_right) {
-  static Attribute format[] = { kPosition3f, kTexCoord2f, kEND };
-  static unsigned short indices[] = { 0, 1, 2, 1, 2, 3 };
+  static Attribute format[] = {kPosition3f, kTexCoord2f, kEND};
+  static unsigned short indices[] = {0, 1, 2, 1, 2, 3};
   // vertex format is [x, y, z] [u, v]:
   float vertices[] = {
-    bottom_left.x(), bottom_left.y(), bottom_left.z(),
-    tex_bottom_left.x(), tex_bottom_left.y(),
-    top_right.x(),   bottom_left.y(), bottom_left.z(),
-    tex_top_right.x(), tex_bottom_left.y(),
-    bottom_left.x(), top_right.y(),   top_right.z(),
-    tex_bottom_left.x(), tex_top_right.y(),
-    top_right.x(),   top_right.y(),   top_right.z(),
-    tex_top_right.x(), tex_top_right.y()
-  };
+      bottom_left.x(),     bottom_left.y(),     bottom_left.z(),
+      tex_bottom_left.x(), tex_bottom_left.y(), top_right.x(),
+      bottom_left.y(),     bottom_left.z(),     tex_top_right.x(),
+      tex_bottom_left.y(), bottom_left.x(),     top_right.y(),
+      top_right.z(),       tex_bottom_left.x(), tex_top_right.y(),
+      top_right.x(),       top_right.y(),       top_right.z(),
+      tex_top_right.x(),   tex_top_right.y()};
   Mesh::RenderArray(GL_TRIANGLES, 6, format, sizeof(float) * 5,
                     reinterpret_cast<const char *>(vertices), indices);
 }
 
 // Compute normals and tangents for a mesh based on positions and texcoords.
 void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
-                                   const unsigned short *indices,
-                                   int numverts,
-                                   int numindices) {
+                                  const unsigned short *indices, int numverts,
+                                  int numindices) {
   std::unique_ptr<vec3[]> binormals(new vec3[numverts]);
 
   // set all normals to 0, as we'll accumulate
@@ -202,13 +200,12 @@ void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
     tangent = vec4(normalize(tangent.xyz()), 0);
     binormals[i] = normalize(binormals[i]);
     tangent = vec4(
-      // Gram-Schmidt orthogonalize xyz components:
-      normalize(tangent.xyz() - norm * dot(norm, tangent.xyz())),
-      // The w component is the handedness, set as difference between the
-      // binormal we computed from the texture coordinates and that from the
-      // cross-product:
-      dot(cross(norm, tangent.xyz()), binormals[i])
-    );
+        // Gram-Schmidt orthogonalize xyz components:
+        normalize(tangent.xyz() - norm * dot(norm, tangent.xyz())),
+        // The w component is the handedness, set as difference between the
+        // binormal we computed from the texture coordinates and that from the
+        // cross-product:
+        dot(cross(norm, tangent.xyz()), binormals[i]));
     vertices[i].norm = norm;
     vertices[i].tangent = tangent;
   }

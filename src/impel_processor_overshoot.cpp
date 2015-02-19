@@ -17,7 +17,6 @@
 
 namespace impel {
 
-
 struct OvershootImpelData {
   void Initialize(const OvershootImpelInit& init_param) {
     value = 0.0f;
@@ -128,13 +127,14 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
     // If we're moving in the wrong direction (i.e. away from the target),
     // increase the acceleration. This results in us moving towards the target
     // for longer time than we move away from the target, or equivalently,
-    // aggressively initiating our movement towards the target, which feels good.
+    // aggressively initiating our movement towards the target, which feels
+    // good.
     const float diff = d.init.Normalize(d.target_value - d.value);
     const bool wrong_direction = d.velocity * diff < 0.0f;
-    const float wrong_direction_multiplier = wrong_direction ?
-        d.init.wrong_direction_multiplier() : 1.0f;
-    const float acceleration = diff * d.init.accel_per_difference() *
-                               wrong_direction_multiplier;
+    const float wrong_direction_multiplier =
+        wrong_direction ? d.init.wrong_direction_multiplier() : 1.0f;
+    const float acceleration =
+        diff * d.init.accel_per_difference() * wrong_direction_multiplier;
     const float velocity_unclamped = d.velocity + delta_time * acceleration;
 
     // Always ensure the velocity remains within the valid limits.
@@ -142,8 +142,7 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
 
     // If we're far from facing the target, use the velocity calculated above.
     const bool should_snap = d.init.AtTarget(diff, velocity);
-    if (should_snap)
-      return 0.0f;
+    if (should_snap) return 0.0f;
 
     return velocity;
   }
@@ -151,8 +150,7 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
   float CalculateValue(ImpelTime delta_time,
                        const OvershootImpelData& d) const {
     // Snap to the target value when we've stopped moving.
-    if (d.velocity == 0.0f)
-      return d.target_value;
+    if (d.velocity == 0.0f) return d.target_value;
 
     const float delta = d.init.ClampDelta(delta_time * d.velocity);
     const float value_unclamped = d.init.Normalize(d.value + delta);
@@ -165,6 +163,4 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
 
 IMPEL_INSTANCE(OvershootImpelInit, OvershootImpelProcessor);
 
-
-} // namespace impel
-
+}  // namespace impel

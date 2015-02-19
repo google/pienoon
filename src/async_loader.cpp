@@ -20,12 +20,13 @@ namespace fpl {
 // Push this to signal the worker thread that it's time to quit.
 class BookendAsyncResource : public AsyncResource {
   static std::string kBookendFileName;
+
  public:
   BookendAsyncResource() : AsyncResource(kBookendFileName) {}
   virtual ~BookendAsyncResource() {}
   virtual void Load() {}
   virtual void Finalize() {}
-  static bool IsBookend(const AsyncResource& res) {
+  static bool IsBookend(const AsyncResource &res) {
     return res.filename() == kBookendFileName;
   }
 };
@@ -54,25 +55,21 @@ AsyncLoader::~AsyncLoader() {
 }
 
 void AsyncLoader::QueueJob(AsyncResource *res) {
-  Lock([this,res]() {
-    queue_.push_back(res);
-  });
+  Lock([this, res]() { queue_.push_back(res); });
   SDL_SemPost(job_semaphore_);
 }
 
 void AsyncLoader::LoaderWorker() {
   for (;;) {
-    auto res = LockReturn<AsyncResource *>([this]() {
-      return queue_.empty() ? nullptr : queue_[0];
-    });
+    auto res = LockReturn<AsyncResource *>(
+        [this]() { return queue_.empty() ? nullptr : queue_[0]; });
     if (!res) {
       SDL_SemWait(job_semaphore_);
       continue;
     }
     // Stop loading once we reach the bookend enqueued by
     // StopLoadingWhenComplete(). To start loading again, call StartLoading().
-    if (BookendAsyncResource::IsBookend(*res))
-      break;
+    if (BookendAsyncResource::IsBookend(*res)) break;
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "async load: %s",
                  res->filename_.c_str());
     res->Load();
@@ -89,8 +86,8 @@ int AsyncLoader::LoaderThread(void *user_data) {
 }
 
 void AsyncLoader::StartLoading() {
-  worker_thread_ = SDL_CreateThread(AsyncLoader::LoaderThread,
-                                    "FPL Loader Thread", this);
+  worker_thread_ =
+      SDL_CreateThread(AsyncLoader::LoaderThread, "FPL Loader Thread", this);
   assert(worker_thread_);
 }
 
@@ -102,22 +99,15 @@ void AsyncLoader::StopLoadingWhenComplete() {
 
 bool AsyncLoader::TryFinalize() {
   for (;;) {
-    auto res = LockReturn<AsyncResource *>([this]() {
-      return done_.empty() ? nullptr : done_[0];
-    });
+    auto res = LockReturn<AsyncResource *>(
+        [this]() { return done_.empty() ? nullptr : done_[0]; });
     if (!res) break;
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "finalize: %s",
                  res->filename_.c_str());
     res->Finalize();
-    Lock([this]() {
-      done_.erase(done_.begin());
-    });
+    Lock([this]() { done_.erase(done_.begin()); });
   }
-  return LockReturn<bool>([this]() {
-    return queue_.empty();
-  });
+  return LockReturn<bool>([this]() { return queue_.empty(); });
 }
 
-
 }  // namespace fpl
-

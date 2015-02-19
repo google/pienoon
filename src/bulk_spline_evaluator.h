@@ -17,7 +17,6 @@
 
 #include "compact_spline.h"
 
-
 namespace fpl {
 
 // Traverse through a set of splines in a performant way.
@@ -146,8 +145,6 @@ class BulkSplineEvaluator {
   std::vector<Result> results_;
 };
 
+}  // namespace fpl
 
-} // namespace fpl
-
-#endif // FPL_BULK_SPLINE_EVALUATOR_H_
-
+#endif  // FPL_BULK_SPLINE_EVALUATOR_H_

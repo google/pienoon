@@ -24,11 +24,8 @@ namespace fpl {
 class Renderable {
  public:
   Renderable(uint16_t id, const mathfu::mat4& world_matrix,
-             const mathfu::vec4 &color = mathfu::vec4(1, 1, 1, 1))
-    : id_(id),
-      world_matrix_(world_matrix),
-      color_(color)
-  {}
+             const mathfu::vec4& color = mathfu::vec4(1, 1, 1, 1))
+      : id_(id), world_matrix_(world_matrix), color_(color) {}
 
   uint16_t id() const { return id_; }
   void set_id(uint16_t id) { id_ = id; }
@@ -48,7 +45,6 @@ class Renderable {
   mathfu::mat4 world_matrix_;
 
   mathfu::vec4 color_;
-
 };
 
 class SceneDescription {
@@ -63,9 +59,7 @@ class SceneDescription {
     return renderables_;
   }
 
-  std::vector<std::unique_ptr<mathfu::vec3>>& lights() {
-    return lights_;
-  }
+  std::vector<std::unique_ptr<mathfu::vec3>>& lights() { return lights_; }
   const std::vector<std::unique_ptr<mathfu::vec3>>& lights() const {
     return lights_;
   }
@@ -87,6 +81,6 @@ class SceneDescription {
   std::vector<std::unique_ptr<mathfu::vec3>> lights_;
 };
 
-} // namespace fpl
+}  // namespace fpl
 
-#endif // PIE_NOON_SCENE_DESCRIPTION_H
+#endif  // PIE_NOON_SCENE_DESCRIPTION_H

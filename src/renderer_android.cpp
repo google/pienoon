@@ -19,7 +19,8 @@
 #include "utilities.h"
 
 // Include SDL internal headers and external refs
-#define TARGET_OS_IPHONE 1 // This one is not to turn on 'SDL_DYNAMIC_API' defitnition
+#define TARGET_OS_IPHONE \
+  1  // This one is not to turn on 'SDL_DYNAMIC_API' defitnition
 extern "C" {
 #include "src/video/SDL_sysvideo.h"
 #include "src/video/SDL_egl_c.h"
@@ -43,12 +44,13 @@ const vec2i& AndroidGetScalerResolution() {
   return g_android_scaler_resolution;
 }
 
-EGLAPI EGLSurface EGLAPIENTRY HookEglCreateWindowSurface(
-    EGLDisplay dpy, EGLConfig config, EGLNativeWindowType win, const EGLint *attrib_list) {
+EGLAPI EGLSurface EGLAPIENTRY
+HookEglCreateWindowSurface(EGLDisplay dpy, EGLConfig config,
+                           EGLNativeWindowType win, const EGLint* attrib_list) {
   // Apply scaler setting
   ANativeWindow* window = Android_JNI_GetNativeWindow();
-  ANativeWindow_setBuffersGeometry(window,
-    g_android_scaler_resolution.x(), g_android_scaler_resolution.y(), 0);
+  ANativeWindow_setBuffersGeometry(window, g_android_scaler_resolution.x(),
+                                   g_android_scaler_resolution.y(), 0);
   return eglCreateWindowSurface(dpy, config, win, attrib_list);
 }
 
@@ -57,14 +59,14 @@ void AndroidPreCreateWindow() {
   if (g_android_scaler_resolution.x() && g_android_scaler_resolution.y()) {
     // Initialize OpenGL function pointers inside SDL
     if (SDL_GL_LoadLibrary(NULL) < 0) {
-      SDL_LogError(SDL_LOG_CATEGORY_ERROR, "couldn't initialize OpenGL library\n");
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                   "couldn't initialize OpenGL library\n");
     }
 
     // Hook eglCreateWindowSurface call
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
+    SDL_VideoDevice* device = SDL_GetVideoDevice();
     device->egl_data->eglCreateWindowSurface = HookEglCreateWindowSurface;
   }
 }
 
 }  // namespace fpl
-

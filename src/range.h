@@ -15,16 +15,13 @@
 #ifndef FPL_RANGE_H_
 #define FPL_RANGE_H_
 
-
 #include <vector>
 #include "mathfu/utilities.h"
 
-
 namespace fpl {
 
-
 /// Represent an interval on a number line.
-template<class T>
+template <class T>
 class RangeT {
  public:
   typedef std::vector<T> TVector;
@@ -71,9 +68,7 @@ class RangeT {
     return mathfu::Clamp(Percent(x), 0.0f, 1.0f);
   }
 
-  bool Contains(const T x) const {
-    return start_ <= x && x <= end_;
-  }
+  bool Contains(const T x) const { return start_ <= x && x <= end_; }
 
   // Swap start and end. When 'a' and 'b' don't overlap, if you invert the
   // return value of Range::Intersect(a, b), you'll get the gap between
@@ -156,7 +151,6 @@ class RangeT {
                               RangeVector* gaps = nullptr) {
     for (size_t i = 0; i < a.size(); ++i) {
       for (size_t j = 0; j < b.size(); ++j) {
-
         const RangeT intersection = RangeT::Intersect(a[i], b[j]);
         if (intersection.Valid()) {
           intersections->push_back(intersection);
@@ -199,16 +193,14 @@ class RangeT {
   }
 
  private:
-  T start_; // Start of the range. Range is valid if start_ <= end_.
-  T end_;   // End of the range. Range is inclusive of start_ and end_.
+  T start_;  // Start of the range. Range is valid if start_ <= end_.
+  T end_;    // End of the range. Range is inclusive of start_ and end_.
 };
 
-
-template<class T>
+template <class T>
 RangeT<T> CreateValidRange(const T a, const T b) {
   return RangeT<T>(std::min<T>(a, b), std::max<T>(a, b));
 }
-
 
 // Instantiate for various scalar.
 typedef RangeT<float> RangeFloat;
@@ -219,8 +211,6 @@ typedef RangeT<unsigned int> RangeUInt;
 // Since the float specification will be most common, we give it a simple name.
 typedef RangeFloat Range;
 
+}  // namespace fpl
 
-} // namespace fpl
-
-#endif // FPL_RANGE_H_
-
+#endif  // FPL_RANGE_H_

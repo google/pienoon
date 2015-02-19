@@ -19,7 +19,6 @@
 #include "common.h"
 #include "range.h"
 
-
 namespace fpl {
 
 enum CurveValueType {
@@ -29,7 +28,6 @@ enum CurveValueType {
   kCurveThirdDerivative,
 };
 
-
 static const int kDefaultGraphWidth = 80;
 static const int kDefaultGraphHeight = 30;
 static const mathfu::vec2i kDefaultGraphSize(kDefaultGraphWidth,
@@ -38,20 +36,18 @@ static const mathfu::vec2i kDefaultGraphSize(kDefaultGraphWidth,
 // 2^22 = the max precision of significand.
 static const float kEpsilonScale = 1.0f / static_cast<float>(1 << 22);
 
-
 // Match start and end values, and start derivative.
 // Start is x = 0. End is x = 1.
 struct QuadraticInitWithStartDerivative {
-  QuadraticInitWithStartDerivative(
-      const float start_y, const float start_derivative, const float end_y) :
-    start_y(start_y), start_derivative(start_derivative), end_y(end_y) {
-  }
+  QuadraticInitWithStartDerivative(const float start_y,
+                                   const float start_derivative,
+                                   const float end_y)
+      : start_y(start_y), start_derivative(start_derivative), end_y(end_y) {}
 
   float start_y;
   float start_derivative;
   float end_y;
 };
-
 
 // Represent a quadratic polynomial in the form,
 //   c_[2] * x^2  +  c_[1] * x  +  c_[0]
@@ -61,7 +57,9 @@ class QuadraticCurve {
  public:
   QuadraticCurve() { memset(c_, 0, sizeof(c_)); }
   QuadraticCurve(const float c2, const float c1, const float c0) {
-    c_[2] = c2; c_[1] = c1; c_[0] = c0;
+    c_[2] = c2;
+    c_[1] = c1;
+    c_[0] = c0;
   }
   QuadraticCurve(const float* c) { memcpy(c_, c, sizeof(c_)); }
   QuadraticCurve(const QuadraticInitWithStartDerivative& init) { Init(init); }
@@ -73,9 +71,7 @@ class QuadraticCurve {
   }
 
   // f'(x) = 2*c2*x + c1
-  float Derivative(const float x) const {
-    return 2.0f * c_[2] * x  +  c_[1];
-  }
+  float Derivative(const float x) const { return 2.0f * c_[2] * x + c_[1]; }
 
   // f''(x) = 2*c2
   float SecondDerivative(const float x) const {
@@ -147,30 +143,26 @@ class QuadraticCurve {
   int NumCoeff() const { return kNumCoeff; }
 
  private:
-  float c_[kNumCoeff]; // c_[2] * x^2  +  c_[1] * x  +  c_[0]
+  float c_[kNumCoeff];  // c_[2] * x^2  +  c_[1] * x  +  c_[0]
 };
-
 
 // Match start and end y-values and derivatives.
 // Start is x = 0. End is x = width_x.
 struct CubicInit {
   CubicInit(const float start_y, const float start_derivative,
-            const float end_y, const float end_derivative,
-            const float width_x) :
-      start_y(start_y),
-      start_derivative(start_derivative),
-      end_y(end_y),
-      end_derivative(end_derivative),
-      width_x(width_x) {
-  }
-                          // short-form in comments:
-  float start_y;          // y0
-  float start_derivative; // s0
-  float end_y;            // y1
-  float end_derivative;   // s1
-  float width_x;          // w
+            const float end_y, const float end_derivative, const float width_x)
+      : start_y(start_y),
+        start_derivative(start_derivative),
+        end_y(end_y),
+        end_derivative(end_derivative),
+        width_x(width_x) {}
+  // short-form in comments:
+  float start_y;           // y0
+  float start_derivative;  // s0
+  float end_y;             // y1
+  float end_derivative;    // s1
+  float width_x;           // w
 };
-
 
 // Represent a cubic polynomial of the form,
 //   c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
@@ -180,7 +172,10 @@ class CubicCurve {
  public:
   CubicCurve() { memset(c_, 0, sizeof(c_)); }
   CubicCurve(const float c3, const float c2, const float c1, const float c0) {
-    c_[3] = c3; c_[2] = c2; c_[1] = c1; c_[0] = c0;
+    c_[3] = c3;
+    c_[2] = c2;
+    c_[1] = c1;
+    c_[0] = c0;
   }
   CubicCurve(const float* c) { memcpy(c_, c, sizeof(c_)); }
   CubicCurve(const CubicInit& init) { Init(init); }
@@ -199,7 +194,7 @@ class CubicCurve {
 
   // f''(x) = 6*c3*x + 2*c2
   float SecondDerivative(const float x) const {
-    return  6.0f * c_[3] * x + 2.0f * c_[2];
+    return 6.0f * c_[3] * x + 2.0f * c_[2];
   }
 
   // f'''(x) = 6*c3
@@ -217,8 +212,8 @@ class CubicCurve {
   // Epsilon().
   float Epsilon() const {
     using std::max;
-    const float max_c = max(max(max(fabs(c_[3]), fabs(c_[2])), fabs(c_[1])),
-                                    fabs(c_[0]));
+    const float max_c =
+        max(max(max(fabs(c_[3]), fabs(c_[2])), fabs(c_[1])), fabs(c_[0]));
     return max_c * kEpsilonScale;
   }
 
@@ -231,9 +226,8 @@ class CubicCurve {
   std::string Text() const;
 
  private:
-  float c_[kNumCoeff]; // c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
+  float c_[kNumCoeff];  // c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
 };
-
 
 // Draw an ASCII-art graph of the array of (x,y) 'points'.
 // The size of the graph in (horizontal characters, vertical lines) is given
@@ -243,14 +237,18 @@ std::string Graph2DPoints(const mathfu::vec2* points, const int num_points,
 
 // Slow function that returns one of the possible values that this curve
 // can evaluate. Useful for debugging.
-template<class T>
+template <class T>
 float CurveValue(const T& curve, const float x,
                  const CurveValueType value_type) {
-  switch(value_type) {
-    case kCurveValue: return curve.Evaluate(x);
-    case kCurveDerivative: return curve.Derivative(x);
-    case kCurveSecondDerivative: return curve.SecondDerivative(x);
-    case kCurveThirdDerivative: return curve.ThirdDerivative(x);
+  switch (value_type) {
+    case kCurveValue:
+      return curve.Evaluate(x);
+    case kCurveDerivative:
+      return curve.Derivative(x);
+    case kCurveSecondDerivative:
+      return curve.SecondDerivative(x);
+    case kCurveThirdDerivative:
+      return curve.ThirdDerivative(x);
     default:
       assert(false);
   }
@@ -258,11 +256,10 @@ float CurveValue(const T& curve, const float x,
 }
 
 // Returns an ASCII-art graph for x in 'x_range' for the requested type.
-template<class T>
-std::string GraphCurveOnXRange(
-    const T& curve, const CurveValueType value_type,
-    const Range& x_range, const mathfu::vec2i& size = kDefaultGraphSize) {
-
+template <class T>
+std::string GraphCurveOnXRange(const T& curve, const CurveValueType value_type,
+                               const Range& x_range,
+                               const mathfu::vec2i& size = kDefaultGraphSize) {
   // Gather a collection of (x,y) points to graph.
   const int num_points = size.x();
   std::vector<mathfu::vec2> points(num_points);
@@ -278,16 +275,14 @@ std::string GraphCurveOnXRange(
 }
 
 // Returns an ASCII-art graph from StartX()() to EndX() for the requested type.
-template<class T>
-std::string GraphCurve(
-    const T& curve, const CurveValueType value_type,
-    const mathfu::vec2i& size = kDefaultGraphSize) {
-  return curve.Text() + "\n" + GraphCurveOnXRange(curve, value_type,
-                                  Range(curve.StartX(), curve.EndX()), size);
+template <class T>
+std::string GraphCurve(const T& curve, const CurveValueType value_type,
+                       const mathfu::vec2i& size = kDefaultGraphSize) {
+  return curve.Text() + "\n" +
+         GraphCurveOnXRange(curve, value_type,
+                            Range(curve.StartX(), curve.EndX()), size);
 }
 
+}  // namespace fpl
 
-} // namespace fpl
-
-#endif // FPL_CURVE_H_
-
+#endif  // FPL_CURVE_H_

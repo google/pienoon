@@ -19,10 +19,9 @@
 
 namespace fpl {
 
-void CalculateDualCubicMidNode(const CubicInit& init, float *x, float *y,
+void CalculateDualCubicMidNode(const CubicInit &init, float *x, float *y,
                                float *derivative);
 
-} // namespace fpl
+}  // namespace fpl
 
-#endif // FPL_DUAL_CUBIC_H_
-
+#endif  // FPL_DUAL_CUBIC_H_

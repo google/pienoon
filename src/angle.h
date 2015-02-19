@@ -24,7 +24,7 @@
 
 #ifdef FPL_ANGLE_UNIT_TESTS
 #include "gtest/gtest.h"
-#endif // FPL_ANGLE_UNIT_TESTS
+#endif  // FPL_ANGLE_UNIT_TESTS
 
 namespace fpl {
 
@@ -48,7 +48,6 @@ static const float kDegreesPerCircle = 360.0f;
 // Floating point precision errors can generate numbers outside of
 // (-pi, pi], even when the math is perfect.
 static const float kMinUniqueAngle = -3.1415925f;
-
 
 //    Purpose
 //    =======
@@ -119,13 +118,9 @@ class Angle {
     return *this;
   }
 
-  float ToRadians() const {
-    return angle_;
-  }
+  float ToRadians() const { return angle_; }
 
-  float ToDegrees() const {
-    return kRadiansToDegrees * angle_;
-  }
+  float ToDegrees() const { return kRadiansToDegrees * angle_; }
 
   mathfu::vec3 ToXZVector() const {
     float x, z;
@@ -136,20 +131,14 @@ class Angle {
   mathfu::mat3 ToXZRotationMatrix() const {
     float x, z;
     ToVector(&x, &z);
-    return mathfu::mat3(   x, 0.0f,    z,
-                        0.0f, 1.0f, 0.0f,
-                          -z, 0.0f,    x);
+    return mathfu::mat3(x, 0.0f, z, 0.0f, 1.0f, 0.0f, -z, 0.0f, x);
   }
 
-  Angle operator-() const {
-    return Angle(ModIfNegativePi(-angle_));
-  }
+  Angle operator-() const { return Angle(ModIfNegativePi(-angle_)); }
 
   // Check internal consistency. If class is functioning correctly, should
   // always return true.
-  bool IsValid() const {
-    return IsAngleInRange(angle_);
-  }
+  bool IsValid() const { return IsAngleInRange(angle_); }
 
   // Clamps the angle to the range [center - max_diff, center + max_diff].
   // max_diff must be in the range [0~pi].
@@ -204,7 +193,7 @@ class Angle {
 #ifdef FPL_ANGLE_UNIT_TESTS
   FRIEND_TEST(AngleTests, ModWithinThreePi);
   FRIEND_TEST(AngleTests, ModIfNegativePi);
-#endif // FPL_ANGLE_UNIT_TESTS
+#endif  // FPL_ANGLE_UNIT_TESTS
 
   void ToVector(float* const x, float* const z) const {
     *x = cos(angle_);
@@ -228,7 +217,7 @@ class Angle {
     return angle < kMinUniqueAngle ? kMaxUniqueAngle : angle;
   }
 
-  float angle_; // Angle in radians, in range (-pi, pi]
+  float angle_;  // Angle in radians, in range (-pi, pi]
 };
 
 inline Angle operator+(Angle lhs, const Angle& rhs) {
@@ -283,8 +272,8 @@ inline Angle Angle::Clamp(const Angle& center, const Angle& max_diff) const {
   const Angle diff = (*this) - center;
 
   // Clamp the difference to the valid range.
-  const Angle diff_clamped(mathfu::Clamp(diff.angle_, -max_diff.angle_,
-                                         max_diff.angle_));
+  const Angle diff_clamped(
+      mathfu::Clamp(diff.angle_, -max_diff.angle_, max_diff.angle_));
 
   // Add the difference onto the center. Note that, if no clamping happened,
   // we're left with *this.

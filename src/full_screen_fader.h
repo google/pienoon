@@ -59,7 +59,7 @@ class FullScreenFader {
   // Calculate offset from the fade start time scaled by fade time.
   inline float CalculateOffset(const WorldTime& time) const {
     return static_cast<float>(time - start_time_) /
-      static_cast<float>(half_fade_time_);
+           static_cast<float>(half_fade_time_);
   }
 
   // Time when the fade started.

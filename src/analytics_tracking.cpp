@@ -18,7 +18,7 @@
 namespace fpl {
 
 void SendTrackerEvent(const char *category, const char *action) {
-# ifdef __ANDROID__
+#ifdef __ANDROID__
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SendTrackerEvent (%s, %s)\n",
               category, action);
   JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
@@ -34,15 +34,15 @@ void SendTrackerEvent(const char *category, const char *action) {
   env->DeleteLocalRef(category_string);
   env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(activity);
-# else
+#else
   (void)category;
   (void)action;
-# endif
+#endif
 }
 
 void SendTrackerEvent(const char *category, const char *action,
                       const char *label) {
-# ifdef __ANDROID__
+#ifdef __ANDROID__
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SendTrackerEvent (%s, %s, %s)\n",
               category, action, label);
   JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
@@ -61,16 +61,16 @@ void SendTrackerEvent(const char *category, const char *action,
   env->DeleteLocalRef(category_string);
   env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(activity);
-# else
+#else
   (void)category;
   (void)action;
   (void)label;
-# endif
+#endif
 }
 
 void SendTrackerEvent(const char *category, const char *action,
                       const char *label, int value) {
-# ifdef __ANDROID__
+#ifdef __ANDROID__
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
               "SendTrackerEvent (%s, %s, %s, %i)\n", category, action, label,
               value);
@@ -90,13 +90,12 @@ void SendTrackerEvent(const char *category, const char *action,
   env->DeleteLocalRef(category_string);
   env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(activity);
-# else
+#else
   (void)category;
   (void)action;
   (void)label;
   (void)value;
-# endif
+#endif
 }
 
 }  // namespace fpl
-

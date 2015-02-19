@@ -45,7 +45,7 @@ class Controller {
   // Update the current state of this controller.
   virtual void AdvanceFrame(WorldTime delta_time) = 0;
 
-  ControllerType controller_type() const{ return controller_type_; }
+  ControllerType controller_type() const { return controller_type_; }
 
   // Returns the current set of active logical input bits.
   uint32_t is_down() const { return is_down_; }
@@ -66,13 +66,11 @@ class Controller {
   uint32_t is_down_;
   uint32_t went_down_;
   uint32_t went_up_;
-  CharacterId character_id_; // the ID of the player we're controlling
+  CharacterId character_id_;  // the ID of the player we're controlling
   ControllerType controller_type_;
-
 };
 
 }  // pie_noon
 }  // fpl
 
 #endif  // PIE_NOON_CONTROLLER_H_
-

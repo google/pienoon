@@ -21,7 +21,6 @@ namespace impel {
 
 class ImpelEngine;
 
-
 // Impeller
 // ========
 // An Impeller drives a value towards a target.
@@ -119,7 +118,6 @@ class Impeller {
   ImpelIndex index_;
 };
 
-
 // Drive a float value towards a target.
 //
 // The current and target values and velocities can be specified by SetTarget()
@@ -128,8 +126,7 @@ class Impeller1f : public Impeller {
  public:
   Impeller1f() {}
   Impeller1f(const ImpelInit& init, ImpelEngine* engine)
-      : Impeller(init, engine) {
-  }
+      : Impeller(init, engine) {}
   Impeller1f(const ImpelInit& init, ImpelEngine* engine, const ImpelTarget1f& t)
       : Impeller(init, engine) {
     SetTarget(t);
@@ -153,9 +150,7 @@ class Impeller1f : public Impeller {
 
   // Set current impeller values in the processor. Processors may choose to
   // ignore whichever values make sense for them to ignore.
-  void SetTarget(const ImpelTarget1f& t) {
-    Processor().SetTarget(index_, t);
-  }
+  void SetTarget(const ImpelTarget1f& t) { Processor().SetTarget(index_, t); }
   void SetWaypoints(const fpl::CompactSpline& waypoints, float start_time) {
     Processor().SetWaypoints(index_, waypoints, start_time);
   }
@@ -169,7 +164,6 @@ class Impeller1f : public Impeller {
   }
 };
 
-
 // Drive a 4x4 float matrix from a series of basic transformations.
 //
 // The underlying basic transformations can be altered with SetChildTarget1f()
@@ -178,7 +172,7 @@ class Impeller1f : public Impeller {
 // Internally, we use mathfu::mat4 as our matrix type, but external we allow
 // any matrix type to be specified via the Matrix4f template parameter.
 //
-template<class VectorConverter>
+template <class VectorConverter>
 class ImpellerMatrix4fTemplate : public Impeller {
   typedef VectorConverter C;
   typedef typename VectorConverter::ExternalMatrix4 Mat4;
@@ -187,8 +181,7 @@ class ImpellerMatrix4fTemplate : public Impeller {
  public:
   ImpellerMatrix4fTemplate() {}
   ImpellerMatrix4fTemplate(const ImpelInit& init, ImpelEngine* engine)
-      : Impeller(init, engine) {
-  }
+      : Impeller(init, engine) {}
 
   // Return the current value of the Impeller. The processor returns a
   // vector-aligned matrix, so the cast should be valid for any user-defined
@@ -241,7 +234,6 @@ class PassThroughVectorConverter {
 
 typedef ImpellerMatrix4fTemplate<PassThroughVectorConverter> ImpellerMatrix4f;
 
+}  // namespace impel
 
-} // namespace impel
-
-#endif // IMPELLER_H
+#endif  // IMPELLER_H

@@ -19,8 +19,8 @@
 
 namespace fpl {
 
-GPGManager::GPGManager() : state_(kStart), do_ui_login_(false),
-                           delayed_login_(false) {}
+GPGManager::GPGManager()
+    : state_(kStart), do_ui_login_(false), delayed_login_(false) {}
 
 pthread_mutex_t GPGManager::events_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t GPGManager::achievements_mutex_ = PTHREAD_MUTEX_INITIALIZER;
@@ -31,9 +31,9 @@ bool GPGManager::Initialize(bool ui_login) {
   event_data_initialized_ = false;
   achievement_data_initialized_ = false;
 
-# ifdef NO_GPG
+#ifdef NO_GPG
   return true;
-# endif
+#endif
 
   /*
   // This code is here because we may be able to do this part of the
@@ -49,45 +49,44 @@ bool GPGManager::Initialize(bool ui_login) {
 
   // Creates a games_services object that has lambda callbacks.
   game_services_ =
-    gpg::GameServices::Builder()
-      .SetDefaultOnLog(gpg::LogLevel::VERBOSE)
-      .SetOnAuthActionStarted([this](gpg::AuthOperation op) {
-        state_ = state_ == kAuthUILaunched
-                 ? kAuthUIStarted
-                 : kAutoAuthStarted;
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPG: Sign in started! (%d)", state_);
-      })
-      .SetOnAuthActionFinished([this](gpg::AuthOperation op,
-                                      gpg::AuthStatus status) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPG: Sign in finished with a result of %d (%d)", status,
-                    state_);
-        if (op == gpg::AuthOperation::SIGN_IN) {
-          state_ = status == gpg::AuthStatus::VALID
-                   ? kAuthed
-                   : ((state_ == kAuthUIStarted || state_ == kAuthUILaunched)
-                     ? kAuthUIFailed
-                     : kAutoAuthFailed);
-          if (state_ == kAuthed) {
-            // If we just logged in, go fetch our data!
-            FetchEvents();
-            FetchAchievements();
-          }
-        } else if (op == gpg::AuthOperation::SIGN_OUT) {
-          state_ = kStart;
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "GPG: SIGN OUT finished with a result of %d", status);
-        } else {
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "GPG: unknown auth op %d", op);
-        }
-      })
-      .Create(platform_configuration);
+      gpg::GameServices::Builder()
+          .SetDefaultOnLog(gpg::LogLevel::VERBOSE)
+          .SetOnAuthActionStarted([this](gpg::AuthOperation op) {
+            state_ =
+                state_ == kAuthUILaunched ? kAuthUIStarted : kAutoAuthStarted;
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                        "GPG: Sign in started! (%d)", state_);
+          })
+          .SetOnAuthActionFinished([this](gpg::AuthOperation op,
+                                          gpg::AuthStatus status) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                        "GPG: Sign in finished with a result of %d (%d)",
+                        status, state_);
+            if (op == gpg::AuthOperation::SIGN_IN) {
+              state_ =
+                  status == gpg::AuthStatus::VALID
+                      ? kAuthed
+                      : ((state_ == kAuthUIStarted || state_ == kAuthUILaunched)
+                             ? kAuthUIFailed
+                             : kAutoAuthFailed);
+              if (state_ == kAuthed) {
+                // If we just logged in, go fetch our data!
+                FetchEvents();
+                FetchAchievements();
+              }
+            } else if (op == gpg::AuthOperation::SIGN_OUT) {
+              state_ = kStart;
+              SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                          "GPG: SIGN OUT finished with a result of %d", status);
+            } else {
+              SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                          "GPG: unknown auth op %d", op);
+            }
+          })
+          .Create(platform_configuration);
 
   if (!game_services_) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                "GPG: failed to create GameServices!");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "GPG: failed to create GameServices!");
     return false;
   }
 
@@ -98,11 +97,11 @@ bool GPGManager::Initialize(bool ui_login) {
 // Called every frame from the game, to see if there's anything to be done
 // with the async progress from gpg
 void GPGManager::Update() {
-# ifdef NO_GPG
+#ifdef NO_GPG
   return;
-# endif
+#endif
   assert(game_services_);
-  switch(state_) {
+  switch (state_) {
     case kStart:
     case kAutoAuthStarted:
       // Nothing to do, waiting.
@@ -142,23 +141,22 @@ void GPGManager::Update() {
 }
 
 bool GPGManager::LoggedIn() {
-# ifdef NO_GPG
+#ifdef NO_GPG
   return false;
-# endif
+#endif
   assert(game_services_);
   if (state_ < kAuthed) {
     SDL_LogDebug(SDL_LOG_CATEGORY_ERROR,
-                "GPG: player not logged in, can\'t interact with gpg!");
+                 "GPG: player not logged in, can\'t interact with gpg!");
     return false;
   }
   return true;
 }
 
-
 void GPGManager::ToggleSignIn() {
-# ifdef NO_GPG
+#ifdef NO_GPG
   return;
-# endif
+#endif
   delayed_login_ = false;
   if (state_ == kAuthed) {
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: Attempting to log out...");
@@ -175,9 +173,9 @@ void GPGManager::ToggleSignIn() {
 }
 
 void GPGManager::IncrementEvent(const char *event_id, uint64_t score) {
-# ifdef NO_GPG
+#ifdef NO_GPG
   return;
-# endif
+#endif
   if (!LoggedIn()) return;
   game_services_->Events().Increment(event_id, score);
 }
@@ -185,16 +183,16 @@ void GPGManager::IncrementEvent(const char *event_id, uint64_t score) {
 // This is still somewhat game-specific.  (Because it assumes that your
 // leaderboards are tied to events.)  TODO: clean this up further later.
 void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
-# ifdef NO_GPG
+#ifdef NO_GPG
   return;
-# endif
+#endif
   if (!LoggedIn()) return;
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: launching leaderboard UI");
   // First, get all current event counts from GPG in one callback,
   // which allows us to conveniently update and show the leaderboards without
   // having to deal with multiple callbacks.
   game_services_->Events().FetchAll([id_len, ids, this](
-        const gpg::EventManager::FetchAllResponse &far) {
+      const gpg::EventManager::FetchAllResponse &far) {
     for (auto it = far.data.begin(); it != far.data.end(); ++it) {
       // Look up leaderboard id from corresponding event id.
       const char *leaderboard_id = nullptr;
@@ -248,42 +246,40 @@ void GPGManager::RevealAchievement(std::string achievement_id) {
   }
 }
 
-
 // Updates local player stats with values from the server:
 void GPGManager::FetchEvents() {
   if (!LoggedIn() || event_data_state_ == kPending) return;
   event_data_state_ = kPending;
 
-  game_services_->Events().FetchAll([this](
-        const gpg::EventManager::FetchAllResponse &far) mutable {
+  game_services_->Events().FetchAll(
+      [this](const gpg::EventManager::FetchAllResponse &far) mutable {
 
-    pthread_mutex_lock(&events_mutex_);
+        pthread_mutex_lock(&events_mutex_);
 
-    if (IsSuccess(far.status)) {
-      event_data_state_ = kComplete;
-      event_data_initialized_ = true;
-    } else {
-      event_data_state_ = kFailed;
-    }
+        if (IsSuccess(far.status)) {
+          event_data_state_ = kComplete;
+          event_data_initialized_ = true;
+        } else {
+          event_data_state_ = kFailed;
+        }
 
-    event_data_ = far.data;
-    pthread_mutex_unlock(&events_mutex_);
-  });
+        event_data_ = far.data;
+        pthread_mutex_unlock(&events_mutex_);
+      });
 }
 
 bool GPGManager::IsAchievementUnlocked(std::string achievement_id) {
-   if (!achievement_data_initialized_) {
-     return false;
-   }
-   pthread_mutex_lock(&achievements_mutex_);
-   for (int i = 0; i < achievement_data_.size(); i++) {
-     if (achievement_data_[i].Id() == achievement_id) {
-       return achievement_data_[i].State() == gpg::AchievementState::UNLOCKED;
-     }
-   }
-   pthread_mutex_unlock(&achievements_mutex_);
- }
-
+  if (!achievement_data_initialized_) {
+    return false;
+  }
+  pthread_mutex_lock(&achievements_mutex_);
+  for (int i = 0; i < achievement_data_.size(); i++) {
+    if (achievement_data_[i].Id() == achievement_id) {
+      return achievement_data_[i].State() == gpg::AchievementState::UNLOCKED;
+    }
+  }
+  pthread_mutex_unlock(&achievements_mutex_);
+}
 
 uint64_t GPGManager::GetEventValue(std::string event_id) {
   if (!event_data_initialized_) {
@@ -295,36 +291,32 @@ uint64_t GPGManager::GetEventValue(std::string event_id) {
   return result;
 }
 
-
 // Updates local player achievements with values from the server:
 void GPGManager::FetchAchievements() {
   if (!LoggedIn() || achievement_data_state_ == kPending) return;
   achievement_data_state_ = kPending;
 
-  game_services_->Achievements().FetchAll([this](
-        const gpg::AchievementManager::FetchAllResponse &far) mutable {
+  game_services_->Achievements().FetchAll(
+      [this](const gpg::AchievementManager::FetchAllResponse &far) mutable {
 
-    pthread_mutex_lock(&achievements_mutex_);
+        pthread_mutex_lock(&achievements_mutex_);
 
-    if (IsSuccess(far.status)) {
-      achievement_data_state_ = kComplete;
-      achievement_data_initialized_ = true;
-    } else {
-      achievement_data_state_ = kFailed;
-    }
+        if (IsSuccess(far.status)) {
+          achievement_data_state_ = kComplete;
+          achievement_data_initialized_ = true;
+        } else {
+          achievement_data_state_ = kFailed;
+        }
 
-    achievement_data_ = far.data;
-    pthread_mutex_unlock(&achievements_mutex_);
-  });
+        achievement_data_ = far.data;
+        pthread_mutex_unlock(&achievements_mutex_);
+      });
 }
 
-
-
-
 void GPGManager::ShowAchievements() {
-# ifdef NO_GPG
+#ifdef NO_GPG
   return;
-# endif
+#endif
   if (!LoggedIn()) return;
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: launching achievement UI");
   game_services_->Achievements().ShowAllUI([](const gpg::UIStatus &status) {
@@ -336,8 +328,7 @@ void GPGManager::ShowAchievements() {
 }  // fpl
 
 #ifdef __ANDROID__
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
-{
+jint JNI_OnLoad(JavaVM *vm, void *reserved) {
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "main: JNI_OnLoad called");
 
   gpg::AndroidInitialization::JNI_OnLoad(vm);
@@ -346,15 +337,11 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 }
 
 extern "C" JNIEXPORT void JNICALL
-  Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnActivityResult(
-    JNIEnv *env,
-    jobject thiz,
-    jobject activity,
-    jint request_code,
-    jint result_code,
-    jobject data) {
-  gpg::AndroidSupport::OnActivityResult(
-      env, activity, request_code, result_code, data);
+Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnActivityResult(
+    JNIEnv *env, jobject thiz, jobject activity, jint request_code,
+    jint result_code, jobject data) {
+  gpg::AndroidSupport::OnActivityResult(env, activity, request_code,
+                                        result_code, data);
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG: nativeOnActivityResult");
 }
 #endif

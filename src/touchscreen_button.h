@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef TOUCHSCREEN_BUTTON_H
 #define TOUCHSCREEN_BUTTON_H
 
@@ -27,15 +26,13 @@
 namespace fpl {
 namespace pie_noon {
 
-class TouchscreenButton
-{
+class TouchscreenButton {
  public:
   TouchscreenButton();
 
-  void AdvanceFrame(WorldTime delta_time,
-                    InputSystem* input, vec2 window_size);
+  void AdvanceFrame(WorldTime delta_time, InputSystem* input, vec2 window_size);
 
-  //bool HandlePointer(Pointer pointer, vec2 window_size);
+  // bool HandlePointer(Pointer pointer, vec2 window_size);
   void Render(Renderer& renderer);
   void AdvanceFrame(WorldTime delta_time);
   ButtonId GetId() const;
@@ -44,7 +41,7 @@ class TouchscreenButton
 
   Button& button() { return button_; }
 
-  const std::vector<Material*> &up_materials() const { return up_materials_; }
+  const std::vector<Material*>& up_materials() const { return up_materials_; }
   void set_up_material(size_t i, Material* up_material) {
     assert(up_material);
     if (i >= up_materials_.size()) up_materials_.resize(i + 1);
@@ -56,7 +53,9 @@ class TouchscreenButton
   }
 
   Material* down_material() const { return down_material_; }
-  void set_down_material(Material* down_material) { down_material_ = down_material; }
+  void set_down_material(Material* down_material) {
+    down_material_ = down_material;
+  }
 
   mathfu::vec2 up_offset() const { return up_offset_; }
   void set_up_offset(mathfu::vec2 up_offset) { up_offset_ = up_offset; }
@@ -117,8 +116,7 @@ class TouchscreenButton
   float one_over_cannonical_window_height_;
 };
 
-class StaticImage
-{
+class StaticImage {
  public:
   StaticImage();
   void Initialize(const StaticImageDef& image_def,
@@ -132,7 +130,7 @@ class StaticImage
   const StaticImageDef* image_def() const { return image_def_; }
   const mathfu::vec2& scale() const { return scale_; }
   void set_scale(const mathfu::vec2& scale) { scale_ = scale; }
-  void set_current_material_index(int i) { current_material_index_ = i;}
+  void set_current_material_index(int i) { current_material_index_ = i; }
 
  private:
   // Flatbuffer's definition of this image.
@@ -159,4 +157,4 @@ class StaticImage
 }  // pie_noon
 }  // fpl
 
-#endif // TOUCHSCREEN_BUTTON_H
+#endif  // TOUCHSCREEN_BUTTON_H

@@ -78,12 +78,12 @@ enum {
 
 // Additional information stored for the pointer buttons.
 struct Pointer {
-    SDL_FingerID id;
-    vec2i mousepos;
-    vec2i mousedelta;
-    bool used;
+  SDL_FingerID id;
+  vec2i mousepos;
+  vec2i mousedelta;
+  bool used;
 
-    Pointer() : id(0), mousepos(-1), mousedelta(0), used(false) {};
+  Pointer() : id(0), mousepos(-1), mousedelta(0), used(false){};
 };
 
 // Used to record state for axes
@@ -96,8 +96,8 @@ class JoystickAxis {
   float PreviousValue() const { return previous_value_; }
 
  private:
-  float value_;  //current value
-  float previous_value_;  //value last update
+  float value_;  // current value
+  float previous_value_;  // value last update
 };
 
 // Used to record state for hats
@@ -105,20 +105,17 @@ class JoystickHat {
  public:
   JoystickHat() : value_(mathfu::kZeros2f), previous_value_(mathfu::kZeros2f) {}
   void AdvanceFrame() { previous_value_ = value_; }
-  void Update(const vec2 &new_value) {
-    value_ = new_value;
-  }
+  void Update(const vec2 &new_value) { value_ = new_value; }
   const vec2 &Value() const { return value_; }
   vec2 PreviousValue() const { return previous_value_; }
 
  private:
-  vec2 value_;  //current value
-  vec2 previous_value_;  //value last update
+  vec2 value_;  // current value
+  vec2 previous_value_;  // value last update
 };
 
 class Joystick {
  public:
-
   // Get a Button object for a pointer index.
   Button &GetButton(size_t button_index);
   JoystickAxis &GetAxis(size_t axis_index);
@@ -132,7 +129,7 @@ class Joystick {
   int GetNumHats() const;
 
  private:
-  SDL_Joystick* sdl_joystick_;
+  SDL_Joystick *sdl_joystick_;
   std::vector<JoystickAxis> axis_list_;
   std::vector<Button> button_list_;
   std::vector<JoystickHat> hat_list_;
@@ -156,14 +153,12 @@ class Gamepad {
     kControlCount
   };
 
-  Gamepad() {
-    button_list_.resize(Gamepad::kControlCount);
-  }
+  Gamepad() { button_list_.resize(Gamepad::kControlCount); }
 
   void AdvanceFrame();
   Button &GetButton(GamepadInputButton i);
   const Button &GetButton(GamepadInputButton i) const {
-    return const_cast<Gamepad*>(this)->GetButton(i);
+    return const_cast<Gamepad *>(this)->GetButton(i);
   }
 
   AndroidInputDeviceId controller_id() { return controller_id_; }
@@ -186,23 +181,28 @@ struct AndroidInputEvent {
   AndroidInputEvent() {}
   AndroidInputEvent(AndroidInputDeviceId device_id_, int event_code_,
                     int control_code_, float x_, float y_)
-    : device_id(device_id_),
-      event_code(event_code_),
-      control_code(control_code_),
-      x(x_),
-      y(y_){}
+      : device_id(device_id_),
+        event_code(event_code_),
+        control_code(control_code_),
+        x(x_),
+        y(y_) {}
   AndroidInputDeviceId device_id;
   int event_code;
   int control_code;
   float x, y;
 };
-#endif // ANDROID_GAMEPAD
+#endif  // ANDROID_GAMEPAD
 
 class InputSystem {
  public:
-  InputSystem() : exit_requested_(false), minimized_(false),
-      frame_time_(0), last_millis_(0), start_time_(0), frames_(0),
-      minimized_frame_(0) {
+  InputSystem()
+      : exit_requested_(false),
+        minimized_(false),
+        frame_time_(0),
+        last_millis_(0),
+        start_time_(0),
+        frames_(0),
+        minimized_frame_(0) {
     pointers_.assign(kMaxSimultanuousPointers, Pointer());
   }
 
@@ -243,14 +243,12 @@ class InputSystem {
   }
 
   // Receives events from java, and stuffs them into a vector until we're ready.
-  static void ReceiveGamepadEvent(int controller_id,
-                                  int event_code,
-                                  int control_code,
-                                  float x, float y);
+  static void ReceiveGamepadEvent(int controller_id, int event_code,
+                                  int control_code, float x, float y);
 
   // Runs through all the received events and processes them.
   void HandleGamepadEvents();
-#endif // ANDROID_GAMEPAD
+#endif  // ANDROID_GAMEPAD
 
   // Get a Button object for a pointer index.
   Button &GetPointerButton(SDL_FingerID pointer) {
@@ -262,8 +260,8 @@ class InputSystem {
   void UpdateConnectedJoystickList();
   void HandleJoystickEvent(SDL_Event event);
 
-  typedef std::function<void(SDL_Event*)> AppEventCallback;
-  std::vector<AppEventCallback>& app_event_callbacks() {
+  typedef std::function<void(SDL_Event *)> AppEventCallback;
+  std::vector<AppEventCallback> &app_event_callbacks() {
     return app_event_callbacks_;
   }
   void AddAppEventCallback(AppEventCallback callback);
@@ -272,7 +270,7 @@ class InputSystem {
   int frames() const { return frames_; }
 
  private:
-  std::vector<SDL_Joystick*> open_joystick_list;
+  std::vector<SDL_Joystick *> open_joystick_list;
   static int HandleAppEvents(void *userdata, SDL_Event *event);
   size_t FindPointer(SDL_FingerID id);
   size_t UpdateDragPosition(const SDL_TouchFingerEvent &e, uint32_t event_type,
@@ -294,7 +292,7 @@ class InputSystem {
   std::map<AndroidInputDeviceId, Gamepad> gamepad_map_;
   static pthread_mutex_t android_event_mutex;
   static std::queue<AndroidInputEvent> unhandled_java_input_events_;
-#endif // ANDROID_GAMEPAD
+#endif  // ANDROID_GAMEPAD
 
   // Most recent frame delta, in milliseconds.
   int frame_time_;

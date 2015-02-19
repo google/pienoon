@@ -23,7 +23,6 @@
 
 namespace impel {
 
-
 struct ImpelProcessorFunctions;
 
 // The engine holds all of the processors, and updates them all when
@@ -33,8 +32,7 @@ struct ImpelProcessorFunctions;
 // the processors, you start to get economies of scale.
 class ImpelEngine {
   struct ComparePriority {
-    bool operator()(const ImpelProcessor* lhs,
-                    const ImpelProcessor* rhs) {
+    bool operator()(const ImpelProcessor* lhs, const ImpelProcessor* rhs) {
       return lhs->Priority() < rhs->Priority();
     }
   };
@@ -67,7 +65,6 @@ class ImpelEngine {
   static FunctionMap function_map_;
 };
 
+}  // namespace impel
 
-} // namespace impel
-
-#endif // IMPEL_ENGINE_H_
+#endif  // IMPEL_ENGINE_H_

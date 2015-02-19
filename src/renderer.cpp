@@ -31,15 +31,15 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
 
   SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
 
-  // Force OpenGL ES 2 on mobile.
-  #ifdef PLATFORM_MOBILE
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  #else
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                        SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-  #endif
+// Force OpenGL ES 2 on mobile.
+#ifdef PLATFORM_MOBILE
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+#else
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                      SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+#endif
 
 #ifdef __ANDROID__
   // Setup HW scaler in Android
@@ -62,19 +62,17 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
 
   // Create the window:
   window_ = SDL_CreateWindow(
-    window_title,
-    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    window_size.x(), window_size.y(),
-    SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN |
-      #ifdef PLATFORM_MOBILE
-        SDL_WINDOW_BORDERLESS
-      #else
-        SDL_WINDOW_RESIZABLE
-        #ifndef _DEBUG
-          //| SDL_WINDOW_FULLSCREEN_DESKTOP
-        #endif
-      #endif
-    );
+      window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+      window_size.x(), window_size.y(), SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN |
+#ifdef PLATFORM_MOBILE
+                                            SDL_WINDOW_BORDERLESS
+#else
+                                            SDL_WINDOW_RESIZABLE
+#ifndef _DEBUG
+//| SDL_WINDOW_FULLSCREEN_DESKTOP
+#endif
+#endif
+      );
   if (!window_) {
     last_error_ = std::string("SDL_CreateWindow fail: ") + SDL_GetError();
     return false;
@@ -91,12 +89,12 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
     return false;
   }
 
-  // Enable Vsync on desktop
-  #ifndef PLATFORM_MOBILE
-    SDL_GL_SetSwapInterval(1);
-  #endif
+// Enable Vsync on desktop
+#ifndef PLATFORM_MOBILE
+  SDL_GL_SetSwapInterval(1);
+#endif
 
-  #ifndef PLATFORM_MOBILE
+#ifndef PLATFORM_MOBILE
   auto exts = (char *)glGetString(GL_EXTENSIONS);
 
   if (!strstr(exts, "GL_ARB_vertex_buffer_object") ||
@@ -107,25 +105,25 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
     return false;
   }
 
-  #endif
+#endif
 
-  #if !defined(PLATFORM_MOBILE) && !defined(__APPLE__)
-  #define GLEXT(type, name) \
-    union { \
-      void* data; \
-      type function; \
-    } data_function_union_##name; \
-    data_function_union_##name.data = SDL_GL_GetProcAddress(#name); \
-    if (!data_function_union_##name.data) { \
-      last_error_ = "could not retrieve GL function pointer " #name; \
-      return false; \
-    } \
-    name = data_function_union_##name.function;
-      GLBASEEXTS GLEXTS
-  #undef GLEXT
-  #endif
+#if !defined(PLATFORM_MOBILE) && !defined(__APPLE__)
+#define GLEXT(type, name)                                          \
+  union {                                                          \
+    void *data;                                                    \
+    type function;                                                 \
+  } data_function_union_##name;                                    \
+  data_function_union_##name.data = SDL_GL_GetProcAddress(#name);  \
+  if (!data_function_union_##name.data) {                          \
+    last_error_ = "could not retrieve GL function pointer " #name; \
+    return false;                                                  \
+  }                                                                \
+  name = data_function_union_##name.function;
+  GLBASEEXTS GLEXTS
+#undef GLEXT
+#endif
 
-  blend_mode_ = kBlendModeOff;
+      blend_mode_ = kBlendModeOff;
   return true;
 }
 
@@ -161,18 +159,18 @@ void Renderer::ShutDown() {
 }
 
 void Renderer::ClearFrameBuffer(const vec4 &color) {
-    GL_CALL(glClearColor(color.x(), color.y(), color.z(), color.w()));
-    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GL_CALL(glClearColor(color.x(), color.y(), color.z(), color.w()));
+  GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 GLuint Renderer::CompileShader(GLenum stage, GLuint program,
                                const GLchar *source) {
   std::string platform_source =
-  #ifdef PLATFORM_MOBILE
-    "#ifdef GL_ES\nprecision highp float;\n#endif\n";
-  #else
-    "#version 120\n#define lowp\n#define mediump\n#define highp\n";
-  #endif
+#ifdef PLATFORM_MOBILE
+      "#ifdef GL_ES\nprecision highp float;\n#endif\n";
+#else
+      "#version 120\n#define lowp\n#define mediump\n#define highp\n";
+#endif
   platform_source += source;
   const char *platform_source_ptr = platform_source.c_str();
   auto shader_obj = glCreateShader(stage);
@@ -200,16 +198,14 @@ Shader *Renderer::CompileAndLinkShader(const char *vs_source,
   if (vs) {
     auto ps = CompileShader(GL_FRAGMENT_SHADER, program, ps_source);
     if (ps) {
-      GL_CALL(glBindAttribLocation(program, Mesh::kAttributePosition,
-                                   "aPosition"));
-      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeNormal,
-                                   "aNormal"));
-      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeTangent,
-                                   "aTangent"));
-      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeTexCoord,
-                                   "aTexCoord"));
-      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeColor,
-                                   "aColor"));
+      GL_CALL(
+          glBindAttribLocation(program, Mesh::kAttributePosition, "aPosition"));
+      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeNormal, "aNormal"));
+      GL_CALL(
+          glBindAttribLocation(program, Mesh::kAttributeTangent, "aTangent"));
+      GL_CALL(
+          glBindAttribLocation(program, Mesh::kAttributeTexCoord, "aTexCoord"));
+      GL_CALL(glBindAttribLocation(program, Mesh::kAttributeColor, "aColor"));
       GL_CALL(glLinkProgram(program));
       GLint status;
       GL_CALL(glGetProgramiv(program, GL_LINK_STATUS, &status));
@@ -236,10 +232,8 @@ uint16_t *Renderer::Convert8888To5551(const uint8_t *buffer,
   auto buffer16 = new uint16_t[size.x() * size.y()];
   for (int i = 0; i < size.x() * size.y(); i++) {
     auto c = &buffer[i * 4];
-    buffer16[i] = ((c[0] >> 3) << 11) |
-                  ((c[1] >> 3) << 6) |
-                  ((c[2] >> 3) << 1) |
-                  ((c[3] >> 7) << 0);
+    buffer16[i] = ((c[0] >> 3) << 11) | ((c[1] >> 3) << 6) |
+                  ((c[2] >> 3) << 1) | ((c[3] >> 7) << 0);
   }
   return buffer16;
 }
@@ -248,9 +242,7 @@ uint16_t *Renderer::Convert888To565(const uint8_t *buffer, const vec2i &size) {
   auto buffer16 = new uint16_t[size.x() * size.y()];
   for (int i = 0; i < size.x() * size.y(); i++) {
     auto c = &buffer[i * 3];
-    buffer16[i] = ((c[0] >> 3) << 11) |
-                  ((c[1] >> 2) << 5) |
-                  ((c[2] >> 3) << 0);
+    buffer16[i] = ((c[0] >> 3) << 11) | ((c[1] >> 2) << 5) | ((c[2] >> 3) << 0);
   }
   return buffer16;
 }
@@ -260,8 +252,8 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
   int area = size.x() * size.y();
   if (area & (area - 1)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                 "CreateTexture: not power of two in size: (%d,%d)",
-                 size.x(), size.y());
+                 "CreateTexture: not power of two in size: (%d,%d)", size.x(),
+                 size.y());
     return 0;
   }
   // TODO: support default args for mipmap/wrap/trilinear
@@ -272,8 +264,9 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                          GL_LINEAR_MIPMAP_NEAREST/*GL_LINEAR_MIPMAP_LINEAR*/));
+  GL_CALL(
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_NEAREST /*GL_LINEAR_MIPMAP_LINEAR*/));
   if (desired == kFormatAuto) desired = has_alpha ? kFormat5551 : kFormat565;
   switch (desired) {
     case kFormat5551: {
@@ -322,7 +315,8 @@ GLuint Renderer::CreateTexture(const uint8_t *buffer, const vec2i &size,
                            0, GL_LUMINANCE, GL_UNSIGNED_BYTE, buffer));
       break;
     }
-    default: assert(0);
+    default:
+      assert(0);
   }
   GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
   return texture_id;
@@ -336,15 +330,15 @@ uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions,
     unsigned char bpp, image_descriptor;
   };
   static_assert(sizeof(TGA) == 18,
-    "Members of struct TGA need to be packed with no padding.");
+                "Members of struct TGA need to be packed with no padding.");
   int little_endian = 1;
   if (!*reinterpret_cast<char *>(&little_endian)) {
-    return nullptr; // TODO: endian swap the shorts instead
+    return nullptr;  // TODO: endian swap the shorts instead
   }
   auto header = reinterpret_cast<const TGA *>(tga_buf);
-  if (header->color_map_type != 0 // no color map
-   || header->image_type != 2 // RGB or RGBA only
-   || (header->bpp != 32 && header->bpp != 24))
+  if (header->color_map_type != 0  // no color map
+      || header->image_type != 2   // RGB or RGBA only
+      || (header->bpp != 32 && header->bpp != 24))
     return nullptr;
   auto pixels = reinterpret_cast<const unsigned char *>(header + 1);
   pixels += header->id_len;
@@ -356,7 +350,7 @@ uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions,
     start_y = 0;
     end_y = header->height;
     y_direction = 1;
-  } else {    // y is flipped.
+  } else {  // y is flipped.
     start_y = header->height - 1;
     end_y = -1;
     y_direction = -1;
@@ -364,7 +358,7 @@ uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions,
   for (int y = start_y; y != end_y; y += y_direction) {
     for (int x = 0; x < header->width; x++) {
       auto p = dest + (y * header->width + x) * header->bpp / 8;
-      p[2] = *pixels++;    // BGR -> RGB
+      p[2] = *pixels++;  // BGR -> RGB
       p[1] = *pixels++;
       p[0] = *pixels++;
       if (header->bpp == 32) p[3] = *pixels++;
@@ -378,8 +372,8 @@ uint8_t *Renderer::UnpackTGA(const void *tga_buf, vec2i *dimensions,
 uint8_t *Renderer::UnpackWebP(const void *webp_buf, size_t size,
                               vec2i *dimensions, bool *has_alpha) {
   WebPBitstreamFeatures features;
-  auto status = WebPGetFeatures(static_cast<const uint8_t *>(webp_buf), size,
-                                &features);
+  auto status =
+      WebPGetFeatures(static_cast<const uint8_t *>(webp_buf), size, &features);
   if (status != VP8_STATUS_OK) return nullptr;
   *has_alpha = features.has_alpha != 0;
   if (features.has_alpha) {
@@ -387,12 +381,11 @@ uint8_t *Renderer::UnpackWebP(const void *webp_buf, size_t size,
                           &dimensions->x(), &dimensions->y());
   } else {
     return WebPDecodeRGB(static_cast<const uint8_t *>(webp_buf), size,
-                          &dimensions->x(), &dimensions->y());
+                         &dimensions->x(), &dimensions->y());
   }
 }
 
-uint8_t *Renderer::LoadAndUnpackTexture(const char *filename,
-                                        vec2i *dimensions,
+uint8_t *Renderer::LoadAndUnpackTexture(const char *filename, vec2i *dimensions,
                                         bool *has_alpha) {
   std::string file;
   if (LoadFile(filename, &file)) {
@@ -409,14 +402,14 @@ uint8_t *Renderer::LoadAndUnpackTexture(const char *filename,
       return buf;
     } else {
       last_error() =
-        std::string("Can\'t figure out file type from extension: ") + filename;
+          std::string("Can\'t figure out file type from extension: ") +
+          filename;
       return nullptr;
     }
   }
   last_error() = std::string("Couldn\'t load: ") + filename;
   return nullptr;
 }
-
 
 void Renderer::DepthTest(bool on) {
   if (on) {
@@ -427,23 +420,22 @@ void Renderer::DepthTest(bool on) {
 }
 
 void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
-  if (blend_mode == blend_mode_)
-    return;
+  if (blend_mode == blend_mode_) return;
 
   // Disable current blend mode.
   switch (blend_mode_) {
     case kBlendModeOff:
       break;
     case kBlendModeTest:
-#     ifndef PLATFORM_MOBILE  // Alpha test not supported in ES 2.
+#ifndef PLATFORM_MOBILE  // Alpha test not supported in ES 2.
       GL_CALL(glDisable(GL_ALPHA_TEST));
       break;
-#     endif
+#endif
     case kBlendModeAlpha:
       GL_CALL(glDisable(GL_BLEND));
       break;
     default:
-      assert(false); // Not yet implemented
+      assert(false);  // Not yet implemented
       break;
   }
 
@@ -452,17 +444,17 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
     case kBlendModeOff:
       break;
     case kBlendModeTest:
-#     ifndef PLATFORM_MOBILE
+#ifndef PLATFORM_MOBILE
       GL_CALL(glEnable(GL_ALPHA_TEST));
       GL_CALL(glAlphaFunc(GL_GREATER, amount));
       break;
-#     endif
+#endif
     case kBlendModeAlpha:
       GL_CALL(glEnable(GL_BLEND));
       GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
       break;
     default:
-      assert(false); // Not yet implemented
+      assert(false);  // Not yet implemented
       break;
   }
 
@@ -481,21 +473,29 @@ void LogGLError(const char *file, int line, const char *call) {
   if (err == GL_NO_ERROR) return;
   const char *err_str = "<unknown error enum>";
   switch (err) {
-    case GL_INVALID_ENUM: err_str = "GL_INVALID_ENUM"; break;
-    case GL_INVALID_VALUE: err_str = "GL_INVALID_VALUE"; break;
-    case GL_INVALID_OPERATION: err_str = "GL_INVALID_OPERATION"; break;
+    case GL_INVALID_ENUM:
+      err_str = "GL_INVALID_ENUM";
+      break;
+    case GL_INVALID_VALUE:
+      err_str = "GL_INVALID_VALUE";
+      break;
+    case GL_INVALID_OPERATION:
+      err_str = "GL_INVALID_OPERATION";
+      break;
     case GL_INVALID_FRAMEBUFFER_OPERATION:
-      err_str = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
-    case GL_OUT_OF_MEMORY: err_str = "GL_OUT_OF_MEMORY"; break;
+      err_str = "GL_INVALID_FRAMEBUFFER_OPERATION";
+      break;
+    case GL_OUT_OF_MEMORY:
+      err_str = "GL_OUT_OF_MEMORY";
+      break;
   }
-  SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-               "%s(%d): OpenGL Error: %s from %s", file, line, err_str, call);
+  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "%s(%d): OpenGL Error: %s from %s", file,
+               line, err_str, call);
   assert(0);
 }
 
 #if !defined(PLATFORM_MOBILE) && !defined(__APPLE__)
-  #define GLEXT(type, name) type name = nullptr;
-    GLBASEEXTS GLEXTS
-  #undef GLEXT
+#define GLEXT(type, name) type name = nullptr;
+GLBASEEXTS GLEXTS
+#undef GLEXT
 #endif
-

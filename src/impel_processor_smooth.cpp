@@ -17,13 +17,11 @@
 #include "impel_engine.h"
 #include "impel_init.h"
 
-
 namespace impel {
 
 using fpl::CompactSpline;
 using fpl::BulkSplineEvaluator;
 using fpl::Range;
-
 
 // Add some buffer to the y-range to allow for intermediate nodes
 // that go above or below the supplied nodes.
@@ -32,12 +30,10 @@ static const float kDefaultTargetValue = 0.0f;
 static const float kDefaultTargetVelocity = 0.0f;
 static const float kDefaultTargetTime = 1000.0f;
 
-struct SmoothImpelData  {
+struct SmoothImpelData {
   SmoothImpelData() : local_spline(nullptr) {}
 
-  void Initialize(const SmoothImpelInit& init_param) {
-    init = init_param;
-  }
+  void Initialize(const SmoothImpelInit& init_param) { init = init_param; }
 
   // If we own the spline, recycle it in the spline pool.
   CompactSpline* local_spline;
@@ -45,7 +41,6 @@ struct SmoothImpelData  {
   // Keep a local copy of the init params.
   SmoothImpelInit init;
 };
-
 
 class SmoothImpelProcessor : public ImpelProcessor1f {
  public:
@@ -80,8 +75,7 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
   }
   virtual float Difference(ImpelIndex index) const {
     const SmoothImpelData& d = Data(index);
-    return d.init.Normalize(interpolator_.EndY(index) -
-                            interpolator_.Y(index));
+    return d.init.Normalize(interpolator_.EndY(index) - interpolator_.Y(index));
   }
   virtual float TargetTime(ImpelIndex index) const {
     return interpolator_.EndX(index);

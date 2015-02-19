@@ -34,7 +34,7 @@
 
 #ifdef ANDROID_GAMEPAD
 #include "gamepad_controller.h"
-#endif // ANDROID_GAMEPAD
+#endif  // ANDROID_GAMEPAD
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 #include "gpg_manager.h"
 #endif
@@ -86,19 +86,19 @@ class PieNoonGame {
   void TransitionToPieNoonState(PieNoonState next_state);
   PieNoonState UpdatePieNoonStateAndTransition();
   void FadeToPieNoonState(PieNoonState next_state, const WorldTime& fade_time,
-                        const mathfu::vec4& color, const bool fade_in);
+                          const mathfu::vec4& color, const bool fade_in);
   bool Fading() const { return fade_exit_state_ != kUninitialized; }
   void UploadEvents();
   void UploadAndShowLeaderboards();
   void UpdateGamepadControllers();
   int FindAiPlayer();
   ControllerId AddController(Controller* new_controller);
-  Controller * GetController(ControllerId id);
+  Controller* GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining(Controller* controller);
   void HandlePlayersJoining();
   PieNoonState HandleMenuButtons(WorldTime time);
-  //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
+  // void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
   pindrop::AudioEngine::ChannelId PlayStinger();
@@ -110,9 +110,9 @@ class PieNoonGame {
   void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
                               Material* material);
 
-  static int ReadPreference(const char *key, int initial_value,
+  static int ReadPreference(const char* key, int initial_value,
                             int failure_value);
-  static void WritePreference(const char *key, int value);
+  static void WritePreference(const char* key, int value);
 
   void CheckForNewAchievements();
 
@@ -211,18 +211,17 @@ class PieNoonGame {
   int next_achievement_index_;
 
   // String version number of the game.
-  const char *version_;
+  const char* version_;
 
   // The Worldtime when the game was paused, used just for analytics.
   WorldTime pause_time_;
 
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
-# endif
+#endif
 };
 
 }  // pie_noon
 }  // fpl
 
 #endif  // PIE_NOON_GAME_H
-

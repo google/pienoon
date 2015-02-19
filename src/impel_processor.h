@@ -20,14 +20,15 @@
 #include "fplutil/index_allocator.h"
 #include "impel_common.h"
 
-namespace fpl { class CompactSpline; }
+namespace fpl {
+class CompactSpline;
+}
 
 namespace impel {
 
 class Impeller;
 class ImpelEngine;
 class ImpelTarget1f;
-
 
 // ImpelProcessor
 // ==============
@@ -56,10 +57,8 @@ class ImpelTarget1f;
 //
 class ImpelProcessor {
  public:
-  ImpelProcessor() :
-      allocator_callbacks_(this),
-      index_allocator_(allocator_callbacks_) {
-  }
+  ImpelProcessor()
+      : allocator_callbacks_(this), index_allocator_(allocator_callbacks_) {}
   virtual ~ImpelProcessor();
 
   // Instantiate impeller data inside the ImpelProcessor, and initialize
@@ -134,14 +133,12 @@ class ImpelProcessor {
   // When an index is moved, the Impeller that references that index is updated.
   // Can be called at the discretion of your ImpelProcessor, but normally called
   // at the beginning of your ImpelProcessor::AdvanceFrame.
-  void Defragment() {
-    index_allocator_.Defragment();
-  }
+  void Defragment() { index_allocator_.Defragment(); }
 
  private:
   // Proxy callbacks from IndexAllocator into ImpelProcessor.
-  class AllocatorCallbacks :
-      public fpl::IndexAllocator<ImpelIndex>::CallbackInterface {
+  class AllocatorCallbacks
+      : public fpl::IndexAllocator<ImpelIndex>::CallbackInterface {
    public:
     AllocatorCallbacks(ImpelProcessor* processor) : processor_(processor) {}
     virtual void SetNumIndices(ImpelIndex num_indices) {
@@ -150,6 +147,7 @@ class ImpelProcessor {
     virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
       processor_->MoveIndexBase(old_index, new_index);
     }
+
    private:
     ImpelProcessor* processor_;
   };
@@ -177,7 +175,6 @@ class ImpelProcessor {
   fpl::IndexAllocator<ImpelIndex> index_allocator_;
 };
 
-
 // Interface for impeller types that drive a single float value.
 // That is, for ImpelProcessors that interface with Impeller1f's.
 class ImpelProcessor1f : public ImpelProcessor {
@@ -199,7 +196,6 @@ class ImpelProcessor1f : public ImpelProcessor {
                             const fpl::CompactSpline& /*waypoints*/,
                             float /*start_time*/) {}
 };
-
 
 // Interface for impeller types that drive a 4x4 float matrix.
 // That is, for ImpelProcessors that interface with ImpellerMatrix4f's.
@@ -227,15 +223,13 @@ class ImpelProcessorMatrix4f : public ImpelProcessor {
   virtual void SetChildValue1f(ImpelIndex /*index*/,
                                ImpelChildIndex /*child_index*/,
                                float /*value*/) {}
-  virtual void SetChildValue3f(ImpelIndex index,
-                               ImpelChildIndex child_index,
+  virtual void SetChildValue3f(ImpelIndex index, ImpelChildIndex child_index,
                                const mathfu::vec3& value) {
     for (int i = 0; i < 3; ++i) {
       SetChildValue1f(index, child_index + i, value[i]);
     }
   }
 };
-
 
 // Static functions in ImpelProcessor-derived classes.
 typedef ImpelProcessor* ImpelProcessorCreateFn();
@@ -247,11 +241,9 @@ struct ImpelProcessorFunctions {
 
   ImpelProcessorFunctions(ImpelProcessorCreateFn* create,
                           ImpelProcessorDestroyFn* destroy)
-      : create(create), destroy(destroy) {
-  }
+      : create(create), destroy(destroy) {}
 };
 
+}  // namespace impel
 
-} // namespace impel
-
-#endif // IMPEL_PROCESSOR_H_
+#endif  // IMPEL_PROCESSOR_H_

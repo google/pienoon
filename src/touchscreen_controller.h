@@ -59,4 +59,3 @@ class TouchscreenController : public Controller {
 }  // fpl
 
 #endif  // TOUCHSCREEN_CONTROLLER_H_
-

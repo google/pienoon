@@ -20,13 +20,11 @@
 
 namespace impel {
 
-
 enum TwitchDirection {
-  kTwitchDirectionNone,        // Do nothing.
-  kTwitchDirectionPositive,    // Give the velocity a positive boost.
-  kTwitchDirectionNegative     // Give the velocity a negative boost.
+  kTwitchDirectionNone,      // Do nothing.
+  kTwitchDirectionPositive,  // Give the velocity a positive boost.
+  kTwitchDirectionNegative   // Give the velocity a negative boost.
 };
-
 
 // Helper to determine if we're "at the target" and "stopped".
 struct Settled1f {
@@ -48,7 +46,6 @@ struct Settled1f {
   }
 };
 
-
 inline void Twitch(TwitchDirection direction, float velocity,
                    const Settled1f& settled, Impeller1f* impeller) {
   if (direction != kTwitchDirectionNone && settled.Settled(*impeller)) {
@@ -58,8 +55,6 @@ inline void Twitch(TwitchDirection direction, float velocity,
   }
 }
 
+}  // namespace impel
 
-} // namespace impel
-
-#endif // IMPEL_UTIL_H_
-
+#endif  // IMPEL_UTIL_H_

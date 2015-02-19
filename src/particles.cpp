@@ -1,6 +1,5 @@
 #include "particles.h"
 
-
 namespace fpl {
 namespace pie_noon {
 
@@ -14,7 +13,7 @@ void Particle::reset() {
   rotational_velocity_ = mathfu::vec3(0, 0, 0);
   base_scale_ = mathfu::vec3(1, 1, 1);
   base_tint_ = mathfu::vec4(1, 1, 1, 1);
-  duration_= 0;
+  duration_ = 0;
   age_ = 0;
   duration_of_fade_out_ = 0;
   duration_of_shrink_out_ = 0;
@@ -28,7 +27,7 @@ mathfu::mat4 Particle::CalculateMatrix() const {
 
 mathfu::vec3 Particle::CurrentPosition() const {
   return base_position_ + (base_velocity_ * age_) +
-      (acceleration_ / 2.0) * age_ * age_;
+         (acceleration_ / 2.0) * age_ * age_;
 }
 
 mathfu::vec3 Particle::CurrentVelocity() const {
@@ -36,13 +35,10 @@ mathfu::vec3 Particle::CurrentVelocity() const {
 }
 
 Quat Particle::CurrentOrientation() const {
-  return Quat::FromEulerAngles(base_orientation_ +
-                               rotational_velocity_ * age_);
+  return Quat::FromEulerAngles(base_orientation_ + rotational_velocity_ * age_);
 }
 
-TimeStep Particle::DurationRemaining() const {
-  return duration_ - age_;
-}
+TimeStep Particle::DurationRemaining() const { return duration_ - age_; }
 
 void Particle::SetDurationRemaining(TimeStep duration) {
   duration_ = age_ + duration;
@@ -51,29 +47,25 @@ void Particle::SetDurationRemaining(TimeStep duration) {
 // Returns the current tint, after taking particle effects into account.
 mathfu::vec4 Particle::CurrentTint() const {
   return base_tint_ *
-      (((duration_ - age_) < duration_of_fade_out_) ?
-      (float)(duration_ - age_) / (float)duration_of_fade_out_ :
-      1.0f);
+         (((duration_ - age_) < duration_of_fade_out_)
+              ? (float)(duration_ - age_) / (float)duration_of_fade_out_
+              : 1.0f);
 }
 
-void Particle::AdvanceFrame(TimeStep delta_time) {
-  age_ += delta_time;
-}
+void Particle::AdvanceFrame(TimeStep delta_time) { age_ += delta_time; }
 
-bool Particle::IsFinished() const {
-  return age_ >= duration_;
-}
+bool Particle::IsFinished() const { return age_ >= duration_; }
 
 // Returns the current tint, after taking particle effects into account.
 mathfu::vec3 Particle::CurrentScale() const {
   return base_scale_ *
-      (((duration_ - age_) < duration_of_shrink_out_) ?
-      (float)(duration_ - age_) / (float)duration_of_shrink_out_ :
-      1.0f);
+         (((duration_ - age_) < duration_of_shrink_out_)
+              ? (float)(duration_ - age_) / (float)duration_of_shrink_out_
+              : 1.0f);
 }
 
 void ParticleManager::AdvanceFrame(TimeStep delta_time) {
-  for (auto it = particle_list_.begin(); it != particle_list_.end(); ) {
+  for (auto it = particle_list_.begin(); it != particle_list_.end();) {
     (*it)->AdvanceFrame(delta_time);
     if ((*it)->IsFinished()) {
       inactive_particle_list_.push_back(*it);
@@ -101,12 +93,11 @@ Particle* ParticleManager::CreateParticle() {
 }
 
 void ParticleManager::RemoveAllParticles() {
-  for (auto it = particle_list_.begin(); it != particle_list_.end(); ) {
-      inactive_particle_list_.push_back(*it);
-      it = particle_list_.erase(it);
+  for (auto it = particle_list_.begin(); it != particle_list_.end();) {
+    inactive_particle_list_.push_back(*it);
+    it = particle_list_.erase(it);
   }
 }
-
 
 }  // pie_noon
 }  // fpl

@@ -18,19 +18,19 @@ using mathfu::Lerp;
 
 namespace fpl {
 
-
 static const float kMaxSteepness = 4.0f;
 static const float kMinMidPercent = 0.1f;
 static const float kMaxMidPercent = 1.0f - kMinMidPercent;
-
 
 // One node of a spline that specifies both first and second derivatives.
 // Only used internally.
 struct SplineControlNode {
   SplineControlNode(const float x, const float y, const float derivative,
-                    const float second_derivative = 0.0f) :
-      x(x), y(y), derivative(derivative), second_derivative(second_derivative) {
-  }
+                    const float second_derivative = 0.0f)
+      : x(x),
+        y(y),
+        derivative(derivative),
+        second_derivative(second_derivative) {}
 
   float x;
   float y;
@@ -40,10 +40,8 @@ struct SplineControlNode {
 
 static const Range kZeroToOne(0.0f, 1.0f);
 
-
 static QuadraticCurve CalculateValidMidRangeSplineForStart(
     const SplineControlNode& start, const SplineControlNode& end) {
-
   const float yd = end.y - start.y;
   const float sd = end.derivative - start.derivative;
   const float wd = end.second_derivative - start.second_derivative;
@@ -54,14 +52,13 @@ static QuadraticCurve CalculateValidMidRangeSplineForStart(
 
   // r_g(k) = wd * k^2  +  (4*sd - w0 - 2w1)k  +  6yd - 2s0 - 4s1 + w1
   const float c2 = wd;
-  const float c1 = 4*sd - w0 - 2*w1;
-  const float c0 = 6*yd - 2*s0 - 4*s1 + w1;
+  const float c1 = 4 * sd - w0 - 2 * w1;
+  const float c0 = 6 * yd - 2 * s0 - 4 * s1 + w1;
   return QuadraticCurve(c2, c1, c0);
 }
 
 static QuadraticCurve CalculateValidMidRangeSplineForEnd(
     const SplineControlNode& start, const SplineControlNode& end) {
-
   const float yd = end.y - start.y;
   const float sd = end.derivative - start.derivative;
   const float wd = end.second_derivative - start.second_derivative;
@@ -70,8 +67,8 @@ static QuadraticCurve CalculateValidMidRangeSplineForEnd(
 
   // r_g(k) = -wd * k^2  +  (-4*sd + 3w1)k  -  6yd + 6s1 - 2w1
   const float c2 = -wd;
-  const float c1 = -4*sd + 3*w1;
-  const float c0 = -6*yd + 6*s1 - 2*w1;
+  const float c1 = -4 * sd + 3 * w1;
+  const float c0 = -6 * yd + 6 * s1 - 2 * w1;
   return QuadraticCurve(c2, c1, c0);
 }
 
@@ -91,8 +88,7 @@ static Range CalculateValidMidRange(const SplineControlNode& start,
   std::vector<Range> end_ranges;
   start_spline.RangesMatchingSign(kZeroToOne, start.second_derivative,
                                   &start_ranges);
-  end_spline.RangesMatchingSign(kZeroToOne, end.second_derivative,
-                                &end_ranges);
+  end_spline.RangesMatchingSign(kZeroToOne, end.second_derivative, &end_ranges);
 
   // Find the valid overlapping ranges, or the gaps inbetween the ranges.
   std::vector<Range> intersections;
@@ -106,10 +102,10 @@ static Range CalculateValidMidRange(const SplineControlNode& start,
 
   // Take the largest overlapping range. If none, find the smallest gap
   // between the ranges.
-  return intersections.size() > 0 ?
-         intersections[Range::IndexOfLongest(intersections)] :
-         gaps.size() > 0 ? gaps[Range::IndexOfShortest(gaps)] :
-         kZeroToOne;
+  return intersections.size() > 0
+             ? intersections[Range::IndexOfLongest(intersections)]
+             : gaps.size() > 0 ? gaps[Range::IndexOfShortest(gaps)]
+                               : kZeroToOne;
 }
 
 static float CalculateMidPercent(const SplineControlNode& start,
@@ -126,8 +122,8 @@ static float CalculateMidPercent(const SplineControlNode& start,
   // Clamp away from 0 and 1. The math requires the mid node to be strictly
   // between 0 and 1. If we get to close to 0 or 1, some divisions are going to
   // explode and we'll lose numerical precision.
-  const float mid = mathfu::Clamp(mid_unclamped, kMinMidPercent,
-                                  kMaxMidPercent);
+  const float mid =
+      mathfu::Clamp(mid_unclamped, kMinMidPercent, kMaxMidPercent);
   return mid;
 }
 
@@ -149,15 +145,15 @@ static SplineControlNode CalculateMidNode(const SplineControlNode& start,
   const float s_diff = end.derivative - start.derivative;
   const float derivative_k = Lerp(end.derivative, start.derivative, k);
   const float y_k = Lerp(start.y, end.y, k);
-  const float second_k = Lerp(end.second_derivative,
-                              start.second_derivative, k);
+  const float second_k =
+      Lerp(end.second_derivative, start.second_derivative, k);
   const float j = 1.0f - k;
-  const float second_k_squared = k * k * start.second_derivative -
-                                 j * j * end.second_derivative;
+  const float second_k_squared =
+      k * k * start.second_derivative - j * j * end.second_derivative;
 
   const float s = 3.0f * y_diff - 2.0f * derivative_k - 0.5f * second_k_squared;
-  const float y = y_k + k * j * (-2.0f / 3.0f * s_diff +
-                                  1.0f / 6.0f * second_k);
+  const float y =
+      y_k + k * j * (-2.0f / 3.0f * s_diff + 1.0f / 6.0f * second_k);
   const float x = Lerp(start.x, end.x, k);
 
   return SplineControlNode(x, y, s, 0.0f);
@@ -170,8 +166,9 @@ static float ExtremeSecondDerivativeForStart(const SplineControlNode& start,
   const float y_diff = end.y - start.y;
   const float s_diff = end.derivative - start.derivative;
   const float k = mid_percent;
-  const float extreme_second = s_diff + (1.0f / k) *
-      (3.0f * y_diff - 2.0f * start.derivative - end.derivative);
+  const float extreme_second =
+      s_diff +
+      (1.0f / k) * (3.0f * y_diff - 2.0f * start.derivative - end.derivative);
   return extreme_second;
 }
 
@@ -182,7 +179,8 @@ static float ExtremeSecondDerivativeForEnd(const SplineControlNode& start,
   const float y_diff = end.y - start.y;
   const float s_diff = end.derivative - start.derivative;
   const float k = mid_percent;
-  const float extreme_second = (1.0f / (k - 1.0f)) *
+  const float extreme_second =
+      (1.0f / (k - 1.0f)) *
       (s_diff * k + 3.0f * y_diff - 3.0f * end.derivative);
   return extreme_second;
 }
@@ -191,7 +189,7 @@ static float ExtremeSecondDerivativeForEnd(const SplineControlNode& start,
 static inline float Log2(const float x) {
 #ifdef __ANDROID__
   static const float kOneOverLog2 = 3.32192809489f;
-  return log(x) * kOneOverLog2; // log2(x) = log(x) / log(2)
+  return log(x) * kOneOverLog2;  // log2(x) = log(x) / log(2)
 #else
   return log2(x);
 #endif
@@ -218,8 +216,8 @@ static float ApproximateMidPercent(const SplineControlNode& start,
   // We skew the mid percent towards the steeper side.
   // If equally steep, the mid percent is right in the middle: 0.5.
   const bool start_is_steeper = start_steepness >= end_steepness;
-  const float extreme_percent = start_is_steeper ?
-                                kMinMidPercent : kMaxMidPercent;
+  const float extreme_percent =
+      start_is_steeper ? kMinMidPercent : kMaxMidPercent;
   const float mid_percent = Lerp(0.5f, extreme_percent, percent_extreme);
 
   // Later, when we calculate the second derivatives, we want to skew to the
@@ -230,22 +228,20 @@ static float ApproximateMidPercent(const SplineControlNode& start,
   return mid_percent;
 }
 
-void CalculateDualCubicMidNode(const CubicInit& init, float *x, float *y,
-                               float *derivative) {
+void CalculateDualCubicMidNode(const CubicInit& init, float* x, float* y,
+                               float* derivative) {
   // The initial y and derivative values of our node are given by the
   // 'init' control nodes. We scale to x from 0~1, because all of our math
   // assumes x on this domain.
   SplineControlNode start(0.0f, init.start_y,
                           init.start_derivative * init.width_x);
-  SplineControlNode end(1.0f, init.end_y,
-                        init.end_derivative * init.width_x);
+  SplineControlNode end(1.0f, init.end_y, init.end_derivative * init.width_x);
 
   // Use a heuristic to guess a reasonably close place to split the cubic into
   // two cubics.
   float start_percent, end_percent;
-  const float approx_mid_percent = ApproximateMidPercent(start, end,
-                                                         &start_percent,
-                                                         &end_percent);
+  const float approx_mid_percent =
+      ApproximateMidPercent(start, end, &start_percent, &end_percent);
 
   // Given the start and end conditions and the place to split the cubic,
   // find the extreme second derivatives for start and end curves. See the
@@ -275,6 +271,4 @@ void CalculateDualCubicMidNode(const CubicInit& init, float *x, float *y,
   *derivative = mid.derivative / init.width_x;
 }
 
-} // namespace fpl
-
-
+}  // namespace fpl

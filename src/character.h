@@ -26,7 +26,7 @@
 #include "timeline_generated.h"
 
 namespace impel {
-  class ImpelEngine;
+class ImpelEngine;
 }  // impel
 
 namespace fpl {
@@ -48,11 +48,7 @@ enum PlayerStats {
   kMaxStats
 };
 
-enum VictoryState {
-  kResultUnknown,
-  kVictorious,
-  kFailure
-};
+enum VictoryState { kResultUnknown, kVictorious, kFailure };
 
 // The current state of the character. This class tracks information external
 // to the state machine, like health.
@@ -64,9 +60,8 @@ class Character {
             const CharacterStateMachineDef* character_state_machine_def);
 
   // Resets the character to the start-of-game state.
-  void Reset(CharacterId target, CharacterHealth health,
-             Angle face_angle, const mathfu::vec3& position,
-             impel::ImpelEngine* impel_engine);
+  void Reset(CharacterId target, CharacterHealth health, Angle face_angle,
+             const mathfu::vec3& position, impel::ImpelEngine* impel_engine);
 
   // Fake a reaction to input by making the character's face angle
   // jitter slightly in the requested direction. Does not change the
@@ -95,15 +90,11 @@ class Character {
     return static_cast<uint16_t>(state_machine_.current_state()->id());
   }
 
-  uint16_t state_last_update() const {
-    return state_last_update_;
-  }
+  uint16_t state_last_update() const { return state_last_update_; }
 
   // Saves off whatever our current state is.  Should be called once per frame,
   // just before (potentially) modifying the state.
-  void UpdatePreviousState() {
-    state_last_update_ = State();
-  }
+  void UpdatePreviousState() { state_last_update_ = State(); }
 
   // Returns true if the character is still in the game.
   bool Active() const { return State() != StateId_KO; }
@@ -128,14 +119,12 @@ class Character {
   Controller* controller() { return controller_; }
   void set_controller(Controller* controller) { controller_ = controller; }
 
-  const CharacterStateMachine* state_machine() const {
-    return &state_machine_;
-  }
+  const CharacterStateMachine* state_machine() const { return &state_machine_; }
 
   CharacterStateMachine* state_machine() { return &state_machine_; }
 
   void IncrementStat(PlayerStats stat);
-  uint64_t &GetStat(PlayerStats stat) { return player_stats_[stat]; }
+  uint64_t& GetStat(PlayerStats stat) { return player_stats_[stat]; }
 
   void set_score(int score) { score_ = score; }
   int score() { return score_; }
@@ -196,7 +185,6 @@ class Character {
 
   // What state the character was in last update.
   uint16_t state_last_update_;
-
 };
 
 class AirbornePie {
@@ -235,44 +223,38 @@ class AirbornePie {
   mathfu::vec3 position_;
 };
 
-
 // Return index of first item with time >= t.
 // T is a flatbuffer::Vector; one of the Timeline members.
-template<class T>
-inline int TimelineIndexAfterTime(
-    const T& arr, const int start_index, const WorldTime t) {
-  if (!arr)
-    return 0;
+template <class T>
+inline int TimelineIndexAfterTime(const T& arr, const int start_index,
+                                  const WorldTime t) {
+  if (!arr) return 0;
 
   for (int i = start_index; i < static_cast<int>(arr->Length()); ++i) {
-    if (arr->Get(i)->time() >= t)
-      return i;
+    if (arr->Get(i)->time() >= t) return i;
   }
   return arr->Length();
 }
 
 // Return index of last item with time <= t.
 // T is a flatbuffer::Vector; one of the Timeline members.
-template<class T>
+template <class T>
 inline int TimelineIndexBeforeTime(const T& arr, const WorldTime t) {
-  if (!arr || arr->Length() == 0)
-    return 0;
+  if (!arr || arr->Length() == 0) return 0;
 
   for (int i = 1; i < static_cast<int>(arr->Length()); ++i) {
-    if (arr->Get(i)->time() > t)
-      return i - 1;
+    if (arr->Get(i)->time() > t) return i - 1;
   }
   return arr->Length() - 1;
 }
 
 // Return array of indices with time <= t < end_time.
 // T is a flatbuffer::Vector; one of the Timeline members.
-template<class T>
+template <class T>
 inline std::vector<int> TimelineIndicesWithTime(const T& arr,
                                                 const WorldTime t) {
   std::vector<int> ret;
-  if (!arr)
-    return ret;
+  if (!arr) return ret;
 
   for (int i = 0; i < static_cast<int>(arr->Length()); ++i) {
     const float end_time = arr->Get(i)->end_time();

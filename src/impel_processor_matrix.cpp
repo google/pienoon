@@ -18,7 +18,6 @@
 #include "impel_init.h"
 #include "angle.h"
 
-
 using mathfu::vec4;
 using mathfu::mat4;
 using fpl::Angle;
@@ -29,7 +28,6 @@ static const vec4 kIdentityColumn0(1.0f, 0.0f, 0.0f, 0.0f);
 static const vec4 kIdentityColumn1(0.0f, 1.0f, 0.0f, 0.0f);
 static const vec4 kIdentityColumn2(0.0f, 0.0f, 1.0f, 0.0f);
 static const vec4 kIdentityColumn3(0.0f, 0.0f, 0.0f, 1.0f);
-
 
 static inline bool IsRotation(MatrixOperationType type) {
   return type <= kRotateAboutZ;
@@ -46,14 +44,14 @@ class MatrixOperation {
   }
 
   MatrixOperation(const MatrixOperationInit& init, ImpelEngine* engine) {
-    (void)init; (void)engine;
-    const AnimationType animation_type = init.init == nullptr
-                                       ? kConstValueAnimation
-                                       : kImpellerAnimation;
+    (void)init;
+    (void)engine;
+    const AnimationType animation_type =
+        init.init == nullptr ? kConstValueAnimation : kImpellerAnimation;
     SetType(init.type);
     SetAnimationType(animation_type);
 
-    switch(animation_type) {
+    switch (animation_type) {
       case kImpellerAnimation: {
         // Manually construct the impeller in the union, since the constructor
         // was never called on it. The union disables construction and we
@@ -96,8 +94,8 @@ class MatrixOperation {
 
   // Return the value we are animating.
   float Value() const {
-    return animation_type_ == kImpellerAnimation
-         ? value_.impeller.Value() : value_.const_value;
+    return animation_type_ == kImpellerAnimation ? value_.impeller.Value()
+                                                 : value_.const_value;
   }
 
   // Return the child impeller if it is valid. Otherwise, return nullptr.
@@ -158,7 +156,6 @@ class MatrixOperation {
   AnimatedValue value_;
 };
 
-
 // Perform a matrix rotation about
 static inline void RotateAboutAxis(const float angle, vec4* column0,
                                    vec4* column1) {
@@ -178,8 +175,8 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
 // caused by pointer chasing. The 'ops_[]' array is actually of length
 // 'num_ops_'. Each item in 'ops_' is one matrix operation.
 //
-class MatrixImpelData  {
-  MatrixImpelData() {} // Use Create() to create this class.
+class MatrixImpelData {
+  MatrixImpelData() {}  // Use Create() to create this class.
  public:
   ~MatrixImpelData() { Destroy(this); }
 
@@ -316,7 +313,6 @@ class MatrixImpelData  {
   MatrixOperation ops_[1];
 };
 
-
 // See comments on MatrixImpelInit for details on this class.
 class MatrixImpelProcessor : public ImpelProcessorMatrix4f {
  public:
@@ -405,7 +401,4 @@ class MatrixImpelProcessor : public ImpelProcessorMatrix4f {
 
 IMPEL_INSTANCE(MatrixImpelInit, MatrixImpelProcessor);
 
-
-} // namespace impel
-
-
+}  // namespace impel

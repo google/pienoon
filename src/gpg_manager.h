@@ -20,14 +20,9 @@
 #include "gpg/achievement_manager.h"
 #include "gpg/types.h"
 
-
 namespace fpl {
 
-enum RequestState {
-  kPending,
-  kComplete,
-  kFailed
-};
+enum RequestState { kPending, kComplete, kFailed };
 
 struct GPGKeyValuePair {
   std::string id;
@@ -51,7 +46,9 @@ class GPGManager {
   // Logged in status, can be shown in UI.
   bool LoggedIn();
 
-  struct GPGIds { const char *leaderboard, *event; };
+  struct GPGIds {
+    const char *leaderboard, *event;
+  };
 
   // Request this stat to be saved for the logged in
   // player. Does nothing if not logged in.
@@ -63,17 +60,13 @@ class GPGManager {
   // Asynchronously fetches the stats associated with the current player
   // from the server.  (Does nothing if not logged in.)
   // The status of the data can be checked via event_data_state.
-  //const char* fields[]
+  // const char* fields[]
   void FetchEvents();
   void FetchAchievements();
 
-  RequestState event_data_state() const {
-    return event_data_state_;
-  }
+  RequestState event_data_state() const { return event_data_state_; }
 
-  std::map<std::string, gpg::Event> &event_data() {
-    return event_data_;
-  }
+  std::map<std::string, gpg::Event> &event_data() { return event_data_; }
 
   uint64_t GetEventValue(std::string event_id);
   bool IsAchievementUnlocked(std::string achievement_id);

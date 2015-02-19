@@ -86,16 +86,14 @@ void Character::TwitchFaceAngle(impel::TwitchDirection twitch) {
 uint16_t Character::RenderableId(WorldTime anim_time) const {
   // The timeline for the current state has an array of renderable ids.
   const Timeline* timeline = state_machine_.current_state()->timeline();
-  if (!timeline || !timeline->renderables())
-    return RenderableId_Invalid;
+  if (!timeline || !timeline->renderables()) return RenderableId_Invalid;
 
   // Grab the TimelineRenderable for 'anim_time', from the timeline.
   const int renderable_index =
       TimelineIndexBeforeTime(timeline->renderables(), anim_time);
   const TimelineRenderable* renderable =
       timeline->renderables()->Get(renderable_index);
-  if (!renderable)
-    return RenderableId_Invalid;
+  if (!renderable) return RenderableId_Invalid;
 
   // Return the renderable id for 'anim_time'.
   return renderable->renderable();
@@ -103,21 +101,19 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 
 mathfu::vec4 Character::Color() const {
   const bool ai = controller_->controller_type() == Controller::kTypeAI;
-  const vec3 color = ai ? LoadVec3(config_->ai_color()) :
-                     Lerp(mathfu::kOnes3f,
-                          LoadVec3(config_->character_colors()->Get(id_)),
-                          1.0f / config_->character_global_brightness_factor());
+  const vec3 color =
+      ai ? LoadVec3(config_->ai_color())
+         : Lerp(mathfu::kOnes3f,
+                LoadVec3(config_->character_colors()->Get(id_)),
+                1.0f / config_->character_global_brightness_factor());
   return vec4(color, 1.0);
 }
 
-void Character::IncrementStat(PlayerStats stat) {
-  player_stats_[stat]++;
-}
+void Character::IncrementStat(PlayerStats stat) { player_stats_[stat]++; }
 
 void Character::ResetStats() {
   for (int i = 0; i < kMaxStats; i++) player_stats_[i] = 0;
 }
-
 
 // orientation_ and position_ are set each frame in GameState::Advance.
 AirbornePie::AirbornePie(CharacterId original_source, CharacterId source,
@@ -134,18 +130,15 @@ AirbornePie::AirbornePie(CharacterId original_source, CharacterId source,
       height_(height),
       rotations_(rotations),
       orientation_(0.0f, 0.0f, 1.0f, 0.0f),
-      position_(0.0f) {
-}
+      position_(0.0f) {}
 
 mat4 AirbornePie::CalculateMatrix() const {
   return mat4::FromTranslationVector(position_) *
          mat4::FromRotationMatrix(orientation_.ToMatrix());
 }
 
-void ApplyScoringRule(const ScoringRules* scoring_rules,
-                      ScoreEvent event,
-                      unsigned int damage,
-                      Character* character) {
+void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,
+                      unsigned int damage, Character* character) {
   const auto* rule = scoring_rules->rules()->Get(event);
   switch (rule->reward_type()) {
     case RewardType_None: {
@@ -153,37 +146,29 @@ void ApplyScoringRule(const ScoringRules* scoring_rules,
     }
     case RewardType_AddDamage: {
       character->set_score(character->score() + damage);
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "Player %i got %i %s!\n",
-                  character->id(),
-                  damage,
-                  damage == 1 ? "point" : "points");
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i got %i %s!\n",
+                  character->id(), damage, damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_SubtractDamage: {
       character->set_score(character->score() - damage);
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "Player %i lost %i %s!\n",
-                  character->id(),
-                  damage,
-                  damage == 1 ? "point" : "points");
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i lost %i %s!\n",
+                  character->id(), damage, damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_AddPointValue: {
       character->set_score(character->score() + rule->point_value());
       if (rule->point_value()) {
         int points = rule->point_value();
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Player %i %s %i %s!\n", character->id(),
-                    points > 0 ? "got" : "lost",
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i %s %i %s!\n",
+                    character->id(), points > 0 ? "got" : "lost",
                     std::abs(points),
-                    std::abs(points) == 1? "point" : "points");
+                    std::abs(points) == 1 ? "point" : "points");
       }
       break;
     }
   }
-
 }
 
-} //  namespace fpl
-} //  namespace pie_noon
+}  //  namespace fpl
+}  //  namespace pie_noon
