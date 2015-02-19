@@ -84,28 +84,28 @@ static Range CalculateValidMidRange(const SplineControlNode& start,
 
   // The mid node is valid when the quadratic sign matches the second
   // derivative's sign.
-  std::vector<Range> start_ranges;
-  std::vector<Range> end_ranges;
+  Range::RangeArray<2> start_ranges;
+  Range::RangeArray<2> end_ranges;
   start_spline.RangesMatchingSign(kZeroToOne, start.second_derivative,
                                   &start_ranges);
   end_spline.RangesMatchingSign(kZeroToOne, end.second_derivative, &end_ranges);
 
   // Find the valid overlapping ranges, or the gaps inbetween the ranges.
-  std::vector<Range> intersections;
-  std::vector<Range> gaps;
+  Range::RangeArray<4> intersections;
+  Range::RangeArray<4> gaps;
   Range::IntersectRanges(start_ranges, end_ranges, &intersections, &gaps);
 
   // The mid-node is valid only if there is an overlapping range.
   if (is_valid != nullptr) {
-    *is_valid = intersections.size() > 0;
+    *is_valid = intersections.len > 0;
   }
 
   // Take the largest overlapping range. If none, find the smallest gap
   // between the ranges.
-  return intersections.size() > 0
-             ? intersections[Range::IndexOfLongest(intersections)]
-             : gaps.size() > 0 ? gaps[Range::IndexOfShortest(gaps)]
-                               : kZeroToOne;
+  return intersections.len > 0
+             ? intersections.arr[Range::IndexOfLongest(intersections)]
+             : gaps.len > 0 ? gaps.arr[Range::IndexOfShortest(gaps)]
+                            : kZeroToOne;
 }
 
 static float CalculateMidPercent(const SplineControlNode& start,
