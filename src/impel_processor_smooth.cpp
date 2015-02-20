@@ -26,7 +26,6 @@ using fpl::Range;
 // Add some buffer to the y-range to allow for intermediate nodes
 // that go above or below the supplied nodes.
 static const float kYRangeBufferPercent = 1.2f;
-static const float kDefaultTargetValue = 0.0f;
 static const float kDefaultTargetVelocity = 0.0f;
 
 struct SmoothImpelData {
