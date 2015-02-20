@@ -31,13 +31,8 @@ static const float kDefaultTargetVelocity = 0.0f;
 struct SmoothImpelData {
   SmoothImpelData() : local_spline(nullptr) {}
 
-  void Initialize(const SmoothImpelInit& init_param) { init = init_param; }
-
   // If we own the spline, recycle it in the spline pool.
   CompactSpline* local_spline;
-
-  // Keep a local copy of the init params.
-  SmoothImpelInit init;
 };
 
 class SmoothImpelProcessor : public ImpelProcessor1f {
@@ -57,23 +52,18 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
   virtual int Priority() const { return 0; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value(ImpelIndex index) const {
-    const SmoothImpelData& d = Data(index);
-    return d.init.Normalize(interpolator_.Y(index));
-  }
+  virtual float Value(ImpelIndex index) const { return interpolator_.Y(index); }
   virtual float Velocity(ImpelIndex index) const {
     return interpolator_.Derivative(index);
   }
   virtual float TargetValue(ImpelIndex index) const {
-    const SmoothImpelData& d = Data(index);
-    return d.init.Normalize(interpolator_.EndY(index));
+    return interpolator_.EndY(index);
   }
   virtual float TargetVelocity(ImpelIndex index) const {
     return interpolator_.EndDerivative(index);
   }
   virtual float Difference(ImpelIndex index) const {
-    const SmoothImpelData& d = Data(index);
-    return d.init.Normalize(interpolator_.EndY(index) - interpolator_.Y(index));
+    return interpolator_.YDifferenceToEnd(index);
   }
   virtual ImpelTime TargetTime(ImpelIndex index) const {
     return static_cast<ImpelTime>(interpolator_.EndX(index) -
@@ -87,21 +77,19 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
 
     // Initialize spline to match specified parameters. We maintain current
     // values for any parameters that aren't specified.
-    const float start_y_unnormalized =
-        t.Valid(kValue) ? t.Value() : Value(index);
+    const float start_y = t.Valid(kValue) ? t.Value() : Value(index);
     const float end_y_unnormalized =
-        t.Valid(kTargetValue) ? t.TargetValue() : start_y_unnormalized;
+        t.Valid(kTargetValue) ? t.TargetValue() : start_y;
     const float start_derivative =
         t.Valid(kVelocity) ? t.Velocity() : Velocity(index);
     const float end_derivative =
         t.Valid(kTargetVelocity) ? t.TargetVelocity() : kDefaultTargetVelocity;
     const float end_x = static_cast<float>(t.TargetTime());
 
-    // Normalize the starting y value. Ensure the target y value takes the
-    // shortest route, even if that means going outside the normalized range.
-    const float start_y = d.init.Normalize(start_y_unnormalized);
-    const float y_diff = d.init.Normalize(end_y_unnormalized - start_y);
-    const float end_y = start_y + y_diff;
+    // Ensure the end y value takes the shortest route, even if that means
+    // going outside the normalized range.
+    const float end_y =
+        start_y + interpolator_.NormalizeY(index, end_y_unnormalized - start_y);
 
     // Calculate the spline quantization parameters.
     const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
@@ -140,7 +128,8 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
   virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
                                ImpelEngine* engine) {
     (void)engine;
-    Data(index).Initialize(static_cast<const SmoothImpelInit&>(init));
+    auto smooth = static_cast<const SmoothImpelInit&>(init);
+    interpolator_.SetYRange(index, smooth.range(), smooth.modular());
   }
 
   virtual void RemoveIndex(ImpelIndex index) {
@@ -187,8 +176,8 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
     }
   }
 
-  // Hold index-specific data, for example the init params and a pointer
-  // to the spline allocated from 'spline_pool_'.
+  // Hold index-specific data, for example a pointer to the spline allocated
+  // from 'spline_pool_'.
   std::vector<SmoothImpelData> data_;
 
   // Holds unused splines. When we need another local spline (because we're

@@ -56,6 +56,11 @@ class RangeT {
   // Behavior is undefined for invalid regions.
   T Clamp(const T x) const { return mathfu::Clamp(x, start_, end_); }
 
+  // Clamp 'x' so it is inside one of the bounds. Can save cycles if you
+  // already know that 'x' is inside the other bound.
+  T ClampAfterStart(const T x) const { return std::max(x, start_); }
+  T ClampBeforeEnd(const T x) const { return std::min(x, end_); }
+
   // Returns distances outside of the range. If inside the range, returns 0.
   // Behavior is undefined for invalid regions.
   T DistanceFrom(const T x) const { return fabs(x - Clamp(x)); }
@@ -77,6 +82,40 @@ class RangeT {
     return mathfu::Clamp(Percent(x), 0.0f, 1.0f);
   }
 
+  // Ensure position 'x' is within the valid constraint range.
+  // 'x' must be within (end_ - start_) of the range. This is a reasonable
+  // restriction in most cases (such as after an arithmetic operation).
+  // For cases where 'x' may be wildly outside the range, use
+  // NormalizeWildValue() instead.
+  T Normalize(T x) const {
+    // For non-modular values, do nothing.
+    return x + ModularAdjustment(x);
+  }
+
+  T NormalizeWildValue(T x) const {
+    // Use (expensive) division to determine how many lengths we are away from
+    // the normalized range.
+    const T length = Length();
+    const T units = (x - start_) / length;
+    const T whole_units = floor(units);
+
+    // Subtract off those units to get something that (mathematically) should
+    // be normalized. Due to Ting point error, it sometimes is slightly
+    // outside the bounds, so we need to do a standard normalization afterwards.
+    const T close = x - whole_units * length;
+    const T normalized = close + ModularAdjustment(close);
+    return normalized;
+  }
+
+  T ModularAdjustment(T x) const {
+    // For modular values, ensures 'x' is in the constraints (min, max].
+    // That is, exclusive of min, inclusive of max.
+    const T length = Length();
+    const T adjustment = x <= start_ ? length : x > end_ ? -length : 0.0f;
+    assert(start_ < x + adjustment && x + adjustment <= end_);
+    return adjustment;
+  }
+
   bool Contains(const T x) const { return start_ <= x && x <= end_; }
 
   // Swap start and end. When 'a' and 'b' don't overlap, if you invert the
@@ -96,6 +135,9 @@ class RangeT {
     return start_ == rhs.start_ && end_ == rhs.end_;
   }
   bool operator!=(const RangeT& rhs) const { return !operator==(rhs); }
+
+  // Scale by multiplying by a scalar.
+  RangeT operator*(const float s) const { return RangeT(s * start_, s * end_); }
 
   // Accessors.
   T start() const { return start_; }

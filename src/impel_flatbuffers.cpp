@@ -21,8 +21,7 @@ namespace impel {
 static void ModularInitFromFlatBuffers(const ModularParameters& params,
                                        ModularImpelInit* init) {
   init->set_modular(params.modular() != 0);
-  init->set_min(params.min());
-  init->set_max(params.max());
+  init->set_range(fpl::Range(params.min(), params.max()));
 }
 
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,

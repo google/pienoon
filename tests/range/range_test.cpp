@@ -19,12 +19,14 @@
 #include "gtest/gtest.h"
 #include "bulk_spline_evaluator.h"
 #include "common.h"
+#include "angle.h"
 
 using fpl::Range;
-
+using fpl::kPi;
 
 static const float kInf = std::numeric_limits<float>::infinity();
-
+static const float kAngleEpsilon = 0.0001f;
+static const float kZeroOneEpsilon = 0.00003f;
 
 class RangeTests : public ::testing::Test {
 protected:
@@ -119,6 +121,24 @@ TEST_F(RangeTests, Clamp_ToInfinity) {
   EXPECT_EQ(kInf, full.Clamp(kInf));
   EXPECT_EQ(1.0f, full.Clamp(1.0f));
   EXPECT_EQ(-kInf, full.Clamp(-kInf));
+}
+
+// Clamping values above the start threshold.
+TEST_F(RangeTests, Clamp_AfterStart) {
+  const Range r(-1.0f, 1.0f);
+  EXPECT_EQ(-1.0f, r.ClampAfterStart(-2.0f));
+  EXPECT_EQ(-1.0f, r.ClampAfterStart(-1.0f));
+  EXPECT_EQ(-0.9f, r.ClampAfterStart(-0.9f));
+  EXPECT_EQ(2.0f, r.ClampAfterStart(2.0f));
+}
+
+// Clamping values below the end threshold.
+TEST_F(RangeTests, Clamp_BeforeEnd) {
+  const Range r(-1.0f, 1.0f);
+  EXPECT_EQ(1.0f, r.ClampBeforeEnd(2.0f));
+  EXPECT_EQ(1.0f, r.ClampBeforeEnd(1.0f));
+  EXPECT_EQ(0.9f, r.ClampBeforeEnd(0.9f));
+  EXPECT_EQ(-2.0f, r.ClampBeforeEnd(-2.0f));
 }
 
 // Distance from the range should be zero for elements inside the range.
@@ -219,7 +239,72 @@ TEST_F(RangeTests, Intersect_OverlapSecond) {
   EXPECT_EQ(intersection, Range(1.0f, 2.0f));
 }
 
+TEST_F(RangeTests, Normalize_Inside) {
+  const Range a(-kPi, kPi);
+  EXPECT_EQ(0.0f, a.Normalize(0.0f));
+  EXPECT_EQ(1.0f, a.Normalize(1.0f));
+  EXPECT_EQ(-1.0f, a.Normalize(-1.0f));
+  EXPECT_EQ(2.1f, a.Normalize(2.1f));
+}
 
+TEST_F(RangeTests, Normalize_LowerBoundary) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(kPi, a.Normalize(-kPi));
+  EXPECT_EQ(1.0f, zero_one.Normalize(0.0f));
+}
+
+TEST_F(RangeTests, Normalize_UpperBoundary) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(kPi, a.Normalize(kPi));
+  EXPECT_EQ(1.0f, zero_one.Normalize(1.0f));
+}
+
+TEST_F(RangeTests, Normalize_Below) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(0.0f, a.Normalize(-2.0f * kPi));
+  EXPECT_NEAR(kPi - 1.0f, a.Normalize(-kPi - 1.0f), kAngleEpsilon);
+  EXPECT_NEAR(0.1f, zero_one.Normalize(-0.9f), kZeroOneEpsilon);
+  EXPECT_NEAR(0.5f, zero_one.Normalize(-0.5f), kZeroOneEpsilon);
+}
+
+TEST_F(RangeTests, Normalize_Above) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(0.0f, a.Normalize(2.0f * kPi));
+  EXPECT_NEAR(-kPi + 1.0f, a.Normalize(kPi + 1.0f), kAngleEpsilon);
+  EXPECT_NEAR(0.9f, zero_one.Normalize(1.9f), kZeroOneEpsilon);
+  EXPECT_NEAR(0.5f, zero_one.Normalize(1.5f), kZeroOneEpsilon);
+}
+
+TEST_F(RangeTests, NormalizeWild_Inside) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(0.0f, a.NormalizeWildValue(0.0f));
+  EXPECT_NEAR(kPi - 0.1f, a.NormalizeWildValue(kPi - 0.1f), kAngleEpsilon);
+  EXPECT_EQ(1.0f, zero_one.NormalizeWildValue(1.0f));
+  EXPECT_EQ(0.5f, zero_one.NormalizeWildValue(0.5f));
+}
+
+TEST_F(RangeTests, NormalizeWild_Border) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(kPi, a.NormalizeWildValue(-kPi));
+  EXPECT_EQ(kPi, a.NormalizeWildValue(kPi));
+  EXPECT_EQ(1.0f, zero_one.NormalizeWildValue(0.0f));
+  EXPECT_EQ(1.0f, zero_one.NormalizeWildValue(1.0f));
+}
+
+TEST_F(RangeTests, NormalizeWild_Distant) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_NEAR(0.0f, a.NormalizeWildValue(-10.0f * kPi), kAngleEpsilon);
+  EXPECT_NEAR(1.0f, a.NormalizeWildValue(100.0f * kPi + 1.0f), kAngleEpsilon);
+  EXPECT_NEAR(0.7f, zero_one.NormalizeWildValue(-19.3f), kZeroOneEpsilon);
+  EXPECT_NEAR(0.5f, zero_one.NormalizeWildValue(10.5f), kZeroOneEpsilon);
+}
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

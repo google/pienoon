@@ -60,10 +60,8 @@ void ShakeablePropComponent::AddFromRawData(entity::EntityRef& entity,
   if (sp_data->shake_impeller() != ImpellerSpecification_None) {
     impel::OvershootImpelInit scaled_shake_init =
         impeller_inits[sp_data->shake_impeller()];
-    scaled_shake_init.set_min(scaled_shake_init.min() *
-                              entity_data->shake_scale);
-    scaled_shake_init.set_max(scaled_shake_init.max() *
-                              entity_data->shake_scale);
+    scaled_shake_init.set_range(scaled_shake_init.range() *
+                                entity_data->shake_scale);
     scaled_shake_init.set_accel_per_difference(
         scaled_shake_init.accel_per_difference() * entity_data->shake_scale);
 

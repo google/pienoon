@@ -23,7 +23,6 @@ using mathfu::Lerp;
 namespace fpl {
 
 void BulkSplineEvaluator::SetNumIndices(const Index num_indices) {
-  cubics_.resize(num_indices);
   domains_.resize(num_indices);
   splines_.resize(num_indices, nullptr);
   results_.resize(num_indices);
@@ -31,27 +30,49 @@ void BulkSplineEvaluator::SetNumIndices(const Index num_indices) {
 
 void BulkSplineEvaluator::MoveIndex(const Index old_index,
                                     const Index new_index) {
-  cubics_[new_index] = cubics_[old_index];
   domains_[new_index] = domains_[old_index];
   splines_[new_index] = splines_[old_index];
   results_[new_index] = results_[old_index];
 }
 
+void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
+                                    const bool modular_arithmetic) {
+  Domain& d = domains_[index];
+  d.valid_y = valid_y;
+  d.modular_arithmetic = modular_arithmetic;
+}
+
 void BulkSplineEvaluator::SetSpline(const Index index,
                                     const CompactSpline& spline,
                                     const float start_x) {
+  Domain& d = domains_[index];
   splines_[index] = &spline;
-  domains_[index].x = start_x;
-  domains_[index].x_index = kInvalidSplineIndex;
+  d.x = start_x;
+  d.x_index = kInvalidSplineIndex;
   InitCubic(index);
   EvaluateIndex(index);
 }
 
 void BulkSplineEvaluator::EvaluateIndex(const Index index) {
-  const float cubic_x = CubicX(index);
+  Domain& d = domains_[index];
   Result& r = results_[index];
-  r.y = cubics_[index].Evaluate(cubic_x);
-  r.derivative = cubics_[index].Derivative(cubic_x);
+
+  // Evaluate the cubic spline.
+  const float cubic_x = CubicX(index);
+  r.y = d.cubic.Evaluate(cubic_x);
+  r.derivative = d.cubic.Derivative(cubic_x);
+
+  // Clamp or normalize the y value, to bring into the valid y range.
+  // Also adjust the constant of the cubic so that next time we evaluate the
+  // cubic it will be inside the normalized range.
+  if (d.modular_arithmetic) {
+    const float adjustment = d.valid_y.ModularAdjustment(r.y);
+    r.y += adjustment;
+    d.cubic.SetCoeff(0, d.cubic.Coeff(0) + adjustment);
+
+  } else {
+    r.y = d.valid_y.Clamp(r.y);
+  }
 }
 
 void BulkSplineEvaluator::AdvanceFrame(const float delta_x) {
@@ -63,16 +84,13 @@ void BulkSplineEvaluator::AdvanceFrame(const float delta_x) {
     Domain& d = domains_[index];
     d.x += delta_x;
 
-    // If x is out of the current range, reinitialize the cubic.
-    if (!d.range.Contains(d.x)) {
+    // If x is out of the current valid_x, reinitialize the cubic.
+    if (!d.valid_x.Contains(d.x)) {
       InitCubic(index);
     }
-    d.x = d.range.Clamp(d.x);
-  }
+    d.x = d.valid_x.ClampBeforeEnd(d.x);
 
-  // Evaluate the cubics. We traverse the 'cubics_' array linearly, which helps
-  // with cache performance. TODO OPT: Add cache prefetching.
-  for (Index index = 0; index < num_indices; ++index) {
+    // Evaluate the cubics.
     EvaluateIndex(index);
   }
 }
@@ -93,11 +111,18 @@ void BulkSplineEvaluator::InitCubic(const Index index) {
 
   // Update the x-related values.
   d.x_index = x_index;
-  d.range = spline->RangeX(x_index);
+  d.valid_x = spline->RangeX(x_index);
 
   // Initialize the cubic to interpolate the new spline segment.
   const CubicInit init = spline->CreateCubicInit(x_index);
-  cubics_[index].Init(init);
+  d.cubic.Init(init);
+
+  // The start y value of the cubic is d.cubic.Coeff(0) (the constant
+  // coefficient) since cubic_x=0 at the start. So to ensure that the cubic
+  // is normalized, it sufficents to ensure that d.cubic.Coeff(0) is normalized.
+  if (d.modular_arithmetic) {
+    d.cubic.SetCoeff(0, d.valid_y.NormalizeWildValue(d.cubic.Coeff(0)));
+  }
 }
 
 }  // namespace fpl

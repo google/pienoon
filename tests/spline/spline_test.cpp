@@ -19,6 +19,7 @@
 #include "gtest/gtest.h"
 #include "bulk_spline_evaluator.h"
 #include "common.h"
+#include "angle.h"
 
 using fpl::QuadraticCurve;
 using fpl::CubicCurve;
@@ -27,6 +28,8 @@ using fpl::Range;
 using fpl::CompactSpline;
 using fpl::CompactSplineIndex;
 using fpl::BulkSplineEvaluator;
+using fpl::Angle;
+using fpl::kPi;
 using mathfu::vec2;
 using mathfu::vec2i;
 using mathfu::vec3;
@@ -37,7 +40,7 @@ using mathfu::vec3;
 
 // Draw an ASCII graph of the curves. Helpful for a quick visualization, though
 // not very high fidelity, obviously.
-#define PRINT_SPLINES_AS_ASCII_GRAPHS 0
+#define PRINT_SPLINES_AS_ASCII_GRAPHS 1
 
 struct GraphData {
   std::vector<vec2> points;
@@ -51,6 +54,7 @@ static const float kDerivativePrecision = 0.01f;
 static const float kSecondDerivativePrecision = 0.1f;
 static const float kThirdDerivativePrecision = 1.0f;
 static const float kXGranularityScale = 0.01f;
+static const Range kAngleRange(-kPi, kPi);
 
 // Use a ridiculous index that will never hit when doing a search.
 // We use this to test the binary search algorithm, not the cache.
@@ -138,12 +142,16 @@ static void PrintSplineAsAsciiGraph(const GraphData& d) {
 #endif // PRINT_SPLINES_AS_ASCII_GRAPHS
 }
 
-static void GatherGraphData(const CubicInit& init, GraphData* d) {
+static void GatherGraphData(const CubicInit& init, GraphData* d,
+                            bool is_angle = false) {
   CompactSpline spline;
   InitializeSpline(init, &spline);
 
   BulkSplineEvaluator interpolator;
   interpolator.SetNumIndices(1);
+  if (is_angle) {
+    interpolator.SetYRange(0, kAngleRange, true);
+  }
   interpolator.SetSpline(0, spline);
 
   ExecuteInterpolator(interpolator, kNumCheckPoints, d);
@@ -304,6 +312,20 @@ TEST_F(SplineTests, ScaleX) {
       EXPECT_NEAR(d.derivatives[i].z(), scaled_d.derivatives[i].z() *
                   kScale * kScale * kScale, kThirdDerivativePrecision);
     }
+  }
+}
+
+// Ensure that a spline that goes well outside the modular range always
+// evaluates to a value within the modular range.
+TEST_F(SplineTests, ModularWrapAround) {
+  static const CubicInit kIncreasingLine(-4.0f, 0.1f, 8.0f, 0.1f, 120.0f);
+
+  GraphData d;
+  GatherGraphData(kIncreasingLine, &d, true);
+
+  const int num_points = static_cast<int>(d.points.size());
+  for (int i = 0; i < num_points; ++i) {
+    EXPECT_TRUE(Angle::IsAngleInRange(d.points[i].y()));
   }
 }
 

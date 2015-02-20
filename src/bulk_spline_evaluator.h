@@ -51,6 +51,12 @@ class BulkSplineEvaluator {
   void SetNumIndices(const Index num_indices);
   void MoveIndex(const Index old_index, const Index new_index);
 
+  // Initialize 'index' to clamp or wrap-around the 'valid_y' range.
+  // If 'modular_arithmetic' is true, values wrap-around when they exceed
+  // the bounds of 'valid_y'. If it is false, values are clamped to 'valid_y'.
+  void SetYRange(const Index index, const Range& valid_y,
+                 const bool modular_arithmetic);
+
   // Initialize 'index' to process 'spline' starting from 'start_x'.
   // The Y() and Derivative() values are immediately available.
   void SetSpline(const Index index, const CompactSpline& spline,
@@ -75,10 +81,12 @@ class BulkSplineEvaluator {
   // Get the raw cubic curve for 'index'. Useful if you need to calculate the
   // second or third derivatives (which are not calculated in AdvanceFrame),
   // or plot the curve for debug reasons.
-  const CubicCurve& Cubic(const Index index) const { return cubics_[index]; }
+  const CubicCurve& Cubic(const Index index) const {
+    return domains_[index].cubic;
+  }
   float CubicX(const Index index) const {
     const Domain& d = domains_[index];
-    return OutsideSpline(d.x_index) ? 0.0f : d.x - d.range.start();
+    return OutsideSpline(d.x_index) ? 0.0f : d.x - d.valid_x.start();
   }
 
   // Get state at end of the spline.
@@ -88,22 +96,53 @@ class BulkSplineEvaluator {
     return splines_[index]->EndDerivative();
   }
 
+  // Return y-distance between current y and end-y. If using modular arithmetic,
+  // consider both paths to the target (directly and wrapping around),
+  // and return the length of the shorter path.
+  float YDifferenceToEnd(const Index index) const {
+    return NormalizeY(index, EndY(index) - Y(index));
+  }
+
+  // Apply modular arithmetic to ensure that 'y' is within the valid y_range.
+  float NormalizeY(const Index index, const float y) const {
+    const Domain& d = domains_[index];
+    return d.modular_arithmetic ? d.valid_y.Normalize(y) : y;
+  }
+
  private:
   void InitCubic(const Index index);
   void EvaluateIndex(const Index index);
   Index NumIndices() const { return static_cast<Index>(splines_.size()); }
 
   struct Domain {
-    Domain() : x(0.0f), x_index(kInvalidSplineIndex) {}
+    Domain()
+        : x(0.0f),
+          x_index(kInvalidSplineIndex),
+          valid_y(-std::numeric_limits<float>::infinity(),
+                  std::numeric_limits<float>::infinity()),
+          modular_arithmetic(false) {}
 
     // The start and end 'x' values for the current Cubic.
-    Range range;
+    Range valid_x;
 
-    // The current 'x' value. We evaluate the cubic at x - range.start.
+    // The current 'x' value. We evaluate the cubic at x - valid_x.start.
     float x;
 
     // Index of 'x' in 'spline'. This is the current spline node segment.
     CompactSplineIndex x_index;
+
+    // Currently active segment of splines_.
+    // Instantiated from splines_[i].CreateInitCubic(domains_[i].x_index).
+    CubicCurve cubic;
+
+    // Hold min and max values for the y result, or for the modular range.
+    // Modular ranges are used for things like angles, the wrap around from
+    // -pi to +pi.
+    Range valid_y;
+
+    // True if y values wrap around when they exit the valid_y range.
+    // False if y values clamp to the edges of the valid_y range.
+    bool modular_arithmetic;
   };
 
   struct Result {
@@ -132,10 +171,6 @@ class BulkSplineEvaluator {
   // Pointers to the source spline nodes. Spline data is owned externally.
   // We neither allocate or free this pointer here.
   std::vector<const CompactSpline*> splines_;
-
-  // Currently active segment of splines_.
-  // Instantiated from splines_[i].CreateInitCubic(domains_[i].x_index).
-  std::vector<CubicCurve> cubics_;
 
   // X-related values. We keep them together so that we can quickly check if
   // x is still in the valid range of the current 'cubic_'.

@@ -28,6 +28,7 @@
 
 using fpl::kPi;
 using fpl::kHalfPi;
+using fpl::Range;
 using impel::ImpelEngine;
 using impel::Impeller1f;
 using impel::ImpellerMatrix4f;
@@ -65,14 +66,14 @@ class ImpelTests : public ::testing::Test {
 protected:
   virtual void SetUp()
   {
+    const Range angle_range(-3.14159265359f, 3.14159265359f);
     impel::OvershootImpelInit::Register();
     impel::SmoothImpelInit::Register();
     impel::MatrixImpelInit::Register();
 
     // Create an OvershootImpelInit with reasonable values.
     overshoot_angle_init_.set_modular(true);
-    overshoot_angle_init_.set_min(-3.14159265359f);
-    overshoot_angle_init_.set_max(3.14159265359f);
+    overshoot_angle_init_.set_range(angle_range);
     overshoot_angle_init_.set_max_velocity(0.021f);
     overshoot_angle_init_.set_max_delta(3.141f);
     overshoot_angle_init_.at_target().max_difference = 0.087f;
@@ -84,8 +85,7 @@ protected:
     // Create an OvershootImpelInit that represents a percent from 0 ~ 100.
     // It does not wrap around.
     overshoot_percent_init_.set_modular(false);
-    overshoot_percent_init_.set_min(0.0f);
-    overshoot_percent_init_.set_max(100.0f);
+    overshoot_percent_init_.set_range(Range(0.0f, 100.0f));
     overshoot_percent_init_.set_max_velocity(10.0f);
     overshoot_percent_init_.set_max_delta(50.0f);
     overshoot_percent_init_.at_target().max_difference = 0.087f;
@@ -95,12 +95,10 @@ protected:
     overshoot_percent_init_.set_max_delta_time(10);
 
     smooth_angle_init_.set_modular(true);
-    smooth_angle_init_.set_min(-3.14159265359f);
-    smooth_angle_init_.set_max(3.14159265359f);
+    smooth_angle_init_.set_range(angle_range);
 
     smooth_scalar_init_.set_modular(false);
-    smooth_scalar_init_.set_min(-100.0f);
-    smooth_scalar_init_.set_max(100.0f);
+    smooth_scalar_init_.set_range(Range(-100.0f, 100.0f));
   }
   virtual void TearDown() {}
 
@@ -113,9 +111,9 @@ protected:
   }
 
   void InitOvershootImpeller(Impeller1f* impeller) {
-    InitImpeller(overshoot_percent_init_, overshoot_percent_init_.max(),
+    InitImpeller(overshoot_percent_init_, overshoot_percent_init_.Max(),
                  overshoot_percent_init_.max_velocity(),
-                 overshoot_percent_init_.max(), impeller);
+                 overshoot_percent_init_.Max(), impeller);
   }
 
   void InitOvershootImpellerArray(Impeller1f* impellers, int len) {
@@ -190,7 +188,7 @@ TEST_F(ImpelTests, StaysWithinBound) {
 
   // Even though we're at the bound and trying to travel beyond the bound,
   // the simulation should clamp our position to the bound.
-  EXPECT_EQ(impeller.Value(), overshoot_percent_init_.max());
+  EXPECT_EQ(impeller.Value(), overshoot_percent_init_.Max());
 }
 
 // Open up a hole in the data and then call Defragment() to close it.

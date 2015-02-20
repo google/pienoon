@@ -16,6 +16,7 @@
 #define IMPEL_INIT_H_
 
 #include "impel_util.h"
+#include "range.h"
 
 namespace impel {
 
@@ -39,42 +40,38 @@ class ModularImpelInit : public ImpelInit {
  public:
   // The derived type must call this constructor with it's ImpelType identifier.
   explicit ModularImpelInit(ImpellerType type)
-      : ImpelInit(type), min_(0.0f), max_(0.0f), modular_(false) {}
+      : ImpelInit(type),
+        range_(-std::numeric_limits<float>::infinity(),
+               std::numeric_limits<float>::infinity()),
+        modular_(false) {}
 
   // Ensure position 'x' is within the valid constraint range.
-  float Normalize(float x) const {
-    // For non-modular values, do nothing.
-    if (!modular_) return x;
+  // 'x' must be within (max_ - min_) of the range. This is a reasonable
+  // restriction in most cases (such as after an arithmetic operation).
+  // For cases where 'x' may be wildly outside the range, use
+  // NormalizeWildValue() instead.
+  float Normalize(float x) const { return modular_ ? range_.Normalize(x) : x; }
 
-    // For modular values, ensures 'x' is in the constraints (min, max].
-    // That is, exclusive of min, inclusive of max.
-    const float width = max_ - min_;
-    const float above_min = x <= min_ ? x + width : x;
-    const float normalized = above_min > max_ ? above_min - width : above_min;
-    assert(min_ < normalized && normalized <= max_);
-    return normalized;
+  float NormalizeWildValue(float x) const {
+    return modular_ ? range_.NormalizeWildValue(x) : x;
   }
 
   // Ensure the impeller value is within the specified range.
-  float ClampValue(float value) const {
-    return mathfu::Clamp(value, min_, max_);
-  }
+  float ClampValue(float x) const { return range_.Clamp(x); }
+  float Min() const { return range_.start(); }
+  float Max() const { return range_.end(); }
+
+  const fpl::Range& range() const { return range_; }
+  void set_range(const fpl::Range& r) { range_ = r; }
 
   bool modular() const { return modular_; }
-  float min() const { return min_; }
-  float max() const { return max_; }
   void set_modular(bool modular) { modular_ = modular; }
-  void set_min(float min) { min_ = min; }
-  void set_max(float max) { max_ = max; }
 
  private:
-  // Minimum value for Impeller::Value(). Clamped or wrapped-around when we
-  // reach this boundary.
-  float min_;
-
-  // Maximum value for Impeller::Value(). Clamped or wrapped-around when we
-  // reach this boundary.
-  float max_;
+  // Minimum and maximum values for Impeller::Value().
+  // Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
+  // we reach these boundaries.
+  fpl::Range range_;
 
   // A modular value wraps around from min to max. For example, an angle
   // is modular, where -pi is equivalent to +pi. Setting this to true ensures

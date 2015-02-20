@@ -231,6 +231,9 @@ class CubicCurve {
   // Returns the coefficient for x to the ith power.
   float Coeff(int i) const { return c_[i]; }
 
+  // Overrides the coefficent for x to the ith power.
+  void SetCoeff(int i, float coeff) { c_[i] = coeff; }
+
   // Returns the number of coefficients in this curve.
   int NumCoeff() const { return kNumCoeff; }
 
