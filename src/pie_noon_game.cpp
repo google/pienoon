@@ -523,14 +523,55 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
 }
 
 void PieNoonGame::Render(const SceneDescription& scene) {
+#ifdef ANDROID_CARDBOARD
+  if (input_.cardboard_input().is_in_cardboard()) {
+    RenderForCardboard(scene);
+    return;
+  }
+#endif // ANDROID_CARDBOARD
+  RenderForDefault(scene);
+}
+
+void PieNoonGame::RenderForDefault(const SceneDescription& scene) {
+  RenderScene(scene, mat4::Identity(), renderer_.window_size());
+}
+
+void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
+#ifdef ANDROID_CARDBOARD
+  mat4 left_eye_transform, right_eye_transform;
+  GetCardboardTransforms(left_eye_transform, right_eye_transform);
+  // Convert the transforms from cardboard space to game space
+  CorrectCardboardCamera(left_eye_transform);
+  CorrectCardboardCamera(right_eye_transform);
+  // Perform two render passes, one for each half of the screen
+  vec2i size = AndroidGetScalerResolution();
+  const vec2i viewport_size = size.x() && size.y() ? size
+                                                   : renderer_.window_size();
+  float window_width = viewport_size.x();
+  float half_width = window_width / 2.0f;
+  float window_height = viewport_size.y();
+  auto res = renderer_.window_size();
+  vec2i half_res(res.x() / 2.0f, res.y());
+  GL_CALL(glViewport(0, 0, half_width, window_height));
+  RenderScene(scene, left_eye_transform, half_res);
+  GL_CALL(glViewport(half_width, 0, half_width, window_height));
+  RenderScene(scene, right_eye_transform, half_res);
+#else
+  (void)scene;
+#endif // ANDROID_CARDBOARD
+}
+
+void PieNoonGame::RenderScene(const SceneDescription& scene,
+                              const mat4& additional_camera_changes,
+                              const vec2i& resolution) {
   const Config& config = GetConfig();
 
   // Final matrix that applies the view frustum to bring into screen space.
-  auto res = renderer_.window_size();
   mat4 perspective_matrix_ = mat4::Perspective(
-      config.viewport_angle(), res.x() / static_cast<float>(res.y()),
+      config.viewport_angle(), resolution.x() / static_cast<float>(resolution.y()),
       config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
-  const mat4 camera_transform = perspective_matrix_ * scene.camera();
+
+  const mat4 camera_transform = perspective_matrix_ * (additional_camera_changes * scene.camera());
 
   // Render a ground plane.
   // TODO: Replace with a regular environment prop. Calculate scale_bias from
@@ -573,6 +614,9 @@ void PieNoonGame::Render(const SceneDescription& scene) {
 
   // Now render the Renderables normally, on top of the shadows.
   RenderCardboard(scene, camera_transform);
+
+  // Render any UI/HUD/Splash on top
+  Render2DElements();
 }
 
 void PieNoonGame::Render2DElements() {
@@ -607,6 +651,39 @@ void PieNoonGame::Render2DElements() {
   // Loop through the 2D elements. Draw each subsequent one slightly closer
   // to the camera so that they appear on top of the previous ones.
   gui_menu_.Render(&renderer_);
+}
+
+void PieNoonGame::GetCardboardTransforms(mat4& left_eye_transform,
+                                         mat4& right_eye_transform) {
+#ifdef __ANDROID__
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID get_eye_views = env->GetMethodID(fpl_class, "GetEyeViews",
+                                             "([F[F)V");
+  jfloatArray left_eye = env->NewFloatArray(16);
+  jfloatArray right_eye = env->NewFloatArray(16);
+  env->CallVoidMethod(activity, get_eye_views, left_eye, right_eye);
+  jfloat *left_eye_floats = env->GetFloatArrayElements(left_eye, NULL);
+  jfloat *right_eye_floats = env->GetFloatArrayElements(right_eye, NULL);
+  left_eye_transform = mat4(left_eye_floats);
+  right_eye_transform = mat4(right_eye_floats);
+  env->ReleaseFloatArrayElements(left_eye, left_eye_floats, JNI_ABORT);
+  env->ReleaseFloatArrayElements(right_eye, right_eye_floats, JNI_ABORT);
+  env->DeleteLocalRef(left_eye);
+  env->DeleteLocalRef(right_eye);
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+#else
+  (void)left_eye_transform;
+  (void)right_eye_transform;
+#endif //__ANDROID__
+}
+
+void PieNoonGame::CorrectCardboardCamera(mat4& cardboard_camera) {
+  // The game's coordinate system has x and y reversed from the cardboard
+  const mat4 rotation = mat4::FromScaleVector(vec3(-1, -1, 1));
+  cardboard_camera = rotation * cardboard_camera * rotation;
 }
 
 // Debug function to print out state machine transitions.
@@ -1514,10 +1591,7 @@ void PieNoonGame::Run() {
         // Issue draw calls for the 'scene'.
         Render(scene_);
 
-        // Render any UI/HUD/Splash on top.
-        Render2DElements();
-
-// TEMP: testing GUI on top of everything else.
+        // TEMP: testing GUI on top of everything else.
 #if IMGUI_TEST
         // Open OpenType font
         static FontManager fontman;

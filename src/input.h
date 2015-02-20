@@ -25,6 +25,10 @@
 #include "pthread.h"
 #endif
 
+#ifdef __ANDROID__
+#define ANDROID_CARDBOARD
+#endif //__ANDROID__
+
 namespace fpl {
 
 using mathfu::vec2;
@@ -193,6 +197,27 @@ struct AndroidInputEvent {
 };
 #endif  // ANDROID_GAMEPAD
 
+#ifdef ANDROID_CARDBOARD
+// Cardboard input class.  Manages the state of the device in cardboard
+// based on events passed in from java.
+class CardboardInput {
+ public:
+  CardboardInput()
+    : is_in_cardboard_(false) {
+  }
+
+  bool is_in_cardboard() const { return is_in_cardboard_; }
+  void set_is_in_cardboard(bool is_in_cardboard) {
+    is_in_cardboard_ = is_in_cardboard;
+  }
+
+  // TODO: Track the OnCardboardTrigger events
+
+ private:
+  bool is_in_cardboard_;
+};
+#endif // ANDROID_CARDBOARD
+
 class InputSystem {
  public:
   InputSystem()
@@ -250,6 +275,15 @@ class InputSystem {
   void HandleGamepadEvents();
 #endif  // ANDROID_GAMEPAD
 
+#ifdef ANDROID_CARDBOARD
+  CardboardInput &cardboard_input() {
+    return cardboard_input_;
+  }
+
+  static void OnCardboardTrigger();
+  static void SetDeviceInCardboard(bool in_cardboard);
+#endif // ANDROID_CARDBOARD
+
   // Get a Button object for a pointer index.
   Button &GetPointerButton(SDL_FingerID pointer) {
     return GetButton(static_cast<int>(pointer + SDLK_POINTER1));
@@ -293,6 +327,10 @@ class InputSystem {
   static pthread_mutex_t android_event_mutex;
   static std::queue<AndroidInputEvent> unhandled_java_input_events_;
 #endif  // ANDROID_GAMEPAD
+
+#ifdef ANDROID_CARDBOARD
+  static CardboardInput cardboard_input_;
+#endif // ANDROID_CARDBOARD
 
   // Most recent frame delta, in milliseconds.
   int frame_time_;

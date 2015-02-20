@@ -48,6 +48,8 @@ DEPENDENCIES_MOTIVE_DIR?=$(FPL_ROOT)/motive
 DEPENDENCIES_GPG_DIR?=$(PREBUILTS_ROOT)/gpg-cpp-sdk/android
 # Location of the webp library.
 DEPENDENCIES_WEBP_DIR?=$(THIRD_PARTY_ROOT)/webp
+# Location of the Cardboard library.
+DEPENDENCIES_CARDBOARD_DIR?=$(PREBUILTS_ROOT)/cardboard-java/CardboardSample
 
 ifeq (,$(DETERMINED_DEPENDENCY_DIRS))
 DETERMINED_DEPENDENCY_DIRS:=1

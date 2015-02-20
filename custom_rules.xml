@@ -57,9 +57,26 @@ limitations under the License.
           file="${sdlpath}/android-project/src/${sdlactivity}"/>
   </target>
 
+  <target name="get-cardboard-path"
+          description="Save the Cardboard SDK's location in cardboardpath.">
+    <exec executable="${ndkbuild_exe}" outputproperty="cardboardpath">
+      <arg value="print_dependency"/>
+      <arg value="DEP_DIR=CARDBOARD"/>
+    </exec>
+  </target>
+
+  <target name="copy-cardboard-libs"
+          description="Copy the Cardboard sdk into the libs directory."
+          depends="get-cardboard-path">
+    <copy todir="libs/">
+      <fileset dir="${cardboardpath}/libs"/>
+    </copy>
+  </target>
+
   <!-- Override the -pre-compile target in sdk/tools/ant/build.xml to copy
        the Google Play Games library and SDL Android activity to this
        directory before the build process starts. -->
   <target name="-pre-build"
-          depends="initialize-google-play-games_lib, copy-sdl-activity" />
+          depends="initialize-google-play-games_lib, copy-sdl-activity,
+                  copy-cardboard-libs" />
 </project>

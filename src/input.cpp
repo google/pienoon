@@ -529,4 +529,29 @@ Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnGamepadInput(
 #endif  //__ANDROID__
 #endif  // ANDROID_GAMEPAD
 
+#ifdef ANDROID_CARDBOARD
+CardboardInput InputSystem::cardboard_input_;
+
+void InputSystem::OnCardboardTrigger() {
+}
+
+void InputSystem::SetDeviceInCardboard(bool in_cardboard) {
+  cardboard_input_.set_is_in_cardboard(in_cardboard);
+}
+
+#ifdef __ANDROID__
+extern "C" JNIEXPORT void JNICALL
+Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnCardboardTrigger(
+    JNIEnv *env) {
+  InputSystem::OnCardboardTrigger();
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_google_fpl_pie_1noon_FPLActivity_nativeSetDeviceInCardboard(
+    JNIEnv *env, jobject thiz, jboolean in_cardboard) {
+  InputSystem::SetDeviceInCardboard(in_cardboard);
+}
+#endif  //__ANDROID__
+#endif  // ANDROID_CARDBOARD
+
 }  // namespace fpl
