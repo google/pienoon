@@ -35,17 +35,19 @@ protected:
 };
 
 static void CheckQuadraticRoots(const QuadraticCurve& s,
-                                int num_expected_roots) {
+                                size_t num_expected_roots) {
   // Ensure we have the correct number of roots.
-  std::vector<float> roots;
+  QuadraticCurve::RootsArray roots;
   s.Roots(&roots);
-  const int num_roots = static_cast<int>(roots.size());
-  EXPECT_EQ(num_expected_roots, num_roots);
+  EXPECT_EQ(num_expected_roots, roots.len);
+
+  // Ensure roots are in ascending order.
+  EXPECT_TRUE(roots.len < 2 || roots.arr[0] < roots.arr[1]);
 
   // Ensure roots all evaluate to zero.
   const float epsilon = s.Epsilon();
-  for (int i = 0; i < num_roots; ++i) {
-    const float should_be_zero = s.Evaluate(roots[i]);
+  for (size_t i = 0; i < roots.len; ++i) {
+    const float should_be_zero = s.Evaluate(roots.arr[i]);
     EXPECT_LT(fabs(should_be_zero), epsilon);
   }
 }

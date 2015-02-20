@@ -24,8 +24,17 @@ namespace fpl {
 template <class T>
 class RangeT {
  public:
-  typedef std::vector<T> TVector;
-  typedef std::vector<RangeT<T>> RangeVector;
+  template <size_t kMaxLen>
+  struct TArray {
+    size_t len;
+    T arr[kMaxLen];
+  };
+
+  template <size_t kMaxLen>
+  struct RangeArray {
+    size_t len;
+    RangeT<T> arr[kMaxLen];
+  };
 
   // By default, initialize to an invalid range.
   RangeT() : start_(static_cast<T>(1)), end_(static_cast<T>(0)) {}
@@ -126,49 +135,75 @@ class RangeT {
   // value slightly outside 'range' even though mathematically it should be
   // inside 'range'. This often happens with values right on the border of the
   // valid range.
-  static void ValuesInRange(const RangeT& range, T epsilon, TVector* values) {
+  static size_t ValuesInRange(const RangeT& range, T epsilon, size_t num_values,
+                              T* values) {
     size_t num_returned = 0;
-    for (size_t i = 0; i < values->size(); ++i) {
-      const T value = (*values)[i];
+    for (size_t i = 0; i < num_values; ++i) {
+      const T value = values[i];
       const T clamped = range.Clamp(value);
       const T dist = fabs(value - clamped);
 
       // If the distance from the range is small, keep the clamped value.
       if (dist <= epsilon) {
-        (*values)[num_returned++] = clamped;
+        values[num_returned++] = clamped;
       }
     }
+    return num_returned;
+  }
 
-    // Size can only get smaller, so realloc is never called.
-    values->resize(num_returned);
+  template <size_t kMaxLen>
+  static void ValuesInRange(const RangeT& range, T epsilon,
+                            TArray<kMaxLen>* values) {
+    values->len = ValuesInRange(range, epsilon, values->len, values->arr);
   }
 
   // Intersect every element of 'a' with every element of 'b'. Append
   // intersections to 'intersections'. Note that 'intersections' is not reset at
   // the start of the call.
-  static void IntersectRanges(const RangeVector& a, const RangeVector& b,
-                              RangeVector* intersections,
-                              RangeVector* gaps = nullptr) {
-    for (size_t i = 0; i < a.size(); ++i) {
-      for (size_t j = 0; j < b.size(); ++j) {
+  static size_t IntersectRanges(const RangeT* a, size_t len_a, const RangeT* b,
+                                size_t len_b, RangeT* intersections,
+                                RangeT* gaps = nullptr,
+                                size_t* len_gaps = nullptr) {
+    size_t num_intersections = 0;
+    size_t num_gaps = 0;
+
+    for (size_t i = 0; i < len_a; ++i) {
+      for (size_t j = 0; j < len_b; ++j) {
         const RangeT intersection = RangeT::Intersect(a[i], b[j]);
         if (intersection.Valid()) {
-          intersections->push_back(intersection);
+          intersections[num_intersections++] = intersection;
 
         } else if (gaps != nullptr) {
           // Return the gaps, too, if requested. Invert() invalid intersections
           // to get the gap between the ranges.
-          gaps->push_back(intersection.Invert());
+          gaps[num_gaps++] = intersection.Invert();
         }
       }
     }
+
+    // Set return values.
+    if (len_gaps != nullptr) {
+      *len_gaps = num_gaps;
+    }
+    return num_intersections;
+  }
+
+  template <size_t kMaxLen>
+  static void IntersectRanges(const RangeArray<kMaxLen>& a,
+                              const RangeArray<kMaxLen>& b,
+                              RangeArray<kMaxLen * kMaxLen>* intersections,
+                              RangeArray<kMaxLen * kMaxLen>* gaps = nullptr) {
+    const bool use_gaps = gaps != nullptr;
+    intersections->len = IntersectRanges(
+        a.arr, a.len, b.arr, b.len, intersections->arr,
+        use_gaps ? gaps->arr : nullptr, use_gaps ? &gaps->len : nullptr);
   }
 
   // Return the index of the longest range in 'ranges'.
-  static int IndexOfLongest(const RangeVector& ranges) {
+  static size_t IndexOfLongest(const RangeT* ranges, size_t len) {
     T longest_length = -1.0f;
-    int longest_index = 0;
-    for (int i = 0; i < static_cast<int>(ranges.size()); ++i) {
+    size_t longest_index = 0;
+    for (size_t i = 0; i < len; ++i) {
       const T length = ranges[i].Length();
       if (length > longest_length) {
         longest_length = length;
@@ -178,11 +213,16 @@ class RangeT {
     return longest_index;
   }
 
+  template <size_t kMaxLen>
+  static size_t IndexOfLongest(const RangeArray<kMaxLen>& ranges) {
+    return IndexOfLongest(ranges.arr, ranges.len);
+  }
+
   // Return the index of the shortest range in 'ranges'.
-  static int IndexOfShortest(const RangeVector& ranges) {
+  static size_t IndexOfShortest(const RangeT* ranges, size_t len) {
     T shortest_length = std::numeric_limits<T>::infinity();
-    int shortest_index = 0;
-    for (int i = 0; i < static_cast<int>(ranges.size()); ++i) {
+    size_t shortest_index = 0;
+    for (size_t i = 0; i < len; ++i) {
       const T length = ranges[i].Length();
       if (length < shortest_length) {
         shortest_length = length;
@@ -190,6 +230,11 @@ class RangeT {
       }
     }
     return shortest_index;
+  }
+
+  template <size_t kMaxLen>
+  static size_t IndexOfShortest(const RangeArray<kMaxLen>& ranges) {
+    return IndexOfShortest(ranges.arr, ranges.len);
   }
 
  private:

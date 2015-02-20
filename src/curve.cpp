@@ -49,28 +49,28 @@ float QuadraticCurve::ReliableDiscriminant(const float epsilon) const {
 // See the Quadratic Formula for details:
 // http://en.wikipedia.org/wiki/Quadratic_formula
 // Roots returned in sorted order, smallest to largest.
-void QuadraticCurve::Roots(std::vector<float>* roots) const {
+size_t QuadraticCurve::Roots(float roots[2]) const {
   const float epsilon = Epsilon();
 
   // x^2 coefficient of zero means that curve is linear or constant.
   if (fabs(c_[2]) < epsilon) {
     // If constant, even if zero, return no roots. This is arbitrary.
-    if (fabs(c_[1]) < epsilon) return;
+    if (fabs(c_[1]) < epsilon) return 0;
 
     // Linear 0 = c1x + c0 ==> x = -c0 / c1.
-    roots->push_back(-c_[0] / c_[1]);
-    return;
+    roots[0] = -c_[0] / c_[1];
+    return 1;
   }
 
   // A negative discriminant means no real roots.
   const float discriminant = ReliableDiscriminant(epsilon);
-  if (discriminant < 0.0f) return;
+  if (discriminant < 0.0f) return 0;
 
   // A zero discriminant means there is only one root.
   const float divisor = (1.0f / c_[2]) * 0.5f;
   if (discriminant == 0.0f) {
-    roots->push_back(-c_[1] * divisor);
-    return;
+    roots[0] = -c_[1] * divisor;
+    return 1;
   }
 
   // Positive discriminant means two roots. We use the quadratic formula.
@@ -78,14 +78,14 @@ void QuadraticCurve::Roots(std::vector<float>* roots) const {
   const float root_minus = (-c_[1] - sqrt_discriminant) * divisor;
   const float root_plus = (-c_[1] + sqrt_discriminant) * divisor;
   assert(root_minus != root_plus);
-  roots->push_back(std::min(root_minus, root_plus));
-  roots->push_back(std::max(root_minus, root_plus));
-  return;
+  roots[0] = std::min(root_minus, root_plus);
+  roots[1] = std::max(root_minus, root_plus);
+  return 2;
 }
 
-void QuadraticCurve::RootsInRange(const Range& valid_x,
-                                  std::vector<float>* roots) const {
-  Roots(roots);
+size_t QuadraticCurve::RootsInRange(const Range& valid_x,
+                                    float roots[2]) const {
+  const size_t num_roots = Roots(roots);
 
   // We allow the roots to be slightly outside the bounds, since this may
   // happen due to floating point error.
@@ -93,15 +93,15 @@ void QuadraticCurve::RootsInRange(const Range& valid_x,
 
   // Loop through each root and only return it if it is within the range
   // [start_x - epsilon_x, end_x + epsilon_x]. Clamp to [start_x, end_x].
-  Range::ValuesInRange(valid_x, epsilon_x, roots);
+  return Range::ValuesInRange(valid_x, epsilon_x, num_roots, roots);
 }
 
-void QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
-                                        std::vector<Range>* matching) const {
+size_t QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
+                                          Range matching[2]) const {
   // Gather the roots of the validity spline. These are transitions between
   // valid and invalid regions.
-  std::vector<float> roots;
-  RootsInRange(x_limits, &roots);
+  float roots[2];
+  const size_t num_roots = RootsInRange(x_limits, roots);
 
   // We want ranges where the spline's sign equals valid_sign's.
   const bool valid_at_start = sign * Evaluate(x_limits.start()) >= 0.0f;
@@ -111,18 +111,17 @@ void QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
   // must be the same.
   // If two roots, the curve crosses zero twice, so the start and end validity
   // must be the same.
-  const int num_roots = static_cast<int>(roots.size());
   assert(num_roots == 1 || valid_at_start == valid_at_end);
 
   // Starts invalid, and never crosses zero so never becomes valid.
-  if (num_roots == 0 && !valid_at_start) return;
+  if (num_roots == 0 && !valid_at_start) return 0;
 
   // Starts valid, crosses zero to invalid, crosses zero again back to valid,
   // then ends valid.
   if (num_roots == 2 && valid_at_start) {
-    matching->push_back(Range(x_limits.start(), roots[0]));
-    matching->push_back(Range(roots[1], x_limits.end()));
-    return;
+    matching[0] = Range(x_limits.start(), roots[0]);
+    matching[1] = Range(roots[1], x_limits.end());
+    return 2;
   }
 
   // If num_roots == 0: must be valid at both start and end so entire range.
@@ -132,7 +131,8 @@ void QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
   const float start = valid_at_start ? x_limits.start() : roots[0];
   const float end =
       valid_at_end ? x_limits.end() : num_roots == 2 ? roots[1] : roots[0];
-  matching->push_back(Range(start, end));
+  matching[0] = Range(start, end);
+  return 1;
 }
 
 void CubicCurve::Init(const CubicInit& init) {

@@ -55,6 +55,9 @@ class QuadraticCurve {
   static const int kNumCoeff = 3;
 
  public:
+  typedef typename Range::TArray<2> RootsArray;
+  typedef typename Range::RangeArray<2> RangeArray;
+
   QuadraticCurve() { memset(c_, 0, sizeof(c_)); }
   QuadraticCurve(const float c2, const float c1, const float c0) {
     c_[2] = c2;
@@ -114,26 +117,28 @@ class QuadraticCurve {
   // Calculate the x-coordinates where this quadratic is zero, and put them into
   // 'roots', in ascending order. Returns the 0, 1, or 2, the number of unique
   // values put into 'roots'.
-  void Roots(std::vector<float>* roots) const;
+  void Roots(RootsArray* roots) const { roots->len = Roots(roots->arr); }
 
   // Calculate the x-coordinates within the range [start_x, end_x] where the
   // quadratic is zero. Put them into 'roots'. Return the number of unique
   // values put into 'roots'.
-  void RootsInRange(const Range& x_limits, std::vector<float>* roots) const;
+  void RootsInRange(const Range& x_limits, RootsArray* roots) const {
+    roots->len = RootsInRange(x_limits, roots->arr);
+  }
 
   // Get ranges above or below zero. Since a quadratic can cross zero at most
   // twice, there can be at most two ranges. Ranges are clamped to 'x_limits'.
   // 'sign' is used to determine above or below zero only--actual value is
   // ignored.
   void RangesMatchingSign(const Range& x_limits, float sign,
-                          std::vector<Range>* matching) const;
-  void RangesAboveZero(const Range& x_limits,
-                       std::vector<Range>* matching) const {
-    return RangesMatchingSign(x_limits, 1.0f, matching);
+                          RangeArray* matching) const {
+    matching->len = RangesMatchingSign(x_limits, sign, matching->arr);
   }
-  void RangesBelowZero(const Range& x_limits,
-                       std::vector<Range>* matching) const {
-    return RangesMatchingSign(x_limits, -1.0f, matching);
+  void RangesAboveZero(const Range& x_limits, RangeArray* matching) const {
+    RangesMatchingSign(x_limits, 1.0f, matching);
+  }
+  void RangesBelowZero(const Range& x_limits, RangeArray* matching) const {
+    RangesMatchingSign(x_limits, -1.0f, matching);
   }
 
   // Returns the coefficient for x to the ith power.
@@ -143,6 +148,12 @@ class QuadraticCurve {
   int NumCoeff() const { return kNumCoeff; }
 
  private:
+  // Feel free to expose these versions in the external API if they're useful.
+  size_t Roots(float roots[2]) const;
+  size_t RootsInRange(const Range& x_limits, float roots[2]) const;
+  size_t RangesMatchingSign(const Range& x_limits, float sign,
+                            Range matching[2]) const;
+
   float c_[kNumCoeff];  // c_[2] * x^2  +  c_[1] * x  +  c_[0]
 };
 
