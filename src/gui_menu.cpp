@@ -24,7 +24,8 @@ namespace pie_noon {
 
 //#define USE_IMGUI (1)
 
-GuiMenu::GuiMenu() : time_elapsed_(0) {
+GuiMenu::GuiMenu()
+    : debug_shader(nullptr), draw_debug_bounds(false), time_elapsed_(0) {
 #ifdef USE_IMGUI
   // Initialize font manager.
   fontman_ = new FontManager();
@@ -98,6 +99,11 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     button_list_[i].set_button_def(button);
     button_list_[i].set_is_active(button->starts_active() != 0);
     button_list_[i].set_is_highlighted(true);
+
+    if (debug_shader) {
+      button_list_[i].set_debug_shader(matman->FindShader(debug_shader));
+    }
+    button_list_[i].set_draw_bounds(draw_debug_bounds);
     button_list_[i].SetCannonicalWindowHeight(
         menu_def_->cannonical_window_height());
   }
@@ -128,6 +134,18 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     image_list_[i].Initialize(image_def, materials, shader,
                               menu_def_->cannonical_window_height());
   }
+}
+
+// Loads the debug shader if available
+// Sets option to draw render bounds for button
+void GuiMenu::LoadDebugShaderAndOptions(const Config* config,
+                                        MaterialManager* matman) {
+  if (config->menu_button_debug_shader() != nullptr &&
+      config->menu_button_debug_shader()->size() > 0) {
+    debug_shader = config->menu_button_debug_shader()->c_str();
+    matman->LoadShader(debug_shader);
+  }
+  draw_debug_bounds = config->draw_touch_button_bounds();
 }
 
 // Force the material manager to load all the textures and shaders

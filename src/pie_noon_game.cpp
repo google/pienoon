@@ -355,6 +355,9 @@ bool PieNoonGame::InitializeRenderingAssets() {
   shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.bin");
   if (!shadow_mat_) return false;
 
+  // Load debug shader if available
+  gui_menu_.LoadDebugShaderAndOptions(&config, &matman_);
+
   // Load all the menu textures.
   gui_menu_.LoadAssets(TitleScreenButtons(config), &matman_);
   gui_menu_.LoadAssets(config.touchscreen_zones(), &matman_);

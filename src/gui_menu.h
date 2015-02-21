@@ -58,6 +58,7 @@ class GuiMenu {
   TouchscreenButton* FindButtonById(ButtonId id);
   StaticImage* FindImageById(ButtonId id);
   const UiGroup* menu_def() const { return menu_def_; }
+  void LoadDebugShaderAndOptions(const Config* config, MaterialManager* matman);
 
  private:
   void ClearRecentSelections();
@@ -65,14 +66,16 @@ class GuiMenu {
 
   // imgui custom button definition.
   gui::Event ImguiButton(const ImguiButtonDef& data);
-  void RenderTexture(const Texture& tex, const vec2& pos,
-                     const vec2& size, const vec2& scale);
+  void RenderTexture(const Texture& tex, const vec2& pos, const vec2& size,
+                     const vec2& scale);
 
   const UiGroup* menu_def_;
   InputSystem* input_;
   MaterialManager* matman_;
   FontManager* fontman_;
 
+  const char* debug_shader;
+  bool draw_debug_bounds;
   ButtonId current_focus_;
   std::queue<MenuSelection> unhandled_selections_;
   std::vector<TouchscreenButton> button_list_;

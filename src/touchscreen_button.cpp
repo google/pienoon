@@ -1,6 +1,10 @@
 #include "touchscreen_button.h"
 #include "utilities.h"
 
+#if defined(_DEBUG)
+#define DEBUG_RENDER_BOUNDS
+#endif
+
 namespace fpl {
 namespace pie_noon {
 
@@ -12,7 +16,9 @@ TouchscreenButton::TouchscreenButton()
       is_active_(true),
       is_visible_(true),
       is_highlighted_(false),
-      one_over_cannonical_window_height_(0.0f) {}
+      one_over_cannonical_window_height_(0.0f) {
+  debug_shader_ = nullptr;
+}
 
 ButtonId TouchscreenButton::GetId() const {
   if (button_def_ != nullptr) {
@@ -98,6 +104,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
                        button_def()->texture_position()->y() * window_size.y(),
                        kButtonZDepth);
 
+  renderer.color() = mathfu::kOnes4f;
   if (is_active_ || inactive_shader_ == nullptr) {
     shader_->Set(renderer);
   } else {
@@ -107,6 +114,56 @@ void TouchscreenButton::Render(Renderer& renderer) {
   Mesh::RenderAAQuadAlongX(position - (texture_size / 2.0f),
                            position + (texture_size / 2.0f), vec2(0, 1),
                            vec2(1, 0));
+#if defined(DEBUG_RENDER_BOUNDS)
+  DebugRender(position, texture_size, renderer);
+#endif  // DEBUG_RENDER_BOUNDS
+}
+
+void TouchscreenButton::DebugRender(const vec3& position,
+                                    const vec3& texture_size,
+                                    Renderer& renderer) const {
+#if defined(DEBUG_RENDER_BOUNDS)
+  if (debug_shader_ && draw_bounds_) {
+    const vec2 window_size = vec2(renderer.window_size());
+    static const float kButtonZDepth = 0.0f;
+    static const Attribute kFormat[] = {kPosition3f, kEND};
+    static const unsigned short kIndices[] = {0, 1, 1, 3, 2, 3, 2, 0};
+    const vec3 bottom_left = position - (texture_size / 2.0f);
+    const vec3 top_right = position + (texture_size / 2.0f);
+
+    // vertex format is [x, y, z]
+    float vertices[] = {
+        bottom_left.x(), bottom_left.y(), bottom_left.z(), top_right.x(),
+        bottom_left.y(), bottom_left.z(), bottom_left.x(), top_right.y(),
+        top_right.z(),   top_right.x(),   top_right.y(),   top_right.z(),
+    };
+    renderer.color() = vec4(1.0f, 0.0f, 1.0f, 1.0f);
+    debug_shader_->Set(renderer);
+    Mesh::RenderArray(GL_LINES, 8, kFormat, sizeof(float) * 3,
+                      reinterpret_cast<const char*>(vertices), kIndices);
+
+    renderer.color() = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    debug_shader_->Set(renderer);
+    static unsigned short indicesButtonDef[] = {1, 0, 1, 2, 2, 3, 3, 0};
+    float verticesButtonDef[] = {
+        button_def()->top_left()->x() * window_size.x(),
+        button_def()->top_left()->y() * window_size.y(), kButtonZDepth,
+        button_def()->top_left()->x() * window_size.x(),
+        button_def()->bottom_right()->y() * window_size.y(), kButtonZDepth,
+        button_def()->bottom_right()->x() * window_size.x(),
+        button_def()->bottom_right()->y() * window_size.y(), kButtonZDepth,
+        button_def()->bottom_right()->x() * window_size.x(),
+        button_def()->top_left()->y() * window_size.y(), kButtonZDepth,
+    };
+    Mesh::RenderArray(GL_LINES, 8, kFormat, sizeof(float) * 3,
+                      reinterpret_cast<const char*>(verticesButtonDef),
+                      indicesButtonDef);
+  }
+  #else
+  (void) position;
+  (void) texture_size;
+  (void) renderer;
+#endif  // DEBUG_RENDER_BOUNDS
 }
 
 StaticImage::StaticImage()

@@ -882,6 +882,12 @@ table Config {
 
   // Options for multiscreen mode.
   multiscreen_options:MultiscreenOptions;
+
+  // Enable debug shader rendering for buttons only works if menu_button_debug_shader is set to a shader
+  draw_touch_button_bounds:bool;
+
+  // Debug shader to show bounds for menu buttons
+  menu_button_debug_shader:string;
 }
 
 root_type Config;

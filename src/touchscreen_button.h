@@ -73,6 +73,11 @@ class TouchscreenButton {
 
   Shader* shader() const { return shader_; }
   void set_shader(Shader* shader) { shader_ = shader; }
+  Shader* debug_shader() const { return debug_shader_; }
+  void set_debug_shader(Shader* shader) { debug_shader_ = shader; }
+  void DebugRender(const vec3& position, const vec3& texture_size,
+                   Renderer& renderer) const;
+  void set_draw_bounds(bool enable) { draw_bounds_ = enable; };
 
   bool is_active() const { return is_active_; }
   void set_is_active(bool is_active) { is_active_ = is_active; }
@@ -99,6 +104,7 @@ class TouchscreenButton {
   const ButtonDef* button_def_;
   Shader* shader_;
   Shader* inactive_shader_;
+  Shader* debug_shader_;
 
   // Textures to draw for the up/down states:
   std::vector<Material*> up_materials_;
@@ -116,6 +122,7 @@ class TouchscreenButton {
   bool is_active_;
   bool is_visible_;
   bool is_highlighted_;
+  bool draw_bounds_;
 
   // Scale the textures by the y-axis so that they are (proportionally)
   // the same height on every platform.
