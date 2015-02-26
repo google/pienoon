@@ -73,12 +73,10 @@ void GameCamera::ExecuteMovement(const GameCameraMovement& movement) {
   end_ = movement.end;
 
   // Initialize the Impeller.
-  impel::ImpelTarget1f t;
-  t.SetValue(0.0f);
-  t.SetVelocity(movement.start_velocity);
-  t.SetTargetValue(1.0f);
-  t.SetTargetTime(movement.time);
-  percent_.InitializeWithTarget(movement.init, engine_, t);
+  percent_.InitializeWithTarget(
+      movement.init, engine_, impel::CurrentToTarget1f(
+                                  0.0f, movement.start_velocity, 1.0f, 0.0f,
+                                  movement.time));
 }
 
 void GameCamera::TerminateMovements() {
@@ -86,7 +84,7 @@ void GameCamera::TerminateMovements() {
   start_ = state;
   end_ = state;
   if (percent_.Valid()) {
-    percent_.SetTarget(impel::ImpelTarget1f(1.0f));
+    percent_.SetTarget(impel::Current1f(1.0f));
   }
   movements_ = std::queue<GameCameraMovement>();
 }

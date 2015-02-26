@@ -106,8 +106,9 @@ protected:
   void InitImpeller(const ImpelInit& init, float start_value,
                     float start_velocity, float target_value,
                     Impeller1f* impeller) {
-    const ImpelTarget1f t(start_value, start_velocity, target_value);
-    impeller->InitializeWithTarget(init, &engine_, t);
+    impeller->InitializeWithTarget(init, &engine_,
+        impel::CurrentToTarget1f(start_value, start_velocity, target_value,
+                                 0.0f, 1));
   }
 
   void InitOvershootImpeller(Impeller1f* impeller) {
@@ -286,8 +287,8 @@ TEST_F(ImpelTests, SmoothModular) {
   static const ImpelTime kTime = 10;
   static const float kStart = kPi - kMargin;
   static const float kEnd = -kPi + kMargin;
-  const ImpelTarget1f t(kStart, 0.0f, kEnd, 0.0f, kTime);
-  Impeller1f angle(smooth_angle_init_, &engine_, t);
+  Impeller1f angle(smooth_angle_init_, &engine_,
+                   impel::CurrentToTarget1f(kStart, 0.0f, kEnd, 0.0f, kTime));
 
   // The difference should be the short way around, across kPi.
   EXPECT_NEAR(angle.Value(), kStart, kAngleEpsilon);

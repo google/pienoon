@@ -28,6 +28,10 @@ using fpl::Range;
 static const float kYRangeBufferPercent = 1.2f;
 static const float kDefaultTargetVelocity = 0.0f;
 
+// An intermediate node might be inserted to make the cubic curve well
+// behaved, so reserve 3 nodes in the spline.
+static const int kMaxNodesInLocalSpline = 2 * ImpelTarget1f::kMaxNodes + 1;
+
 struct SmoothImpelData {
   SmoothImpelData() : local_spline(nullptr) {}
 
@@ -71,42 +75,43 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
   }
 
   virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
-    // Doesn't makes sense to recycle the target time from current values.
-    assert(t.Valid(kTargetTime));
     SmoothImpelData& d = Data(index);
 
-    // Initialize spline to match specified parameters. We maintain current
-    // values for any parameters that aren't specified.
-    const float start_y = t.Valid(kValue) ? t.Value() : Value(index);
-    const float end_y_unnormalized =
-        t.Valid(kTargetValue) ? t.TargetValue() : start_y;
-    const float start_derivative =
-        t.Valid(kVelocity) ? t.Velocity() : Velocity(index);
-    const float end_derivative =
-        t.Valid(kTargetVelocity) ? t.TargetVelocity() : kDefaultTargetVelocity;
-    const float end_x = static_cast<float>(t.TargetTime());
+    // If the first node specifies time=0, that means we want to override the
+    // current values with the values specified in the first node.
+    const ImpelNode1f& node0 = t.Node(0);
+    const bool override_current = node0.time == 0;
+    const float start_y = override_current ? node0.value : Value(index);
+    const float start_derivative = override_current ? node0.velocity
+                                                    : Velocity(index);
+    const float start_node_index = override_current ? 1 : 0;
 
-    // Ensure the end y value takes the shortest route, even if that means
-    // going outside the normalized range.
-    const float end_y =
-        start_y + interpolator_.NormalizeY(index, end_y_unnormalized - start_y);
-
-    // Calculate the spline quantization parameters.
-    const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
-    const Range y_range =
-        fpl::CreateValidRange(start_y, end_y).Lengthen(kYRangeBufferPercent);
-
-    // Ensure we have a local spline available, allocated from our
-    // pool of splines.
+    // Ensure we have a local spline available, allocated from our pool of
+    // splines.
     if (d.local_spline == nullptr) {
       d.local_spline = AllocateSpline();
     }
 
-    // An intermediate node might be inserted to make the cubic curve well
-    // behaved, so reserve 3 nodes in the spline.
-    d.local_spline->Init(y_range, x_granularity, 3);
+    // Initialize the compact spline to hold the sequence of nodes in 't'.
+    // Add the first node, which has the start condition.
+    const float end_x = static_cast<float>(t.EndTime());
+    const Range y_range = t.ValueRange(start_y).Lengthen(kYRangeBufferPercent);
+    const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
+    d.local_spline->Init(y_range, x_granularity, kMaxNodesInLocalSpline);
     d.local_spline->AddNode(0.0f, start_y, start_derivative);
-    d.local_spline->AddNode(end_x, end_y, end_derivative);
+
+    // Add subsequent nodes, in turn, taking care to respect the 'direction'
+    // request when using modular arithmetic.
+    float prev_y = start_y;
+    for (int i = start_node_index; i < t.num_nodes(); ++i) {
+      const ImpelNode1f& n = t.Node(i);
+      const float y = interpolator_.NextY(index, prev_y, n.value, n.direction);
+      d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity);
+      prev_y = y;
+    }
+
+    // Point the interpolator at the spline we just created. Always start our
+    // spline at time 0.
     interpolator_.SetSpline(index, *d.local_spline);
   }
 

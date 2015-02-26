@@ -20,6 +20,19 @@
 
 namespace fpl {
 
+
+// If using modular arithmetic, there are two paths to the target: one that
+// goes directly and one that wraps around. This enum represents differet ways
+// to choose the path.
+enum ModularDirection {
+  kDirectionClosest,
+  kDirectionFarthest,
+  kDirectionPositive,
+  kDirectionNegative,
+  kDirectionDirect,
+};
+
+
 /// Represent an interval on a number line.
 template <class T>
 class RangeT {
@@ -82,13 +95,12 @@ class RangeT {
     return mathfu::Clamp(Percent(x), 0.0f, 1.0f);
   }
 
-  // Ensure position 'x' is within the valid constraint range.
-  // 'x' must be within (end_ - start_) of the range. This is a reasonable
+  // Ensure 'x' is within the valid constraint range.
+  // 'x' must be within +-Length() of the range bounds. This is a reasonable
   // restriction in most cases (such as after an arithmetic operation).
   // For cases where 'x' may be wildly outside the range, use
   // NormalizeWildValue() instead.
   T Normalize(T x) const {
-    // For non-modular values, do nothing.
     return x + ModularAdjustment(x);
   }
 
@@ -107,13 +119,59 @@ class RangeT {
     return normalized;
   }
 
+  // Returns:
+  //   Length() if 'x' is below the valid range
+  //   -Length() if 'x' is above the valid range
+  //   0 if 'x' is within the valid range.
   T ModularAdjustment(T x) const {
-    // For modular values, ensures 'x' is in the constraints (min, max].
-    // That is, exclusive of min, inclusive of max.
     const T length = Length();
     const T adjustment = x <= start_ ? length : x > end_ ? -length : 0.0f;
     assert(start_ < x + adjustment && x + adjustment <= end_);
     return adjustment;
+  }
+
+  // In modular arithmetic, you can get from 'a' to 'b' by going directly, or
+  // by wrapping around.
+  // Return the closest difference from 'a' to 'b' under modular arithmetic.
+  float ModDiffClose(T a, T b) const {
+    return Normalize(b - a);
+  }
+
+  // Return the farthest difference from 'a' to 'b' under modular arithmetic.
+  float ModDiffFar(T a, T b) const {
+    const float length = Length();
+    const float close = ModDiffClose(a, b);
+    return close >= 0.0f ? close - length : close + length;
+  }
+
+  // Return the difference from 'a' to 'b' under modular arithmetic that is
+  // positive.
+  float ModDiffPositive(T a, T b) const {
+    const float length = Length();
+    const float close = ModDiffClose(a, b);
+    return close >= 0.0f ? close : close + length;
+  }
+
+  // Return the difference from 'a' to 'b' under modular arithmetic that is
+  // negative.
+  float ModDiffNegative(T a, T b) const {
+    const float length = Length();
+    const float close = ModDiffClose(a, b);
+    return close >= 0.0f ? close - length : close;
+  }
+
+  // Return the difference from 'a' to 'b' that satisfies the 'direction'
+  // criteria.
+  float ModDiff(T a, T b, ModularDirection direction) const {
+    switch (direction) {
+      case kDirectionClosest: return ModDiffClose(a, b);
+      case kDirectionFarthest: return ModDiffFar(a, b);
+      case kDirectionPositive: return ModDiffPositive(a, b);
+      case kDirectionNegative: return ModDiffNegative(a, b);
+      case kDirectionDirect: return b - a;
+    }
+    assert(false);
+    return 0.0f;
   }
 
   bool Contains(const T x) const { return start_ <= x && x <= end_; }

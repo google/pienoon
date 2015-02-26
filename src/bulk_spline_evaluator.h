@@ -109,6 +109,20 @@ class BulkSplineEvaluator {
     return d.modular_arithmetic ? d.valid_y.Normalize(y) : y;
   }
 
+  // Helper function to calculate the next y-value in a series of y-values
+  // that are restricted by 'direction'. There are always two paths that a y
+  // value can take, in modular arithmetic. This function chooses the correct
+  // one.
+  float NextY(const Index index, const float current_y, const float target_y,
+              const ModularDirection direction) const {
+    const Domain& d = domains_[index];
+    if (!d.modular_arithmetic) return target_y;
+
+    // Calculate the difference from the current-y value for 'direction'.
+    const float diff = d.valid_y.ModDiff(current_y, target_y, direction);
+    return current_y + diff;
+  }
+
  private:
   void InitCubic(const Index index);
   void EvaluateIndex(const Index index);

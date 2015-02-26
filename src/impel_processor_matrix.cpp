@@ -61,7 +61,7 @@ class MatrixOperation {
 
         // Initialize the state if required.
         if (init.has_initial_value) {
-          value_.impeller.SetTarget(ImpelTarget1f(init.initial_value));
+          value_.impeller.SetTarget(impel::Current1f(init.initial_value));
         }
         break;
       }

@@ -84,14 +84,21 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
   }
   virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
     OvershootImpelData& d = Data(index);
-    if (t.Valid(kValue)) {
-      d.value = t.Value();
+
+    // A 'time' of 0 means that we're setting the current values.
+    const ImpelNode1f& current = t.Node(0);
+    if (current.time == 0) {
+      d.value = current.value;
+      d.velocity = current.velocity;
     }
-    if (t.Valid(kVelocity)) {
-      d.velocity = t.Velocity();
-    }
-    if (t.Valid(kTargetValue)) {
-      d.target_value = t.TargetValue();
+
+    // A 'time' > 0 means that we're setting the target values.
+    // We can also use the second node to set target values, if it exists.
+    const ImpelNode1f* target = current.time == 0
+                              ? (t.num_nodes() > 1 ? &t.Node(1) : nullptr)
+                              : &t.Node(0);
+    if (target != nullptr) {
+      d.target_value = target->value;
     }
   }
 

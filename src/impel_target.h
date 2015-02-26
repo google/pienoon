@@ -15,30 +15,24 @@
 #ifndef IMPEL_TARGET_H
 #define IMPEL_TARGET_H
 
+#include "range.h"
+
 namespace impel {
 
-// Impellers have a subset of this state. Not all impellers types have all
-// of this state. For example, some impellers may be simple physics driven
-// movement, and not support waypoints.
-enum ImpelTarget1fItem {
-  kValue,
-  kVelocity,
-  kTargetValue,
-  kTargetVelocity,
-  kTargetTime,
+struct ImpelNode1f {
+  float value;
+  float velocity;
+  ImpelTime time;
+  fpl::ModularDirection direction;
+
+  ImpelNode1f() : value(0.0f), velocity(0.0f), time(0),
+                  direction(fpl::kDirectionClosest) {}
+  ImpelNode1f(float value, float velocity, ImpelTime time,
+              fpl::ModularDirection direction = fpl::kDirectionClosest)
+      : value(value), velocity(velocity), time(time), direction(direction) {}
 };
 
-// Bitfields of the types above. Used in ImpelTarget1f::valid
-// to specify which fields are being set in ImpelProcessor::SetState().
-enum ImpelTarget1fValidity {
-  kValueValid = 1 << kValue,
-  kVelocityValid = 1 << kVelocity,
-  kTargetValueValid = 1 << kTargetValue,
-  kTargetVelocityValid = 1 << kTargetVelocity,
-  kTargetTimeValid = 1 << kTargetTime,
-};
-
-// Override the current and target state for a one-dimensional Impeller.
+// Override the current and/or target state for a one-dimensional Impeller.
 // It is valid to set a subset of the parameters here. For example, if you
 // want to continually adjust the target value of an Impeller every frame,
 // you can call Impeller1f::SetTarget() with an ImpelTarget1f that has only
@@ -46,11 +40,6 @@ enum ImpelTarget1fValidity {
 //
 // If the current value and current velocity are not specified, their current
 // values in the impeller are used.
-//
-// If the target value and target velocity are not specified, 0 is used.
-//
-// If target time is not specified, a default constant is used. Note that not
-// all Impeller types respect target time.
 //
 // An Impeller's target is set in bulk via the SetTarget call. All the state
 // is set in one call because SetTarget will generally involve a lot of
@@ -61,123 +50,111 @@ enum ImpelTarget1fValidity {
 //
 class ImpelTarget1f {
  public:
-  ImpelTarget1f() : valid_items_(0) {}
+  static const int kMaxNodes = 3;
 
-  // Convenience constructors. To avoid having to call SetValue() and other
-  // such calls on a separate line.
-  explicit ImpelTarget1f(float value) { SetConstant(value); }
+  ImpelTarget1f() : num_nodes_(0) {}
 
-  ImpelTarget1f(float value, float velocity) : valid_items_(0) {
-    SetValue(value);
-    SetVelocity(velocity);
+  explicit ImpelTarget1f(const ImpelNode1f& n0)
+      : num_nodes_(1) {
+    nodes_[0] = n0;
   }
 
-  ImpelTarget1f(float value, float velocity, float target_value)
-      : valid_items_(0) {
-    SetValue(value);
-    SetVelocity(velocity);
-    SetTargetValue(target_value);
+  ImpelTarget1f(const ImpelNode1f& n0, const ImpelNode1f& n1)
+      : num_nodes_(2) {
+    assert(0 <= n0.time && n0.time < n1.time);
+    nodes_[0] = n0;
+    nodes_[1] = n1;
   }
 
-  ImpelTarget1f(float value, float velocity, float target_value,
-                float target_velocity)
-      : valid_items_(0) {
-    SetValue(value);
-    SetVelocity(velocity);
-    SetTargetValue(target_value);
-    SetTargetVelocity(target_velocity);
+  ImpelTarget1f(const ImpelNode1f& n0, const ImpelNode1f& n1,
+                const ImpelNode1f& n2)
+      : num_nodes_(3) {
+    assert(0 <= n0.time && n0.time < n1.time && n1.time < n2.time);
+    nodes_[0] = n0;
+    nodes_[1] = n1;
+    nodes_[2] = n2;
   }
 
-  ImpelTarget1f(float value, float velocity, float target_value,
-                float target_velocity, ImpelTime target_time)
-      : valid_items_(0) {
-    SetValue(value);
-    SetVelocity(velocity);
-    SetTargetValue(target_value);
-    SetTargetVelocity(target_velocity);
-    SetTargetTime(target_time);
+  // Empty the target of all nodes.
+  void Reset() { num_nodes_ = 0; }
+
+  const ImpelNode1f& Node(int node_index) const {
+    assert(0 <= node_index && node_index < num_nodes_);
+    return nodes_[node_index];
   }
 
-  void Reset() { valid_items_ = 0; }
-
-  void SetValue(float value) {
-    value_ = value;
-    valid_items_ |= kValueValid;
+  fpl::Range ValueRange(float start_value) const {
+    assert(num_nodes_ > 0);
+    float min = start_value;
+    float max = start_value;
+    for (int i = 0; i < num_nodes_; ++i) {
+      min = std::min(nodes_[i].value, min);
+      max = std::max(nodes_[i].value, max);
+    }
+    return fpl::Range(min, max);
   }
 
-  void SetVelocity(float velocity) {
-    velocity_ = velocity;
-    valid_items_ |= kVelocityValid;
+  ImpelTime EndTime() const {
+    assert(num_nodes_ > 0);
+    return nodes_[num_nodes_ - 1].time;
   }
 
-  void SetTargetValue(float target_value) {
-    target_value_ = target_value;
-    valid_items_ |= kTargetValueValid;
-  }
-
-  void SetTargetVelocity(float target_velocity) {
-    target_velocity_ = target_velocity;
-    valid_items_ |= kTargetVelocityValid;
-  }
-
-  void SetTargetTime(ImpelTime target_time) {
-    target_time_ = target_time;
-    valid_items_ |= kTargetTimeValid;
-  }
-
-  // Set the impeller to a constant state, where the current and target
-  // values equal 'value', and the current and target velocities are 0.
-  void SetConstant(float value) {
-    value_ = value;
-    velocity_ = 0.0f;
-    target_value_ = value_;
-    target_velocity_ = velocity_;
-    target_time_ = 0.0f;
-    valid_items_ |= kValueValid | kVelocityValid | kTargetValueValid |
-                    kTargetVelocityValid | kTargetTimeValid;
-  }
-
-  // Return true if the specified item has been specified in a 'Set()' call.
-  bool Valid(const ImpelTarget1fItem item) const {
-    return (1 << item) & valid_items_;
-  }
-
-  // Return values that have been specified in a 'Set()' call.
-  float Value() const {
-    assert(Valid(kValue));
-    return value_;
-  }
-
-  float Velocity() const {
-    assert(Valid(kVelocity));
-    return velocity_;
-  }
-
-  float TargetValue() const {
-    assert(Valid(kTargetValue));
-    return target_value_;
-  }
-
-  float TargetVelocity() const {
-    assert(Valid(kTargetVelocity));
-    return target_velocity_;
-  }
-
-  ImpelTime TargetTime() const {
-    assert(Valid(kTargetTime));
-    return target_time_;
-  }
-
-  uint32_t valid_items() const { return valid_items_; }
+  int num_nodes() const { return num_nodes_; }
 
  private:
-  uint32_t valid_items_;  // bitfield. See ImpelTarget1fValidity.
-  ImpelTime target_time_;
-  float value_;
-  float velocity_;
-  float target_value_;
-  float target_velocity_;
+  int num_nodes_;
+  ImpelNode1f nodes_[kMaxNodes];
 };
+
+
+// Set the Impeller's current values. Target values are reset to be the same
+// as the new current values.
+inline ImpelTarget1f Current1f(float current_value,
+                               float current_velocity = 0.0f) {
+  return ImpelTarget1f(ImpelNode1f(current_value, current_velocity, 0));
+}
+
+// Keep the Impeller's current values, but set the Impeller's target values.
+// If Impeller uses modular arithmetic, traverse from the current to the target
+// according to 'direction'.
+inline ImpelTarget1f Target1f(
+    float target_value, float target_velocity, ImpelTime target_time,
+    fpl::ModularDirection direction = fpl::kDirectionClosest) {
+  assert(target_time > 0);
+  return ImpelTarget1f(ImpelNode1f(target_value, target_velocity, target_time,
+                                   direction));
+}
+
+// Set both the current and target values for an Impeller.
+inline ImpelTarget1f CurrentToTarget1f(
+    float current_value, float current_velocity,
+    float target_value, float target_velocity, ImpelTime target_time,
+    fpl::ModularDirection direction = fpl::kDirectionClosest) {
+  return ImpelTarget1f(ImpelNode1f(current_value, current_velocity, 0),
+                       ImpelNode1f(target_value, target_velocity, target_time,
+                                   direction));
+}
+
+// Keep the Impeller's current values, but set two targets for the Impeller.
+// After the first target, go on to the next.
+inline ImpelTarget1f TargetToTarget1f(
+    float target_value, float target_velocity, ImpelTime target_time,
+    float third_value, float third_velocity, ImpelTime third_time) {
+  return ImpelTarget1f(
+             ImpelNode1f(target_value, target_velocity, target_time),
+             ImpelNode1f(third_value, third_velocity, third_time));
+}
+
+// Set the Impeller's current values, and two targets afterwards.
+inline ImpelTarget1f CurrentToTargetToTarget1f(
+    float current_value, float current_velocity,
+    float target_value, float target_velocity, ImpelTime target_time,
+    float third_value, float third_velocity, ImpelTime third_time) {
+  return ImpelTarget1f(
+             ImpelNode1f(current_value, current_velocity, 0),
+             ImpelNode1f(target_value, target_velocity, target_time),
+             ImpelNode1f(third_value, third_velocity, third_time));
+}
 
 }  // namespace impel
 
