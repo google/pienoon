@@ -135,6 +135,16 @@ inline ImpelTarget1f CurrentToTarget1f(
                                    direction));
 }
 
+// Move from the current value to the target value at a constant speed.
+inline ImpelTarget1f CurrentToTargetConstVelocity1f(
+    float current_value, float target_value, ImpelTime target_time) {
+  assert(target_time > 0);
+  const float velocity = (target_value - current_value) / target_time;
+  return ImpelTarget1f(ImpelNode1f(current_value, velocity, 0),
+                       ImpelNode1f(target_value, velocity, target_time,
+                                   fpl::kDirectionDirect));
+}
+
 // Keep the Impeller's current values, but set two targets for the Impeller.
 // After the first target, go on to the next.
 inline ImpelTarget1f TargetToTarget1f(

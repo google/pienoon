@@ -153,7 +153,8 @@ class Impeller1f : public Impeller {
   // Set current impeller values in the processor. Processors may choose to
   // ignore whichever values make sense for them to ignore.
   void SetTarget(const ImpelTarget1f& t) { Processor().SetTarget(index_, t); }
-  void SetWaypoints(const fpl::CompactSpline& waypoints, float start_time) {
+  void SetWaypoints(const fpl::CompactSpline& waypoints,
+                    float start_time = 0.0f) {
     Processor().SetWaypoints(index_, waypoints, start_time);
   }
 
@@ -189,6 +190,9 @@ class ImpellerMatrix4fTemplate : public Impeller {
   // vector-aligned matrix, so the cast should be valid for any user-defined
   // matrix type.
   const Mat4& Value() const { return C::To(Processor().Value(index_)); }
+  Vec3 Position() const {
+    return C::To(Processor().Value(index_).TranslationVector3D());
+  }
 
   float ChildValue1f(ImpelChildIndex child_index) const {
     return Processor().ChildValue1f(index_, child_index);

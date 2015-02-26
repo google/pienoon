@@ -628,10 +628,11 @@ void PieNoonGame::DebugPrintCharacterStates() {
 void PieNoonGame::DebugPrintPieStates() {
   for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
     auto& pie = game_state_.pies()[i];
+    const vec3 position = pie->Position();
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                 "Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
                 pie->source(), pie->target(), pie->damage(),
-                pie->position().x(), pie->position().y(), pie->position().z());
+                position.x(), position.y(), position.z());
   }
 }
 

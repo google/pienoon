@@ -44,6 +44,8 @@ class ModularImpelInit : public ImpelInit {
         range_(-std::numeric_limits<float>::infinity(),
                std::numeric_limits<float>::infinity()),
         modular_(false) {}
+  ModularImpelInit(ImpellerType type, const fpl::Range& range, bool modular)
+      : ImpelInit(type), range_(range), modular_(modular) {}
 
   // Ensure position 'x' is within the valid constraint range.
   // 'x' must be within (max_ - min_) of the range. This is a reasonable
@@ -167,22 +169,30 @@ class SmoothImpelInit : public ModularImpelInit {
   IMPEL_INTERFACE();
 
   SmoothImpelInit() : ModularImpelInit(kType) {}
+  SmoothImpelInit(const fpl::Range& range, bool modular)
+      : ModularImpelInit(kType, range, modular) {}
 };
 
 struct MatrixOperationInit {
+  enum UnionType {
+    kUnionEmpty,
+    kUnionInitialValue,
+    kUnionTarget,
+    kUnionWaypoints
+  };
+
   // Matrix operation never changes. Always use 'const_value'.
   MatrixOperationInit(MatrixOperationType type, float const_value)
       : init(nullptr),
         type(type),
-        has_initial_value(true),
+        union_type(kUnionInitialValue),
         initial_value(const_value) {}
 
   // Matrix operation is driven by Impeller defined by 'init'.
   MatrixOperationInit(MatrixOperationType type, const ImpelInit& init)
       : init(&init),
         type(type),
-        has_initial_value(false),
-        initial_value(0.0f) {}
+        union_type(kUnionEmpty) {}
 
   // Matrix operation is driven by Impeller defined by 'init'. Specify initial
   // value as well.
@@ -190,13 +200,38 @@ struct MatrixOperationInit {
                       float initial_value)
       : init(&init),
         type(type),
-        has_initial_value(true),
+        union_type(kUnionInitialValue),
         initial_value(initial_value) {}
+
+  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
+                      const ImpelTarget1f& target)
+      : init(&init),
+        type(type),
+        union_type(kUnionTarget),
+        target(&target) {}
+
+  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
+                      const fpl::CompactSpline& spline, float start_time)
+      : init(&init),
+        type(type),
+        union_type(kUnionWaypoints) {
+    waypoints.spline = &spline;
+    waypoints.start_time = start_time;
+  }
+
+  struct Waypoints {
+    const fpl::CompactSpline* spline;
+    float start_time;
+  };
 
   const ImpelInit* init;
   MatrixOperationType type;
-  bool has_initial_value;
-  float initial_value;
+  UnionType union_type;
+  union {
+    float initial_value;
+    const ImpelTarget1f* target;
+    Waypoints waypoints;
+  };
 };
 
 // Initialize an ImpellerMatrix4f with these initialization parameters to
@@ -245,6 +280,16 @@ class MatrixImpelInit : public ImpelInit {
   void AddOp(MatrixOperationType type, const ImpelInit& init,
              float initial_value) {
     ops_.push_back(MatrixOperationInit(type, init, initial_value));
+  }
+
+  void AddOp(MatrixOperationType type, const ImpelInit& init,
+             const ImpelTarget1f& target) {
+    ops_.push_back(MatrixOperationInit(type, init, target));
+  }
+
+  void AddOp(MatrixOperationType type, const ImpelInit& init,
+             const fpl::CompactSpline& spline, float start_time = 0.0f) {
+    ops_.push_back(MatrixOperationInit(type, init, spline, start_time));
   }
 
   const OpVector& ops() const { return ops_; }

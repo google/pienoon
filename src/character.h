@@ -189,10 +189,12 @@ class Character {
 
 class AirbornePie {
  public:
-  AirbornePie(CharacterId original_source, CharacterId source,
-              CharacterId target, WorldTime start_time, WorldTime flight_time,
-              CharacterHealth original_damage, CharacterHealth damage,
-              float height, int rotations);
+  AirbornePie(
+      CharacterId original_source, const Character& source,
+      const Character& target, WorldTime start_time, WorldTime flight_time,
+      CharacterHealth original_damage, CharacterHealth damage,
+      float start_height, float peak_height, int rotations,
+      impel::ImpelEngine* engine);
 
   CharacterId original_source() const { return original_source_; }
   CharacterId source() const { return source_; }
@@ -201,13 +203,8 @@ class AirbornePie {
   WorldTime flight_time() const { return flight_time_; }
   CharacterHealth original_damage() const { return original_damage_; }
   CharacterHealth damage() const { return damage_; }
-  float height() const { return height_; }
-  int rotations() const { return rotations_; }
-  Quat orientation() const { return orientation_; }
-  void set_orientation(const Quat& orientation) { orientation_ = orientation; }
-  mathfu::vec3 position() const { return position_; }
-  void set_position(const mathfu::vec3& position) { position_ = position; }
-  mathfu::mat4 CalculateMatrix() const;
+  const mathfu::mat4& Matrix() const { return impeller_.Value(); }
+  mathfu::vec3 Position() const { return impeller_.Position(); }
 
  private:
   CharacterId original_source_;
@@ -217,10 +214,7 @@ class AirbornePie {
   WorldTime flight_time_;
   CharacterHealth original_damage_;
   CharacterHealth damage_;
-  float height_;
-  int rotations_;
-  Quat orientation_;
-  mathfu::vec3 position_;
+  impel::ImpellerMatrix4f impeller_;
 };
 
 // Return index of first item with time >= t.

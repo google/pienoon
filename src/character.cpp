@@ -35,6 +35,8 @@ using mathfu::mat4;
 namespace fpl {
 namespace pie_noon {
 
+static const float kMaxPosition = 20.0f;
+
 Character::Character(
     CharacterId id, Controller* controller, const Config& config,
     const CharacterStateMachineDef* character_state_machine_def)
@@ -113,25 +115,69 @@ void Character::ResetStats() {
 }
 
 // orientation_ and position_ are set each frame in GameState::Advance.
-AirbornePie::AirbornePie(CharacterId original_source, CharacterId source,
-                         CharacterId target, WorldTime start_time,
-                         WorldTime flight_time, CharacterHealth original_damage,
-                         CharacterHealth damage, float height, int rotations)
+AirbornePie::AirbornePie(
+    CharacterId original_source, const Character& source,
+    const Character& target, WorldTime start_time, WorldTime flight_time,
+    CharacterHealth original_damage, CharacterHealth damage,
+    float start_height, float peak_height, int rotations,
+    impel::ImpelEngine* engine)
     : original_source_(original_source),
-      source_(source),
-      target_(target),
+      source_(source.id()),
+      target_(target.id()),
       start_time_(start_time),
       flight_time_(flight_time),
       original_damage_(original_damage),
-      damage_(damage),
-      height_(height),
-      rotations_(rotations),
-      orientation_(0.0f, 0.0f, 1.0f, 0.0f),
-      position_(0.0f) {}
+      damage_(damage) {
+  // x,z positions are within a reasonable bound.
+  // Rotations are anglular values.
+  const impel::SmoothImpelInit position_init(
+      fpl::Range(-kMaxPosition, kMaxPosition), false);
+  const impel::SmoothImpelInit rotation_init(fpl::Range(-kPi, kPi), true);
 
-mat4 AirbornePie::CalculateMatrix() const {
-  return mat4::FromTranslationVector(position_) *
-         mat4::FromRotationMatrix(orientation_.ToMatrix());
+  // Move x,z at constant speed from source to target.
+  const impel::ImpelTarget1f x_target(impel::CurrentToTargetConstVelocity1f(
+                                          source.position().x(),
+                                          target.position().x(), flight_time));
+  const impel::ImpelTarget1f z_target(impel::CurrentToTargetConstVelocity1f(
+                                          source.position().z(),
+                                          target.position().z(), flight_time));
+
+  // Move y along a trajectory that starts and ends at 'start_height' and
+  // tops out at 'peak_height' half way through.
+  // Since deceleration is constant, and velocity at the peak is zero,
+  // the average velocity from start to peak is,
+  //       0.5(start_velocity + 0)
+  //
+  // At peak, height is average velocity times travel time, so
+  //       peak_height = 0.5(start_velocity + 0)*peak_time
+  // Which implies,
+  //    start_velocity = 2 * delta_height / peak_time
+  const float peak_time = 0.5f * flight_time;
+  const float delta_height = peak_height - start_height;
+  const float start_velocity = 2.0f * delta_height / peak_time;
+  const impel::ImpelTarget1f y_target(impel::CurrentToTargetToTarget1f(
+        start_height, start_velocity,                 // Initial node.
+        peak_height, 0.0f, peak_time,                 // Peak node.
+        start_height, -start_velocity, flight_time)); // End node.
+
+  // The pie is rotated about Y a constant amount so that it's facing the
+  // target.
+  const vec3 vector_to_target = target.position() - source.position();
+  const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
+
+  // The pie rotates top to bottom a fixed number of times. Rotation speed
+  // is constant.
+  const impel::ImpelTarget1f z_rotation_target(
+      impel::CurrentToTargetConstVelocity1f(
+          0.0f, rotations * kTwoPi, flight_time));
+
+  impel::MatrixImpelInit init(5);
+  init.AddOp(impel::kTranslateX, position_init, x_target);
+  init.AddOp(impel::kTranslateY, position_init, y_target);
+  init.AddOp(impel::kTranslateZ, position_init, z_target);
+  init.AddOp(impel::kRotateAboutY, -angle_to_target.ToRadians());
+  init.AddOp(impel::kRotateAboutZ, rotation_init, z_rotation_target);
+  impeller_.Initialize(init, engine);
 }
 
 void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,

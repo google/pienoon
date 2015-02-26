@@ -24,11 +24,6 @@ using fpl::Angle;
 
 namespace impel {
 
-static const vec4 kIdentityColumn0(1.0f, 0.0f, 0.0f, 0.0f);
-static const vec4 kIdentityColumn1(0.0f, 1.0f, 0.0f, 0.0f);
-static const vec4 kIdentityColumn2(0.0f, 0.0f, 1.0f, 0.0f);
-static const vec4 kIdentityColumn3(0.0f, 0.0f, 0.0f, 1.0f);
-
 static inline bool IsRotation(MatrixOperationType type) {
   return type <= kRotateAboutZ;
 }
@@ -44,8 +39,6 @@ class MatrixOperation {
   }
 
   MatrixOperation(const MatrixOperationInit& init, ImpelEngine* engine) {
-    (void)init;
-    (void)engine;
     const AnimationType animation_type =
         init.init == nullptr ? kConstValueAnimation : kImpellerAnimation;
     SetType(init.type);
@@ -60,8 +53,24 @@ class MatrixOperation {
         new (impeller) Impeller1f(*init.init, engine);
 
         // Initialize the state if required.
-        if (init.has_initial_value) {
-          value_.impeller.SetTarget(impel::Current1f(init.initial_value));
+        switch (init.union_type) {
+          case MatrixOperationInit::kUnionEmpty:
+            break;
+
+          case MatrixOperationInit::kUnionInitialValue:
+            value_.impeller.SetTarget(Current1f(init.initial_value));
+            break;
+
+          case MatrixOperationInit::kUnionTarget:
+            value_.impeller.SetTarget(*init.target);
+            break;
+
+          case MatrixOperationInit::kUnionWaypoints:
+            value_.impeller.SetWaypoints(*init.waypoints.spline,
+                                         init.waypoints.start_time);
+            break;
+
+          default: assert(false);
         }
         break;
       }
@@ -69,7 +78,7 @@ class MatrixOperation {
       case kConstValueAnimation:
         // If this value is not driven by an impeller, it must have a constant
         // value.
-        assert(init.has_initial_value);
+        assert(init.union_type == MatrixOperationInit::kUnionInitialValue);
 
         // Record the const value into the union.
         value_.const_value = init.initial_value;
@@ -186,10 +195,10 @@ class MatrixImpelData {
   // fast).
   mat4 CalculateResultMatrix() const {
     // Start with the identity matrix.
-    vec4 c0(kIdentityColumn0);
-    vec4 c1(kIdentityColumn1);
-    vec4 c2(kIdentityColumn2);
-    vec4 c3(kIdentityColumn3);
+    vec4 c0(mathfu::kAxisX4f);  // (1, 0, 0, 0)
+    vec4 c1(mathfu::kAxisY4f);  // (0, 1, 0, 0)
+    vec4 c2(mathfu::kAxisZ4f);  // (0, 0, 1, 0)
+    vec4 c3(mathfu::kAxisW4f);  // (0, 0, 0, 1)
 
     for (int i = 0; i < num_ops_; ++i) {
       const MatrixOperation& op = ops_[i];
@@ -372,6 +381,7 @@ class MatrixImpelProcessor : public ImpelProcessorMatrix4f {
 
   virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
     data_[new_index] = data_[old_index];
+    data_[old_index] = nullptr;
   }
 
   virtual void SetNumIndices(ImpelIndex num_indices) {

@@ -279,20 +279,27 @@ void GameState::ProcessSounds(pindrop::AudioEngine* audio_engine,
   }
 }
 
+static float CalculatePieHeight(const Config& config) {
+  return config.pie_arc_height() + config.pie_arc_height_variance() *
+                                   (mathfu::Random<float>() * 2 - 1);
+}
+
+static float CalculatePieRotations(const Config& config) {
+  const int variance = config.pie_rotation_variance();
+  const int bonus = variance == 0 ? 0 : (rand() % (variance * 2)) - variance;
+  return config.pie_rotations() + bonus;
+}
+
 void GameState::CreatePie(CharacterId original_source_id, CharacterId source_id,
                           CharacterId target_id,
                           CharacterHealth original_damage,
                           CharacterHealth damage) {
-  float height = config_->pie_arc_height();
-  height +=
-      config_->pie_arc_height_variance() * (mathfu::Random<float>() * 2 - 1);
-  int rotations = config_->pie_rotations();
-  int variance = config_->pie_rotation_variance();
-  rotations += variance ? (rand() % (variance * 2)) - variance : 0;
+  const float peak_height = CalculatePieHeight(*config_);
+  const int rotations = CalculatePieRotations(*config_);
   pies_.push_back(std::unique_ptr<AirbornePie>(new AirbornePie(
-      original_source_id, source_id, target_id, time_,
-      config_->pie_flight_time(), original_damage, damage, height, rotations)));
-  UpdatePiePosition(pies_.back().get());
+      original_source_id, *characters_[source_id], *characters_[target_id],
+      time_, config_->pie_flight_time(), original_damage, damage,
+      config_->pie_initial_height(), peak_height, rotations, &impel_engine_)));
 }
 
 CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
@@ -520,60 +527,15 @@ void GameState::ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
   }
 }
 
-static Quat CalculatePieOrientation(Angle pie_angle, float percent,
-                                    int rotations, const Config* config) {
-  // These are floats instead of Angles because they may need to rotate more
-  // than 360 degrees. Values are negative so that they rotate in the correct
-  // direction.
-  float initial_angle = -config->pie_initial_angle();
-  float target_angle =
-      -(config->pie_target_angle() + rotations * kDegreesPerCircle);
-  float delta = target_angle - initial_angle;
 
-  Angle rotation_angle = Angle::FromDegrees(initial_angle + (delta * percent));
-  Quat pie_direction =
-      Quat::FromAngleAxis(pie_angle.ToRadians(), mathfu::kAxisY3f);
-  Quat pie_rotation =
-      Quat::FromAngleAxis(rotation_angle.ToRadians(), mathfu::kAxisZ3f);
-  return pie_direction * pie_rotation;
-}
 
-static vec3 CalculatePiePosition(const Character& source,
-                                 const Character& target, float percent,
-                                 float pie_height, const Config* config) {
-  vec3 result = vec3::Lerp(source.position(), target.position(), percent);
 
-  // Pie height follows a parabola such that y = -4a * (x)(x - 1)
-  //
-  // (x)(x - 1) gives a parabola with the x intercepts at 0 and 1 (where 0
-  // represents the origin, and 1 represents the target). The height of the pie
-  // would only be .25 units maximum, so we multiply by 4 to make the peak 1
-  // unit. Finally, we multiply by an arbitrary coeffecient supplied in a config
-  // file to make the pies fly higher or lower.
-  result.y() += -4 * pie_height * (percent * (percent - 1.0f));
-  result.y() += config->pie_initial_height();
 
-  return result;
-}
 
-void GameState::UpdatePiePosition(AirbornePie* pie) const {
-  const auto& source = characters_[pie->source()];
-  const auto& target = characters_[pie->target()];
 
-  const float time_since_launch = static_cast<float>(time_ - pie->start_time());
-  float percent = time_since_launch / config_->pie_flight_time();
-  percent = mathfu::Clamp(percent, 0.0f, 1.0f);
 
-  Angle pie_angle = -AngleBetweenCharacters(pie->source(), pie->target());
 
-  const Quat pie_orientation =
-      CalculatePieOrientation(pie_angle, percent, pie->rotations(), config_);
-  const vec3 pie_position = CalculatePiePosition(
-      *source.get(), *target.get(), percent, pie->height(), config_);
 
-  pie->set_orientation(pie_orientation);
-  pie->set_position(pie_position);
-}
 
 uint16_t GameState::CharacterState(CharacterId id) const {
   assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));
@@ -940,7 +902,6 @@ void GameState::AdvanceFrame(WorldTime delta_time,
   // Update pies. Modify state machine input when character hit by pie.
   for (auto it = pies_.begin(); it != pies_.end();) {
     auto& pie = *it;
-    UpdatePiePosition(pie.get());
 
     // Remove pies that have made contact.
     const WorldTime time_since_launch = time_ - pie->start_time();
@@ -1080,7 +1041,7 @@ void GameState::PopulateScene(SceneDescription* scene) {
       scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
           EnumerationValueForPieDamage<uint16_t>(
               pie->damage(), *(config_->renderable_id_for_pie_damage())),
-          pie->CalculateMatrix())));
+          pie->Matrix())));
     }
   }
 
