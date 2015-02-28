@@ -18,7 +18,6 @@
 #include <vector>
 #include <memory>
 #include "character.h"
-#include "impel_engine.h"
 #include "components/drip_and_vanish.h"
 #include "components/player_character.h"
 #include "components/scene_object.h"
@@ -26,8 +25,9 @@
 #include "entity/entity.h"
 #include "entity/entity_manager.h"
 #include "game_camera.h"
-#include "impel_processor.h"
-#include "impel_util.h"
+#include "motive/engine.h"
+#include "motive/processor.h"
+#include "motive/util.h"
 #include "particles.h"
 
 namespace pindrop {

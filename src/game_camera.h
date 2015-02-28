@@ -17,8 +17,8 @@
 
 #include <queue>
 #include "mathfu/glsl_mappings.h"
-#include "impeller.h"
-#include "impel_init.h"
+#include "motive/motivator.h"
+#include "motive/init.h"
 
 namespace fpl {
 namespace pie_noon {

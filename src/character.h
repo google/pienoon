@@ -15,12 +15,12 @@
 #ifndef PIE_NOON_CHARACTER_H_
 #define PIE_NOON_CHARACTER_H_
 
-#include "angle.h"
+#include "motive/math/angle.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
-#include "impel_util.h"
-#include "impeller.h"
+#include "motive/util.h"
+#include "motive/motivator.h"
 #include "player_controller.h"
 #include "pie_noon_common_generated.h"
 #include "timeline_generated.h"

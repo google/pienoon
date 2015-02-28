@@ -21,9 +21,9 @@
 #include "components_generated.h"
 #include "config_generated.h"
 #include "entity/component.h"
-#include "impel_flatbuffers.h"
-#include "impel_init.h"
-#include "impel_util.h"
+#include "motive/io/flatbuffers.h"
+#include "motive/init.h"
+#include "motive/util.h"
 
 namespace fpl {
 namespace pie_noon {

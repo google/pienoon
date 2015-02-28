@@ -61,6 +61,8 @@ set(dependencies_libvorbis_cmake_dir "${CMAKE_MODULE_PATH}/libvorbis"
     CACHE PATH "Directory containing the libvorbis cmake project.")
 set(dependencies_libvorbis_distr_dir "${third_party_root}/libvorbis"
     CACHE PATH "Directory containing the libvorbis library.")
+set(dependencies_motive_dir "${fpl_root}/motive"
+    CACHE PATH "Directory containing the motive animation library.")
 set(dependencies_sdl_mixer_cmake_dir "${CMAKE_MODULE_PATH}/sdl_mixer"
     CACHE PATH "Directory containing the SDL Mixer cmake project.")
 set(dependencies_sdl_mixer_distr_dir "${third_party_root}/sdl_mixer"
@@ -124,6 +126,12 @@ if(NOT pie_noon_only_flatc AND NOT TARGET pindrop)
   add_subdirectory("${dependencies_pindrop_dir}" ${tmp_dir}/pindrop)
 endif()
 
+# Include motive.
+if(NOT pie_noon_only_flatc AND NOT TARGET motive)
+  set(motive_build_tests OFF CACHE BOOL "")
+  add_subdirectory("${dependencies_motive_dir}" ${tmp_dir}/motive)
+endif()
+
 # Include libogg.
 if(NOT pie_noon_only_flatc AND NOT TARGET libogg)
   add_subdirectory("${dependencies_libogg_cmake_dir}" ${tmp_dir}/libogg)
@@ -166,9 +174,6 @@ set(FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src/*.fbs)
 
-# Include FlatBuffer schemas from external projects.
-set(FLATBUFFERS_SCHEMA_INCLUDE_DIRS ${dependencies_pindrop_dir}/schemas)
-
 # Generate rules to build the set of output files from the set of input
 # schema files.
 foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
@@ -178,8 +183,9 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
   add_custom_command(
     OUTPUT ${flatbuffers_include}
     COMMAND flatc --gen-includes -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        -I ${FLATBUFFERS_SCHEMA_INCLUDE_DIRS} -c ${flatbuffers_schema}
-    DEPENDS flatc pindrop ${flatbuffers_schema})
+        -I ${dependencies_motive_dir}/schemas
+        -I ${dependencies_pindrop_dir}/schemas -c ${flatbuffers_schema}
+    DEPENDS flatc motive pindrop ${flatbuffers_schema})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
@@ -202,25 +208,15 @@ set(pie_noon_SRCS
     src/ai_controller.h
     src/analytics_tracking.cpp
     src/analytics_tracking.h
-    src/angle.h
     src/async_loader.cpp
     src/async_loader.h
-    src/bezier.h
-    src/bulk_spline_evaluator.cpp
-    src/bulk_spline_evaluator.h
     src/character.cpp
     src/character.h
     src/character_state_machine.cpp
     src/character_state_machine.h
     src/common.h
-    src/compact_spline.cpp
-    src/compact_spline.h
     src/controller.cpp
     src/controller.h
-    src/curve.cpp
-    src/curve.h
-    src/dual_cubic.cpp
-    src/dual_cubic.h
     src/font_manager.cpp
     src/font_manager.h
     src/components/drip_and_vanish.cpp
@@ -249,20 +245,6 @@ set(pie_noon_SRCS
     src/gui_menu.h
     src/imgui.h
     src/imgui.cpp
-    src/impel_common.h
-    src/impel_engine.cpp
-    src/impel_engine.h
-    src/impel_flatbuffers.cpp
-    src/impel_flatbuffers.h
-    src/impel_init.h
-    src/impel_processor.cpp
-    src/impel_processor.h
-    src/impel_processor_matrix.cpp
-    src/impel_processor_overshoot.cpp
-    src/impel_processor_smooth.cpp
-    src/impel_util.h
-    src/impeller.cpp
-    src/impeller.h
     src/input.cpp
     src/input.h
     src/main.cpp
@@ -286,7 +268,6 @@ set(pie_noon_SRCS
     src/player_controller.cpp
     src/player_controller.h
     src/precompiled.h
-    src/range.h
     src/renderer.cpp
     src/renderer.h
     src/scene_description.h
@@ -307,9 +288,11 @@ if(WIN32)
   include_directories(external/include/windows)
 endif()
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${PINDROP_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
+include_directories(${dependencies_motive_dir}/include)
 include_directories(${dependencies_pindrop_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/src)
@@ -372,6 +355,7 @@ mathfu_configure_flags(pie_noon)
 add_dependencies(pie_noon generated_includes assets)
 target_link_libraries(pie_noon
   ${SDL_LIBRARIES}
+  motive
   pindrop
   sdl_mixer
   libvorbis

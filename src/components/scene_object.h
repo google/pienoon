@@ -20,7 +20,7 @@
 #include "components_generated.h"
 #include "scene_description.h"
 #include "mathfu/constants.h"
-#include "impeller.h"
+#include "motive/motivator.h"
 
 namespace impel {
   class MatrixImpelInit;

@@ -14,7 +14,7 @@
 
 include "audio_config.fbs";
 include "components.fbs";
-include "impel.fbs";
+include "motive.fbs";
 include "particles.fbs";
 include "pie_noon_common.fbs";
 include "scoring_rules.fbs";

@@ -57,17 +57,13 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/ai_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/analytics_tracking.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/async_loader.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/bulk_spline_evaluator.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/compact_spline.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/drip_and_vanish.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/player_character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/shakeable_prop.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/curve.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/dual_cubic.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/entity/entity_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/font_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/full_screen_fader.cpp \
@@ -77,13 +73,6 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/gpg_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gui_menu.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/imgui.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/impel_engine.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/impel_flatbuffers.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/impel_processor.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/impel_processor_matrix.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/impel_processor_overshoot.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/impel_processor_smooth.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/impeller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/input.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/main.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/material.cpp \
@@ -106,7 +95,6 @@ PIE_NOON_SCHEMA_FILES := \
   $(PIE_NOON_SCHEMA_DIR)/character_state_machine_def.fbs \
   $(PIE_NOON_SCHEMA_DIR)/config.fbs \
   $(PIE_NOON_SCHEMA_DIR)/components.fbs \
-  $(PIE_NOON_SCHEMA_DIR)/impel.fbs \
   $(PIE_NOON_SCHEMA_DIR)/materials.fbs \
   $(PIE_NOON_SCHEMA_DIR)/particles.fbs \
   $(PIE_NOON_SCHEMA_DIR)/pie_noon_common.fbs \
@@ -122,7 +110,7 @@ $(call flatbuffers_header_build_rules,\
   $(PIE_NOON_SCHEMA_FILES),\
   $(PIE_NOON_SCHEMA_DIR),\
   $(PIE_NOON_GENERATED_OUTPUT_DIR),\
-  $(DEPENDENCIES_PINDROP_DIR)/schemas,\
+  $(DEPENDENCIES_PINDROP_DIR)/schemas $(DEPENDENCIES_MOTIVE_DIR)/schemas,\
   $(LOCAL_SRC_FILES))
 endif
 
@@ -135,6 +123,7 @@ LOCAL_STATIC_LIBRARIES := \
   SDL2 \
   SDL2_mixer \
   libpindrop \
+  libmotive \
   libfreetype \
   libharfbuzz \
   libflatbuffers
@@ -147,11 +136,13 @@ include $(BUILD_SHARED_LIBRARY)
 
 $(call import-add-path,$(DEPENDENCIES_FLATBUFFERS_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_MOTIVE_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_PINDROP_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_WEBP_DIR)/..)
 
 $(call import-module,flatbuffers/android/jni)
 $(call import-module,audio_engine/jni)
+$(call import-module,motive/jni)
 $(call import-module,mathfu/jni)
 $(call import-module,webp)
 

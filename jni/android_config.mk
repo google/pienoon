@@ -42,6 +42,8 @@ DEPENDENCIES_FREETYPE_DIR?=$(THIRD_PARTY_ROOT)/freetype
 DEPENDENCIES_HARFBUZZ_DIR?=$(THIRD_PARTY_ROOT)/harfbuzz
 # Location of the MathFu library.
 DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
+# Location of the Motive library.
+DEPENDENCIES_MOTIVE_DIR?=$(FPL_ROOT)/motive
 # Location of the Google Play Games library.
 DEPENDENCIES_GPG_DIR?=$(PREBUILTS_ROOT)/gpg-cpp-sdk/android
 # Location of the webp library.

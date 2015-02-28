@@ -15,8 +15,8 @@
 #include "precompiled.h"
 #include "config_generated.h"
 #include "common.h"
-#include "impel_flatbuffers.h"
-#include "impel_init.h"
+#include "motive/io/flatbuffers.h"
+#include "motive/init.h"
 #include "game_camera.h"
 #include "utilities.h"
 

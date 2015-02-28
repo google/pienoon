@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "scene_object.h"
-#include "angle.h"
+#include "motive/math/angle.h"
 #include "components_generated.h"
-#include "impel_init.h"
+#include "motive/init.h"
 #include "utilities.h"
 
 namespace fpl {
