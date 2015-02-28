@@ -95,8 +95,8 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
     // A 'time' > 0 means that we're setting the target values.
     // We can also use the second node to set target values, if it exists.
     const ImpelNode1f* target = current.time == 0
-                              ? (t.num_nodes() > 1 ? &t.Node(1) : nullptr)
-                              : &t.Node(0);
+                                    ? (t.num_nodes() > 1 ? &t.Node(1) : nullptr)
+                                    : &t.Node(0);
     if (target != nullptr) {
       d.target_value = target->value;
     }

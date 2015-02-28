@@ -106,9 +106,9 @@ protected:
   void InitImpeller(const ImpelInit& init, float start_value,
                     float start_velocity, float target_value,
                     Impeller1f* impeller) {
-    impeller->InitializeWithTarget(init, &engine_,
-        impel::CurrentToTarget1f(start_value, start_velocity, target_value,
-                                 0.0f, 1));
+    impeller->InitializeWithTarget(
+        init, &engine_, impel::CurrentToTarget1f(start_value, start_velocity,
+                                                 target_value, 0.0f, 1));
   }
 
   void InitOvershootImpeller(Impeller1f* impeller) {

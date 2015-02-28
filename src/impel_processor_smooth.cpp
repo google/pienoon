@@ -26,7 +26,6 @@ using fpl::Range;
 // Add some buffer to the y-range to allow for intermediate nodes
 // that go above or below the supplied nodes.
 static const float kYRangeBufferPercent = 1.2f;
-static const float kDefaultTargetVelocity = 0.0f;
 
 // An intermediate node might be inserted to make the cubic curve well
 // behaved, so reserve 3 nodes in the spline.
@@ -82,8 +81,8 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
     const ImpelNode1f& node0 = t.Node(0);
     const bool override_current = node0.time == 0;
     const float start_y = override_current ? node0.value : Value(index);
-    const float start_derivative = override_current ? node0.velocity
-                                                    : Velocity(index);
+    const float start_derivative =
+        override_current ? node0.velocity : Velocity(index);
     const float start_node_index = override_current ? 1 : 0;
 
     // Ensure we have a local spline available, allocated from our pool of

@@ -190,9 +190,7 @@ struct MatrixOperationInit {
 
   // Matrix operation is driven by Impeller defined by 'init'.
   MatrixOperationInit(MatrixOperationType type, const ImpelInit& init)
-      : init(&init),
-        type(type),
-        union_type(kUnionEmpty) {}
+      : init(&init), type(type), union_type(kUnionEmpty) {}
 
   // Matrix operation is driven by Impeller defined by 'init'. Specify initial
   // value as well.
@@ -205,16 +203,11 @@ struct MatrixOperationInit {
 
   MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
                       const ImpelTarget1f& target)
-      : init(&init),
-        type(type),
-        union_type(kUnionTarget),
-        target(&target) {}
+      : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
   MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
                       const fpl::CompactSpline& spline, float start_time)
-      : init(&init),
-        type(type),
-        union_type(kUnionWaypoints) {
+      : init(&init), type(type), union_type(kUnionWaypoints) {
     waypoints.spline = &spline;
     waypoints.start_time = start_time;
   }

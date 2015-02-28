@@ -280,8 +280,8 @@ void GameState::ProcessSounds(pindrop::AudioEngine* audio_engine,
 }
 
 static float CalculatePieHeight(const Config& config) {
-  return config.pie_arc_height() + config.pie_arc_height_variance() *
-                                   (mathfu::Random<float>() * 2 - 1);
+  return config.pie_arc_height() +
+         config.pie_arc_height_variance() * (mathfu::Random<float>() * 2 - 1);
 }
 
 static float CalculatePieRotations(const Config& config) {
@@ -526,16 +526,6 @@ void GameState::ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 uint16_t GameState::CharacterState(CharacterId id) const {
   assert(0 <= id && id < static_cast<CharacterId>(characters_.size()));

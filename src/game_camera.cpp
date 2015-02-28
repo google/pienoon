@@ -74,9 +74,9 @@ void GameCamera::ExecuteMovement(const GameCameraMovement& movement) {
 
   // Initialize the Impeller.
   percent_.InitializeWithTarget(
-      movement.init, engine_, impel::CurrentToTarget1f(
-                                  0.0f, movement.start_velocity, 1.0f, 0.0f,
-                                  movement.time));
+      movement.init, engine_,
+      impel::CurrentToTarget1f(0.0f, movement.start_velocity, 1.0f, 0.0f,
+                               movement.time));
 }
 
 void GameCamera::TerminateMovements() {

@@ -189,12 +189,11 @@ class Character {
 
 class AirbornePie {
  public:
-  AirbornePie(
-      CharacterId original_source, const Character& source,
-      const Character& target, WorldTime start_time, WorldTime flight_time,
-      CharacterHealth original_damage, CharacterHealth damage,
-      float start_height, float peak_height, int rotations,
-      impel::ImpelEngine* engine);
+  AirbornePie(CharacterId original_source, const Character& source,
+              const Character& target, WorldTime start_time,
+              WorldTime flight_time, CharacterHealth original_damage,
+              CharacterHealth damage, float start_height, float peak_height,
+              int rotations, impel::ImpelEngine* engine);
 
   CharacterId original_source() const { return original_source_; }
   CharacterId source() const { return source_; }

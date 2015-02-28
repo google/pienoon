@@ -20,7 +20,6 @@
 
 namespace fpl {
 
-
 // If using modular arithmetic, there are two paths to the target: one that
 // goes directly and one that wraps around. This enum represents differet ways
 // to choose the path.
@@ -31,7 +30,6 @@ enum ModularDirection {
   kDirectionNegative,
   kDirectionDirect,
 };
-
 
 /// Represent an interval on a number line.
 template <class T>
@@ -100,9 +98,7 @@ class RangeT {
   // restriction in most cases (such as after an arithmetic operation).
   // For cases where 'x' may be wildly outside the range, use
   // NormalizeWildValue() instead.
-  T Normalize(T x) const {
-    return x + ModularAdjustment(x);
-  }
+  T Normalize(T x) const { return x + ModularAdjustment(x); }
 
   T NormalizeWildValue(T x) const {
     // Use (expensive) division to determine how many lengths we are away from
@@ -133,9 +129,7 @@ class RangeT {
   // In modular arithmetic, you can get from 'a' to 'b' by going directly, or
   // by wrapping around.
   // Return the closest difference from 'a' to 'b' under modular arithmetic.
-  float ModDiffClose(T a, T b) const {
-    return Normalize(b - a);
-  }
+  float ModDiffClose(T a, T b) const { return Normalize(b - a); }
 
   // Return the farthest difference from 'a' to 'b' under modular arithmetic.
   float ModDiffFar(T a, T b) const {
@@ -164,11 +158,16 @@ class RangeT {
   // criteria.
   float ModDiff(T a, T b, ModularDirection direction) const {
     switch (direction) {
-      case kDirectionClosest: return ModDiffClose(a, b);
-      case kDirectionFarthest: return ModDiffFar(a, b);
-      case kDirectionPositive: return ModDiffPositive(a, b);
-      case kDirectionNegative: return ModDiffNegative(a, b);
-      case kDirectionDirect: return b - a;
+      case kDirectionClosest:
+        return ModDiffClose(a, b);
+      case kDirectionFarthest:
+        return ModDiffFar(a, b);
+      case kDirectionPositive:
+        return ModDiffPositive(a, b);
+      case kDirectionNegative:
+        return ModDiffNegative(a, b);
+      case kDirectionDirect:
+        return b - a;
     }
     assert(false);
     return 0.0f;

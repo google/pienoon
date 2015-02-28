@@ -25,8 +25,11 @@ struct ImpelNode1f {
   ImpelTime time;
   fpl::ModularDirection direction;
 
-  ImpelNode1f() : value(0.0f), velocity(0.0f), time(0),
-                  direction(fpl::kDirectionClosest) {}
+  ImpelNode1f()
+      : value(0.0f),
+        velocity(0.0f),
+        time(0),
+        direction(fpl::kDirectionClosest) {}
   ImpelNode1f(float value, float velocity, ImpelTime time,
               fpl::ModularDirection direction = fpl::kDirectionClosest)
       : value(value), velocity(velocity), time(time), direction(direction) {}
@@ -54,13 +57,11 @@ class ImpelTarget1f {
 
   ImpelTarget1f() : num_nodes_(0) {}
 
-  explicit ImpelTarget1f(const ImpelNode1f& n0)
-      : num_nodes_(1) {
+  explicit ImpelTarget1f(const ImpelNode1f& n0) : num_nodes_(1) {
     nodes_[0] = n0;
   }
 
-  ImpelTarget1f(const ImpelNode1f& n0, const ImpelNode1f& n1)
-      : num_nodes_(2) {
+  ImpelTarget1f(const ImpelNode1f& n0, const ImpelNode1f& n1) : num_nodes_(2) {
     assert(0 <= n0.time && n0.time < n1.time);
     nodes_[0] = n0;
     nodes_[1] = n1;
@@ -106,7 +107,6 @@ class ImpelTarget1f {
   ImpelNode1f nodes_[kMaxNodes];
 };
 
-
 // Set the Impeller's current values. Target values are reset to be the same
 // as the new current values.
 inline ImpelTarget1f Current1f(float current_value,
@@ -121,49 +121,49 @@ inline ImpelTarget1f Target1f(
     float target_value, float target_velocity, ImpelTime target_time,
     fpl::ModularDirection direction = fpl::kDirectionClosest) {
   assert(target_time > 0);
-  return ImpelTarget1f(ImpelNode1f(target_value, target_velocity, target_time,
-                                   direction));
+  return ImpelTarget1f(
+      ImpelNode1f(target_value, target_velocity, target_time, direction));
 }
 
 // Set both the current and target values for an Impeller.
 inline ImpelTarget1f CurrentToTarget1f(
-    float current_value, float current_velocity,
-    float target_value, float target_velocity, ImpelTime target_time,
+    float current_value, float current_velocity, float target_value,
+    float target_velocity, ImpelTime target_time,
     fpl::ModularDirection direction = fpl::kDirectionClosest) {
-  return ImpelTarget1f(ImpelNode1f(current_value, current_velocity, 0),
-                       ImpelNode1f(target_value, target_velocity, target_time,
-                                   direction));
+  return ImpelTarget1f(
+      ImpelNode1f(current_value, current_velocity, 0),
+      ImpelNode1f(target_value, target_velocity, target_time, direction));
 }
 
 // Move from the current value to the target value at a constant speed.
-inline ImpelTarget1f CurrentToTargetConstVelocity1f(
-    float current_value, float target_value, ImpelTime target_time) {
+inline ImpelTarget1f CurrentToTargetConstVelocity1f(float current_value,
+                                                    float target_value,
+                                                    ImpelTime target_time) {
   assert(target_time > 0);
   const float velocity = (target_value - current_value) / target_time;
-  return ImpelTarget1f(ImpelNode1f(current_value, velocity, 0),
-                       ImpelNode1f(target_value, velocity, target_time,
-                                   fpl::kDirectionDirect));
+  return ImpelTarget1f(
+      ImpelNode1f(current_value, velocity, 0),
+      ImpelNode1f(target_value, velocity, target_time, fpl::kDirectionDirect));
 }
 
 // Keep the Impeller's current values, but set two targets for the Impeller.
 // After the first target, go on to the next.
-inline ImpelTarget1f TargetToTarget1f(
-    float target_value, float target_velocity, ImpelTime target_time,
-    float third_value, float third_velocity, ImpelTime third_time) {
-  return ImpelTarget1f(
-             ImpelNode1f(target_value, target_velocity, target_time),
-             ImpelNode1f(third_value, third_velocity, third_time));
+inline ImpelTarget1f TargetToTarget1f(float target_value, float target_velocity,
+                                      ImpelTime target_time, float third_value,
+                                      float third_velocity,
+                                      ImpelTime third_time) {
+  return ImpelTarget1f(ImpelNode1f(target_value, target_velocity, target_time),
+                       ImpelNode1f(third_value, third_velocity, third_time));
 }
 
 // Set the Impeller's current values, and two targets afterwards.
 inline ImpelTarget1f CurrentToTargetToTarget1f(
-    float current_value, float current_velocity,
-    float target_value, float target_velocity, ImpelTime target_time,
-    float third_value, float third_velocity, ImpelTime third_time) {
-  return ImpelTarget1f(
-             ImpelNode1f(current_value, current_velocity, 0),
-             ImpelNode1f(target_value, target_velocity, target_time),
-             ImpelNode1f(third_value, third_velocity, third_time));
+    float current_value, float current_velocity, float target_value,
+    float target_velocity, ImpelTime target_time, float third_value,
+    float third_velocity, ImpelTime third_time) {
+  return ImpelTarget1f(ImpelNode1f(current_value, current_velocity, 0),
+                       ImpelNode1f(target_value, target_velocity, target_time),
+                       ImpelNode1f(third_value, third_velocity, third_time));
 }
 
 }  // namespace impel

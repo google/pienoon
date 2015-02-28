@@ -115,12 +115,12 @@ void Character::ResetStats() {
 }
 
 // orientation_ and position_ are set each frame in GameState::Advance.
-AirbornePie::AirbornePie(
-    CharacterId original_source, const Character& source,
-    const Character& target, WorldTime start_time, WorldTime flight_time,
-    CharacterHealth original_damage, CharacterHealth damage,
-    float start_height, float peak_height, int rotations,
-    impel::ImpelEngine* engine)
+AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
+                         const Character& target, WorldTime start_time,
+                         WorldTime flight_time, CharacterHealth original_damage,
+                         CharacterHealth damage, float start_height,
+                         float peak_height, int rotations,
+                         impel::ImpelEngine* engine)
     : original_source_(original_source),
       source_(source.id()),
       target_(target.id()),
@@ -136,11 +136,9 @@ AirbornePie::AirbornePie(
 
   // Move x,z at constant speed from source to target.
   const impel::ImpelTarget1f x_target(impel::CurrentToTargetConstVelocity1f(
-                                          source.position().x(),
-                                          target.position().x(), flight_time));
+      source.position().x(), target.position().x(), flight_time));
   const impel::ImpelTarget1f z_target(impel::CurrentToTargetConstVelocity1f(
-                                          source.position().z(),
-                                          target.position().z(), flight_time));
+      source.position().z(), target.position().z(), flight_time));
 
   // Move y along a trajectory that starts and ends at 'start_height' and
   // tops out at 'peak_height' half way through.
@@ -156,9 +154,9 @@ AirbornePie::AirbornePie(
   const float delta_height = peak_height - start_height;
   const float start_velocity = 2.0f * delta_height / peak_time;
   const impel::ImpelTarget1f y_target(impel::CurrentToTargetToTarget1f(
-        start_height, start_velocity,                 // Initial node.
-        peak_height, 0.0f, peak_time,                 // Peak node.
-        start_height, -start_velocity, flight_time)); // End node.
+      start_height, start_velocity,                  // Initial node.
+      peak_height, 0.0f, peak_time,                  // Peak node.
+      start_height, -start_velocity, flight_time));  // End node.
 
   // The pie is rotated about Y a constant amount so that it's facing the
   // target.
@@ -168,8 +166,8 @@ AirbornePie::AirbornePie(
   // The pie rotates top to bottom a fixed number of times. Rotation speed
   // is constant.
   const impel::ImpelTarget1f z_rotation_target(
-      impel::CurrentToTargetConstVelocity1f(
-          0.0f, rotations * kTwoPi, flight_time));
+      impel::CurrentToTargetConstVelocity1f(0.0f, rotations * kTwoPi,
+                                            flight_time));
 
   impel::MatrixImpelInit init(5);
   init.AddOp(impel::kTranslateX, position_init, x_target);

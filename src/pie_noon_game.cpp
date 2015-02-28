@@ -631,8 +631,8 @@ void PieNoonGame::DebugPrintPieStates() {
     const vec3 position = pie->Position();
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                 "Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
-                pie->source(), pie->target(), pie->damage(),
-                position.x(), position.y(), position.z());
+                pie->source(), pie->target(), pie->damage(), position.x(),
+                position.y(), position.z());
   }
 }
 
@@ -811,8 +811,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         const impel::ImpelTarget1f t(impel::CurrentToTarget1f(
             config.join_impeller_start_value(),
             config.join_impeller_start_velocity(),
-            config.join_impeller_target_value(),
-            0.0f, 1));
+            config.join_impeller_target_value(), 0.0f, 1));
         join_impeller_.InitializeWithTarget(init, &game_state_.impel_engine(),
                                             t);
         join_id_ = id;

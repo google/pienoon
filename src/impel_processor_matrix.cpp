@@ -70,7 +70,8 @@ class MatrixOperation {
                                          init.waypoints.start_time);
             break;
 
-          default: assert(false);
+          default:
+            assert(false);
         }
         break;
       }
