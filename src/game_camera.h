@@ -44,14 +44,14 @@ struct GameCameraMovement {
   GameCameraState end;
   float start_velocity;
   float time;
-  impel::SmoothImpelInit init;
+  motive::SmoothInit init;
 };
 
 // Class that encapsilates camera motion.
 class GameCamera {
  public:
   // Reset the camera to have initial position and target of 'state'.
-  void Initialize(const GameCameraState& state, impel::ImpelEngine* engine);
+  void Initialize(const GameCameraState& state, motive::MotiveEngine* engine);
 
   // Update the camera's motion. Must be called every frame.
   void AdvanceFrame(WorldTime delta_time);
@@ -102,11 +102,12 @@ class GameCamera {
  private:
   void ExecuteMovement(const GameCameraMovement& movement);
 
-  // Engine that runs the percent_ Impeller.
-  impel::ImpelEngine* engine_;
+  // MotiveEngine that runs the percent_ Motivator.
+  motive::MotiveEngine* engine_;
 
-  // Percent we have moved from start_ to end_. Animated with a smooth Impeller.
-  impel::Impeller1f percent_;
+  // Percent we have moved from start_ to end_. Animated with a smooth
+  // Motivator.
+  motive::Motivator1f percent_;
 
   // The start of the current camera movement. We animate from start_ to end_.
   GameCameraState start_;

@@ -121,7 +121,7 @@ class GameState {
 
   void set_config(const Config* config) { config_ = config; }
 
-  impel::ImpelEngine& impel_engine() { return impel_engine_; }
+  motive::MotiveEngine& engine() { return engine_; }
 
   // Sets up the players in joining mode, where all they can do is jump up
   // and down.
@@ -156,7 +156,7 @@ class GameState {
   mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
-  impel::TwitchDirection FakeResponseToTurn(CharacterId id) const;
+  motive::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
   void CreatePieSplatter(pindrop::AudioEngine* audio_engine,
                          const Character& character, int damage);
@@ -176,7 +176,7 @@ class GameState {
   GameCameraState camera_base_;
   std::vector<std::unique_ptr<Character>> characters_;
   std::vector<std::unique_ptr<AirbornePie>> pies_;
-  impel::ImpelEngine impel_engine_;
+  motive::MotiveEngine engine_;
   const Config* config_;
   const CharacterArrangement* arrangement_;
   ParticleManager particle_manager_;

@@ -26,41 +26,41 @@ using mathfu::vec4;
 using mathfu::mat4;
 
 // Basic matrix operation for each component of the 'transform_'
-// Matrix Impeller.
-static const impel::MatrixOperationType kTransformOperations[] = {
-  impel::kTranslateX,     // kTranslateX
-  impel::kTranslateY,     // kTranslateY
-  impel::kTranslateZ,     // kTranslateZ
-  impel::kRotateAboutX,   // kRotateAboutX
-  impel::kRotateAboutY,   // kRotateAboutY
-  impel::kRotateAboutZ,   // kRotateAboutZ
-  impel::kRotateAboutX,   // kPreRotateAboutX
-  impel::kRotateAboutY,   // kPreRotateAboutY
-  impel::kRotateAboutZ,   // kPreRotateAboutZ
-  impel::kTranslateX,     // kTranslateToOriginX
-  impel::kTranslateY,     // kTranslateToOriginY
-  impel::kTranslateZ,     // kTranslateToOriginZ
-  impel::kScaleX,         // kScaleX
-  impel::kScaleY,         // kScaleY
-  impel::kScaleZ,         // kScaleZ
+// Matrix Motivator.
+static const motive::MatrixOperationType kTransformOperations[] = {
+    motive::kTranslateX,    // kTranslateX
+    motive::kTranslateY,    // kTranslateY
+    motive::kTranslateZ,    // kTranslateZ
+    motive::kRotateAboutX,  // kRotateAboutX
+    motive::kRotateAboutY,  // kRotateAboutY
+    motive::kRotateAboutZ,  // kRotateAboutZ
+    motive::kRotateAboutX,  // kPreRotateAboutX
+    motive::kRotateAboutY,  // kPreRotateAboutY
+    motive::kRotateAboutZ,  // kPreRotateAboutZ
+    motive::kTranslateX,    // kTranslateToOriginX
+    motive::kTranslateY,    // kTranslateToOriginY
+    motive::kTranslateZ,    // kTranslateToOriginZ
+    motive::kScaleX,        // kScaleX
+    motive::kScaleY,        // kScaleY
+    motive::kScaleZ,        // kScaleZ
 };
 
-void SceneObjectData::Initialize(impel::ImpelEngine* impel_engine) {
+void SceneObjectData::Initialize(motive::MotiveEngine* engine) {
   MATHFU_STATIC_ASSERT(ARRAYSIZE(kTransformOperations) ==
                        kNumTransformMatrixOperations);
 
-  // Create init structure for the 'transform_' Matrix Impeller.
-  // TODO: This structure is the same every time. Change MatrixImpelInit to be
+  // Create init structure for the 'transform_' Matrix Motivator.
+  // TODO: This structure is the same every time. Change MatrixInit to be
   // constructable from POD so that this can be a constexpr.
-  impel::MatrixImpelInit init(ARRAYSIZE(kTransformOperations));
+  motive::MatrixInit init(ARRAYSIZE(kTransformOperations));
   for (size_t i = 0; i < ARRAYSIZE(kTransformOperations); ++i) {
-    impel::MatrixOperationType op = kTransformOperations[i];
-    const float default_value = impel::kScaleX <= op && op <= impel::kScaleZ
-                              ? 1.0f : 0.0f;
+    motive::MatrixOperationType op = kTransformOperations[i];
+    const float default_value =
+        motive::kScaleX <= op && op <= motive::kScaleZ ? 1.0f : 0.0f;
     init.AddOp(op, default_value);
   }
 
-  transform_.Initialize(init, impel_engine);
+  transform_.Initialize(init, engine);
 }
 
 void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
@@ -87,7 +87,7 @@ void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
 
 void SceneObjectComponent::InitEntity(entity::EntityRef& entity) {
   SceneObjectData* data = GetEntityData(entity);
-  data->Initialize(impel_engine_);
+  data->Initialize(engine_);
 }
 
 void SceneObjectComponent::UpdateGlobalMatrix(

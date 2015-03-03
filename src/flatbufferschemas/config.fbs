@@ -388,10 +388,10 @@ table Config {
   // Defines the movement of pies that count-down during the "join" state.
   // The pies gradually disappear one at a time to give the appearance of a
   // timer.
-  join_impeller_def:OvershootParameters;
-  join_impeller_start_value:float;
-  join_impeller_target_value:float;
-  join_impeller_start_velocity:float;
+  join_motivator_def:OvershootParameters;
+  join_motivator_start_value:float;
+  join_motivator_target_value:float;
+  join_motivator_start_velocity:float;
 
   // Map airborne pie damage to the renderable id of the pie.
   renderable_id_for_pie_damage:[RenderableId];
@@ -402,7 +402,7 @@ table Config {
   blocked_sound_id_for_pie_damage:[string];
 
   // Defines how props shake when nearby characters are damaged.
-  impeller_specifications:[OvershootParameters];
+  motivator_specifications:[OvershootParameters];
 
   // Maximum velocity that is added to the prop shake. In radians per tick.
   prop_shake_velocity:float;

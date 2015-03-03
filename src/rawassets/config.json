@@ -101,7 +101,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 1.0
             }
           }
@@ -125,7 +125,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 1.0
             }
           }
@@ -149,7 +149,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Pendulum,
+              "shake_motivator": Pendulum,
               "shake_scale": 1.0,
               "shake_axis": Z
             }
@@ -175,7 +175,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Pendulum,
+              "shake_motivator": Pendulum,
               "shake_scale": 0.7,
               "shake_axis": Z
             }
@@ -200,7 +200,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 1.0
             }
           }
@@ -224,7 +224,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 1.0
             }
           }
@@ -248,7 +248,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 1.0
             }
           }
@@ -272,7 +272,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 0.6
             }
           }
@@ -296,7 +296,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 1.0
             }
           }
@@ -320,7 +320,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 0.6
             }
           }
@@ -344,7 +344,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 1.0
             }
           }
@@ -368,7 +368,7 @@
           {
             "data_type": ShakeablePropDef,
             "data": {
-              "shake_impeller": Sway,
+              "shake_motivator": Sway,
               "shake_scale": 0.6
             }
           }
@@ -741,7 +741,7 @@
     "max_delta_time": 20
   },
 
-  "impeller_specifications": [
+  "motivator_specifications": [
     // None
     {},
 
@@ -785,7 +785,7 @@
 
   "face_angle_twitch_velocity": 0.00312,
 
-  "join_impeller_def": {
+  "join_motivator_def": {
     "base": {
       "modular": false,
       "min": 0.0,
@@ -799,9 +799,9 @@
     "max_delta_time": 40
   },
 
-  "join_impeller_start_value": 0.7,
-  "join_impeller_target_value": 0.0,
-  "join_impeller_start_velocity": 0.0015,
+  "join_motivator_start_value": 0.7,
+  "join_motivator_target_value": 0.0,
+  "join_motivator_start_velocity": 0.0015,
 
   "renderable_id_for_pie_damage": [
     "PieEmpty",

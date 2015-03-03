@@ -188,7 +188,7 @@ class PieNoonGame {
   std::map<int, ControllerId> gamepad_to_controller_map_;
 
   ButtonId join_id_;
-  impel::Impeller1f join_impeller_;
+  motive::Motivator1f join_motivator_;
 
   // Used to render an overlay to fade the screen.
   FullScreenFader full_screen_fader_;

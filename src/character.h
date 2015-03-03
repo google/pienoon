@@ -25,9 +25,9 @@
 #include "pie_noon_common_generated.h"
 #include "timeline_generated.h"
 
-namespace impel {
-class ImpelEngine;
-}  // impel
+namespace motive {
+class MotiveEngine;
+}  // motive
 
 namespace fpl {
 namespace pie_noon {
@@ -61,12 +61,12 @@ class Character {
 
   // Resets the character to the start-of-game state.
   void Reset(CharacterId target, CharacterHealth health, Angle face_angle,
-             const mathfu::vec3& position, impel::ImpelEngine* impel_engine);
+             const mathfu::vec3& position, motive::MotiveEngine* engine);
 
   // Fake a reaction to input by making the character's face angle
   // jitter slightly in the requested direction. Does not change the
   // target face angle.
-  void TwitchFaceAngle(impel::TwitchDirection twitch);
+  void TwitchFaceAngle(motive::TwitchDirection twitch);
 
   // Gets the character's current face angle.
   Angle FaceAngle() const { return Angle(face_angle_.Value()); }
@@ -159,7 +159,7 @@ class Character {
   CharacterHealth pie_damage_;
 
   // World angle. Will eventually settle on the angle towards target_.
-  impel::Impeller1f face_angle_;
+  motive::Motivator1f face_angle_;
 
   // Position of the character in world space.
   mathfu::vec3 position_;
@@ -193,7 +193,7 @@ class AirbornePie {
               const Character& target, WorldTime start_time,
               WorldTime flight_time, CharacterHealth original_damage,
               CharacterHealth damage, float start_height, float peak_height,
-              int rotations, impel::ImpelEngine* engine);
+              int rotations, motive::MotiveEngine* engine);
 
   CharacterId original_source() const { return original_source_; }
   CharacterId source() const { return source_; }
@@ -202,8 +202,8 @@ class AirbornePie {
   WorldTime flight_time() const { return flight_time_; }
   CharacterHealth original_damage() const { return original_damage_; }
   CharacterHealth damage() const { return damage_; }
-  const mathfu::mat4& Matrix() const { return impeller_.Value(); }
-  mathfu::vec3 Position() const { return impeller_.Position(); }
+  const mathfu::mat4& Matrix() const { return motivator_.Value(); }
+  mathfu::vec3 Position() const { return motivator_.Position(); }
 
  private:
   CharacterId original_source_;
@@ -213,7 +213,7 @@ class AirbornePie {
   WorldTime flight_time_;
   CharacterHealth original_damage_;
   CharacterHealth damage_;
-  impel::ImpellerMatrix4f impeller_;
+  motive::MotivatorMatrix4f motivator_;
 };
 
 // Return index of first item with time >= t.

@@ -107,7 +107,7 @@ GameState::GameState()
     : time_(0),
       config_(nullptr),
       arrangement_(nullptr),
-      sceneobject_component_(&impel_engine_) {}
+      sceneobject_component_(&engine_) {}
 
 GameState::~GameState() {}
 
@@ -189,7 +189,7 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   time_ = 0;
   camera_base_.position = LoadVec3(config_->camera_position());
   camera_base_.target = LoadVec3(config_->camera_target());
-  camera_.Initialize(camera_base_, &impel_engine_);
+  camera_.Initialize(camera_base_, &engine_);
   pies_.clear();
   arrangement_ = GetBestArrangement(config_, characters_.size());
   analytics_mode_ = analytics_mode;
@@ -205,9 +205,9 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
       &player_character_component_);
 
   // Shakable Prop Component needs to know about some of our structures:
-  shakeable_prop_component_.set_impel_engine(&impel_engine_);
+  shakeable_prop_component_.set_engine(&engine_);
   shakeable_prop_component_.set_config(config_);
-  shakeable_prop_component_.LoadImpellerSpecs();
+  shakeable_prop_component_.LoadMotivatorSpecs();
   player_character_component_.set_config(config_);
 
   entity_manager_.set_entity_factory(&pie_noon_entity_factory_);
@@ -227,7 +227,7 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
         target_id, config_->character_health(),
         InitialFaceAngle(arrangement_, id, target_id),
         LoadVec3(arrangement_->character_data()->Get(id)->position()),
-        &impel_engine_);
+        &engine_);
   }
 
   // Create player character entities:
@@ -299,7 +299,7 @@ void GameState::CreatePie(CharacterId original_source_id, CharacterId source_id,
   pies_.push_back(std::unique_ptr<AirbornePie>(new AirbornePie(
       original_source_id, *characters_[source_id], *characters_[target_id],
       time_, config_->pie_flight_time(), original_damage, damage,
-      config_->pie_initial_height(), peak_height, rotations, &impel_engine_)));
+      config_->pie_initial_height(), peak_height, rotations, &engine_)));
 }
 
 CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
@@ -736,17 +736,17 @@ bool GameState::IsImmobile(CharacterId id) const {
 // Returns 0 if we should not fake a turn. 1 if we should fake turn towards the
 // next character id. -1 if we should fake turn towards the previous character
 // id.
-impel::TwitchDirection GameState::FakeResponseToTurn(CharacterId id) const {
+motive::TwitchDirection GameState::FakeResponseToTurn(CharacterId id) const {
   // We only want to fake the turn response when the character is immobile.
   // If the character can move, we'll just let the move happen normally.
-  if (!IsImmobile(id)) return impel::kTwitchDirectionNone;
+  if (!IsImmobile(id)) return motive::kTwitchDirectionNone;
 
   // If the user has not requested any movement, then no need to move.
   const int requested_turn = RequestedTurn(id);
-  if (requested_turn == 0) return impel::kTwitchDirectionNone;
+  if (requested_turn == 0) return motive::kTwitchDirectionNone;
 
-  return requested_turn > 0 ? impel::kTwitchDirectionPositive
-                            : impel::kTwitchDirectionNegative;
+  return requested_turn > 0 ? motive::kTwitchDirectionPositive
+                            : motive::kTwitchDirectionNegative;
 }
 
 uint32_t GameState::AllLogicalInputs() const {
@@ -928,7 +928,7 @@ void GameState::AdvanceFrame(WorldTime delta_time,
 
     // If we're requesting a turn but can't turn, move the face angle
     // anyway to fake a response.
-    const impel::TwitchDirection twitch = FakeResponseToTurn(character->id());
+    const motive::TwitchDirection twitch = FakeResponseToTurn(character->id());
     character->TwitchFaceAngle(twitch);
   }
 
@@ -951,10 +951,10 @@ void GameState::AdvanceFrame(WorldTime delta_time,
   // Update entities.
   entity_manager_.UpdateComponents(delta_time);
 
-  // Update all Impellers. Impeller updates are done in bulk for scalability.
-  // Must come after entity_manager_'s update because matrix Impellers are
+  // Update all Motivators. Motivator updates are done in bulk for scalability.
+  // Must come after entity_manager_'s update because matrix Motivators are
   // modified by Components.
-  impel_engine_.AdvanceFrame(delta_time);
+  engine_.AdvanceFrame(delta_time);
 
   camera_.AdvanceFrame(delta_time);
 }

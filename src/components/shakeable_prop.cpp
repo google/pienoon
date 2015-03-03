@@ -32,8 +32,9 @@ void ShakeablePropComponent::UpdateAllEntities(
     SceneObjectData* so_data = Data<SceneObjectData>(entity);
     assert(so_data != nullptr && sp_data != nullptr);
 
-    if (sp_data->impeller.Valid()) {
-      so_data->SetPreRotationAboutAxis(sp_data->impeller.Value(), sp_data->axis);
+    if (sp_data->motivator.Valid()) {
+      so_data->SetPreRotationAboutAxis(sp_data->motivator.Value(),
+                                       sp_data->axis);
     }
   }
 }
@@ -57,34 +58,34 @@ void ShakeablePropComponent::AddFromRawData(entity::EntityRef& entity,
   entity_data->axis = sp_data->shake_axis();
   entity_data->shake_scale = sp_data->shake_scale();
 
-  if (sp_data->shake_impeller() != ImpellerSpecification_None) {
-    impel::OvershootImpelInit scaled_shake_init =
-        impeller_inits[sp_data->shake_impeller()];
+  if (sp_data->shake_motivator() != MotivatorSpecification_None) {
+    motive::OvershootInit scaled_shake_init =
+        motivator_inits[sp_data->shake_motivator()];
     scaled_shake_init.set_range(scaled_shake_init.range() *
                                 entity_data->shake_scale);
     scaled_shake_init.set_accel_per_difference(
         scaled_shake_init.accel_per_difference() * entity_data->shake_scale);
 
-    entity_data->impeller.Initialize(scaled_shake_init, impel_engine_);
+    entity_data->motivator.Initialize(scaled_shake_init, engine_);
   }
 }
 
-// Preload specifications for impellers from the config file.
-void ShakeablePropComponent::LoadImpellerSpecs() {
-  // Load the impeller specifications. Skip over "None".
-  auto impeller_specifications = config_->impeller_specifications();
-  assert(impeller_specifications->Length() == ImpellerSpecification_Count);
-  for (int i = ImpellerSpecification_None + 1; i < ImpellerSpecification_Count;
-       ++i) {
-    auto specification = impeller_specifications->Get(i);
-    impel::OvershootInitFromFlatBuffers(*specification, &impeller_inits[i]);
+// Preload specifications for motivators from the config file.
+void ShakeablePropComponent::LoadMotivatorSpecs() {
+  // Load the motivator specifications. Skip over "None".
+  auto motivator_specifications = config_->motivator_specifications();
+  assert(motivator_specifications->Length() == MotivatorSpecification_Count);
+  for (int i = MotivatorSpecification_None + 1;
+       i < MotivatorSpecification_Count; ++i) {
+    auto specification = motivator_specifications->Get(i);
+    motive::OvershootInitFromFlatBuffers(*specification, &motivator_inits[i]);
   }
 }
 
-// Invalidate all our impellers before we get removed.
+// Invalidate all our motivators before we get removed.
 void ShakeablePropComponent::CleanupEntity(entity::EntityRef& entity) {
   ShakeablePropData* sp_data = GetEntityData(entity);
-  sp_data->impeller.Invalidate();
+  sp_data->motivator.Invalidate();
 }
 
 // General function to shake props when something hits near them.
@@ -106,7 +107,7 @@ void ShakeablePropComponent::ShakeProps(float damage_percent,
 
     // We always want to add to the speed, so if the current velocity is
     // negative, we add a negative amount.
-    const float current_velocity = data->impeller.Velocity();
+    const float current_velocity = data->motivator.Velocity();
     const float current_direction = current_velocity >= 0.0f ? 1.0f : -1.0f;
 
     // The closer the prop is to the damage_position, the more it should shake.
@@ -122,8 +123,8 @@ void ShakeablePropComponent::ShakeProps(float damage_percent,
                                  closeness * shake_scale *
                                  config_->prop_shake_velocity();
     const float new_velocity = current_velocity + delta_velocity;
-    const float current_value = data->impeller.Value();
-    data->impeller.SetTarget(impel::Current1f(current_value, new_velocity));
+    const float current_value = data->motivator.Value();
+    data->motivator.SetTarget(motive::Current1f(current_value, new_velocity));
   }
 }
 

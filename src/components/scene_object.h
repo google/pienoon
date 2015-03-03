@@ -22,8 +22,8 @@
 #include "mathfu/constants.h"
 #include "motive/motivator.h"
 
-namespace impel {
-  class MatrixImpelInit;
+namespace motive {
+class MatrixInit;
 }
 
 namespace fpl {
@@ -38,7 +38,7 @@ class SceneObjectData {
         renderable_id_(0),
         visible_(true) {
   }
-  void Initialize(impel::ImpelEngine* impel_engine);
+  void Initialize(motive::MotiveEngine* engine);
 
   // Set components of the transformation from object-to-local space.
   // We apply a fixed transformation to objects:
@@ -161,7 +161,7 @@ class SceneObjectData {
 
   // Position, orientation, and scale (in local space) of the object.
   // Composed of the basic matrix operations in TransformMatrixOperations.
-  impel::ImpellerMatrix4f transform_;
+  motive::MotivatorMatrix4f transform_;
 
   // The parent defines the scene heirarchy. This scene object is positioned
   // relative to its parent. That is,
@@ -184,9 +184,8 @@ class SceneObjectData {
 // So it contains basic drawing info.
 class SceneObjectComponent : public entity::Component<SceneObjectData> {
  public:
-  explicit SceneObjectComponent(impel::ImpelEngine* impel_engine)
-      : impel_engine_(impel_engine) {
-  }
+  explicit SceneObjectComponent(motive::MotiveEngine* engine)
+      : engine_(engine) {}
   virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
   virtual void InitEntity(entity::EntityRef& entity);
   void PopulateScene(SceneDescription* scene);
@@ -196,7 +195,7 @@ class SceneObjectComponent : public entity::Component<SceneObjectData> {
                           std::vector<bool>& matrix_calculated);
   void UpdateGlobalMatrices();
 
-  impel::ImpelEngine* impel_engine_;
+  motive::MotiveEngine* engine_;
 };
 
 }  // pie_noon

@@ -42,7 +42,7 @@ vec3 GameCamera::Target() const {
 }
 
 void GameCamera::Initialize(const GameCameraState& state,
-                            impel::ImpelEngine* engine) {
+                            motive::MotiveEngine* engine) {
   engine_ = engine;
   start_ = state;
   end_ = state;
@@ -72,11 +72,11 @@ void GameCamera::ExecuteMovement(const GameCameraMovement& movement) {
   start_ = CurrentState();
   end_ = movement.end;
 
-  // Initialize the Impeller.
+  // Initialize the Motivator.
   percent_.InitializeWithTarget(
       movement.init, engine_,
-      impel::CurrentToTarget1f(0.0f, movement.start_velocity, 1.0f, 0.0f,
-                               movement.time));
+      motive::CurrentToTarget1f(0.0f, movement.start_velocity, 1.0f, 0.0f,
+                                movement.time));
 }
 
 void GameCamera::TerminateMovements() {
@@ -84,7 +84,7 @@ void GameCamera::TerminateMovements() {
   start_ = state;
   end_ = state;
   if (percent_.Valid()) {
-    percent_.SetTarget(impel::Current1f(1.0f));
+    percent_.SetTarget(motive::Current1f(1.0f));
   }
   movements_ = std::queue<GameCameraMovement>();
 }

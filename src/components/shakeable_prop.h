@@ -32,7 +32,7 @@ struct ShakeablePropData {
   ShakeablePropData() {}
   float shake_scale;
   Axis axis;
-  impel::Impeller1f impeller;
+  motive::Motivator1f motivator;
 };
 
 class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
@@ -43,16 +43,14 @@ class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
   virtual void CleanupEntity(entity::EntityRef& entity);
 
   void set_config(const Config* config) { config_ = config; }
-  void set_impel_engine(impel::ImpelEngine* impel_engine) {
-    impel_engine_ = impel_engine;
-  }
-  void LoadImpellerSpecs();
+  void set_engine(motive::MotiveEngine* engine) { engine_ = engine; }
+  void LoadMotivatorSpecs();
   void ShakeProps(float damage_percent, const mathfu::vec3& damage_position);
 
  private:
   const Config* config_;
-  impel::ImpelEngine* impel_engine_;
-  impel::OvershootImpelInit impeller_inits[ImpellerSpecification_Count];
+  motive::MotiveEngine* engine_;
+  motive::OvershootInit motivator_inits[MotivatorSpecification_Count];
 };
 
 }  // pie_noon

@@ -40,17 +40,17 @@ table DripAndVanishDef {
   distance_dripped:float;
 }
 
-union ImpellerDataUnion {
+union MotivatorDataUnion {
   OvershootParameters,
   SmoothParameters,
   TwitchParameters
 }
 
-table ImpellerObjectDef {
-  data:ImpellerDataUnion;
+table MotivatorObjectDef {
+  data:MotivatorDataUnion;
 }
 
-enum ImpellerSpecification : ushort {
+enum MotivatorSpecification : ushort {
   None,
   Sway,
   Pendulum,
@@ -60,8 +60,8 @@ enum ImpellerSpecification : ushort {
 
 table ShakeablePropDef {
   // Type of shaking this prop should follow. Defined below in
-  // 'impeller_specifications'.
-  shake_impeller:ImpellerSpecification = None;
+  // 'motivator_specifications'.
+  shake_motivator:MotivatorSpecification = None;
 
   // Amount this prop should shake when damage occurs nearby. If 0, never
   // moves. If 1, moves a lot.
@@ -89,7 +89,7 @@ table CardboardSceneryDef {
 // messes with them.
 union ComponentDataUnion {
   SceneObjectDef,   // Ideally this should be first.
-  ImpellerObjectDef,
+  MotivatorObjectDef,
   CardboardSceneryDef,
   ShakeablePropDef,
   DripAndVanishDef,

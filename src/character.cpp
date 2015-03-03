@@ -55,7 +55,7 @@ Character::Character(
 
 void Character::Reset(CharacterId target, CharacterHealth health,
                       Angle face_angle, const vec3& position,
-                      impel::ImpelEngine* impel_engine) {
+                      motive::MotiveEngine* engine) {
   target_ = target;
   health_ = health;
   pie_damage_ = 0;
@@ -63,23 +63,23 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   state_machine_.Reset();
   victory_state_ = kResultUnknown;
 
-  impel::OvershootImpelInit init;
+  motive::OvershootInit init;
   OvershootInitFromFlatBuffers(*config_->face_angle_def(), &init);
 
-  face_angle_.InitializeWithTarget(init, impel_engine,
-                                   impel::Current1f(face_angle.ToRadians()));
+  face_angle_.InitializeWithTarget(init, engine,
+                                   motive::Current1f(face_angle.ToRadians()));
 }
 
 void Character::SetTarget(CharacterId target, Angle angle_to_target) {
   target_ = target;
-  face_angle_.SetTarget(impel::Target1f(angle_to_target.ToRadians(), 0.0f, 1));
+  face_angle_.SetTarget(motive::Target1f(angle_to_target.ToRadians(), 0.0f, 1));
 }
 
-void Character::TwitchFaceAngle(impel::TwitchDirection twitch) {
-  impel::Settled1f settled;
-  impel::Settled1fFromFlatBuffers(*config_->face_angle_twitch(), &settled);
+void Character::TwitchFaceAngle(motive::TwitchDirection twitch) {
+  motive::Settled1f settled;
+  motive::Settled1fFromFlatBuffers(*config_->face_angle_twitch(), &settled);
   const float velocity = config_->face_angle_twitch_velocity();
-  impel::Twitch(twitch, velocity, settled, &face_angle_);
+  motive::Twitch(twitch, velocity, settled, &face_angle_);
 }
 
 uint16_t Character::RenderableId(WorldTime anim_time) const {
@@ -120,7 +120,7 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
                          WorldTime flight_time, CharacterHealth original_damage,
                          CharacterHealth damage, float start_height,
                          float peak_height, int rotations,
-                         impel::ImpelEngine* engine)
+                         motive::MotiveEngine* engine)
     : original_source_(original_source),
       source_(source.id()),
       target_(target.id()),
@@ -130,14 +130,14 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
       damage_(damage) {
   // x,z positions are within a reasonable bound.
   // Rotations are anglular values.
-  const impel::SmoothImpelInit position_init(
+  const motive::SmoothInit position_init(
       fpl::Range(-kMaxPosition, kMaxPosition), false);
-  const impel::SmoothImpelInit rotation_init(fpl::Range(-kPi, kPi), true);
+  const motive::SmoothInit rotation_init(fpl::Range(-kPi, kPi), true);
 
   // Move x,z at constant speed from source to target.
-  const impel::ImpelTarget1f x_target(impel::CurrentToTargetConstVelocity1f(
+  const motive::MotiveTarget1f x_target(motive::CurrentToTargetConstVelocity1f(
       source.position().x(), target.position().x(), flight_time));
-  const impel::ImpelTarget1f z_target(impel::CurrentToTargetConstVelocity1f(
+  const motive::MotiveTarget1f z_target(motive::CurrentToTargetConstVelocity1f(
       source.position().z(), target.position().z(), flight_time));
 
   // Move y along a trajectory that starts and ends at 'start_height' and
@@ -153,7 +153,7 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
   const float peak_time = 0.5f * flight_time;
   const float delta_height = peak_height - start_height;
   const float start_velocity = 2.0f * delta_height / peak_time;
-  const impel::ImpelTarget1f y_target(impel::CurrentToTargetToTarget1f(
+  const motive::MotiveTarget1f y_target(motive::CurrentToTargetToTarget1f(
       start_height, start_velocity,                  // Initial node.
       peak_height, 0.0f, peak_time,                  // Peak node.
       start_height, -start_velocity, flight_time));  // End node.
@@ -165,17 +165,17 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
 
   // The pie rotates top to bottom a fixed number of times. Rotation speed
   // is constant.
-  const impel::ImpelTarget1f z_rotation_target(
-      impel::CurrentToTargetConstVelocity1f(0.0f, rotations * kTwoPi,
-                                            flight_time));
+  const motive::MotiveTarget1f z_rotation_target(
+      motive::CurrentToTargetConstVelocity1f(0.0f, rotations * kTwoPi,
+                                             flight_time));
 
-  impel::MatrixImpelInit init(5);
-  init.AddOp(impel::kTranslateX, position_init, x_target);
-  init.AddOp(impel::kTranslateY, position_init, y_target);
-  init.AddOp(impel::kTranslateZ, position_init, z_target);
-  init.AddOp(impel::kRotateAboutY, -angle_to_target.ToRadians());
-  init.AddOp(impel::kRotateAboutZ, rotation_init, z_rotation_target);
-  impeller_.Initialize(init, engine);
+  motive::MatrixInit init(5);
+  init.AddOp(motive::kTranslateX, position_init, x_target);
+  init.AddOp(motive::kTranslateY, position_init, y_target);
+  init.AddOp(motive::kTranslateZ, position_init, z_target);
+  init.AddOp(motive::kRotateAboutY, -angle_to_target.ToRadians());
+  init.AddOp(motive::kRotateAboutZ, rotation_init, z_rotation_target);
+  motivator_.Initialize(init, engine);
 }
 
 void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,

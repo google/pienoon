@@ -338,10 +338,10 @@ bool PieNoonGame::InitializeGameState() {
 
   game_state_.set_config(&config);
 
-  // Register the impeller types with the ImpelEngine.
-  impel::OvershootImpelInit::Register();
-  impel::SmoothImpelInit::Register();
-  impel::MatrixImpelInit::Register();
+  // Register the motivator types with the MotiveEngine.
+  motive::OvershootInit::Register();
+  motive::SmoothInit::Register();
+  motive::MatrixInit::Register();
 
   // Load flatbuffer into buffer.
   if (!LoadFile("character_state_machine_def.bin", &state_machine_source_)) {
@@ -805,15 +805,15 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
           prev_image->set_scale(mathfu::kZeros2f);
         }
 
-        // Reset the impeller animation, if we've moved to a new image.
-        impel::OvershootImpelInit init;
-        impel::OvershootInitFromFlatBuffers(*config.join_impeller_def(), &init);
-        const impel::ImpelTarget1f t(impel::CurrentToTarget1f(
-            config.join_impeller_start_value(),
-            config.join_impeller_start_velocity(),
-            config.join_impeller_target_value(), 0.0f, 1));
-        join_impeller_.InitializeWithTarget(init, &game_state_.impel_engine(),
-                                            t);
+        // Reset the motivator animation, if we've moved to a new image.
+        motive::OvershootInit init;
+        motive::OvershootInitFromFlatBuffers(*config.join_motivator_def(),
+                                             &init);
+        const motive::MotiveTarget1f t(motive::CurrentToTarget1f(
+            config.join_motivator_start_value(),
+            config.join_motivator_start_velocity(),
+            config.join_motivator_target_value(), 0.0f, 1));
+        join_motivator_.InitializeWithTarget(init, &game_state_.engine(), t);
         join_id_ = id;
 
         // Play a sound to aid with the countdown feeling.
@@ -823,7 +823,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       // Scale the pie to show some pleasing movement.
       StaticImage* image = gui_menu_.FindImageById(id);
       if (image != nullptr) {
-        image->set_scale(vec2(join_impeller_.Value()));
+        image->set_scale(vec2(join_motivator_.Value()));
       }
 
       // After a few seconds, start the game.
