@@ -20,6 +20,7 @@ package com.google.fpl.pie_noon;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -41,9 +42,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
+/* TODO(jsimantov): Uncomment these tracker lines when we go back
+   to a shipping version of GPG SDK */
+// import com.google.android.gms.analytics.GoogleAnalytics;
+// import com.google.android.gms.analytics.HitBuilders;
+// import com.google.android.gms.analytics.Tracker;
 import com.google.vrtoolkit.cardboard.CardboardDeviceParams;
 import com.google.vrtoolkit.cardboard.CardboardView;
 import com.google.vrtoolkit.cardboard.Eye;
@@ -56,7 +59,7 @@ public class FPLActivity extends SDLActivity implements
     MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcListener {
 
   private final String PROPERTY_ID = "XX-XXXXXXXX-X";
-  private Tracker tracker = null;
+  //private Tracker tracker = null;
 
   // Fields used in order to interact with a Cardboard device
   private CardboardView cardboardView;
@@ -72,7 +75,8 @@ public class FPLActivity extends SDLActivity implements
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    tracker = GoogleAnalytics.getInstance(this).newTracker(PROPERTY_ID);
+    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
+    // tracker = GoogleAnalytics.getInstance(this).newTracker(PROPERTY_ID);
 
     // Instantiate fields used by Cardboard
     cardboardView = new CardboardView(this);
@@ -116,7 +120,8 @@ public class FPLActivity extends SDLActivity implements
     nativeOnActivityResult(this, requestCode, resultCode, data);
   }
 
-  boolean textDialogOpen;
+  boolean textDialogOpen = false;
+  int queryResponse = -1;
 
   @Override
   public void onWindowFocusChanged(boolean hasFocus) {
@@ -185,6 +190,51 @@ public class FPLActivity extends SDLActivity implements
     }
   }
 
+  // A Runnable to display a query dialog, asking the user a yes-or-no question.
+  // Sets queryResponse in the parent class to 0 or 1 when the user responds.
+  private class QueryDialogRunnable implements Runnable {
+    Activity activity;
+    final String title;
+    final String question;
+    final String yes;
+    final String no;
+    public QueryDialogRunnable(Activity activity, String title, String question,
+                               String yes, String no) {
+      this.activity = activity;
+      this.title = title;
+      this.question = question;
+      this.yes = yes;
+      this.no = no;
+    }
+
+    public void run() {
+      try {
+        queryResponse = -1;
+        textDialogOpen = true;
+
+        AlertDialog alert = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+            .setTitle(title)
+            .setMessage(question)
+            .setNegativeButton(no, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,int id) {
+                  queryResponse = 0;
+                  textDialogOpen = false;
+                }})
+            .setPositiveButton(yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,int id) {
+                  queryResponse = 1;
+                  textDialogOpen = false;
+                }})
+            .create();
+        alert.show();
+      } catch (Exception e) {
+        textDialogOpen = false;
+        Log.e("SDL", "exception", e);
+      }
+    }
+  }
+
+
   // Capture motionevents and keyevents to check for gamepad movement.  Any events we catch
   // (That look like they were from a gamepad or joystick) get sent to C++ via JNI, where
   // they are stored, so C++ can deal with them next time it updates the game state.
@@ -237,6 +287,22 @@ public class FPLActivity extends SDLActivity implements
     return textDialogOpen;
   }
 
+  public void showQueryDialog(String title, String query_text, String yes_text, String no_text)
+  {
+    runOnUiThread(new QueryDialogRunnable(this, title, query_text, yes_text, no_text));
+  }
+
+  public int getQueryDialogResponse() {
+    if (textDialogOpen)
+      return -1;
+    else
+      return queryResponse;
+  }
+
+  public void resetQueryDialogResponse() {
+    queryResponse = -1;
+  }
+
   public boolean hasSystemFeature(String featureName) {
     return getPackageManager().hasSystemFeature(featureName);
   }
@@ -258,27 +324,30 @@ public class FPLActivity extends SDLActivity implements
   }
 
   public void SendTrackerEvent(String category, String action) {
-    tracker.send(new HitBuilders.EventBuilder()
-           .setCategory(category)
-           .setAction(action)
-           .build());
+    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
+    // tracker.send(new HitBuilders.EventBuilder()
+    //          .setCategory(category)
+    //          .setAction(action)
+    //          .build());
   }
 
   public void SendTrackerEvent(String category, String action, String label) {
-    tracker.send(new HitBuilders.EventBuilder()
-           .setCategory(category)
-           .setAction(action)
-           .setLabel(label)
-           .build());
+    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
+    // tracker.send(new HitBuilders.EventBuilder()
+    //        .setCategory(category)
+    //        .setAction(action)
+    //        .setLabel(label)
+    //        .build());
   }
 
   public void SendTrackerEvent(String category, String action, String label, int value) {
-    tracker.send(new HitBuilders.EventBuilder()
-           .setCategory(category)
-           .setAction(action)
-           .setLabel(label)
-           .setValue(value)
-           .build());
+    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
+    // tracker.send(new HitBuilders.EventBuilder()
+    //        .setCategory(category)
+    //        .setAction(action)
+    //        .setLabel(label)
+    //        .setValue(value)
+    //        .build());
   }
 
   @Override
@@ -341,4 +410,3 @@ public class FPLActivity extends SDLActivity implements
   private static native void nativeSetDeviceInCardboard(boolean inCardboard);
 
 }
-

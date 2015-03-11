@@ -24,13 +24,14 @@ GPGManager::GPGManager()
 
 pthread_mutex_t GPGManager::events_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t GPGManager::achievements_mutex_ = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t GPGManager::players_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 
 bool GPGManager::Initialize(bool ui_login) {
   state_ = kStart;
   do_ui_login_ = ui_login;
   event_data_initialized_ = false;
   achievement_data_initialized_ = false;
-
+  player_data_.reset(nullptr);
 #ifdef NO_GPG
   return true;
 #endif
@@ -71,6 +72,7 @@ bool GPGManager::Initialize(bool ui_login) {
                              : kAutoAuthFailed);
               if (state_ == kAuthed) {
                 // If we just logged in, go fetch our data!
+                FetchPlayer();
                 FetchEvents();
                 FetchAchievements();
               }
@@ -273,7 +275,7 @@ bool GPGManager::IsAchievementUnlocked(std::string achievement_id) {
     return false;
   }
   pthread_mutex_lock(&achievements_mutex_);
-  for (int i = 0; i < achievement_data_.size(); i++) {
+  for (unsigned int i = 0; i < achievement_data_.size(); i++) {
     if (achievement_data_[i].Id() == achievement_id) {
       return achievement_data_[i].State() == gpg::AchievementState::UNLOCKED;
     }
@@ -322,6 +324,27 @@ void GPGManager::ShowAchievements() {
   game_services_->Achievements().ShowAllUI([](const gpg::UIStatus &status) {
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                 "GPG: Achievement UI FAILED, UIStatus is: %d", status);
+  });
+}
+
+void GPGManager::FetchPlayer() {
+  game_services_->Players().FetchSelf([this](
+      const gpg::PlayerManager::FetchSelfResponse &fsr) mutable {
+
+    pthread_mutex_lock(&players_mutex_);
+    if (IsSuccess(fsr.status)) {
+      gpg::Player *player_data = new gpg::Player(fsr.data);
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                  "GPG: got player info. ID = %s, name = %s, avatar=%s",
+                  player_data->Id().c_str(), player_data->Name().c_str(),
+                  player_data->AvatarUrl(gpg::ImageResolution::HI_RES).c_str());
+      player_data_.reset(player_data);
+    } else {
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                   "GPG: failed to get player info");
+      player_data_.reset(nullptr);
+    }
+    pthread_mutex_unlock(&players_mutex_);
   });
 }
 

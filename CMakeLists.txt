@@ -244,6 +244,7 @@ set(pie_noon_SRCS
     src/glplatform.h
     src/glyph_cache.h
     src/gpg_manager.h
+    src/gpg_multiplayer.h
     src/gui_menu.cpp
     src/gui_menu.h
     src/imgui.h

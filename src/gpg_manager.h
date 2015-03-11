@@ -18,6 +18,7 @@
 #include "common.h"
 #include "pthread.h"
 #include "gpg/achievement_manager.h"
+#include "gpg/player_manager.h"
 #include "gpg/types.h"
 
 namespace fpl {
@@ -64,9 +65,15 @@ class GPGManager {
   void FetchEvents();
   void FetchAchievements();
 
+  // Asynchronously fetches the current player's info from the server.
+  // (Does nothing if not logged in.)
+  void FetchPlayer();
+
   RequestState event_data_state() const { return event_data_state_; }
 
   std::map<std::string, gpg::Event> &event_data() { return event_data_; }
+
+  gpg::Player *player_data() const { return player_data_.get(); }
 
   uint64_t GetEventValue(std::string event_id);
   bool IsAchievementUnlocked(std::string achievement_id);
@@ -104,7 +111,9 @@ class GPGManager {
   RequestState achievement_data_state_;
   static pthread_mutex_t events_mutex_;
   static pthread_mutex_t achievements_mutex_;
+  static pthread_mutex_t players_mutex_;
   std::map<std::string, gpg::Event> event_data_;
+  std::unique_ptr<gpg::Player> player_data_;
   std::vector<gpg::Achievement> achievement_data_;
 };
 

@@ -72,6 +72,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/game_camera.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/game_state.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gpg_manager.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/gpg_multiplayer.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gui_menu.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/imgui.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/input.cpp \
