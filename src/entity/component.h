@@ -72,13 +72,19 @@ class Component : public ComponentInterface {
 
   T* AddEntity(EntityRef entity) { return AddEntity(entity, kAddToBack); }
 
-  // Removes an entity from our list, and frees up any data we were associating
-  // with it.
+  // Removes an entity from our list of entities, marks the entity as not using
+  // this component anymore, calls the destructor on the data, and returns
+  // the memory to the memory pool.
   virtual void RemoveEntity(EntityRef& entity) {
-    CleanupEntity(entity);
-    ComponentId component_id = GetComponentId();
+    RemoveEntityInternal(entity);
     entity_data_.FreeElement(GetEntityDataIndex(entity));
-    entity->SetComponentDataIndex(component_id, kUnusedComponentIndex);
+  }
+
+  // Same as RemoveEntity() above, but returns an iterator to the entity after
+  // the one we've just removed.
+  virtual EntityIterator RemoveEntity(EntityIterator iter) {
+    RemoveEntityInternal(iter->entity);
+    return entity_data_.FreeElement(iter);
   }
 
   // Gets an iterator that will iterate over every entity in the component.
@@ -87,13 +93,6 @@ class Component : public ComponentInterface {
   // Gets an iterator which points to the end of the list of all entities in the
   // component.
   virtual EntityIterator end() { return entity_data_.end(); }
-
-  // Removes an entity from our list, and frees up any data we were associating
-  // with it.
-  virtual EntityIterator RemoveEntity(EntityIterator iter) {
-    CleanupEntity(iter->entity);
-    return entity_data_.FreeElement(iter);
-  }
 
   // Updates all entities.  Normally called by EntityManager, once per frame.
   virtual void UpdateAllEntities(WorldTime /*delta_time*/) {}
@@ -188,6 +187,21 @@ class Component : public ComponentInterface {
   // Returns the ID of this component.
   static ComponentId GetComponentId() {
     return ComponentIdLookup<T>::kComponentId;
+  }
+
+ private:
+  void RemoveEntityInternal(EntityRef& entity) {
+    // Allow components to handle any per-entity cleanup that it needs to do.
+    CleanupEntity(entity);
+
+    // Manually call the destructor on the data, since it is not actually being
+    // freed, just returned to the pool.
+    const size_t data_index = GetEntityDataIndex(entity);
+    EntityData* entity_data = entity_data_.GetElementData(data_index);
+    entity_data->data.~T();
+
+    ComponentId component_id = GetComponentId();
+    entity->SetComponentDataIndex(component_id, kUnusedComponentIndex);
   }
 
  protected:
