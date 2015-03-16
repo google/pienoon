@@ -19,7 +19,7 @@
 
 #ifdef __APPLE__
     #include "TargetConditionals.h"
-    #ifdef TARGET_OS_IPHONE
+    #if TARGET_OS_IPHONE
         #define PLATFORM_MOBILE
         //#include <SDL_opengles2.h>
         #include <OpenGLES/ES2/gl.h>
