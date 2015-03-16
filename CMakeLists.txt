@@ -128,6 +128,7 @@ endif()
 
 # Include motive.
 if(NOT pie_noon_only_flatc AND NOT TARGET motive)
+  set(motive_build_samples OFF CACHE BOOL "")
   set(motive_build_tests OFF CACHE BOOL "")
   add_subdirectory("${dependencies_motive_dir}" ${tmp_dir}/motive)
 endif()
