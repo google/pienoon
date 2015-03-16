@@ -101,7 +101,7 @@ class PieNoonGame {
   // void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
-  pindrop::AudioEngine::ChannelId PlayStinger();
+  pindrop::Channel PlayStinger();
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
   bool AnyControllerPresses();
@@ -196,11 +196,11 @@ class PieNoonGame {
   PieNoonState fade_exit_state_;
 
   // Channel used to play the ambience sound effect.
-  pindrop::AudioEngine::ChannelId ambience_channel_;
+  pindrop::Channel ambience_channel_;
 
   // A stinger will play before transition to the finished state. Don't
   // transition until the stinger is complete.
-  pindrop::AudioEngine::ChannelId stinger_channel_;
+  pindrop::Channel stinger_channel_;
 
   // Our current slide of the tutorial. Valid when state_ is kTutorial.
   int tutorial_slide_index_;

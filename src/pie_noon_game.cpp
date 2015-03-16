@@ -113,8 +113,8 @@ PieNoonGame::PieNoonGame()
       debug_previous_states_(),
       full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized),
-      ambience_channel_(pindrop::AudioEngine::kInvalidChannel),
-      stinger_channel_(pindrop::AudioEngine::kInvalidChannel),
+      ambience_channel_(nullptr),
+      stinger_channel_(nullptr),
       next_achievement_index_(0) {
   version_ = kVersion;
 }
@@ -843,9 +843,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         pause_time_ = time;
         return kPaused;
       }
-      if (game_state_.IsGameOver() &&
-          stinger_channel_ != pindrop::AudioEngine::kInvalidChannel &&
-          !pindrop::AudioEngine::Playing(stinger_channel_)) {
+      if (game_state_.IsGameOver() && stinger_channel_.valid() &&
+          !stinger_channel_.Playing()) {
         game_state_.PostGameLogging();
         return kFinished;
       }
@@ -933,10 +932,10 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     }
     case kFinished: {
       gui_menu_.Setup(TitleScreenButtons(config), &matman_);
-      if (ambience_channel_ != pindrop::AudioEngine::kInvalidChannel) {
-        audio_engine_.Stop(ambience_channel_);
+      if (ambience_channel_.valid()) {
+        ambience_channel_.Stop();
       }
-      stinger_channel_ = pindrop::AudioEngine::kInvalidChannel;
+      stinger_channel_ = pindrop::Channel(nullptr);
       audio_engine_.PlaySound("MusicMenu");
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
@@ -1339,7 +1338,7 @@ void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
   }
 }
 
-pindrop::AudioEngine::ChannelId PieNoonGame::PlayStinger() {
+pindrop::Channel PieNoonGame::PlayStinger() {
   auto& characters = game_state_.characters();
   int player_winners = 0;
   int ai_winners = 0;
@@ -1496,8 +1495,7 @@ void PieNoonGame::Run() {
           game_state_.AdvanceFrame(delta_time, &audio_engine_);
         }
 
-        if (state_ == kPlaying &&
-            stinger_channel_ == pindrop::AudioEngine::kInvalidChannel &&
+        if (state_ == kPlaying && !stinger_channel_.valid() &&
             game_state_.IsGameOver()) {
           game_state_.DetermineWinnersAndLosers();
           stinger_channel_ = PlayStinger();
