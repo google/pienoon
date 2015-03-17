@@ -78,13 +78,17 @@ class Component : public ComponentInterface {
   virtual void RemoveEntity(EntityRef& entity) {
     RemoveEntityInternal(entity);
     entity_data_.FreeElement(GetEntityDataIndex(entity));
+    entity->SetComponentDataIndex(GetComponentId(), kUnusedComponentIndex);
   }
 
   // Same as RemoveEntity() above, but returns an iterator to the entity after
   // the one we've just removed.
   virtual EntityIterator RemoveEntity(EntityIterator iter) {
     RemoveEntityInternal(iter->entity);
-    return entity_data_.FreeElement(iter);
+    auto new_iter = entity_data_.FreeElement(iter);
+    iter->entity->SetComponentDataIndex(GetComponentId(),
+                                        kUnusedComponentIndex);
+    return new_iter;
   }
 
   // Gets an iterator that will iterate over every entity in the component.
@@ -199,9 +203,6 @@ class Component : public ComponentInterface {
     const size_t data_index = GetEntityDataIndex(entity);
     EntityData* entity_data = entity_data_.GetElementData(data_index);
     entity_data->data.~T();
-
-    ComponentId component_id = GetComponentId();
-    entity->SetComponentDataIndex(component_id, kUnusedComponentIndex);
   }
 
  protected:
