@@ -1,0 +1,7 @@
+{
+  texture_filenames: [
+    "textures/multiplayer_block.webp"
+  ],
+  blendmode: ALPHA
+}
+

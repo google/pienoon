@@ -1,0 +1,6 @@
+{
+  texture_filenames: [
+    "textures/multiplayer_wait.webp"
+  ],
+  blendmode: ALPHA
+}

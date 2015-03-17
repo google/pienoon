@@ -1,0 +1,6 @@
+{
+  texture_filenames: [
+    "textures/multiplayer_dead.webp"
+  ],
+  blendmode: ALPHA
+}

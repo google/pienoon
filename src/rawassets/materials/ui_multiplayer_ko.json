@@ -1,0 +1,7 @@
+{
+  texture_filenames: [
+    "textures/multiplayer_ko.webp"
+  ],
+  "blendmode": "ALPHA",
+  "desired_format": [F_8888]
+}

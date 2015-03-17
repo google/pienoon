@@ -1,0 +1,7 @@
+{
+  texture_filenames: [
+    "textures/text_go.webp"
+  ],
+  "blendmode": "ALPHA",
+  desired_format: [ F_8888 ]
+}
