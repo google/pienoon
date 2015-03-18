@@ -75,7 +75,15 @@ class PieNoonGame {
   void RenderCardboard(const SceneDescription& scene,
                        const mat4& camera_transform);
   void Render(const SceneDescription& scene);
+  void RenderForDefault(const SceneDescription& scene);
+  void RenderForCardboard(const SceneDescription& scene);
+  void RenderScene(const SceneDescription& scene,
+                   const mat4& additional_camera_changes,
+                   const vec2i& resolution);
   void Render2DElements();
+  void GetCardboardTransforms(mat4& left_eye_transform,
+                              mat4& right_eye_transform);
+  void CorrectCardboardCamera(mat4& cardboard_camera);
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
   void DebugCamera();

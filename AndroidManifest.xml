@@ -36,6 +36,7 @@ limitations under the License.
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.google.intent.category.CARDBOARD" />
             </intent-filter>
         </activity>
         <activity android:name="FPLTvActivity"
@@ -65,6 +66,9 @@ limitations under the License.
 
     <!-- Allow accessing the internet to load external pages -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Allow access to the NFC reader for Cardboard to use  -->
+    <uses-permission android:name="android.permission.NFC" />
 
     <!-- Optionally uses gamepad -->
     <uses-feature android:name="android.hardware.gamepad" android:required="false"/>
