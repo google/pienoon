@@ -30,7 +30,8 @@ class Controller {
     kTypePlayer,
     kTypeAI,
     kTypeGamepad,
-    kTypeTouchScreen
+    kTypeTouchScreen,
+    kTypeCardboard
   };
 
   explicit Controller(ControllerType controller_type = kTypeUndefined)

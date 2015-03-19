@@ -211,6 +211,8 @@ set(pie_noon_SRCS
     src/analytics_tracking.h
     src/async_loader.cpp
     src/async_loader.h
+    src/cardboard_controller.cpp
+    src/cardboard_controller.h
     src/character.cpp
     src/character.h
     src/character_state_machine.cpp

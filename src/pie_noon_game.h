@@ -20,6 +20,7 @@
 #endif
 
 #include "ai_controller.h"
+#include "cardboard_controller.h"
 #include "full_screen_fader.h"
 #include "game_state.h"
 #include "gui_menu.h"
@@ -194,6 +195,8 @@ class PieNoonGame {
   GuiMenu gui_menu_;
 
   std::map<int, ControllerId> gamepad_to_controller_map_;
+
+  CardboardController* cardboard_controller_;
 
   ButtonId join_id_;
   motive::Motivator1f join_motivator_;

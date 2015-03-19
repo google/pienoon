@@ -533,6 +533,7 @@ Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnGamepadInput(
 CardboardInput InputSystem::cardboard_input_;
 
 void InputSystem::OnCardboardTrigger() {
+  cardboard_input_.set_triggered(true);
 }
 
 void InputSystem::SetDeviceInCardboard(bool in_cardboard) {

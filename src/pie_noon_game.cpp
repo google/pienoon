@@ -373,6 +373,14 @@ bool PieNoonGame::InitializeGameState() {
 
   AddController(touch_controller_);
 
+  // Add a cardboard controller into the controller list, so that input
+  // from a cardboard device can be handled correctly
+  cardboard_controller_ = new CardboardController();
+
+  cardboard_controller_->Initialize(&input_);
+
+  AddController(cardboard_controller_);
+
   // Create characters.
   for (unsigned int i = 0; i < config.character_count(); ++i) {
     AiController* controller = new AiController();
@@ -1340,6 +1348,14 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
             HandlePlayersJoining(touch_controller_);
             return kPlaying;
           }
+#ifdef ANDROID_CARDBOARD
+          else if (input_.cardboard_input().is_in_cardboard()) {
+            // If we are currently in the cardboard device, we assume
+            // that it will be the controller running the game
+            HandlePlayersJoining(cardboard_controller_);
+            return kPlaying;
+          }
+#endif
           return kJoining;
         }
         break;
@@ -1402,6 +1418,12 @@ void PieNoonGame::UpdateControllers(WorldTime delta_time) {
 }
 
 void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
+#ifdef ANDROID_CARDBOARD
+  // If the device is in the cardboard, we don't want to use the touch controls
+  if (input_.cardboard_input().is_in_cardboard()) {
+    return;
+  }
+#endif // ANDROID_CARDBOARD
   gui_menu_.AdvanceFrame(delta_time, &input_, vec2(renderer_.window_size()));
 
   // If we're playing the game, we have to send the menu events directly

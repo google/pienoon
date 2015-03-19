@@ -203,18 +203,22 @@ struct AndroidInputEvent {
 class CardboardInput {
  public:
   CardboardInput()
-    : is_in_cardboard_(false) {
-  }
+    : is_in_cardboard_(false),
+      triggered_(false) {}
 
   bool is_in_cardboard() const { return is_in_cardboard_; }
   void set_is_in_cardboard(bool is_in_cardboard) {
     is_in_cardboard_ = is_in_cardboard;
   }
 
-  // TODO: Track the OnCardboardTrigger events
+  bool triggered() const { return triggered_; }
+  void set_triggered(bool triggered) {
+    triggered_ = triggered;
+  }
 
  private:
   bool is_in_cardboard_;
+  bool triggered_;
 };
 #endif // ANDROID_CARDBOARD
 

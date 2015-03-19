@@ -57,6 +57,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/ai_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/analytics_tracking.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/async_loader.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/cardboard_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
