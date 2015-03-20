@@ -26,7 +26,7 @@
 #include "gui_menu.h"
 #include "input.h"
 #include "material_manager.h"
-#include "pindrop/audio_engine.h"
+#include "pindrop/pindrop.h"
 #include "player_controller.h"
 #include "renderer.h"
 #include "scene_description.h"

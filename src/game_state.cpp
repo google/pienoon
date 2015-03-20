@@ -26,7 +26,7 @@
 #include "motive/init.h"
 #include "motive/util.h"
 #include "pie_noon_common_generated.h"
-#include "pindrop/audio_engine.h"
+#include "pindrop/pindrop.h"
 #include "scene_description.h"
 #include "timeline_generated.h"
 #include "utilities.h"
