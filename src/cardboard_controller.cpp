@@ -34,8 +34,6 @@ void CardboardController::AdvanceFrame(WorldTime /*delta_time*/) {
   if (input_system_->cardboard_input().triggered()) {
     SetLogicalInputs(LogicalInputs_Select, true);
     SetLogicalInputs(LogicalInputs_ThrowPie, true);
-    // Since it is meant as a trigger, after being read we want to reset it
-    input_system_->cardboard_input().set_triggered(false);
   }
 #endif  // ANDROID_CARDBOARD
 }

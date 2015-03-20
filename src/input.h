@@ -204,21 +204,24 @@ class CardboardInput {
  public:
   CardboardInput()
     : is_in_cardboard_(false),
-      triggered_(false) {}
+      triggered_(false),
+      pending_trigger_(false) {}
 
   bool is_in_cardboard() const { return is_in_cardboard_; }
   void set_is_in_cardboard(bool is_in_cardboard) {
     is_in_cardboard_ = is_in_cardboard;
   }
-
   bool triggered() const { return triggered_; }
-  void set_triggered(bool triggered) {
-    triggered_ = triggered;
+
+  void AdvanceFrame();
+  void OnCardboardTrigger() {
+    pending_trigger_ = true;
   }
 
  private:
   bool is_in_cardboard_;
   bool triggered_;
+  bool pending_trigger_;
 };
 #endif // ANDROID_CARDBOARD
 

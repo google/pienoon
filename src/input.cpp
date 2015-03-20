@@ -115,6 +115,9 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
   }
   HandleGamepadEvents();
 #endif  // ANDROID_GAMEPAD
+#ifdef ANDROID_CARDBOARD
+  cardboard_input_.AdvanceFrame();
+#endif  // ANDROID_CARDBOARD
   // Poll events until Q is empty.
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
@@ -532,8 +535,15 @@ Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnGamepadInput(
 #ifdef ANDROID_CARDBOARD
 CardboardInput InputSystem::cardboard_input_;
 
+void CardboardInput::AdvanceFrame() {
+  if (pending_trigger_ != triggered_) {
+    triggered_ = pending_trigger_;
+    pending_trigger_ = false;
+  }
+}
+
 void InputSystem::OnCardboardTrigger() {
-  cardboard_input_.set_triggered(true);
+  cardboard_input_.OnCardboardTrigger();
 }
 
 void InputSystem::SetDeviceInCardboard(bool in_cardboard) {
