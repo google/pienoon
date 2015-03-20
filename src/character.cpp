@@ -100,11 +100,17 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 
 mathfu::vec4 Character::Color() const {
   const bool ai = controller_->controller_type() == Controller::kTypeAI;
+  const vec3 color = ai ? LoadVec3(config_->ai_color())
+                        : Lerp(mathfu::kOnes3f,
+                               LoadVec3(config_->character_colors()->Get(id_)),
+                               config_->character_global_brightness_factor());
+  return vec4(color, 1.0);
+}
+
+mathfu::vec4 Character::ButtonColor() const {
   const vec3 color =
-      ai ? LoadVec3(config_->ai_color())
-         : Lerp(mathfu::kOnes3f,
-                LoadVec3(config_->character_colors()->Get(id_)),
-                1.0f / config_->character_global_brightness_factor());
+      Lerp(mathfu::kOnes3f, LoadVec3(config_->character_colors()->Get(id_)),
+           config_->character_global_brightness_factor_buttons());
   return vec4(color, 1.0);
 }
 

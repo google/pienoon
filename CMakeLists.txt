@@ -254,6 +254,10 @@ set(pie_noon_SRCS
     src/main.cpp
     src/material_manager.cpp
     src/material_manager.h
+    src/multiplayer_controller.cpp
+    src/multiplayer_controller.h
+    src/multiplayer_director.cpp
+    src/multiplayer_director.h
     src/player_controller.cpp
     src/player_controller.h
     src/shader.cpp

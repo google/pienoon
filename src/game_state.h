@@ -122,12 +122,16 @@ class GameState {
   void set_config(const Config* config) { config_ = config; }
 
   motive::MotiveEngine& engine() { return engine_; }
+  ParticleManager& particle_manager() { return particle_manager_; }
 
   // Sets up the players in joining mode, where all they can do is jump up
   // and down.
   void EnterJoiningMode();
 
   WorldTime GetAnimationTime(const Character& character) const;
+
+  void set_is_multiscreen(bool b) { is_multiscreen_ = b; }
+  bool is_multiscreen() const { return is_multiscreen_; }
 
  private:
   void ProcessSounds(pindrop::AudioEngine* audio_engine,
@@ -195,6 +199,9 @@ class GameState {
   DripAndVanishComponent drip_and_vanish_component_;
   // Component for drawing player characters:
   PlayerCharacterComponent player_character_component_;
+
+  // Whether you are playing in multiscreen mode.
+  bool is_multiscreen_;
 };
 
 }  // pie_noon

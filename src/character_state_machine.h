@@ -37,6 +37,8 @@ struct ConditionInputs {
 
   // The current world time
   WorldTime current_time;
+
+  bool is_multiscreen;
 };
 
 class CharacterStateMachine {

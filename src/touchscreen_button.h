@@ -85,6 +85,9 @@ class TouchscreenButton {
     is_highlighted_ = is_highlighted;
   }
 
+  void set_color(const mathfu::vec4& color) { color_ = color; }
+  const mathfu::vec4& color() { return color_; }
+
   void SetCannonicalWindowHeight(int height) {
     one_over_cannonical_window_height_ = 1.0f / static_cast<float>(height);
   }
@@ -102,6 +105,9 @@ class TouchscreenButton {
   size_t up_current_;
 
   Material* down_material_;
+
+  // Allow overriding the default color in code.
+  mathfu::vec4 color_;
 
   // Offsets to draw the textures at,
   mathfu::vec2 up_offset_;
@@ -132,6 +138,9 @@ class StaticImage {
   void set_scale(const mathfu::vec2& scale) { scale_ = scale; }
   void set_current_material_index(int i) { current_material_index_ = i; }
 
+  void set_is_visible(bool b) { is_visible_ = b; }
+  bool is_visible() { return is_visible_; }
+
  private:
   // Flatbuffer's definition of this image.
   const StaticImageDef* image_def_;
@@ -152,6 +161,8 @@ class StaticImage {
   // Scale the textures by the y-axis so that they are (proportionally)
   // the same height on every platform.
   float one_over_cannonical_window_height_;
+
+  bool is_visible_;
 };
 
 }  // pie_noon

@@ -26,6 +26,8 @@
 #include "gui_menu.h"
 #include "input.h"
 #include "material_manager.h"
+#include "multiplayer_controller.h"
+#include "multiplayer_director.h"
 #include "pindrop/pindrop.h"
 #include "player_controller.h"
 #include "renderer.h"
@@ -38,6 +40,7 @@
 #endif  // ANDROID_GAMEPAD
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 #include "gpg_manager.h"
+#include "gpg_multiplayer.h"
 #endif
 
 namespace fpl {
@@ -55,7 +58,9 @@ enum PieNoonState {
   kJoining,
   kPlaying,
   kPaused,
-  kFinished
+  kFinished,
+  kMultiplayerWaiting,
+  kMultiscreenClient,
 };
 
 class PieNoonGame {
@@ -106,11 +111,16 @@ class PieNoonGame {
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining(Controller* controller);
   void HandlePlayersJoining();
+  void AttachMultiplayerControllers();
   PieNoonState HandleMenuButtons(WorldTime time);
   // void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
+
   pindrop::Channel PlayStinger();
+  void InitCountdownImage(int seconds);
+  void UpdateCountdownImage(WorldTime time);
+
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
   bool AnyControllerPresses();
@@ -119,11 +129,22 @@ class PieNoonGame {
   void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
                               Material* material);
 
+  void ProcessMultiplayerMessages();
+  void ProcessPlayerStatusMessage(const multiplayer::PlayerStatus&);
+
   static int ReadPreference(const char* key, int initial_value,
                             int failure_value);
   static void WritePreference(const char* key, int value);
 
   void CheckForNewAchievements();
+
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  void StartMultiscreenGameAsHost();
+  void StartMultiscreenGameAsClient(CharacterId id);
+  void SendMultiscreenPlayerCommand();
+#endif
+  void UpdateMultiscreenMenuIcons();
+  void SetupWaitingForPlayersMenu();
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -176,6 +197,18 @@ class PieNoonGame {
   // unchanging ID.
   std::vector<std::unique_ptr<Controller>> active_controllers_;
 
+  // On the host, directs the fake controllers in the multiscreen gameplay.
+  std::unique_ptr<MultiplayerDirector> multiplayer_director_;
+  // On the client, which player are we? 0-3
+  CharacterId multiscreen_my_player_id_;
+  // On the client, Which action we are performing: Attack, Defend, or Cancel
+  // (for waiting).
+  ButtonId multiscreen_action_to_perform_;
+  // On the client, which other player we are aimed at.  In multiscreen, each
+  // player starts aimed at the next player (or p3 is aimed back at p0).
+  CharacterId multiscreen_action_aim_at_;
+  int multiscreen_turn_number_;
+
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.
   SceneDescription scene_;
@@ -219,6 +252,14 @@ class PieNoonGame {
   // The Worldtime when the curent tutorial slide was displayed.
   WorldTime tutorial_slide_time_;
 
+  // The time we started animating the "join" countdown image
+  WorldTime join_animation_start_time_;
+
+  ButtonId countdown_start_button_;
+
+  // The time at which the current turn is over.
+  WorldTime multiscreen_turn_end_time_;
+
   int next_achievement_index_;
 
   // String version number of the game.
@@ -229,6 +270,9 @@ class PieNoonGame {
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
+
+  // Network multiplayer library for multi-screen version
+  GPGMultiplayer gpg_multiplayer_;
 #endif
 };
 

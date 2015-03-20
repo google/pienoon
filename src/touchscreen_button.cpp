@@ -8,6 +8,7 @@ TouchscreenButton::TouchscreenButton()
     : elapsed_time_(0),
       up_current_(0),
       down_material_(nullptr),
+      color_(1, 1, 1, 1),
       is_active_(true),
       is_visible_(true),
       is_highlighted_(false),
@@ -66,11 +67,13 @@ void TouchscreenButton::Render(Renderer& renderer) {
   if (!is_visible_) {
     return;
   }
+  renderer.color() = color_;
 
-  Material* mat =
-      button_.is_down() ? down_material_ : up_current_ < up_materials_.size()
-                                               ? up_materials_[up_current_]
-                                               : nullptr;
+  Material* mat = (button_.is_down() && down_material_ != nullptr)
+                      ? down_material_
+                      : up_current_ < up_materials_.size()
+                            ? up_materials_[up_current_]
+                            : nullptr;
   if (!mat) return;  // This is an invisible button.
 
   const vec2 window_size = vec2(renderer.window_size());
@@ -111,7 +114,8 @@ StaticImage::StaticImage()
       current_material_index_(0),
       shader_(nullptr),
       scale_(mathfu::kZeros2f),
-      one_over_cannonical_window_height_(0.0f) {}
+      one_over_cannonical_window_height_(0.0f),
+      is_visible_(true) {}
 
 void StaticImage::Initialize(const StaticImageDef& image_def,
                              std::vector<Material*> materials, Shader* shader,
@@ -123,6 +127,7 @@ void StaticImage::Initialize(const StaticImageDef& image_def,
   scale_ = LoadVec2(image_def_->draw_scale());
   one_over_cannonical_window_height_ =
       1.0f / static_cast<float>(cannonical_window_height);
+  is_visible_ = true;
   assert(Valid());
 }
 
@@ -134,6 +139,7 @@ bool StaticImage::Valid() const {
 
 void StaticImage::Render(Renderer& renderer) {
   if (!Valid()) return;
+  if (!is_visible_) return;
 
   Material* material = materials_[current_material_index_];
   const vec2 window_size = vec2(renderer.window_size());

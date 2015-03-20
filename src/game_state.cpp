@@ -107,7 +107,8 @@ GameState::GameState()
     : time_(0),
       config_(nullptr),
       arrangement_(nullptr),
-      sceneobject_component_(&engine_) {}
+      sceneobject_component_(&engine_),
+      is_multiscreen_(false) {}
 
 GameState::~GameState() {}
 
@@ -505,6 +506,7 @@ void GameState::PopulateConditionInputs(ConditionInputs* condition_inputs,
   condition_inputs->went_up = character.controller()->went_up();
   condition_inputs->animation_time = GetAnimationTime(character);
   condition_inputs->current_time = time_;
+  condition_inputs->is_multiscreen = is_multiscreen();
 }
 
 void GameState::ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,

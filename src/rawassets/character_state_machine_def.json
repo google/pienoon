@@ -148,9 +148,17 @@
         {
           "target_state": "Loading_2",
           "condition": {
+            "game_mode" : "SinglePlayerOnly",
             "went_down": "AnimationEnd"
           }
-        }
+        },
+        {
+          "target_state": "Loading_2",
+          "condition": {
+            "game_mode" : "MultiPlayerOnly",
+            "went_down": "TriggerPieGrowth"
+          }
+        },
       ],
       "timeline": {
         "end_time": 750,
@@ -163,7 +171,7 @@
         "accessories": [
           {
             "time": 0,
-            "end_time": 750,
+            "end_time": 0,
             "renderable": "RenderableId.PieSmall",
             "offset": {
               "x": 2,
@@ -222,9 +230,17 @@
         {
           "target_state": "Loading_3",
           "condition": {
+            "game_mode" : "SinglePlayerOnly",
             "went_down": "AnimationEnd"
           }
-        }
+        },
+        {
+          "target_state": "Loading_3",
+          "condition": {
+            "game_mode" : "MultiPlayerOnly",
+            "went_down": "TriggerPieGrowth"
+          }
+        },
       ],
       "timeline": {
         "end_time": 750,
@@ -237,7 +253,7 @@
         "accessories": [
           {
             "time": 0,
-            "end_time": 750,
+            "end_time": 0,
             "renderable": "RenderableId.PieMedium",
             "offset": {
               "x": 14,
