@@ -62,7 +62,8 @@ namespace fpl {
 
 class GPGMultiplayer {
  public:
-  GPGMultiplayer();
+  // In the pair, first = the sender's instance_id, second = the message.
+  typedef std::pair<std::string, std::vector<uint8_t>> SenderAndMessage;
 
   enum MultiplayerState {
     // Starting state, you aren't connected, broadcasting, or scanning.
@@ -79,8 +80,10 @@ class GPGMultiplayer {
     kDiscoveringWaitingForHost = 5,
     // We are fully connected to the other side.
     kConnected = 6,
+    // We are connected to some clients, but others have disconnected
+    kConnectedWithDisconnections = 7,
     // A connection error occurred.
-    kError = 7
+    kError = 8
   };
 
   // The user's response to a connection dialog.
@@ -92,6 +95,9 @@ class GPGMultiplayer {
     // The user has not yet responded to the prompt, we are still waiting.
     kDialogWaiting,
   };
+
+  // Initializes mutexes only.
+  GPGMultiplayer();
 
   // Initialize the connection manager, set up callbacks, etc.
   // Call this before doing anything else but after initializing
@@ -133,22 +139,25 @@ class GPGMultiplayer {
     my_instance_name_ = my_instance_name;
   }
 
+  // Get the current multiplayer state.
   MultiplayerState state() const { return state_; }
 
   // Are you fully connected and no longer advertising or discovering?
-  bool IsConnected() const { return (state() == kConnected); }
+  bool IsConnected() const {
+    return state() == kConnected || state() == kConnectedWithDisconnections;
+  }
 
   // Returns whether you are advertising.
   bool IsAdvertising() const {
-    return (state() == kAdvertising || state() == kAdvertisingPromptedUser);
+    return state() == kAdvertising || state() == kAdvertisingPromptedUser;
   }
   // Returns whether you are discovering.
   bool IsDiscovering() const {
-    return (state() == kDiscovering || state() == kDiscoveringPromptedUser ||
-            state() == kDiscoveringWaitingForHost);
+    return state() == kDiscovering || state() == kDiscoveringPromptedUser ||
+           state() == kDiscoveringWaitingForHost;
   }
   // Returns whether you have had a connection error.
-  bool HasError() const { return (state() == kError); }
+  bool HasError() const { return state() == kError; }
 
   // Get the number of players we have connected. If you are a client, this will
   // be at most 1, since you are only connected to the host.
@@ -180,9 +189,17 @@ class GPGMultiplayer {
   // You would then call GetNextMessage() to retrieve the next message.
   bool HasMessage();
 
-  // Get the latest incoming message, or a blank vector if there is none.
-  // In the pair, first = the sender's instance_id, second = the message.
-  std::pair<std::string, std::vector<uint8_t>> GetNextMessage();
+  // Get the latest incoming message, or a blank sender and message if there are
+  // none.
+  SenderAndMessage GetNextMessage();
+
+  // Returns true if a player has just reconnected.
+  bool HasReconnectedPlayer();
+
+  // Gets the player ID of a player that has just reconnected. There may
+  // be more than one, so keep checking this until HasReconnectedPlayer()
+  // returns false (or this returns -1).
+  int GetReconnectedPlayer();
 
   // On the host, set the maximum number of players allowed to connect (not
   // counting the host itself). Set this to a negative number to allow an
@@ -197,23 +214,20 @@ class GPGMultiplayer {
   // On the host, set this to true to automatically allow users to connect.
   // On the client, set this to true to automatically connect to the first host.
   void set_auto_connect(bool b) { auto_connect_ = b; }
-  bool auto_connect() { return auto_connect_; }
+
+  // If true, we will automatically connect.
+  bool auto_connect() const { return auto_connect_; }
+
+  // Set to true to allow a disconnected user to reconnect into their previous
+  // slot. If you allow this, you can find a reconnected player by calling
+  // GetReconnectedPlayer().
+  void set_allow_reconnecting(bool b) { allow_reconnecting_ = b; }
+
+  // If true, we allow disconnected users to reconnect.
+  bool allow_reconnecting() const { return allow_reconnecting_; }
 
  private:
-  // Enter a new state, exiting the previous one first.
-  void TransitionState(MultiplayerState old_state, MultiplayerState new_state);
-
-  // Queue up the next state to go into at the next Update.
-  void QueueNextState(MultiplayerState next_state);
-
-  // On the client, request a connection from a host you have discovered.
-  void SendConnectionRequest(const std::string& host_instance_id);
-  // On the host, accept a client's connection request.
-  void AcceptConnectionRequest(const std::string& client_instance_id);
-  // On the host, reject a client's connection request, disconnecting them.
-  void RejectConnectionRequest(const std::string& client_instance_id);
-  // On the host, reject all pending connection requests.
-  void RejectAllConnectionRequests();
+  typedef std::queue<SenderAndMessage> MessageQueue;
 
   // Listens for hosts that are advertising.
   class DiscoveryListener : public gpg::IEndpointDiscoveryListener {
@@ -223,11 +237,13 @@ class GPGMultiplayer {
         std::function<void(const std::string&)> endpointremoved_callback)
         : endpointfound_callback_(endpointfound_callback),
           endpointremoved_callback_(endpointremoved_callback) {}
-    void OnEndpointFound(int64_t client_id,
+    void OnEndpointFound(int64_t /*client_id*/,
                          gpg::EndpointDetails const& endpoint_details) {
+      // Ignore client_id because we only have one NearbyConnections client.
       endpointfound_callback_(endpoint_details);
     }
-    void OnEndpointLost(int64_t client_id, const std::string& instance_id) {
+    void OnEndpointLost(int64_t /*client_id*/, const std::string& instance_id) {
+      // Ignore client_id because we only have one NearbyConnections client.
       endpointremoved_callback_(instance_id);
     }
 
@@ -249,10 +265,12 @@ class GPGMultiplayer {
                            const std::string& instance_id,
                            std::vector<uint8_t> const& payload,
                            bool is_reliable) {
+      // Ignore client_id because we only have one NearbyConnections client.
       message_received_callback_(instance_id, payload, is_reliable);
     }
     void OnDisconnected(int64_t /* client_id */,
                         const std::string& instance_id) {
+      // Ignore client_id because we only have one NearbyConnections client.
       disconnected_callback_(instance_id);
     }
 
@@ -262,6 +280,22 @@ class GPGMultiplayer {
     std::function<void(const std::string&)> disconnected_callback_;
   };
 
+  // Enter a new state, exiting the previous one first.
+  void TransitionState(MultiplayerState old_state, MultiplayerState new_state);
+
+  // Queue up the next state to go into at the next Update.
+  void QueueNextState(MultiplayerState next_state);
+
+  // On the client, request a connection from a host you have discovered.
+  void SendConnectionRequest(const std::string& host_instance_id);
+  // On the host, accept a client's connection request.
+  void AcceptConnectionRequest(const std::string& client_instance_id);
+  // On the host, reject a client's connection request, disconnecting them.
+  void RejectConnectionRequest(const std::string& client_instance_id);
+  // On the host, reject all pending connection requests.
+  void RejectAllConnectionRequests();
+
+  // Callbacks used by NearbyConnections library.
   void StartAdvertisingCallback(gpg::StartAdvertisingResult const& info);
   void ConnectionRequestCallback(
       gpg::ConnectionRequest const& connection_request);
@@ -274,12 +308,23 @@ class GPGMultiplayer {
                                bool is_reliable);
   void DisconnectedCallback(const std::string& instance_id);
 
+  // Functions to prompt the user on connection.
   DialogResponse GetConnectionDialogResponse();
   bool DisplayConnectionDialog(const char* title, const char* question_text,
                                const char* yes_text, const char* no_text);
 
   // Update connected_instances_reverse_ to match to connected_instances_.
+  // Make sure instance_mutex_ is locked when calling.
   void UpdateConnectedInstances();
+
+  // Add a new connected instance to the connected_instances_ list.
+  // Returns the new index in connected_instances_ or -1 if it failed.
+  // Make sure instance_mutex_ is locked when calling.
+  int AddNewConnectedInstance(const std::string& instance_id);
+
+  // Clear the disconnected instances that we were remembering. Also compacts
+  // connected_instances_ to remove holes from disconnected instances.
+  void ClearDisconnectedInstances();
 
   // The NearbyConnections library.
   std::unique_ptr<gpg::NearbyConnections> nearby_connections_;
@@ -306,8 +351,13 @@ class GPGMultiplayer {
   // Keep a mapping of instance IDs to full names. Lock instance_mutex_ before
   // using.
   std::map<std::string, std::string> instance_names_;
-
-  typedef std::queue<std::pair<std::string, std::vector<uint8_t>>> MessageQueue;
+  // Any instance that gets disconnected goes here, so it can be allowed to
+  // reconnect and get its old player number. This maps disconnected instance
+  // IDs to their former index in connected_instances_.
+  std::map<std::string, int> disconnected_instances_;
+  // Keep track of which instances we have allowed to reconnect,
+  // so the user code can send them a game state update.
+  std::queue<int> reconnected_players_;
 
   // List of incoming messages. Lock message_mutex_ before using.
   MessageQueue incoming_messages_;
@@ -331,8 +381,12 @@ class GPGMultiplayer {
   // callback setting an error condition.
   pthread_mutex_t state_mutex_;
 
-  bool is_hosting_;  // only true if we are the host.
-  bool auto_connect_;
+  bool is_hosting_;    // This is set to true if we are the host.
+  bool auto_connect_;  // If this is true, connections will be automatically
+                       // approved without prompting.
+  bool allow_reconnecting_;  // If this is true, a client disconnecting while a
+                             // host is connected will have its slot reserved
+                             // for reconnection.
 };
 
 }  // namespace fpl

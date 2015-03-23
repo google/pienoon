@@ -26,12 +26,11 @@ GPGMultiplayer::GPGMultiplayer()
 bool GPGMultiplayer::Initialize(const std::string& service_id) {
   state_ = kIdle;
   is_hosting_ = false;
+  allow_reconnecting_ = true;
 
   service_id_ = service_id;
   gpg::AndroidPlatformConfiguration platform_configuration;
   platform_configuration.SetActivity((jobject)SDL_AndroidGetActivity());
-  if (!platform_configuration.Valid())
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Invalid PlatformConfiguration");
 
   gpg::NearbyConnections::Builder nearby_builder;
   nearby_connections_ = nearby_builder.SetDefaultOnLog(gpg::LogLevel::VERBOSE)
@@ -40,10 +39,14 @@ bool GPGMultiplayer::Initialize(const std::string& service_id) {
   discovery_listener_.reset(nullptr);
   message_listener_.reset(nullptr);
 
-  if (nearby_connections_ == nullptr)
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Got null NearbyConnections");
+  if (nearby_connections_ == nullptr) {
+    SDL_LogError(
+        SDL_LOG_CATEGORY_APPLICATION,
+        "GPGMultiplayer: Unable to build a NearbyConnections instance.");
+    return false;
+  }
 
-  return (nearby_connections_ != nullptr);
+  return true;
 }
 
 void GPGMultiplayer::AddAppIdentifier(const std::string& identifier) {
@@ -98,7 +101,7 @@ void GPGMultiplayer::ResetToIdle() {
 
 void GPGMultiplayer::DisconnectInstance(const std::string& instance_id) {
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "Multiplayer: Disconnect player (instance_id='%s')",
+              "GPGMultiplayer: Disconnect player (instance_id='%s')",
               instance_id.c_str());
   nearby_connections_->Disconnect(instance_id);
 
@@ -119,7 +122,7 @@ void GPGMultiplayer::DisconnectInstance(const std::string& instance_id) {
 
 void GPGMultiplayer::DisconnectAll() {
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "Multiplayer: Disconnect all players");
+              "GPGMultiplayer: Disconnect all players");
   // In case there are any connection requests outstanding, reject them.
   RejectAllConnectionRequests();
 
@@ -132,7 +135,7 @@ void GPGMultiplayer::DisconnectAll() {
   UpdateConnectedInstances();
   pthread_mutex_unlock(&instance_mutex_);
 
-  if (state() == kConnected) {
+  if (state() == kConnected || state() == kConnectedWithDisconnections) {
     QueueNextState(kIdle);
   }
 }
@@ -143,28 +146,28 @@ void GPGMultiplayer::SendConnectionRequest(
     message_listener_.reset(new MessageListener(
         [this](const std::string& instance_id,
                std::vector<uint8_t> const& payload, bool is_reliable) {
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "Multiplayer OnMessageReceived(%s) callback",
-                      instance_id.c_str());
+          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                       "GPGMultiplayer: OnMessageReceived(%s) callback",
+                       instance_id.c_str());
           this->MessageReceivedCallback(instance_id, payload, is_reliable);
         },
         [this](const std::string& instance_id) {
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "Multiplayer OnDisconnect(%s) callback",
-                      instance_id.c_str());
+          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                       "GPGMultiplayer: OnDisconnect(%s) callback",
+                       instance_id.c_str());
           this->DisconnectedCallback(instance_id);
         }));
   }
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "Multiplayer: Sending connection request to %s",
+              "GPGMultiplayer: Sending connection request to %s",
               host_instance_id.c_str());
 
   // Immediately stop discovery once we start connecting.
   nearby_connections_->SendConnectionRequest(
       my_instance_name_, host_instance_id, std::vector<uint8_t>{},
       [this](int64_t client_id, gpg::ConnectionResponse const& response) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Multiplayer: OnConnectionResponse() callback");
+        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                     "GPGMultiplayer: OnConnectionResponse() callback");
         this->ConnectionResponseCallback(response);
       },
       message_listener_.get());
@@ -176,26 +179,26 @@ void GPGMultiplayer::AcceptConnectionRequest(
     message_listener_.reset(new MessageListener(
         [this](const std::string& instance_id,
                std::vector<uint8_t> const& payload, bool is_reliable) {
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "Multiplayer: OnMessageReceived(%s) callback",
-                      instance_id.c_str());
+          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                       "GPGMultiplayer: OnMessageReceived(%s) callback",
+                       instance_id.c_str());
           this->MessageReceivedCallback(instance_id, payload, is_reliable);
         },
         [this](const std::string& instance_id) {
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                      "Multiplayer: OnDisconnect(%s) callback",
-                      instance_id.c_str());
+          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                       "GPGMultiplayer: OnDisconnect(%s) callback",
+                       instance_id.c_str());
           this->DisconnectedCallback(instance_id);
         }));
   }
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "Multiplayer: Accepting connection from %s",
+              "GPGMultiplayer: Accepting connection from %s",
               client_instance_id.c_str());
   nearby_connections_->AcceptConnectionRequest(
       client_instance_id, std::vector<uint8_t>{}, message_listener_.get());
 
   pthread_mutex_lock(&instance_mutex_);
-  connected_instances_.push_back(client_instance_id);
+  AddNewConnectedInstance(client_instance_id);
   UpdateConnectedInstances();
   auto i = std::find(pending_instances_.begin(), pending_instances_.end(),
                      client_instance_id);
@@ -208,7 +211,7 @@ void GPGMultiplayer::AcceptConnectionRequest(
 void GPGMultiplayer::RejectConnectionRequest(
     const std::string& client_instance_id) {
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "Multiplayer: Rejecting connection from %s",
+              "GPGMultiplayer: Rejecting connection from %s",
               client_instance_id.c_str());
   nearby_connections_->RejectConnectionRequest(client_instance_id);
 
@@ -238,9 +241,9 @@ void GPGMultiplayer::Update() {
     MultiplayerState next_state = next_states_.front();
     next_states_.pop();
     pthread_mutex_unlock(&state_mutex_);
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "Multiplayer: Existing state %d to enter state %d", state(),
-                next_state);
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "GPGMultiplayer: Exiting state %d to enter state %d", state(),
+                 next_state);
     TransitionState(state(), next_state);
   } else {
     pthread_mutex_unlock(&state_mutex_);
@@ -278,6 +281,42 @@ void GPGMultiplayer::Update() {
         QueueNextState(kDiscoveringWaitingForHost);
       }
       // Otherwise we haven't gotten a response yet.
+      break;
+    }
+    case kConnectedWithDisconnections: {
+      pthread_mutex_lock(&instance_mutex_);
+      bool has_disconnected_instance = !disconnected_instances_.empty();
+      bool has_pending_instance = !pending_instances_.empty();
+      pthread_mutex_unlock(&instance_mutex_);
+      if (!has_disconnected_instance) {
+        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                     "GPGMultiplayer: No disconnected instances.");
+        QueueNextState(kConnected);
+      } else if (has_pending_instance) {
+        // Check if the pending instance is one of the disconnected ones.
+        // If so, and we still have room, connect him.
+        // Otherwise, reject.
+
+        pthread_mutex_lock(&instance_mutex_);
+        auto i = disconnected_instances_.find(pending_instances_.front());
+        bool is_reconnection = (i != disconnected_instances_.end());
+        pthread_mutex_unlock(&instance_mutex_);
+
+        if (!is_reconnection) {
+          // Not a disconnected instance. Reject.
+          RejectConnectionRequest(pending_instances_.front());
+        } else if (max_connected_players_allowed() >= 0 &&
+                   GetNumConnectedPlayers() >=
+                       max_connected_players_allowed()) {
+          // Too many players to allow us back. Reject. But we might be
+          // allowed back again in the future.
+          RejectConnectionRequest(pending_instances_.front());
+        } else {
+          // A valid reconnecting instance. Allow.
+          AcceptConnectionRequest(pending_instances_.front());
+        }
+      }
+      break;
     }
     case kAdvertising: {
       pthread_mutex_lock(&instance_mutex_);
@@ -290,6 +329,7 @@ void GPGMultiplayer::Update() {
           // Already have a full game, auto-reject any additional players.
           RejectConnectionRequest(pending_instances_.front());
         } else {
+          // Prompt the user to allow the connection.
           QueueNextState(kAdvertisingPromptedUser);
         }
       }
@@ -318,9 +358,10 @@ void GPGMultiplayer::Update() {
       // Otherwise we haven't gotten a response yet.
       break;
     }
-    default:
+    default: {
       // no default behavior
       break;
+    }
   }
 }
 
@@ -340,23 +381,26 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
           new_state != kDiscovering) {
         nearby_connections_->StopDiscovery(service_id_);
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Multiplayer: Stopped discovery.");
+                    "GPGMultiplayer: Stopped discovery.");
       }
       break;
     }
+    case kConnectedWithDisconnections:
     case kAdvertising:
     case kAdvertisingPromptedUser: {
       // Make sure we are totally leaving the "advertising" world.
-      if (new_state != kAdvertising && new_state != kAdvertisingPromptedUser) {
+      if (new_state != kAdvertising && new_state != kAdvertisingPromptedUser &&
+          new_state != kConnectedWithDisconnections) {
         nearby_connections_->StopAdvertising();
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Multiplayer: Stopped advertising");
+                    "GPGMultiplayer: Stopped advertising");
       }
       break;
     }
-    default:
+    default: {
       // no default behavior
       break;
+    }
   }
 
   // Then, set the state.
@@ -366,20 +410,24 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
   switch (new_state) {
     case kIdle: {
       is_hosting_ = false;
+      ClearDisconnectedInstances();
       break;
     }
+    case kConnectedWithDisconnections:  // advertises also
     case kAdvertising: {
       is_hosting_ = true;
+      if (new_state != kConnectedWithDisconnections) {
+        ClearDisconnectedInstances();
+      }
 
-      if (old_state != kAdvertisingPromptedUser) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Multiplayer: Calling StartAdvertising()");
+      if (old_state != kAdvertising && old_state != kAdvertisingPromptedUser &&
+          old_state != kConnectedWithDisconnections) {
         nearby_connections_->StartAdvertising(
             my_instance_name_, app_identifiers_, gpg::Duration::zero(),
             [this](int64_t client_id,
                    gpg::StartAdvertisingResult const& result) {
-              SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                          "Multiplayer: StartAdvertising() callback");
+              SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                           "GPGMultiplayer: StartAdvertising callback");
               this->StartAdvertisingCallback(result);
             },
             [this](int64_t client_id,
@@ -387,12 +435,14 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
               this->ConnectionRequestCallback(connection_request);
             });
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Multiplayer: StartAdvertising() returned");
+                    "GPGMultiplayer: Starting advertising");
       }
       break;
     }
     case kDiscovering: {
       is_hosting_ = false;
+      ClearDisconnectedInstances();
+
       if (old_state != kDiscoveringWaitingForHost &&
           old_state != kDiscoveringPromptedUser) {
         if (discovery_listener_ == nullptr) {
@@ -407,7 +457,7 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
         nearby_connections_->StartDiscovery(service_id_, gpg::Duration::zero(),
                                             discovery_listener_.get());
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Multiplayer: Started discovery");
+                    "GPGMultiplayer: Starting discovery");
       }
       break;
     }
@@ -443,12 +493,13 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
     }
     case kConnected: {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "Multiplayer: connection activated");
+                  "GPGMultiplayer: Connection activated.");
       break;
     }
-    default:
+    default: {
       // no default behavior
       break;
+    }
   }
 }
 
@@ -495,7 +546,7 @@ bool GPGMultiplayer::HasMessage() {
   return !empty;
 }
 
-std::pair<std::string, std::vector<uint8_t>> GPGMultiplayer::GetNextMessage() {
+GPGMultiplayer::SenderAndMessage GPGMultiplayer::GetNextMessage() {
   if (HasMessage()) {
     pthread_mutex_lock(&message_mutex_);
     auto message = incoming_messages_.front();
@@ -503,8 +554,28 @@ std::pair<std::string, std::vector<uint8_t>> GPGMultiplayer::GetNextMessage() {
     pthread_mutex_unlock(&message_mutex_);
     return message;
   } else {
-    std::pair<std::string, std::vector<uint8_t>> blank{"", {}};
+    SenderAndMessage blank{"", {}};
     return blank;
+  }
+}
+
+bool GPGMultiplayer::HasReconnectedPlayer() {
+  pthread_mutex_lock(&instance_mutex_);
+  bool has_reconnected_player = !reconnected_players_.empty();
+  pthread_mutex_unlock(&instance_mutex_);
+  return has_reconnected_player;
+}
+
+int GPGMultiplayer::GetReconnectedPlayer() {
+  pthread_mutex_lock(&instance_mutex_);
+  if (reconnected_players_.empty()) {
+    pthread_mutex_unlock(&instance_mutex_);
+    return -1;
+  } else {
+    int player = reconnected_players_.front();
+    reconnected_players_.pop();
+    pthread_mutex_unlock(&instance_mutex_);
+    return player;
   }
 }
 
@@ -515,23 +586,30 @@ void GPGMultiplayer::StartAdvertisingCallback(
     gpg::StartAdvertisingResult const& result) {
   // We've started hosting
   if (result.status == gpg::StartAdvertisingResult::StatusCode::SUCCESS) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "Multiplayer: Started advertising (name='%s')",
-                result.local_endpoint_name.c_str());
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "GPGMultiplayer: Started advertising (name='%s')",
+                 result.local_endpoint_name.c_str());
   } else {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "Multiplayer: FAILED to start advertising");
-    QueueNextState(kError);
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                 "GPGMultiplayer: FAILED to start advertising, error code %d",
+                 result.status);
+    if (state() == kConnectedWithDisconnections) {
+      // We couldn't allow reconnections, sorry!
+      ClearDisconnectedInstances();
+      QueueNextState(kConnected);
+    } else {
+      QueueNextState(kError);
+    }
   }
 }
 
 // Callback on the host when a client tries to connect.
 void GPGMultiplayer::ConnectionRequestCallback(
     gpg::ConnectionRequest const& connection_request) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "Multiplayer: Incoming connection (instance_id=%s,name=%s)",
-              connection_request.remote_endpoint_id.c_str(),
-              connection_request.remote_endpoint_name.c_str());
+  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+               "GPGMultiplayer: Incoming connection (instance_id=%s,name=%s)",
+               connection_request.remote_endpoint_id.c_str(),
+               connection_request.remote_endpoint_name.c_str());
   // process the incoming connection
   pthread_mutex_lock(&instance_mutex_);
   pending_instances_.push_back(connection_request.remote_endpoint_id);
@@ -543,7 +621,7 @@ void GPGMultiplayer::ConnectionRequestCallback(
 // Callback on the client when it discovers a host.
 void GPGMultiplayer::DiscoveryEndpointFoundCallback(
     gpg::EndpointDetails const& endpoint_details) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Multiplayer: Found endpoint");
+  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "GPGMultiplayer: Found endpoint");
   pthread_mutex_lock(&instance_mutex_);
   instance_names_[endpoint_details.endpoint_id] = endpoint_details.name;
   discovered_instances_.push_back(endpoint_details.endpoint_id);
@@ -553,7 +631,7 @@ void GPGMultiplayer::DiscoveryEndpointFoundCallback(
 // Callback on the client when a host it previous discovered disappears.
 void GPGMultiplayer::DiscoveryEndpointLostCallback(
     const std::string& instance_id) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Multiplayer: Lost endpoint");
+  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "GPGMultiplayer: Lost endpoint");
   pthread_mutex_lock(&instance_mutex_);
   auto i = std::find(discovered_instances_.begin(), discovered_instances_.end(),
                      instance_id);
@@ -567,17 +645,19 @@ void GPGMultiplayer::DiscoveryEndpointLostCallback(
 void GPGMultiplayer::ConnectionResponseCallback(
     gpg::ConnectionResponse const& response) {
   if (response.status == gpg::ConnectionResponse::StatusCode::ACCEPTED) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Multiplayer: Connected!");
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "GPGMultiplayer: Connected!");
 
     pthread_mutex_lock(&instance_mutex_);
     connected_instances_.push_back(response.remote_endpoint_id);
     UpdateConnectedInstances();
     pthread_mutex_unlock(&instance_mutex_);
 
-    StopDiscovery();
+    QueueNextState(kConnected);
   } else {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Multiplayer: Not connected...");
-    state_ = kDiscovering;
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "GPGMultiplayer: Didn't connect, response status = %d",
+                 response.status);
+    QueueNextState(kDiscovering);
   }
 }
 
@@ -592,17 +672,41 @@ void GPGMultiplayer::MessageReceivedCallback(
 
 // Callback on host or client when a connected instance disconnects.
 void GPGMultiplayer::DisconnectedCallback(const std::string& instance_id) {
-  pthread_mutex_lock(&instance_mutex_);
-  auto i = std::find(connected_instances_.begin(), connected_instances_.end(),
-                     instance_id);
-  if (i != connected_instances_.end()) {
-    connected_instances_.erase(i);
-    UpdateConnectedInstances();
+  if (allow_reconnecting() && is_hosting() && IsConnected() &&
+      GetNumConnectedPlayers() > 1) {
+    // We are connected, and we have other instances connected besides this one.
+    // Rather than simply disconnecting this instance, let's remember it so we
+    // can give it back its connection slot if it tries to reconnect.
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "GPGMultiplayer: Allowing reconnection by instance %s",
+                 instance_id.c_str());
+    pthread_mutex_lock(&instance_mutex_);
+    auto i = connected_instances_reverse_.find(instance_id);
+    if (i != connected_instances_reverse_.end()) {
+      int idx = i->second;
+      disconnected_instances_[instance_id] = idx;
+      // Put an empty instance ID as a placeholder for a disconnected instance.
+      connected_instances_[idx] = "";
+      UpdateConnectedInstances();
+    }
+    pthread_mutex_unlock(&instance_mutex_);
+    // When the state is kConnectedWithDisconnections, we start advertising
+    // again and allow only the disconnected instances to reconnect.
+    QueueNextState(kConnectedWithDisconnections);
+  } else {
+    // Simply remove the connected index.
+    pthread_mutex_lock(&instance_mutex_);
+    auto i = std::find(connected_instances_.begin(), connected_instances_.end(),
+                       instance_id);
+    if (i != connected_instances_.end()) {
+      connected_instances_.erase(i);
+      UpdateConnectedInstances();
+    }
+    pthread_mutex_unlock(&instance_mutex_);
+    if (IsConnected() && GetNumConnectedPlayers() == 0) {
+      QueueNextState(kIdle);
+    }
   }
-  if (connected_instances_.size() == 0) {
-    state_ = kIdle;
-  }
-  pthread_mutex_unlock(&instance_mutex_);
 }
 
 // Important: make sure you lock instance_mutex_ before calling this.
@@ -612,9 +716,65 @@ void GPGMultiplayer::UpdateConnectedInstances() {
     connected_instances_reverse_[connected_instances_[i]] = i;
   }
 }
+
+// Important: make sure you lock instance_mutex_ before calling this.
+int GPGMultiplayer::AddNewConnectedInstance(const std::string& instance_id) {
+  int new_index = -1;
+  // First, check if we are a reconnection.
+  if (state() == kConnectedWithDisconnections) {
+    auto i = disconnected_instances_.find(instance_id);
+    if (i != disconnected_instances_.end()) {
+      // We've got a disconnected instance, let's find a slot.
+      if (connected_instances_[i->second] == "") {
+        new_index = i->second;
+        connected_instances_[new_index] = instance_id;
+        disconnected_instances_.erase(i);
+      }
+      // If the slot was already taken, fall through to default behavior below.
+    }
+  }
+  if (new_index == -1) {
+    if (max_connected_players_allowed() < 0 ||
+        (int)connected_instances_.size() < max_connected_players_allowed()) {
+      // There's an empty player slot at the end, just connect there.
+      new_index = connected_instances_.size();
+      connected_instances_.push_back(instance_id);
+    } else {
+      // We're full, but there might be a reserved spot for a disconnected
+      // player. We'll just use that. Sorry, prevoius player!
+      for (unsigned int i = 0; i < connected_instances_.size(); i++) {
+        if (connected_instances_[i] == "") {
+          new_index = i;
+          connected_instances_[new_index] = instance_id;
+          break;
+        }
+      }
+    }
+  }
+  if (state() == kConnectedWithDisconnections && new_index >= 0) {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "GPGMultiplayer: Connected a reconnected player");
+    reconnected_players_.push(new_index);
+  }
+  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+               "GPGMultiplayer: Instance %s goes in slot %d",
+               instance_id.c_str(), new_index);
+  return new_index;
+}
+
+void GPGMultiplayer::ClearDisconnectedInstances() {
+  disconnected_instances_.clear();
+  while (!reconnected_players_.empty()) reconnected_players_.pop();
+}
+
 int GPGMultiplayer::GetNumConnectedPlayers() {
+  int num_players = 0;
   pthread_mutex_lock(&instance_mutex_);
-  int num_players = connected_instances_.size();
+  for (auto instance_id : connected_instances_) {
+    if (instance_id != "") {
+      num_players++;
+    }
+  }
   pthread_mutex_unlock(&instance_mutex_);
   return num_players;
 }
@@ -649,7 +809,6 @@ bool GPGMultiplayer::DisplayConnectionDialog(const char* title,
   if (auto_connect_) {
     return true;
   }
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "DisplayQuestionBox() start");
   bool question_shown = false;
 
   JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
@@ -661,12 +820,8 @@ bool GPGMultiplayer::DisplayConnectionDialog(const char* title,
   jmethodID get_query_dialog_response =
       env->GetMethodID(fpl_class, "getQueryDialogResponse", "()I");
   int response = env->CallIntMethod(activity, get_query_dialog_response);
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "DisplayQuestionBox() resp = %d",
-              response);
 
   if (!open && response == -1) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "DisplayQuestionBox() show");
-
     jmethodID show_query_dialog =
         env->GetMethodID(fpl_class, "showQueryDialog",
                          "(Ljava/lang/String;Ljava/lang/String;"
@@ -710,8 +865,6 @@ GPGMultiplayer::DialogResponse GPGMultiplayer::GetConnectionDialogResponse() {
   jmethodID get_query_dialog_response =
       env->GetMethodID(fpl_class, "getQueryDialogResponse", "()I");
   int result = env->CallIntMethod(activity, get_query_dialog_response);
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GetQuestionResponse() = %d",
-              result);
   if (result >= 0) {
     jmethodID reset_query_dialog_response =
         env->GetMethodID(fpl_class, "resetQueryDialogResponse", "()V");
