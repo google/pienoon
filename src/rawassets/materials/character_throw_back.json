@@ -1,7 +1,7 @@
 {
-  texture_filenames: [
-    "textures/firing_back.webp",
-    "textures/cardboard-normal.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/firing_back.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
 }

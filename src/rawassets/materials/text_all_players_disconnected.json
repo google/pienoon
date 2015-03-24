@@ -1,0 +1,9 @@
+{
+    "texture_filenames": [
+        "textures/text_all_players_disconnected.webp"
+    ],
+    "blendmode": "ALPHA",
+    "desired_format": [
+        "F_8888"
+    ]
+}

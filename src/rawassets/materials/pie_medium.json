@@ -1,8 +1,7 @@
 {
-  texture_filenames: [
-    "textures/pie_level02.webp",
-    "textures/cardboard-normal.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/pie_level02.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

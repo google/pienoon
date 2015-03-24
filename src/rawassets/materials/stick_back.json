@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/popcicle_stick_back.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/popcicle_stick_back.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

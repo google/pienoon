@@ -1,7 +1,9 @@
 {
-  texture_filenames: [
-    "textures/text_cancel.webp"
-  ],
-  "blendmode": "ALPHA",
-  desired_format: [ F_8888 ]
+    "texture_filenames": [
+        "textures/text_cancel.webp"
+    ],
+    "blendmode": "ALPHA",
+    "desired_format": [
+        "F_8888"
+    ]
 }

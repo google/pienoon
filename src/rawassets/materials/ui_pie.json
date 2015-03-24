@@ -1,9 +1,10 @@
 {
-  texture_filenames: [
-    "textures/pie_level03.webp",
-    "textures/cardboard-normal.webp"
-  ],
-  "blendmode": "ALPHA",
-  desired_format: [ F_8888 ]
+    "texture_filenames": [
+        "textures/pie_level03.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA",
+    "desired_format": [
+        "F_8888"
+    ]
 }
-

@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/cloud_shadow.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/cloud_shadow.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

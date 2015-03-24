@@ -1,8 +1,7 @@
 {
-  texture_filenames: [
-    "textures/shield_pie.webp",
-    "textures/cardboard-normal.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/shield_pie.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-
