@@ -38,6 +38,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ScrollView;
@@ -358,11 +359,13 @@ public class FPLActivity extends SDLActivity implements
   @Override
   public void onInsertedIntoCardboard(CardboardDeviceParams cardboardDeviceParams) {
     updateCardboardDeviceParams(cardboardDeviceParams);
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     nativeSetDeviceInCardboard(true);
   }
 
   @Override
   public void onRemovedFromCardboard() {
+    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     nativeSetDeviceInCardboard(false);
   }
 
