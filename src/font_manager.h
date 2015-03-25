@@ -435,9 +435,8 @@ class FontBuffer {
 
   // Verify sizes of arrays used in the buffer are correct.
   bool Verify() {
-    auto size = code_points_.size();
-    assert(vertices_.size() == size * kVerticesPerCodePoint);
-    assert(indices_.size() == size * kIndiciesPerCodePoint);
+    assert(vertices_.size() == code_points_.size() * kVerticesPerCodePoint);
+    assert(indices_.size() == code_points_.size() * kIndiciesPerCodePoint);
     return true;
   }
 
