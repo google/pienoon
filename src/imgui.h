@@ -147,6 +147,16 @@ void ColorBackground(const vec4 &color);
 // Set the background texture for the group.
 void ImageBackground(const Texture &tex);
 
+// Set the background texture for the group with nine patch settings.
+// In the patch_info, the user can define nine patch settings
+// as vec4(x0, y0, x1, y1) where
+// (x0,y0): top-left corner of stretchable area in UV coordinate.
+// (x1,y1): bottom-right corner of stretchable area in UV coordinate.
+// The coordinates are in UV value in the texture (0.0 ~ 1.0).
+// For more information for nine patch, refer
+//http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch
+void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info);
+
 // Put a custom element with given size.
 // Renderer function is invoked while render pass to render the element.
 void CustomElement(const vec2 &virtual_size,

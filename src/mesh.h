@@ -76,6 +76,16 @@ class Mesh {
                                  const vec2 &tex_bottom_left = vec2(0, 0),
                                  const vec2 &tex_top_right = vec2(1, 1));
 
+  // Convenience method for rendering a Quad with nine patch settings.
+  // In the patch_info, the user can define nine patch settings
+  // as vec4(x0, y0, x1, y1) where
+  // (x0,y0): top-left corner of stretchable area in UV coordinate.
+  // (x1,y1): bottom-right corner of stretchable area in UV coordinate.
+  static void RenderAAQuadAlongXNinePatch(const vec3 &bottom_left,
+                                          const vec3 &top_right,
+                                          const vec2i &texture_size,
+                                          const vec4 &patch_info);
+
   // Compute normals and tangents given position and texcoords.
   static void ComputeNormalsTangents(NormalMappedVertex *vertices,
                                      const unsigned short *indices,

@@ -133,10 +133,10 @@ void Mesh::RenderArray(GLenum primitive, int index_count,
 void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
                               const vec2 &tex_bottom_left,
                               const vec2 &tex_top_right) {
-  static Attribute format[] = {kPosition3f, kTexCoord2f, kEND};
-  static unsigned short indices[] = {0, 1, 2, 1, 2, 3};
+  static const Attribute format[] = {kPosition3f, kTexCoord2f, kEND};
+  static const unsigned short indices[] = {0, 1, 2, 1, 2, 3};
   // vertex format is [x, y, z] [u, v]:
-  float vertices[] = {
+  const float vertices[] = {
       bottom_left.x(),     bottom_left.y(),     bottom_left.z(),
       tex_bottom_left.x(), tex_bottom_left.y(), top_right.x(),
       bottom_left.y(),     bottom_left.z(),     tex_top_right.x(),
@@ -145,6 +145,52 @@ void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
       top_right.x(),       top_right.y(),       top_right.z(),
       tex_top_right.x(),   tex_top_right.y()};
   Mesh::RenderArray(GL_TRIANGLES, 6, format, sizeof(float) * 5,
+                    reinterpret_cast<const char *>(vertices), indices);
+}
+
+void Mesh::RenderAAQuadAlongXNinePatch(const vec3 &bottom_left,
+                                       const vec3 &top_right,
+                                       const vec2i &texture_size,
+                                       const vec4 &patch_info) {
+  static const Attribute format[] = {kPosition3f, kTexCoord2f, kEND};
+  static const unsigned short indices[] = {
+      0, 1,  2, 1,  2, 3,  2, 3,  4,  3,  4,  5,  4,  5,  6,  5,  6,  7,
+      1, 8,  3, 8,  3, 9,  3, 9,  5,  9,  5,  10, 5,  10, 7,  10, 7,  11,
+      8, 12, 9, 12, 9, 13, 9, 13, 10, 13, 10, 14, 10, 14, 11, 14, 11, 15, };
+  auto max = vec2::Max(bottom_left.xy(), top_right.xy());
+  auto min = vec2::Min(bottom_left.xy(), top_right.xy());
+  auto p0 = vec2(texture_size) * patch_info.xy() + min;
+  auto p1 = max - vec2(texture_size) * (mathfu::kOnes2f - patch_info.zw());
+
+  // Check if the 9 patch edges are not overwrapping.
+  // In that case, adjust 9 patch geometry locations not to overwrap.
+  if (p0.x() > p1.x()) {
+    p0.x() = p1.x() = (min.x() + max.x()) / 2;
+  }
+  if (p0.y() > p1.y()) {
+    p0.y() = p1.y() = (min.y() + max.y()) / 2;
+  }
+
+  // vertex format is [x, y, z] [u, v]:
+  float z = bottom_left.z();
+  const float vertices[] = {
+      min.x(), min.y(), z, 0.0f,           0.0f,
+      p0.x(),  min.y(), z, patch_info.x(), 0.0f,
+      min.x(), p0.y(),  z, 0.0f,           patch_info.y(),
+      p0.x(),  p0.y(),  z, patch_info.x(), patch_info.y(),
+      min.x(), p1.y(),  z, 0.0,            patch_info.w(),
+      p0.x(),  p1.y(),  z, patch_info.x(), patch_info.w(),
+      min.x(), max.y(), z, 0.0,            1.0,
+      p0.x(),  max.y(), z, patch_info.x(), 1.0,
+      p1.x(),  min.y(), z, patch_info.z(), 0.0f,
+      p1.x(),  p0.y(),  z, patch_info.z(), patch_info.y(),
+      p1.x(),  p1.y(),  z, patch_info.z(), patch_info.w(),
+      p1.x(),  max.y(), z, patch_info.z(), 1.0f,
+      max.x(), min.y(), z, 1.0f,           0.0f,
+      max.x(), p0.y(),  z, 1.0f,           patch_info.y(),
+      max.x(), p1.y(),  z, 1.0f,           patch_info.w(),
+      max.x(), max.y(), z, 1.0f,           1.0f, };
+  Mesh::RenderArray(GL_TRIANGLES, 6 * 9, format, sizeof(float) * 5,
                     reinterpret_cast<const char *>(vertices), indices);
 }
 
