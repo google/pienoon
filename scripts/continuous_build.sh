@@ -71,6 +71,7 @@ main() {
   # Build release.
   cd "$(dirname "$(readlink -f $0)")/.."
   rm -rf bin
+  rm -rf gen
   # Copy default libogg config_types.h if none exists
   if [ ! -r ../../../../external/libogg/include/ogg/config_types.h ]; then
     cp -fv external/include/ogg/config_types.h.default \
