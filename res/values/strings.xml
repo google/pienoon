@@ -16,4 +16,5 @@ limitations under the License.
 <resources>
     <string name="app_name">Pie Noon</string>
     <string name="app_id">304215629431</string>
+    <string name="service_id">pienoonmsx</string>
 </resources>

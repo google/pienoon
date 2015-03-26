@@ -80,6 +80,8 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/material.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/material_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/mesh.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/multiplayer_controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/multiplayer_director.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/player_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/particles.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/precompiled.cpp \
@@ -98,6 +100,7 @@ PIE_NOON_SCHEMA_FILES := \
   $(PIE_NOON_SCHEMA_DIR)/config.fbs \
   $(PIE_NOON_SCHEMA_DIR)/components.fbs \
   $(PIE_NOON_SCHEMA_DIR)/materials.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/multiplayer.fbs \
   $(PIE_NOON_SCHEMA_DIR)/particles.fbs \
   $(PIE_NOON_SCHEMA_DIR)/pie_noon_common.fbs \
   $(PIE_NOON_SCHEMA_DIR)/scoring_rules.fbs \

@@ -23,6 +23,7 @@
 #include "motive/io/flatbuffers.h"
 #include "motive/init.h"
 #include "motive/math/angle.h"
+#include "multiplayer_generated.h"
 #include "pie_noon_common_generated.h"
 #include "pie_noon_game.h"
 #include "pindrop/pindrop.h"
@@ -317,8 +318,16 @@ bool PieNoonGame::InitializeRenderingAssets() {
   gui_menu_.LoadAssets(TitleScreenButtons(config), &matman_);
   gui_menu_.LoadAssets(config.touchscreen_zones(), &matman_);
   gui_menu_.LoadAssets(config.pause_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.multiplayer_host(), &matman_);
+  gui_menu_.LoadAssets(config.multiplayer_client(), &matman_);
   gui_menu_.LoadAssets(config.join_screen_buttons(), &matman_);
   gui_menu_.LoadAssets(config.extras_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_pleasewait_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_waitingforplayers_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_waitingforgame_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_searching_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_connecting_screen_buttons(), &matman_);
 
   // Configure the full screen fader.
   full_screen_fader_.set_material(
@@ -391,6 +400,21 @@ bool PieNoonGame::InitializeGameState() {
     controller->Initialize(&game_state_, &config, i);
   }
 
+  multiplayer_director_.reset(new MultiplayerDirector());
+  multiplayer_director_->Initialize(&game_state_, &config);
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  multiplayer_director_->RegisterGPGMultiplayer(&gpg_multiplayer_);
+#else
+  multiplayer_director_->SetDebugInputSystem(&input_);
+#endif
+
+  for (unsigned int i = 0; i < config.character_count(); ++i) {
+    MultiplayerController* controller = new MultiplayerController();
+    controller->Initialize(&game_state_, &config);
+    AddController(controller);
+    multiplayer_director_->RegisterController(controller);
+  }
+
   debug_previous_states_.resize(config.character_count(), -1);
 
   return true;
@@ -451,6 +475,29 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   if (!gpg_manager.Initialize(ReadPreference("logged_in", 1, 1) != 0))
     return false;
+
+  if (!gpg_multiplayer_.Initialize(GetConfig()
+                                       .multiscreen_options()
+                                       ->nearby_connections_service_id()
+                                       ->c_str())) {
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                 "GPGMultiplayer::Initialize failed\n");
+    return false;
+  }
+  for (unsigned int i = 0; i < GetConfig()
+                                   .multiscreen_options()
+                                   ->nearby_connections_app_identifiers()
+                                   ->Length();
+       i++) {
+    auto app_id = GetConfig()
+                      .multiscreen_options()
+                      ->nearby_connections_app_identifiers()
+                      ->Get(i);
+
+    gpg_multiplayer_.AddAppIdentifier(app_id->c_str());
+  }
+  gpg_multiplayer_.set_max_connected_players_allowed(
+      GetConfig().multiscreen_options()->max_players());
 #endif
 
   SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
@@ -536,7 +583,7 @@ void PieNoonGame::Render(const SceneDescription& scene) {
     RenderForCardboard(scene);
     return;
   }
-#endif // ANDROID_CARDBOARD
+#endif  // ANDROID_CARDBOARD
   RenderForDefault(scene);
 }
 
@@ -553,8 +600,8 @@ void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
   CorrectCardboardCamera(right_eye_transform);
   // Perform two render passes, one for each half of the screen
   vec2i size = AndroidGetScalerResolution();
-  const vec2i viewport_size = size.x() && size.y() ? size
-                                                   : renderer_.window_size();
+  const vec2i viewport_size =
+      size.x() && size.y() ? size : renderer_.window_size();
   float window_width = viewport_size.x();
   float half_width = window_width / 2.0f;
   float window_height = viewport_size.y();
@@ -566,7 +613,7 @@ void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
   RenderScene(scene, right_eye_transform, half_res);
 #else
   (void)scene;
-#endif // ANDROID_CARDBOARD
+#endif  // ANDROID_CARDBOARD
 }
 
 void PieNoonGame::RenderScene(const SceneDescription& scene,
@@ -576,10 +623,12 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
 
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_ = mat4::Perspective(
-      config.viewport_angle(), resolution.x() / static_cast<float>(resolution.y()),
+      config.viewport_angle(),
+      resolution.x() / static_cast<float>(resolution.y()),
       config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
 
-  const mat4 camera_transform = perspective_matrix_ * (additional_camera_changes * scene.camera());
+  const mat4 camera_transform =
+      perspective_matrix_ * (additional_camera_changes * scene.camera());
 
   // Render a ground plane.
   // TODO: Replace with a regular environment prop. Calculate scale_bias from
@@ -664,16 +713,16 @@ void PieNoonGame::Render2DElements() {
 void PieNoonGame::GetCardboardTransforms(mat4& left_eye_transform,
                                          mat4& right_eye_transform) {
 #ifdef __ANDROID__
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
   jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID get_eye_views = env->GetMethodID(fpl_class, "GetEyeViews",
-                                             "([F[F)V");
+  jmethodID get_eye_views =
+      env->GetMethodID(fpl_class, "GetEyeViews", "([F[F)V");
   jfloatArray left_eye = env->NewFloatArray(16);
   jfloatArray right_eye = env->NewFloatArray(16);
   env->CallVoidMethod(activity, get_eye_views, left_eye, right_eye);
-  jfloat *left_eye_floats = env->GetFloatArrayElements(left_eye, NULL);
-  jfloat *right_eye_floats = env->GetFloatArrayElements(right_eye, NULL);
+  jfloat* left_eye_floats = env->GetFloatArrayElements(left_eye, NULL);
+  jfloat* right_eye_floats = env->GetFloatArrayElements(right_eye, NULL);
   left_eye_transform = mat4(left_eye_floats);
   right_eye_transform = mat4(right_eye_floats);
   env->ReleaseFloatArrayElements(left_eye, left_eye_floats, JNI_ABORT);
@@ -685,7 +734,7 @@ void PieNoonGame::GetCardboardTransforms(mat4& left_eye_transform,
 #else
   (void)left_eye_transform;
   (void)right_eye_transform;
-#endif //__ANDROID__
+#endif  //__ANDROID__
 }
 
 void PieNoonGame::CorrectCardboardCamera(mat4& cardboard_camera) {
@@ -816,9 +865,9 @@ void PieNoonGame::DebugCamera() {
 // This functions as a countdown timer. This function converts the current
 // time into the id of the image that is currently disappearing.
 ButtonId PieNoonGame::CurrentlyAnimatingJoinImage(WorldTime time) const {
-  const WorldTime time_in_state = time - state_entry_time_;
-  const int seconds_in_state = time_in_state / 1000;
-  const int id = ButtonId_Counter1 + seconds_in_state;
+  const WorldTime time_in_state = time - join_animation_start_time_;
+  const int seconds_in_state = time_in_state / kMillisecondsPerSecond;
+  const int id = countdown_start_button_ + seconds_in_state;
   const bool valid_id = id <= ButtonId_Counter5;
   return valid_id ? static_cast<ButtonId>(id) : ButtonId_Undefined;
 }
@@ -876,47 +925,21 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       break;
     }
     case kJoining: {
-      // Allow players to join with any key press.
-      HandlePlayersJoining();
+      if (!game_state_.is_multiscreen()) {
+        // Allow players to join with any key press.
+        HandlePlayersJoining();
 
-      // Count down by deactivating pies images.
-      const ButtonId id = CurrentlyAnimatingJoinImage(time);
+        UpdateCountdownImage(time);
 
-      // We've moved to animating a new pie.
-      if (id != join_id_) {
-        // Vanish the previous pie.
-        StaticImage* prev_image = gui_menu_.FindImageById(join_id_);
-        if (prev_image != nullptr) {
-          prev_image->set_scale(mathfu::kZeros2f);
+        // After a few seconds, start the game.
+        if (join_id_ == ButtonId_Undefined) {
+          game_state_.PreGameLogging();
+          // Fade to the game
+          FadeToPieNoonState(kPlaying, GetConfig().full_screen_fade_time(),
+                             mathfu::kZeros4f, true);
         }
-
-        // Reset the motivator animation, if we've moved to a new image.
-        motive::OvershootInit init;
-        motive::OvershootInitFromFlatBuffers(*config.join_motivator_def(),
-                                             &init);
-        const motive::MotiveTarget1f t(motive::CurrentToTarget1f(
-            config.join_motivator_start_value(),
-            config.join_motivator_start_velocity(),
-            config.join_motivator_target_value(), 0.0f, 1));
-        join_motivator_.InitializeWithTarget(init, &game_state_.engine(), t);
-        join_id_ = id;
-
-        // Play a sound to aid with the countdown feeling.
-        audio_engine_.PlaySound("StartMatch");
-      }
-
-      // Scale the pie to show some pleasing movement.
-      StaticImage* image = gui_menu_.FindImageById(id);
-      if (image != nullptr) {
-        image->set_scale(vec2(join_motivator_.Value()));
-      }
-
-      // After a few seconds, start the game.
-      if (join_id_ == ButtonId_Undefined) {
-        game_state_.PreGameLogging();
-        // Fade to the game
-        FadeToPieNoonState(kPlaying, GetConfig().full_screen_fade_time(),
-                           mathfu::kZeros4f, true);
+      } else {
+        return kPlaying;
       }
       break;
     }
@@ -928,10 +951,18 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         pause_time_ = time;
         return kPaused;
       }
-      if (game_state_.IsGameOver() && stinger_channel_.valid() &&
+
+      if (game_state_.IsGameOver() && stinger_channel_.Valid() &&
           !stinger_channel_.Playing()) {
         game_state_.PostGameLogging();
-        return kFinished;
+        if (game_state_.is_multiscreen() && multiplayer_director_ != nullptr) {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+          multiplayer_director_->SendEndGameMsg();
+#endif
+          return kMultiplayerWaiting;
+        } else {
+          return kFinished;
+        }
       }
       break;
     }
@@ -943,11 +974,23 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       }
       return HandleMenuButtons(time);
     }
+    case kMultiplayerWaiting: {
+      if (input_.GetButton(SDLK_AC_BACK).went_down()) {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        gpg_multiplayer_.ResetToIdle();
+#endif
+        gui_menu_.Setup(config.msx_screen_buttons(), &matman_);
+        return kFinished;
+      }
+      return HandleMenuButtons(time);
+    }
+
     case kFinished: {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
-        const bool in_extras_menu =
-            gui_menu_.menu_def() == config.extras_screen_buttons();
-        if (in_extras_menu) {
+        const bool in_submenu =
+            (gui_menu_.menu_def() == config.extras_screen_buttons() ||
+             gui_menu_.menu_def() == config.msx_screen_buttons());
+        if (in_submenu) {
           gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         } else {
           input_.exit_requested_ = true;
@@ -970,11 +1013,71 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       }
       break;
     }
-
+    case kMultiscreenClient: {
+      UpdateMultiscreenMenuIcons();
+      return HandleMenuButtons(time);
+    }
     default:
       assert(false);
   }
   return state_;
+}
+
+void PieNoonGame::InitCountdownImage(int seconds) {
+  join_animation_start_time_ = CurrentWorldTime();
+  join_id_ = ButtonId_Undefined;
+  countdown_start_button_ = (ButtonId)(ButtonId_Counter5 - seconds + 1);
+  if (countdown_start_button_ > ButtonId_Counter5)
+    countdown_start_button_ = ButtonId_Counter5;
+  else if (countdown_start_button_ < ButtonId_Counter1)
+    countdown_start_button_ = ButtonId_Counter1;
+
+  for (int b = ButtonId_Counter1; b <= ButtonId_Counter5; b++) {
+    StaticImage* image = gui_menu_.FindImageById((ButtonId)b);
+    if (image != nullptr) {
+      image->set_is_visible(true);
+      if (b < countdown_start_button_) {
+        // Start with this button already hidden!
+        if (image != nullptr) {
+          image->set_scale(mathfu::kZeros2f);
+        }
+      }
+    }
+  }
+}
+
+void PieNoonGame::UpdateCountdownImage(WorldTime time) {
+  // Count down by deactivating pies images.
+  const ButtonId id = CurrentlyAnimatingJoinImage(time);
+
+  // We've moved to animating a new pie.
+  if (id != join_id_) {
+    // Vanish the previous pie.
+    StaticImage* prev_image = gui_menu_.FindImageById(join_id_);
+    if (prev_image != nullptr) {
+      prev_image->set_scale(mathfu::kZeros2f);
+    }
+    const Config& config = GetConfig();
+
+    // Reset the motivator animation, if we've moved to a new image.
+    motive::OvershootInit init;
+    motive::OvershootInitFromFlatBuffers(*config.join_motivator_def(), &init);
+    const motive::MotiveTarget1f t(motive::CurrentToTarget1f(
+        config.join_motivator_start_value(),
+        config.join_motivator_start_velocity(),
+        config.join_motivator_target_value(), 0.0f, 1));
+    join_motivator_.InitializeWithTarget(init, &game_state_.engine(), t);
+    join_id_ = id;
+
+    // Play a sound to aid with the countdown feeling.
+    audio_engine_.PlaySound("StartMatch");
+  }
+
+  // Scale the pie to show some pleasing movement.
+  StaticImage* image = gui_menu_.FindImageById(id);
+  if (image != nullptr) {
+    image->set_scale(vec2(join_motivator_.Value()));
+  }
 }
 
 void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
@@ -989,16 +1092,23 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       break;
     }
     case kJoining: {
-      gui_menu_.Setup(config.join_screen_buttons(), &matman_);
-      join_id_ = ButtonId_Undefined;
+      if (!game_state_.is_multiscreen()) {
+        gui_menu_.Setup(config.join_screen_buttons(), &matman_);
+        InitCountdownImage(config.join_number_of_pies());
+      }
+
       game_state_.EnterJoiningMode();
       break;
     }
     case kPlaying: {
-      gui_menu_.Setup(touch_controller_->character_id() == kNoCharacter
-                          ? nullptr
-                          : config.touchscreen_zones(),
-                      &matman_);
+      if (game_state_.is_multiscreen() && multiplayer_director_ != nullptr) {
+        gui_menu_.Setup(config.multiplayer_host(), &matman_);
+      } else {
+        gui_menu_.Setup(touch_controller_->character_id() == kNoCharacter
+                            ? nullptr
+                            : config.touchscreen_zones(),
+                        &matman_);
+      }
 
       if (state_ != kPaused) {
         audio_engine_.PlaySound("StartMatch");
@@ -1015,9 +1125,19 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       audio_engine_.Pause(true);
       break;
     }
+    case kMultiplayerWaiting: {
+      if (game_state_.is_multiscreen() && multiplayer_director_ != nullptr) {
+        multiplayer_director_->EndGame();
+      }
+      if (ambience_channel_.Valid()) {
+        ambience_channel_.Stop();
+      }
+      stinger_channel_ = pindrop::Channel(nullptr);
+      break;
+    }
     case kFinished: {
       gui_menu_.Setup(TitleScreenButtons(config), &matman_);
-      if (ambience_channel_.valid()) {
+      if (ambience_channel_.Valid()) {
         ambience_channel_.Stop();
       }
       stinger_channel_ = pindrop::Channel(nullptr);
@@ -1058,7 +1178,9 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       LoadInitialTutorialSlides();
       break;
     }
-
+    case kMultiscreenClient: {
+      break;
+    }
     default:
       assert(false);
   }
@@ -1223,6 +1345,110 @@ void PieNoonGame::HandlePlayersJoining() {
   }
 }
 
+void PieNoonGame::AttachMultiplayerControllers() {
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "AttachMultiplayerControllers");
+  for (auto it = active_controllers_.begin(); it != active_controllers_.end();
+       ++it) {
+    if (it->get()->controller_type() == Controller::kTypeMultiplayer) {
+      HandlePlayersJoining(it->get());
+    }
+  }
+}
+
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+
+void PieNoonGame::ProcessMultiplayerMessages() {
+  if (gpg_multiplayer_.HasMessage()) {
+    std::pair<std::string, std::vector<uint8_t>> msg_info =
+        gpg_multiplayer_.GetNextMessage();
+    std::string sender = msg_info.first;
+    if (!msg_info.second.empty()) {
+      // Verify the message contents are trustworthy.
+      flatbuffers::Verifier verifier(msg_info.second.data(),
+                                     msg_info.second.size());
+
+      const multiplayer::MessageRoot* message =
+          multiplayer::GetMessageRoot(msg_info.second.data());
+
+      // Make sure the message has valid data.
+      if (multiplayer::VerifyMessageRootBuffer(verifier)) {
+        if (message->data_type() == multiplayer::Data_PlayerAssignment) {
+          const multiplayer::PlayerAssignment* player_assignment =
+              (const multiplayer::PlayerAssignment*)message->data();
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                      "Process a player assignment: %d\n",
+                      player_assignment->player_id());
+          StartMultiscreenGameAsClient(
+              (CharacterId)player_assignment->player_id());
+        } else if (message->data_type() == multiplayer::Data_PlayerCommand) {
+          const multiplayer::PlayerCommand* player_command =
+              (const multiplayer::PlayerCommand*)message->data();
+          // process a player command
+          if (game_state_.is_multiscreen() &&
+              multiplayer_director_ != nullptr) {
+            int player_id =
+                gpg_multiplayer_.GetPlayerNumberByInstanceId(sender);
+            if (player_id >= 0) {
+              multiplayer_director_->InputPlayerCommand(player_id,
+                                                        *player_command);
+            }
+          }
+        } else if (message->data_type() == multiplayer::Data_StartTurn) {
+          const multiplayer::StartTurn* start_turn =
+              (const multiplayer::StartTurn*)message->data();
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                      "Multiplayer message: StartTurn.");
+          multiscreen_turn_number_++;
+          // start the countdown for another turn
+          multiscreen_turn_end_time_ =
+              CurrentWorldTime() +
+              start_turn->seconds() * kMillisecondsPerSecond;
+          // Reload the current menu to reset all the buttons.
+          gui_menu_.Setup(gui_menu_.menu_def(), &matman_);
+
+          ProcessPlayerStatusMessage(*start_turn->player_status());
+
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+          SendMultiscreenPlayerCommand();
+#endif
+          UpdateMultiscreenMenuIcons();
+          InitCountdownImage(start_turn->seconds());
+        } else if (message->data_type() == multiplayer::Data_EndGame) {
+          const multiplayer::EndGame* end_game =
+              (const multiplayer::EndGame*)message->data();
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                      "Multiplayer message: EndGame.");
+          ProcessPlayerStatusMessage(*end_game->player_status());
+          // The game is over, go to the wait screen.
+          TransitionToPieNoonState(kMultiplayerWaiting);
+        } else if (message->data_type() == multiplayer::Data_PlayerStatus) {
+          const multiplayer::PlayerStatus* player_status =
+              (const multiplayer::PlayerStatus*)message->data();
+          ProcessPlayerStatusMessage(*player_status);
+        } else {
+          SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                      "Multiplayer message has a data type of NONE.");
+        }
+      } else {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                    "Got a malformed multiplayer message!");
+      }
+    }
+  }
+}
+void PieNoonGame::ProcessPlayerStatusMessage(
+    const multiplayer::PlayerStatus& status) {
+  // Iterate through characters and player healths.
+  auto c = game_state_.characters().begin();
+  auto h = status.player_health()->begin();
+  for (; c != game_state_.characters().end() &&
+         h != status.player_health()->end();
+       ++c, ++h) {
+    (*c)->set_health(*h);
+  }
+}
+#endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+
 int PieNoonGame::ReadPreference(const char* key, int initial_value,
                                 int failure_value) {
 #ifdef __ANDROID__
@@ -1337,7 +1563,23 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         DisplayDialogBox("About", "about.html", true);
         break;
       case ButtonId_MenuStart:
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Menu: START pressed");
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        if (state_ == kMultiplayerWaiting) {
+          if (gpg_multiplayer_.is_hosting() &&
+              gpg_multiplayer_.GetNumConnectedPlayers() >= 1) {
+            // We have at least one player, let's start the game.
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                        "Multiplayer start button");
+            StartMultiscreenGameAsHost();
+            AttachMultiplayerControllers();
+            return kPlaying;
+          }
+        }
+#endif
+
         if (state_ == kFinished) {
+          game_state_.set_is_multiscreen(false);
           SendTrackerEvent(kCategoryUi, kActionClickedButton,
                            kLabelStartButton);
           audio_engine_.PlaySound("JoinMatch");
@@ -1382,6 +1624,48 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         gui_menu_.Setup(config.extras_screen_buttons(), &matman_);
         break;
       }
+      case ButtonId_MenuMultiScreen: {
+        game_state_.set_is_multiscreen(true);
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.msx_screen_buttons(), &matman_);
+
+        break;
+      }
+      case ButtonId_MenuMultiScreenJoin: {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        if (gpg_manager.player_data() != nullptr) {
+          gpg_multiplayer_.set_my_instance_name(
+              gpg_manager.player_data()->Name());
+        }
+        gpg_multiplayer_.set_auto_connect(
+            GetConfig().multiscreen_options()->auto_connect_on_client());
+        gpg_multiplayer_.StartDiscovery();
+        TransitionToPieNoonState(kMultiplayerWaiting);
+
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.msx_searching_screen_buttons(), &matman_);
+#endif
+        break;
+      }
+      case ButtonId_MenuMultiScreenHost: {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        if (gpg_manager.player_data() != nullptr) {
+          gpg_multiplayer_.set_my_instance_name(
+              gpg_manager.player_data()->Name());
+        }
+        gpg_multiplayer_.set_auto_connect(
+            GetConfig().multiscreen_options()->auto_connect_on_host());
+        gpg_multiplayer_.StartAdvertising();
+        TransitionToPieNoonState(kMultiplayerWaiting);
+
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.msx_waitingforplayers_screen_buttons(),
+                        &matman_);
+        SetupWaitingForPlayersMenu();
+#endif
+        break;
+      }
+
       case ButtonId_MenuBack: {
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelExtrasBackButton);
@@ -1399,11 +1683,217 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
                          kLabelLeaderboardButton);
         UploadAndShowLeaderboards();
         break;
+      case ButtonId_Multiplayer_Button1:
+      case ButtonId_Multiplayer_Button2:
+      case ButtonId_Multiplayer_Button3:
+      case ButtonId_Multiplayer_Button4: {
+        // Make sure we are during a turn, otherwise you can't toggle.
+        int button_num =
+            (int)menu_selection.button_id - ButtonId_Multiplayer_Button1;
+        if (button_num == multiscreen_my_player_id_) {
+          // Toggle the action
+          if (multiscreen_action_to_perform_ == ButtonId_Attack)
+            multiscreen_action_to_perform_ = ButtonId_Defend;
+          else if (multiscreen_action_to_perform_ == ButtonId_Defend)
+            multiscreen_action_to_perform_ = ButtonId_Cancel;
+          else  // is ButtonId_Cancel
+            multiscreen_action_to_perform_ = ButtonId_Attack;
+        } else {
+          multiscreen_action_aim_at_ = button_num;
+        }
+        if (multiscreen_turn_end_time_ > CurrentWorldTime()) {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+          SendMultiscreenPlayerCommand();
+#endif
+        }
+        UpdateMultiscreenMenuIcons();
+        break;
+      }
+
       default:
         break;
     }
   }
   return state_;
+}
+
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+
+void PieNoonGame::StartMultiscreenGameAsHost() {
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+              "Multiplayer StartMultiscreenGameAsHost");
+  gpg_multiplayer_.StopAdvertising();
+  int connected_players = gpg_multiplayer_.GetNumConnectedPlayers();
+  // send each player their player ID and start the game
+  for (int i = 0; i < connected_players; i++) {
+    const auto& instance_id = gpg_multiplayer_.GetInstanceIdByPlayerNumber(i);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "Multiplayer Send assignment %d to instance %s", i,
+                instance_id.c_str());
+    multiplayer_director_->SendPlayerAssignmentMsg(instance_id, i);
+  }
+  game_state_.Reset(GameState::kNoAnalytics);
+  multiplayer_director_->StartGame();
+  TransitionToPieNoonState(kJoining);
+}
+
+void PieNoonGame::StartMultiscreenGameAsClient(CharacterId id) {
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+              "Multiplayer StartMultiscreenGameAsClient");
+  // Set up the menu screen.
+  gui_menu_.Setup(GetConfig().multiplayer_client(), &matman_);
+  game_state_.Reset(GameState::kNoAnalytics);
+  int num_players = GetConfig().character_count();
+  // Set multiplayer_action_button to the correct button ID, and color-code the
+  // other buttons to correspond to the players.
+  multiscreen_my_player_id_ = id;
+  multiscreen_action_to_perform_ = ButtonId_Cancel;
+  multiscreen_action_aim_at_ = (id + 1) % num_players;
+  multiscreen_turn_number_ = 0;
+  SendMultiscreenPlayerCommand();
+  UpdateMultiscreenMenuIcons();
+  TransitionToPieNoonState(kMultiscreenClient);
+}
+
+void PieNoonGame::SendMultiscreenPlayerCommand() {
+  flatbuffers::FlatBufferBuilder builder;
+  auto message_root = multiplayer::CreateMessageRoot(
+      builder, multiplayer::Data_PlayerCommand,
+      multiplayer::CreatePlayerCommand(
+          builder, multiscreen_action_aim_at_,
+          (multiscreen_action_to_perform_ == ButtonId_Attack),
+          (multiscreen_action_to_perform_ == ButtonId_Defend)).Union());
+
+  builder.Finish(message_root);
+
+  const multiplayer::MessageRoot* msgtest =
+      multiplayer::GetMessageRoot(builder.GetBufferPointer());
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SendMessage data type of %d",
+              msgtest->data_type());
+
+  std::vector<uint8_t> message(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
+  gpg_multiplayer_.BroadcastMessage(message, true);
+}
+
+#endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+
+void PieNoonGame::UpdateMultiscreenMenuIcons() {
+  int num_players = GetConfig().character_count();
+  int replace_button =
+      (ButtonId)(ButtonId_Multiplayer_Button1 + multiscreen_my_player_id_);
+  bool i_am_dead =
+      (game_state_.characters()[multiscreen_my_player_id_]->health() <= 0);
+  bool is_in_turn = multiscreen_turn_end_time_ != 0 &&
+                    CurrentWorldTime() <= multiscreen_turn_end_time_;
+  bool turn_is_soon =
+      !is_in_turn && (CurrentWorldTime() - multiscreen_turn_end_time_ > 2000);
+  for (int i = 0; i < num_players; i++) {
+    ButtonId b = (ButtonId)(ButtonId_Multiplayer_Button1 + i);
+    auto button = gui_menu_.FindButtonById(b);
+    auto image =
+        gui_menu_.FindImageById((ButtonId)(ButtonId_Multiplayer_Label1 + i));
+    if (button != nullptr) {
+      if (b == replace_button) {
+        // Replace the button to show the current command
+        const int material_throw = 4;
+        const int material_wait = 2;
+        const int material_block = 3;
+        const int material_dead = 5;
+
+        const int label_wait = 0;
+        const int label_block = 1;
+        const int label_throw = 2;
+        if (game_state_.characters()[i]->health() <= 0) {
+          button->set_current_up_material(material_dead);
+          if (image != nullptr) {
+            image->set_is_visible(false);
+          }
+        } else if (multiscreen_action_to_perform_ == ButtonId_Attack) {
+          button->set_current_up_material(material_throw);
+          if (image != nullptr) {
+            image->set_is_visible(true);
+            image->set_current_material_index(label_throw);
+          }
+        } else if (multiscreen_action_to_perform_ == ButtonId_Cancel) {
+          button->set_current_up_material(material_wait);
+          if (image != nullptr) {
+            image->set_is_visible(true);
+            image->set_current_material_index(label_wait);
+          }
+        } else if (multiscreen_action_to_perform_ == ButtonId_Defend) {
+          if (image != nullptr) {
+            image->set_is_visible(true);
+            image->set_current_material_index(label_block);
+          }
+          button->set_current_up_material(material_block);
+        }
+      } else {
+        // Show the other player's face, tinted, either alive or dead.
+        const int material_alive = 0;
+        const int material_koed = 1;
+        if (game_state_.characters()[i]->health() > 0)
+          button->set_current_up_material(material_alive);
+        else
+          button->set_current_up_material(material_koed);
+        button->set_color(game_state_.characters()[i]->ButtonColor());
+
+        if (image != nullptr) image->set_is_visible(false);
+      }
+      if (is_in_turn && game_state_.characters()[i]->health() > 0 &&
+          !i_am_dead) {
+        button->set_is_active(true);
+      } else {
+        button->set_is_active(false);
+        if (image != nullptr) image->set_is_visible(false);
+      }
+    }
+  }
+
+  gui_menu_.SetFocus(
+      (ButtonId)(ButtonId_Multiplayer_Button1 + multiscreen_action_aim_at_));
+
+  auto go = gui_menu_.FindImageById(ButtonId_Multiplayer_Go);
+  auto look = gui_menu_.FindImageById(ButtonId_Multiplayer_Look);
+  if (turn_is_soon || i_am_dead) {
+    if (go != nullptr) go->set_is_visible(false);
+    if (look != nullptr) look->set_is_visible(false);
+  } else if (is_in_turn && multiscreen_turn_number_ >= 1) {
+    if (go != nullptr) go->set_is_visible(true);
+    if (look != nullptr) look->set_is_visible(false);
+  } else {
+    if (go != nullptr) go->set_is_visible(false);
+    if (look != nullptr) look->set_is_visible(true);
+  }
+  if (multiscreen_turn_number_ == 0 || i_am_dead) {
+    auto img = gui_menu_.FindImageById(ButtonId_Counter1);
+    if (img != nullptr) img->set_is_visible(false);
+    img = gui_menu_.FindImageById(ButtonId_Counter2);
+    if (img != nullptr) img->set_is_visible(false);
+    img = gui_menu_.FindImageById(ButtonId_Counter3);
+    if (img != nullptr) img->set_is_visible(false);
+    img = gui_menu_.FindImageById(ButtonId_Counter4);
+    if (img != nullptr) img->set_is_visible(false);
+    img = gui_menu_.FindImageById(ButtonId_Counter5);
+    if (img != nullptr) img->set_is_visible(false);
+  }
+}
+
+void PieNoonGame::SetupWaitingForPlayersMenu() {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  auto players = gui_menu_.FindImageById(ButtonId_Multiplayer_NumPlayers);
+  int num_players = gpg_multiplayer_.GetNumConnectedPlayers();
+  if (players != nullptr && num_players >= 0 && num_players <= 4) {
+    players->set_current_material_index(num_players);
+  }
+
+  auto button = gui_menu_.FindButtonById(ButtonId_MenuStart);
+  if (num_players == 0) {
+    button->set_is_active(false);
+  } else {
+    button->set_is_active(true);
+  }
+#endif
 }
 
 // Call AdvanceFrame on every controller that we're listening to
@@ -1423,7 +1913,7 @@ void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
   if (input_.cardboard_input().is_in_cardboard()) {
     return;
   }
-#endif // ANDROID_CARDBOARD
+#endif  // ANDROID_CARDBOARD
   gui_menu_.AdvanceFrame(delta_time, &input_, vec2(renderer_.window_size()));
 
   // If we're playing the game, we have to send the menu events directly
@@ -1583,18 +2073,103 @@ void PieNoonGame::Run() {
     full_screen_fader_.set_ortho_mat(ortho_mat);
     full_screen_fader_.set_extents(res);
 
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+    gpg_multiplayer_.Update();
+#endif
+
     // If we're all done loading, run & render the game as usual.
     switch (state_) {
       case kJoining:
       case kPlaying:
       case kPaused:
+      case kMultiplayerWaiting:
+      case kMultiscreenClient:
       case kFinished: {
-        if (state_ != kPaused) {
-          // Update game logic by a variable number of milliseconds.
-          game_state_.AdvanceFrame(delta_time, &audio_engine_);
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        if (state_ == kMultiplayerWaiting) {
+          if (!gpg_multiplayer_.is_hosting()) {
+            // Show the correct "Joining" screen.
+            if (gpg_multiplayer_.state() == GPGMultiplayer::kDiscovering &&
+                gui_menu_.menu_def() != config.msx_searching_screen_buttons()) {
+              gui_menu_.Setup(config.msx_searching_screen_buttons(), &matman_);
+            } else if (gpg_multiplayer_.state() ==
+                           GPGMultiplayer::kDiscoveringPromptedUser &&
+                       gui_menu_.menu_def() !=
+                           config.msx_pleasewait_screen_buttons()) {
+              gui_menu_.Setup(config.msx_pleasewait_screen_buttons(), &matman_);
+            } else if (gpg_multiplayer_.state() ==
+                           GPGMultiplayer::kDiscoveringWaitingForHost &&
+                       gui_menu_.menu_def() !=
+                           config.msx_connecting_screen_buttons()) {
+              gui_menu_.Setup(config.msx_connecting_screen_buttons(), &matman_);
+            } else if (gpg_multiplayer_.state() == GPGMultiplayer::kConnected &&
+                       !gpg_multiplayer_.is_hosting() &&
+                       gui_menu_.menu_def() !=
+                           config.msx_waitingforgame_screen_buttons()) {
+              gui_menu_.Setup(config.msx_waitingforgame_screen_buttons(),
+                              &matman_);
+            } else if (gpg_multiplayer_.state() == GPGMultiplayer::kIdle) {
+              // TODO(jsimantov): show a connection error
+            }
+          } else {
+            // Show the correct "Hosting" screen.
+            if (gui_menu_.menu_def() !=
+                config.msx_waitingforplayers_screen_buttons()) {
+              gui_menu_.Setup(config.msx_waitingforplayers_screen_buttons(),
+                              &matman_);
+            }
+            SetupWaitingForPlayersMenu();
+          }
         }
 
-        if (state_ == kPlaying && !stinger_channel_.valid() &&
+        ProcessMultiplayerMessages();
+        if (game_state_.is_multiscreen() && multiplayer_director_ != nullptr &&
+            state_ == kPlaying) {
+          multiplayer_director_->AdvanceFrame(delta_time);
+          bool show_look = (multiplayer_director_->start_turn_timer() < 1000 &&
+                            (multiplayer_director_->turn_timer() == 0 ||
+                             multiplayer_director_->turn_timer() > 2000));
+
+          if (gui_menu_.menu_def() == config.multiplayer_host()) {
+            auto go = gui_menu_.FindImageById(ButtonId_Multiplayer_Go);
+            auto look = gui_menu_.FindImageById(ButtonId_Multiplayer_Look);
+            if (show_look) {
+              if (go != nullptr) go->set_is_visible(true);
+              if (look != nullptr) look->set_is_visible(true);
+            } else {
+              if (go != nullptr) go->set_is_visible(false);
+              if (look != nullptr) look->set_is_visible(false);
+            }
+          } else {
+            // restore the buttons to visible, if they exist
+            auto go = gui_menu_.FindImageById(ButtonId_Multiplayer_Go);
+            auto look = gui_menu_.FindImageById(ButtonId_Multiplayer_Look);
+            if (look != nullptr) look->set_is_visible(true);
+            if (go != nullptr) go->set_is_visible(true);
+          }
+        }
+
+        if (state_ == kMultiscreenClient) {
+          // do multiscreen client logic
+          if (CurrentWorldTime() <= multiscreen_turn_end_time_) {
+            UpdateCountdownImage(CurrentWorldTime());
+          } else {
+            // wait?
+          }
+        }
+#endif
+
+        if (state_ != kPaused && state_ != kMultiscreenClient) {
+          // Update game logic by a variable number of milliseconds.
+          game_state_.AdvanceFrame(delta_time, &audio_engine_);
+        } else {
+          // We are the client, we only update a few small things.
+          game_state_.particle_manager().AdvanceFrame(
+              static_cast<TimeStep>(delta_time));
+          game_state_.engine().AdvanceFrame(delta_time);
+        }
+
+        if (state_ == kPlaying && !stinger_channel_.Valid() &&
             game_state_.IsGameOver()) {
           game_state_.DetermineWinnersAndLosers();
           stinger_channel_ = PlayStinger();
@@ -1603,15 +2178,20 @@ void PieNoonGame::Run() {
         // Update audio engine state.
         audio_engine_.AdvanceFrame(world_time);
 
-        // Populate 'scene' from the game state--all the positions,
-        // orientations, and renderable-ids (which specify materials) of the
-        // characters and props. Also specify the camera matrix.
-        game_state_.PopulateScene(&scene_);
-
         // Issue draw calls for the 'scene'.
-        Render(scene_);
+        if (state_ != kMultiscreenClient) {
+          // Populate 'scene' from the game state--all the positions,
+          // orientations, and renderable-ids (which specify materials) of the
+          // characters and props. Also specify the camera matrix.
+          game_state_.PopulateScene(&scene_);
 
-        // TEMP: testing GUI on top of everything else.
+          // Issue draw calls for the 'scene'.
+          Render(scene_);
+        } else {
+          Render2DElements();
+        }
+
+// TEMP: testing GUI on top of everything else.
 #if IMGUI_TEST
         // Open OpenType font
         static FontManager fontman;

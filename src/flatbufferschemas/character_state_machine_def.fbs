@@ -62,7 +62,14 @@ enum LogicalInputs:ushort (bit_flags) {
   AnimationEnd,
   Won,
   Lost,
-  JoinedGame
+  JoinedGame,
+  TriggerPieGrowth
+}
+
+enum GameModeCondition:ushort {
+  AnyMode,
+  SinglePlayerOnly,
+  MultiPlayerOnly
 }
 
 // This represents the set of conditions that must be met to do something, like
@@ -83,6 +90,10 @@ table Condition {
   // The current time must be between `time` and `end_time`.
   time:int = 0;
   end_time:int = 2147483647; // MAX_INT
+
+  // What game mode to allow this condition to trigger in.
+  // Default = Any Mode.
+  game_mode:GameModeCondition;
 }
 
 // An event that is only executed when its condition is met.

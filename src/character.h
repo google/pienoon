@@ -68,6 +68,9 @@ class Character {
   // target face angle.
   void TwitchFaceAngle(motive::TwitchDirection twitch);
 
+  // Force the character's target, not worrying about facing angle.
+  void force_target(CharacterId target) { target_ = target; }
+
   // Gets the character's current face angle.
   Angle FaceAngle() const { return Angle(face_angle_.Value()); }
 
@@ -79,6 +82,9 @@ class Character {
 
   // On-screen color. Used in shader when rendering.
   mathfu::vec4 Color() const;
+
+  // Color to tint a button corresponding to this character.
+  mathfu::vec4 ButtonColor() const;
 
   // Returns the timeline of the current state.
   const Timeline* CurrentTimeline() const {

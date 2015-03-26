@@ -48,6 +48,8 @@ limitations under the License.
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data android:name="com.google.android.gms.nearby.connection.SERVICE_ID"
+                   android:value="@string/service_id" />
         <meta-data android:name="com.google.android.gms.games.APP_ID"
                    android:value="@string/app_id" />
         <meta-data android:name="com.google.android.gms.version"
@@ -66,6 +68,9 @@ limitations under the License.
 
     <!-- Allow accessing the internet to load external pages -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <!-- Allow access to the NFC reader for Cardboard to use  -->
     <uses-permission android:name="android.permission.NFC" />

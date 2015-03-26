@@ -44,12 +44,24 @@ bool EvaluateCondition(const Condition* condition,
   unsigned int is_up = condition->is_up();
   unsigned int went_down = condition->went_down();
   unsigned int went_up = condition->went_up();
+
+  bool is_game_mode_ok = false;
+  if (condition->game_mode() == GameModeCondition_AnyMode) {
+    is_game_mode_ok = true;
+  } else if (condition->game_mode() == GameModeCondition_SinglePlayerOnly &&
+             !inputs.is_multiscreen) {
+    is_game_mode_ok = true;
+  }
+  if (condition->game_mode() == GameModeCondition_MultiPlayerOnly &&
+      inputs.is_multiscreen) {
+    is_game_mode_ok = true;
+  }
   return (inputs.is_down & is_down) == is_down &&
          (~inputs.is_down & is_up) == is_up &&
          (inputs.went_down & went_down) == went_down &&
          (inputs.went_up & went_up) == went_up &&
          inputs.animation_time >= condition->time() &&
-         inputs.animation_time < condition->end_time();
+         inputs.animation_time < condition->end_time() && is_game_mode_ok;
 }
 
 void CharacterStateMachine::Update(const ConditionInputs& inputs) {
