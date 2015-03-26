@@ -32,6 +32,7 @@ void PlayerCharacterComponent::UpdateAllEntities(
     entity::EntityRef entity = iter->entity;
     int num_accessories = 0;
     UpdateCharacterFacing(entity);
+    UpdateCharacterTint(entity);
     UpdateUiArrow(entity);
     num_accessories += PopulatePieAccessories(entity, num_accessories);
     num_accessories += PopulateHealthAccessories(entity, num_accessories);
@@ -64,6 +65,16 @@ void PlayerCharacterComponent::UpdateCharacterFacing(entity::EntityRef entity) {
 
   so_data->set_renderable_id(renderable_id);
   so_data->SetTranslation(character->position());
+}
+
+void PlayerCharacterComponent::UpdateCharacterTint(entity::EntityRef entity) {
+  PlayerCharacterData* pc_data = GetEntityData(entity);
+  SceneObjectData* so_data = Data<SceneObjectData>(entity);
+  std::vector<std::unique_ptr<Character>>& character_vector =
+      gamestate_ptr_->characters();
+  std::unique_ptr<Character>& character =
+      character_vector[pc_data->character_id];
+  so_data->set_tint(character->Color());
 }
 
 // Keep the circle underfoot up to date and pointing the right way:
@@ -116,9 +127,9 @@ int PlayerCharacterComponent::PopulatePieAccessories(entity::EntityRef entity,
 
       accessory_so_data->set_visible(true);
       const vec3 offset(
-               accessory.offset().x() * config_->pixel_to_world_scale(),
-               accessory.offset().y() * config_->pixel_to_world_scale(),
-               (num_accessories + 1) * config_->accessory_z_increment());
+          accessory.offset().x() * config_->pixel_to_world_scale(),
+          accessory.offset().y() * config_->pixel_to_world_scale(),
+          (num_accessories + 1) * config_->accessory_z_increment());
       accessory_so_data->SetTranslation(offset);
 
       accessory_so_data->set_renderable_id(accessory.renderable());
@@ -194,9 +205,9 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
 
         accessory_so_data->set_visible(true);
         const vec3 offset(
-                 location.x() * config_->pixel_to_world_scale(),
-                 location.y() * config_->pixel_to_world_scale(),
-                 (num_accessories + 1) * config_->accessory_z_increment());
+            location.x() * config_->pixel_to_world_scale(),
+            location.y() * config_->pixel_to_world_scale(),
+            (num_accessories + 1) * config_->accessory_z_increment());
         accessory_so_data->SetTranslation(offset);
 
         accessory_so_data->set_renderable_id(accessory->renderable());

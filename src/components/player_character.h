@@ -53,6 +53,7 @@ class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
 
  private:
   void UpdateCharacterFacing(entity::EntityRef entity);
+  void UpdateCharacterTint(entity::EntityRef entity);
   void UpdateUiArrow(entity::EntityRef entity);
   int PopulatePieAccessories(entity::EntityRef entity, int num_accessories);
   int PopulateHealthAccessories(entity::EntityRef entity, int num_accessories);
@@ -63,8 +64,8 @@ class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::PlayerCharacterComponent,
-    fpl::pie_noon::PlayerCharacterData,
+FPL_ENTITY_REGISTER_COMPONENT(
+    fpl::pie_noon::PlayerCharacterComponent, fpl::pie_noon::PlayerCharacterData,
     fpl::pie_noon::ComponentDataUnion_PlayerCharacterDef)
 
 #endif  // COMPONENTS_PLAYER_CHARACTER_H_
