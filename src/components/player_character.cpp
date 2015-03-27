@@ -34,6 +34,7 @@ void PlayerCharacterComponent::UpdateAllEntities(
     UpdateCharacterFacing(entity);
     UpdateCharacterTint(entity);
     UpdateUiArrow(entity);
+    UpdateVisibility(entity);
     num_accessories += PopulatePieAccessories(entity, num_accessories);
     num_accessories += PopulateHealthAccessories(entity, num_accessories);
   }
@@ -93,6 +94,20 @@ void PlayerCharacterComponent::UpdateUiArrow(entity::EntityRef entity) {
   circle_so_data->SetTranslation(so_data->Translation());
   circle_so_data->SetOriginPoint(LoadVec3(config_->ui_arrow_offset()));
   circle_so_data->SetScale(LoadVec3(config_->ui_arrow_scale()));
+}
+
+// Keep the scene object visible flag up to date
+void PlayerCharacterComponent::UpdateVisibility(entity::EntityRef entity) {
+  SceneObjectData* so_data = Data<SceneObjectData>(entity);
+  std::vector<std::unique_ptr<Character>>& character_vector =
+      gamestate_ptr_->characters();
+
+  PlayerCharacterData* pc_data = GetEntityData(entity);
+
+  std::unique_ptr<Character>& character =
+      character_vector[pc_data->character_id];
+
+  so_data->set_visible(character->visible());
 }
 
 // Add the accessories that are part of the character's timeline animation.

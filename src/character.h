@@ -147,6 +147,9 @@ class Character {
   // sending them to the server.
   void ResetStats();
 
+  bool visible() const { return visible_; }
+  void set_visible(bool visible) { visible_ = visible; }
+
  private:
   // Constant configuration data.
   const Config* config_;
@@ -191,6 +194,9 @@ class Character {
 
   // What state the character was in last update.
   uint16_t state_last_update_;
+
+  // If the character should be visible.
+  bool visible_;
 };
 
 class AirbornePie {

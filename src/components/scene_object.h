@@ -194,6 +194,7 @@ class SceneObjectComponent : public entity::Component<SceneObjectData> {
   void UpdateGlobalMatrix(entity::EntityRef& entity,
                           std::vector<bool>& matrix_calculated);
   void UpdateGlobalMatrices();
+  bool VisibleInHierarchy(const entity::EntityRef& entity) const;
 
   motive::MotiveEngine* engine_;
 };

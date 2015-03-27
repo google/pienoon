@@ -55,6 +55,7 @@ class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
   void UpdateCharacterFacing(entity::EntityRef entity);
   void UpdateCharacterTint(entity::EntityRef entity);
   void UpdateUiArrow(entity::EntityRef entity);
+  void UpdateVisibility(entity::EntityRef entity);
   int PopulatePieAccessories(entity::EntityRef entity, int num_accessories);
   int PopulateHealthAccessories(entity::EntityRef entity, int num_accessories);
   const Config* config_;

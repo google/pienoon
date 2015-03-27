@@ -133,13 +133,23 @@ void SceneObjectComponent::UpdateGlobalMatrices() {
   }
 }
 
+bool SceneObjectComponent::VisibleInHierarchy(
+    const entity::EntityRef& entity) const {
+  const SceneObjectData* data = GetEntityData(entity);
+  if (!data->HasParent()) {
+    return data->visible();
+  } else {
+    return data->visible() && VisibleInHierarchy(data->parent());
+  }
+}
+
 void SceneObjectComponent::PopulateScene(SceneDescription* scene) {
   UpdateGlobalMatrices();
 
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
     entity::EntityRef entity = iter->entity;
-    SceneObjectData* data = GetEntityData(entity);
-    if (data->visible()) {
+    if (VisibleInHierarchy(entity)) {
+      SceneObjectData* data = GetEntityData(entity);
       scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
           data->renderable_id(), data->global_matrix(), data->tint())));
     }

@@ -49,7 +49,8 @@ Character::Character(
       controller_(controller),
       just_joined_game_(false),
       state_machine_(character_state_machine_def),
-      victory_state_(kResultUnknown) {
+      victory_state_(kResultUnknown),
+      visible_(true) {
   ResetStats();
 }
 
@@ -62,6 +63,7 @@ void Character::Reset(CharacterId target, CharacterHealth health,
   position_ = position;
   state_machine_.Reset();
   victory_state_ = kResultUnknown;
+  visible_ = true;
 
   motive::OvershootInit init;
   OvershootInitFromFlatBuffers(*config_->face_angle_def(), &init);
