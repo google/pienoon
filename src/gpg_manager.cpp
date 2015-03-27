@@ -274,13 +274,16 @@ bool GPGManager::IsAchievementUnlocked(std::string achievement_id) {
   if (!achievement_data_initialized_) {
     return false;
   }
+  bool ret = false;
   pthread_mutex_lock(&achievements_mutex_);
   for (unsigned int i = 0; i < achievement_data_.size(); i++) {
     if (achievement_data_[i].Id() == achievement_id) {
-      return achievement_data_[i].State() == gpg::AchievementState::UNLOCKED;
+      ret = achievement_data_[i].State() == gpg::AchievementState::UNLOCKED;
+      break;
     }
   }
   pthread_mutex_unlock(&achievements_mutex_);
+  return ret;
 }
 
 uint64_t GPGManager::GetEventValue(std::string event_id) {
