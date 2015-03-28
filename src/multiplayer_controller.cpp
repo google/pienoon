@@ -36,6 +36,14 @@ void MultiplayerController::Initialize(GameState* gamestate,
   throw_pie_delay_ = 0;
 }
 
+void MultiplayerController::Reset() {
+  throw_pie_delay_ = 0;
+  grow_pie_delay_ = 0;
+  block_hold_ = 0;
+  block_delay_ = 0;
+  aim_at_character_id_ = kNoCharacter;
+}
+
 void MultiplayerController::AdvanceFrame(WorldTime delta_time) {
   if (character_id_ == kNoCharacter) {
     return;

@@ -2628,6 +2628,17 @@
     "nearby_connections_service_id": "pienoonmsx",
     "nearby_connections_app_identifiers": [ "com.google.fpl.pie_noon" ],
 
-    "max_players":4
+    "max_players":4,
+
+    "ai_chance_to_throw":0.5,
+    "ai_chance_to_block":0.2,
+    "ai_chance_to_wait":0.1,
+    // left over: 0.2 chance to do the same action as last turn
+
+    "ai_chance_to_target_largest_pie":0.25,
+    "ai_chance_to_target_lowest_health":0.1,
+    "ai_chance_to_target_highest_health":0.1,
+    "ai_chance_to_target_random":0.4,
+    // left over: 0.15 chance to target the same opponent as last turn
   }
 }

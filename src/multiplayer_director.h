@@ -90,17 +90,34 @@ class MultiplayerDirector {
   // Tell the multiplayer director about a player's input.
   void InputPlayerCommand(CharacterId id,
                           const multiplayer::PlayerCommand &command);
-
+  // How long until the current turn ends? 0 if outside a turn.
   WorldTime turn_timer() { return turn_timer_; }
+  // How long until the next turn starts? 0 if in a turn.
   WorldTime start_turn_timer() { return start_turn_timer_; }
 
+  // Set the number of AI players. The last N players are AIs.
+  void set_num_ai_players(uint n) { num_ai_players_ = n; }
+  uint num_ai_players() const { return num_ai_players_; }
+
  private:
+  struct Command {
+    CharacterId aim_at;
+    bool is_firing;
+    bool is_blocking;
+    Command() : aim_at(-1), is_firing(false), is_blocking(false) {}
+  };
+
   void TriggerStartOfTurn();
   void TriggerEndOfTurn();
   uint CalculateSecondsPerTurn(uint turn_number);
 
   // Get all the players' healths so we can send them in an update
   std::vector<uint8_t> ReadPlayerHealth();
+
+  // Tell the multiplayer director to choose AI commands for this player.
+  void ChooseAICommand(CharacterId id);
+
+  void DebugInput(InputSystem *input);
 
   GameState *gamestate_;  // Pointer to the gamestate object
   const Config *config_;  // Pointer to the config structure
@@ -115,15 +132,11 @@ class MultiplayerDirector {
   // Grace period to allow for network travel time, in milliseonds.
   uint network_grace_milliseconds_;
 
+  uint num_ai_players_;  // the last N players are AI.
+
   InputSystem *debug_input_system_;
-  struct Command {
-    CharacterId aim_at;
-    bool is_firing;
-    bool is_blocking;
-    Command() : aim_at(-1), is_firing(false), is_blocking(false) {}
-  };
+
   std::vector<Command> commands_;
-  void DebugInput(InputSystem *input);
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGMultiplayer *gpg_multiplayer_ = nullptr;

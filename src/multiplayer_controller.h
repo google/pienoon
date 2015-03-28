@@ -45,6 +45,8 @@ class MultiplayerController : public Controller {
   void ThrowPie(WorldTime throw_delay);  // Throw a pie where we are aiming.
   void GrowPie(WorldTime grow_delay);    // Grow a pie to the next level.
 
+  void Reset();  // Reset our action and target back to defaults.
+
   // Sometimes MultiplayerDirector needs access to our character.
   // This gives it that access.
   const Character& GetCharacter();

@@ -319,6 +319,28 @@ table MultiscreenOptions {
 
   // Max number of players who are allowed to connect to the host.
   max_players:ushort;
+
+  // AI constants for multi-screen mode.
+
+  // Action percentages. Whatever is left over will just do the same
+  // thing the AI did the previous turn.
+  // Chance each turn (0-1) that the AI will throw a pie.
+  ai_chance_to_throw:float;
+  // Chance each turn (0-1) that the AI will block.
+  ai_chance_to_block:float;
+  // Chance each turn (0-1) that the AI will wait / grow pie.
+  ai_chance_to_wait:float;
+
+  // Aiming percentages. Whatever is left over is the chance of keeping
+  // the current target.
+  // Chance each turn to target the opponent with the largest pie.
+  ai_chance_to_target_largest_pie:float;
+  // Chance each turn to target the opponent with the fewest HP.
+  ai_chance_to_target_lowest_health:float;
+  // Chance each turn to target the opponent with the most HP.
+  ai_chance_to_target_highest_health:float;
+  // Chance each turn to target a random opponent.
+  ai_chance_to_target_random:float;
 }
 
 table Config {

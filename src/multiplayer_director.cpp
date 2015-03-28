@@ -34,6 +34,7 @@ void MultiplayerDirector::Initialize(GameState* gamestate,
   seconds_per_turn_ =
       config_->multiscreen_options()->turn_length()->Get(0)->turn_seconds();
   turn_number_ = 0;
+  num_ai_players_ = 0;
 }
 
 void MultiplayerDirector::RegisterController(
@@ -51,6 +52,9 @@ void MultiplayerDirector::StartGame() {
     commands_[i].aim_at = (i + 1) % commands_.size();
     commands_[i].is_firing = false;
     commands_[i].is_blocking = false;
+  }
+  for (unsigned int i = 0; i < controllers_.size(); i++) {
+    controllers_[i]->Reset();
   }
 }
 
@@ -78,7 +82,16 @@ void MultiplayerDirector::AdvanceFrame(WorldTime delta_time) {
 
 void MultiplayerDirector::TriggerEndOfTurn() {
   SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "MultiplayerDirector: END TURN");
-  for (int i = 0; i < (int)controllers_.size(); i++) {
+  // if we have any AI players, set their commands now
+  for (unsigned int i = 0; i < num_ai_players(); i++) {
+    CharacterId id =
+        static_cast<CharacterId>(commands_.size() - num_ai_players() + i);
+    if (id >= 0 && id < static_cast<int>(commands_.size())) {
+      ChooseAICommand(id);
+    }
+  }
+
+  for (int i = 0; i < static_cast<int>(controllers_.size()); i++) {
     int character_delay =
         i * config_->multiscreen_options()->char_delay_milliseconds();
     int pie_throw_delay =
@@ -92,15 +105,12 @@ void MultiplayerDirector::TriggerEndOfTurn() {
 
     if (commands_[i].aim_at != kNoCharacter) {
       controllers_[i]->AimAtCharacter(commands_[i].aim_at);
-      commands_[i].aim_at = kNoCharacter;
     }
     if (commands_[i].is_firing) {
       controllers_[i]->ThrowPie(pie_throw_delay + character_delay);
-      commands_[i].is_firing = false;
     } else if (commands_[i].is_blocking) {
       controllers_[i]->HoldBlock(blocking_delay + character_delay,
                                  blocking_hold);
-      commands_[i].is_blocking = false;
     } else {
       controllers_[i]->GrowPie(pie_grow_delay + character_delay);
     }
@@ -117,7 +127,7 @@ void MultiplayerDirector::TriggerEndOfTurn() {
 uint MultiplayerDirector::CalculateSecondsPerTurn(uint turn_number) {
   for (auto turn_spec : *config_->multiscreen_options()->turn_length()) {
     if (turn_spec->until_turn_number() == -1 ||
-        turn_number <= (uint)turn_spec->until_turn_number())
+        turn_number <= static_cast<uint>(turn_spec->until_turn_number()))
       return turn_spec->turn_seconds();
   }
   // By default just return the first turn length
@@ -145,6 +155,135 @@ void MultiplayerDirector::InputPlayerCommand(
   }
   command.is_firing = player_command.is_firing();
   command.is_blocking = player_command.is_blocking();
+  commands_[id] = command;
+}
+
+void MultiplayerDirector::ChooseAICommand(CharacterId id) {
+  // If we are dead, don't do anything.
+  if (controllers_[id]->GetCharacter().health() <= 0) return;
+
+  Command command = commands_[id];  // Get previous command.
+  const auto* options = config_->multiscreen_options();
+
+  float action = mathfu::Random<float>();
+  if (action < options->ai_chance_to_throw()) {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "MultiplayerDirector: AI %d setting action to throw", id);
+    command.is_firing = true;
+    command.is_blocking = false;
+  }
+  action -= options->ai_chance_to_throw();
+  if (action >= 0 && action < options->ai_chance_to_block()) {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "MultiplayerDirector: AI %d setting action to block", id);
+    command.is_firing = false;
+    command.is_blocking = true;
+  }
+  action -= options->ai_chance_to_block();
+  if (action >= 0 && action < options->ai_chance_to_wait()) {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "MultiplayerDirector: AI %d setting action to wait", id);
+    command.is_firing = false;
+    command.is_blocking = false;
+  }
+  action -= options->ai_chance_to_wait();
+  // If action is still > 0, command has the action from the previous turn,
+  // don't change it.
+
+  uint self = static_cast<uint>(id);  // for comparison
+  std::vector<uint> candidate_targets;
+  // Choose how to target opponents.
+  float target = mathfu::Random<float>();
+  if (target < options->ai_chance_to_target_largest_pie()) {
+    // First get the max pie damage. Then put everyone with that pie damage
+    // into the candidate targets list.
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "MultiplayerDirector: AI %d targeting largest pie", id);
+
+    int max_pie = -1;
+    for (uint i = 0; i < controllers_.size(); i++) {
+      const Character& enemy = controllers_[i]->GetCharacter();
+      if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
+      if (enemy.pie_damage() > max_pie) {
+        max_pie = enemy.pie_damage();
+      }
+    }
+    for (uint i = 0; i < controllers_.size(); i++) {
+      const Character& enemy = controllers_[i]->GetCharacter();
+      if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
+      if (enemy.pie_damage() == max_pie) {
+        candidate_targets.push_back(i);
+      }
+    }
+  }
+  target -= options->ai_chance_to_target_largest_pie();
+  if (target >= 0 && target < options->ai_chance_to_target_lowest_health()) {
+    // First get the lowest enemy health. Then put everyone with that health
+    // into the candidate targets list.
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "MultiplayerDirector: AI %d targeting lowest health", id);
+    int min_health = config_->character_health() + 1;
+    for (uint i = 0; i < controllers_.size(); i++) {
+      const Character& enemy = controllers_[i]->GetCharacter();
+      if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
+      if (enemy.health() < min_health) {
+        min_health = enemy.health();
+      }
+    }
+    for (uint i = 0; i < controllers_.size(); i++) {
+      const Character& enemy = controllers_[i]->GetCharacter();
+      if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
+      if (enemy.health() == min_health) {
+        candidate_targets.push_back(i);
+      }
+    }
+  }
+  target -= options->ai_chance_to_target_lowest_health();
+  if (target >= 0 && target < options->ai_chance_to_target_highest_health()) {
+    // First get the highest enemy health. Then put everyone with that health
+    // into the candidate targets list.
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "MultiplayerDirector: AI %d targeting highest health", id);
+    int max_health = -1;
+    for (uint i = 0; i < controllers_.size(); i++) {
+      const Character& enemy = controllers_[i]->GetCharacter();
+      if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
+      if (enemy.health() > max_health) {
+        max_health = enemy.health();
+      }
+    }
+    for (uint i = 0; i < controllers_.size(); i++) {
+      const Character& enemy = controllers_[i]->GetCharacter();
+      if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
+      if (enemy.health() == max_health) {
+        candidate_targets.push_back(i);
+      }
+    }
+  }
+  target -= options->ai_chance_to_target_highest_health();
+  if (target >= 0 && target < options->ai_chance_to_target_random()) {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+                 "MultiplayerDirector: AI %d targeting randomly", id);
+    // Just put all living enemies in the list.
+    for (uint i = 0; i < controllers_.size(); i++) {
+      const Character& enemy = controllers_[i]->GetCharacter();
+      if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
+      candidate_targets.push_back(i);
+    }
+  }
+  target -= options->ai_chance_to_target_random();
+  // If target is still > 0, command has the action from the previous turn,
+  // don't change it.
+
+  if (candidate_targets.size() > 0) {
+    uint which = static_cast<uint>(
+        static_cast<float>(candidate_targets.size()) * mathfu::Random<float>());
+    if (which >= 0 && which < candidate_targets.size())
+      command.aim_at = candidate_targets[which];
+  }
+  // If we have no candidate targets, we won't change aim at all.
+
+  // Find a random
   commands_[id] = command;
 }
 
