@@ -328,7 +328,11 @@ bool PieNoonGame::InitializeRenderingAssets() {
   gui_menu_.LoadAssets(config.msx_waitingforgame_screen_buttons(), &matman_);
   gui_menu_.LoadAssets(config.msx_searching_screen_buttons(), &matman_);
   gui_menu_.LoadAssets(config.msx_connecting_screen_buttons(), &matman_);
-
+  gui_menu_.LoadAssets(config.msx_cant_host_game_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_connection_lost_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_host_disconnected_screen_buttons(), &matman_);
+  gui_menu_.LoadAssets(config.msx_all_players_disconnected_screen_buttons(),
+                       &matman_);
   // Configure the full screen fader.
   full_screen_fader_.set_material(
       matman_.FindMaterial(config.fade_material()->c_str()));
@@ -958,6 +962,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         if (game_state_.is_multiscreen() && multiplayer_director_ != nullptr) {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
           multiplayer_director_->SendEndGameMsg();
+          gpg_multiplayer_.StartAdvertising();
 #endif
           return kMultiplayerWaiting;
         } else {
@@ -1014,8 +1019,15 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       break;
     }
     case kMultiscreenClient: {
-      UpdateMultiscreenMenuIcons();
-      return HandleMenuButtons(time);
+      if (input_.GetButton(SDLK_AC_BACK).went_down()) {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        gpg_multiplayer_.DisconnectAll();
+#endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        gui_menu_.Setup(config.msx_screen_buttons(), &matman_);
+      } else {
+        UpdateMultiscreenMenuIcons();
+        return HandleMenuButtons(time);
+      }
     }
     default:
       assert(false);
@@ -1168,8 +1180,10 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       // end up in this state after loading.
       if (state_ == kPlaying) {
         UploadEvents();
-        // For now, we always show leaderboards when a round ends:
-        UploadAndShowLeaderboards();
+        // For now, we always show leaderboards when a single player round ends:
+        if (!game_state_.is_multiscreen()) {
+          UploadAndShowLeaderboards();
+        }
       }
       break;
     }
@@ -1358,7 +1372,7 @@ void PieNoonGame::AttachMultiplayerControllers() {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 
 void PieNoonGame::ProcessMultiplayerMessages() {
-  if (gpg_multiplayer_.HasMessage()) {
+  while (gpg_multiplayer_.HasMessage()) {
     std::pair<std::string, std::vector<uint8_t>> msg_info =
         gpg_multiplayer_.GetNextMessage();
     std::string sender = msg_info.first;
@@ -1435,7 +1449,26 @@ void PieNoonGame::ProcessMultiplayerMessages() {
       }
     }
   }
+
+  // If any players were disconnected and have reconnected, re-send them
+  // their player number.
+  while (gpg_multiplayer_.HasReconnectedPlayer()) {
+    int player = gpg_multiplayer_.GetReconnectedPlayer();
+    SDL_LogInfo(
+        SDL_LOG_CATEGORY_APPLICATION,
+        "Got reconnected player %d (instance %s), send his assignment again.",
+        player);
+    auto instance_id = gpg_multiplayer_.GetInstanceIdByPlayerNumber(player);
+    if (instance_id != "") {
+      SDL_LogInfo(
+          SDL_LOG_CATEGORY_APPLICATION,
+          "Got reconnected player %d (instance %s), send his assignment again.",
+          player, instance_id.c_str());
+      multiplayer_director_->SendPlayerAssignmentMsg(instance_id, player);
+    }
+  }
 }
+
 void PieNoonGame::ProcessPlayerStatusMessage(
     const multiplayer::PlayerStatus& status) {
   // Iterate through characters and player healths.
@@ -1667,9 +1700,13 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       }
 
       case ButtonId_MenuBack: {
+        const Config& config = GetConfig();
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        gpg_multiplayer_.ResetToIdle();
+#endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelExtrasBackButton);
-        const Config& config = GetConfig();
+        UpdateControllers(0);  // clear went_down()
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         break;
       }
@@ -1732,6 +1769,9 @@ void PieNoonGame::StartMultiscreenGameAsHost() {
                 instance_id.c_str());
     multiplayer_director_->SendPlayerAssignmentMsg(instance_id, i);
   }
+  // If we have less than the max number of players, set the rest to AI.
+  multiplayer_director_->set_num_ai_players(
+      GetConfig().multiscreen_options()->max_players() - connected_players);
   game_state_.Reset(GameState::kNoAnalytics);
   multiplayer_director_->StartGame();
   TransitionToPieNoonState(kJoining);
@@ -2147,6 +2187,23 @@ void PieNoonGame::Run() {
             if (look != nullptr) look->set_is_visible(true);
             if (go != nullptr) go->set_is_visible(true);
           }
+
+          if (!gpg_multiplayer_.IsConnected()) {
+            if (gpg_multiplayer_.HasError()) {
+              gpg_multiplayer_.ResetToIdle();
+              TransitionToPieNoonState(kFinished);
+              // Show "connection error" screen.
+              gui_menu_.Setup(config.msx_connection_lost_screen_buttons(),
+                              &matman_);
+            } else {
+              gpg_multiplayer_.ResetToIdle();
+              TransitionToPieNoonState(kFinished);
+              // Show "all players disconnected" screen.
+              gui_menu_.Setup(
+                  config.msx_all_players_disconnected_screen_buttons(),
+                  &matman_);
+            }
+          }
         }
 
         if (state_ == kMultiscreenClient) {
@@ -2155,6 +2212,30 @@ void PieNoonGame::Run() {
             UpdateCountdownImage(CurrentWorldTime());
           } else {
             // wait?
+          }
+
+          if (!gpg_multiplayer_.IsConnected()) {
+            if (gui_menu_.menu_def() == config.multiplayer_client()) {
+              // something caused us to become disconnected
+              if (gpg_multiplayer_.HasError()) {
+                gpg_multiplayer_.ResetToIdle();
+                TransitionToPieNoonState(kFinished);
+                // Show "connection error" screen.
+                gui_menu_.Setup(config.msx_connection_lost_screen_buttons(),
+                                &matman_);
+              } else {
+                gpg_multiplayer_.ResetToIdle();
+                TransitionToPieNoonState(kFinished);
+                // Show "host disconnected" screen.
+                gui_menu_.Setup(config.msx_host_disconnected_screen_buttons(),
+                                &matman_);
+              }
+            } else {
+              gpg_multiplayer_.ResetToIdle();
+              TransitionToPieNoonState(kFinished);
+              // Show "host disconnected" screen.
+              gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+            }
           }
         }
 #endif

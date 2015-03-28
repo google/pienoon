@@ -659,9 +659,13 @@ table Config {
   msx_searching_screen_buttons:UiGroup;
   msx_connecting_screen_buttons:UiGroup;
   msx_waitingforgame_screen_buttons:UiGroup;
+  msx_cant_host_game_screen_buttons:UiGroup;
+  msx_all_players_disconnected_screen_buttons:UiGroup;
+  msx_host_disconnected_screen_buttons:UiGroup;
+  msx_connection_lost_screen_buttons:UiGroup;
   multiplayer_host:UiGroup;
   multiplayer_client:UiGroup;
-  
+
   // Tutorial
   //
   // List of materials to display, one after the other, on the full screen.
