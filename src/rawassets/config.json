@@ -376,6 +376,9 @@
       }
     ],
 
+    "ground_plane_width": 16.4,
+    "ground_plane_height": 8,
+
     "splatter_def" : {
       "component_list": [
         {

@@ -639,8 +639,8 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
-  const float ground_width = 16.4f;
-  const float ground_depth = 8.0f;
+  const float ground_width = config.ground_plane_width();
+  const float ground_depth = config.ground_plane_height();
   Mesh::RenderAAQuadAlongX(vec3(-ground_width, 0, 0),
                            vec3(ground_width, 0, ground_depth), vec2(0, 0),
                            vec2(1.0f, 1.0f));
