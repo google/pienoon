@@ -37,7 +37,6 @@ set(libfreetype_SRCS
     ${freetype_dir}/src/base/ftlcdfil.c
     ${freetype_dir}/src/base/ftstroke.c
     ${freetype_dir}/src/base/fttype1.c
-    ${freetype_dir}/src/base/ftxf86.c
     ${freetype_dir}/src/base/ftbase.c
     ${freetype_dir}/src/base/ftsystem.c
     ${freetype_dir}/src/base/ftinit.c
