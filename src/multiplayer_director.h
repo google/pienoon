@@ -90,6 +90,15 @@ class MultiplayerDirector {
   // Tell the multiplayer director about a player's input.
   void InputPlayerCommand(CharacterId id,
                           const multiplayer::PlayerCommand &command);
+
+  // Internally, call this when a player has been hit by a pie. The multiplayer
+  // director will decide whether that player should be "stunned" by the hit
+  // and have one or more of his buttons locked for a turn.
+  void TriggerPlayerHitByPie(CharacterId player, int damage);
+
+  // Is this an AI player or a human player?
+  bool IsAIPlayer(CharacterId player);
+
   // How long until the current turn ends? 0 if outside a turn.
   WorldTime turn_timer() { return turn_timer_; }
   // How long until the next turn starts? 0 if in a turn.
@@ -119,10 +128,14 @@ class MultiplayerDirector {
 
   void DebugInput(InputSystem *input);
 
+  // Get all the players' onscreen splats to send in an update
+  std::vector<uint8_t> ReadPlayerSplats();
+
   GameState *gamestate_;  // Pointer to the gamestate object
   const Config *config_;  // Pointer to the config structure
 
   std::vector<MultiplayerController *> controllers_;
+  std::vector<uint8_t> character_splats_;
   // How long the current turn lasts.
   WorldTime turn_timer_;
   // In how long to start the next turn.
@@ -139,6 +152,8 @@ class MultiplayerDirector {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGMultiplayer *gpg_multiplayer_ = nullptr;
 #endif
+
+  bool game_running_;
 };
 
 }  // pie_noon

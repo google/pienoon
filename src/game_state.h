@@ -45,6 +45,7 @@ struct Config;
 struct CharacterArrangement;
 struct EventData;
 struct ReceivedPie;
+class MultiplayerDirector;
 
 class PieNoonEntityFactory : public entity::EntityFactoryInterface {
  public:
@@ -137,6 +138,13 @@ class GameState {
 
   WorldTime GetAnimationTime(const Character& character) const;
 
+  // Sets the MultiplayerDirector we can talk to to propagate some game state
+  // across the network. You must ensure it stays in memory as long as GameState
+  // does.
+  void RegisterMultiplayerDirector(MultiplayerDirector* director) {
+    multiplayer_director_ = director;
+  }
+
   void set_is_multiscreen(bool b) { is_multiscreen_ = b; }
   bool is_multiscreen() const { return is_multiscreen_; }
 
@@ -211,6 +219,9 @@ class GameState {
   DripAndVanishComponent drip_and_vanish_component_;
   // Component for drawing player characters:
   PlayerCharacterComponent player_character_component_;
+
+  // For multi-screen mode.
+  MultiplayerDirector* multiplayer_director_;
 
   // Whether you are playing in multiscreen mode.
   bool is_multiscreen_;

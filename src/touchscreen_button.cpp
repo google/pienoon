@@ -114,6 +114,7 @@ StaticImage::StaticImage()
       current_material_index_(0),
       shader_(nullptr),
       scale_(mathfu::kZeros2f),
+      texture_position_(mathfu::kZeros2f),
       color_(mathfu::kOnes4f),
       one_over_cannonical_window_height_(0.0f),
       is_visible_(true) {}
@@ -126,10 +127,11 @@ void StaticImage::Initialize(const StaticImageDef& image_def,
   current_material_index_ = 0;
   shader_ = shader;
   scale_ = LoadVec2(image_def_->draw_scale());
+  texture_position_ = LoadVec2(image_def_->texture_position());
   color_ = mathfu::kOnes4f;
   one_over_cannonical_window_height_ =
       1.0f / static_cast<float>(cannonical_window_height);
-  is_visible_ = true;
+  is_visible_ = image_def_->visible();
   assert(Valid());
 }
 
@@ -150,7 +152,7 @@ void StaticImage::Render(Renderer& renderer) {
       window_size.y() * one_over_cannonical_window_height_;
   const vec2 texture_size =
       texture_scale * vec2(material->textures()[0]->size()) * scale_;
-  const vec2 position_percent = LoadVec2(image_def_->texture_position());
+  const vec2 position_percent = texture_position_;
   const vec2 position = window_size * position_percent;
 
   const vec3 position3d(position.x(), position.y(), image_def_->z_depth());

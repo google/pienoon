@@ -70,6 +70,11 @@ enum ButtonId : ushort {
   Multiplayer_Label2,
   Multiplayer_Label3,
   Multiplayer_Label4,
+  Multiplayer_Splat1,
+  Multiplayer_Splat2,
+  Multiplayer_Splat3,
+  Multiplayer_Splat4,
+  Multiplayer_SplatFull,
 }
 
 // Setting a button to Hold means it will fire as long
@@ -149,6 +154,8 @@ table StaticImageDef {
   draw_scale : Vec2;
   texture_position : Vec2;
   z_depth : float = -0.5;
+  visible : bool = true;
+  render_after_buttons : bool = false;
 }
 
 table UiGroup {
@@ -327,8 +334,10 @@ table MultiscreenOptions {
   max_players:ushort;
 
   // AI constants for multi-screen mode.
+  // Enable AI in multi-screen games at all?
+  ai_enabled:bool;
 
-  // Action percentages. Whatever is left over will just do the same
+  // AI action percentages. Whatever is left over will just do the same
   // thing the AI did the previous turn.
   // Chance each turn (0-1) that the AI will throw a pie.
   ai_chance_to_throw:float;
@@ -347,6 +356,21 @@ table MultiscreenOptions {
   ai_chance_to_target_highest_health:float;
   // Chance each turn to target a random opponent.
   ai_chance_to_target_random:float;
+
+  // splat an enemy's buttons when you do this much damage to them
+  light_splat_damage_threshold:float;
+  light_splat_num_buttons:int;
+
+  // heavily splat an enemy's buttons when you do this much damage to them
+  heavy_splat_damage_threshold:float;
+  heavy_splat_num_buttons:int;
+
+  // Starting scale for the splats, they scale down to regular scale.
+  splat_start_scale:float;
+  // Speed they scale down.
+  splat_scale_speed:float;
+  // Speed they drip down.
+  splat_drip_speed:float;
 }
 
 table Config {
@@ -761,7 +785,7 @@ table Config {
 
   // Print out the camera position or target whenever they change.
   print_camera_orientation:bool;
-  
+
   // Options for multiscreen mode.
   multiscreen_options:MultiscreenOptions;
 }

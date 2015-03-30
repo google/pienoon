@@ -35,15 +35,18 @@ void MultiplayerDirector::Initialize(GameState* gamestate,
       config_->multiscreen_options()->turn_length()->Get(0)->turn_seconds();
   turn_number_ = 0;
   num_ai_players_ = 0;
+  game_running_ = false;
 }
 
 void MultiplayerDirector::RegisterController(
     MultiplayerController* controller) {
   controllers_.push_back(controller);
   commands_.push_back(Command());
+  character_splats_.push_back(0);
 }
 
 void MultiplayerDirector::StartGame() {
+  game_running_ = true;
   turn_number_ = 0;
   turn_timer_ = 0;
   start_turn_timer_ =
@@ -56,9 +59,15 @@ void MultiplayerDirector::StartGame() {
   for (unsigned int i = 0; i < controllers_.size(); i++) {
     controllers_[i]->Reset();
   }
+  for (unsigned int i = 0; i < character_splats_.size(); i++) {
+    character_splats_[i] = 0;
+  }
 }
 
-void MultiplayerDirector::EndGame() { turn_timer_ = 0; }
+void MultiplayerDirector::EndGame() {
+  game_running_ = false;
+  turn_timer_ = 0;
+}
 
 void MultiplayerDirector::AdvanceFrame(WorldTime delta_time) {
   if (debug_input_system_ != nullptr) {
@@ -83,11 +92,13 @@ void MultiplayerDirector::AdvanceFrame(WorldTime delta_time) {
 void MultiplayerDirector::TriggerEndOfTurn() {
   SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "MultiplayerDirector: END TURN");
   // if we have any AI players, set their commands now
-  for (unsigned int i = 0; i < num_ai_players(); i++) {
-    CharacterId id =
-        static_cast<CharacterId>(commands_.size() - num_ai_players() + i);
-    if (id >= 0 && id < static_cast<int>(commands_.size())) {
-      ChooseAICommand(id);
+  if (config_->multiscreen_options()->ai_enabled()) {
+    for (unsigned int i = 0; i < num_ai_players(); i++) {
+      CharacterId id =
+          static_cast<CharacterId>(commands_.size() - num_ai_players() + i);
+      if (id >= 0 && id < static_cast<int>(commands_.size())) {
+        ChooseAICommand(id);
+      }
     }
   }
 
@@ -114,6 +125,10 @@ void MultiplayerDirector::TriggerEndOfTurn() {
     } else {
       controllers_[i]->GrowPie(pie_grow_delay + character_delay);
     }
+  }
+
+  for (uint i = 0; i < character_splats_.size(); i++) {
+    character_splats_[i] = 0;  // splats only last one turn
   }
 
   turn_timer_ = 0;
@@ -143,6 +158,46 @@ void MultiplayerDirector::TriggerStartOfTurn() {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   SendStartTurnMsg(seconds_per_turn());
 #endif
+}
+
+void MultiplayerDirector::TriggerPlayerHitByPie(CharacterId player,
+                                                int damage) {
+  if (!game_running_) return;
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+              "MultiplayerDirector: %d hit for %d", player, damage);
+  int num_splats = 0;
+  if (damage >=
+      config_->multiscreen_options()->heavy_splat_damage_threshold()) {
+    // heavy splat, splat lots of buttons
+    num_splats += config_->multiscreen_options()->heavy_splat_num_buttons();
+  } else if (damage >=
+             config_->multiscreen_options()->light_splat_damage_threshold()) {
+    // light splat, splat fewer buttons
+    num_splats += config_->multiscreen_options()->light_splat_num_buttons();
+  } else {
+    // no splat
+  }
+  // Go through and try to find num_splats new buttons to splat.
+  std::vector<int> splats_available;
+  for (uint i = 0; i < controllers_.size(); i++) {
+    uint splat_mask = (1 << i);
+    if ((character_splats_[player] & splat_mask) == 0) {
+      splats_available.push_back(i);
+    }
+  }
+  while (num_splats > 0 && splats_available.size() > 0) {
+    uint idx = mathfu::RandomInRange<int>(0, splats_available.size());
+    uint splat_used = splats_available[idx];
+    uint splat_mask = (1 << splat_used);
+    character_splats_[player] |= splat_mask;
+    num_splats--;
+    splats_available.erase(splats_available.begin() + idx);
+  }
+  SendPlayerStatusMsg();  // sent unreliably since we may send a bunch in a row
+}
+
+bool MultiplayerDirector::IsAIPlayer(CharacterId player) {
+  return (static_cast<uint>(player) >= controllers_.size() - num_ai_players());
 }
 
 void MultiplayerDirector::InputPlayerCommand(
@@ -276,10 +331,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   // don't change it.
 
   if (candidate_targets.size() > 0) {
-    uint which = static_cast<uint>(
-        static_cast<float>(candidate_targets.size()) * mathfu::Random<float>());
-    if (which < candidate_targets.size())
-      command.aim_at = candidate_targets[which];
+    int which = mathfu::RandomInRange<int>(0, candidate_targets.size());
+    command.aim_at = candidate_targets[which];
   }
   // If we have no candidate targets, we won't change aim at all.
 
@@ -434,10 +487,12 @@ void MultiplayerDirector::SendPlayerAssignmentMsg(const std::string& instance,
 void MultiplayerDirector::SendStartTurnMsg(uint seconds) {
   // read the player healths
   std::vector<uint8_t> health_vec = ReadPlayerHealth();
+  std::vector<uint8_t> splats_vec = ReadPlayerSplats();
 
   flatbuffers::FlatBufferBuilder builder;
   auto health = builder.CreateVector(health_vec);
-  auto player_status = multiplayer::CreatePlayerStatus(builder, health);
+  auto splats = builder.CreateVector(splats_vec);
+  auto player_status = multiplayer::CreatePlayerStatus(builder, health, splats);
   auto message_root = multiplayer::CreateMessageRoot(
       builder, multiplayer::Data_StartTurn,
       multiplayer::CreateStartTurn(builder, (unsigned short)seconds,
@@ -451,10 +506,12 @@ void MultiplayerDirector::SendStartTurnMsg(uint seconds) {
 
 void MultiplayerDirector::SendEndGameMsg() {
   std::vector<uint8_t> health_vec = ReadPlayerHealth();
+  std::vector<uint8_t> splats_vec = ReadPlayerSplats();
 
   flatbuffers::FlatBufferBuilder builder;
   auto health = builder.CreateVector(health_vec);
-  auto player_status = multiplayer::CreatePlayerStatus(builder, health);
+  auto splats = builder.CreateVector(splats_vec);
+  auto player_status = multiplayer::CreatePlayerStatus(builder, health, splats);
   auto message_root = multiplayer::CreateMessageRoot(
       builder, multiplayer::Data_EndGame,
       multiplayer::CreateEndGame(builder, player_status).Union());
@@ -467,12 +524,14 @@ void MultiplayerDirector::SendEndGameMsg() {
 
 void MultiplayerDirector::SendPlayerStatusMsg() {
   std::vector<uint8_t> health_vec = ReadPlayerHealth();
+  std::vector<uint8_t> splats_vec = ReadPlayerSplats();
 
   flatbuffers::FlatBufferBuilder builder;
   auto health = builder.CreateVector(health_vec);
+  auto splats = builder.CreateVector(splats_vec);
   auto message_root = multiplayer::CreateMessageRoot(
       builder, multiplayer::Data_PlayerStatus,
-      multiplayer::CreatePlayerStatus(builder, health).Union());
+      multiplayer::CreatePlayerStatus(builder, health, splats).Union());
   builder.Finish(message_root);
 
   std::vector<uint8_t> message(builder.GetBufferPointer(),
@@ -489,6 +548,10 @@ std::vector<uint8_t> MultiplayerDirector::ReadPlayerHealth() {
     vec.push_back((health < 0) ? 0 : (uint8_t)health);
   }
   return vec;
+}
+
+std::vector<uint8_t> MultiplayerDirector::ReadPlayerSplats() {
+  return character_splats_;
 }
 
 }  // namespace pie_noon

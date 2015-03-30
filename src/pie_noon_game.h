@@ -126,6 +126,8 @@ class PieNoonGame {
   pindrop::Channel PlayStinger();
   void InitCountdownImage(int seconds);
   void UpdateCountdownImage(WorldTime time);
+  // On the multiscreen client, animate a button-covering splat
+  void StartSplatTurnAnimation(uint seconds);
 
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
@@ -138,6 +140,8 @@ class PieNoonGame {
   void ProcessMultiplayerMessages();
   void ProcessPlayerStatusMessage(const multiplayer::PlayerStatus&);
 
+  void ShowMultiscreenSplat(int splat_num);
+
   static int ReadPreference(const char* key, int initial_value,
                             int failure_value);
   static void WritePreference(const char* key, int value);
@@ -149,6 +153,7 @@ class PieNoonGame {
   void StartMultiscreenGameAsClient(CharacterId id);
   void SendMultiscreenPlayerCommand();
 #endif
+  void ReloadMultiscreenMenu();
   void UpdateMultiscreenMenuIcons();
   void SetupWaitingForPlayersMenu();
 
@@ -217,6 +222,9 @@ class PieNoonGame {
   // player starts aimed at the next player (or p3 is aimed back at p0).
   CharacterId multiscreen_action_aim_at_;
   int multiscreen_turn_number_;
+  // Animation for the multiscreen splats that appear.
+  float multiscreen_splat_param;
+  float multiscreen_splat_param_speed;
 
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.

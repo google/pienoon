@@ -36,6 +36,7 @@ table PlayerCommand {
 // the host broadcasts the health of all the players.
 table PlayerStatus {
   player_health:[ubyte];
+  player_splats:[ubyte];  // which splats are showing (bitmask)
 }
 
 // When the host sends this message to all clients, it triggers the next

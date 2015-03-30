@@ -25,6 +25,7 @@
 #include "motive/io/flatbuffers.h"
 #include "motive/init.h"
 #include "motive/util.h"
+#include "multiplayer_director.h"
 #include "pie_noon_common_generated.h"
 #include "pindrop/pindrop.h"
 #include "scene_description.h"
@@ -108,12 +109,11 @@ GameState::GameState()
       config_(nullptr),
       arrangement_(nullptr),
       sceneobject_component_(&engine_),
-      is_multiscreen_(false)
+      multiplayer_director_(nullptr),
+      is_multiscreen_(false) {
 #ifdef ANDROID_CARDBOARD
-      ,
-      is_in_cardboard_(false)
+  is_in_cardboard_ = false;
 #endif
-{
 }
 
 GameState::~GameState() {}
@@ -375,6 +375,10 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
         total_damage += pie.damage;
         if (config_->game_mode() == GameMode_Survival) {
           character->set_health(character->health() - pie.damage);
+        }
+        if (is_multiscreen_ && multiplayer_director_ != nullptr) {
+          multiplayer_director_->TriggerPlayerHitByPie(character->id(),
+                                                       pie.damage);
         }
         if (analytics_mode_ == kTrackAnalytics) {
           bool hit_self = pie.original_source_id == pie.target_id;
@@ -662,9 +666,12 @@ int GameState::NumActiveCharacters(bool human_only) const {
   int num_active = 0;
   for (size_t i = 0; i < characters_.size(); ++i) {
     const auto& character = characters_[i];
-    if (character->Active() &&
-        (!human_only ||
-         character->controller()->controller_type() != Controller::kTypeAI)) {
+    bool is_ai_player =
+        (character->controller()->controller_type() == Controller::kTypeAI);
+    if (!is_ai_player && is_multiscreen_ && multiplayer_director_ != nullptr)
+      is_ai_player = multiplayer_director_->IsAIPlayer(character->id());
+
+    if (character->Active() && (!human_only || !is_ai_player)) {
       num_active++;
     }
   }

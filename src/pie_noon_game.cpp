@@ -440,6 +440,7 @@ bool PieNoonGame::InitializeGameState() {
   }
 
   debug_previous_states_.resize(config.character_count(), -1);
+  game_state_.RegisterMultiplayerDirector(multiplayer_director_.get());
 
   return true;
 }
@@ -1136,6 +1137,8 @@ void PieNoonGame::UpdateCountdownImage(WorldTime time) {
   }
 }
 
+void PieNoonGame::StartSplatTurnAnimation(uint seconds) {}
+
 void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
   assert(state_ != next_state);  // Must actually transition.
   const Config& config = GetConfig();
@@ -1461,16 +1464,21 @@ void PieNoonGame::ProcessMultiplayerMessages() {
           multiscreen_turn_end_time_ =
               CurrentWorldTime() +
               start_turn->seconds() * kMillisecondsPerSecond;
-          // Reload the current menu to reset all the buttons.
-          gui_menu_.Setup(gui_menu_.menu_def(), &matman_);
 
           ProcessPlayerStatusMessage(*start_turn->player_status());
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
           SendMultiscreenPlayerCommand();
 #endif
+          // Reload the current menu to reset all the buttons.
+          ReloadMultiscreenMenu();
           UpdateMultiscreenMenuIcons();
           InitCountdownImage(start_turn->seconds());
+
+          // If there are any splats, start their motivators now, based
+          // on the time limit.
+          StartSplatTurnAnimation(start_turn->seconds());
+
         } else if (message->data_type() == multiplayer::Data_EndGame) {
           const multiplayer::EndGame* end_game =
               (const multiplayer::EndGame*)message->data();
@@ -1523,8 +1531,48 @@ void PieNoonGame::ProcessPlayerStatusMessage(
        ++c, ++h) {
     (*c)->set_health(*h);
   }
+  unsigned char splats;
+  if (multiscreen_my_player_id_ >=
+          static_cast<int>(status.player_splats()->Length()) ||
+      game_state_.characters()[multiscreen_my_player_id_]->health() <= 0) {
+    // we're an invalid player (or a dead one), don't show our splats.
+    splats = 0;
+  } else {
+    splats = status.player_splats()->Get(multiscreen_my_player_id_);
+  }
+
+  for (int i = 0; i < GetConfig().multiscreen_options()->max_players(); i++) {
+    if (splats & (1 << i)) {
+      // splat i is active
+      ShowMultiscreenSplat(i);
+    } else {
+      // splat i is inactive
+      auto splat =
+          gui_menu_.FindImageById((ButtonId)(ButtonId_Multiplayer_Splat1 + i));
+      if (splat != nullptr) {
+        splat->set_is_visible(false);
+      }
+    }
+  }
 }
 #endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+
+void PieNoonGame::ShowMultiscreenSplat(int splat_num) {
+  auto splat = gui_menu_.FindImageById(
+      (ButtonId)(ButtonId_Multiplayer_Splat1 + splat_num));
+  auto button = gui_menu_.FindButtonById(
+      (ButtonId)(ButtonId_Multiplayer_Button1 + splat_num));
+  if (splat != nullptr && button != nullptr) {
+    if (!splat->is_visible()) {
+      splat->set_texture_position(
+          LoadVec2(button->button_def()->texture_position()));
+      splat->set_color(mathfu::kOnes4f);
+      splat->set_scale(LoadVec2(splat->image_def()->draw_scale()) *
+                       GetConfig().multiscreen_options()->splat_start_scale());
+      splat->set_is_visible(true);
+    }
+  }
+}
 
 int PieNoonGame::ReadPreference(const char* key, int initial_value,
                                 int failure_value) {
@@ -1837,6 +1885,7 @@ void PieNoonGame::StartMultiscreenGameAsClient(CharacterId id) {
   multiscreen_action_to_perform_ = ButtonId_Cancel;
   multiscreen_action_aim_at_ = (id + 1) % num_players;
   multiscreen_turn_number_ = 0;
+  multiscreen_turn_end_time_ = 0;
   SendMultiscreenPlayerCommand();
   UpdateMultiscreenMenuIcons();
   TransitionToPieNoonState(kMultiscreenClient);
@@ -1864,6 +1913,46 @@ void PieNoonGame::SendMultiscreenPlayerCommand() {
 }
 
 #endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+
+void PieNoonGame::ReloadMultiscreenMenu() {
+  if (gui_menu_.menu_def() == GetConfig().multiplayer_client()) {
+    // Generally, we just need to reload the current menu, but just in
+    // case we currently have "splats" displayed on screen, we need to preserve
+    // their position, alpha, and scale (but only if they are visible right
+    // now).
+    struct SavedSplatState {
+      ButtonId button_id;
+      mathfu::vec2 position;
+      mathfu::vec2 scale;
+      mathfu::vec4 color;
+      SavedSplatState(ButtonId b, mathfu::vec2 pos, mathfu::vec2 sc,
+                      mathfu::vec4 col)
+          : button_id(b), position(pos), scale(sc), color(col) {}
+    };
+    std::vector<SavedSplatState> states;
+    // Save any visible splats.
+    for (int i = 0; i < GetConfig().multiscreen_options()->max_players(); i++) {
+      ButtonId b = (ButtonId)(ButtonId_Multiplayer_Splat1 + i);
+      auto splat = gui_menu_.FindImageById(b);
+      if (splat->is_visible()) {
+        states.push_back(SavedSplatState(b, splat->texture_position(),
+                                         splat->scale(), splat->color()));
+      }
+    }
+    // Now reload the menu.
+    gui_menu_.Setup(gui_menu_.menu_def(), &matman_);
+    // Now restore the saved state for any visible splats.
+    for (const SavedSplatState& state : states) {
+      auto splat = gui_menu_.FindImageById(state.button_id);
+      if (splat != nullptr) {
+        splat->set_is_visible(true);
+        splat->set_texture_position(state.position);
+        splat->set_scale(state.scale);
+        splat->set_color(state.color);
+      }
+    }
+  }
+}
 
 void PieNoonGame::UpdateMultiscreenMenuIcons() {
   int num_players = GetConfig().character_count();
@@ -1932,6 +2021,14 @@ void PieNoonGame::UpdateMultiscreenMenuIcons() {
         button->set_is_active(true);
       } else {
         button->set_is_active(false);
+        if (image != nullptr) image->set_is_visible(false);
+      }
+
+      // Finally, if there is a splat on screen in slot N, disable button N.
+      auto splat =
+          gui_menu_.FindImageById((ButtonId)(ButtonId_Multiplayer_Splat1 + i));
+      if (splat != nullptr && splat->is_visible()) {
+        if (button != nullptr) button->set_is_active(false);
         if (image != nullptr) image->set_is_visible(false);
       }
     }
@@ -2226,6 +2323,7 @@ void PieNoonGame::Run() {
           bool show_look = (multiplayer_director_->start_turn_timer() < 1000 &&
                             (multiplayer_director_->turn_timer() == 0 ||
                              multiplayer_director_->turn_timer() > 2000));
+          if (game_state_.IsGameOver()) show_look = false;
 
           if (gui_menu_.menu_def() == config.multiplayer_host()) {
             auto go = gui_menu_.FindImageById(ButtonId_Multiplayer_Go);
@@ -2266,11 +2364,64 @@ void PieNoonGame::Run() {
         if (state_ == kMultiscreenClient) {
           // do multiscreen client logic
           if (CurrentWorldTime() <= multiscreen_turn_end_time_) {
+            // We are during a turn, update timer and splats.
             UpdateCountdownImage(CurrentWorldTime());
-          } else {
-            // wait?
+            // Update splat alpha fade-out. Fades out during turn.
+            // Get the fraction of the turn we are through. For example if we
+            // are 2 seconds into a 5-second turn, we are 0.4 through the turn.
+            float turn_duration =
+                multiscreen_turn_end_time_ - join_animation_start_time_;
+            if (turn_duration == 0) turn_duration = kMillisecondsPerSecond;
+            float turn_progress =
+                (CurrentWorldTime() - join_animation_start_time_) /
+                turn_duration;
+            if (turn_progress < 0) turn_progress = 0;
+            if (turn_progress > 1) turn_progress = 1;
+
+            for (int i = 0; i < config.multiscreen_options()->max_players();
+                 i++) {
+              auto splat = gui_menu_.FindImageById(
+                  (ButtonId)(ButtonId_Multiplayer_Splat1 + i));
+              if (splat != nullptr && splat->is_visible()) {
+                splat->set_color(
+                    mathfu::vec4(splat->color()[0], splat->color()[1],
+                                 splat->color()[2], 1 - turn_progress));
+              }
+            }
           }
 
+          // update any on-screen splats covering the buttons
+          for (int i = 0; i < config.multiscreen_options()->max_players();
+               i++) {
+            auto splat = gui_menu_.FindImageById(
+                (ButtonId)(ButtonId_Multiplayer_Splat1 + i));
+            if (splat != nullptr && splat->is_visible()) {
+              mathfu::vec2 base_scale =
+                  LoadVec2(splat->image_def()->draw_scale());
+              if (splat->scale()[0] > base_scale[0]) {
+                mathfu::vec2 scale = splat->scale();
+                scale =
+                    scale * config.multiscreen_options()->splat_scale_speed();
+                if (scale[0] <= base_scale[0]) {
+                  splat->set_scale(base_scale);
+                } else {
+                  splat->set_scale(scale);
+                }
+                // override the splat fade fade-out with a fade-in on scale
+                float scale_ratio =
+                    (splat->scale()[0] - base_scale[0]) /
+                    config.multiscreen_options()->splat_start_scale();
+                splat->set_color(
+                    mathfu::vec4(splat->color()[0], splat->color()[1],
+                                 splat->color()[2], 1 - scale_ratio));
+              }
+              // slowly slide the splat down
+              splat->set_texture_position(mathfu::vec2(
+                  splat->texture_position()[0],
+                  splat->texture_position()[1] +
+                      config.multiscreen_options()->splat_drip_speed()));
+            }
+          }
           if (!gpg_multiplayer_.IsConnected()) {
             if (gui_menu_.menu_def() == config.multiplayer_client()) {
               // something caused us to become disconnected

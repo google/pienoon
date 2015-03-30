@@ -207,10 +207,15 @@ MenuSelection GuiMenu::GetRecentSelection() {
 void GuiMenu::Render(Renderer* renderer) {
   // Render touch controls, as long as the touch-controller is active.
   for (size_t i = 0; i < image_list_.size(); i++) {
-    image_list_[i].Render(*renderer);
+    if (!image_list_[i].image_def()->render_after_buttons())
+      image_list_[i].Render(*renderer);
   }
   for (size_t i = 0; i < button_list_.size(); i++) {
     button_list_[i].Render(*renderer);
+  }
+  for (size_t i = 0; i < image_list_.size(); i++) {
+    if (image_list_[i].image_def()->render_after_buttons())
+      image_list_[i].Render(*renderer);
   }
 }
 

@@ -144,6 +144,13 @@ class StaticImage {
   void set_color(const mathfu::vec4& color) { color_ = color; }
   const mathfu::vec4& color() { return color_; }
 
+  // Set the image position on screen, expressed as a fraction of the screen
+  // dimensions to place the center point.
+  void set_texture_position(const mathfu::vec2& position) {
+    texture_position_ = position;
+  }
+  const mathfu::vec2& texture_position() { return texture_position_; }
+
  private:
   // Flatbuffer's definition of this image.
   const StaticImageDef* image_def_;
@@ -160,6 +167,9 @@ class StaticImage {
 
   // Draw image bigger or smaller. (1.0f, 1.0f) means no scaling.
   mathfu::vec2 scale_;
+
+  // Where to display the texture on screen.
+  mathfu::vec2 texture_position_;
 
   // Allow overriding the default color in code.
   mathfu::vec4 color_;
