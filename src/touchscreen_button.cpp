@@ -8,7 +8,7 @@ TouchscreenButton::TouchscreenButton()
     : elapsed_time_(0),
       up_current_(0),
       down_material_(nullptr),
-      color_(1, 1, 1, 1),
+      color_(mathfu::kOnes4f),
       is_active_(true),
       is_visible_(true),
       is_highlighted_(false),
@@ -114,6 +114,7 @@ StaticImage::StaticImage()
       current_material_index_(0),
       shader_(nullptr),
       scale_(mathfu::kZeros2f),
+      color_(mathfu::kOnes4f),
       one_over_cannonical_window_height_(0.0f),
       is_visible_(true) {}
 
@@ -125,6 +126,7 @@ void StaticImage::Initialize(const StaticImageDef& image_def,
   current_material_index_ = 0;
   shader_ = shader;
   scale_ = LoadVec2(image_def_->draw_scale());
+  color_ = mathfu::kOnes4f;
   one_over_cannonical_window_height_ =
       1.0f / static_cast<float>(cannonical_window_height);
   is_visible_ = true;
@@ -140,6 +142,7 @@ bool StaticImage::Valid() const {
 void StaticImage::Render(Renderer& renderer) {
   if (!Valid()) return;
   if (!is_visible_) return;
+  renderer.color() = color_;
 
   Material* material = materials_[current_material_index_];
   const vec2 window_size = vec2(renderer.window_size());

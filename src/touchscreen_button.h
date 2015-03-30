@@ -141,6 +141,9 @@ class StaticImage {
   void set_is_visible(bool b) { is_visible_ = b; }
   bool is_visible() { return is_visible_; }
 
+  void set_color(const mathfu::vec4& color) { color_ = color; }
+  const mathfu::vec4& color() { return color_; }
+
  private:
   // Flatbuffer's definition of this image.
   const StaticImageDef* image_def_;
@@ -157,6 +160,9 @@ class StaticImage {
 
   // Draw image bigger or smaller. (1.0f, 1.0f) means no scaling.
   mathfu::vec2 scale_;
+
+  // Allow overriding the default color in code.
+  mathfu::vec4 color_;
 
   // Scale the textures by the y-axis so that they are (proportionally)
   // the same height on every platform.
