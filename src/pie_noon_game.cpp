@@ -1015,7 +1015,11 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
         SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelUnpauseButton,
                          time - pause_time_);
-        input_.exit_requested_ = true;
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        gpg_multiplayer_.ResetToIdle();
+#endif
+        gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+        return kFinished;
       }
       return HandleMenuButtons(time);
     }
