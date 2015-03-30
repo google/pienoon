@@ -29,11 +29,9 @@ limitations under the License.
           description="Initialize Google Play Games library in the project.">
     <!-- Copy the library to the project. -->
     <!-- Temporarily disable this while we use a debug version of the lib -->
-    <!--
     <copy todir="google-play-services_lib">
       <fileset dir="${sdk.dir}/extras/google/google_play_services/libproject/google-play-services_lib"/>
     </copy>
-    -->
     <!-- Create an ant project for the library. -->
     <exec executable="${android_exe}">
       <arg value="update"/>

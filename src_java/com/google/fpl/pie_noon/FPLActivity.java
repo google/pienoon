@@ -43,11 +43,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ScrollView;
 import android.widget.TextView;
-/* TODO(jsimantov): Uncomment these tracker lines when we go back
-   to a shipping version of GPG SDK */
-// import com.google.android.gms.analytics.GoogleAnalytics;
-// import com.google.android.gms.analytics.HitBuilders;
-// import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.vrtoolkit.cardboard.CardboardDeviceParams;
 import com.google.vrtoolkit.cardboard.CardboardView;
 import com.google.vrtoolkit.cardboard.Eye;
@@ -60,7 +58,7 @@ public class FPLActivity extends SDLActivity implements
     MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcListener {
 
   private final String PROPERTY_ID = "XX-XXXXXXXX-X";
-  //private Tracker tracker = null;
+  private Tracker tracker = null;
 
   // Fields used in order to interact with a Cardboard device
   private CardboardView cardboardView;
@@ -76,8 +74,7 @@ public class FPLActivity extends SDLActivity implements
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
-    // tracker = GoogleAnalytics.getInstance(this).newTracker(PROPERTY_ID);
+    tracker = GoogleAnalytics.getInstance(this).newTracker(PROPERTY_ID);
 
     // Instantiate fields used by Cardboard
     cardboardView = new CardboardView(this);
@@ -325,30 +322,27 @@ public class FPLActivity extends SDLActivity implements
   }
 
   public void SendTrackerEvent(String category, String action) {
-    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
-    // tracker.send(new HitBuilders.EventBuilder()
-    //          .setCategory(category)
-    //          .setAction(action)
-    //          .build());
+    tracker.send(new HitBuilders.EventBuilder()
+             .setCategory(category)
+             .setAction(action)
+             .build());
   }
 
   public void SendTrackerEvent(String category, String action, String label) {
-    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
-    // tracker.send(new HitBuilders.EventBuilder()
-    //        .setCategory(category)
-    //        .setAction(action)
-    //        .setLabel(label)
-    //        .build());
+    tracker.send(new HitBuilders.EventBuilder()
+           .setCategory(category)
+           .setAction(action)
+           .setLabel(label)
+           .build());
   }
 
   public void SendTrackerEvent(String category, String action, String label, int value) {
-    // TODO(jsimantov): Uncomment this when we go back to shipping GPG SDK
-    // tracker.send(new HitBuilders.EventBuilder()
-    //        .setCategory(category)
-    //        .setAction(action)
-    //        .setLabel(label)
-    //        .setValue(value)
-    //        .build());
+    tracker.send(new HitBuilders.EventBuilder()
+           .setCategory(category)
+           .setAction(action)
+           .setLabel(label)
+           .setValue(value)
+           .build());
   }
 
   @Override
