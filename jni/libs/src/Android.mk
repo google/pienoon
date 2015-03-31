@@ -117,8 +117,13 @@ $(call flatbuffers_header_build_rules,\
   $(PIE_NOON_GENERATED_OUTPUT_DIR),\
   $(DEPENDENCIES_PINDROP_DIR)/schemas $(DEPENDENCIES_MOTIVE_DIR)/schemas,\
   $(LOCAL_SRC_FILES))
+
+.PHONY: clean_generated_includes
+clean_generated_includes:
+	$(hide) rm -rf $(PIE_NOON_GENERATED_OUTPUT_DIR)
 endif
 
+.PHONY: clean
 clean: clean_assets clean_generated_includes
 
 LOCAL_STATIC_LIBRARIES := \
