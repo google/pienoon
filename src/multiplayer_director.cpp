@@ -278,7 +278,7 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   if (candidate_targets.size() > 0) {
     uint which = static_cast<uint>(
         static_cast<float>(candidate_targets.size()) * mathfu::Random<float>());
-    if (which >= 0 && which < candidate_targets.size())
+    if (which < candidate_targets.size())
       command.aim_at = candidate_targets[which];
   }
   // If we have no candidate targets, we won't change aim at all.
