@@ -299,8 +299,8 @@ FontTexture *FontManager::GetTexture(const char *text,
     }
 
     // Copy the texture
-    int32_t y_offset = initial_metrics.base_line() - glyph->bitmap_top;
-    for (int32_t y = 0; y < glyph->bitmap.rows; ++y) {
+    uint32_t y_offset = initial_metrics.base_line() - glyph->bitmap_top;
+    for (uint32_t y = 0; y < glyph->bitmap.rows; ++y) {
       memcpy(&image[(pos.y() + y + y_offset) * width + pos.x() +
                     glyph->bitmap_left],
              &glyph->bitmap.buffer[y * glyph->bitmap.pitch],
@@ -515,14 +515,16 @@ bool FontManager::UpdateMetrics(const FT_GlyphSlot g,
   // Calculate internal/external leading value and expand a buffer if
   // necessary.
   if (g->bitmap_top > current_metrics.ascender() ||
-      g->bitmap_top - g->bitmap.rows < current_metrics.descender()) {
+      static_cast<int32_t>(g->bitmap_top - g->bitmap.rows) <
+      current_metrics.descender()) {
     *new_metrics = current_metrics;
     new_metrics->set_internal_leading(
         std::max(current_metrics.internal_leading(),
                  g->bitmap_top - current_metrics.ascender()));
     new_metrics->set_external_leading(
         std::min(current_metrics.external_leading(),
-                 g->bitmap_top - g->bitmap.rows - current_metrics.descender()));
+                 static_cast<int32_t>(g->bitmap_top - g->bitmap.rows
+                                      - current_metrics.descender())));
     new_metrics->set_base_line(new_metrics->internal_leading() +
                                new_metrics->ascender());
 

@@ -34,7 +34,6 @@ FREETYPE_SRC_FILES = \
     ${FREETYPE_DIR}/src/base/ftlcdfil.c \
     ${FREETYPE_DIR}/src/base/ftstroke.c \
     ${FREETYPE_DIR}/src/base/fttype1.c \
-    ${FREETYPE_DIR}/src/base/ftxf86.c \
     ${FREETYPE_DIR}/src/base/ftbase.c \
     ${FREETYPE_DIR}/src/base/ftsystem.c \
     ${FREETYPE_DIR}/src/base/ftinit.c \
