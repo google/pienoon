@@ -508,6 +508,10 @@ table Config {
   face_angle_twitch:Settled1fParameters;
   face_angle_twitch_velocity:float;
 
+  // Defines the angle that characters will tilt away from when looking
+  // directly at the camera. In degrees.
+  tilt_away_angle:float;
+
   // Defines the movement of pies that count-down during the "join" state.
   // The pies gradually disappear one at a time to give the appearance of a
   // timer.

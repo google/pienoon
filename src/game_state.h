@@ -180,6 +180,7 @@ class GameState {
   mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
+  Angle TiltCharacterAwayFromCamera(CharacterId id, const Angle angle) const;
   motive::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
   void CreatePieSplatter(pindrop::AudioEngine* audio_engine,
