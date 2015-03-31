@@ -2625,6 +2625,9 @@
     // Dev only; in the real world you don't want clients to auto-connect.
     "auto_connect_on_client":false,
 
+    // For privacy purposes, use the device name instead of full name.
+    "use_full_name_as_instance_name":false,
+
     "nearby_connections_service_id": "pienoonmsx",
     "nearby_connections_app_identifiers": [ "com.google.fpl.pie_noon" ],
 

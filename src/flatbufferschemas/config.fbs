@@ -310,6 +310,12 @@ table MultiscreenOptions {
   // Whether clients should automatically connect to the first host.
   auto_connect_on_client:bool;
 
+  // Whether hosts and clients should broadcast the user's Google Play Games
+  // name when hosting or connecting to multiplayer games. If this is false,
+  // it will use the device name instead (the same behavior as when the user
+  // is simply not signed into Google Play Games).
+  use_full_name_as_instance_name:bool;
+
   // What "Service ID" to broadcast the game under using the NearbyConnections
   // library.
   nearby_connections_service_id:string;

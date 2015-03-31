@@ -1666,7 +1666,9 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       }
       case ButtonId_MenuMultiScreenJoin: {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-        if (gpg_manager.player_data() != nullptr) {
+        const Config& config = GetConfig();
+        if (config.multiscreen_options()->use_full_name_as_instance_name() &&
+            gpg_manager.player_data() != nullptr) {
           gpg_multiplayer_.set_my_instance_name(
               gpg_manager.player_data()->Name());
         }
@@ -1675,7 +1677,6 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         gpg_multiplayer_.StartDiscovery();
         TransitionToPieNoonState(kMultiplayerWaiting);
 
-        const Config& config = GetConfig();
         gui_menu_.Setup(config.msx_searching_screen_buttons(), &matman_);
 #endif
         break;
