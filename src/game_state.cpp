@@ -185,14 +185,23 @@ bool GameState::IsGameOver() const {
   return false;
 }
 
+// Reset the game back to initial configuration, keeping the analytic mode.
+void GameState::Reset() { Reset(analytics_mode_); }
+
 // Reset the game back to initial configuration.
 void GameState::Reset(AnalyticsMode analytics_mode) {
   time_ = 0;
-  camera_base_.position = LoadVec3(config_->camera_position());
-  camera_base_.target = LoadVec3(config_->camera_target());
+#ifdef ANDROID_CARDBOARD
+  // Use a different config for defining the scene if in Cardboard
+  const Config* layout_config = is_in_cardboard_ ? cardboard_config_ : config_;
+#else
+  const Config* layout_config = config_;
+#endif
+  camera_base_.position = LoadVec3(layout_config->camera_position());
+  camera_base_.target = LoadVec3(layout_config->camera_target());
   camera_.Initialize(camera_base_, &engine_);
   pies_.clear();
-  arrangement_ = GetBestArrangement(config_, characters_.size());
+  arrangement_ = GetBestArrangement(layout_config, characters_.size());
   analytics_mode_ = analytics_mode;
 
   entity_manager_.Clear();
@@ -214,8 +223,8 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   entity_manager_.set_entity_factory(&pie_noon_entity_factory_);
   player_character_component_.set_gamestate_ptr(this);
   // Load Entities from flatbuffer!
-  for (size_t i = 0; i < config_->entity_list()->size(); i++) {
-    entity_manager_.CreateEntityFromData(config_->entity_list()->Get(i));
+  for (size_t i = 0; i < layout_config->entity_list()->size(); i++) {
+    entity_manager_.CreateEntityFromData(layout_config->entity_list()->Get(i));
   }
 
   // Reset characters to their initial state.
@@ -230,6 +239,14 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
         LoadVec3(arrangement_->character_data()->Get(id)->position()),
         &engine_);
   }
+
+#ifdef ANDROID_CARDBOARD
+  // When in cardboard, we want to make the first character invisible
+  // as that is where the camera will be located
+  if (is_in_cardboard_) {
+    characters_[0]->set_visible(false);
+  }
+#endif
 
   // Create player character entities:
   for (CharacterId id = 0; id < static_cast<CharacterId>(characters_.size());
