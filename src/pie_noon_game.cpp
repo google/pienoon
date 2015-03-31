@@ -412,7 +412,9 @@ bool PieNoonGame::InitializeGameState() {
     MultiplayerController* controller = new MultiplayerController();
     controller->Initialize(&game_state_, &config);
     AddController(controller);
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
     multiplayer_director_->RegisterController(controller);
+#endif
   }
 
   debug_previous_states_.resize(config.character_count(), -1);

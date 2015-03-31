@@ -112,8 +112,6 @@ class MultiplayerDirector {
   WorldTime start_turn_timer_;
   uint seconds_per_turn_;
   uint turn_number_;
-  // Grace period to allow for network travel time, in milliseonds.
-  uint network_grace_milliseconds_;
 
   InputSystem *debug_input_system_;
   struct Command {
