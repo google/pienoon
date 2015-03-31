@@ -77,7 +77,8 @@ main() {
     cp -fv external/include/ogg/config_types.h.default \
         ../../../../external/libogg/include/ogg/config_types.h
   fi
-  INSTALL=0 LAUNCH=0 ./build_install_run.sh
+  INSTALL=0 LAUNCH=0 ./build_install_run.sh --clean --verbose
+  INSTALL=0 LAUNCH=0 ./build_install_run.sh --verbose
   if [[ -n "${dist_dir}" ]]; then
     # Archive unsigned release build.
     cp ./bin/pie_noon-release-unsigned.apk ${dist_dir}/PieNoon.apk

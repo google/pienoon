@@ -80,4 +80,7 @@ limitations under the License.
   <target name="-pre-build"
           depends="initialize-google-play-games_lib, copy-sdl-activity,
                   copy-cardboard-libs" />
+
+  <target name="-pre-clean" depends="initialize-google-play-games_lib" />
+
 </project>
