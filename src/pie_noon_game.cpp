@@ -1720,23 +1720,24 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
             GetConfig().multiscreen_options()->auto_connect_on_client());
         gpg_multiplayer_.StartDiscovery();
         TransitionToPieNoonState(kMultiplayerWaiting);
-
         gui_menu_.Setup(config.msx_searching_screen_buttons(), &matman_);
 #endif
         break;
       }
       case ButtonId_MenuMultiScreenHost: {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+        const Config& config = GetConfig();
         if (gpg_manager.player_data() != nullptr) {
-          gpg_multiplayer_.set_my_instance_name(
-              gpg_manager.player_data()->Name());
+          if (config.multiscreen_options()->use_full_name_as_instance_name() &&
+              gpg_manager.player_data() != nullptr) {
+            gpg_multiplayer_.set_my_instance_name(
+                gpg_manager.player_data()->Name());
+          }
         }
         gpg_multiplayer_.set_auto_connect(
             GetConfig().multiscreen_options()->auto_connect_on_host());
         gpg_multiplayer_.StartAdvertising();
         TransitionToPieNoonState(kMultiplayerWaiting);
-
-        const Config& config = GetConfig();
         gui_menu_.Setup(config.msx_waitingforplayers_screen_buttons(),
                         &matman_);
         SetupWaitingForPlayersMenu();
@@ -1752,6 +1753,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelExtrasBackButton);
         UpdateControllers(0);  // clear went_down()
+        if (state_ == kMultiplayerWaiting) TransitionToPieNoonState(kFinished);
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         break;
       }
