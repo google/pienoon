@@ -70,6 +70,7 @@ main() {
 
   # Build release.
   cd "$(dirname "$(readlink -f $0)")/.."
+  ls -la
   rm -rf bin
   rm -rf gen
   # Copy default libogg config_types.h if none exists
@@ -77,7 +78,6 @@ main() {
     cp -fv external/include/ogg/config_types.h.default \
         ../../../../external/libogg/include/ogg/config_types.h
   fi
-  INSTALL=0 LAUNCH=0 ./build_install_run.sh --clean --verbose
   INSTALL=0 LAUNCH=0 ./build_install_run.sh --verbose
   if [[ -n "${dist_dir}" ]]; then
     # Archive unsigned release build.
