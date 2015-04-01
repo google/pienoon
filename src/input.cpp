@@ -549,20 +549,26 @@ void InputSystem::OnCardboardTrigger() {
 void InputSystem::SetDeviceInCardboard(bool in_cardboard) {
   cardboard_input_.set_is_in_cardboard(in_cardboard);
 }
+#endif  // ANDROID_CARDBOARD
 
+// Because these calls are present in the Activity, they must be present for
+// Android, even without the Cardboard flag
 #ifdef __ANDROID__
 extern "C" JNIEXPORT void JNICALL
 Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnCardboardTrigger(
     JNIEnv *env) {
+#ifdef ANDROID_CARDBOARD
   InputSystem::OnCardboardTrigger();
+#endif
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_google_fpl_pie_1noon_FPLActivity_nativeSetDeviceInCardboard(
     JNIEnv *env, jobject thiz, jboolean in_cardboard) {
+#ifdef ANDROID_CARDBOARD
   InputSystem::SetDeviceInCardboard(in_cardboard);
+#endif
 }
-#endif  //__ANDROID__
-#endif  // ANDROID_CARDBOARD
+#endif  // __ANDROID__
 
 }  // namespace fpl
