@@ -670,12 +670,12 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   assert(ground_mat);
   ground_mat->Set(renderer_);
 #ifdef ANDROID_CARDBOARD
-  const float ground_width =
-      game_state_.is_in_cardboard() ? cardboard_config.ground_plane_width()
-                                    : config.ground_plane_width();
-  const float ground_depth =
-      game_state_.is_in_cardboard() ? cardboard_config.ground_plane_depth()
-                                    : config.ground_plane_depth();
+  const float ground_width = game_state_.is_in_cardboard()
+                                 ? cardboard_config.ground_plane_width()
+                                 : config.ground_plane_width();
+  const float ground_depth = game_state_.is_in_cardboard()
+                                 ? cardboard_config.ground_plane_depth()
+                                 : config.ground_plane_depth();
 #else
   const float ground_width = config.ground_plane_width();
   const float ground_depth = config.ground_plane_depth();
@@ -1049,17 +1049,24 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       return HandleMenuButtons(time);
     }
     case kTutorial: {
+      const uint num_slides = tutorial_slides_.size();
       const bool past_last_slide =
-          tutorial_slide_index_ >=
-          static_cast<int>(config.tutorial_slides()->Length());
+          tutorial_slide_index_ >= static_cast<int>(num_slides);
+
       if (past_last_slide && !Fading()) {
         // Record that we've successfully displayed the tutorial so that we
         // don't display it again next time.
-        WritePreference("displayed_tutorial", 1);
+        if (!game_state_.is_multiscreen()) {
+          WritePreference("displayed_tutorial", 1);
 
-        // Fade out the tutorial screen and fade in the main menu.
-        FadeToPieNoonState(kFinished, config.full_screen_fade_time(),
-                           mathfu::kZeros4f, true);
+          // Fade out the tutorial screen and fade in the main menu.
+          FadeToPieNoonState(kFinished, config.full_screen_fade_time(),
+                             mathfu::kZeros4f, true);
+        } else {
+          // we are in multi-screen mode
+          gui_menu_.Setup(GetConfig().msx_screen_buttons(), &matman_);
+          return kFinished;
+        }
       }
       break;
     }
@@ -1086,8 +1093,6 @@ void PieNoonGame::InitCountdownImage(int seconds) {
   countdown_start_button_ = (ButtonId)(ButtonId_Counter5 - seconds + 1);
   if (countdown_start_button_ > ButtonId_Counter5)
     countdown_start_button_ = ButtonId_Counter5;
-  else if (countdown_start_button_ < ButtonId_Counter1)
-    countdown_start_button_ = ButtonId_Counter1;
 
   for (int b = ButtonId_Counter1; b <= ButtonId_Counter5; b++) {
     StaticImage* image = gui_menu_.FindImageById((ButtonId)b);
@@ -1106,7 +1111,10 @@ void PieNoonGame::InitCountdownImage(int seconds) {
 void PieNoonGame::UpdateCountdownImage(WorldTime time) {
   // Count down by deactivating pies images.
   const ButtonId id = CurrentlyAnimatingJoinImage(time);
-
+  if (id < ButtonId_Counter1 && id != ButtonId_Undefined) {
+    // don't actually animate anything if we are before the first button
+    return;
+  }
   // We've moved to animating a new pie.
   if (id != join_id_) {
     // Vanish the previous pie.
@@ -1136,8 +1144,6 @@ void PieNoonGame::UpdateCountdownImage(WorldTime time) {
     image->set_scale(vec2(join_motivator_.Value()));
   }
 }
-
-void PieNoonGame::StartSplatTurnAnimation(uint seconds) {}
 
 void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
   assert(state_ != next_state);  // Must actually transition.
@@ -1236,6 +1242,18 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     }
     case kTutorial: {
       tutorial_slide_index_ = 0;
+      auto tutorials = (game_state_.is_multiscreen()
+                            ? GetConfig().multiscreen_tutorial_slides()
+                            : GetConfig().tutorial_slides());
+      tutorial_slides_.clear();
+      for (uint i = 0; i < tutorials->Length(); i++) {
+        tutorial_slides_.push_back(std::string(tutorials->Get(i)->c_str()));
+      }
+      tutorial_aspect_ratio_ =
+          game_state_.is_multiscreen()
+              ? GetConfig().multiscreen_tutorial_aspect_ratio()
+              : GetConfig().tutorial_aspect_ratio();
+
       LoadInitialTutorialSlides();
       break;
     }
@@ -1474,10 +1492,6 @@ void PieNoonGame::ProcessMultiplayerMessages() {
           ReloadMultiscreenMenu();
           UpdateMultiscreenMenuIcons();
           InitCountdownImage(start_turn->seconds());
-
-          // If there are any splats, start their motivators now, based
-          // on the time limit.
-          StartSplatTurnAnimation(start_turn->seconds());
 
         } else if (message->data_type() == multiplayer::Data_EndGame) {
           const multiplayer::EndGame* end_game =
@@ -1745,6 +1759,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         break;
       case ButtonId_MenuExtras: {
         SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelExtrasButton);
+        game_state_.set_is_multiscreen(false);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.extras_screen_buttons(), &matman_);
         break;
@@ -2141,12 +2156,10 @@ pindrop::Channel PieNoonGame::PlayStinger() {
 // Return the file name for the material at slide_index. If slide_index is
 // invalid, return nullptr.
 const char* PieNoonGame::TutorialSlideName(int slide_index) {
-  const Config& config = GetConfig();
-  const auto slides = config.tutorial_slides();
-  const int num_slides = static_cast<int>(slides->Length());
-  if (slide_index < 0 || slide_index >= num_slides) return nullptr;
-
-  return slides->Get(slide_index)->c_str();
+  const int num_slides = static_cast<int>(tutorial_slides_.size());
+  return (slide_index < 0 || slide_index >= num_slides)
+             ? nullptr
+             : tutorial_slides_[slide_index].c_str();
 }
 
 static bool ControllerHasPress(const Controller* controller) {
@@ -2168,8 +2181,7 @@ bool PieNoonGame::AnyControllerPresses() {
 // Load into memory the tutorial slide at slide_index, if slide_index is valid.
 // We preload some tutorial slides so that we can transition to them.
 void PieNoonGame::LoadTutorialSlide(int slide_index) {
-  const Config& config = GetConfig();
-  const int num_slides = static_cast<int>(config.tutorial_slides()->Length());
+  const int num_slides = static_cast<int>(tutorial_slides_.size());
   if (slide_index < 0 || slide_index >= num_slides) return;
 
   const char* slide_name = TutorialSlideName(slide_index);
@@ -2595,8 +2607,7 @@ void PieNoonGame::Run() {
         if (slide_name != nullptr) {
           Material* slide = matman_.FindMaterial(slide_name);
           if (slide->textures()[0]->id()) {
-            RenderInMiddleOfScreen(ortho_mat, config.tutorial_aspect_ratio(),
-                                   slide);
+            RenderInMiddleOfScreen(ortho_mat, tutorial_aspect_ratio_, slide);
           }
         }
 

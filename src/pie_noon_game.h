@@ -126,8 +126,6 @@ class PieNoonGame {
   pindrop::Channel PlayStinger();
   void InitCountdownImage(int seconds);
   void UpdateCountdownImage(WorldTime time);
-  // On the multiscreen client, animate a button-covering splat
-  void StartSplatTurnAnimation(uint seconds);
 
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
@@ -262,6 +260,12 @@ class PieNoonGame {
   // A stinger will play before transition to the finished state. Don't
   // transition until the stinger is complete.
   pindrop::Channel stinger_channel_;
+
+  // Tutorial slides we are in the midst of displaying.
+  std::vector<std::string> tutorial_slides_;
+
+  // Tutorial aspect ratio
+  float tutorial_aspect_ratio_;
 
   // Our current slide of the tutorial. Valid when state_ is kTutorial.
   int tutorial_slide_index_;
