@@ -72,9 +72,6 @@ class PieNoonGame {
 
  private:
   bool InitializeConfig();
-#ifdef ANDROID_CARDBOARD
-  bool InitializeCardboardConfig();
-#endif
   bool InitializeRenderer();
   Mesh* CreateVerticalQuadMesh(const flatbuffers::String* material_name,
                                const vec3& offset, const vec2& pixel_bounds,
@@ -97,9 +94,6 @@ class PieNoonGame {
   void DebugPrintPieStates();
   void DebugCamera();
   const Config& GetConfig() const;
-#ifdef ANDROID_CARDBOARD
-  const Config& GetCardboardConfig() const;
-#endif
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
   PieNoonState UpdatePieNoonState();
@@ -162,9 +156,6 @@ class PieNoonGame {
 
   // Hold configuration binary data.
   std::string config_source_;
-#ifdef ANDROID_CARDBOARD
-  std::string cardboard_config_source_;
-#endif
 
   // Report touches, button presses, keyboard presses.
   InputSystem input_;

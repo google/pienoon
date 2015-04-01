@@ -359,7 +359,7 @@ table Config {
 
   // The size of the ground plane that makes the stage
   ground_plane_width:float;
-  ground_plane_depth:float;
+  ground_plane_height:float;
 
   // Definition for splatters that appear on background props:
   splatter_def:EntityDefinition;

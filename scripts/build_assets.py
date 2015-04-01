@@ -144,8 +144,7 @@ def find_in_paths(name, paths):
 FLATBUFFERS_CONVERSION_DATA = [
     FlatbuffersConversionData(
         schema=find_in_paths('config.fbs', SCHEMA_PATHS),
-        input_files=[os.path.join(RAW_ASSETS_PATH, 'config.json'),
-                     os.path.join(RAW_ASSETS_PATH, 'cardboard_config.json')]),
+        input_files=[os.path.join(RAW_ASSETS_PATH, 'config.json')]),
     FlatbuffersConversionData(
         schema=find_in_paths('buses.fbs', SCHEMA_PATHS),
         input_files=[os.path.join(RAW_ASSETS_PATH, 'buses.json')]),
