@@ -195,7 +195,9 @@ void MultiplayerDirector::TriggerPlayerHitByPie(CharacterId player,
     num_splats--;
     splats_available.erase(splats_available.begin() + idx);
   }
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   SendPlayerStatusMsg();  // sent unreliably since we may send a bunch in a row
+#endif
 }
 
 bool MultiplayerDirector::IsAIPlayer(CharacterId player) {
