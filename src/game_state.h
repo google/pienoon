@@ -108,6 +108,7 @@ class GameState {
 
   GameCamera& camera() { return camera_; }
   const GameCamera& camera() const { return camera_; }
+  mathfu::mat4 CameraMatrix() const;
 
   std::vector<std::unique_ptr<Character>>& characters() { return characters_; }
   const std::vector<std::unique_ptr<Character>>& characters() const {
@@ -177,7 +178,6 @@ class GameState {
   CharacterId CalculateCharacterTarget(CharacterId id) const;
   float CalculateCharacterFacingAngleVelocity(const Character* character,
                                               WorldTime delta_time) const;
-  mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
   Angle TiltCharacterAwayFromCamera(CharacterId id, const Angle angle) const;

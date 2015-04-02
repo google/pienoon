@@ -33,6 +33,7 @@ namespace fpl {
 
 using mathfu::vec2;
 using mathfu::vec2i;
+using mathfu::mat4;
 
 #ifdef ANDROID_GAMEPAD
 typedef int AndroidInputDeviceId;
@@ -100,7 +101,7 @@ class JoystickAxis {
   float PreviousValue() const { return previous_value_; }
 
  private:
-  float value_;  // current value
+  float value_;           // current value
   float previous_value_;  // value last update
 };
 
@@ -114,7 +115,7 @@ class JoystickHat {
   vec2 PreviousValue() const { return previous_value_; }
 
  private:
-  vec2 value_;  // current value
+  vec2 value_;           // current value
   vec2 previous_value_;  // value last update
 };
 
@@ -203,9 +204,11 @@ struct AndroidInputEvent {
 class CardboardInput {
  public:
   CardboardInput()
-    : is_in_cardboard_(false),
-      triggered_(false),
-      pending_trigger_(false) {}
+      : left_eye_transform_(),
+        right_eye_transform_(),
+        is_in_cardboard_(false),
+        triggered_(false),
+        pending_trigger_(false) {}
 
   bool is_in_cardboard() const { return is_in_cardboard_; }
   void set_is_in_cardboard(bool is_in_cardboard) {
@@ -213,17 +216,22 @@ class CardboardInput {
   }
   bool triggered() const { return triggered_; }
 
+  const mat4 &left_eye_transform() const { return left_eye_transform_; }
+  const mat4 &right_eye_transform() const { return right_eye_transform_; }
+
   void AdvanceFrame();
-  void OnCardboardTrigger() {
-    pending_trigger_ = true;
-  }
+  void OnCardboardTrigger() { pending_trigger_ = true; }
 
  private:
+  void UpdateCardboardTransforms();
+
+  mat4 left_eye_transform_;
+  mat4 right_eye_transform_;
   bool is_in_cardboard_;
   bool triggered_;
   bool pending_trigger_;
 };
-#endif // ANDROID_CARDBOARD
+#endif  // ANDROID_CARDBOARD
 
 class InputSystem {
  public:
@@ -283,13 +291,11 @@ class InputSystem {
 #endif  // ANDROID_GAMEPAD
 
 #ifdef ANDROID_CARDBOARD
-  CardboardInput &cardboard_input() {
-    return cardboard_input_;
-  }
+  CardboardInput &cardboard_input() { return cardboard_input_; }
 
   static void OnCardboardTrigger();
   static void SetDeviceInCardboard(bool in_cardboard);
-#endif // ANDROID_CARDBOARD
+#endif  // ANDROID_CARDBOARD
 
   // Get a Button object for a pointer index.
   Button &GetPointerButton(SDL_FingerID pointer) {
@@ -337,7 +343,7 @@ class InputSystem {
 
 #ifdef ANDROID_CARDBOARD
   static CardboardInput cardboard_input_;
-#endif // ANDROID_CARDBOARD
+#endif  // ANDROID_CARDBOARD
 
   // Most recent frame delta, in milliseconds.
   int frame_time_;

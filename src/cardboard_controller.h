@@ -17,6 +17,7 @@
 
 #include "precompiled.h"
 #include "controller.h"
+#include "game_state.h"
 #include "input.h"
 
 namespace fpl {
@@ -26,11 +27,12 @@ class CardboardController : public Controller {
  public:
   CardboardController();
 
-  void Initialize(InputSystem* input_system);
+  void Initialize(GameState* game_state, InputSystem* input_system);
 
   virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
+  GameState* game_state_;  // Pointer to the gamestate object
   // A pointer to the object to query for the current input state.
   InputSystem* input_system_;
 };

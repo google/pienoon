@@ -20,21 +20,65 @@
 namespace fpl {
 namespace pie_noon {
 
-CardboardController::CardboardController()
-    : Controller(kTypeCardboard), input_system_(nullptr) {}
+using mathfu::vec3;
+using mathfu::mat4;
 
-void CardboardController::Initialize(InputSystem* input_system) {
+CardboardController::CardboardController()
+    : Controller(kTypeCardboard),
+      game_state_(nullptr),
+      input_system_(nullptr) {}
+
+void CardboardController::Initialize(GameState* game_state,
+                                     InputSystem* input_system) {
+  game_state_ = game_state;
   input_system_ = input_system;
   ClearAllLogicalInputs();
 }
 
 void CardboardController::AdvanceFrame(WorldTime /*delta_time*/) {
   ClearAllLogicalInputs();
+
 #ifdef ANDROID_CARDBOARD
   if (input_system_->cardboard_input().triggered()) {
     SetLogicalInputs(LogicalInputs_Select, true);
     SetLogicalInputs(LogicalInputs_ThrowPie, true);
   }
+
+  if (character_id_ != kNoCharacter) {
+    // The cardboard rotation is relative to the game camera, so translate
+    // it back into world space.
+    const mat4 camera = game_state_->CameraMatrix();
+    const mat4 cardboard_transform =
+        input_system_->cardboard_input().left_eye_transform() *
+        camera.Inverse();
+    const vec3 forward = (cardboard_transform * mathfu::kAxisZ4f).xyz();
+    const Angle forward_angle = Angle::FromXZVector(forward);
+    // Target the character that is closest to the angle of the view
+    Angle smallest_angle;
+    CharacterId target = kNoCharacter;
+    const CharacterId num_ids =
+        static_cast<CharacterId>(game_state_->characters().size());
+    for (CharacterId id = 0; id < num_ids; ++id) {
+      if (id == character_id_) {
+        continue;
+      }
+      const auto& potential_target = game_state_->characters()[id];
+      const vec3 to_target =
+          potential_target->position() - game_state_->camera().Position();
+      const Angle target_angle = Angle::FromXZVector(to_target);
+      const Angle angle_diff = (forward_angle - target_angle).Abs();
+      if (target == kNoCharacter || angle_diff < smallest_angle) {
+        target = id;
+        smallest_angle = angle_diff;
+      }
+    }
+
+    auto& character = game_state_->characters()[character_id_];
+    if (character->target() != target) {
+      character->force_target(target);
+    }
+  }
+
 #endif  // ANDROID_CARDBOARD
 }
 

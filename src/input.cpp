@@ -536,10 +536,35 @@ Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnGamepadInput(
 CardboardInput InputSystem::cardboard_input_;
 
 void CardboardInput::AdvanceFrame() {
+  UpdateCardboardTransforms();
+
   if (pending_trigger_ != triggered_) {
     triggered_ = pending_trigger_;
     pending_trigger_ = false;
   }
+}
+
+void CardboardInput::UpdateCardboardTransforms() {
+#ifdef __ANDROID__
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID get_eye_views =
+      env->GetMethodID(fpl_class, "GetEyeViews", "([F[F)V");
+  jfloatArray left_eye = env->NewFloatArray(16);
+  jfloatArray right_eye = env->NewFloatArray(16);
+  env->CallVoidMethod(activity, get_eye_views, left_eye, right_eye);
+  jfloat *left_eye_floats = env->GetFloatArrayElements(left_eye, NULL);
+  jfloat *right_eye_floats = env->GetFloatArrayElements(right_eye, NULL);
+  left_eye_transform_ = mat4(left_eye_floats);
+  right_eye_transform_ = mat4(right_eye_floats);
+  env->ReleaseFloatArrayElements(left_eye, left_eye_floats, JNI_ABORT);
+  env->ReleaseFloatArrayElements(right_eye, right_eye_floats, JNI_ABORT);
+  env->DeleteLocalRef(left_eye);
+  env->DeleteLocalRef(right_eye);
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+#endif  // __ANDROID__
 }
 
 void InputSystem::OnCardboardTrigger() {

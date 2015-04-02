@@ -427,7 +427,7 @@ bool PieNoonGame::InitializeGameState() {
   // from a cardboard device can be handled correctly
   cardboard_controller_ = new CardboardController();
 
-  cardboard_controller_->Initialize(&input_);
+  cardboard_controller_->Initialize(&game_state_, &input_);
 
   AddController(cardboard_controller_);
 
@@ -770,29 +770,13 @@ void PieNoonGame::Render2DElements() {
 
 void PieNoonGame::GetCardboardTransforms(mat4& left_eye_transform,
                                          mat4& right_eye_transform) {
-#ifdef __ANDROID__
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-  jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID get_eye_views =
-      env->GetMethodID(fpl_class, "GetEyeViews", "([F[F)V");
-  jfloatArray left_eye = env->NewFloatArray(16);
-  jfloatArray right_eye = env->NewFloatArray(16);
-  env->CallVoidMethod(activity, get_eye_views, left_eye, right_eye);
-  jfloat* left_eye_floats = env->GetFloatArrayElements(left_eye, NULL);
-  jfloat* right_eye_floats = env->GetFloatArrayElements(right_eye, NULL);
-  left_eye_transform = mat4(left_eye_floats);
-  right_eye_transform = mat4(right_eye_floats);
-  env->ReleaseFloatArrayElements(left_eye, left_eye_floats, JNI_ABORT);
-  env->ReleaseFloatArrayElements(right_eye, right_eye_floats, JNI_ABORT);
-  env->DeleteLocalRef(left_eye);
-  env->DeleteLocalRef(right_eye);
-  env->DeleteLocalRef(fpl_class);
-  env->DeleteLocalRef(activity);
+#ifdef ANDROID_CARDBOARD
+  left_eye_transform = mat4(input_.cardboard_input().left_eye_transform());
+  right_eye_transform = mat4(input_.cardboard_input().right_eye_transform());
 #else
   (void)left_eye_transform;
   (void)right_eye_transform;
-#endif  //__ANDROID__
+#endif  // ANDROID_CARDBOARD
 }
 
 void PieNoonGame::CorrectCardboardCamera(mat4& cardboard_camera) {
