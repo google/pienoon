@@ -740,6 +740,15 @@ table Config {
   // Total time to fade out on current slide and fade back in on next slide.
   tutorial_fade_time:int;
 
+  // List of materials to display, one after the other, on the full screen,
+  // for multiscreen mode's "How to Play".
+  multiscreen_tutorial_slides:[string];
+
+  // Scale every material above by (tutorial_aspect_ratio, 1). Lets the textures
+  // be squished into the nearest power of two size, even if that changes the
+  // aspect ratio.
+  multiscreen_tutorial_aspect_ratio:float;
+
   // Debug options
   //
   // Put the characters into the scene description.
