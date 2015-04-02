@@ -63,6 +63,7 @@ static const char* kLabelHowToPlayButton = "How to play";
 static const char* kLabelLeaderboardButton = "Leaderboard";
 static const char* kLabelMultiscreenButton = "Multiscreen";
 
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 static const char* kCategoryMultiscreen = "Multiscreen";
 static const char* kActionStart = "Start";
 static const char* kActionFinish = "Finish";
@@ -75,6 +76,7 @@ static const char* kLabelReconnection = "Reconnection";
 static const char* kLabelHostDisconnected = "HostDisconnect";
 static const char* kLabelClientsDisconnected = "ClientDisconnect";
 static const char* kLabelConnectionLost = "ConnectionLost";
+#endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
 
 static const unsigned short kQuadIndices[] = {0, 1, 2, 2, 1, 3};
 
