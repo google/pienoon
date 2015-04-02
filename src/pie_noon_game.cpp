@@ -47,7 +47,9 @@ static const int kQuadNumIndices = 6;
 static const char* kCategoryUi = "Ui";
 static const char* kActionClickedButton = "Clicked button";
 static const char* kActionViewedTutorialSlide = "Viewed tutorial slide";
+static const char* kActionViewedMSTutorialSlide = "MSX-Viewed tutorial slide";
 static const char* kLabelSlideDurationFmt = "Slide #%i duration";
+static const char* kLabelMSSlideDurationFmt = "MSX-Slide #%i duration";
 static const char* kLabelSignInOutButton = "Sign In/Out";
 static const char* kLabelLicenseButton = "License";
 static const char* kLabelAboutButton = "About";
@@ -59,6 +61,20 @@ static const char* kLabelExtrasButton = "Extras";
 static const char* kLabelExtrasBackButton = "Extras back button";
 static const char* kLabelHowToPlayButton = "How to play";
 static const char* kLabelLeaderboardButton = "Leaderboard";
+static const char* kLabelMultiscreenButton = "Multiscreen";
+
+static const char* kCategoryMultiscreen = "Multiscreen";
+static const char* kActionStart = "Start";
+static const char* kActionFinish = "Finish";
+static const char* kActionError = "Error";
+static const char* kLabelAdvertising = "Advertising";
+static const char* kLabelDiscovery = "Discovery";
+static const char* kLabelGameHost = "GameHost";
+static const char* kLabelGameClient = "GameClient";
+static const char* kLabelReconnection = "Reconnection";
+static const char* kLabelHostDisconnected = "HostDisconnect";
+static const char* kLabelClientsDisconnected = "ClientDisconnect";
+static const char* kLabelConnectionLost = "ConnectionLost";
 
 static const unsigned short kQuadIndices[] = {0, 1, 2, 2, 1, 3};
 
@@ -670,12 +686,12 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   assert(ground_mat);
   ground_mat->Set(renderer_);
 #ifdef ANDROID_CARDBOARD
-  const float ground_width =
-      game_state_.is_in_cardboard() ? cardboard_config.ground_plane_width()
-                                    : config.ground_plane_width();
-  const float ground_depth =
-      game_state_.is_in_cardboard() ? cardboard_config.ground_plane_depth()
-                                    : config.ground_plane_depth();
+  const float ground_width = game_state_.is_in_cardboard()
+                                 ? cardboard_config.ground_plane_width()
+                                 : config.ground_plane_width();
+  const float ground_depth = game_state_.is_in_cardboard()
+                                 ? cardboard_config.ground_plane_depth()
+                                 : config.ground_plane_depth();
 #else
   const float ground_width = config.ground_plane_width();
   const float ground_depth = config.ground_plane_depth();
@@ -992,7 +1008,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       if (input_.GetButton(SDLK_AC_BACK).went_down() ||
           input_.GetButton(SDLK_p).went_down() ||
           input_.minimized_frame() == input_.frames()) {
-        SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelPauseButton);
+        SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelPauseButton,
+                         game_state_.is_multiscreen());
         pause_time_ = time;
         return kPaused;
       }
@@ -1003,6 +1020,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         if (game_state_.is_multiscreen() && multiplayer_director_ != nullptr) {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
           multiplayer_director_->SendEndGameMsg();
+          SendTrackerEvent(kCategoryMultiscreen, kActionFinish, kLabelGameHost);
           gpg_multiplayer_.StartAdvertising();
 #endif
           return kMultiplayerWaiting;
@@ -1517,6 +1535,7 @@ void PieNoonGame::ProcessMultiplayerMessages() {
           "Got reconnected player %d (instance %s), send his assignment again.",
           player, instance_id.c_str());
       multiplayer_director_->SendPlayerAssignmentMsg(instance_id, player);
+      SendTrackerEvent(kCategoryMultiscreen, kActionStart, kLabelReconnection);
     }
   }
 }
@@ -1698,6 +1717,9 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
                         "Multiplayer start button");
             StartMultiscreenGameAsHost();
             AttachMultiplayerControllers();
+
+            SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                             kLabelStartButton, 1);
             return kPlaying;
           }
         }
@@ -1751,6 +1773,8 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       }
       case ButtonId_MenuMultiScreen: {
         game_state_.set_is_multiscreen(true);
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelMultiscreenButton);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.msx_screen_buttons(), &matman_);
 
@@ -1766,6 +1790,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         }
         gpg_multiplayer_.set_auto_connect(
             GetConfig().multiscreen_options()->auto_connect_on_client());
+        SendTrackerEvent(kCategoryMultiscreen, kActionStart, kLabelDiscovery);
         gpg_multiplayer_.StartDiscovery();
         TransitionToPieNoonState(kMultiplayerWaiting);
         gui_menu_.Setup(config.msx_searching_screen_buttons(), &matman_);
@@ -1784,6 +1809,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         }
         gpg_multiplayer_.set_auto_connect(
             GetConfig().multiscreen_options()->auto_connect_on_host());
+        SendTrackerEvent(kCategoryMultiscreen, kActionStart, kLabelAdvertising);
         gpg_multiplayer_.StartAdvertising();
         TransitionToPieNoonState(kMultiplayerWaiting);
         gui_menu_.Setup(config.msx_waitingforplayers_screen_buttons(),
@@ -1799,7 +1825,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         gpg_multiplayer_.ResetToIdle();
 #endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
-                         kLabelExtrasBackButton);
+                         kLabelExtrasBackButton, game_state_.is_multiscreen());
         UpdateControllers(0);  // clear went_down()
         if (state_ == kMultiplayerWaiting) TransitionToPieNoonState(kFinished);
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
@@ -1807,7 +1833,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       }
       case ButtonId_MenuHowToPlay:
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
-                         kLabelHowToPlayButton);
+                         kLabelHowToPlayButton, game_state_.is_multiscreen());
         tutorial_slide_time_ = time;
         return kTutorial;
       case ButtonId_MenuLeaderboard:
@@ -1870,6 +1896,8 @@ void PieNoonGame::StartMultiscreenGameAsHost() {
   game_state_.Reset(GameState::kNoAnalytics);
   multiplayer_director_->StartGame();
   TransitionToPieNoonState(kJoining);
+  SendTrackerEvent(kCategoryMultiscreen, kActionStart, kLabelGameHost,
+                   connected_players);
 }
 
 void PieNoonGame::StartMultiscreenGameAsClient(CharacterId id) {
@@ -1889,6 +1917,7 @@ void PieNoonGame::StartMultiscreenGameAsClient(CharacterId id) {
   SendMultiscreenPlayerCommand();
   UpdateMultiscreenMenuIcons();
   TransitionToPieNoonState(kMultiscreenClient);
+  SendTrackerEvent(kCategoryMultiscreen, kActionStart, kLabelGameClient);
 }
 
 void PieNoonGame::SendMultiscreenPlayerCommand() {
@@ -2350,10 +2379,14 @@ void PieNoonGame::Run() {
               // Show "connection error" screen.
               gui_menu_.Setup(config.msx_connection_lost_screen_buttons(),
                               &matman_);
+              SendTrackerEvent(kCategoryMultiscreen, kActionError,
+                               kLabelConnectionLost, 1);
             } else {
               gpg_multiplayer_.ResetToIdle();
               TransitionToPieNoonState(kFinished);
               // Show "all players disconnected" screen.
+              SendTrackerEvent(kCategoryMultiscreen, kActionError,
+                               kLabelClientsDisconnected);
               gui_menu_.Setup(
                   config.msx_all_players_disconnected_screen_buttons(),
                   &matman_);
@@ -2429,12 +2462,16 @@ void PieNoonGame::Run() {
                 gpg_multiplayer_.ResetToIdle();
                 TransitionToPieNoonState(kFinished);
                 // Show "connection error" screen.
+                SendTrackerEvent(kCategoryMultiscreen, kActionError,
+                                 kLabelConnectionLost, 0);
                 gui_menu_.Setup(config.msx_connection_lost_screen_buttons(),
                                 &matman_);
               } else {
                 gpg_multiplayer_.ResetToIdle();
                 TransitionToPieNoonState(kFinished);
                 // Show "host disconnected" screen.
+                SendTrackerEvent(kCategoryMultiscreen, kActionError,
+                                 kLabelHostDisconnected);
                 gui_menu_.Setup(config.msx_host_disconnected_screen_buttons(),
                                 &matman_);
               }
@@ -2609,9 +2646,13 @@ void PieNoonGame::Run() {
 
             const unsigned int SLIDE_NUMBER_BUFFER_SIZE = 32;
             char slide_number[SLIDE_NUMBER_BUFFER_SIZE];
-            snprintf(slide_number, sizeof(slide_number), kLabelSlideDurationFmt,
+            snprintf(slide_number, sizeof(slide_number),
+                     game_state_.is_multiscreen() ? kLabelMSSlideDurationFmt
+                                                  : kLabelSlideDurationFmt,
                      tutorial_slide_index_);
-            SendTrackerEvent(kCategoryUi, kActionViewedTutorialSlide,
+            SendTrackerEvent(kCategoryUi, game_state_.is_multiscreen()
+                                              ? kActionViewedMSTutorialSlide
+                                              : kActionViewedTutorialSlide,
                              slide_number, world_time - tutorial_slide_time_);
 
             // When completely dark, transition to the next slide.

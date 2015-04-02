@@ -42,6 +42,7 @@ namespace fpl {
 namespace pie_noon {
 
 static const char* kCategoryGame = "Game";
+static const char* kCategoryGameMSX = "MSX-Game";
 static const char* kActionStartedGame = "Started game";
 static const char* kActionFinishedGameDuration = "Finished game duration";
 static const char* kActionFinishedGameHumanWinners =
@@ -384,16 +385,19 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
           bool hit_self = pie.original_source_id == pie.target_id;
           bool direct = pie.original_damage == pie.damage;
           const char* action = is_ai_player ? kActionHitAi : kActionHitPlayer;
-          SendTrackerEvent(kCategoryGame, action,
-                           hit_self ? kLabelHitSelf : kLabelHitOther,
+          SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                           action, hit_self ? kLabelHitSelf : kLabelHitOther,
                            pie.damage);
-          SendTrackerEvent(kCategoryGame, action,
-                           direct ? kLabelDirectHit : kLabelIndirectHit,
+          SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                           action, direct ? kLabelDirectHit : kLabelIndirectHit,
                            pie.damage);
-          SendTrackerEvent(kCategoryGame, action, kLabelSizeDelta,
+          SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                           action, kLabelSizeDelta,
                            pie.original_damage - pie.damage);
           if (character->health() <= 0) {
-            SendTrackerEvent(kCategoryGame, action, kLabelKnockOut, time_);
+            SendTrackerEvent(
+                is_multiscreen() ? kCategoryGameMSX : kCategoryGame, action,
+                kLabelKnockOut, time_);
           }
         }
         ApplyScoringRule(config_->scoring_rules(), ScoreEvent_HitByPie,
@@ -428,8 +432,8 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
       if (analytics_mode_ == kTrackAnalytics) {
         const char* action =
             is_ai_player ? kActionAiThrewPie : kActionHumanThrewPie;
-        SendTrackerEvent(kCategoryGame, action, kLabelSize,
-                         character->pie_damage());
+        SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                         action, kLabelSize, character->pie_damage());
       }
       ApplyScoringRule(config_->scoring_rules(), ScoreEvent_ThrewPie,
                        character->pie_damage(), character);
@@ -459,7 +463,8 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
         if (analytics_mode_ == kTrackAnalytics) {
           const char* action =
               is_ai_player ? kActionAiDeflected : kActionPlayerDeflected;
-          SendTrackerEvent(kCategoryGame, action, kLabelSize, pie.damage);
+          SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                           action, kLabelSize, pie.damage);
         }
         ApplyScoringRule(config_->scoring_rules(), ScoreEvent_DeflectedPie,
                          character->pie_damage(), character);
@@ -992,15 +997,17 @@ void GameState::AdvanceFrame(WorldTime delta_time,
 }
 
 void GameState::PreGameLogging() const {
-  SendTrackerEvent(kCategoryGame, kActionStartedGame,
-                   EnumNameGameMode(config_->game_mode()),
+  SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                   kActionStartedGame, EnumNameGameMode(config_->game_mode()),
                    NumActiveCharacters(true));
 }
 
 void GameState::PostGameLogging() const {
-  SendTrackerEvent(kCategoryGame, kActionFinishedGameDuration,
+  SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                   kActionFinishedGameDuration,
                    EnumNameGameMode(config_->game_mode()), time());
-  SendTrackerEvent(kCategoryGame, kActionFinishedGameHumanWinners,
+  SendTrackerEvent(is_multiscreen() ? kCategoryGameMSX : kCategoryGame,
+                   kActionFinishedGameHumanWinners,
                    EnumNameGameMode(config_->game_mode()),
                    NumActiveCharacters(true));
 }
