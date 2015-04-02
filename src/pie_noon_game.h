@@ -138,7 +138,8 @@ class PieNoonGame {
   void ProcessMultiplayerMessages();
   void ProcessPlayerStatusMessage(const multiplayer::PlayerStatus&);
 
-  void ShowMultiscreenSplat(int splat_num);
+  // returns true if a new splat was displayed
+  bool ShowMultiscreenSplat(int splat_num);
 
   static int ReadPreference(const char* key, int initial_value,
                             int failure_value);
@@ -260,6 +261,9 @@ class PieNoonGame {
   // A stinger will play before transition to the finished state. Don't
   // transition until the stinger is complete.
   pindrop::Channel stinger_channel_;
+
+  // Channel for the menu music or in-game music.
+  pindrop::Channel music_channel_;
 
   // Tutorial slides we are in the midst of displaying.
   std::vector<std::string> tutorial_slides_;

@@ -136,6 +136,7 @@ PieNoonGame::PieNoonGame()
       fade_exit_state_(kUninitialized),
       ambience_channel_(nullptr),
       stinger_channel_(nullptr),
+      music_channel_(nullptr),
       next_achievement_index_(0) {
   version_ = kVersion;
 }
@@ -1195,7 +1196,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
 
       if (state_ != kPaused) {
         audio_engine_.PlaySound("StartMatch");
-        audio_engine_.PlaySound("MusicAction");
+        music_channel_ = audio_engine_.PlaySound("MusicAction");
         ambience_channel_ = audio_engine_.PlaySound("Ambience");
         game_state_.Reset(GameState::kTrackAnalytics);
       } else {
@@ -1219,12 +1220,18 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       break;
     }
     case kFinished: {
-      gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+      if (state_ == kTutorial && game_state_.is_multiscreen()) {
+        // If we're in the multiscreen tutorial, go back to the multiscreen
+        // menu.
+        gui_menu_.Setup(config.msx_screen_buttons(), &matman_);
+      } else {
+        gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+      }
       if (ambience_channel_.Valid()) {
         ambience_channel_.Stop();
       }
       stinger_channel_ = pindrop::Channel(nullptr);
-      audio_engine_.PlaySound("MusicMenu");
+      music_channel_ = audio_engine_.PlaySound("MusicMenu");
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
         if (character->controller()->controller_type() != Controller::kTypeAI) {
@@ -1276,6 +1283,10 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       break;
     }
     case kMultiscreenClient: {
+      if (music_channel_.Valid() && music_channel_.Playing()) {
+        music_channel_.Stop();
+        music_channel_ = pindrop::Channel(nullptr);
+      }
       break;
     }
     default:
@@ -1574,10 +1585,13 @@ void PieNoonGame::ProcessPlayerStatusMessage(
     splats = status.player_splats()->Get(multiscreen_my_player_id_);
   }
 
+  int new_splats = 0;
   for (int i = 0; i < GetConfig().multiscreen_options()->max_players(); i++) {
     if (splats & (1 << i)) {
       // splat i is active
-      ShowMultiscreenSplat(i);
+      if (ShowMultiscreenSplat(i)) {
+        new_splats++;
+      }
     } else {
       // splat i is inactive
       auto splat =
@@ -1587,10 +1601,14 @@ void PieNoonGame::ProcessPlayerStatusMessage(
       }
     }
   }
+  if (new_splats > 0) {
+    // play a sound effect for the new splat(s) we got
+    audio_engine_.PlaySound("HitWithLargePie");
+  }
 }
 #endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
 
-void PieNoonGame::ShowMultiscreenSplat(int splat_num) {
+bool PieNoonGame::ShowMultiscreenSplat(int splat_num) {
   auto splat = gui_menu_.FindImageById(
       (ButtonId)(ButtonId_Multiplayer_Splat1 + splat_num));
   auto button = gui_menu_.FindButtonById(
@@ -1603,8 +1621,10 @@ void PieNoonGame::ShowMultiscreenSplat(int splat_num) {
       splat->set_scale(LoadVec2(splat->image_def()->draw_scale()) *
                        GetConfig().multiscreen_options()->splat_start_scale());
       splat->set_is_visible(true);
+      return true;  // we displayed a new splat
     }
   }
+  return false;  // no new splat displayed
 }
 
 int PieNoonGame::ReadPreference(const char* key, int initial_value,
@@ -1942,7 +1962,8 @@ void PieNoonGame::SendMultiscreenPlayerCommand() {
       multiplayer::CreatePlayerCommand(
           builder, multiscreen_action_aim_at_,
           (multiscreen_action_to_perform_ == ButtonId_Attack),
-          (multiscreen_action_to_perform_ == ButtonId_Defend)).Union());
+          (multiscreen_action_to_perform_ == ButtonId_Defend))
+          .Union());
 
   builder.Finish(message_root);
 
