@@ -746,6 +746,8 @@
     "max_delta_time": 20
   },
 
+  "tilt_away_angle": 30,
+
   "motivator_specifications": [
     // None
     {},

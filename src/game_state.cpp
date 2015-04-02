@@ -414,7 +414,11 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
       ShakeProps(shake_percent, character->position());
 
       // Move the camera.
-      if (total_damage >= config_->camera_move_on_damage_min_damage()) {
+      if (total_damage >= config_->camera_move_on_damage_min_damage()
+#ifdef ANDROID_CARDBOARD
+          && !is_in_cardboard_
+#endif
+          ) {
         camera_.TerminateMovements();
         camera_.QueueMovement(
             CalculateCameraMovement(*config_->camera_move_on_damage(),
@@ -762,6 +766,24 @@ Angle GameState::TiltTowardsStageFront(const Angle angle) const {
   return result;
 }
 
+Angle GameState::TiltCharacterAwayFromCamera(CharacterId id,
+                                             const Angle angle) const {
+  // Tilt characters away from the camera by increasing the angle between them
+  const auto& character = characters_[id];
+  const Angle towards_camera =
+      Angle::FromXZVector(camera().Position() - character->position());
+  const Angle face_to_camera = angle - towards_camera;
+  const float face_to_camera_value = face_to_camera.Abs().ToRadians();
+  const float tilt_factor =
+      fpl::kHalfPi / (fpl::kDegreesToRadians * config_->tilt_away_angle());
+  const float adjusted_to_camera =
+      ((face_to_camera_value * (tilt_factor - 1)) + fpl::kHalfPi) / tilt_factor;
+  const Angle adjusted_to_camera_signed =
+      Angle::FromRadians(adjusted_to_camera) *
+      (face_to_camera.ToRadians() < 0 ? -1 : 1);
+  return adjusted_to_camera_signed + towards_camera;
+}
+
 // Return true if the character cannot turn left or right.
 bool GameState::IsImmobile(CharacterId id) const {
   return CharacterState(id) == StateId_KO || NumActiveCharacters() <= 2;
@@ -960,7 +982,14 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     const CharacterId target_id = CalculateCharacterTarget(character->id());
     const Angle target_angle =
         AngleBetweenCharacters(character->id(), target_id);
+#ifdef ANDROID_CARDBOARD
+    const Angle tilted_angle =
+        is_in_cardboard_
+            ? TiltCharacterAwayFromCamera(character->id(), target_angle)
+            : TiltTowardsStageFront(target_angle);
+#else
     const Angle tilted_angle = TiltTowardsStageFront(target_angle);
+#endif
     character->SetTarget(target_id, tilted_angle);
 
     // If we're requesting a turn but can't turn, move the face angle
