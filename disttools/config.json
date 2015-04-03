@@ -89,6 +89,24 @@
       "is_library": 1,
       "third_party": 1,
       "push": 0
+    },
+    {
+      "name": "freetype",
+      "url": "git://git.sv.nongnu.org/freetype/freetype2.git",
+      "branch": "master",
+      "revision": "f353a38e87a894a0a3280f5e27278831a1a2aaad",
+      "is_library": 1,
+      "third_party": 1,
+      "push": 0
+    },
+    {
+      "name": "harfbuzz",
+      "url": "http://github.com/behdad/harfbuzz.git",
+      "branch": "master",
+      "revision": "aee685086c8fde6f6c4590e483a177c19f222540",
+      "is_library": 1,
+      "third_party": 1,
+      "push": 0
     }
   ]
 }

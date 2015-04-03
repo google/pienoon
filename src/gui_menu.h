@@ -23,6 +23,7 @@
 #include "material_manager.h"
 #include "renderer.h"
 #include "touchscreen_button.h"
+#include "imgui.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -62,8 +63,16 @@ class GuiMenu {
   void ClearRecentSelections();
   void UpdateFocus(const flatbuffers::Vector<uint16_t>* destination_list);
 
+  // imgui custom button definition.
+  gui::Event ImguiButton(const ImguiButtonDef& data);
+  void RenderTexture(const Texture& tex, const vec2& pos,
+                     const vec2& size, const vec2& scale);
+
   const UiGroup* menu_def_;
   InputSystem* input_;
+  MaterialManager* matman_;
+  FontManager* fontman_;
+
   ButtonId current_focus_;
   std::queue<MenuSelection> unhandled_selections_;
   std::vector<TouchscreenButton> button_list_;

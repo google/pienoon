@@ -43,7 +43,7 @@ void Texture::Finalize() {
   }
 }
 
-void Texture::Set(size_t unit) {
+void Texture::Set(size_t unit) const {
   GL_CALL(glActiveTexture(GL_TEXTURE0 + unit));
   GL_CALL(glBindTexture(GL_TEXTURE_2D, id_));
 }

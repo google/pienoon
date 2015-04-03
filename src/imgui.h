@@ -96,6 +96,22 @@ struct Margin {
   vec4 borders;
 };
 
+// gui callback pass.
+// gui definition callback can check current IMGUI pass through
+// GetCurrentPass() API if it needs pass specific operations such as
+// complicated UI update.
+enum GuiPass {
+  kGuiPassLayout,
+  kGuiPassEvent,
+  kGuiPassRender,
+};
+
+// Convert virtual screen coordinate to physical value.
+mathfu::vec2i VirtualToPhysical(const mathfu::vec2 &v);
+
+// Retrieve the scaling factor for the virtual resolution.
+float GetScale();
+
 // Render an image as a GUI element.
 // texture_name: filename of the image, must have been loaded with
 // the material manager before.
@@ -112,7 +128,7 @@ void Label(const unsigned char *text, float ysize);
 // Create a group of elements with the given layout and intra-element spacing.
 // Start/end calls must be matched and may be nested to create more complex
 // layouts.
-void StartGroup(Layout layout, int spacing = 0,
+void StartGroup(Layout layout, float spacing = 0,
                 const char *id = "__group_id__");
 void EndGroup();
 
@@ -127,6 +143,21 @@ Event CheckEvent();
 
 // Set the background for the group. May use alpha.
 void ColorBackground(const vec4 &color);
+
+// Set the background texture for the group.
+void ImageBackground(const Texture &tex);
+
+// Put a custom element with given size.
+// Renderer function is invoked while render pass to render the element.
+void CustomElement(const vec2 &virtual_size,
+                   const char *id,
+                   const std::function<void(const vec2i &pos,
+                                            const vec2i &size)>renderer);
+void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size);
+
+// Retrieve current GUI pass. gui callback can determine current GUI pass via
+// this API and can do pass dependent operation.
+GuiPass GetCurrentPass();
 
 // The default virtual resolution used if none is set.
 const float IMGUI_DEFAULT_VIRTUAL_RESOLUTION = 1000.0f;

@@ -973,6 +973,69 @@
         "draw_scale_normal" : { "x":  0.5, "y": 0.5 },
         "draw_scale_pressed" : { "x": 0.9, "y": 0.9 }
       }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.0, "z" : 0.0, "w" : 0.0 },
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "Left",
+            "size" : 0.32,
+            "margin": { "x": 0.15, "y": 0.77, "z" : 0.0, "w" : 0.0 },
+            "event_trigger" : "ButtonPress",
+            "texture_background" : "textures/chalkarrowcircle.webp",
+            "draw_scale_normal" : { "x": -0.5, "y": 0.5 },
+            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "Right",
+            "size" : 0.32,
+            "margin": { "x": 0.16, "y": 0.77, "z" : 0.0, "w" : 0.0 },
+            "event_trigger" : "ButtonPress",
+            "texture_background" : "textures/chalkarrowcircle.webp",
+            "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "Attack",
+            "size" : 0.32,
+            "margin": { "x": 0.48, "y": 0.77, "z" : 0.0, "w" : 0.0 },
+            "event_trigger" : "ButtonPress",
+            "texture_background" : "textures/pie_level03.webp",
+            "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "Defend",
+            "size" : 0.32,
+            "margin": { "x": 0.16, "y": 0.77, "z" : 0.0, "w" : 0.0 },
+            "event_trigger" : "ButtonHold",
+            "texture_background" : "textures/shield_pie.webp",
+            "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
+            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
     ]
   },
 
@@ -1078,6 +1141,66 @@
           "draw_scale": { "x": 1.2, "y": 1.2 },
           "z_depth" : 0.1,
         }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuStart",
+            "texture_foreground" : "textures/menu_start.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold",
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.0, "z" : 0.0, "w" : 0.0 },
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuSignIn",
+            "texture_foreground" : "textures/play_games_connected_button.webp",
+            "texture_background" : "textures/text_sign_in.webp",
+            "size" : 0.065,
+            "margin": { "x": -0.05, "y": 0.35, "z" : 0.34, "w" : 0.0 },
+            "foreground_position": { "x": -0.15, "y": -0.04 },
+            "foreground_size_pressed": 1.3,
+            "foreground_size_focus" : 1.3,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuExtras",
+            "texture_foreground" : "textures/license_button.webp",
+            "texture_background" : "textures/text_extras.webp",
+            "size" : 0.065,
+            "margin": { "x": 0.34, "y": 0.35, "z" : 0.3, "w" : 0.0 },
+            "foreground_position": { "x": 0.26, "y": -0.04 },
+            "foreground_size_pressed": 1.3,
+            "foreground_size_focus" : 1.3,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
     ]
   },
 
@@ -1108,6 +1231,21 @@
           "texture" : [ { "standard" : "materials/splash.bin" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuStart",
+            "texture_foreground" : "textures/menu_start.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold",
+          }
         }
     ]
   },
@@ -1268,6 +1406,143 @@
           "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.02, "z" : 0.0, "w" : 0.0 },
+            "texture_background" : "textures/splash.webp",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuAbout",
+            "texture_foreground" : "textures/bush.webp",
+            "texture_background" : "textures/text_about.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.69, "y": 0.435, "z" : 0.19, "w" : 0.05 },
+            "foreground_position": { "x": -0.14, "y": -0.01 },
+            "foreground_size_pressed": 1.3,
+            "foreground_size_focus" : 1.3,
+            "foreground_size" : 0.06,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutVerticalCenter",
+            "margin": { "x": 0.0, "y": 0.04, "z" : 0.0, "w" : 0.0 },
+            "texture_background" : "textures/splash_menu.webp",
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.0, "z" : 0.0, "w" : 0.0 },
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuLeaderboard",
+            "texture_foreground" : "textures/ui_cloud.webp",
+            "texture_background" : "textures/text_leaderboard.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.09, "y": 0.06, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.3, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuAchievements",
+            "texture_foreground" : "textures/scribble_heart.webp",
+            "texture_background" : "textures/text_achievements.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.23, "y": 0.06, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": -0.15, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.00, "z" : 0.02, "w" : 0.0 },
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuHowToPlay",
+            "texture_foreground" : "textures/firing.webp",
+            "texture_background" : "textures/text_how_to_play.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.09, "y": 0.11, "z" : 0.0, "w" : 0.07 },
+            "foreground_position": { "x": 0.25, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuLicense",
+            "texture_foreground" : "textures/license_button.webp",
+            "texture_background" : "textures/text_license.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.2, "y": 0.11, "z" : 0.15, "w" : 0.07 },
+            "foreground_position": { "x": -0.15, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+
     ]
   },
 
@@ -1975,6 +2250,21 @@
           "texture" : [ { "standard" : "materials/splash.bin" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuResume",
+            "texture_foreground" : "textures/text_resume.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold",
+          }
         }
     ]
   },

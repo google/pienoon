@@ -64,7 +64,7 @@ class Texture : public AsyncResource {
                               const TextureFormat format, const bool has_alpha);
   virtual void Finalize();
 
-  void Set(size_t unit);
+  void Set(size_t unit) const;
   void Delete();
 
   const GLuint &id() const { return id_; }
