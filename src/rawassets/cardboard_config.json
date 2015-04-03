@@ -29,6 +29,9 @@
   "camera_position": { "x": -5.0, "y": 2.0, "z": 0.8 },
   "camera_target": { "x": 0.0, "y": 2.0, "z": 0.0 },
 
+  "pie_arc_height": 3.0,
+  "pie_arc_height_variance": 0.5,
+
   "entity_list": [
       {
         "component_list": [

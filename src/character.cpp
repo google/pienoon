@@ -127,7 +127,7 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
                          const Character& target, WorldTime start_time,
                          WorldTime flight_time, CharacterHealth original_damage,
                          CharacterHealth damage, float start_height,
-                         float peak_height, int rotations,
+                         float peak_height, int rotations, float y_rotation,
                          motive::MotiveEngine* engine)
     : original_source_(original_source),
       source_(source.id()),
@@ -166,11 +166,6 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
       peak_height, 0.0f, peak_time,                  // Peak node.
       start_height, -start_velocity, flight_time));  // End node.
 
-  // The pie is rotated about Y a constant amount so that it's facing the
-  // target.
-  const vec3 vector_to_target = target.position() - source.position();
-  const Angle angle_to_target = Angle::FromXZVector(vector_to_target);
-
   // The pie rotates top to bottom a fixed number of times. Rotation speed
   // is constant.
   const motive::MotiveTarget1f z_rotation_target(
@@ -181,7 +176,7 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
   init.AddOp(motive::kTranslateX, position_init, x_target);
   init.AddOp(motive::kTranslateY, position_init, y_target);
   init.AddOp(motive::kTranslateZ, position_init, z_target);
-  init.AddOp(motive::kRotateAboutY, -angle_to_target.ToRadians());
+  init.AddOp(motive::kRotateAboutY, y_rotation);
   init.AddOp(motive::kRotateAboutZ, rotation_init, z_rotation_target);
   motivator_.Initialize(init, engine);
 }

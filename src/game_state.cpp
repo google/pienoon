@@ -315,16 +315,43 @@ static float CalculatePieRotations(const Config& config) {
   return config.pie_rotations() + bonus;
 }
 
+float GameState::CalculatePieYRotation(CharacterId source_id,
+                                       CharacterId target_id) const {
+  // The pie is rotated about Y a constant amount so that it's facing the
+  // target.
+  const auto& source = characters_[source_id];
+  const auto& target = characters_[target_id];
+  const vec3 vector_to_target = target->position() - source->position();
+  Angle angle_to_target = Angle::FromXZVector(vector_to_target);
+#ifdef ANDROID_CARDBOARD
+  if (is_in_cardboard_) {
+    // If it is going directly towards or away from the cardboard, we want to
+    // rotate it so it is visible
+    if (source_id == 0 || target_id == 0) {
+      angle_to_target += Angle::FromRadians(fpl::kHalfPi);
+    }
+  }
+#endif
+  return -angle_to_target.ToRadians();
+}
+
 void GameState::CreatePie(CharacterId original_source_id, CharacterId source_id,
                           CharacterId target_id,
                           CharacterHealth original_damage,
                           CharacterHealth damage) {
+#ifdef ANDROID_CARDBOARD
+  const float peak_height =
+      CalculatePieHeight(is_in_cardboard_ ? *cardboard_config_ : *config_);
+#else
   const float peak_height = CalculatePieHeight(*config_);
+#endif
   const int rotations = CalculatePieRotations(*config_);
+  const float y_rotation = CalculatePieYRotation(source_id, target_id);
   pies_.push_back(std::unique_ptr<AirbornePie>(new AirbornePie(
       original_source_id, *characters_[source_id], *characters_[target_id],
       time_, config_->pie_flight_time(), original_damage, damage,
-      config_->pie_initial_height(), peak_height, rotations, &engine_)));
+      config_->pie_initial_height(), peak_height, rotations, y_rotation,
+      &engine_)));
 }
 
 CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {

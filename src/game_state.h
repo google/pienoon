@@ -160,6 +160,8 @@ class GameState {
   void CreatePie(CharacterId original_source_id, CharacterId source_id,
                  CharacterId target_id, CharacterHealth original_damage,
                  CharacterHealth damage);
+  float CalculatePieYRotation(CharacterId source_id,
+                              CharacterId target_id) const;
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
   void ProcessEvent(pindrop::AudioEngine* audio_engine, Character* character,
                     unsigned int event, const EventData& event_data);
