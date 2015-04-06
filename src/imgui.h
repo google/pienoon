@@ -63,6 +63,11 @@ enum Event {
   EVENT_HOVER = 8,
 };
 
+// Alignment and Direction of groups. Instead of using these directly, use
+// the Layout enum below.
+enum Alignment { ALIGN_TOPLEFT = 1, ALIGN_CENTER = 2, ALIGN_BOTTOMRIGHT = 3 };
+enum Direction { DIR_HORIZONTAL = 4, DIR_VERTICAL = 8, DIR_OVERLAY = 12 };
+
 // Specify how to layout a group. Elements can be positioned either
 // horizontally next to eachother or vertically, with elements aligned
 // to either side or centered.
@@ -71,16 +76,16 @@ enum Event {
 // A B C
 // A   C
 // A
-//
-// (Note: the order of these matters to the implementation, see
-// IsVertical and GetAlignment).
 enum Layout {
-  LAYOUT_HORIZONTAL_TOP,
-  LAYOUT_HORIZONTAL_CENTER,
-  LAYOUT_HORIZONTAL_BOTTOM,
-  LAYOUT_VERTICAL_LEFT,
-  LAYOUT_VERTICAL_CENTER,
-  LAYOUT_VERTICAL_RIGHT,
+  LAYOUT_HORIZONTAL_TOP    = DIR_HORIZONTAL | ALIGN_TOPLEFT,
+  LAYOUT_HORIZONTAL_CENTER = DIR_HORIZONTAL | ALIGN_CENTER,
+  LAYOUT_HORIZONTAL_BOTTOM = DIR_HORIZONTAL | ALIGN_BOTTOMRIGHT,
+
+  LAYOUT_VERTICAL_LEFT     = DIR_VERTICAL | ALIGN_TOPLEFT,
+  LAYOUT_VERTICAL_CENTER   = DIR_VERTICAL | ALIGN_CENTER,
+  LAYOUT_VERTICAL_RIGHT    = DIR_VERTICAL | ALIGN_BOTTOMRIGHT,
+
+  LAYOUT_OVERLAY_CENTER    = DIR_OVERLAY | ALIGN_CENTER,
 };
 
 // Specify margins for a group, in units of virtual resolution.
