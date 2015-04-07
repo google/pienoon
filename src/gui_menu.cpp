@@ -21,7 +21,15 @@
 namespace fpl {
 namespace pie_noon {
 
-GuiMenu::GuiMenu() {}
+//#define USE_IMGUI (1)
+
+GuiMenu::GuiMenu() : time_elapsed_(0) {
+#ifdef USE_IMGUI
+  // Initialize font manager.
+  fontman_ = new FontManager();
+  fontman_->Open("fonts/NotoSansCJKjp-Bold.otf");
+#endif
+}
 
 static const char* TextureName(const ButtonTexture& button_texture) {
   const bool touch_screen =
@@ -37,6 +45,10 @@ static inline size_t ArrayLength(const T* array) {
 
 void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   ClearRecentSelections();
+
+  // Save material manager instance for later use.
+  matman_ = matman;
+
   if (menu_def == nullptr) {
     button_list_.resize(0);
     image_list_.resize(0);
@@ -85,8 +97,8 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     button_list_[i].set_button_def(button);
     button_list_[i].set_is_active(button->starts_active() != 0);
     button_list_[i].set_is_highlighted(true);
-    button_list_[i].SetCannonicalWindowHeight(
-        menu_def_->cannonical_window_height());
+    button_list_[i]
+        .SetCannonicalWindowHeight(menu_def_->cannonical_window_height());
   }
 
   // Initialize image_list_.
@@ -157,6 +169,11 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
 
 void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
                            const vec2& window_size) {
+  // Save input system for a later use.
+  input_ = input;
+  time_elapsed_ += delta_time;
+
+#ifndef USE_IMGUI
   // Start every frame with a clean list of events.
   ClearRecentSelections();
   for (size_t i = 0; i < button_list_.size(); i++) {
@@ -171,6 +188,9 @@ void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
                                                kTouchController));
     }
   }
+#else
+#pragma unused(window_size)
+#endif
 }
 
 // Utility function for finding indexes.
@@ -204,7 +224,102 @@ MenuSelection GuiMenu::GetRecentSelection() {
   }
 }
 
+#ifdef USE_IMGUI
+// Helper to render a texture with a scale.
+// Render given texture in the specified position with the size with scaling
+// applied.
+// Origin of the scaling is the center of the texture, so that position and size
+// may change based on the scaling parameter.
+void GuiMenu::RenderTexture(const Texture& tex, const vec2& pos,
+                            const vec2& size, const vec2& scale) {
+  auto pos_scaled = pos - (size * (scale - mathfu::kOnes2f)) / 2.0;
+  auto size_scaled = size * scale;
+
+  gui::RenderTexture(tex, mathfu::vec2i(pos_scaled),
+                     mathfu::vec2i(size_scaled));
+}
+
+// ImguiButton widget definition for imgui.
+// Using gui::CustomElement() to render it's own control.
+gui::Event GuiMenu::ImguiButton(const ImguiButtonDef& data) {
+  // Start new group.
+
+  // Each button should have an id.
+  assert(data.button_id()->c_str() != nullptr);
+  auto button_id = data.button_id()->c_str();
+  gui::StartGroup(gui::LAYOUT_VERTICAL_LEFT, 0, button_id);
+
+  // Set margin.
+  auto m = reinterpret_cast<const vec4_packed*>(data.margin());
+  if (m != nullptr) {
+    gui::SetMargin(gui::Margin(m->data[0], m->data[1], m->data[2], m->data[3]));
+  }
+
+  // Calculate element size based on background texture size.
+  auto texture_background = data.texture_background()->c_str();
+  auto tex = matman_->FindTexture(texture_background);
+  auto virtual_image_size =
+      vec2(tex->size().x() * data.size() / tex->size().y(), data.size());
+  if (data.draw_scale_normal() != nullptr) {
+    auto scale = LoadVec2(data.draw_scale_normal());
+    virtual_image_size *= scale;
+  }
+
+  // Calculate foreground image size and position.
+  Texture *tex_foreground = nullptr;
+  auto size_foreground = mathfu::kOnes2f;
+  auto pos_foreground = mathfu::kZeros2f;
+  if (data.texture_foreground() != nullptr) {
+    auto texture_foreground = data.texture_foreground()->c_str();
+    tex_foreground = matman_->FindTexture(texture_foreground);
+    auto size = data.foreground_size();
+    size_foreground = vec2(tex_foreground->size().x() * size /
+                           tex_foreground->size().y(), size);
+    pos_foreground = vec2(data.foreground_position()->x(),
+                          data.foreground_position()->y());
+  }
+
+  // Change image scale based on it's state.
+  auto event = gui::CheckEvent();
+  auto image_scale = 1.0f;
+  auto background_scale = mathfu::kOnes2f;
+  if (event & gui::EVENT_IS_DOWN) {
+    image_scale = data.foreground_size_pressed();
+    if (data.draw_scale_pressed() != nullptr) {
+      background_scale = LoadVec2(data.draw_scale_pressed());
+    }
+  } else if (event & gui::EVENT_HOVER) {
+    auto pulse = sinf(static_cast<float>(time_elapsed_) / 100.0f);
+    image_scale += pulse * 0.05;
+    image_scale *= data.foreground_size_focus();
+  }
+
+  // Draw element.
+  gui::CustomElement(
+      virtual_image_size, "__ImguiButton__",
+      [this, tex, tex_foreground, pos_foreground, size_foreground, image_scale,
+       background_scale](
+          const vec2i& pos, const vec2i& size) mutable {
+        // Render background texture.
+        RenderTexture(*tex, vec2(pos), vec2(size), background_scale);
+
+        if (tex_foreground != nullptr) {
+          // It's not using gui::VirtualToPhysical() to avoid a scaling artifact
+          // due to a rounding up in the API.
+          auto p = vec2(pos) + pos_foreground * gui::GetScale();
+          auto s = size_foreground * gui::GetScale();
+          // Render foreground texture.
+          RenderTexture(*tex_foreground, p, s, vec2(image_scale, image_scale));
+        }
+      });
+
+  gui::EndGroup();
+  return event;
+}
+#endif
+
 void GuiMenu::Render(Renderer* renderer) {
+#ifndef USE_IMGUI
   // Render touch controls, as long as the touch-controller is active.
   for (size_t i = 0; i < image_list_.size(); i++) {
     if (!image_list_[i].image_def()->render_after_buttons())
@@ -217,6 +332,67 @@ void GuiMenu::Render(Renderer* renderer) {
     if (image_list_[i].image_def()->render_after_buttons())
       image_list_[i].Render(*renderer);
   }
+#else
+  // Clear selection after the game loop finished handling them.
+  ClearRecentSelections();
+
+  fontman_->SetRenderer(*renderer);
+
+  gui::Run(*matman_, *fontman_, *input_, [this]() {
+    PositionUI(matman_->renderer().window_size(), 1.0,
+               gui::LAYOUT_HORIZONTAL_CENTER, gui::LAYOUT_VERTICAL_LEFT);
+
+    // Walk through gui definitions.
+    const size_t length_imgui = ArrayLength(menu_def_->imgui_list());
+    for (size_t j = 0; j < length_imgui; j++) {
+      auto widget = menu_def_->imgui_list()->Get(j);
+      switch (widget->data_type()) {
+        case ImguiWidgetUnion_StartGroupDef: {
+          auto data = static_cast<const StartGroupDef*>(widget->data());
+          auto layout = static_cast<gui::Layout>(data->layout());
+          auto spacing = data->size();
+          // Set margin if specified.
+          auto m = data->margin();
+          if (m != nullptr) {
+            gui::SetMargin(gui::Margin(m->x(), m->y(), m->z(), m->w()));
+          }
+
+          gui::StartGroup(layout, spacing);
+
+          // Set background texture if specified.
+          auto texture_background = data->texture_background();
+          if (texture_background != nullptr) {
+            auto tex = matman_->FindTexture(texture_background->c_str());
+            gui::ImageBackground(*tex);
+          }
+
+          break;
+        }
+        case ImguiWidgetUnion_ImguiButtonDef: {
+          auto data = static_cast<const ImguiButtonDef*>(widget->data());
+          auto event = ImguiButton(*data);
+          auto flag = gui::EVENT_IS_DOWN;
+          if (data->event_trigger() == ButtonEvent_ButtonPress) {
+            flag = gui::EVENT_WENT_DOWN;
+          } else if (data->event_trigger() == ButtonEvent_ButtonUp) {
+            flag = gui::EVENT_WENT_UP;
+          }
+          if (event & flag && gui::GetCurrentPass() == gui::kGuiPassEvent) {
+            unhandled_selections_.push(
+                MenuSelection(data->ID(), kTouchController));
+          }
+          break;
+        }
+        case ImguiWidgetUnion_EndGroupDef: {
+          gui::EndGroup();
+          break;
+        }
+        default:
+          assert(0);
+      }
+    }
+  });
+#endif
 }
 
 // Accepts logical inputs, and navigates based on it.

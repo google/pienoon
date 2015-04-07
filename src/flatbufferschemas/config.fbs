@@ -83,6 +83,7 @@ enum ButtonId : ushort {
 // after it has been released.
 enum ButtonEvent : ushort (bit_flags) {
   ButtonPress,
+  ButtonUp,
   ButtonHold
 }
 
@@ -158,6 +159,61 @@ table StaticImageDef {
   render_after_buttons : bool = false;
 }
 
+// Used for imggui defining GUI components.
+// These are game specific definitions and parsed in the game code.
+enum GroupLayout : ushort  {
+  GroupLayoutHorizontalTop,
+  GroupLayoutHorizontalCenter,
+  GroupLayoutHorizontalBottom,
+  GroupLayoutVerticalLeft,
+  GroupLayoutVerticalCenter,
+  GroupLayoutVerticalRight,
+}
+
+// User defined widget that has background image and oscillating image on it.
+table ImguiButtonDef {
+  // Identifier for each widget.  Should be unique across the UIGroup.
+  ID : ButtonId;
+  size : float;
+  margin : Vec4;
+
+  // Material to display for the touch zone, both in its normal
+  // state, and when it is registering a press.
+  texture_foreground : string;
+  texture_background : string;
+  foreground_position : Vec2;
+  foreground_size_pressed : float;
+  foreground_size_focus : float = 1.0;
+  foreground_size : float;
+  draw_scale_normal : Vec2;
+  draw_scale_pressed : Vec2;
+  event_trigger : ButtonEvent = ButtonPress;
+  button_id : string;
+}
+
+table StartGroupDef {
+  // Identifier for each widget.  Should be unique across the UIGroup.
+  ID : ButtonId;
+  layout : GroupLayout = GroupLayoutHorizontalCenter;
+  size : float;
+  margin : Vec4;
+  texture_background : string;
+}
+
+table EndGroupDef {
+  // Identifier for each widget.  Should be unique across the UIGroup.
+  ID : ButtonId;
+}
+
+union ImguiWidgetUnion {
+  StartGroupDef, ImguiButtonDef, EndGroupDef
+}
+
+table ImguiWidget {
+  // Type of the widget.
+  data : ImguiWidgetUnion;
+}
+
 table UiGroup {
   allow_controller_navigation : bool;
   starting_selection : ButtonId;
@@ -166,6 +222,8 @@ table UiGroup {
   cannonical_window_height : int;
   default_shader : string;
   default_inactive_shader: string;
+
+  imgui_list : [ImguiWidget];
 }
 
 table FixedAccessory {

@@ -76,17 +76,20 @@ class InternalState : public Group {
  public:
   struct Element {
     Element(const vec2i &_size, const char *_id)
-        : size(_size), id(_id), interactive(false) {}
-
+        : size(_size),
+          id(_id),
+          interactive(false),
+          event(EVENT_NONE) {}
     vec2i size;        // Minimum size computed by layout pass.
     const char *id;    // Id specified by the user.
     bool interactive;  // Wants to respond to user input.
+    Event event;       // Current event of the element. Updated in event pass.
   };
 
   InternalState(MaterialManager &matman, FontManager &fontman,
                 InputSystem &input)
       : Group(true, ALIGN_TOPLEFT, 0, 0),
-        layout_pass_(true),
+        current_pass_(kGuiPassLayout),
         canvas_size_(matman.renderer().window_size()),
         virtual_resolution_(IMGUI_DEFAULT_VIRTUAL_RESOLUTION),
         matman_(matman),
@@ -152,6 +155,9 @@ class InternalState : public Group {
     pixel_scale_ = std::min(scale.x(), scale.y());
   }
 
+  // Retrieve the scaling factor for the virtual resolution.
+  float GetScale() { return pixel_scale_; }
+
   // Compute a space offset for a particular alignment for just the x or y
   // dimension.
   static vec2i AlignDimension(Alignment align, int dim, const vec2i &space) {
@@ -173,37 +179,56 @@ class InternalState : public Group {
   // (screen).
   void PositionUI(const vec2i &canvas_size, float virtual_resolution,
                   Alignment horizontal, Alignment vertical) {
-    if (layout_pass_) {
+    if (current_pass_ == kGuiPassLayout) {
       canvas_size_ = canvas_size;
       virtual_resolution_ = virtual_resolution;
       SetScale();
-    } else {
+    } else if (current_pass_ == kGuiPassEvent ||
+               current_pass_ == kGuiPassRender) {
       auto space = canvas_size_ - size_;
       position_ += AlignDimension(horizontal, 0, space) +
                    AlignDimension(vertical, 1, space);
     }
   }
 
-  // Switch from the layout pass to the render/event pass.
-  void StartRenderPass() {
+  // Switch from the layout pass to the event pass.
+  void StartEventPass() {
     // If you hit this assert, you are missing an EndGroup().
     assert(!group_stack_.size());
 
-    // Update font manager if they need to upload font atlas texture.
-    fontman_.StartRenderPass();
+    // Do nothing if there is no elements.
+    if (elements_.size() == 0) return;
 
     size_ = elements_[0].size;
 
-    layout_pass_ = false;
+    current_pass_ = kGuiPassEvent;
     element_it_ = elements_.begin();
 
     CheckGamePadNavigation();
   }
 
-  // (render pass): retrieve the next corresponding cached element we
+  // Switch from the event pass to the render pass.
+  void StartRenderPass() {
+    // If you hit this assert, you are missing an EndGroup().
+    assert(!group_stack_.size());
+
+    // Do nothing if there is no elements.
+    if (elements_.size() == 0) return;
+
+    // Update font manager if they need to upload font atlas texture.
+    fontman_.StartRenderPass();
+
+    position_ = mathfu::kZeros2i;
+    size_ = elements_[0].size;
+
+    current_pass_ = kGuiPassRender;
+    element_it_ = elements_.begin();
+  }
+
+  // (event/render pass): retrieve the next corresponding cached element we
   // created in the layout pass. This is slightly more tricky than a straight
   // lookup because event handlers may insert/remove elements.
-  const Element *NextElement(const char *id) {
+  Element *NextElement(const char *id) {
     auto backup = element_it_;
     while (element_it_ != elements_.end()) {
       // This loop usually returns on the first iteration, the only time it
@@ -240,26 +265,30 @@ class InternalState : public Group {
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
                   const vec2i &size) {
-    auto &renderer = matman_.renderer();
-    renderer.color() = color;
-    sh->Set(renderer);
-    Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0));
+    if (current_pass_ == kGuiPassRender) {
+      auto &renderer = matman_.renderer();
+      renderer.color() = color;
+      sh->Set(renderer);
+      Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0));
+    }
   }
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
                   const vec2i &size, const vec4 &uv) {
-    auto &renderer = matman_.renderer();
-    renderer.color() = color;
-    sh->Set(renderer);
-    Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
-                             uv.xy(), uv.zw());
+    if (current_pass_ == kGuiPassRender) {
+      auto &renderer = matman_.renderer();
+      renderer.color() = color;
+      sh->Set(renderer);
+      Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
+                               uv.xy(), uv.zw());
+    }
   }
 
   // An image element.
   void Image(const char *texture_name, float ysize) {
     auto tex = matman_.FindTexture(texture_name);
     assert(tex);  // You need to have called LoadTexture before.
-    if (layout_pass_) {
+    if (current_pass_ == kGuiPassLayout) {
       auto virtual_image_size =
           vec2(tex->size().x() * ysize / tex->size().y(), ysize);
       // Map the size to real screen pixels, rounding to the nearest int
@@ -267,25 +296,31 @@ class InternalState : public Group {
       auto size = VirtualToPhysical(virtual_image_size);
       NewElement(size, texture_name);
       Extend(size);
-    } else {
+    } else if (current_pass_ == kGuiPassEvent) {
       auto element = NextElement(texture_name);
       if (element) {
-        auto position = Position(*element);
+        Advance(element->size);
+      }
+    } else if (current_pass_ == kGuiPassRender) {
+      auto element = NextElement(texture_name);
+      if (element) {
         tex->Set(0);
-        RenderQuad(image_shader_, mathfu::kOnes4f, position, element->size);
+        RenderQuad(image_shader_, mathfu::kOnes4f, Position(*element),
+                   element->size);
         Advance(element->size);
       }
     }
   }
+
   // Text label.
   void Label(const char *text, float ysize) {
     // Set text color.
     matman_.renderer().color() = text_color_;
 
-#ifdef USE_GLYPHCACHE
+#if USE_GLYPHCACHE
     auto size = VirtualToPhysical(vec2(0, ysize));
     auto buffer = fontman_.GetBuffer(text, size.y());
-    if (layout_pass_) {
+    if (current_pass_ == kGuiPassLayout) {
       if (buffer == nullptr) {
         // Upload a texture & flush glyph cache
         fontman_.FlushAndUpdate();
@@ -301,7 +336,12 @@ class InternalState : public Group {
       }
       NewElement(buffer->get_size(), text);
       Extend(buffer->get_size());
-    } else {
+    } else if (current_pass_ == kGuiPassEvent) {
+      auto element = NextElement(text);
+      if (element) {
+        Advance(element->size);
+      }
+    } else if (current_pass_ == kGuiPassRender) {
       // Check if texture atlas needs to be updated.
       if (buffer->get_pass() > 0) {
         fontman_.StartRenderPass();
@@ -309,12 +349,11 @@ class InternalState : public Group {
 
       auto element = NextElement(text);
       if (element) {
-        auto position = Position(*element);
         fontman_.GetAtlasTexture()->Set(0);
 
         font_shader_->Set(matman_.renderer());
-        font_shader_->SetUniform("pos_offset",
-                                 vec3(position.x(), position.y(), 0.f));
+        auto pos = Position(*element);
+        font_shader_->SetUniform("pos_offset", vec3(pos.x(), pos.y(), 0.0f));
 
         const Attribute kFormat[] = {kPosition3f, kTexCoord2f, kEND};
         Mesh::RenderArray(
@@ -322,7 +361,6 @@ class InternalState : public Group {
             sizeof(FontVertex),
             reinterpret_cast<const char *>(buffer->get_vertices()->data()),
             buffer->get_indices()->data());
-
         Advance(element->size);
       }
     }
@@ -335,19 +373,23 @@ class InternalState : public Group {
     auto scale = static_cast<float>(size.y()) /
                  static_cast<float>(tex->metrics().ascender() -
                                     tex->metrics().descender());
-    if (layout_pass_) {
+    if (current_pass_ == kGuiPassLayout) {
       auto image_size =
           vec2i(tex->size().x() * (uv.z() - uv.x()) * scale, size.y());
       NewElement(image_size, text);
       Extend(image_size);
+    } else if (current_pass_ == kGuiPassEvent) {
+      auto element = NextElement(text);
+      if (element) {
+        Advance(element->size);
+      }
     } else {
       auto element = NextElement(text);
       if (element) {
-        auto position = Position(*element);
         tex->Set(0);
         // Note that some glyphs may render outside of element boundary.
-        vec2i pos =
-            position - vec2i(0, tex->metrics().internal_leading() * scale);
+        vec2i pos = Position(*element) -
+                    vec2i(0, tex->metrics().internal_leading() * scale);
         vec2i size = vec2i(element->size) +
                      vec2i(0, (tex->metrics().internal_leading() -
                                tex->metrics().external_leading()) *
@@ -359,14 +401,58 @@ class InternalState : public Group {
 #endif
   }
 
+  // Custom element with user supplied renderer.
+  void CustomElement(
+      const vec2 &virtual_size, const char *id,
+      const std::function<void(const vec2i &pos, const vec2i &size)> renderer) {
+    if (current_pass_ == kGuiPassLayout) {
+      auto size = VirtualToPhysical(virtual_size);
+      NewElement(size, id);
+      Extend(size);
+    } else if (current_pass_ == kGuiPassEvent) {
+      auto element = NextElement(id);
+      if (element) {
+        Advance(element->size);
+      }
+    } else if (current_pass_ == kGuiPassRender) {
+      auto element = NextElement(id);
+      if (element) {
+        renderer(Position(*element), element->size);
+        Advance(element->size);
+      }
+    }
+  }
+
+  // Render texture on the screen.
+  void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size) {
+    if (current_pass_ == kGuiPassRender) {
+      tex.Set(0);
+      RenderQuad(image_shader_, mathfu::kOnes4f, pos, size);
+    }
+  }
+
+  // Return current GUI pass.
+  GuiPass GetCurrentPass() { return current_pass_; }
+
   // An element that has sub-elements. Tracks its state in an instance of
   // Layout, that is pushed/popped from the stack as needed.
-  void StartGroup(bool vertical, Alignment align, int spacing, const char *id) {
+  void StartGroup(bool vertical, Alignment align, float spacing,
+                  const char *id) {
     Group layout(vertical, align, spacing, elements_.size());
     group_stack_.push_back(*this);
-    if (layout_pass_) {
+    if (current_pass_ == kGuiPassLayout) {
       NewElement(mathfu::kZeros2i, id);
+    } else if (current_pass_ == kGuiPassEvent) {
+      auto element = NextElement(id);
+      if (element) {
+        layout.position_ = Position(*element);
+        layout.size_ = element->size;
+        // Make layout refer to element it originates from, iterator points
+        // to next element after the current one.
+        layout.element_idx_ = element_it_ - elements_.begin() - 1;
+      }
     } else {
+      // Render pass.
       auto element = NextElement(id);
       if (element) {
         layout.position_ = Position(*element);
@@ -389,14 +475,14 @@ class InternalState : public Group {
     auto element_idx = element_idx_;
     *static_cast<Group *>(this) = group_stack_.back();
     group_stack_.pop_back();
-    if (layout_pass_) {
+    if (current_pass_ == kGuiPassLayout) {
       size += margin;
       // Contribute the size of this group to its parent.
       Extend(size);
       // Set the size of this group as the size of the element tracking it.
       elements_[element_idx].size = size;
     } else {
-      Advance(size);
+      Advance(elements_[element_idx].size);
     }
   }
 
@@ -411,9 +497,10 @@ class InternalState : public Group {
 
   Event CheckEvent() {
     auto &element = elements_[element_idx_];
-    if (layout_pass_) {
+    if (current_pass_ == kGuiPassLayout) {
       element.interactive = true;
-    } else {
+    } else if (current_pass_ == kGuiPassEvent ||
+               current_pass_ == kGuiPassRender) {
       // We only fire events during the second pass.
       auto id = element.id;
       // pointer_max_active_index_ is typically 0, so loop not expensive.
@@ -438,7 +525,8 @@ class InternalState : public Group {
           if (!event) event = EVENT_HOVER;
           // We only report an event for the first finger to touch an element.
           // This is intentional.
-          return static_cast<Event>(event);
+          element.event = static_cast<Event>(event);
+          return element.event;
         }
       }
       // Generate hover events for the current element the gamepad is focused
@@ -448,7 +536,7 @@ class InternalState : public Group {
         return gamepad_event;
       }
     }
-    return EVENT_NONE;
+    return element.event;
   }
 
   void CheckGamePadFocus() {
@@ -516,14 +604,22 @@ class InternalState : public Group {
     RenderQuad(color_shader_, color, position_, size_);
   }
 
+  void ImageBackground(const Texture &tex) {
+
+    if (current_pass_ == kGuiPassRender) {
+      tex.Set(0);
+      RenderQuad(image_shader_, mathfu::kOnes4f, position_, size_);
+    }
+  }
+
   // Set Label's text color.
   void SetTextColor(const vec4 &color) { text_color_ = color; }
 
   static const char *dummy_id() { return "__null_id__"; }
 
-  bool layout_pass_;
+  GuiPass current_pass_;
   std::vector<Element> elements_;
-  std::vector<Element>::const_iterator element_it_;
+  std::vector<Element>::iterator element_it_;
   std::vector<Group> group_stack_;
   vec2i canvas_size_;
   float virtual_resolution_;
@@ -578,6 +674,11 @@ void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
   gui_definition();
 
   // Second pass:
+  internal_state.StartEventPass();
+  gui_definition();
+  internal_state.CheckGamePadFocus();
+
+  // Third pass:
   internal_state.StartRenderPass();
 
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
@@ -593,8 +694,6 @@ void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
   renderer.DepthTest(false);
 
   gui_definition();
-
-  internal_state.CheckGamePadFocus();
 }
 
 InternalState *Gui() {
@@ -608,9 +707,21 @@ void Image(const char *texture_name, float size) {
 
 void Label(const char *text, float size) { Gui()->Label(text, size); }
 
-void StartGroup(Layout layout, int spacing, const char *id) {
+void StartGroup(Layout layout, float spacing, const char *id) {
   Gui()->StartGroup(IsVertical(layout), GetAlignment(layout), spacing, id);
 }
+
+void CustomElement(
+    const vec2 &virtual_size, const char *id,
+    const std::function<void(const vec2i &pos, const vec2i &size)> renderer) {
+  Gui()->CustomElement(virtual_size, id, renderer);
+}
+
+void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size) {
+  Gui()->RenderTexture(tex, pos, size);
+}
+
+GuiPass GetCurrentPass() { return Gui()->GetCurrentPass(); }
 
 void EndGroup() { Gui()->EndGroup(); }
 
@@ -622,11 +733,19 @@ Event CheckEvent() { return Gui()->CheckEvent(); }
 
 void ColorBackground(const vec4 &color) { Gui()->ColorBackground(color); }
 
+void ImageBackground(const Texture &tex) { Gui()->ImageBackground(tex); }
+
 void PositionUI(const vec2i &canvas_size, float virtual_resolution,
                 Layout horizontal, Layout vertical) {
   Gui()->PositionUI(canvas_size, virtual_resolution, GetAlignment(horizontal),
                     GetAlignment(vertical));
 }
+
+mathfu::vec2i VirtualToPhysical(const mathfu::vec2 &v) {
+  return Gui()->VirtualToPhysical(v);
+}
+
+float GetScale() { return Gui()->GetScale(); }
 
 // Example how to create a button. We will provide convenient pre-made
 // buttons like this, but it is expected many games will make custom buttons.
