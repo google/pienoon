@@ -605,10 +605,22 @@ class InternalState : public Group {
   }
 
   void ImageBackground(const Texture &tex) {
-
     if (current_pass_ == kGuiPassRender) {
       tex.Set(0);
       RenderQuad(image_shader_, mathfu::kOnes4f, position_, size_);
+    }
+  }
+
+  void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info) {
+    if (current_pass_ == kGuiPassRender) {
+      tex.Set(0);
+      auto &renderer = matman_.renderer();
+      renderer.color() = mathfu::kOnes4f;
+      image_shader_->Set(renderer);
+      Mesh::RenderAAQuadAlongXNinePatch(vec3(vec2(position_), 0),
+                                        vec3(vec2(position_ + size_), 0),
+                                        tex.size(),
+                                        patch_info);
     }
   }
 
@@ -735,6 +747,10 @@ void ColorBackground(const vec4 &color) { Gui()->ColorBackground(color); }
 
 void ImageBackground(const Texture &tex) { Gui()->ImageBackground(tex); }
 
+void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info) {
+  Gui()->ImageBackgroundNinePatch(tex, patch_info);
+}
+
 void PositionUI(const vec2i &canvas_size, float virtual_resolution,
                 Layout horizontal, Layout vertical) {
   Gui()->PositionUI(canvas_size, virtual_resolution, GetAlignment(horizontal),
@@ -781,9 +797,15 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
     SetTextColor(mathfu::kOnes4f);
     Label("ffWAWÄテスト", 30);
     EndGroup();
+
+    StartGroup(LAYOUT_VERTICAL_LEFT, 20);
+    auto tex = matman.FindTexture("textures/splash.webp");
+    ImageBackgroundNinePatch(*tex, vec4(0.2, 0.2, 0.8, 0.8));
+
     Label("The quick brown fox jumps over the lazy dog", 32);
     Label("The quick brown fox jumps over the lazy dog", 24);
     Label("The quick brown fox jumps over the lazy dog", 20);
+    EndGroup();
     EndGroup();
     StartGroup(LAYOUT_VERTICAL_CENTER, 40);
     if (ImageButton("textures/text_about.webp", 50, "my_id2") == EVENT_WENT_UP)
