@@ -124,11 +124,9 @@ class GameState {
 
   void set_config(const Config* config) { config_ = config; }
 
-#ifdef ANDROID_CARDBOARD
   void set_cardboard_config(const Config* config) {
     cardboard_config_ = config;
   }
-#endif
 
   motive::MotiveEngine& engine() { return engine_; }
   ParticleManager& particle_manager() { return particle_manager_; }
@@ -149,10 +147,8 @@ class GameState {
   void set_is_multiscreen(bool b) { is_multiscreen_ = b; }
   bool is_multiscreen() const { return is_multiscreen_; }
 
-#ifdef ANDROID_CARDBOARD
   void set_is_in_cardboard(bool b) { is_in_cardboard_ = b; }
   bool is_in_cardboard() const { return is_in_cardboard_; }
-#endif
 
  private:
   void ProcessSounds(pindrop::AudioEngine* audio_engine,
@@ -229,11 +225,9 @@ class GameState {
   // Whether you are playing in multiscreen mode.
   bool is_multiscreen_;
 
-#ifdef ANDROID_CARDBOARD
   const Config* cardboard_config_;
   // Whether you are playing in Cardboard mode.
   bool is_in_cardboard_;
-#endif
 };
 
 }  // pie_noon

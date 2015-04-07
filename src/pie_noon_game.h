@@ -97,9 +97,7 @@ class PieNoonGame {
   void DebugPrintPieStates();
   void DebugCamera();
   const Config& GetConfig() const;
-#ifdef ANDROID_CARDBOARD
   const Config& GetCardboardConfig() const;
-#endif
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
   PieNoonState UpdatePieNoonState();

@@ -389,9 +389,7 @@ bool PieNoonGame::InitializeGameState() {
   const Config& config = GetConfig();
 
   game_state_.set_config(&config);
-#ifdef ANDROID_CARDBOARD
   game_state_.set_cardboard_config(&GetCardboardConfig());
-#endif
 
   // Register the motivator types with the MotiveEngine.
   motive::OvershootInit::Register();
@@ -629,13 +627,11 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
 }
 
 void PieNoonGame::Render(const SceneDescription& scene) {
-#ifdef ANDROID_CARDBOARD
   if (game_state_.is_in_cardboard()) {
     RenderForCardboard(scene);
-    return;
+  } else {
+    RenderForDefault(scene);
   }
-#endif  // ANDROID_CARDBOARD
-  RenderForDefault(scene);
 }
 
 void PieNoonGame::RenderForDefault(const SceneDescription& scene) {
@@ -671,9 +667,7 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
                               const mat4& additional_camera_changes,
                               const vec2i& resolution) {
   const Config& config = GetConfig();
-#ifdef ANDROID_CARDBOARD
   const Config& cardboard_config = GetCardboardConfig();
-#endif
 
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_ = mat4::Perspective(
@@ -693,17 +687,12 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
-#ifdef ANDROID_CARDBOARD
   const float ground_width = game_state_.is_in_cardboard()
                                  ? cardboard_config.ground_plane_width()
                                  : config.ground_plane_width();
   const float ground_depth = game_state_.is_in_cardboard()
                                  ? cardboard_config.ground_plane_depth()
                                  : config.ground_plane_depth();
-#else
-  const float ground_width = config.ground_plane_width();
-  const float ground_depth = config.ground_plane_depth();
-#endif
   Mesh::RenderAAQuadAlongX(vec3(-ground_width, 0, 0),
                            vec3(ground_width, 0, ground_depth), vec2(0, 0),
                            vec2(1.0f, 1.0f));
@@ -821,11 +810,13 @@ const Config& PieNoonGame::GetConfig() const {
   return *fpl::pie_noon::GetConfig(config_source_.c_str());
 }
 
-#ifdef ANDROID_CARDBOARD
 const Config& PieNoonGame::GetCardboardConfig() const {
+#ifdef ANDROID_CARDBOARD
   return *fpl::pie_noon::GetConfig(cardboard_config_source_.c_str());
-}
+#else
+  return GetConfig();
 #endif
+}
 
 const CharacterStateMachineDef* PieNoonGame::GetStateMachine() const {
   return fpl::pie_noon::GetCharacterStateMachineDef(
