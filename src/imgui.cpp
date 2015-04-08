@@ -19,26 +19,23 @@
 namespace fpl {
 namespace gui {
 
-enum Alignment {
-  ALIGN_TOPLEFT,
-  ALIGN_CENTER,
-  ALIGN_BOTTOMRIGHT,
-};
-
-bool IsVertical(Layout layout) { return layout >= LAYOUT_VERTICAL_LEFT; }
+Direction GetDirection(Layout layout) {
+  return static_cast<Direction>(layout & ~(DIR_HORIZONTAL - 1));
+}
 
 Alignment GetAlignment(Layout layout) {
-  return static_cast<Alignment>(
-      layout -
-      (IsVertical(layout) ? LAYOUT_VERTICAL_LEFT - LAYOUT_HORIZONTAL_TOP : 0));
+  return static_cast<Alignment>(layout & (DIR_HORIZONTAL - 1));
 }
+
+static const char *kDummyId = "__null_id__";
 
 // This holds the transient state of a group while its layout is being
 // calculated / rendered.
 class Group {
  public:
-  Group(bool _vertical, Alignment _align, int _spacing, size_t _element_idx)
-      : vertical_(_vertical),
+  Group(Direction _direction, Alignment _align, int _spacing,
+        size_t _element_idx)
+      : direction_(_direction),
         align_(_align),
         spacing_(_spacing),
         size_(mathfu::kZeros2i),
@@ -49,14 +46,24 @@ class Group {
   // Extend this group with the size of a new element, and possibly spacing
   // if it wasn't the first element.
   void Extend(const vec2i &extension) {
-    size_ = vertical_
-                ? vec2i(std::max(size_.x(), extension.x()),
-                        size_.y() + extension.y() + (size_.y() ? spacing_ : 0))
-                : vec2i(size_.x() + extension.x() + (size_.x() ? spacing_ : 0),
-                        std::max(size_.y(), extension.y()));
+    switch (direction_) {
+      case DIR_HORIZONTAL:
+        size_ = vec2i(size_.x() + extension.x() + (size_.x() ? spacing_ : 0),
+                      std::max(size_.y(), extension.y()));
+        break;
+      case DIR_VERTICAL:
+        size_ = vec2i(std::max(size_.x(), extension.x()),
+                      size_.y() + extension.y() + (size_.y() ? spacing_ : 0));
+        break;
+      case DIR_OVERLAY:
+        size_ = vec2i(std::max(size_.x(), extension.x()),
+                      std::max(size_.y(), extension.y()));
+        break;
+
+    }
   }
 
-  bool vertical_;
+  Direction direction_;
   Alignment align_;
   int spacing_;
   vec2i size_;
@@ -88,7 +95,7 @@ class InternalState : public Group {
 
   InternalState(MaterialManager &matman, FontManager &fontman,
                 InputSystem &input)
-      : Group(true, ALIGN_TOPLEFT, 0, 0),
+      : Group(DIR_VERTICAL, ALIGN_TOPLEFT, 0, 0),
         current_pass_(kGuiPassLayout),
         canvas_size_(matman.renderer().window_size()),
         virtual_resolution_(IMGUI_DEFAULT_VIRTUAL_RESOLUTION),
@@ -251,16 +258,37 @@ class InternalState : public Group {
   // (render pass): move the group's current position past an element of
   // the given size.
   void Advance(const vec2i &size) {
-    position_ += vertical_ ? vec2i(0, size.y() + spacing_)
-                           : vec2i(size.x() + spacing_, 0);
+    switch (direction_) {
+      case DIR_HORIZONTAL:
+        position_ += vec2i(size.x() + spacing_, 0);
+        break;
+      case DIR_VERTICAL:
+        position_ += vec2i(0, size.y() + spacing_);
+        break;
+      case DIR_OVERLAY:
+        // Keep at starting position.
+        break;
+    }
   }
 
   // (render pass): return the position of the current element, as a function
   // of the group's current position and the alignment.
   vec2i Position(const Element &element) {
-    return position_ + margin_.xy() +
-           AlignDimension(align_, vertical_ ? 0 : 1,
-                          size_ - element.size - margin_.xy() - margin_.zw());
+    auto pos = position_ + margin_.xy();
+    auto space = size_ - element.size - margin_.xy() - margin_.zw();
+    switch (direction_) {
+      case DIR_HORIZONTAL:
+        pos += AlignDimension(align_, 1, space);
+        break;
+      case DIR_VERTICAL:
+        pos += AlignDimension(align_, 0, space);
+        break;
+      case DIR_OVERLAY:
+        pos += AlignDimension(align_, 0, space);
+        pos += AlignDimension(align_, 1, space);
+        break;
+    }
+    return pos;
   }
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
@@ -436,9 +464,9 @@ class InternalState : public Group {
 
   // An element that has sub-elements. Tracks its state in an instance of
   // Layout, that is pushed/popped from the stack as needed.
-  void StartGroup(bool vertical, Alignment align, float spacing,
+  void StartGroup(Direction direction, Alignment align, float spacing,
                   const char *id) {
-    Group layout(vertical, align, spacing, elements_.size());
+    Group layout(direction, align, spacing, elements_.size());
     group_stack_.push_back(*this);
     if (current_pass_ == kGuiPassLayout) {
       NewElement(mathfu::kZeros2i, id);
@@ -481,6 +509,14 @@ class InternalState : public Group {
       Extend(size);
       // Set the size of this group as the size of the element tracking it.
       elements_[element_idx].size = size;
+      // TODO: we currently just make the last group in any overlay group
+      // the one to receive events. This is sufficient for popups, but it be
+      // better if this could also be specified manually.
+      if (direction_ == DIR_OVERLAY) {
+        // Simply mark all elements before this last group as non-interactive.
+        for (size_t i = 0; i < element_idx; i++)
+          elements_[i].interactive = false;
+      }
     } else {
       Advance(elements_[element_idx].size);
     }
@@ -502,38 +538,42 @@ class InternalState : public Group {
     } else if (current_pass_ == kGuiPassEvent ||
                current_pass_ == kGuiPassRender) {
       // We only fire events during the second pass.
-      auto id = element.id;
-      // pointer_max_active_index_ is typically 0, so loop not expensive.
-      for (int i = 0; i <= pointer_max_active_index_; i++) {
-        if (mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
-                              position_ + size_)) {
-          auto &button = *pointer_buttons_[i];
-          int event = 0;
+      // Check if this is an inactive part of an overlay.
+      if (element.interactive) {
+        auto id = element.id;
+        // pointer_max_active_index_ is typically 0, so loop not expensive.
+        for (int i = 0; i <= pointer_max_active_index_; i++) {
+          if (mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
+                                position_ + size_)) {
+            auto &button = *pointer_buttons_[i];
+            int event = 0;
 
-          if (button.went_down()) {
-            RecordId(id, i);
-            event |= EVENT_WENT_DOWN;
+            if (button.went_down()) {
+              RecordId(id, i);
+              event |= EVENT_WENT_DOWN;
+            }
+            if (button.went_up() && SameId(id, i)) {
+              event |= EVENT_WENT_UP;
+            } else if (button.is_down() && SameId(id, i)) {
+              event |= EVENT_IS_DOWN;
+              // Record the last element we received an up on, as the target
+              // for keyboard input.
+              persistent_.keyboard_focus = id;
+            }
+            if (!event) event = EVENT_HOVER;
+            // We only report an event for the first finger to touch an element.
+            // This is intentional.
+            return static_cast<Event>(event);
+            element.event = static_cast<Event>(event);
+            return element.event;
           }
-          if (button.went_up() && SameId(id, i)) {
-            event |= EVENT_WENT_UP;
-          } else if (button.is_down() && SameId(id, i)) {
-            event |= EVENT_IS_DOWN;
-            // Record the last element we received an up on, as the target
-            // for keyboard input.
-            persistent_.keyboard_focus = id;
-          }
-          if (!event) event = EVENT_HOVER;
-          // We only report an event for the first finger to touch an element.
-          // This is intentional.
-          element.event = static_cast<Event>(event);
-          return element.event;
         }
-      }
-      // Generate hover events for the current element the gamepad is focused
-      // on.
-      if (EqualId(persistent_.gamepad_focus, id)) {
-        gamepad_has_focus_element = true;
-        return gamepad_event;
+        // Generate hover events for the current element the gamepad is focused
+        // on.
+        if (EqualId(persistent_.gamepad_focus, id)) {
+          gamepad_has_focus_element = true;
+          return gamepad_event;
+        }
       }
     }
     return element.event;
@@ -548,15 +588,15 @@ class InternalState : public Group {
 
   void CheckGamePadNavigation() {
     int dir = 0;
-// FIXME: this should work on other platforms too.
-#ifdef ANDROID_GAMEPAD
+    // FIXME: this should work on other platforms too.
+#   ifdef ANDROID_GAMEPAD
     auto &gamepads = input_.GamepadMap();
     for (auto &gamepad : gamepads) {
       dir = CheckButtons(gamepad.second.GetButton(Gamepad::kLeft),
                          gamepad.second.GetButton(Gamepad::kRight),
                          gamepad.second.GetButton(Gamepad::kButtonA));
     }
-#endif
+#   endif
     // For testing, also support keyboard:
     dir =
         CheckButtons(input_.GetButton(SDLK_LEFT), input_.GetButton(SDLK_RIGHT),
@@ -595,7 +635,7 @@ class InternalState : public Group {
         i = -1;
       // Back where we started, either there's no interactive elements, or
       // the vector is empty.
-      if (i == start) return dummy_id();
+      if (i == start) return kDummyId;
       if (elements_[i].interactive) return elements_[i].id;
     }
   }
@@ -627,8 +667,6 @@ class InternalState : public Group {
   // Set Label's text color.
   void SetTextColor(const vec4 &color) { text_color_ = color; }
 
-  static const char *dummy_id() { return "__null_id__"; }
-
   GuiPass current_pass_;
   std::vector<Element> elements_;
   std::vector<Element>::iterator element_it_;
@@ -658,9 +696,9 @@ class InternalState : public Group {
       // This is effectively a global, so no memory allocation or other
       // complex initialization here.
       for (int i = 0; i < InputSystem::kMaxSimultanuousPointers; i++) {
-        pointer_element[i] = dummy_id();
+        pointer_element[i] = kDummyId;
       }
-      gamepad_focus = keyboard_focus = dummy_id();
+      gamepad_focus = keyboard_focus = kDummyId;
     }
 
     // For each pointer, the element id that last received a down event.
@@ -720,7 +758,7 @@ void Image(const char *texture_name, float size) {
 void Label(const char *text, float size) { Gui()->Label(text, size); }
 
 void StartGroup(Layout layout, float spacing, const char *id) {
-  Gui()->StartGroup(IsVertical(layout), GetAlignment(layout), spacing, id);
+  Gui()->StartGroup(GetDirection(layout), GetAlignment(layout), spacing, id);
 }
 
 void CustomElement(
@@ -783,42 +821,65 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
   static float f = 0.0f;
   f += 0.04f;
 
+  static bool show_about = false;
+
   Run(matman, fontman, input, [&matman]() {
     PositionUI(matman.renderer().window_size(), 1000, LAYOUT_HORIZONTAL_CENTER,
                LAYOUT_VERTICAL_RIGHT);
-    StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
-    StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-    if (ImageButton("textures/text_about.webp", 50, "my_id") == EVENT_WENT_UP)
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
-    StartGroup(LAYOUT_HORIZONTAL_TOP, 0);
-    Label("Property T", 30);
-    SetTextColor(mathfu::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    Label("Test ", 30);
-    SetTextColor(mathfu::kOnes4f);
-    Label("ffWAWÄテスト", 30);
-    EndGroup();
+    StartGroup(LAYOUT_OVERLAY_CENTER, 0);
+      StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
+        StartGroup(LAYOUT_VERTICAL_LEFT, 20);
+          if (ImageButton("textures/text_about.webp", 50, "my_id") ==
+              EVENT_WENT_UP) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
+            show_about = true;
+          }
+          StartGroup(LAYOUT_HORIZONTAL_TOP, 0);
+            Label("Property T", 30);
+            SetTextColor(mathfu::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            Label("Test ", 30);
+            SetTextColor(mathfu::kOnes4f);
+            Label("ffWAWÄテスト", 30);
+          EndGroup();
+          StartGroup(LAYOUT_VERTICAL_LEFT, 20);
+            auto splash_tex = matman.FindTexture("textures/splash.webp");
+            ImageBackgroundNinePatch(*splash_tex, vec4(0.2, 0.2, 0.8, 0.8));
 
-    StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-    auto tex = matman.FindTexture("textures/splash.webp");
-    ImageBackgroundNinePatch(*tex, vec4(0.2, 0.2, 0.8, 0.8));
-
-    Label("The quick brown fox jumps over the lazy dog", 32);
-    Label("The quick brown fox jumps over the lazy dog", 24);
-    Label("The quick brown fox jumps over the lazy dog", 20);
-    EndGroup();
-    EndGroup();
-    StartGroup(LAYOUT_VERTICAL_CENTER, 40);
-    if (ImageButton("textures/text_about.webp", 50, "my_id2") == EVENT_WENT_UP)
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked 2!");
-    Image("textures/text_about.webp", 40);
-    Image("textures/text_about.webp", 30);
-    EndGroup();
-    StartGroup(LAYOUT_VERTICAL_RIGHT, 0);
-    SetMargin(Margin(100));
-    Image("textures/text_about.webp", 50);
-    Image("textures/text_about.webp", 40);
-    Image("textures/text_about.webp", 30);
-    EndGroup();
+            Label("The quick brown fox jumps over the lazy dog", 32);
+            Label("The quick brown fox jumps over the lazy dog", 24);
+            Label("The quick brown fox jumps over the lazy dog", 20);
+          EndGroup();
+        EndGroup();
+        StartGroup(LAYOUT_VERTICAL_CENTER, 40);
+          if (ImageButton("textures/text_about.webp", 50, "my_id2") ==
+              EVENT_WENT_UP) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked 2!");
+            show_about = true;
+          }
+          Image("textures/text_about.webp", 40);
+          Image("textures/text_about.webp", 30);
+        EndGroup();
+        StartGroup(LAYOUT_VERTICAL_RIGHT, 0);
+          SetMargin(Margin(100));
+          Image("textures/text_about.webp", 50);
+          Image("textures/text_about.webp", 40);
+          Image("textures/text_about.webp", 30);
+        EndGroup();
+      EndGroup();
+      if (show_about) {
+        StartGroup(LAYOUT_VERTICAL_LEFT, 20, "about_overlay");
+          SetMargin(Margin(10));
+          ColorBackground(vec4(0.5f, 0.5f, 0.0f, 1.0f));
+          if (ImageButton("textures/text_about.webp", 50, "my_id3") ==
+              EVENT_WENT_UP) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked 3");
+            show_about = false;
+          }
+          Label("This is the about window! すし!", 32);
+          Label("You should only be able to click on the", 24);
+          Label("about button above, not anywhere else", 20);
+        EndGroup();
+      }
     EndGroup();
   });
 }
