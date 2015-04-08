@@ -15,7 +15,6 @@ or the [releases page](http://github.com/google/pienoon/releases).
 Pie Noon code is divided into the following subsystems
 - [PieNoonGame][] -- holds game subsystems, state, and state machine
 - [Engine][] -- a simple, game agnostic renderer, file loader, and input system
-- [Audio][] -- a simple, game agnostic audio engine supporing buses and ducking
 - [GUI][] -- a simple, game agnostic GUI
 
 Pie Noon is built on top of [SDL][], a low-level cross platform library.
@@ -50,7 +49,6 @@ The following bullets describe the directory structure of the game.
 <br>
 
   [Android TV]: http://www.android.com/tv/
-  [Audio]: @ref pie_noon_guide_audio
   [Engine]: @ref pie_noon_guide_engine
   [FlatBuffers]: http://google-opensource.blogspot.ca/2014/06/flatbuffers-memory-efficient.html
   [fplutil]: http://google.github.io/fplutil

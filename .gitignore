@@ -24,7 +24,6 @@ tests/Debug/
 tests/Release/
 tests/pie_noon.build/
 tests/angle_test.dir/
-tests/audio_engine_test.dir/
 tests/character_state_machine_test.dir/
 libogg/liblibogg.a
 libvorbis/liblibvorbis.a
