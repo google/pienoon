@@ -37,8 +37,6 @@
         <tab type="user" url="@ref pie_noon_guide_audio" title="Audio Engine"/>
         <tab type="user" url="@ref pie_noon_guide_controllers"
              title="Controllers"/>
-        <tab type="user" url="@ref pie_noon_guide_impel"
-             title="Impel Animation"/>
         <tab type="user" url="@ref pie_noon_guide_gui" title="GUI"/>
       </tab>
     </tab>
