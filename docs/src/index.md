@@ -52,8 +52,8 @@ shows how to use several open source technology components developed by Google.
      style="height: 20em" />
    [MathFu][], a geometry math library optimized for [ARM][] and [x86][]
    processors. The game uses [MathFu][] data types for two and three
-     dimensional vectors, and for the 4x4 matrices used by the rendering
-   and procedural animation system.
+   dimensional vectors, and for the 4x4 matrices used by the rendering
+   system, and also by the [Motive][] animation system.
   </td>
 </tr>
 <tr>
@@ -135,10 +135,10 @@ depends upon, so download the source from [GitHub][] using:
   [Engine]: @ref pie_noon_guide_engine
   [FlatBuffers]: http://google-opensource.blogspot.ca/2014/06/flatbuffers-memory-efficient.html
   [fplutil]: http://android-developers.blogspot.ca/2014/11/utilities-for-cc-android-developers.html
-  [Impel]: @ref pie_noon_guide_impel
   [JSON]: http://www.json.org/
   [Linux]: http://en.m.wikipedia.org/wiki/Linux
   [MathFu]: http://googledevelopers.blogspot.ca/2014/11/geometry-math-library-for-c-game.html
+  [Motive]: http://google.github.io/motive/
   [Nexus Player]: http://www.google.com/nexus/player/
   [OS X]: http://www.apple.com/osx/
   [Pie Noon]: @ref pie_noon_index
