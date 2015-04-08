@@ -16,7 +16,6 @@ Pie Noon code is divided into the following subsystems
 - [PieNoonGame][] -- holds game subsystems, state, and state machine
 - [Engine][] -- a simple, game agnostic renderer, file loader, and input system
 - [Audio][] -- a simple, game agnostic audio engine supporing buses and ducking
-- [Impel][] -- simple animation of in game objects and GUI elements
 - [GUI][] -- a simple, game agnostic GUI
 
 Pie Noon is built on top of [SDL][], a low-level cross platform library.
@@ -56,7 +55,6 @@ The following bullets describe the directory structure of the game.
   [FlatBuffers]: http://google-opensource.blogspot.ca/2014/06/flatbuffers-memory-efficient.html
   [fplutil]: http://google.github.io/fplutil
   [GUI]: @ref pie_noon_guide_gui
-  [Impel]: @ref pie_noon_guide_impel
   [MathFu]: http://googledevelopers.blogspot.ca/2014/11/geometry-math-library-for-c-game.html
   [Nexus Player]: http://www.google.com/nexus/player/
   [Pie Noon]: @ref pie_noon_index

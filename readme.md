@@ -9,10 +9,10 @@ your friends.
 ## Motivation
 
 [Pie Noon][] is a demonstration for several technologies, including the
-[FlatBuffers][] serialization system, the [MathFu][] geometry math library,
-and the [fplutil][] utility library for Android C++ development.
-It also uses simple rendering, audio, GUI, and animation subsystems
-(see [Engine][] and [Impel][]).
+[FlatBuffers][] serialization system, the [Motive][] animation system,
+the [MathFu][] geometry math library, and the [fplutil][] utility library
+for Android C++ development. It also uses simple rendering, audio, and GUI
+subsystems (see [Engine][]).
 
 Pie Noon is also an example of a quick and fun party game for the living room
 via support for the [Nexus Player][], an [Android TV][] device.
@@ -54,9 +54,9 @@ you would leave it in.
   [Android TV]: http://www.android.com/tv/
   [Build and Run Pie Noon]: http://google.github.io/pienoon/pie_noon_guide_building.html
   [Engine]: http://google.github.io/pienoon/pie_noon_guide_engine.html
-  [Flatbuffers]: http://google.github.io/flatbuffers/
+  [FlatBuffers]: http://google.github.io/flatbuffers/
   [fplutil]: http://android-developers.blogspot.ca/2014/11/utilities-for-cc-android-developers.html
-  [Impel]: http://google.github.io/pienoon/pie_noon_guide_impel.html
+  [Motive]: http://google.github.io/motive/
   [MathFu]: http://googledevelopers.blogspot.ca/2014/11/geometry-math-library-for-c-game.html
   [Nexus Player]: http://www.google.com/nexus/player/
   [Pie Noon]: http://google.github.io/pienoon/
