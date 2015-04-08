@@ -16,6 +16,7 @@ need for building [Pie Noon][] for Android:
 -   [Python][]: 2.7.*
 -   [cwebp][]: 0.4.0 or newer (download from the
     [WebP Precompiled Utilities][])
+-   [Ragel][]: 6.9 or newer
 
 # Before Building
 
@@ -99,3 +100,4 @@ If only one device is attached to a workstation, the `-d` argument
   [cwebp]: http://developers.google.com/speed/webp/docs/cwebp
   [WebP Precompiled Utilities]: http://developers.google.com/speed/webp/docs/precompiled
   [Google Play Developer Console]: http://play.google.com/apps/publish/
+  [Ragel]: http://www.colm.net/open-source/ragel/

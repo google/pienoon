@@ -14,6 +14,7 @@ These are the minimum required versions for building PieNoon on OS X:
 -   [Python][]: 2.7.*
 -   [cwebp][]: 0.4.0 or newer (download from the
     [WebP Precompiled Utilities][])
+-   [Ragel][]: 6.9 or newer
 
 # Before Building    {#building_osx_prerequisites}
 
