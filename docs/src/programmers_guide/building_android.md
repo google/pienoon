@@ -11,7 +11,7 @@ need for building [Pie Noon][] for Android:
 -   [ADT][]: 20140702
 -   [Android NDK][]: android-ndk-r10c
 -   NDK plugn for Eclipse: Bundled with ADT
--   [Google Play Games C++ SDK][]: 1.3 or above
+-   [Google Play Games C++ SDK][]: 1.4 or above
 -   [cmake][]: 2.8.12 or newer
 -   [Python][]: 2.7.*
 -   [cwebp][]: 0.4.0 or newer (download from the
@@ -30,7 +30,7 @@ need for building [Pie Noon][] for Android:
 -   Download the [Google Play Games C++ SDK][] and unpack into Pie Noon's
     `dependencies/gpg-cpp-sdk` directory.
     -   For example, if you've fetched Pie Noon to `~/pie_noon/`, unpack
-        the downloaded `gpg-cpp-sdk.v1.3.zip` to
+        the downloaded `gpg-cpp-sdk.v1.4.zip` to
         `~/pie_noon/dependencies/gpg-cpp-sdk`.
 
 ## Set up Google Play Games Services

@@ -88,6 +88,8 @@ build and archive the game, and profile the game's CPU performance.
    * other Android devices
      * you can play on your phone or tablet in single-player mode,
      * or against human adversaries using Bluetooth controllers.
+     * or in multi-screen mode with an Android TV and 1-4 Android phones/tablets
+       (*new in v1.1!*)
 
 ## Supported Platforms
 
