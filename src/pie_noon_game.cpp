@@ -136,9 +136,9 @@ PieNoonGame::PieNoonGame()
       debug_previous_states_(),
       full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized),
-      ambience_channel_(nullptr),
-      stinger_channel_(nullptr),
-      music_channel_(nullptr),
+      ambience_channel_(),
+      stinger_channel_(),
+      music_channel_(),
       next_achievement_index_(0) {
   version_ = kVersion;
 }
@@ -1181,6 +1181,14 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       }
 
       if (state_ != kPaused) {
+        if (ambience_channel_.Valid()) {
+          ambience_channel_.Stop();
+          ambience_channel_.Clear();
+        }
+        if (music_channel_.Valid()) {
+          music_channel_.Stop();
+          music_channel_.Clear();
+        }
         audio_engine_.PlaySound("StartMatch");
         music_channel_ = audio_engine_.PlaySound("MusicAction");
         ambience_channel_ = audio_engine_.PlaySound("Ambience");
@@ -1215,8 +1223,13 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       }
       if (ambience_channel_.Valid()) {
         ambience_channel_.Stop();
+        ambience_channel_.Clear();
       }
-      stinger_channel_ = pindrop::Channel(nullptr);
+      if (music_channel_.Valid()) {
+        music_channel_.Stop();
+        music_channel_.Clear();
+      }
+      stinger_channel_.Clear();
       music_channel_ = audio_engine_.PlaySound("MusicMenu");
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
@@ -1271,7 +1284,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     case kMultiscreenClient: {
       if (music_channel_.Valid() && music_channel_.Playing()) {
         music_channel_.Stop();
-        music_channel_ = pindrop::Channel(nullptr);
+        music_channel_.Clear();
       }
       break;
     }
