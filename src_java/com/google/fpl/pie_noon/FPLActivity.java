@@ -57,7 +57,7 @@ import org.libsdl.app.SDLActivity;
 public class FPLActivity extends SDLActivity implements
     MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcListener {
 
-  private final String PROPERTY_ID = "UA-50947701-2";
+  private final String PROPERTY_ID = "XX-XXXXXXXX-X";
   private Tracker tracker = null;
 
   // Fields used in order to interact with a Cardboard device
