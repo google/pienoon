@@ -131,7 +131,7 @@ void StaticImage::Initialize(const StaticImageDef& image_def,
   color_ = mathfu::kOnes4f;
   one_over_cannonical_window_height_ =
       1.0f / static_cast<float>(cannonical_window_height);
-  is_visible_ = image_def_->visible();
+  is_visible_ = image_def_->visible() != 0;
   assert(Valid());
 }
 

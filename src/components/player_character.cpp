@@ -194,7 +194,7 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
         {health, LoadVec2i(renderable->health_offset()), config_->health_map(),
          config_->health_accessories()}};
 
-    for (size_t j = 0; j < ARRAYSIZE(accessories); ++j) {
+    for (size_t j = 0; j < PIE_ARRAYSIZE(accessories); ++j) {
       // Get the set of indices into the fixed_accessories array.
       const int max_key = accessories[j].indices->Length() - 1;
       const int key = mathfu::Clamp(accessories[j].key, 0, max_key);
