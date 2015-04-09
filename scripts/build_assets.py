@@ -43,17 +43,20 @@ PREBUILTS_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
                                               os.path.pardir, os.path.pardir,
                                               'prebuilts'))
 
-PINDROP_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
-                                            os.path.pardir, os.path.pardir,
-                                            'libs', "audio_engine"))
+if os.path.exists(os.path.join(PROJECT_ROOT, 'dependencies')):
+  DEPENDENCIES_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT,
+                                                   'dependencies'))
+else:
+  DEPENDENCIES_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, os.path.pardir,
+                                                   os.path.pardir, 'libs'))
 
-MOTIVE_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
-                                           os.path.pardir, os.path.pardir,
-                                           'libs', "motive"))
 
-FLATBUFFERS_ROOT = os.path.abspath(os.path.join(os.path.join(PROJECT_ROOT),
-                                                os.path.pardir, os.path.pardir,
-                                               'libs', "flatbuffers"))
+PINDROP_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'audio_engine'))
+
+MOTIVE_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'motive'))
+
+FLATBUFFERS_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT,
+                                                'flatbuffers'))
 
 # Directories that may contains the FlatBuffers compiler.
 FLATBUFFERS_PATHS = [
