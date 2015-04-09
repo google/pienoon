@@ -46,17 +46,68 @@ import android.widget.TextView;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.vrtoolkit.cardboard.CardboardDeviceParams;
+import com.google.vrtoolkit.cardboard.CardboardView;
+import com.google.vrtoolkit.cardboard.Eye;
+import com.google.vrtoolkit.cardboard.HeadTransform;
+import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
+import com.google.vrtoolkit.cardboard.sensors.NfcSensor;
 import org.libsdl.app.SDLActivity;
 
-public class FPLActivity extends SDLActivity {
+public class FPLActivity extends SDLActivity implements
+    MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcListener {
 
   private final String PROPERTY_ID = "XX-XXXXXXXX-X";
   private Tracker tracker = null;
+
+  // Fields used in order to interact with a Cardboard device
+  private CardboardView cardboardView;
+  private MagnetSensor magnetSensor;
+  private NfcSensor nfcSensor;
+  private HeadTransform headTransform;
+  private Eye leftEye;
+  private Eye rightEye;
+  private Eye monocularEye;
+  private Eye leftEyeNoDistortion;
+  private Eye rightEyeNoDistortion;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     tracker = GoogleAnalytics.getInstance(this).newTracker(PROPERTY_ID);
+
+    // Instantiate fields used by Cardboard
+    cardboardView = new CardboardView(this);
+    headTransform = new HeadTransform();
+    leftEye = new Eye(Eye.Type.LEFT);
+    rightEye = new Eye(Eye.Type.RIGHT);
+    monocularEye = new Eye(Eye.Type.MONOCULAR);
+    leftEyeNoDistortion = new Eye(Eye.Type.LEFT);
+    rightEyeNoDistortion = new Eye(Eye.Type.RIGHT);
+    magnetSensor = new MagnetSensor(this);
+    magnetSensor.setOnCardboardTriggerListener(this);
+    nfcSensor = NfcSensor.getInstance(this);
+    nfcSensor.addOnCardboardNfcListener(this);
+    NdefMessage tagContents = nfcSensor.getTagContents();
+    if (tagContents != null) {
+      updateCardboardDeviceParams(CardboardDeviceParams.createFromNfcContents(tagContents));
+    }
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    cardboardView.onResume();
+    magnetSensor.start();
+    nfcSensor.onResume(this);
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+    cardboardView.onPause();
+    magnetSensor.stop();
+    nfcSensor.onPause(this);
   }
 
   // GPG's GUIs need activity lifecycle events to function properly, but
@@ -217,6 +268,12 @@ public class FPLActivity extends SDLActivity {
       nativeOnGamepadInput(event.getDeviceId(), event.getAction(),
                            event.getKeyCode(), 0.0f, 0.0f);
     }
+    int keyCode = event.getKeyCode();
+    // Disable the volume keys while in a cardboard
+    if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) &&
+        nfcSensor.isDeviceInCardboard()) {
+      return true;
+    }
     return super.dispatchKeyEvent(event);
   }
 
@@ -288,6 +345,46 @@ public class FPLActivity extends SDLActivity {
            .build());
   }
 
+  @Override
+  public void onCardboardTrigger() {
+    nativeOnCardboardTrigger();
+  }
+
+  @Override
+  public void onInsertedIntoCardboard(CardboardDeviceParams cardboardDeviceParams) {
+    updateCardboardDeviceParams(cardboardDeviceParams);
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    nativeSetDeviceInCardboard(true);
+  }
+
+  @Override
+  public void onRemovedFromCardboard() {
+    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    nativeSetDeviceInCardboard(false);
+  }
+
+  protected void updateCardboardDeviceParams(CardboardDeviceParams newParams) {
+    cardboardView.updateCardboardDeviceParams(newParams);
+  }
+
+  // Function to access the transforms of the eyes, which includes head tracking
+  public void GetEyeViews(float[] leftTransform, float[] rightTransform) {
+    cardboardView.getCurrentEyeParams(headTransform,
+                                      leftEye,
+                                      rightEye,
+                                      monocularEye,
+                                      leftEyeNoDistortion,
+                                      rightEyeNoDistortion);
+    if (leftTransform != null && leftTransform.length >= 16) {
+      float[] leftView = leftEye.getEyeView();
+      System.arraycopy(leftView, 0, leftTransform, 0, 16);
+    }
+    if (rightTransform != null && rightTransform.length >= 16) {
+      float[] rightView = rightEye.getEyeView();
+      System.arraycopy(rightView, 0, rightTransform, 0, 16);
+    }
+  }
+
   // Implemented in C++. (gpg_manager.cpp)
   private static native void nativeOnActivityResult(
       Activity activity,
@@ -302,4 +399,11 @@ public class FPLActivity extends SDLActivity {
       int controlCode,
       float x,
       float y);
+
+  // Implemented in C++. (input.cpp)
+  private static native void nativeOnCardboardTrigger();
+
+  // Implemented in C++. (input.cpp)
+  private static native void nativeSetDeviceInCardboard(boolean inCardboard);
+
 }

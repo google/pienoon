@@ -26,7 +26,7 @@
 #endif
 
 #ifdef __ANDROID__
-//#define ANDROID_CARDBOARD
+#define ANDROID_CARDBOARD
 #endif  //__ANDROID__
 
 namespace fpl {
