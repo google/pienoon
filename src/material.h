@@ -27,7 +27,7 @@ enum BlendMode {
   kBlendModeTest,
   kBlendModeAlpha,
 
-  kBlendModeCount // Must be at end.
+  kBlendModeCount  // Must be at end.
 };
 
 enum TextureFormat {
@@ -36,20 +36,44 @@ enum TextureFormat {
   kFormat888,
   kFormat5551,
   kFormat565,
+  kFormatLuminance,
 };
 
 class Texture : public AsyncResource {
  public:
   Texture(Renderer &renderer, const std::string &filename)
-    : AsyncResource(filename), renderer_(&renderer), id_(0),
-      size_(mathfu::kZeros2i), has_alpha_(false), desired_(kFormatAuto) {}
+      : AsyncResource(filename),
+        renderer_(&renderer),
+        id_(0),
+        size_(mathfu::kZeros2i),
+        uv_(vec4(0.0f, 0.0f, 1.0f, 1.0f)),
+        has_alpha_(false),
+        desired_(kFormatAuto) {}
+  Texture(Renderer &renderer)
+      : AsyncResource(""),
+        renderer_(&renderer),
+        id_(0),
+        size_(mathfu::kZeros2i),
+        uv_(vec4(0.0f, 0.0f, 1.0f, 1.0f)),
+        has_alpha_(false),
+        desired_(kFormatAuto) {}
+  ~Texture() { Delete(); }
 
   virtual void Load();
+  virtual void LoadFromMemory(const uint8_t *data, const vec2i size,
+                              const TextureFormat format, const bool has_alpha);
   virtual void Finalize();
+
+  void Set(size_t unit);
+  void Delete();
 
   const GLuint &id() const { return id_; }
   vec2i size() { return size_; }
   const vec2i size() const { return size_; }
+
+  const vec4 &uv() const { return uv_; }
+  void set_uv(const vec4 &uv) { uv_ = uv; }
+
   void set_desired_format(TextureFormat format) { desired_ = format; }
 
  private:
@@ -57,6 +81,7 @@ class Texture : public AsyncResource {
 
   GLuint id_;
   vec2i size_;
+  vec4 uv_;
   bool has_alpha_;
   TextureFormat desired_;
 };

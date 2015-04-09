@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/store_front.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/store_front.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

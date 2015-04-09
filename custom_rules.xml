@@ -28,6 +28,7 @@ limitations under the License.
   <target name="initialize-google-play-games_lib"
           description="Initialize Google Play Games library in the project.">
     <!-- Copy the library to the project. -->
+    <!-- Temporarily disable this while we use a debug version of the lib -->
     <copy todir="google-play-services_lib">
       <fileset dir="${sdk.dir}/extras/google/google_play_services/libproject/google-play-services_lib"/>
     </copy>
@@ -61,5 +62,8 @@ limitations under the License.
        the Google Play Games library and SDL Android activity to this
        directory before the build process starts. -->
   <target name="-pre-build"
-          depends="initialize-google-play-games_lib, copy-sdl-activity" />
+          depends="initialize-google-play-games_lib, copy-sdl-activity"/>
+
+  <target name="-pre-clean" depends="initialize-google-play-games_lib" />
+
 </project>

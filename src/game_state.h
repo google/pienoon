@@ -18,14 +18,24 @@
 #include <vector>
 #include <memory>
 #include "character.h"
-#include "impel_processor.h"
-#include "impel_util.h"
-#include "particles.h"
+#include "components/drip_and_vanish.h"
+#include "components/player_character.h"
+#include "components/scene_object.h"
+#include "components/shakeable_prop.h"
+#include "entity/entity.h"
+#include "entity/entity_manager.h"
 #include "game_camera.h"
+#include "motive/engine.h"
+#include "motive/processor.h"
+#include "motive/util.h"
+#include "particles.h"
+
+namespace pindrop {
+class AudioEngine;
+}  // namespace pindrop
 
 namespace fpl {
 
-class AudioEngine;
 class InputSystem;
 class SceneDescription;
 
@@ -35,9 +45,18 @@ struct Config;
 struct CharacterArrangement;
 struct EventData;
 struct ReceivedPie;
+class MultiplayerDirector;
+
+class PieNoonEntityFactory : public entity::EntityFactoryInterface {
+ public:
+  virtual entity::EntityRef CreateEntityFromData(
+      const void* data, entity::EntityManager* entity_manager);
+};
 
 class GameState {
  public:
+  enum AnalyticsMode { kNoAnalytics, kTrackAnalytics };
+
   GameState();
   ~GameState();
 
@@ -45,13 +64,20 @@ class GameState {
   bool IsGameOver() const;
 
   // Return to default configuration.
+  // If demo mode is set, no analytics tracking will be performed.
+  void Reset(AnalyticsMode analytics_mode);
   void Reset();
 
   // Update controller and state machine for each character.
-  void AdvanceFrame(WorldTime delta_time, AudioEngine* audio_engine);
+  void AdvanceFrame(WorldTime delta_time, pindrop::AudioEngine* audio_engine);
+
+  // To be run before starting a game and after ending one to log data about
+  // gameplay.
+  void PreGameLogging() const;
+  void PostGameLogging() const;
 
   // Fill in the position of the characters and pies.
-  void PopulateScene(SceneDescription* scene) const;
+  void PopulateScene(SceneDescription* scene);
 
   // Angle between two characters.
   Angle AngleBetweenCharacters(CharacterId source_id,
@@ -97,33 +123,56 @@ class GameState {
 
   void set_config(const Config* config) { config_ = config; }
 
-  impel::ImpelEngine& impel_engine() { return impel_engine_; }
+#ifdef ANDROID_CARDBOARD
+  void set_cardboard_config(const Config* config) {
+    cardboard_config_ = config;
+  }
+#endif
+
+  motive::MotiveEngine& engine() { return engine_; }
+  ParticleManager& particle_manager() { return particle_manager_; }
 
   // Sets up the players in joining mode, where all they can do is jump up
   // and down.
   void EnterJoiningMode();
 
-private:
   WorldTime GetAnimationTime(const Character& character) const;
-  void ProcessSounds(AudioEngine* audio_engine,
-                     const Character& character,
-                     WorldTime delta_time) const;
+
+  // Sets the MultiplayerDirector we can talk to to propagate some game state
+  // across the network. You must ensure it stays in memory as long as GameState
+  // does.
+  void RegisterMultiplayerDirector(MultiplayerDirector* director) {
+    multiplayer_director_ = director;
+  }
+
+  void set_is_multiscreen(bool b) { is_multiscreen_ = b; }
+  bool is_multiscreen() const { return is_multiscreen_; }
+
+#ifdef ANDROID_CARDBOARD
+  void set_is_in_cardboard(bool b) { is_in_cardboard_ = b; }
+  bool is_in_cardboard() const { return is_in_cardboard_; }
+#endif
+
+ private:
+  void ProcessSounds(pindrop::AudioEngine* audio_engine,
+                     const Character& character, WorldTime delta_time) const;
   void CreatePie(CharacterId original_source_id, CharacterId source_id,
-                 CharacterId target_id, int damage);
+                 CharacterId target_id, CharacterHealth original_damage,
+                 CharacterHealth damage);
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
-  void ProcessEvent(Character* character,
-                    unsigned int event,
-                    const EventData& event_data);
+  void ProcessEvent(pindrop::AudioEngine* audio_engine, Character* character,
+                    unsigned int event, const EventData& event_data);
   void PopulateConditionInputs(ConditionInputs* condition_inputs,
                                const Character& character) const;
-  void PopulateCharacterAccessories(SceneDescription* scene, uint16_t renderable_id,
+  void PopulateCharacterAccessories(SceneDescription* scene,
+                                    uint16_t renderable_id,
                                     const mathfu::mat4& character_matrix,
                                     int num_accessories, int damage,
                                     int health) const;
-  void ProcessConditionalEvents(Character* character, EventData* event_data);
-  void ProcessEvents(Character* character,
-                     EventData* data,
-                     WorldTime delta_time);
+  void ProcessConditionalEvents(pindrop::AudioEngine* audio_engine,
+                                Character* character, EventData* event_data);
+  void ProcessEvents(pindrop::AudioEngine* audio_engine, Character* character,
+                     EventData* data, WorldTime delta_time);
   void UpdatePiePosition(AirbornePie* pie) const;
   CharacterId CalculateCharacterTarget(CharacterId id) const;
   float CalculateCharacterFacingAngleVelocity(const Character* character,
@@ -131,14 +180,17 @@ private:
   mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
-  impel::TwitchDirection FakeResponseToTurn(CharacterId id) const;
+  Angle TiltCharacterAwayFromCamera(CharacterId id, const Angle angle) const;
+  motive::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
-  void CreatePieSplatter(const Character& character, int damage);
+  void CreatePieSplatter(pindrop::AudioEngine* audio_engine,
+                         const Character& character, int damage);
   void CreateJoinConfettiBurst(const Character& character);
-  void SpawnParticles(const mathfu::vec3 &position, const ParticleDef * def,
+  void SpawnParticles(const mathfu::vec3& position, const ParticleDef* def,
                       const int particle_count,
-                      const mathfu::vec4 &base_tint = mathfu::vec4(1, 1, 1, 1));
+                      const mathfu::vec4& base_tint = mathfu::vec4(1, 1, 1, 1));
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
+  void AddSplatterToProp(entity::EntityRef prop);
 
   WorldTime time_;
   // countdown_time_ is in seconds and is derived from the length of the game
@@ -149,11 +201,37 @@ private:
   GameCameraState camera_base_;
   std::vector<std::unique_ptr<Character>> characters_;
   std::vector<std::unique_ptr<AirbornePie>> pies_;
-  impel::ImpelEngine impel_engine_;
-  std::vector<impel::Impeller1f> prop_shake_;
+  motive::MotiveEngine engine_;
   const Config* config_;
   const CharacterArrangement* arrangement_;
   ParticleManager particle_manager_;
+  AnalyticsMode analytics_mode_;
+
+  // Entity manager that tracks all of our entities.
+  entity::EntityManager entity_manager_;
+  // Entity factory for creating entities from flatbuffers:
+  PieNoonEntityFactory pie_noon_entity_factory_;
+
+  // Component for handling movable objects in the scene.
+  SceneObjectComponent sceneobject_component_;
+  // Component for handling static, swaying props in the background.
+  ShakeablePropComponent shakeable_prop_component_;
+  // Component for scenery-splatter behavior.
+  DripAndVanishComponent drip_and_vanish_component_;
+  // Component for drawing player characters:
+  PlayerCharacterComponent player_character_component_;
+
+  // For multi-screen mode.
+  MultiplayerDirector* multiplayer_director_;
+
+  // Whether you are playing in multiscreen mode.
+  bool is_multiscreen_;
+
+#ifdef ANDROID_CARDBOARD
+  const Config* cardboard_config_;
+  // Whether you are playing in Cardboard mode.
+  bool is_in_cardboard_;
+#endif
 };
 
 }  // pie_noon

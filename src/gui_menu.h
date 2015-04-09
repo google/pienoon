@@ -33,8 +33,7 @@ class StaticImage;
 // triggered it.
 struct MenuSelection {
   MenuSelection(ButtonId buttonId, ControllerId controllerId)
-      : button_id(buttonId),
-        controller_id(controllerId) {}
+      : button_id(buttonId), controller_id(controllerId) {}
 
   ButtonId button_id;
   ControllerId controller_id;
@@ -75,7 +74,6 @@ class GuiMenu {
   WorldTime time_elapsed_;
 };
 
-
 }  // pie_noon
 }  // fpl
-#endif // GUI_MENU_H
+#endif  // GUI_MENU_H

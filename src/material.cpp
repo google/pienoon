@@ -19,12 +19,20 @@
 namespace fpl {
 
 void Texture::Load() {
-  data_ = renderer_->LoadAndUnpackTexture(filename_.c_str(), &size_,
-                                          &has_alpha_);
+  data_ =
+      renderer_->LoadAndUnpackTexture(filename_.c_str(), &size_, &has_alpha_);
   if (!data_) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "texture load: %s: %s",
-                filename_.c_str(), renderer_->last_error().c_str());
+                 filename_.c_str(), renderer_->last_error().c_str());
   }
+}
+
+void Texture::LoadFromMemory(const uint8_t *data, const vec2i size,
+                             const TextureFormat format, const bool has_alpha) {
+  size_ = size;
+  has_alpha_ = has_alpha;
+  desired_ = format;
+  id_ = renderer_->CreateTexture(data, size_, has_alpha_, desired_);
 }
 
 void Texture::Finalize() {
@@ -35,18 +43,25 @@ void Texture::Finalize() {
   }
 }
 
-void Material::Set(Renderer &renderer) {
-  renderer.SetBlendMode(blend_mode_);
-  for (size_t i = 0; i < textures_.size(); i++) {
-    GL_CALL(glActiveTexture(GL_TEXTURE0 + i));
-    GL_CALL(glBindTexture(GL_TEXTURE_2D, textures_[i]->id()));
+void Texture::Set(size_t unit) {
+  GL_CALL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL_CALL(glBindTexture(GL_TEXTURE_2D, id_));
+}
+
+void Texture::Delete() {
+  if (id_) {
+    GL_CALL(glDeleteTextures(1, &id_));
+    id_ = 0;
   }
 }
 
+void Material::Set(Renderer &renderer) {
+  renderer.SetBlendMode(blend_mode_);
+  for (size_t i = 0; i < textures_.size(); i++) textures_[i]->Set(i);
+}
+
 void Material::DeleteTextures() {
-  for (size_t i = 0; i < textures_.size(); i++) {
-    GL_CALL(glDeleteTextures(1, &textures_[i]->id()));
-  }
+  for (size_t i = 0; i < textures_.size(); i++) textures_[i]->Delete();
 }
 
 }  // namespace fpl

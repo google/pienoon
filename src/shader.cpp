@@ -17,7 +17,7 @@
 #include "renderer.h"
 
 #ifdef _WIN32
-#define snprintf(buffer, count, format, ...)\
+#define snprintf(buffer, count, format, ...) \
   _snprintf_s(buffer, count, count, format, __VA_ARGS__)
 #endif  // _WIN32
 
@@ -26,8 +26,8 @@ namespace fpl {
 void Shader::InitializeUniforms() {
   // Look up variables that are standard, but still optionally present in a
   // shader.
-  uniform_model_view_projection_ = glGetUniformLocation(
-                                        program_, "model_view_projection");
+  uniform_model_view_projection_ =
+      glGetUniformLocation(program_, "model_view_projection");
   uniform_model_ = glGetUniformLocation(program_, "model");
 
   uniform_color_ = glGetUniformLocation(program_, "color");
@@ -38,8 +38,8 @@ void Shader::InitializeUniforms() {
   // Set up the uniforms the shader uses for texture access.
   char texture_unit_name[] = "texture_unit_#####";
   for (int i = 0; i < kMaxTexturesPerShader; i++) {
-    snprintf(texture_unit_name, sizeof(texture_unit_name),
-        "texture_unit_%d", i);
+    snprintf(texture_unit_name, sizeof(texture_unit_name), "texture_unit_%d",
+             i);
     auto loc = glGetUniformLocation(program_, texture_unit_name);
     if (loc >= 0) GL_CALL(glUniform1i(loc, i));
   }

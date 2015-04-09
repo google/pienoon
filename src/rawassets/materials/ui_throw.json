@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/firing.webp"
-  ],
-  blendmode: ALPHA
+    "texture_filenames": [
+        "textures/firing.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

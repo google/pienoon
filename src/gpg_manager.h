@@ -18,16 +18,12 @@
 #include "common.h"
 #include "pthread.h"
 #include "gpg/achievement_manager.h"
+#include "gpg/player_manager.h"
 #include "gpg/types.h"
-
 
 namespace fpl {
 
-enum RequestState {
-  kPending,
-  kComplete,
-  kFailed
-};
+enum RequestState { kPending, kComplete, kFailed };
 
 struct GPGKeyValuePair {
   std::string id;
@@ -51,7 +47,9 @@ class GPGManager {
   // Logged in status, can be shown in UI.
   bool LoggedIn();
 
-  struct GPGIds { const char *leaderboard, *event; };
+  struct GPGIds {
+    const char *leaderboard, *event;
+  };
 
   // Request this stat to be saved for the logged in
   // player. Does nothing if not logged in.
@@ -63,17 +61,19 @@ class GPGManager {
   // Asynchronously fetches the stats associated with the current player
   // from the server.  (Does nothing if not logged in.)
   // The status of the data can be checked via event_data_state.
-  //const char* fields[]
+  // const char* fields[]
   void FetchEvents();
   void FetchAchievements();
 
-  RequestState event_data_state() const {
-    return event_data_state_;
-  }
+  // Asynchronously fetches the current player's info from the server.
+  // (Does nothing if not logged in.)
+  void FetchPlayer();
 
-  std::map<std::string, gpg::Event> &event_data() {
-    return event_data_;
-  }
+  RequestState event_data_state() const { return event_data_state_; }
+
+  std::map<std::string, gpg::Event> &event_data() { return event_data_; }
+
+  gpg::Player *player_data() const { return player_data_.get(); }
 
   uint64_t GetEventValue(std::string event_id);
   bool IsAchievementUnlocked(std::string achievement_id);
@@ -111,7 +111,9 @@ class GPGManager {
   RequestState achievement_data_state_;
   static pthread_mutex_t events_mutex_;
   static pthread_mutex_t achievements_mutex_;
+  static pthread_mutex_t players_mutex_;
   std::map<std::string, gpg::Event> event_data_;
+  std::unique_ptr<gpg::Player> player_data_;
   std::vector<gpg::Achievement> achievement_data_;
 };
 

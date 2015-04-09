@@ -70,13 +70,13 @@ main() {
 
   # Build release.
   cd "$(dirname "$(readlink -f $0)")/.."
-  rm -rf bin
+  git clean -xdf
   # Copy default libogg config_types.h if none exists
   if [ ! -r ../../../../external/libogg/include/ogg/config_types.h ]; then
     cp -fv external/include/ogg/config_types.h.default \
         ../../../../external/libogg/include/ogg/config_types.h
   fi
-  INSTALL=0 LAUNCH=0 ./build_install_run.sh
+  INSTALL=0 LAUNCH=0 ./build_install_run.sh --verbose -A ''
   if [[ -n "${dist_dir}" ]]; then
     # Archive unsigned release build.
     cp ./bin/pie_noon-release-unsigned.apk ${dist_dir}/PieNoon.apk
@@ -86,7 +86,8 @@ main() {
 
   # Build and archive the debug build.
   rm -rf bin
-  INSTALL=0 LAUNCH=0 ./build_install_run.sh -T debug -f 'NDK_DEBUG=1'
+  INSTALL=0 LAUNCH=0 ./build_install_run.sh -T debug -f 'NDK_DEBUG=1' \
+    --verbose -A ''
   if [[ -n "${dist_dir}" ]]; then
     cp ./bin/pie_noon-debug.apk ${dist_dir}/PieNoon-Debug.apk
   fi

@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/shelf_side.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/shelf_side.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

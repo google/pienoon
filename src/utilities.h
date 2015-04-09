@@ -26,7 +26,7 @@
 
 namespace fpl {
 
-bool LoadFile(const char *filename, std::string *dest);
+bool LoadFile(const char* filename, std::string* dest);
 
 inline const mathfu::vec3 LoadVec3(const pie_noon::Vec3* v) {
   // Note: eschew the constructor that loads contiguous floats. It's faster
@@ -48,8 +48,9 @@ inline const mathfu::vec2 LoadVec2(const pie_noon::Vec2* v) {
 }
 
 inline const mathfu::vec3 LoadAxis(pie_noon::Axis axis) {
-  return axis == pie_noon::Axis_X ? mathfu::kAxisX3f :
-         axis == pie_noon::Axis_Y ? mathfu::kAxisY3f : mathfu::kAxisZ3f;
+  return axis == pie_noon::Axis_X ? mathfu::kAxisX3f : axis == pie_noon::Axis_Y
+                                                           ? mathfu::kAxisY3f
+                                                           : mathfu::kAxisZ3f;
 }
 
 bool ChangeToUpstreamDir(const char* const binary_dir,
@@ -65,6 +66,6 @@ bool TouchScreenDevice();
 
 bool MipmapGeneration16bppSupported();
 
-} // namespace fpl
+}  // namespace fpl
 
-#endif // PIE_NOON_UTILITIES_H
+#endif  // PIE_NOON_UTILITIES_H

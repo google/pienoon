@@ -45,6 +45,10 @@ set(dependencies_gtest_dir "${fpl_root}/googletest"
     CACHE PATH "Directory containing the GoogleTest library.")
 set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
+set(dependencies_fplutil_dir "${fpl_root}/fplutil"
+    CACHE PATH "Directory containing the fplutil library.")
+set(dependencies_pindrop_dir "${fpl_root}/audio_engine"
+    CACHE PATH "Directory containing the pindrop library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
 set(dependencies_sdl_dir "${third_party_root}/sdl"
@@ -57,6 +61,8 @@ set(dependencies_libvorbis_cmake_dir "${CMAKE_MODULE_PATH}/libvorbis"
     CACHE PATH "Directory containing the libvorbis cmake project.")
 set(dependencies_libvorbis_distr_dir "${third_party_root}/libvorbis"
     CACHE PATH "Directory containing the libvorbis library.")
+set(dependencies_motive_dir "${fpl_root}/motive"
+    CACHE PATH "Directory containing the motive animation library.")
 set(dependencies_sdl_mixer_cmake_dir "${CMAKE_MODULE_PATH}/sdl_mixer"
     CACHE PATH "Directory containing the SDL Mixer cmake project.")
 set(dependencies_sdl_mixer_distr_dir "${third_party_root}/sdl_mixer"
@@ -65,6 +71,14 @@ set(dependencies_webp_cmake_dir "${CMAKE_MODULE_PATH}/webp"
     CACHE PATH "Directory containing the Webp cmake project.")
 set(dependencies_webp_distr_dir "${third_party_root}/webp"
     CACHE PATH "Directory containing the Webp distribution.")
+set(dependencies_harfbuzz_cmake_dir "${CMAKE_MODULE_PATH}/harfbuzz"
+    CACHE PATH "Directory containing the harfbuzz cmake project.")
+set(dependencies_harfbuzz_distr_dir "${third_party_root}/harfbuzz"
+    CACHE PATH "Directory containing the harfbuzz library.")
+set(dependencies_freetype_cmake_dir "${CMAKE_MODULE_PATH}/freetype"
+    CACHE PATH "Directory containing the freetype cmake project.")
+set(dependencies_freetype_distr_dir "${third_party_root}/freetype"
+    CACHE PATH "Directory containing the freetype library.")
 
 # Option to enable / disable the test build.
 option(pie_noon_build_tests "Build tests for this project." ON)
@@ -102,38 +116,58 @@ set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
 if(APPLE)
   set(SDL_AUDIO_DRIVER_COREAUDIO 1)
 endif(APPLE)
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET SDL2-static)
   add_subdirectory(${dependencies_sdl_dir} ${tmp_dir}/sdl)
 endif()
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
+# Include pindrop.
+if(NOT pie_noon_only_flatc AND NOT TARGET pindrop)
+  add_subdirectory("${dependencies_pindrop_dir}" ${tmp_dir}/pindrop)
+endif()
+
+# Include motive.
+if(NOT pie_noon_only_flatc AND NOT TARGET motive)
+  set(motive_build_samples OFF CACHE BOOL "")
+  set(motive_build_tests OFF CACHE BOOL "")
+  add_subdirectory("${dependencies_motive_dir}" ${tmp_dir}/motive)
+endif()
+
 # Include libogg.
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET libogg)
   add_subdirectory("${dependencies_libogg_cmake_dir}" ${tmp_dir}/libogg)
 endif()
 
 # Include libvorbis.
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET libvorbis)
   add_subdirectory("${dependencies_libvorbis_cmake_dir}" ${tmp_dir}/libvorbis)
+endif()
+
+# Include harfbuzz and freetype.
+if(NOT pie_noon_only_flatc)
+  add_subdirectory("${dependencies_harfbuzz_cmake_dir}" ${tmp_dir}/harfbuzz)
+  add_subdirectory("${dependencies_freetype_cmake_dir}" ${tmp_dir}/freetype)
 endif()
 
 # Include SDL Mixer.
 set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET sdl_mixer)
   add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" ${tmp_dir}/sdl_mixer)
 endif()
 
 # Include Webp in this project, and force build in release mode for speed.
 set(original_build_type ${CMAKE_BUILD_TYPE})
 set(CMAKE_BUILD_TYPE Release)
-if(NOT pie_noon_only_flatc)
+if(NOT pie_noon_only_flatc AND NOT TARGET webp)
   add_subdirectory("${dependencies_webp_cmake_dir}" ${tmp_dir}/webp)
 endif()
 set(CMAKE_BUILD_TYPE ${original_build_type})
 
 # Include FlatBuffers in this project.
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
-add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
+if(NOT TARGET flatc)
+  add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
+endif()
 
 # Generate source files for all FlatBuffers schema files under the src
 # directory.
@@ -150,15 +184,18 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
   add_custom_command(
     OUTPUT ${flatbuffers_include}
     COMMAND flatc --gen-includes -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        -c ${flatbuffers_schema}
-    DEPENDS flatc ${flatbuffers_schema})
+        -I ${dependencies_motive_dir}/schemas
+        -I ${dependencies_pindrop_dir}/schemas -c ${flatbuffers_schema}
+    DEPENDS flatc motive pindrop ${flatbuffers_schema})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 
 # Build rule that uses make to build the assets.
+get_property(flatc_location TARGET flatc PROPERTY LOCATION)
 add_custom_target(assets
   COMMAND python ${CMAKE_SOURCE_DIR}/scripts/build_assets.py
+                 --flatc ${flatc_location} --output ${CMAKE_BINARY_DIR}/assets
   DEPENDS flatc ${CWEBP_TARGET})
 
 if(APPLE)
@@ -170,14 +207,12 @@ endif()
 set(pie_noon_SRCS
     src/ai_controller.cpp
     src/ai_controller.h
-    src/async_loader.h
+    src/analytics_tracking.cpp
+    src/analytics_tracking.h
     src/async_loader.cpp
-    src/angle.h
-    src/audio_engine.cpp
-    src/audio_engine.h
-    src/bezier.h
-    src/bus.cpp
-    src/bus.h
+    src/async_loader.h
+    src/cardboard_controller.cpp
+    src/cardboard_controller.h
     src/character.cpp
     src/character.h
     src/character_state_machine.cpp
@@ -185,6 +220,21 @@ set(pie_noon_SRCS
     src/common.h
     src/controller.cpp
     src/controller.h
+    src/font_manager.cpp
+    src/font_manager.h
+    src/components/drip_and_vanish.cpp
+    src/components/drip_and_vanish.h
+    src/components/player_character.cpp
+    src/components/player_character.h
+    src/components/scene_object.cpp
+    src/components/scene_object.h
+    src/components/shakeable_prop.cpp
+    src/components/shakeable_prop.h
+    src/entity/component_interface.h
+    src/entity/entity.h
+    src/entity/entity_manager.cpp
+    src/entity/entity_manager.h
+    src/entity/vector_pool.h
     src/full_screen_fader.cpp
     src/full_screen_fader.h
     src/game_camera.cpp
@@ -192,28 +242,22 @@ set(pie_noon_SRCS
     src/game_state.cpp
     src/game_state.h
     src/glplatform.h
+    src/glyph_cache.h
     src/gpg_manager.h
+    src/gpg_multiplayer.h
     src/gui_menu.cpp
     src/gui_menu.h
-    src/impel_common.h
-    src/impel_engine.cpp
-    src/impel_engine.h
-    src/impel_flatbuffers.cpp
-    src/impel_flatbuffers.h
-    src/impel_id_map.h
-    src/impel_processor.h
-    src/impel_processor_base_classes.h
-    src/impel_processor_overshoot.cpp
-    src/impel_processor_overshoot.h
-    src/impel_processor_smooth.cpp
-    src/impel_processor_smooth.h
-    src/impel_util.h
-    src/impeller.h
+    src/imgui.h
+    src/imgui.cpp
     src/input.cpp
     src/input.h
     src/main.cpp
     src/material_manager.cpp
     src/material_manager.h
+    src/multiplayer_controller.cpp
+    src/multiplayer_controller.h
+    src/multiplayer_director.cpp
+    src/multiplayer_director.h
     src/player_controller.cpp
     src/player_controller.h
     src/shader.cpp
@@ -237,10 +281,6 @@ set(pie_noon_SRCS
     src/scene_description.h
     src/shader.cpp
     src/shader.h
-    src/sound.cpp
-    src/sound.h
-    src/sound_collection.cpp
-    src/sound_collection.h
     src/pie_noon_game.cpp
     src/pie_noon_game.h
     src/touchscreen_button.h
@@ -254,10 +294,15 @@ set(pie_noon_SRCS
 include_directories(src)
 if(WIN32)
   include_directories(external/include/windows)
+  include_directories(external/include/harfbuzz)
 endif()
-include_directories(${dependencies_webp_distr_dir}/include)
-include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${PINDROP_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${dependencies_flatbuffers_dir}/include)
+include_directories(${dependencies_fplutil_dir}/libfplutil/include)
+include_directories(${dependencies_motive_dir}/include)
+include_directories(${dependencies_pindrop_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/src)
 
@@ -273,6 +318,12 @@ include_directories(${dependencies_libvorbis_distr_dir}/include)
 # SDL Mixer includes.
 include_directories(${dependencies_sdl_mixer_distr_dir})
 
+# harfbuzz includes.
+include_directories(${dependencies_harfbuzz_distr_dir}/src)
+
+# freetype includes.
+include_directories(${dependencies_freetype_distr_dir}/include)
+
 # Detect clang
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_COMPILER_IS_CLANGXX 1)
@@ -281,7 +332,7 @@ endif()
 # Compiler flags.
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
-  set(C_FLAGS_WARNINGS "/W4 /WX")
+  set(C_FLAGS_WARNINGS "/W4 /WX /wd4065 /wd4244 /wd4511 /wd4512 /wd4706")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)
@@ -313,9 +364,13 @@ mathfu_configure_flags(pie_noon)
 add_dependencies(pie_noon generated_includes assets)
 target_link_libraries(pie_noon
   ${SDL_LIBRARIES}
+  motive
+  pindrop
   sdl_mixer
   libvorbis
   libogg
+  libharfbuzz
+  libfreetype
   ${OPENGL_LIBRARIES}
   webp)
 

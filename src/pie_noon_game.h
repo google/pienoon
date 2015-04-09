@@ -20,22 +20,27 @@
 #endif
 
 #include "ai_controller.h"
-#include "audio_engine.h"
+#include "cardboard_controller.h"
 #include "full_screen_fader.h"
 #include "game_state.h"
 #include "gui_menu.h"
 #include "input.h"
 #include "material_manager.h"
+#include "multiplayer_controller.h"
+#include "multiplayer_director.h"
+#include "pindrop/pindrop.h"
 #include "player_controller.h"
 #include "renderer.h"
 #include "scene_description.h"
 #include "touchscreen_button.h"
 #include "touchscreen_controller.h"
+
 #ifdef ANDROID_GAMEPAD
 #include "gamepad_controller.h"
-#endif // ANDROID_GAMEPAD
+#endif  // ANDROID_GAMEPAD
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 #include "gpg_manager.h"
+#include "gpg_multiplayer.h"
 #endif
 
 namespace fpl {
@@ -53,7 +58,9 @@ enum PieNoonState {
   kJoining,
   kPlaying,
   kPaused,
-  kFinished
+  kFinished,
+  kMultiplayerWaiting,
+  kMultiscreenClient,
 };
 
 class PieNoonGame {
@@ -65,6 +72,9 @@ class PieNoonGame {
 
  private:
   bool InitializeConfig();
+#ifdef ANDROID_CARDBOARD
+  bool InitializeCardboardConfig();
+#endif
   bool InitializeRenderer();
   Mesh* CreateVerticalQuadMesh(const flatbuffers::String* material_name,
                                const vec3& offset, const vec2& pixel_bounds,
@@ -74,33 +84,49 @@ class PieNoonGame {
   void RenderCardboard(const SceneDescription& scene,
                        const mat4& camera_transform);
   void Render(const SceneDescription& scene);
+  void RenderForDefault(const SceneDescription& scene);
+  void RenderForCardboard(const SceneDescription& scene);
+  void RenderScene(const SceneDescription& scene,
+                   const mat4& additional_camera_changes,
+                   const vec2i& resolution);
   void Render2DElements();
+  void GetCardboardTransforms(mat4& left_eye_transform,
+                              mat4& right_eye_transform);
+  void CorrectCardboardCamera(mat4& cardboard_camera);
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
   void DebugCamera();
   const Config& GetConfig() const;
+#ifdef ANDROID_CARDBOARD
+  const Config& GetCardboardConfig() const;
+#endif
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
   PieNoonState UpdatePieNoonState();
   void TransitionToPieNoonState(PieNoonState next_state);
   PieNoonState UpdatePieNoonStateAndTransition();
   void FadeToPieNoonState(PieNoonState next_state, const WorldTime& fade_time,
-                        const mathfu::vec4& color, const bool fade_in);
+                          const mathfu::vec4& color, const bool fade_in);
   bool Fading() const { return fade_exit_state_ != kUninitialized; }
   void UploadEvents();
   void UploadAndShowLeaderboards();
   void UpdateGamepadControllers();
   int FindAiPlayer();
   ControllerId AddController(Controller* new_controller);
-  Controller * GetController(ControllerId id);
+  Controller* GetController(ControllerId id);
   ControllerId FindNextUniqueControllerId();
   void HandlePlayersJoining(Controller* controller);
   void HandlePlayersJoining();
-  PieNoonState HandleMenuButtons();
-  //void HandleMenuButton(Controller* controller, TouchscreenButton* button);
+  void AttachMultiplayerControllers();
+  PieNoonState HandleMenuButtons(WorldTime time);
+  // void HandleMenuButton(Controller* controller, TouchscreenButton* button);
   void UpdateControllers(WorldTime delta_time);
   void UpdateTouchButtons(WorldTime delta_time);
-  ChannelId PlayStinger();
+
+  pindrop::Channel PlayStinger();
+  void InitCountdownImage(int seconds);
+  void UpdateCountdownImage(WorldTime time);
+
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
   bool AnyControllerPresses();
@@ -109,9 +135,26 @@ class PieNoonGame {
   void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
                               Material* material);
 
-  int ReadPreference(const char *key, int initial_value, int failure_value);
-  void WritePreference(const char *key, int value);
+  void ProcessMultiplayerMessages();
+  void ProcessPlayerStatusMessage(const multiplayer::PlayerStatus&);
+
+  // returns true if a new splat was displayed
+  bool ShowMultiscreenSplat(int splat_num);
+
+  static int ReadPreference(const char* key, int initial_value,
+                            int failure_value);
+  static void WritePreference(const char* key, int value);
+
   void CheckForNewAchievements();
+
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  void StartMultiscreenGameAsHost();
+  void StartMultiscreenGameAsClient(CharacterId id);
+  void SendMultiscreenPlayerCommand();
+#endif
+  void ReloadMultiscreenMenu();
+  void UpdateMultiscreenMenuIcons();
+  void SetupWaitingForPlayersMenu();
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -123,6 +166,9 @@ class PieNoonGame {
 
   // Hold configuration binary data.
   std::string config_source_;
+#ifdef ANDROID_CARDBOARD
+  std::string cardboard_config_source_;
+#endif
 
   // Report touches, button presses, keyboard presses.
   InputSystem input_;
@@ -134,7 +180,7 @@ class PieNoonGame {
   MaterialManager matman_;
 
   // Manage ownership and playing of audio assets.
-  AudioEngine audio_engine_;
+  pindrop::AudioEngine audio_engine_;
 
   // Map RenderableId to rendering mesh.
   std::vector<Mesh*> cardboard_fronts_;
@@ -164,6 +210,21 @@ class PieNoonGame {
   // unchanging ID.
   std::vector<std::unique_ptr<Controller>> active_controllers_;
 
+  // On the host, directs the fake controllers in the multiscreen gameplay.
+  std::unique_ptr<MultiplayerDirector> multiplayer_director_;
+  // On the client, which player are we? 0-3
+  CharacterId multiscreen_my_player_id_;
+  // On the client, Which action we are performing: Attack, Defend, or Cancel
+  // (for waiting).
+  ButtonId multiscreen_action_to_perform_;
+  // On the client, which other player we are aimed at.  In multiscreen, each
+  // player starts aimed at the next player (or p3 is aimed back at p0).
+  CharacterId multiscreen_action_aim_at_;
+  int multiscreen_turn_number_;
+  // Animation for the multiscreen splats that appear.
+  float multiscreen_splat_param;
+  float multiscreen_splat_param_speed;
+
   // Description of the scene to be rendered. Isolates gameplay and rendering
   // code with a type-light structure. Recreated every frame.
   SceneDescription scene_;
@@ -184,8 +245,10 @@ class PieNoonGame {
 
   std::map<int, ControllerId> gamepad_to_controller_map_;
 
+  CardboardController* cardboard_controller_;
+
   ButtonId join_id_;
-  impel::Impeller1f join_impeller_;
+  motive::Motivator1f join_motivator_;
 
   // Used to render an overlay to fade the screen.
   FullScreenFader full_screen_fader_;
@@ -193,27 +256,52 @@ class PieNoonGame {
   PieNoonState fade_exit_state_;
 
   // Channel used to play the ambience sound effect.
-  ChannelId ambience_channel_;
+  pindrop::Channel ambience_channel_;
 
   // A stinger will play before transition to the finished state. Don't
   // transition until the stinger is complete.
-  ChannelId stinger_channel_;
+  pindrop::Channel stinger_channel_;
+
+  // Channel for the menu music or in-game music.
+  pindrop::Channel music_channel_;
+
+  // Tutorial slides we are in the midst of displaying.
+  std::vector<std::string> tutorial_slides_;
+
+  // Tutorial aspect ratio
+  float tutorial_aspect_ratio_;
 
   // Our current slide of the tutorial. Valid when state_ is kTutorial.
   int tutorial_slide_index_;
 
+  // The Worldtime when the curent tutorial slide was displayed.
+  WorldTime tutorial_slide_time_;
+
+  // The time we started animating the "join" countdown image
+  WorldTime join_animation_start_time_;
+
+  ButtonId countdown_start_button_;
+
+  // The time at which the current turn is over.
+  WorldTime multiscreen_turn_end_time_;
+
   int next_achievement_index_;
 
   // String version number of the game.
-  const char *version_;
+  const char* version_;
 
-# ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  // The Worldtime when the game was paused, used just for analytics.
+  WorldTime pause_time_;
+
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;
-# endif
+
+  // Network multiplayer library for multi-screen version
+  GPGMultiplayer gpg_multiplayer_;
+#endif
 };
 
 }  // pie_noon
 }  // fpl
 
 #endif  // PIE_NOON_GAME_H
-

@@ -16,6 +16,7 @@ need for building [Pie Noon][] for Linux:
 -   [Python][]: 2.7.*
 -   [cwebp][]: 0.4.0 or newer (available from the
     [WebP Precompiled Utilities][] page)
+-   [Ragel][]: 6.9 or newer
 
 # Before Building    {#building_linux_prerequisites}
 
@@ -29,6 +30,7 @@ distribution's package manager:
 -    [autoconf][], [automake][], and [libtool][]
 -    [Python][]: 2.7.*
 -    [cwebp][]: 0.4.0 or newer
+-    [Ragel][]: 6.9 or newer
 
 For example, on Ubuntu:
 
@@ -38,6 +40,7 @@ For example, on Ubuntu:
     sudo apt-get install autoconf automake libtool
     sudo apt-get install python
     sudo apt-get install cwebp
+    sudo apt-get install ragel
 
 # Building
 
@@ -91,3 +94,4 @@ For example:
   [Python]: http://www.python.org/download/releases/2.7/
   [cwebp]: https://developers.google.com/speed/webp/docs/cwebp
   [WebP Precompiled Utilities]: https://developers.google.com/speed/webp/docs/precompiled
+  [Ragel]: http://www.colm.net/open-source/ragel/

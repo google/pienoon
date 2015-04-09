@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/sun_glow.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/sun_glow.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

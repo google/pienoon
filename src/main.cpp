@@ -16,7 +16,7 @@
 
 #include "pie_noon_game.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   fpl::pie_noon::PieNoonGame game;
   const char* binary_directory = argc > 0 ? argv[0] : "";
   if (!game.Initialize(binary_directory)) {
@@ -30,4 +30,3 @@ int main(int argc, char *argv[]) {
 }
 
 MATHFU_DEFINE_GLOBAL_SIMD_AWARE_NEW_DELETE
-

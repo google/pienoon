@@ -27,7 +27,7 @@ class Renderer;
 
 // An array of these enums defines the format of vertex data.
 enum Attribute {
-  kEND = 0,     // The array must always be terminated by one of these.
+  kEND = 0,  // The array must always be terminated by one of these.
   kPosition3f,
   kNormal3f,
   kTangent4f,
@@ -51,7 +51,7 @@ class Mesh {
  public:
   // Initialize a Mesh by creating one VBO, and no IBO's.
   Mesh(const void *vertex_data, int count, int vertex_size,
-      const Attribute *format);
+       const Attribute *format);
   ~Mesh();
 
   // Create one IBO to be part of this mesh. May be called more than once.
@@ -67,22 +67,19 @@ class Mesh {
   // This is a convenient alternative to creating a Mesh instance for small
   // amounts of data, or dynamic data.
   static void RenderArray(GLenum primitive, int index_count,
-                          const Attribute *format,
-                          int vertex_size, const char *vertices,
-                          const unsigned short *indices);
+                          const Attribute *format, int vertex_size,
+                          const char *vertices, const unsigned short *indices);
 
   // Convenience method for rendering a Quad. bottom_left and top_right must
   // have their X coordinate be different, but either Y or Z can be the same.
-  static void RenderAAQuadAlongX(const vec3 &bottom_left,
-                                 const vec3 &top_right,
+  static void RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
                                  const vec2 &tex_bottom_left = vec2(0, 0),
                                  const vec2 &tex_top_right = vec2(1, 1));
 
   // Compute normals and tangents given position and texcoords.
   static void ComputeNormalsTangents(NormalMappedVertex *vertices,
                                      const unsigned short *indices,
-                                     int numverts,
-                                     int numindices);
+                                     int numverts, int numindices);
 
   enum {
     kAttributePosition,

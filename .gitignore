@@ -24,9 +24,7 @@ tests/Debug/
 tests/Release/
 tests/pie_noon.build/
 tests/angle_test.dir/
-tests/audio_engine_test.dir/
 tests/character_state_machine_test.dir/
-tests/impel_test.dir/
 libogg/liblibogg.a
 libvorbis/liblibvorbis.a
 sdl_mixer/libsdl_mixer.a
@@ -43,13 +41,18 @@ build/
 *.suo
 *.vcxproj
 *.vcxproj.filters
+*.opensdf
+*.sdf
 Debug/
 Win32/
 
 # qt creator
 *.cbp
+CMakeLists.txt.user.*
 
 # Misc generated files
+.tags
+.tags_sorted_by_file
 tags
 pie_noon.tar.gz
 docs/html/

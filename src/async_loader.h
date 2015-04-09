@@ -23,7 +23,7 @@ class AsyncLoader;
 class AsyncResource {
  public:
   AsyncResource(const std::string &filename)
-    : filename_(filename), data_(nullptr) {}
+      : filename_(filename), data_(nullptr) {}
   virtual ~AsyncResource() {}
 
   // Load should perform the actual loading of filename_, and store the
@@ -68,14 +68,15 @@ class AsyncLoader {
   bool TryFinalize();
 
  private:
-  void Lock(const std::function<void ()> &body) {
+  void Lock(const std::function<void()> &body) {
     auto err = SDL_LockMutex(mutex_);
     (void)err;
     assert(err == 0);
     body();
     SDL_UnlockMutex(mutex_);
   }
-  template<typename T> T LockReturn(const std::function<T ()> &body) {
+  template <typename T>
+  T LockReturn(const std::function<T()> &body) {
     T ret;
     Lock([&ret, &body]() { ret = body(); });
     return ret;

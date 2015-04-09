@@ -1,7 +1,7 @@
 {
-  texture_filenames: [
-    "textures/hit03_back.webp",
-    "textures/cardboard-normal.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/hit03_back.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
 }

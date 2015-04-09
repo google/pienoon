@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/mover_s.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/mover_s.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

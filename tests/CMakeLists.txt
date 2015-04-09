@@ -59,6 +59,8 @@ endif()
 
 set(COMMON_LIBS "gtest;${SDL_LIBRARIES};${CMAKE_THREAD_LIBS_INIT}")
 
+add_definitions(-DFPL_CURVE_GRAPH_FUNCTIONS)
+
 # PUT ADDITIONAL UNIT TEST BINARIES BELOW!
 # The commands should be of the form:
 #
@@ -76,11 +78,6 @@ function(test_executable name)
   mathfu_configure_flags(${name}_test)
 endfunction()
 
-test_executable(angle ../src/angle.h)
-test_executable(audio_engine ../src/audio_engine.cpp ../src/sound_collection.cpp
-                ../src/sound.cpp ../src/bus.cpp)
 test_executable(character_state_machine ../src/character_state_machine.cpp)
-test_executable(impel ../src/impel_engine.cpp
-                ../src/impel_processor_overshoot.cpp
-                ../src/impel_processor_smooth.cpp)
+test_executable(font_manager)
 

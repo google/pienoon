@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-include "pie_noon_common.fbs";
 include "audio_config.fbs";
-include "impel.fbs";
+include "components.fbs";
+include "motive.fbs";
 include "particles.fbs";
+include "pie_noon_common.fbs";
 include "scoring_rules.fbs";
 
 namespace fpl.pie_noon;
@@ -50,11 +51,30 @@ enum ButtonId : ushort {
   MenuResume,
   MenuAbout,
   MenuBack,
+  MenuMultiScreen,
+  MenuMultiScreenHost,
+  MenuMultiScreenJoin,
   Counter1,
   Counter2,
   Counter3,
   Counter4,
-  Counter5
+  Counter5,
+  Multiplayer_Button1,
+  Multiplayer_Button2,
+  Multiplayer_Button3,
+  Multiplayer_Button4,
+  Multiplayer_Look,
+  Multiplayer_Go,
+  Multiplayer_NumPlayers,
+  Multiplayer_Label1,
+  Multiplayer_Label2,
+  Multiplayer_Label3,
+  Multiplayer_Label4,
+  Multiplayer_Splat1,
+  Multiplayer_Splat2,
+  Multiplayer_Splat3,
+  Multiplayer_Splat4,
+  Multiplayer_SplatFull,
 }
 
 // Setting a button to Hold means it will fire as long
@@ -75,14 +95,6 @@ enum GameMode : ushort {
 
   // First player to reach a certain score wins.
   ReachTarget
-}
-
-enum ImpellerSpecification : ushort {
-  None,
-  Sway,
-  Pendulum,
-
-  Count // Must come last
 }
 
 table ButtonTexture {
@@ -142,6 +154,8 @@ table StaticImageDef {
   draw_scale : Vec2;
   texture_position : Vec2;
   z_depth : float = -0.5;
+  visible : bool = true;
+  render_after_buttons : bool = false;
 }
 
 table UiGroup {
@@ -169,42 +183,6 @@ table FixedAccessory {
 table AccessoryGroup {
   // Indices into an array of FixedAccessory's.
   indices:[byte];
-}
-
-table Prop {
-  // The object to render. See RenderableId enum.
-  // TODO: change to ushort once padding warning is fixed.
-  renderable:uint;
-
-  // Placement of the object.
-  position:Vec3;
-
-  // Rotation about the vertical axis, in degrees.
-  rotation:float;
-
-  // Initial rotation we should apply, before performing 'rotation'.
-  orientation:Orientation;
-
-  // Scale along each axis. Scale is performed before rotation.
-  scale:Vec3;
-
-  // Type of shaking this prop should follow. Defined below in
-  // 'impeller_specifications'.
-  shake_impeller:ImpellerSpecification = None;
-
-  // Amount this prop should shake when damage occurs nearby. If 0, never
-  // moves. If 1, moves a lot.
-  shake_scale:float;
-
-  // Center of shaking. The default is the origin of the renderable,
-  // which is in the bottom middle.
-  shake_center:Vec3;
-
-  // Axis that is animated by the shaking.
-  // X -- lean forward and back
-  // Y -- twist side-to-side
-  // Z -- swing left to right
-  shake_axis:Axis = X;
 }
 
 table CharacterData {
@@ -300,7 +278,127 @@ table CameraMovementToSubject {
   def:SmoothParameters;
 }
 
+table TurnLengthSpec {
+  // Turns take this many seconds...
+  turn_seconds:int;
+
+  // ...until this turn number (inclusive, starting at 1).
+  // Specify -1 for the last turn length spec.
+  // Example: [ { 5, 2}, {4, 7}, {3, 15}, {2, 30}, {1, -1} ]
+  until_turn_number:int;
+}
+
+table MultiscreenOptions {
+  // Lengths of each turn.
+  turn_length:[TurnLengthSpec];
+  // Extra time to wait at the end of each turn for all the messages
+  // to come in.
+  network_grace_milliseconds:int;
+  // How long to wait before the first turn starts. Must be > 0.
+  first_turn_delay_milliseconds:int;
+  // How long after each turn to start the next turn. Should be enough time
+  // for all of the actions to resolve. Must be > 0.
+  start_turn_delay_milliseconds:int;
+  // How long to wait before throwing pie.
+  pie_delay_milliseconds:int;
+  // How long to wait before starting to block.
+  block_delay_milliseconds:int;
+  // How long to hold the block for.
+  block_hold_milliseconds:int;
+  // Extra amount to delay for each character after the 0th, so they aren't
+  // all perfectly in sync.
+  char_delay_milliseconds:int;
+  // How long to wait before showing a larger pie.
+  grow_delay_milliseconds:int;
+
+  // Whether the host should automatically accept connections.
+  auto_connect_on_host:bool;
+
+  // Whether clients should automatically connect to the first host.
+  auto_connect_on_client:bool;
+
+  // Whether hosts and clients should broadcast the user's Google Play Games
+  // name when hosting or connecting to multiplayer games. If this is false,
+  // it will use the device name instead (the same behavior as when the user
+  // is simply not signed into Google Play Games).
+  use_full_name_as_instance_name:bool;
+
+  // What "Service ID" to broadcast the game under using the NearbyConnections
+  // library.
+  nearby_connections_service_id:string;
+
+  // App identifiers to broadcast via NearbyConnections library.
+  nearby_connections_app_identifiers:[string];
+
+  // Max number of players who are allowed to connect to the host.
+  max_players:ushort;
+
+  // AI constants for multi-screen mode.
+  // Enable AI in multi-screen games at all?
+  ai_enabled:bool;
+
+  // AI action percentages. Whatever is left over will just do the same
+  // thing the AI did the previous turn.
+  // Chance each turn (0-1) that the AI will throw a pie.
+  ai_chance_to_throw:float;
+  // Chance each turn (0-1) that the AI will block.
+  ai_chance_to_block:float;
+  // Chance each turn (0-1) that the AI will wait / grow pie.
+  ai_chance_to_wait:float;
+
+  // Aiming percentages. Whatever is left over is the chance of keeping
+  // the current target.
+  // Chance each turn to target the opponent with the largest pie.
+  ai_chance_to_target_largest_pie:float;
+  // Chance each turn to target the opponent with the fewest HP.
+  ai_chance_to_target_lowest_health:float;
+  // Chance each turn to target the opponent with the most HP.
+  ai_chance_to_target_highest_health:float;
+  // Chance each turn to target a random opponent.
+  ai_chance_to_target_random:float;
+
+  // splat an enemy's buttons when you do this much damage to them
+  light_splat_damage_threshold:float;
+  light_splat_num_buttons:int;
+
+  // heavily splat an enemy's buttons when you do this much damage to them
+  heavy_splat_damage_threshold:float;
+  heavy_splat_num_buttons:int;
+
+  // Starting scale for the splats, they scale down to regular scale.
+  splat_start_scale:float;
+  // Speed they scale down.
+  splat_scale_speed:float;
+  // Speed they drip down.
+  splat_drip_speed:float;
+}
+
 table Config {
+
+  // List of all entities that we spawn automatically at game start.
+  entity_list:[EntityDefinition];
+
+  // Definition for characters on the stage.
+  character_scene_object:EntityDefinition;
+
+  // The size of the ground plane that makes the stage
+  ground_plane_width:float;
+  ground_plane_depth:float;
+
+  // Definition for splatters that appear on background props:
+  splatter_def:EntityDefinition;
+
+  // Values for the size and location of splatters when they appear on
+  // background props:
+  splatter_range_min:Vec3;
+  splatter_range_max:Vec3;
+  splatter_scale_min:float;
+  splatter_scale_max:float;
+
+  // Square of the radius for how close shakeable props need to be to
+  // a pie hit in order to receive a splatter.
+  splatter_radius_squared:float;
+
   // Temporary variable to control number of players until we can configure it
   // from in the game
   character_count:uint;
@@ -319,6 +417,9 @@ table Config {
 
   // This modulates the primary colors
   character_global_brightness_factor:float;
+
+  // This modulates the primary colors for buttons
+  character_global_brightness_factor_buttons:float;
 
   // Scoring rules.
   scoring_rules:ScoringRules;
@@ -407,24 +508,32 @@ table Config {
   face_angle_twitch:Settled1fParameters;
   face_angle_twitch_velocity:float;
 
+  // Defines the angle that characters will tilt away from when looking
+  // directly at the camera. In degrees.
+  tilt_away_angle:float;
+
   // Defines the movement of pies that count-down during the "join" state.
   // The pies gradually disappear one at a time to give the appearance of a
   // timer.
-  join_impeller_def:OvershootParameters;
-  join_impeller_start_value:float;
-  join_impeller_target_value:float;
-  join_impeller_start_velocity:float;
+  join_motivator_def:OvershootParameters;
+  join_motivator_start_value:float;
+  join_motivator_target_value:float;
+  join_motivator_start_velocity:float;
+
+  // Number of pies to show in the "Join" animation. Make sure they
+  // are present in the menu screen.
+  join_number_of_pies:ushort;
 
   // Map airborne pie damage to the renderable id of the pie.
   renderable_id_for_pie_damage:[RenderableId];
 
   // Map pie damage to a sound ID.
-  hit_sound_id_for_pie_damage:[SoundId];
+  hit_sound_id_for_pie_damage:[string];
   // Map pie damage to a blocked / deflected sound ID.
-  blocked_sound_id_for_pie_damage:[SoundId];
+  blocked_sound_id_for_pie_damage:[string];
 
   // Defines how props shake when nearby characters are damaged.
-  impeller_specifications:[OvershootParameters];
+  motivator_specifications:[OvershootParameters];
 
   // Maximum velocity that is added to the prop shake. In radians per tick.
   prop_shake_velocity:float;
@@ -555,9 +664,6 @@ table Config {
   // health remaining.
   health_accessories:[FixedAccessory];
 
-  // Initial configuration of stage and environment.
-  props:[Prop];
-
   // Describe the model for each item that can be rendered.
   // Array of length RenderableId_Count.
   renderables:[CardboardFigure];
@@ -602,6 +708,23 @@ table Config {
   title_screen_buttons_non_android:UiGroup;
   extras_screen_buttons:UiGroup;
   join_screen_buttons:UiGroup;
+  msx_screen_buttons:UiGroup;
+  msx_pleasewait_screen_buttons:UiGroup;
+  // 5 versions of the "waiting for players" menu, with 0-4 players connected.
+  msx_waitingforplayers_screen_buttons:UiGroup;
+  msx_waitingforplayers1_screen_buttons:UiGroup;
+  msx_waitingforplayers2_screen_buttons:UiGroup;
+  msx_waitingforplayers3_screen_buttons:UiGroup;
+  msx_waitingforplayers4_screen_buttons:UiGroup;
+  msx_searching_screen_buttons:UiGroup;
+  msx_connecting_screen_buttons:UiGroup;
+  msx_waitingforgame_screen_buttons:UiGroup;
+  msx_cant_host_game_screen_buttons:UiGroup;
+  msx_all_players_disconnected_screen_buttons:UiGroup;
+  msx_host_disconnected_screen_buttons:UiGroup;
+  msx_connection_lost_screen_buttons:UiGroup;
+  multiplayer_host:UiGroup;
+  multiplayer_client:UiGroup;
 
   // Tutorial
   //
@@ -620,6 +743,15 @@ table Config {
 
   // Total time to fade out on current slide and fade back in on next slide.
   tutorial_fade_time:int;
+
+  // List of materials to display, one after the other, on the full screen,
+  // for multiscreen mode's "How to Play".
+  multiscreen_tutorial_slides:[string];
+
+  // Scale every material above by (tutorial_aspect_ratio, 1). Lets the textures
+  // be squished into the nearest power of two size, even if that changes the
+  // aspect ratio.
+  multiscreen_tutorial_aspect_ratio:float;
 
   // Debug options
   //
@@ -666,6 +798,9 @@ table Config {
 
   // Print out the camera position or target whenever they change.
   print_camera_orientation:bool;
+
+  // Options for multiscreen mode.
+  multiscreen_options:MultiscreenOptions;
 }
 
 root_type Config;

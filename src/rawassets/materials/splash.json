@@ -1,7 +1,6 @@
 {
-  texture_filenames: [
-    "textures/splash.webp"
-  ],
-  "blendmode": "ALPHA"
+    "texture_filenames": [
+        "textures/splash.webp"
+    ],
+    "blendmode": "ALPHA"
 }
-

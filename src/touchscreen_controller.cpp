@@ -23,9 +23,7 @@ namespace fpl {
 namespace pie_noon {
 
 TouchscreenController::TouchscreenController()
-  : Controller(kTypeTouchScreen),
-    input_system_(nullptr)
-    {}
+    : Controller(kTypeTouchScreen), input_system_(nullptr) {}
 
 // The touchscreen mapping is defined in the config.fbs file.
 // It currently looks like this:
@@ -43,8 +41,7 @@ TouchscreenController::TouchscreenController()
 //
 
 void TouchscreenController::Initialize(InputSystem* input_system,
-                                       vec2 window_size,
-                                       const Config* config) {
+                                       vec2 window_size, const Config* config) {
   input_system_ = input_system;
   window_size_ = window_size;
   ClearAllLogicalInputs();
@@ -80,4 +77,3 @@ void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
 
 }  // pie_noon
 }  // fpl
-

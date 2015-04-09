@@ -24,9 +24,13 @@
 namespace fpl {
 namespace pie_noon {
 
-FullScreenFader::FullScreenFader(Renderer* renderer) :
-  start_time_(0), half_fade_time_(0), fade_in_(false), renderer_(renderer),
-  material_(NULL), shader_(NULL) {}
+FullScreenFader::FullScreenFader(Renderer* renderer)
+    : start_time_(0),
+      half_fade_time_(0),
+      fade_in_(false),
+      renderer_(renderer),
+      material_(NULL),
+      shader_(NULL) {}
 
 // Starts the fade.
 void FullScreenFader::Start(const WorldTime& time, const WorldTime& fade_time,
@@ -46,8 +50,8 @@ bool FullScreenFader::Render(const WorldTime& time) {
   // The alpha is calculated using this mini-state machine so that there
   // is always at least one frame where the overlay is complete opaque.
   const float offset = CalculateOffset(time);
-  const float alpha = fade_in_ ? std::min(offset, 1.0f) :
-      std::max(1.0f - offset, 0.0f);
+  const float alpha =
+      fade_in_ ? std::min(offset, 1.0f) : std::max(1.0f - offset, 0.0f);
   const bool opaque = fade_in_ && alpha == 1.0f;
   if (opaque) {
     // At the mid point, start fading out.
@@ -57,14 +61,13 @@ bool FullScreenFader::Render(const WorldTime& time) {
 
   // Render the overlay in front on the screen.
   renderer_->model_view_projection() =
-    ortho_mat_ * mat4::FromTranslationVector(vec3(0.0f, 0.0f, 0.1f));
+      ortho_mat_ * mat4::FromTranslationVector(vec3(0.0f, 0.0f, 0.1f));
   renderer_->color() = vec4(0.0f, 0.0f, 0.0f, alpha);
   material_->Set(*renderer_);
   shader_->Set(*renderer_);
-  Mesh::RenderAAQuadAlongX(
-      vec3(0.0f, static_cast<float>(extents_.y()), 0.0f),
-      vec3(static_cast<float>(extents_.x()), 0.0f, 0.0f),
-      vec2(0.0f, 1.0f), vec2(1.0f, 0.0f));
+  Mesh::RenderAAQuadAlongX(vec3(0.0f, static_cast<float>(extents_.y()), 0.0f),
+                           vec3(static_cast<float>(extents_.x()), 0.0f, 0.0f),
+                           vec2(0.0f, 1.0f), vec2(1.0f, 0.0f));
   return opaque;
 }
 

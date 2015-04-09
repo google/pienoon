@@ -1,0 +1,66 @@
+// Copyright 2015 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This file defines the schema for multiplayer messages in Pie Noon.
+// All multiplayer messages sent are of type "MessageRoot", which contains
+// a union "Data" of the various message types allowed.
+
+namespace fpl.pie_noon.multiplayer;
+
+// With this message, the host tells the client which player number (1-4)
+// they are assigned to.
+table PlayerAssignment {
+  player_id:byte;
+}
+
+// This message allows the client to tell the host what its player's action
+// is for the current turn.
+table PlayerCommand {
+  aim_at:byte;
+  is_firing:bool;
+  is_blocking:bool;
+}
+
+// In this message, which can be sent alone or embedded in other messages,
+// the host broadcasts the health of all the players.
+table PlayerStatus {
+  player_health:[ubyte];
+  player_splats:[ubyte];  // which splats are showing (bitmask)
+}
+
+// When the host sends this message to all clients, it triggers the next
+// turn to start, and tells the client how long the turn is. It also updates
+// player healths.
+table StartTurn {
+  seconds:ushort;
+  player_status:PlayerStatus;
+}
+
+// The host sends this message to all clients when the game is over.
+// Player healths are also sent, so you can infer who won the game by
+// seeing whose health is still positive.
+table EndGame {
+  player_status:PlayerStatus;  // You can infer who won from this.
+}
+
+// Union containing all message types.
+union Data { PlayerAssignment, PlayerCommand, StartTurn, EndGame, PlayerStatus }
+
+// All multiplayer messages are of type "MessageRoot", which contains the
+// specific message in "Data".
+table MessageRoot {
+  data:Data;
+}
+
+root_type MessageRoot;

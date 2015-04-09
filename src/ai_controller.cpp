@@ -23,9 +23,7 @@ namespace pie_noon {
 
 AiController::AiController() : Controller(kTypeAI) {}
 
-
-void AiController::Initialize(GameState* gamestate,
-                              const Config* config,
+void AiController::Initialize(GameState* gamestate, const Config* config,
                               CharacterId character_id) {
   gamestate_ = gamestate;
   config_ = config;
@@ -42,10 +40,9 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
   time_to_next_action_ -= delta_time;
 
   // Check to make sure we're valid to be sending input.
-  const Character * character = gamestate_->characters()[character_id_].get();
+  const Character* character = gamestate_->characters()[character_id_].get();
   auto character_state = character->State();
-  if (character->health() <= 0 ||
-      character_state == StateId_KO ||
+  if (character->health() <= 0 || character_state == StateId_KO ||
       character_state == StateId_Joining ||
       character_state == StateId_Jumping) {
     return;
@@ -58,33 +55,29 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
     return;
   }
 
-  if (time_to_next_action_ > 0)
-    return;
+  if (time_to_next_action_ > 0) return;
 
-  time_to_next_action_ =
-      mathfu::RandomInRange<WorldTime>(
+  time_to_next_action_ = mathfu::RandomInRange<WorldTime>(
       config_->ai_minimum_time_between_actions(),
       config_->ai_maximum_time_between_actions());
 
   float action = mathfu::Random<float>();
   if (action < config_->ai_chance_to_change_aim()) {
-      if (action < config_->ai_chance_to_change_aim() / 2) {
-        SetLogicalInputs(LogicalInputs_Left, true);
-      }
-      else {
-        SetLogicalInputs(LogicalInputs_Right, true);
-      }
+    if (action < config_->ai_chance_to_change_aim() / 2) {
+      SetLogicalInputs(LogicalInputs_Left, true);
+    } else {
+      SetLogicalInputs(LogicalInputs_Right, true);
+    }
   }
   action -= config_->ai_chance_to_change_aim();
   if (action >= 0 && action < config_->ai_chance_to_throw()) {
-      SetLogicalInputs(LogicalInputs_ThrowPie, true);
-  } // else do nothing.
+    SetLogicalInputs(LogicalInputs_ThrowPie, true);
+  }  // else do nothing.
 
   if (IsInDanger(character_id_) &&
       mathfu::Random<float>() < config_->ai_chance_to_block()) {
     block_timer_ = mathfu::RandomInRange<WorldTime>(
-          config_->ai_block_min_duration(),
-          config_->ai_block_max_duration());
+        config_->ai_block_min_duration(), config_->ai_block_max_duration());
     SetLogicalInputs(LogicalInputs_Deflect, true);
   }
 }
@@ -101,4 +94,3 @@ bool AiController::IsInDanger(CharacterId id) const {
 
 }  // pie_noon
 }  // fpl
-

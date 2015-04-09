@@ -16,16 +16,17 @@
 #define AI_CONTROLLER_H_
 
 #include "precompiled.h"
+
 #include <vector>
-#include "game_state.h"
-#include "controller.h"
-#include "common.h"
-#include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
-#include "pie_noon_common_generated.h" // TODO: put in alphabetical order when
-                                    // FlatBuffers predeclare bug fixed.
+
 #include "audio_config_generated.h"
+#include "character_state_machine_def_generated.h"
+#include "common.h"
 #include "config_generated.h"
+#include "controller.h"
+#include "game_state.h"
+#include "pie_noon_common_generated.h"
+#include "timeline_generated.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -38,18 +39,18 @@ class AiController : public Controller {
   AiController();
 
   // Give the AI everything it will need.
-  void Initialize(GameState* gamestate_ptr,
-                  const Config* config, int characterId);
+  void Initialize(GameState* gamestate_ptr, const Config* config,
+                  int characterId);
 
   // Decide what the robot is doing this frame.
   virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
   bool IsInDanger(CharacterId id) const;
-  WorldTime block_timer_;   // How many milliseconds we need to block.
+  WorldTime block_timer_;  // How many milliseconds we need to block.
 
-  GameState* gamestate_; // Pointer to the gamestate object
-  const Config* config_; // Pointer to the config structure
+  GameState* gamestate_;  // Pointer to the gamestate object
+  const Config* config_;  // Pointer to the config structure
   WorldTime time_to_next_action_;
 };
 

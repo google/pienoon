@@ -26,8 +26,7 @@ namespace pie_noon {
 GamepadController::GamepadController()
     : Controller(kTypeGamepad),
       input_system_(nullptr),
-      controller_id_(kInvalidControllerId) {
-}
+      controller_id_(kInvalidControllerId) {}
 
 void GamepadController::Initialize(InputSystem* input_system,
                                    AndroidInputDeviceId controller_id) {
@@ -42,8 +41,7 @@ static const float kAnalogDeadZone = 0.25f;
 void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
   went_down_ = went_up_ = 0;
   Gamepad gamepad = input_system_->GetGamepad(controller_id_);
-  SetLogicalInputs(LogicalInputs_Up,
-                   gamepad.GetButton(Gamepad::kUp).is_down());
+  SetLogicalInputs(LogicalInputs_Up, gamepad.GetButton(Gamepad::kUp).is_down());
   SetLogicalInputs(LogicalInputs_Down,
                    gamepad.GetButton(Gamepad::kDown).is_down());
   SetLogicalInputs(LogicalInputs_Left,
@@ -53,10 +51,10 @@ void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
 
   SetLogicalInputs(LogicalInputs_ThrowPie,
                    gamepad.GetButton(Gamepad::kUp).is_down() ||
-                   gamepad.GetButton(Gamepad::kButtonA).is_down());
+                       gamepad.GetButton(Gamepad::kButtonA).is_down());
   SetLogicalInputs(LogicalInputs_Deflect,
                    gamepad.GetButton(Gamepad::kDown).is_down() ||
-                   gamepad.GetButton(Gamepad::kButtonB).is_down());
+                       gamepad.GetButton(Gamepad::kButtonB).is_down());
 
   SetLogicalInputs(LogicalInputs_Select,
                    gamepad.GetButton(Gamepad::kButtonA).is_down());
@@ -66,6 +64,3 @@ void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
 
 }  // pie_noon
 }  // fpl
-
-
-

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef PARTICLES_H
 #define PARTICLES_H
 
@@ -90,14 +89,10 @@ class Particle {
   }
 
   TimeStep duration() const { return duration_; }
-  void set_duration(TimeStep duration) {
-    duration_ = duration;
-  }
+  void set_duration(TimeStep duration) { duration_ = duration; }
 
   TimeStep age() const { return age_; }
-  void set_age(TimeStep age) {
-    age_ = age;
-  }
+  void set_age(TimeStep age) { age_ = age; }
 
   // Generate the matrix we'll need to draw it:
   mathfu::mat4 CalculateMatrix() const;
@@ -145,17 +140,16 @@ class ParticleManager {
   // Also note that the initial state of the particle is undetermined, so
   // users should either populate every field explicitly, or call
   // Particle::reset().
-  Particle *CreateParticle();
+  Particle* CreateParticle();
 
   // Removes all active particles.
   void RemoveAllParticles();
 
  private:
-
   std::list<Particle*> particle_list_;
   std::list<Particle*> inactive_particle_list_;
 };
 
 }  // pie_noon
 }  // fpl
-#endif // PARTICLES_H
+#endif  // PARTICLES_H

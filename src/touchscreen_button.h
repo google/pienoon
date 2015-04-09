@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef TOUCHSCREEN_BUTTON_H
 #define TOUCHSCREEN_BUTTON_H
 
@@ -27,15 +26,13 @@
 namespace fpl {
 namespace pie_noon {
 
-class TouchscreenButton
-{
+class TouchscreenButton {
  public:
   TouchscreenButton();
 
-  void AdvanceFrame(WorldTime delta_time,
-                    InputSystem* input, vec2 window_size);
+  void AdvanceFrame(WorldTime delta_time, InputSystem* input, vec2 window_size);
 
-  //bool HandlePointer(Pointer pointer, vec2 window_size);
+  // bool HandlePointer(Pointer pointer, vec2 window_size);
   void Render(Renderer& renderer);
   void AdvanceFrame(WorldTime delta_time);
   ButtonId GetId() const;
@@ -44,7 +41,7 @@ class TouchscreenButton
 
   Button& button() { return button_; }
 
-  const std::vector<Material*> &up_materials() const { return up_materials_; }
+  const std::vector<Material*>& up_materials() const { return up_materials_; }
   void set_up_material(size_t i, Material* up_material) {
     assert(up_material);
     if (i >= up_materials_.size()) up_materials_.resize(i + 1);
@@ -56,7 +53,9 @@ class TouchscreenButton
   }
 
   Material* down_material() const { return down_material_; }
-  void set_down_material(Material* down_material) { down_material_ = down_material; }
+  void set_down_material(Material* down_material) {
+    down_material_ = down_material;
+  }
 
   mathfu::vec2 up_offset() const { return up_offset_; }
   void set_up_offset(mathfu::vec2 up_offset) { up_offset_ = up_offset; }
@@ -86,6 +85,9 @@ class TouchscreenButton
     is_highlighted_ = is_highlighted;
   }
 
+  void set_color(const mathfu::vec4& color) { color_ = color; }
+  const mathfu::vec4& color() { return color_; }
+
   void SetCannonicalWindowHeight(int height) {
     one_over_cannonical_window_height_ = 1.0f / static_cast<float>(height);
   }
@@ -104,6 +106,9 @@ class TouchscreenButton
 
   Material* down_material_;
 
+  // Allow overriding the default color in code.
+  mathfu::vec4 color_;
+
   // Offsets to draw the textures at,
   mathfu::vec2 up_offset_;
   mathfu::vec2 down_offset_;
@@ -117,8 +122,7 @@ class TouchscreenButton
   float one_over_cannonical_window_height_;
 };
 
-class StaticImage
-{
+class StaticImage {
  public:
   StaticImage();
   void Initialize(const StaticImageDef& image_def,
@@ -132,7 +136,20 @@ class StaticImage
   const StaticImageDef* image_def() const { return image_def_; }
   const mathfu::vec2& scale() const { return scale_; }
   void set_scale(const mathfu::vec2& scale) { scale_ = scale; }
-  void set_current_material_index(int i) { current_material_index_ = i;}
+  void set_current_material_index(int i) { current_material_index_ = i; }
+
+  void set_is_visible(bool b) { is_visible_ = b; }
+  bool is_visible() { return is_visible_; }
+
+  void set_color(const mathfu::vec4& color) { color_ = color; }
+  const mathfu::vec4& color() { return color_; }
+
+  // Set the image position on screen, expressed as a fraction of the screen
+  // dimensions to place the center point.
+  void set_texture_position(const mathfu::vec2& position) {
+    texture_position_ = position;
+  }
+  const mathfu::vec2& texture_position() { return texture_position_; }
 
  private:
   // Flatbuffer's definition of this image.
@@ -151,12 +168,20 @@ class StaticImage
   // Draw image bigger or smaller. (1.0f, 1.0f) means no scaling.
   mathfu::vec2 scale_;
 
+  // Where to display the texture on screen.
+  mathfu::vec2 texture_position_;
+
+  // Allow overriding the default color in code.
+  mathfu::vec4 color_;
+
   // Scale the textures by the y-axis so that they are (proportionally)
   // the same height on every platform.
   float one_over_cannonical_window_height_;
+
+  bool is_visible_;
 };
 
 }  // pie_noon
 }  // fpl
 
-#endif // TOUCHSCREEN_BUTTON_H
+#endif  // TOUCHSCREEN_BUTTON_H

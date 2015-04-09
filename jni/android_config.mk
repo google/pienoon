@@ -32,12 +32,24 @@ DEPENDENCIES_SDL_DIR?=$(THIRD_PARTY_ROOT)/sdl
 DEPENDENCIES_SDL_MIXER_DIR?=$(THIRD_PARTY_ROOT)/sdl_mixer
 # Location of the Flatbuffers library.
 DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers
+# Location of the Pindrop library.
+DEPENDENCIES_PINDROP_DIR?=$(FPL_ROOT)/audio_engine
+# Location of the fplutil library.
+DEPENDENCIES_FPLUTIL_DIR?=$(FPL_ROOT)/fplutil
+# Location of the Freetype library.
+DEPENDENCIES_FREETYPE_DIR?=$(THIRD_PARTY_ROOT)/freetype
+# Location of the HarfBuzz library.
+DEPENDENCIES_HARFBUZZ_DIR?=$(THIRD_PARTY_ROOT)/harfbuzz
 # Location of the MathFu library.
 DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
+# Location of the Motive library.
+DEPENDENCIES_MOTIVE_DIR?=$(FPL_ROOT)/motive
 # Location of the Google Play Games library.
 DEPENDENCIES_GPG_DIR?=$(PREBUILTS_ROOT)/gpg-cpp-sdk/android
 # Location of the webp library.
 DEPENDENCIES_WEBP_DIR?=$(THIRD_PARTY_ROOT)/webp
+# Location of the Cardboard library.
+DEPENDENCIES_CARDBOARD_DIR?=$(PREBUILTS_ROOT)/cardboard-java/CardboardSample
 
 ifeq (,$(DETERMINED_DEPENDENCY_DIRS))
 DETERMINED_DEPENDENCY_DIRS:=1

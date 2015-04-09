@@ -33,53 +33,11 @@ namespace fpl {
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
 
-// ARRAYSIZE performs essentially the same calculation as arraysize,
-// but can be used on anonymous types or types defined inside
-// functions.  It's less safe than arraysize as it accepts some
-// (although not all) pointers.  Therefore, you should use arraysize
-// whenever possible.
-//
-// The expression ARRAYSIZE(a) is a compile-time constant of type
-// size_t.
-//
-// ARRAYSIZE catches a few type errors.  If you see a compiler error
-//
-//   "warning: division by zero in ..."
-//
-// when using ARRAYSIZE, you are (wrongfully) giving it a pointer.
-// You should only use ARRAYSIZE on statically allocated arrays.
-//
-// The following comments are on the implementation details, and can
-// be ignored by the users.
-//
-// ARRAYSIZE(arr) works by inspecting sizeof(arr) (the # of bytes in
-// the array) and sizeof(*(arr)) (the # of bytes in one array
-// element).  If the former is divisible by the latter, perhaps arr is
-// indeed an array, in which case the division result is the # of
-// elements in the array.  Otherwise, arr cannot possibly be an array,
-// and we generate a compiler error to prevent the code from
-// compiling.
-//
-// Since the size of bool is implementation-defined, we need to cast
-// !(sizeof(a) & sizeof(*(a))) to size_t in order to ensure the final
-// result has type size_t.
-//
-// This macro is not perfect as it wrongfully accepts certain
-// pointers, namely where the pointer size is divisible by the pointee
-// size.  Since all our code has to go through a 32-bit compiler,
-// where a pointer is 4 bytes, this means all pointers to a type whose
-// size is 3 or greater than 4 will be (righteously) rejected.
-//
-// Kudos to Jorg Brown for this simple and elegant implementation.
-//
-// - wan 2005-11-16
-//
-// Starting with Visual C++ 2005, WinNT.h includes ARRAYSIZE.
-#if !defined(_WIN32)
-  #define ARRAYSIZE(a) \
-    ((sizeof(a) / sizeof(*(a))) / \
-     static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
-#endif // !defined(_WIN32)
+// Return the number of elements in an array 'a', as type `size_t`.
+// If 'a' is not an array, generates an error by dividing by zero.
+#define PIE_ARRAYSIZE(a)        \
+  ((sizeof(a) / sizeof(*(a))) / \
+   static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
 
 typedef mathfu::Quaternion<float> Quat;
 
