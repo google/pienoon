@@ -43,7 +43,7 @@
     {
       "name": "audio_engine",
       "url": "http://github.com/google/pindrop.git",
-      "branch": "master",
+      "branch": "develop",
       "is_library": 1,
       "third_party": 0,
       "push": 0
@@ -51,7 +51,7 @@
     {
       "name": "motive",
       "url": "http://github.com/google/motive.git",
-      "branch": "master",
+      "branch": "develop",
       "is_library": 1,
       "third_party": 0,
       "push": 0
