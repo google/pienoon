@@ -46,14 +46,14 @@ static const motive::MatrixOperationType kTransformOperations[] = {
 };
 
 void SceneObjectData::Initialize(motive::MotiveEngine* engine) {
-  MATHFU_STATIC_ASSERT(ARRAYSIZE(kTransformOperations) ==
+  MATHFU_STATIC_ASSERT(PIE_ARRAYSIZE(kTransformOperations) ==
                        kNumTransformMatrixOperations);
 
   // Create init structure for the 'transform_' Matrix Motivator.
   // TODO: This structure is the same every time. Change MatrixInit to be
   // constructable from POD so that this can be a constexpr.
-  motive::MatrixInit init(ARRAYSIZE(kTransformOperations));
-  for (size_t i = 0; i < ARRAYSIZE(kTransformOperations); ++i) {
+  motive::MatrixInit init(PIE_ARRAYSIZE(kTransformOperations));
+  for (size_t i = 0; i < PIE_ARRAYSIZE(kTransformOperations); ++i) {
     motive::MatrixOperationType op = kTransformOperations[i];
     const float default_value =
         motive::kScaleX <= op && op <= motive::kScaleZ ? 1.0f : 0.0f;
@@ -82,7 +82,7 @@ void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
 
   entity_data->set_renderable_id(scene_object_data->renderable_id());
   entity_data->set_tint(LoadVec4(scene_object_data->tint()));
-  entity_data->set_visible(scene_object_data->visible());
+  entity_data->set_visible(scene_object_data->visible() != 0);
 }
 
 void SceneObjectComponent::InitEntity(entity::EntityRef& entity) {
