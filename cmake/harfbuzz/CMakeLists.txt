@@ -36,10 +36,12 @@ execute_process(COMMAND ${make_cmd} WORKING_DIRECTORY ${harfbuzz_dir}
 if (NOT ${autogen_result} EQUAL 0 OR NOT ${make_result} EQUAL 0)
     message(FATAL_ERROR
             "CMake encountered an error while configuring harfbuzz.\n"
-            "You must have autoconf, automake, lib tool, pkg-config and ragel\n"
+            "You must have autoconf, automake, libtool, pkg-config and ragel\n"
             "installed to build on Linux/OSX.")
 endif()
 endif()
+
+add_definitions(-DHB_NO_MT)
 
 # Include freetype header files.
 include_directories(${dependencies_freetype_distr_dir}/include)
