@@ -564,8 +564,10 @@ class InternalState : public Group {
             // We only report an event for the first finger to touch an element.
             // This is intentional.
             return static_cast<Event>(event);
-            element.event = static_cast<Event>(event);
-            return element.event;
+
+            // TODO: Is this correct below?
+            // element.event = static_cast<Event>(event);
+            // return element.event;
           }
         }
         // Generate hover events for the current element the gamepad is focused
@@ -843,7 +845,7 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
           EndGroup();
           StartGroup(LAYOUT_VERTICAL_LEFT, 20);
             auto splash_tex = matman.FindTexture("textures/splash.webp");
-            ImageBackgroundNinePatch(*splash_tex, vec4(0.2, 0.2, 0.8, 0.8));
+            ImageBackgroundNinePatch(*splash_tex, vec4(0.2f, 0.2f, 0.8f, 0.8f));
 
             Label("The quick brown fox jumps over the lazy dog", 32);
             Label("The quick brown fox jumps over the lazy dog", 24);

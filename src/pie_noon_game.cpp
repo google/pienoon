@@ -38,6 +38,11 @@ using mathfu::vec4;
 using mathfu::mat3;
 using mathfu::mat4;
 
+#ifdef _WIN32
+#define snprintf(buffer, count, format, ...) \
+  _snprintf_s(buffer, count, count, format, __VA_ARGS__)
+#endif  // _WIN32
+
 namespace fpl {
 namespace pie_noon {
 
@@ -117,7 +122,7 @@ static inline const UiGroup* TitleScreenButtons(const Config& config) {
 /// scanned for this version string.  We track which applications are using it
 /// to measure popularity.  You are free to remove it (of course) but we would
 /// appreciate if you left it in.
-static const char kVersion[] = "Pie Noon 1.0.0";
+static const char kVersion[] = "Pie Noon 1.1.0";
 
 PieNoonGame::PieNoonGame()
     : state_(kUninitialized),
@@ -850,7 +855,7 @@ void PieNoonGame::DebugCamera() {
 
   // Convert key presses to translations along camera axes.
   vec3 camera_translation(mathfu::kZeros3f);
-  for (size_t i = 0; i < ARRAYSIZE(kDebugCameraButtons); ++i) {
+  for (size_t i = 0; i < PIE_ARRAYSIZE(kDebugCameraButtons); ++i) {
     const ButtonToTranslation& button = kDebugCameraButtons[i];
     if (input_.GetButton(button.button).is_down()) {
       camera_translation += button.translation;
@@ -1054,7 +1059,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       return HandleMenuButtons(time);
     }
     case kTutorial: {
-      const uint num_slides = tutorial_slides_.size();
+      const unsigned int num_slides = tutorial_slides_.size();
       const bool past_last_slide =
           tutorial_slide_index_ >= static_cast<int>(num_slides);
 
@@ -1270,7 +1275,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
                             ? GetConfig().multiscreen_tutorial_slides()
                             : GetConfig().tutorial_slides());
       tutorial_slides_.clear();
-      for (uint i = 0; i < tutorials->Length(); i++) {
+      for (unsigned int i = 0; i < tutorials->Length(); i++) {
         tutorial_slides_.push_back(std::string(tutorials->Get(i)->c_str()));
       }
       tutorial_aspect_ratio_ =
@@ -1990,7 +1995,7 @@ void PieNoonGame::ReloadMultiscreenMenu() {
       mathfu::vec2 scale;
       mathfu::vec4 color;
       SavedSplatState(ButtonId b, mathfu::vec2 pos, mathfu::vec2 sc,
-                      mathfu::vec4 col)
+                      const mathfu::vec4& col)
           : button_id(b), position(pos), scale(sc), color(col) {}
     };
     std::vector<SavedSplatState> states;

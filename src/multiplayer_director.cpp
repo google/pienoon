@@ -127,7 +127,7 @@ void MultiplayerDirector::TriggerEndOfTurn() {
     }
   }
 
-  for (uint i = 0; i < character_splats_.size(); i++) {
+  for (unsigned int i = 0; i < character_splats_.size(); i++) {
     character_splats_[i] = 0;  // splats only last one turn
   }
 
@@ -139,10 +139,12 @@ void MultiplayerDirector::TriggerEndOfTurn() {
   }
 }
 
-uint MultiplayerDirector::CalculateSecondsPerTurn(uint turn_number) {
+unsigned int MultiplayerDirector::CalculateSecondsPerTurn(
+    unsigned int turn_number) {
   for (auto turn_spec : *config_->multiscreen_options()->turn_length()) {
     if (turn_spec->until_turn_number() == -1 ||
-        turn_number <= static_cast<uint>(turn_spec->until_turn_number()))
+        turn_number <=
+            static_cast<unsigned int>(turn_spec->until_turn_number()))
       return turn_spec->turn_seconds();
   }
   // By default just return the first turn length
@@ -179,16 +181,16 @@ void MultiplayerDirector::TriggerPlayerHitByPie(CharacterId player,
   }
   // Go through and try to find num_splats new buttons to splat.
   std::vector<int> splats_available;
-  for (uint i = 0; i < controllers_.size(); i++) {
-    uint splat_mask = (1 << i);
+  for (unsigned int i = 0; i < controllers_.size(); i++) {
+    unsigned int splat_mask = (1 << i);
     if ((character_splats_[player] & splat_mask) == 0) {
       splats_available.push_back(i);
     }
   }
   while (num_splats > 0 && splats_available.size() > 0) {
-    uint idx = mathfu::RandomInRange<int>(0, splats_available.size());
-    uint splat_used = splats_available[idx];
-    uint splat_mask = (1 << splat_used);
+    unsigned int idx = mathfu::RandomInRange<int>(0, splats_available.size());
+    unsigned int splat_used = splats_available[idx];
+    unsigned int splat_mask = (1 << splat_used);
     character_splats_[player] |= splat_mask;
     num_splats--;
     splats_available.erase(splats_available.begin() + idx);
@@ -199,7 +201,8 @@ void MultiplayerDirector::TriggerPlayerHitByPie(CharacterId player,
 }
 
 bool MultiplayerDirector::IsAIPlayer(CharacterId player) {
-  return (static_cast<uint>(player) >= controllers_.size() - num_ai_players());
+  return (static_cast<unsigned int>(player) >=
+          controllers_.size() - num_ai_players());
 }
 
 void MultiplayerDirector::InputPlayerCommand(
@@ -210,8 +213,8 @@ void MultiplayerDirector::InputPlayerCommand(
   } else {
     command.aim_at = kNoCharacter;
   }
-  command.is_firing = player_command.is_firing();
-  command.is_blocking = player_command.is_blocking();
+  command.is_firing = player_command.is_firing() != 0;
+  command.is_blocking = player_command.is_blocking() != 0;
   commands_[id] = command;
 }
 
@@ -247,8 +250,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   // If action is still > 0, command has the action from the previous turn,
   // don't change it.
 
-  uint self = static_cast<uint>(id);  // for comparison
-  std::vector<uint> candidate_targets;
+  unsigned int self = static_cast<unsigned int>(id);  // for comparison
+  std::vector<unsigned int> candidate_targets;
   // Choose how to target opponents.
   float target = mathfu::Random<float>();
   if (target < options->ai_chance_to_target_largest_pie()) {
@@ -258,14 +261,14 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
                  "MultiplayerDirector: AI %d targeting largest pie", id);
 
     int max_pie = -1;
-    for (uint i = 0; i < controllers_.size(); i++) {
+    for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
       if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
       if (enemy.pie_damage() > max_pie) {
         max_pie = enemy.pie_damage();
       }
     }
-    for (uint i = 0; i < controllers_.size(); i++) {
+    for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
       if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
       if (enemy.pie_damage() == max_pie) {
@@ -280,14 +283,14 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
                  "MultiplayerDirector: AI %d targeting lowest health", id);
     int min_health = config_->character_health() + 1;
-    for (uint i = 0; i < controllers_.size(); i++) {
+    for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
       if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
       if (enemy.health() < min_health) {
         min_health = enemy.health();
       }
     }
-    for (uint i = 0; i < controllers_.size(); i++) {
+    for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
       if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
       if (enemy.health() == min_health) {
@@ -302,14 +305,14 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
                  "MultiplayerDirector: AI %d targeting highest health", id);
     int max_health = -1;
-    for (uint i = 0; i < controllers_.size(); i++) {
+    for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
       if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
       if (enemy.health() > max_health) {
         max_health = enemy.health();
       }
     }
-    for (uint i = 0; i < controllers_.size(); i++) {
+    for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
       if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
       if (enemy.health() == max_health) {
@@ -322,7 +325,7 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
                  "MultiplayerDirector: AI %d targeting randomly", id);
     // Just put all living enemies in the list.
-    for (uint i = 0; i < controllers_.size(); i++) {
+    for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
       if (i == self || enemy.health() <= 0) continue;  // ignore self/dead enemy
       candidate_targets.push_back(i);
@@ -486,7 +489,7 @@ void MultiplayerDirector::SendPlayerAssignmentMsg(const std::string& instance,
   gpg_multiplayer_->SendMessage(instance, message, true);
 }
 
-void MultiplayerDirector::SendStartTurnMsg(uint seconds) {
+void MultiplayerDirector::SendStartTurnMsg(unsigned int seconds) {
   // read the player healths
   std::vector<uint8_t> health_vec = ReadPlayerHealth();
   std::vector<uint8_t> splats_vec = ReadPlayerSplats();

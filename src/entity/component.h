@@ -203,6 +203,10 @@ class Component : public ComponentInterface {
     const size_t data_index = GetEntityDataIndex(entity);
     EntityData* entity_data = entity_data_.GetElementData(data_index);
     entity_data->data.~T();
+
+    // Add a reference destructor is empty and the line above is implicitly
+    // removed.
+    (void)entity_data;
   }
 
  protected:

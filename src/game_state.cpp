@@ -513,6 +513,14 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
   }
 }
 
+static vec3 RandomInRangeVec3(const vec3& min_range, const vec3& max_range) {
+  // TODO: Fix mathfu::RandomInRange to take "const T&" instead of "T".
+  // Will avoid alignment error on Visual Studio.
+  return vec3(mathfu::RandomInRange(min_range.x(), max_range.x()),
+              mathfu::RandomInRange(min_range.y(), max_range.y()),
+              mathfu::RandomInRange(min_range.z(), max_range.z()));
+}
+
 void GameState::AddSplatterToProp(entity::EntityRef prop) {
   static RenderableId id_list[] = {
       RenderableId_Splatter1, RenderableId_Splatter2, RenderableId_Splatter3};
@@ -527,7 +535,7 @@ void GameState::AddSplatterToProp(entity::EntityRef prop) {
     vec3 min_range = LoadVec3(config_->splatter_range_min());
     vec3 max_range = LoadVec3(config_->splatter_range_max());
 
-    const vec3 offset = mathfu::RandomInRange(min_range, max_range);
+    const vec3 offset = RandomInRangeVec3(min_range, max_range);
     so_data->SetTranslation(offset);
 
     const Angle rotation_angle =
