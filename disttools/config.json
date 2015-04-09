@@ -41,6 +41,22 @@
       "push": 0
     },
     {
+      "name": "audio_engine",
+      "url": "http://github.com/google/pindrop.git",
+      "branch": "master",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0
+    },
+    {
+      "name": "motive",
+      "url": "http://github.com/google/motive.git",
+      "branch": "master",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0
+    },
+    {
       "name": "vectorial",
       "url": "http://github.com/google/mathfu.git",
       "branch": "vectorial",
