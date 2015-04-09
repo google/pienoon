@@ -125,7 +125,7 @@ $(document).ready(function(){initNavTree('async__loader_8h_source.html','');});
 <div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="classfpl_1_1_async_resource.html">   23</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1_async_resource.html">AsyncResource</a> {</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; <span class="keyword">public</span>:</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  <a class="code" href="classfpl_1_1_async_resource.html">AsyncResource</a>(<span class="keyword">const</span> std::string &amp;filename)</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    : filename_(filename), data_(<span class="keyword">nullptr</span>) {}</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;      : filename_(filename), data_(<span class="keyword">nullptr</span>) {}</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  <span class="keyword">virtual</span> ~<a class="code" href="classfpl_1_1_async_resource.html">AsyncResource</a>() {}</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="comment">// Load should perform the actual loading of filename_, and store the</span></div>
@@ -170,38 +170,39 @@ $(document).ready(function(){initNavTree('async__loader_8h_source.html','');});
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keywordtype">bool</span> TryFinalize();</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keywordtype">void</span> Lock(<span class="keyword">const</span> std::function&lt;<span class="keywordtype">void</span> ()&gt; &amp;body) {</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keywordtype">void</span> Lock(<span class="keyword">const</span> std::function&lt;<span class="keywordtype">void</span>()&gt; &amp;body) {</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">auto</span> err = SDL_LockMutex(mutex_);</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    (void)err;</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    assert(err == 0);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    body();</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    SDL_UnlockMutex(mutex_);</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  }</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; T LockReturn(<span class="keyword">const</span> std::function&lt;T ()&gt; &amp;body) {</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    T ret;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    Lock([&amp;ret, &amp;body]() { ret = body(); });</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  }</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <span class="keywordtype">void</span> LoaderWorker();</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> LoaderThread(<span class="keywordtype">void</span> *user_data);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  std::vector&lt;AsyncResource *&gt; queue_, done_;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="comment">// Keep handle to the worker thread around so that we can wait for it to</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="comment">// finish before destroying the class.</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  SDL_Thread *worker_thread_;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="comment">// This lock protects ALL state in this class, i.e. the two vectors.</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  SDL_mutex *mutex_;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="comment">// Kick-off the worker thread when a new job arrives.</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  SDL_semaphore *job_semaphore_;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;};</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;}  <span class="comment">// namespace fpl</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#endif  // FPL_ASYNC_LOADER_H</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  T LockReturn(<span class="keyword">const</span> std::function&lt;T()&gt; &amp;body) {</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    T ret;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    Lock([&amp;ret, &amp;body]() { ret = body(); });</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  }</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keywordtype">void</span> LoaderWorker();</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> LoaderThread(<span class="keywordtype">void</span> *user_data);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  std::vector&lt;AsyncResource *&gt; queue_, done_;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="comment">// Keep handle to the worker thread around so that we can wait for it to</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="comment">// finish before destroying the class.</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  SDL_Thread *worker_thread_;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <span class="comment">// This lock protects ALL state in this class, i.e. the two vectors.</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  SDL_mutex *mutex_;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="comment">// Kick-off the worker thread when a new job arrives.</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  SDL_semaphore *job_semaphore_;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;};</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;}  <span class="comment">// namespace fpl</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="preprocessor">#endif  // FPL_ASYNC_LOADER_H</span></div>
 <div class="ttc" id="classfpl_1_1_async_resource_html"><div class="ttname"><a href="classfpl_1_1_async_resource.html">fpl::AsyncResource</a></div><div class="ttdef"><b>Definition:</b> async_loader.h:23</div></div>
 <div class="ttc" id="classfpl_1_1_async_loader_html"><div class="ttname"><a href="classfpl_1_1_async_loader.html">fpl::AsyncLoader</a></div><div class="ttdef"><b>Definition:</b> async_loader.h:49</div></div>
 </div><!-- fragment --></div><!-- contents -->

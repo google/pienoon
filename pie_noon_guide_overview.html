@@ -108,11 +108,9 @@ $(document).ready(function(){initNavTree('pie_noon_guide_overview.html','');});
 <ul>
 <li><a class="el" href="pie_noon_guide_pie_noon_game.html">PieNoonGame</a> &ndash; holds game subsystems, state, and state machine</li>
 <li><a class="el" href="pie_noon_guide_engine.html">Engine</a> &ndash; a simple, game agnostic renderer, file loader, and input system</li>
-<li><a class="el" href="pie_noon_guide_audio.html">Audio</a> &ndash; a simple, game agnostic audio engine supporing buses and ducking</li>
-<li><a class="el" href="md_programmers_guide_impel.html#pie_noon_guide_impel">Impel</a> &ndash; simple animation of in game objects and GUI elements</li>
 <li><a class="el" href="pie_noon_guide_gui.html">GUI</a> &ndash; a simple, game agnostic GUI</li>
 </ul>
-<p>Pie Noon is built on top of <a href="https://www.libsdl.org/">SDL</a>, a low-level cross platform library. <a href="https://www.libsdl.org/">SDL</a> abstracts input, file loading, threading, system events, logging, and other systems from the underlying operating system.</p>
+<p>Pie Noon is built on top of <a href="https://www.libsdl.org/">SDL</a>, a low-level cross platform library. <a href="https://www.libsdl.org/">SDL</a> abstracts input, file loading, threading, system events, logging, and other systems from the underlying operating system. In addition, Pie Noon utilizes <a href="http://google.github.io/flatbuffers">FlatBuffers</a> for serialization, <a href="http://google.github.io/motive">Motive</a> for animation, and <a href="http://google.github.io/pindrop">PinDrop</a> for audio.</p>
 <h2>Source Layout</h2>
 <p>The following bullets describe the directory structure of the game.</p>
 <table class="doxtable">
@@ -143,11 +141,11 @@ $(document).ready(function(){initNavTree('pie_noon_guide_overview.html','');});
 <tr>
 <td><code>src/com/google/fpl/pie_noon</code> </td><td>SDL derived Android activity (entry point). </td></tr>
 <tr>
-<td><code>src/flatbufferschemas</code> </td><td>Game schemas for <a href="http://google-opensource.blogspot.ca/2014/06/flatbuffers-memory-efficient.html">FlatBuffers</a> data. </td></tr>
+<td><code>src/flatbufferschemas</code> </td><td>Game schemas for <a href="http://google.github.io/flatbuffers">FlatBuffers</a> data. </td></tr>
 <tr>
 <td><code>src/org/libsdl/app</code> </td><td>Real entry point of the app on Android. </td></tr>
 <tr>
-<td><code>src/rawassets</code> </td><td>JSON <a href="http://google-opensource.blogspot.ca/2014/06/flatbuffers-memory-efficient.html">FlatBuffers</a> used as game data. </td></tr>
+<td><code>src/rawassets</code> </td><td>JSON <a href="http://google.github.io/flatbuffers">FlatBuffers</a> used as game data. </td></tr>
 <tr>
 <td><code>tests</code> </td><td>Unit tests for some components of the game. </td></tr>
 </table>

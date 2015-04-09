@@ -110,6 +110,7 @@ $(document).ready(function(){initNavTree('pie_noon_guide_building_osx.html','');
 <li><a href="http://www.cmake.org">cmake</a>: 2.8.12 or newer</li>
 <li><a href="http://www.python.org/download/releases/2.7/">Python</a>: 2.7.*</li>
 <li><a href="https://developers.google.com/speed/webp/docs/cwebp">cwebp</a>: 0.4.0 or newer (download from the <a href="https://developers.google.com/speed/webp/docs/precompiled">WebP Precompiled Utilities</a>)</li>
+<li><a href="http://www.colm.net/open-source/ragel/">Ragel</a>: 6.9 or newer</li>
 </ul>
 <h1><a class="anchor" id="building_osx_prerequisites"></a>
 Before Building</h1>
@@ -121,6 +122,11 @@ Before Building</h1>
 <li>Add directory containing <a href="https://developers.google.com/speed/webp/docs/cwebp">cwebp</a> to the <code>PATH</code> variable.<ul>
 <li>For example, if <a href="https://developers.google.com/speed/webp/docs/cwebp">cwebp</a> is installed in <code>/home/dev/cwebp</code> the following line should be added to the user's bash resource file <code>~/.bashrc</code>.<br/>
  <code>export PATH="$PATH:/home/dev/cwebp/bin"</code></li>
+</ul>
+</li>
+<li>Install <a href="http://www.colm.net/open-source/ragel/">Ragel</a> using package manager<ul>
+<li>e.g. brew install ragel</li>
+<li>e.g. sudo port install ragel</li>
 </ul>
 </li>
 </ul>

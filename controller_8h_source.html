@@ -132,52 +132,52 @@ $(document).ready(function(){initNavTree('controller_8h_source.html','');});
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    kTypePlayer,</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    kTypeAI,</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    kTypeGamepad,</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    kTypeTouchScreen</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  };</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a>(ControllerType controller_type = kTypeUndefined)</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      : is_down_(0u),</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        went_down_(0u),</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        went_up_(0u),</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        character_id_(kNoCharacter),</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        controller_type_(controller_type) {}</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keyword">virtual</span> ~<a class="code" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a>() {}</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    kTypeTouchScreen,</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    kTypeCardboard,</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    kTypeMultiplayer</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  };</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a>(ControllerType controller_type = kTypeUndefined)</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      : is_down_(0u),</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        went_down_(0u),</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        went_up_(0u),</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        character_id_(kNoCharacter),</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        controller_type_(controller_type) {}</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="comment">// Update the current state of this controller.</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> AdvanceFrame(WorldTime delta_time) = 0;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  ControllerType controller_type()<span class="keyword"> const</span>{ <span class="keywordflow">return</span> controller_type_; }</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keyword">virtual</span> ~<a class="code" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a>() {}</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="comment">// Update the current state of this controller.</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> AdvanceFrame(WorldTime delta_time) = 0;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="comment">// Returns the current set of active logical input bits.</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  uint32_t is_down()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> is_down_; }</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  uint32_t went_down()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> went_down_; }</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  uint32_t went_up()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> went_up_; }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="comment">// Updates a one or more bits.</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keywordtype">void</span> SetLogicalInputs(uint32_t bitmap, <span class="keywordtype">bool</span> set);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  CharacterId character_id()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> character_id_; }</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordtype">void</span> set_character_id(CharacterId new_id) { character_id_ = new_id; }</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="comment">// Clear all the currently set logical inputs.</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keywordtype">void</span> ClearAllLogicalInputs();</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; <span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="comment">// A bitfield of currently active logical input bits.</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  uint32_t is_down_;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  uint32_t went_down_;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  uint32_t went_up_;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  CharacterId character_id_; <span class="comment">// the ID of the player we&#39;re controlling</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  ControllerType controller_type_;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;};</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;}  <span class="comment">// pie_noon</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}  <span class="comment">// fpl</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="preprocessor">#endif  // PIE_NOON_CONTROLLER_H_</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  ControllerType controller_type()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> controller_type_; }</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="comment">// Returns the current set of active logical input bits.</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  uint32_t is_down()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> is_down_; }</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  uint32_t went_down()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> went_down_; }</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  uint32_t went_up()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> went_up_; }</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="comment">// Updates a one or more bits.</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">void</span> SetLogicalInputs(uint32_t bitmap, <span class="keywordtype">bool</span> set);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  CharacterId character_id()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> character_id_; }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordtype">void</span> set_character_id(CharacterId new_id) { character_id_ = new_id; }</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="comment">// Clear all the currently set logical inputs.</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordtype">void</span> ClearAllLogicalInputs();</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; <span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="comment">// A bitfield of currently active logical input bits.</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  uint32_t is_down_;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  uint32_t went_down_;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  uint32_t went_up_;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  CharacterId character_id_;  <span class="comment">// the ID of the player we&#39;re controlling</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  ControllerType controller_type_;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;};</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}  <span class="comment">// pie_noon</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}  <span class="comment">// fpl</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif  // PIE_NOON_CONTROLLER_H_</span></div>
 <div class="ttc" id="classfpl_1_1pie__noon_1_1_controller_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_controller.html">fpl::pie_noon::Controller</a></div><div class="ttdef"><b>Definition:</b> controller.h:26</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

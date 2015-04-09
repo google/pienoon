@@ -139,56 +139,58 @@ $(document).ready(function(){initNavTree('character__state__machine_8h_source.ht
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="comment">// The current world time</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  WorldTime current_time;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;};</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="classfpl_1_1pie__noon_1_1_character_state_machine.html">   42</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1pie__noon_1_1_character_state_machine.html">CharacterStateMachine</a> {</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="comment">// Initializes a state machine with the given state machine definition.</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="comment">// This class does not take ownership of the definition.</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <a class="code" href="classfpl_1_1pie__noon_1_1_character_state_machine.html">CharacterStateMachine</a>(</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="keyword">const</span> CharacterStateMachineDef* <span class="keyword">const</span> state_machine_def);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="comment">// Resets back to initial conditions. Assumes time is reseting to 0 too.</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keywordtype">void</span> Reset();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="comment">// Updates the current state of the state machine.</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="comment">//</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="comment">// inputs is a structure containing the game data that can affect whether or</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="comment">// not a state transition occurs</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keywordtype">void</span> Update(<span class="keyword">const</span> <a class="code" href="structfpl_1_1pie__noon_1_1_condition_inputs.html">ConditionInputs</a>&amp; inputs);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keyword">const</span> CharacterState* current_state()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> current_state_; }</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">bool</span> is_multiscreen;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;};</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classfpl_1_1pie__noon_1_1_character_state_machine.html">   44</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1pie__noon_1_1_character_state_machine.html">CharacterStateMachine</a> {</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="comment">// Initializes a state machine with the given state machine definition.</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="comment">// This class does not take ownership of the definition.</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <a class="code" href="classfpl_1_1pie__noon_1_1_character_state_machine.html">CharacterStateMachine</a>(</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keyword">const</span> CharacterStateMachineDef* <span class="keyword">const</span> state_machine_def);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="comment">// Resets back to initial conditions. Assumes time is reseting to 0 too.</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keywordtype">void</span> Reset();</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="comment">// Updates the current state of the state machine.</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="comment">//</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="comment">// inputs is a structure containing the game data that can affect whether or</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="comment">// not a state transition occurs</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">void</span> Update(<span class="keyword">const</span> <a class="code" href="structfpl_1_1pie__noon_1_1_condition_inputs.html">ConditionInputs</a>&amp; inputs);</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keywordtype">void</span> SetCurrentState(<span class="keywordtype">int</span> new_stateId, WorldTime state_start_time);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keyword">const</span> CharacterState* current_state()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> current_state_; }</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  WorldTime current_state_start_time()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordflow">return</span> current_state_start_time_;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keyword">const</span> CharacterStateMachineDef* state_machine_def_;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keyword">const</span> CharacterState* current_state_;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  WorldTime current_state_start_time_;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;};</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keywordtype">bool</span> EvaluateCondition(<span class="keyword">const</span> Condition* condition,</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                       <span class="keyword">const</span> <a class="code" href="structfpl_1_1pie__noon_1_1_condition_inputs.html">ConditionInputs</a>&amp; inputs);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">// Returns true if the state machine is valid. A valid state machine contains</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">// a single state for each state id declared in the StateId enum, and in the</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">// same order.</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">// If the state machine is invalid, returns false and prints an logs an error to</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">// SDL&#39;s error interface.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="keywordtype">bool</span> CharacterStateMachineDef_Validate(</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keyword">const</span> CharacterStateMachineDef* <span class="keyword">const</span> state_machine_def);</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}  <span class="comment">// pie_noon</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;}  <span class="comment">// fpl</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#endif  // CHARACTER_STATE_MACHINE_</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keywordtype">void</span> SetCurrentState(<span class="keywordtype">int</span> new_stateId, WorldTime state_start_time);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  WorldTime current_state_start_time()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordflow">return</span> current_state_start_time_;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  }</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="keyword">const</span> CharacterStateMachineDef* state_machine_def_;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="keyword">const</span> CharacterState* current_state_;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  WorldTime current_state_start_time_;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;};</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keywordtype">bool</span> EvaluateCondition(<span class="keyword">const</span> Condition* condition,</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;                       <span class="keyword">const</span> <a class="code" href="structfpl_1_1pie__noon_1_1_condition_inputs.html">ConditionInputs</a>&amp; inputs);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">// Returns true if the state machine is valid. A valid state machine contains</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">// a single state for each state id declared in the StateId enum, and in the</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">// same order.</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">// If the state machine is invalid, returns false and prints an logs an error to</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">// SDL&#39;s error interface.</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="keywordtype">bool</span> CharacterStateMachineDef_Validate(</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keyword">const</span> CharacterStateMachineDef* <span class="keyword">const</span> state_machine_def);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}  <span class="comment">// pie_noon</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}  <span class="comment">// fpl</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#endif  // CHARACTER_STATE_MACHINE_</span></div>
 <div class="ttc" id="structfpl_1_1pie__noon_1_1_condition_inputs_html"><div class="ttname"><a href="structfpl_1_1pie__noon_1_1_condition_inputs.html">fpl::pie_noon::ConditionInputs</a></div><div class="ttdef"><b>Definition:</b> character_state_machine.h:28</div></div>
-<div class="ttc" id="classfpl_1_1pie__noon_1_1_character_state_machine_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_character_state_machine.html">fpl::pie_noon::CharacterStateMachine</a></div><div class="ttdef"><b>Definition:</b> character_state_machine.h:42</div></div>
+<div class="ttc" id="classfpl_1_1pie__noon_1_1_character_state_machine_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_character_state_machine.html">fpl::pie_noon::CharacterStateMachine</a></div><div class="ttdef"><b>Definition:</b> character_state_machine.h:44</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

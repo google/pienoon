@@ -118,49 +118,50 @@ $(document).ready(function(){initNavTree('ai__controller_8h_source.html','');});
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define AI_CONTROLLER_H_</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;precompiled.h&quot;</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;game_state.h&quot;</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &quot;controller.h&quot;</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &quot;common.h&quot;</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &quot;timeline_generated.h&quot;</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &quot;character_state_machine_def_generated.h&quot;</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &quot;pie_noon_common_generated.h&quot;</span> <span class="comment">// TODO: put in alphabetical order when</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;                                    <span class="comment">// FlatBuffers predeclare bug fixed.</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &quot;audio_config_generated.h&quot;</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &quot;config_generated.h&quot;</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">namespace </span>fpl {</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">namespace </span>pie_noon {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">// A computer-controlled player.  Basically the same as PlayerController,</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">// except that instead of generating logical inputs based on events,</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">// this generates inputs based on random numbers and the current game state.</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="classfpl_1_1pie__noon_1_1_ai_controller.html">   36</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1pie__noon_1_1_ai_controller.html">AiController</a> : <span class="keyword">public</span> <a class="code" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a> {</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <a class="code" href="classfpl_1_1pie__noon_1_1_ai_controller.html">AiController</a>();</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="comment">// Give the AI everything it will need.</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">void</span> Initialize(<a class="code" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a>* gamestate_ptr,</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;                  <span class="keyword">const</span> Config* config, <span class="keywordtype">int</span> characterId);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="comment">// Decide what the robot is doing this frame.</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> AdvanceFrame(WorldTime delta_time);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordtype">bool</span> IsInDanger(CharacterId <span class="keywordtype">id</span>) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  WorldTime block_timer_;   <span class="comment">// How many milliseconds we need to block.</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <a class="code" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a>* gamestate_; <span class="comment">// Pointer to the gamestate object</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keyword">const</span> Config* config_; <span class="comment">// Pointer to the config structure</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  WorldTime time_to_next_action_;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;};</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;}  <span class="comment">// pie_noon</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}  <span class="comment">// fpl</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#endif  // AI_CONTROLLER_H_</span></div>
-<div class="ttc" id="classfpl_1_1pie__noon_1_1_ai_controller_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_ai_controller.html">fpl::pie_noon::AiController</a></div><div class="ttdef"><b>Definition:</b> ai_controller.h:36</div></div>
-<div class="ttc" id="classfpl_1_1pie__noon_1_1_game_state_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_game_state.html">fpl::pie_noon::GameState</a></div><div class="ttdef"><b>Definition:</b> game_state.h:39</div></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &quot;audio_config_generated.h&quot;</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &quot;character_state_machine_def_generated.h&quot;</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &quot;common.h&quot;</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &quot;config_generated.h&quot;</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &quot;controller.h&quot;</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &quot;game_state.h&quot;</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &quot;pie_noon_common_generated.h&quot;</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#include &quot;timeline_generated.h&quot;</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">namespace </span>fpl {</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">namespace </span>pie_noon {</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">// A computer-controlled player.  Basically the same as PlayerController,</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">// except that instead of generating logical inputs based on events,</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">// this generates inputs based on random numbers and the current game state.</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="classfpl_1_1pie__noon_1_1_ai_controller.html">   37</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1pie__noon_1_1_ai_controller.html">AiController</a> : <span class="keyword">public</span> <a class="code" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a> {</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <a class="code" href="classfpl_1_1pie__noon_1_1_ai_controller.html">AiController</a>();</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="comment">// Give the AI everything it will need.</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">void</span> Initialize(<a class="code" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a>* gamestate_ptr, <span class="keyword">const</span> Config* config,</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;                  <span class="keywordtype">int</span> characterId);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="comment">// Decide what the robot is doing this frame.</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> AdvanceFrame(WorldTime delta_time);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="keywordtype">bool</span> IsInDanger(CharacterId <span class="keywordtype">id</span>) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  WorldTime block_timer_;  <span class="comment">// How many milliseconds we need to block.</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <a class="code" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a>* gamestate_;  <span class="comment">// Pointer to the gamestate object</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keyword">const</span> Config* config_;  <span class="comment">// Pointer to the config structure</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  WorldTime time_to_next_action_;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;};</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}  <span class="comment">// pie_noon</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;}  <span class="comment">// fpl</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#endif  // AI_CONTROLLER_H_</span></div>
+<div class="ttc" id="classfpl_1_1pie__noon_1_1_ai_controller_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_ai_controller.html">fpl::pie_noon::AiController</a></div><div class="ttdef"><b>Definition:</b> ai_controller.h:37</div></div>
+<div class="ttc" id="classfpl_1_1pie__noon_1_1_game_state_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_game_state.html">fpl::pie_noon::GameState</a></div><div class="ttdef"><b>Definition:</b> game_state.h:56</div></div>
 <div class="ttc" id="classfpl_1_1pie__noon_1_1_controller_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_controller.html">fpl::pie_noon::Controller</a></div><div class="ttdef"><b>Definition:</b> controller.h:26</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

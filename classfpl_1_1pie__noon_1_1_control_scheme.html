@@ -144,11 +144,10 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">  { std::vector&lt;Keybind&gt;(kKeyBinds0, &amp;kKeyBinds0[ARRAYSIZE(kKeyBinds0)]) },</div>
-<div class="line">  { std::vector&lt;Keybind&gt;(kKeyBinds1, &amp;kKeyBinds1[ARRAYSIZE(kKeyBinds1)]) },</div>
-<div class="line">  { std::vector&lt;Keybind&gt;(kKeyBinds2, &amp;kKeyBinds2[ARRAYSIZE(kKeyBinds2)]) },</div>
-<div class="line">  { std::vector&lt;Keybind&gt;(kKeyBinds3, &amp;kKeyBinds3[ARRAYSIZE(kKeyBinds3)]) }</div>
-<div class="line">}</div>
+<div class="line">    {std::vector&lt;Keybind&gt;(kKeyBinds0, &amp;kKeyBinds0[PIE_ARRAYSIZE(kKeyBinds0)])},</div>
+<div class="line">    {std::vector&lt;Keybind&gt;(kKeyBinds1, &amp;kKeyBinds1[PIE_ARRAYSIZE(kKeyBinds1)])},</div>
+<div class="line">    {std::vector&lt;Keybind&gt;(kKeyBinds2, &amp;kKeyBinds2[PIE_ARRAYSIZE(kKeyBinds2)])},</div>
+<div class="line">    {std::vector&lt;Keybind&gt;(kKeyBinds3, &amp;kKeyBinds3[PIE_ARRAYSIZE(kKeyBinds3)])}}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -170,7 +169,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">    ARRAYSIZE(kDefaultSchemes)</div>
+<div class="line">    PIE_ARRAYSIZE(kDefaultSchemes)</div>
 </div><!-- fragment -->
 </div>
 </div>

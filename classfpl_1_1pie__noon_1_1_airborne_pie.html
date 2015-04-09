@@ -106,9 +106,9 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_airborne_pie
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a01dba94eb71562f993fe4dca6fbb7a2b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01dba94eb71562f993fe4dca6fbb7a2b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>AirbornePie</b> (CharacterId original_source, CharacterId source, CharacterId target, WorldTime start_time, WorldTime flight_time, CharacterHealth damage, float height, int rotations)</td></tr>
-<tr class="separator:a01dba94eb71562f993fe4dca6fbb7a2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5275f4cb36b78ed5695057376238e9e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5275f4cb36b78ed5695057376238e9e1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>AirbornePie</b> (CharacterId original_source, const <a class="el" href="classfpl_1_1pie__noon_1_1_character.html">Character</a> &amp;source, const <a class="el" href="classfpl_1_1pie__noon_1_1_character.html">Character</a> &amp;target, WorldTime start_time, WorldTime flight_time, CharacterHealth original_damage, CharacterHealth damage, float start_height, float peak_height, int rotations, motive::MotiveEngine *engine)</td></tr>
+<tr class="separator:a5275f4cb36b78ed5695057376238e9e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a63c25925037dc4a34194257a1fd978"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a63c25925037dc4a34194257a1fd978"></a>
 CharacterId&#160;</td><td class="memItemRight" valign="bottom"><b>original_source</b> () const </td></tr>
 <tr class="separator:a8a63c25925037dc4a34194257a1fd978"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,30 +124,18 @@ WorldTime&#160;</td><td class="memItemRight" valign="bottom"><b>start_time</b> (
 <tr class="memitem:ae0c321ecf6c33e7a985e76917dc11df0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae0c321ecf6c33e7a985e76917dc11df0"></a>
 WorldTime&#160;</td><td class="memItemRight" valign="bottom"><b>flight_time</b> () const </td></tr>
 <tr class="separator:ae0c321ecf6c33e7a985e76917dc11df0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f134d5bee15de1038c65e69738cb901"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f134d5bee15de1038c65e69738cb901"></a>
+CharacterHealth&#160;</td><td class="memItemRight" valign="bottom"><b>original_damage</b> () const </td></tr>
+<tr class="separator:a9f134d5bee15de1038c65e69738cb901"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13be52d6b48b4ec24ad7e90c11bfefce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13be52d6b48b4ec24ad7e90c11bfefce"></a>
 CharacterHealth&#160;</td><td class="memItemRight" valign="bottom"><b>damage</b> () const </td></tr>
 <tr class="separator:a13be52d6b48b4ec24ad7e90c11bfefce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49d5988f1582d69c8a1aac0c4a059b4f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49d5988f1582d69c8a1aac0c4a059b4f"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>height</b> () const </td></tr>
-<tr class="separator:a49d5988f1582d69c8a1aac0c4a059b4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e218f7257683eba4fba11c778a51209"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e218f7257683eba4fba11c778a51209"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>rotations</b> () const </td></tr>
-<tr class="separator:a9e218f7257683eba4fba11c778a51209"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8eae5c3ea8aea15a785617d7584d633d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8eae5c3ea8aea15a785617d7584d633d"></a>
-Quat&#160;</td><td class="memItemRight" valign="bottom"><b>orientation</b> () const </td></tr>
-<tr class="separator:a8eae5c3ea8aea15a785617d7584d633d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a641c4e3e73976d9269ccfb14819065a1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a641c4e3e73976d9269ccfb14819065a1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_orientation</b> (const Quat &amp;orientation)</td></tr>
-<tr class="separator:a641c4e3e73976d9269ccfb14819065a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7adbf38ba1ed5454d88548724ff1ce2e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7adbf38ba1ed5454d88548724ff1ce2e"></a>
-mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>position</b> () const </td></tr>
-<tr class="separator:a7adbf38ba1ed5454d88548724ff1ce2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad95878701c649ad3cc9ea5e109a305ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad95878701c649ad3cc9ea5e109a305ba"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_position</b> (const mathfu::vec3 &amp;position)</td></tr>
-<tr class="separator:ad95878701c649ad3cc9ea5e109a305ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7af994bc72d600b9f47ae4145280e44d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7af994bc72d600b9f47ae4145280e44d"></a>
-mathfu::mat4&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateMatrix</b> () const </td></tr>
-<tr class="separator:a7af994bc72d600b9f47ae4145280e44d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c906419fcb8b6b60f7d5dda7ddfea9c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3c906419fcb8b6b60f7d5dda7ddfea9c"></a>
+const mathfu::mat4 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Matrix</b> () const </td></tr>
+<tr class="separator:a3c906419fcb8b6b60f7d5dda7ddfea9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5499a5179406351aef3049d88f3baf8d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5499a5179406351aef3049d88f3baf8d"></a>
+mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>Position</b> () const </td></tr>
+<tr class="separator:a5499a5179406351aef3049d88f3baf8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="character_8h_source.html">character.h</a></li>

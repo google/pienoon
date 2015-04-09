@@ -110,6 +110,7 @@ Inheritance diagram for fpl::Texture:</div>
   <img src="classfpl_1_1_texture.png" usemap="#fpl::Texture_map" alt=""/>
   <map id="fpl::Texture_map" name="fpl::Texture_map">
 <area href="classfpl_1_1_async_resource.html" alt="fpl::AsyncResource" shape="rect" coords="0,0,122,24"/>
+<area href="classfpl_1_1_font_texture.html" alt="fpl::FontTexture" shape="rect" coords="0,112,122,136"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -118,12 +119,24 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acd1eb6fd602a3d6f10c02bf9fd91019b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd1eb6fd602a3d6f10c02bf9fd91019b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Texture</b> (<a class="el" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer, const std::string &amp;filename)</td></tr>
 <tr class="separator:acd1eb6fd602a3d6f10c02bf9fd91019b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb36a330efb13528b07720226ff82a35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb36a330efb13528b07720226ff82a35"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Texture</b> (<a class="el" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer)</td></tr>
+<tr class="separator:acb36a330efb13528b07720226ff82a35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9feda94098264e8a606311744fae08a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9feda94098264e8a606311744fae08a"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Load</b> ()</td></tr>
 <tr class="separator:ad9feda94098264e8a606311744fae08a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d87553088f065f05a243d92edb2a4fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5d87553088f065f05a243d92edb2a4fe"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadFromMemory</b> (const uint8_t *data, const vec2i size, const TextureFormat format, const bool has_alpha)</td></tr>
+<tr class="separator:a5d87553088f065f05a243d92edb2a4fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a778b0469ef97b795cb16d605076632fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a778b0469ef97b795cb16d605076632fc"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Finalize</b> ()</td></tr>
 <tr class="separator:a778b0469ef97b795cb16d605076632fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a689c0eb95a3db6fbd839bd2df2795118"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a689c0eb95a3db6fbd839bd2df2795118"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Set</b> (size_t unit)</td></tr>
+<tr class="separator:a689c0eb95a3db6fbd839bd2df2795118"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca2f511eafaee8954d8e2f192115eae6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca2f511eafaee8954d8e2f192115eae6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Delete</b> ()</td></tr>
+<tr class="separator:aca2f511eafaee8954d8e2f192115eae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3dc33b535fde88e7d8f5bff3a5e7e840"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3dc33b535fde88e7d8f5bff3a5e7e840"></a>
 const GLuint &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>id</b> () const </td></tr>
 <tr class="separator:a3dc33b535fde88e7d8f5bff3a5e7e840"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,6 +146,12 @@ vec2i&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> ()</td></tr
 <tr class="memitem:a8d04828900d58890d9eb6533177298e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d04828900d58890d9eb6533177298e8"></a>
 const vec2i&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> () const </td></tr>
 <tr class="separator:a8d04828900d58890d9eb6533177298e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae9dc7cf33b88e149f9ab42c28c1323c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae9dc7cf33b88e149f9ab42c28c1323c"></a>
+const vec4 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>uv</b> () const </td></tr>
+<tr class="separator:aae9dc7cf33b88e149f9ab42c28c1323c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85baa2d8d8af32197178f683a3e1426b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a85baa2d8d8af32197178f683a3e1426b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_uv</b> (const vec4 &amp;uv)</td></tr>
+<tr class="separator:a85baa2d8d8af32197178f683a3e1426b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ab02a91860f3b2e54fb38c58aaa63ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ab02a91860f3b2e54fb38c58aaa63ff"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_desired_format</b> (TextureFormat format)</td></tr>
 <tr class="separator:a0ab02a91860f3b2e54fb38c58aaa63ff"><td class="memSeparator" colspan="2">&#160;</td></tr>

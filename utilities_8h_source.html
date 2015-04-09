@@ -128,7 +128,7 @@ $(document).ready(function(){initNavTree('utilities_8h_source.html','');});
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">namespace </span>fpl {</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">bool</span> LoadFile(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename, std::string *dest);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">bool</span> LoadFile(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename, std::string* dest);</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">inline</span> <span class="keyword">const</span> mathfu::vec3 LoadVec3(<span class="keyword">const</span> pie_noon::Vec3* v) {</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="comment">// Note: eschew the constructor that loads contiguous floats. It&#39;s faster</span></div>
@@ -150,26 +150,27 @@ $(document).ready(function(){initNavTree('utilities_8h_source.html','');});
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;}</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">inline</span> <span class="keyword">const</span> mathfu::vec3 LoadAxis(pie_noon::Axis axis) {</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="keywordflow">return</span> axis == pie_noon::Axis_X ? mathfu::kAxisX3f :</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;         axis == pie_noon::Axis_Y ? mathfu::kAxisY3f : mathfu::kAxisZ3f;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;}</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keywordtype">bool</span> ChangeToUpstreamDir(<span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> binary_dir,</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> target_dir);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;std::string CamelCaseToSnakeCase(<span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> camel);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;std::string FileNameFromEnumName(<span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> enum_name,</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                                 <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> prefix,</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                                 <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> suffix);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">bool</span> TouchScreenDevice();</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="keywordtype">bool</span> MipmapGeneration16bppSupported();</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;} <span class="comment">// namespace fpl</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#endif // PIE_NOON_UTILITIES_H</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="keywordflow">return</span> axis == pie_noon::Axis_X ? mathfu::kAxisX3f : axis == pie_noon::Axis_Y</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                                                           ? mathfu::kAxisY3f</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                                                           : mathfu::kAxisZ3f;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keywordtype">bool</span> ChangeToUpstreamDir(<span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> binary_dir,</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> target_dir);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;std::string CamelCaseToSnakeCase(<span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> camel);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;std::string FileNameFromEnumName(<span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> enum_name,</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                                 <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> prefix,</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                                 <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> suffix);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keywordtype">bool</span> TouchScreenDevice();</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keywordtype">bool</span> MipmapGeneration16bppSupported();</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}  <span class="comment">// namespace fpl</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#endif  // PIE_NOON_UTILITIES_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

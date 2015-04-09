@@ -97,6 +97,7 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_game_state.h
 
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classfpl_1_1pie__noon_1_1_game_state-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -104,25 +105,41 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_game_state.h
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a6539d17b628bb8ee14f4f715d69b874a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>AnalyticsMode</b> { <b>kNoAnalytics</b>, 
+<b>kTrackAnalytics</b>
+ }</td></tr>
+<tr class="separator:a6539d17b628bb8ee14f4f715d69b874a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a1c78b119ae1842755821bd4bfa1aa5ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c78b119ae1842755821bd4bfa1aa5ed"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsGameOver</b> () const </td></tr>
 <tr class="separator:a1c78b119ae1842755821bd4bfa1aa5ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73d15c0465b9f3eed4286ee60c7a828e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73d15c0465b9f3eed4286ee60c7a828e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> (AnalyticsMode analytics_mode)</td></tr>
+<tr class="separator:a73d15c0465b9f3eed4286ee60c7a828e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12f839ac7b0d2356c371c94002eebbd3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a12f839ac7b0d2356c371c94002eebbd3"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()</td></tr>
 <tr class="separator:a12f839ac7b0d2356c371c94002eebbd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa1d4e4ac496dd11a61c383b986734d85"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa1d4e4ac496dd11a61c383b986734d85"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time, <a class="el" href="classfpl_1_1_audio_engine.html">AudioEngine</a> *audio_engine)</td></tr>
-<tr class="separator:aa1d4e4ac496dd11a61c383b986734d85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0048e6fa4c4190202d166699f7fdc83d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0048e6fa4c4190202d166699f7fdc83d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>PopulateScene</b> (<a class="el" href="classfpl_1_1_scene_description.html">SceneDescription</a> *scene) const </td></tr>
-<tr class="separator:a0048e6fa4c4190202d166699f7fdc83d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66b57aa160ee1b3c194fb89c72cd08a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66b57aa160ee1b3c194fb89c72cd08a6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time, pindrop::AudioEngine *audio_engine)</td></tr>
+<tr class="separator:a66b57aa160ee1b3c194fb89c72cd08a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a47bd5b76cba86ce0fece09bb8164a2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a47bd5b76cba86ce0fece09bb8164a2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PreGameLogging</b> () const </td></tr>
+<tr class="separator:a3a47bd5b76cba86ce0fece09bb8164a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38139ef5962a7fac200fe966a00604c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a38139ef5962a7fac200fe966a00604c5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PostGameLogging</b> () const </td></tr>
+<tr class="separator:a38139ef5962a7fac200fe966a00604c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecc2ccaacbc62aa3c78528238f75b33a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aecc2ccaacbc62aa3c78528238f75b33a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PopulateScene</b> (<a class="el" href="classfpl_1_1_scene_description.html">SceneDescription</a> *scene)</td></tr>
+<tr class="separator:aecc2ccaacbc62aa3c78528238f75b33a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa7d7fc9272b3ca7e2e9cc01b0a6b6f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa7d7fc9272b3ca7e2e9cc01b0a6b6f2"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>AngleBetweenCharacters</b> (CharacterId source_id, CharacterId target_id) const </td></tr>
+Angle&#160;</td><td class="memItemRight" valign="bottom"><b>AngleBetweenCharacters</b> (CharacterId source_id, CharacterId target_id) const </td></tr>
 <tr class="separator:afa7d7fc9272b3ca7e2e9cc01b0a6b6f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5f6b8a94453082af350b99a786819c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5f6b8a94453082af350b99a786819c5"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>TargetFaceAngle</b> (CharacterId id) const </td></tr>
+Angle&#160;</td><td class="memItemRight" valign="bottom"><b>TargetFaceAngle</b> (CharacterId id) const </td></tr>
 <tr class="separator:ac5f6b8a94453082af350b99a786819c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11bd422342a73623b269fd69ed12912e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11bd422342a73623b269fd69ed12912e"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>CharacterState</b> (CharacterId id) const </td></tr>
@@ -167,12 +184,27 @@ WorldTime&#160;</td><td class="memItemRight" valign="bottom"><b>time</b> () cons
 <tr class="memitem:a16a343f1dfa998b2017f48daa9e13a90"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16a343f1dfa998b2017f48daa9e13a90"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_config</b> (const Config *config)</td></tr>
 <tr class="separator:a16a343f1dfa998b2017f48daa9e13a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29f04c9a714110b4865cff4e65aac691"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29f04c9a714110b4865cff4e65aac691"></a>
-<a class="el" href="classimpel_1_1_impel_engine.html">impel::ImpelEngine</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>impel_engine</b> ()</td></tr>
-<tr class="separator:a29f04c9a714110b4865cff4e65aac691"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0ab092bfa04650406b8dfdcff713550"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac0ab092bfa04650406b8dfdcff713550"></a>
+motive::MotiveEngine &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>engine</b> ()</td></tr>
+<tr class="separator:ac0ab092bfa04650406b8dfdcff713550"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93bd2d0af461ae9eb857c738708bc186"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93bd2d0af461ae9eb857c738708bc186"></a>
+<a class="el" href="classfpl_1_1pie__noon_1_1_particle_manager.html">ParticleManager</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>particle_manager</b> ()</td></tr>
+<tr class="separator:a93bd2d0af461ae9eb857c738708bc186"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a72915d0f9cfa2c6d39d2946d2fb87638"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72915d0f9cfa2c6d39d2946d2fb87638"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>EnterJoiningMode</b> ()</td></tr>
 <tr class="separator:a72915d0f9cfa2c6d39d2946d2fb87638"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab115bd3e4228d13cbf7191c851f41c15"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab115bd3e4228d13cbf7191c851f41c15"></a>
+WorldTime&#160;</td><td class="memItemRight" valign="bottom"><b>GetAnimationTime</b> (const <a class="el" href="classfpl_1_1pie__noon_1_1_character.html">Character</a> &amp;character) const </td></tr>
+<tr class="separator:ab115bd3e4228d13cbf7191c851f41c15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bedeca18ec0b960efecdb30d63cd988"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5bedeca18ec0b960efecdb30d63cd988"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterMultiplayerDirector</b> (<a class="el" href="classfpl_1_1pie__noon_1_1_multiplayer_director.html">MultiplayerDirector</a> *director)</td></tr>
+<tr class="separator:a5bedeca18ec0b960efecdb30d63cd988"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af51150b526816481b765c211b8149358"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af51150b526816481b765c211b8149358"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_is_multiscreen</b> (bool b)</td></tr>
+<tr class="separator:af51150b526816481b765c211b8149358"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2faafbf3b64f8cd5db05e4fe958be44a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2faafbf3b64f8cd5db05e4fe958be44a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_multiscreen</b> () const </td></tr>
+<tr class="separator:a2faafbf3b64f8cd5db05e4fe958be44a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="game__state_8h_source.html">game_state.h</a></li>

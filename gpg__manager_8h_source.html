@@ -120,62 +120,62 @@ $(document).ready(function(){initNavTree('gpg__manager_8h_source.html','');});
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;common.h&quot;</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;pthread.h&quot;</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;gpg/achievement_manager.h&quot;</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &quot;gpg/types.h&quot;</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &quot;gpg/player_manager.h&quot;</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &quot;gpg/types.h&quot;</span></div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">namespace </span>fpl {</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">enum</span> RequestState {</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  kPending,</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  kComplete,</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  kFailed</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;};</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="structfpl_1_1_g_p_g_key_value_pair.html">   32</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_g_p_g_key_value_pair.html">GPGKeyValuePair</a> {</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  std::string id;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  uint64_t value;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;};</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">enum</span> RequestState { kPending, kComplete, kFailed };</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="structfpl_1_1_g_p_g_key_value_pair.html">   28</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_g_p_g_key_value_pair.html">GPGKeyValuePair</a> {</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  std::string id;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  uint64_t value;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;};</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
+<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="classfpl_1_1_g_p_g_manager.html">   33</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1_g_p_g_manager.html">GPGManager</a> {</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <a class="code" href="classfpl_1_1_g_p_g_manager.html">GPGManager</a>();</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="classfpl_1_1_g_p_g_manager.html">   37</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1_g_p_g_manager.html">GPGManager</a> {</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <a class="code" href="classfpl_1_1_g_p_g_manager.html">GPGManager</a>();</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="comment">// Start of initial initialization and auth.</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">bool</span> Initialize(<span class="keywordtype">bool</span> ui_login);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="comment">// Call once a frame to allow us to track our async work.</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keywordtype">void</span> Update();</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="comment">// Start of initial initialization and auth.</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">bool</span> Initialize(<span class="keywordtype">bool</span> ui_login);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="comment">// Call once a frame to allow us to track our async work.</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">void</span> Update();</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="comment">// To be called from UI to sign out (if we were signed in) or sign back in</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="comment">// (if we were signed out).</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keywordtype">void</span> ToggleSignIn();</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="comment">// To be called from UI to sign out (if we were signed in) or sign back in</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="comment">// (if we were signed out).</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="keywordtype">void</span> ToggleSignIn();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="comment">// Logged in status, can be shown in UI.</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keywordtype">bool</span> LoggedIn();</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="comment">// Logged in status, can be shown in UI.</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordtype">bool</span> LoggedIn();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
+<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">   50</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">GPGIds</a> {</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">char</span> *leaderboard, *event;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  };</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">   54</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">GPGIds</a> { <span class="keyword">const</span> <span class="keywordtype">char</span> *leaderboard, *event; };</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="comment">// Request this stat to be saved for the logged in</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="comment">// player. Does nothing if not logged in.</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">void</span> IncrementEvent(<span class="keyword">const</span> <span class="keywordtype">char</span> *event_id, uint64_t score);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keywordtype">void</span> ShowLeaderboards(<span class="keyword">const</span> <a class="code" href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">GPGIds</a> *ids, <span class="keywordtype">size_t</span> id_len);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordtype">void</span> ShowAchievements();</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="comment">// Asynchronously fetches the stats associated with the current player</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="comment">// from the server.  (Does nothing if not logged in.)</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="comment">// The status of the data can be checked via event_data_state.</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="comment">//const char* fields[]</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keywordtype">void</span> FetchEvents();</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keywordtype">void</span> FetchAchievements();</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  RequestState event_data_state()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">return</span> event_data_state_;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  }</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="comment">// Request this stat to be saved for the logged in</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="comment">// player. Does nothing if not logged in.</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keywordtype">void</span> IncrementEvent(<span class="keyword">const</span> <span class="keywordtype">char</span> *event_id, uint64_t score);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">void</span> ShowLeaderboards(<span class="keyword">const</span> <a class="code" href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">GPGIds</a> *ids, <span class="keywordtype">size_t</span> id_len);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordtype">void</span> ShowAchievements();</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="comment">// Asynchronously fetches the stats associated with the current player</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="comment">// from the server.  (Does nothing if not logged in.)</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="comment">// The status of the data can be checked via event_data_state.</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="comment">// const char* fields[]</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordtype">void</span> FetchEvents();</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordtype">void</span> FetchAchievements();</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="comment">// Asynchronously fetches the current player&#39;s info from the server.</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="comment">// (Does nothing if not logged in.)</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="keywordtype">void</span> FetchPlayer();</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  RequestState event_data_state()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> event_data_state_; }</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  std::map&lt;std::string, gpg::Event&gt; &amp;event_data() {</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordflow">return</span> event_data_;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  }</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  std::map&lt;std::string, gpg::Event&gt; &amp;event_data() { <span class="keywordflow">return</span> event_data_; }</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  gpg::Player *player_data()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> player_data_.get(); }</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  uint64_t GetEventValue(std::string event_id);</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="keywordtype">bool</span> IsAchievementUnlocked(std::string achievement_id);</div>
@@ -213,16 +213,18 @@ $(document).ready(function(){initNavTree('gpg__manager_8h_source.html','');});
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  RequestState achievement_data_state_;</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keyword">static</span> pthread_mutex_t events_mutex_;</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="keyword">static</span> pthread_mutex_t achievements_mutex_;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  std::map&lt;std::string, gpg::Event&gt; event_data_;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  std::vector&lt;gpg::Achievement&gt; achievement_data_;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;};</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}  <span class="comment">// fpl</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keyword">static</span> pthread_mutex_t players_mutex_;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  std::map&lt;std::string, gpg::Event&gt; event_data_;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  std::unique_ptr&lt;gpg::Player&gt; player_data_;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  std::vector&lt;gpg::Achievement&gt; achievement_data_;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;};</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="preprocessor">#endif  // GPG_MANAGER_H</span></div>
-<div class="ttc" id="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids_html"><div class="ttname"><a href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">fpl::GPGManager::GPGIds</a></div><div class="ttdef"><b>Definition:</b> gpg_manager.h:54</div></div>
-<div class="ttc" id="structfpl_1_1_g_p_g_key_value_pair_html"><div class="ttname"><a href="structfpl_1_1_g_p_g_key_value_pair.html">fpl::GPGKeyValuePair</a></div><div class="ttdef"><b>Definition:</b> gpg_manager.h:32</div></div>
-<div class="ttc" id="classfpl_1_1_g_p_g_manager_html"><div class="ttname"><a href="classfpl_1_1_g_p_g_manager.html">fpl::GPGManager</a></div><div class="ttdef"><b>Definition:</b> gpg_manager.h:37</div></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;}  <span class="comment">// fpl</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="preprocessor">#endif  // GPG_MANAGER_H</span></div>
+<div class="ttc" id="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids_html"><div class="ttname"><a href="structfpl_1_1_g_p_g_manager_1_1_g_p_g_ids.html">fpl::GPGManager::GPGIds</a></div><div class="ttdef"><b>Definition:</b> gpg_manager.h:50</div></div>
+<div class="ttc" id="structfpl_1_1_g_p_g_key_value_pair_html"><div class="ttname"><a href="structfpl_1_1_g_p_g_key_value_pair.html">fpl::GPGKeyValuePair</a></div><div class="ttdef"><b>Definition:</b> gpg_manager.h:28</div></div>
+<div class="ttc" id="classfpl_1_1_g_p_g_manager_html"><div class="ttname"><a href="classfpl_1_1_g_p_g_manager.html">fpl::GPGManager</a></div><div class="ttdef"><b>Definition:</b> gpg_manager.h:33</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

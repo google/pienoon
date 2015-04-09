@@ -106,27 +106,33 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_character.ht
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad0770182b1734374b365c5639cdef1e5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0770182b1734374b365c5639cdef1e5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Character</b> (CharacterId id, <a class="el" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a> *controller, const Config &amp;config, const CharacterStateMachineDef *character_state_machine_def, <a class="el" href="classfpl_1_1_audio_engine.html">AudioEngine</a> *audio_engine)</td></tr>
-<tr class="separator:ad0770182b1734374b365c5639cdef1e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66cb324626f7d4fcb3a31958329cca16"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66cb324626f7d4fcb3a31958329cca16"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> (CharacterId target, CharacterHealth health, <a class="el" href="classfpl_1_1_angle.html">Angle</a> face_angle, const mathfu::vec3 &amp;position, <a class="el" href="classimpel_1_1_impel_engine.html">impel::ImpelEngine</a> *impel_engine)</td></tr>
-<tr class="separator:a66cb324626f7d4fcb3a31958329cca16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c58370de06dbc0cbbd93376e48964d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c58370de06dbc0cbbd93376e48964d5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>TwitchFaceAngle</b> (impel::TwitchDirection twitch)</td></tr>
-<tr class="separator:a9c58370de06dbc0cbbd93376e48964d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a603b6a66ed0304728a425a32bb33a3fa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a603b6a66ed0304728a425a32bb33a3fa"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Character</b> (CharacterId id, <a class="el" href="classfpl_1_1pie__noon_1_1_controller.html">Controller</a> *controller, const Config &amp;config, const CharacterStateMachineDef *character_state_machine_def)</td></tr>
+<tr class="separator:a603b6a66ed0304728a425a32bb33a3fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f97ad2a42b3c496711e9027b47339bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f97ad2a42b3c496711e9027b47339bc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> (CharacterId target, CharacterHealth health, Angle face_angle, const mathfu::vec3 &amp;position, motive::MotiveEngine *engine)</td></tr>
+<tr class="separator:a1f97ad2a42b3c496711e9027b47339bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73dc529775e018cb9efe92bb486926cc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73dc529775e018cb9efe92bb486926cc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>TwitchFaceAngle</b> (motive::TwitchDirection twitch)</td></tr>
+<tr class="separator:a73dc529775e018cb9efe92bb486926cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a504d747be2b0058f845f0a05da21ca32"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a504d747be2b0058f845f0a05da21ca32"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>force_target</b> (CharacterId target)</td></tr>
+<tr class="separator:a504d747be2b0058f845f0a05da21ca32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa270de0e82a02899044dd54b3a89f1d2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa270de0e82a02899044dd54b3a89f1d2"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>FaceAngle</b> () const </td></tr>
+Angle&#160;</td><td class="memItemRight" valign="bottom"><b>FaceAngle</b> () const </td></tr>
 <tr class="separator:aa270de0e82a02899044dd54b3a89f1d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe80878b85af6f156c3bb90fcad830b9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afe80878b85af6f156c3bb90fcad830b9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetTarget</b> (CharacterId target, <a class="el" href="classfpl_1_1_angle.html">Angle</a> angle_to_target)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetTarget</b> (CharacterId target, Angle angle_to_target)</td></tr>
 <tr class="separator:afe80878b85af6f156c3bb90fcad830b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53b1dd7921be632441759b64d412d7e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a53b1dd7921be632441759b64d412d7e9"></a>
-mathfu::mat4&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateMatrix</b> (bool facing_camera) const </td></tr>
-<tr class="separator:a53b1dd7921be632441759b64d412d7e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9973938142fe99ae4c8fe886e687027a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9973938142fe99ae4c8fe886e687027a"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>RenderableId</b> (WorldTime anim_time) const </td></tr>
 <tr class="separator:a9973938142fe99ae4c8fe886e687027a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4323e1ead9fbf9ea6dfa60b0c5bc75b3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4323e1ead9fbf9ea6dfa60b0c5bc75b3"></a>
+mathfu::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>Color</b> () const </td></tr>
+<tr class="separator:a4323e1ead9fbf9ea6dfa60b0c5bc75b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acda721e9ec5e7ecb5250ff59498d37bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acda721e9ec5e7ecb5250ff59498d37bf"></a>
+mathfu::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>ButtonColor</b> () const </td></tr>
+<tr class="separator:acda721e9ec5e7ecb5250ff59498d37bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae771a8646d3a8581aaccd27a655fe99a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae771a8646d3a8581aaccd27a655fe99a"></a>
 const Timeline *&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentTimeline</b> () const </td></tr>
 <tr class="separator:ae771a8646d3a8581aaccd27a655fe99a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,9 +148,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdatePreviousState</
 <tr class="memitem:ad4c54de22ae7bc858ba2229be923a32a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4c54de22ae7bc858ba2229be923a32a"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Active</b> () const </td></tr>
 <tr class="separator:ad4c54de22ae7bc858ba2229be923a32a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae482c356e62ebc0bbca06b4980fcbfa6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae482c356e62ebc0bbca06b4980fcbfa6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>PlaySound</b> (SoundId sound_id) const </td></tr>
-<tr class="separator:ae482c356e62ebc0bbca06b4980fcbfa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5404a3ea62d643e5e3f2e87de1a8baa2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5404a3ea62d643e5e3f2e87de1a8baa2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PlaySound</b> (const char *sound) const </td></tr>
+<tr class="separator:a5404a3ea62d643e5e3f2e87de1a8baa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b6bbbe8e102a9a72018a8e02b6bf166"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b6bbbe8e102a9a72018a8e02b6bf166"></a>
 CharacterHealth&#160;</td><td class="memItemRight" valign="bottom"><b>health</b> () const </td></tr>
 <tr class="separator:a0b6bbbe8e102a9a72018a8e02b6bf166"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,6 +217,12 @@ VictoryState&#160;</td><td class="memItemRight" valign="bottom"><b>victory_state
 <tr class="memitem:ae9570c03e6a6de9fd39695d8cc29ae2e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae9570c03e6a6de9fd39695d8cc29ae2e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ResetStats</b> ()</td></tr>
 <tr class="separator:ae9570c03e6a6de9fd39695d8cc29ae2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a14896de31bfa5963ab32731a270e75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a14896de31bfa5963ab32731a270e75"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible</b> () const </td></tr>
+<tr class="separator:a0a14896de31bfa5963ab32731a270e75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab090c67e5f9770e61c750f5bd9376b54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab090c67e5f9770e61c750f5bd9376b54"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_visible</b> (bool visible)</td></tr>
+<tr class="separator:ab090c67e5f9770e61c750f5bd9376b54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="character_8h_source.html">character.h</a></li>
