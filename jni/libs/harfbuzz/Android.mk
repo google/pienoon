@@ -15,10 +15,11 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-PIE_NOON_DIR:=$(LOCAL_PATH)/../../..
+UP_DIR:=../../..
+PIE_NOON_DIR:=$(LOCAL_PATH)/$(UP_DIR)
 include $(PIE_NOON_DIR)/jni/android_config.mk
 
-HARFBUZZ_DIR := ../../../../../../../external/harfbuzz
+HARFBUZZ_DIR := $(UP_DIR)/${THIRD_PARTY_ROOT}/harfbuzz
 
 ###########################
 #
@@ -73,7 +74,7 @@ LOCAL_C_INCLUDES += \
     $(DEPENDENCIES_HARFBUZZ_DIR)/src \
     $(DEPENDENCIES_HARFBUZZ_DIR)/src/hb-ucdn \
     ${DEPENDENCIES_FREETYPE_DIR}/include
-LOCAL_CFLAGS += -DHAVE_OT
+LOCAL_CFLAGS += -DHAVE_OT -DHB_NO_MT -DHB_NO_UNICODE_FUNCS
 LOCAL_MODULE := libharfbuzz
 LOCAL_MODULE_FILENAME := libharfbuzz
 
