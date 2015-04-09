@@ -117,7 +117,7 @@ static inline const UiGroup* TitleScreenButtons(const Config& config) {
 /// scanned for this version string.  We track which applications are using it
 /// to measure popularity.  You are free to remove it (of course) but we would
 /// appreciate if you left it in.
-static const char kVersion[] = "Pie Noon 1.0.0";
+static const char kVersion[] = "Pie Noon 1.1.0";
 
 PieNoonGame::PieNoonGame()
     : state_(kUninitialized),

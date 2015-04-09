@@ -1,7 +1,7 @@
 Pie Noon   {#pie_noon_readme}
 ========
 
-Pie Noon Version 1.0.0
+Pie Noon Version 1.1.0
 
 [Pie Noon][] is a simple multiplayer party game where you can throw pies at
 your friends.
