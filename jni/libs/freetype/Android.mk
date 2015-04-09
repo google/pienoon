@@ -15,10 +15,11 @@
 LOCAL_PATH:=$(call my-dir)
 
 # Project directory relative to this file.
-PIE_NOON_DIR:=$(LOCAL_PATH)/../../..
+UP_DIR:=../../..
+PIE_NOON_DIR:=$(LOCAL_PATH)/$(UP_DIR)
 include $(PIE_NOON_DIR)/jni/android_config.mk
 
-FREETYPE_DIR := ../../../../../../../external/freetype/
+FREETYPE_DIR := $(UP_DIR)/${THIRD_PARTY_ROOT}/freetype
 
 ###########################
 #
