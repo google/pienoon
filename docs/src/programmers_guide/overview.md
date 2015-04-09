@@ -19,7 +19,9 @@ Pie Noon code is divided into the following subsystems
 
 Pie Noon is built on top of [SDL][], a low-level cross platform library.
 [SDL][] abstracts input, file loading, threading, system events, logging, and
-other systems from the underlying operating system.
+other systems from the underlying operating system.  In addition, Pie Noon
+utilizes [FlatBuffers][] for serialization, [Motive][] for animation, and
+[PinDrop][] for audio.
 
 ## Source Layout
 
@@ -50,12 +52,14 @@ The following bullets describe the directory structure of the game.
 
   [Android TV]: http://www.android.com/tv/
   [Engine]: @ref pie_noon_guide_engine
-  [FlatBuffers]: http://google-opensource.blogspot.ca/2014/06/flatbuffers-memory-efficient.html
+  [FlatBuffers]: http://google.github.io/flatbuffers
   [fplutil]: http://google.github.io/fplutil
   [GUI]: @ref pie_noon_guide_gui
-  [MathFu]: http://googledevelopers.blogspot.ca/2014/11/geometry-math-library-for-c-game.html
+  [MathFu]: http://google.github.io/mathfu
+  [Motive]: http://google.github.io/motive
   [Nexus Player]: http://www.google.com/nexus/player/
   [Pie Noon]: @ref pie_noon_index
   [PieNoonGame]: @ref pie_noon_guide_pie_noon_game
+  [PinDrop]: http://google.github.io/pindrop
   [SDL]: https://www.libsdl.org/
   [SDL-mixer]: http://www.libsdl.org/projects/SDL_mixer/
