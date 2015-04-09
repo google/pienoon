@@ -41,6 +41,8 @@ build/
 *.suo
 *.vcxproj
 *.vcxproj.filters
+*.opensdf
+*.sdf
 Debug/
 Win32/
 

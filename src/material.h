@@ -72,7 +72,7 @@ class Texture : public AsyncResource {
   const vec2i size() const { return size_; }
 
   const vec4 &uv() const { return uv_; }
-  void set_uv(const vec4 uv) { uv_ = uv; }
+  void set_uv(const vec4 &uv) { uv_ = uv; }
 
   void set_desired_format(TextureFormat format) { desired_ = format; }
 

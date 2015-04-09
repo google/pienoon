@@ -80,17 +80,17 @@ const Keybind kKeyBinds3[] = {{SDLK_KP_ENTER, LogicalInputs_Select},
                               {SDLK_KP_6, LogicalInputs_Right}};
 
 const ControlScheme ControlScheme::kDefaultSchemes[] = {
-    {std::vector<Keybind>(kKeyBinds0, &kKeyBinds0[ARRAYSIZE(kKeyBinds0)])},
-    {std::vector<Keybind>(kKeyBinds1, &kKeyBinds1[ARRAYSIZE(kKeyBinds1)])},
-    {std::vector<Keybind>(kKeyBinds2, &kKeyBinds2[ARRAYSIZE(kKeyBinds2)])},
-    {std::vector<Keybind>(kKeyBinds3, &kKeyBinds3[ARRAYSIZE(kKeyBinds3)])}};
+    {std::vector<Keybind>(kKeyBinds0, &kKeyBinds0[PIE_ARRAYSIZE(kKeyBinds0)])},
+    {std::vector<Keybind>(kKeyBinds1, &kKeyBinds1[PIE_ARRAYSIZE(kKeyBinds1)])},
+    {std::vector<Keybind>(kKeyBinds2, &kKeyBinds2[PIE_ARRAYSIZE(kKeyBinds2)])},
+    {std::vector<Keybind>(kKeyBinds3, &kKeyBinds3[PIE_ARRAYSIZE(kKeyBinds3)])}};
 
 const int ControlScheme::kDefinedControlSchemeCount =
-    ARRAYSIZE(kDefaultSchemes);
+    PIE_ARRAYSIZE(kDefaultSchemes);
 
 // static
 const ControlScheme* ControlScheme::GetDefaultControlScheme(int i) {
-  return &kDefaultSchemes[i % ARRAYSIZE(kDefaultSchemes)];
+  return &kDefaultSchemes[i % PIE_ARRAYSIZE(kDefaultSchemes)];
 }
 
 }  // pie_noon

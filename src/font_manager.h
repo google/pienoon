@@ -138,7 +138,7 @@ class FontManager {
 
  private:
   // Pass indicating rendering pass.
-  const int32_t kRenderPass = -1;
+  static const int32_t kRenderPass = -1;
 
   // Initialize static data associated with the class.
   static void Initialize();
@@ -377,8 +377,8 @@ struct FontVertex {
 class FontBuffer {
  public:
   // Constants
-  const int32_t kIndiciesPerCodePoint = 6;
-  const int32_t kVerticesPerCodePoint = 4;
+  static const int32_t kIndiciesPerCodePoint = 6;
+  static const int32_t kVerticesPerCodePoint = 4;
 
   FontBuffer() : revision_(0) {}
 

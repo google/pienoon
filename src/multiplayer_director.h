@@ -71,7 +71,7 @@ class MultiplayerDirector {
   // Tell one of your connected players what his player number is.
   void SendPlayerAssignmentMsg(const std::string &instance, CharacterId id);
   // Broadcast start-of-turn to the players.
-  void SendStartTurnMsg(uint turn_seconds);
+  void SendStartTurnMsg(unsigned int turn_seconds);
   // Broadcast end-of-game message to the players.
   void SendEndGameMsg();
   // Broadcast player health to the players.
@@ -79,13 +79,15 @@ class MultiplayerDirector {
 #endif
 
   // Takes effect when the next turn starts.
-  void set_seconds_per_turn(uint seconds) { seconds_per_turn_ = seconds; }
+  void set_seconds_per_turn(unsigned int seconds) {
+    seconds_per_turn_ = seconds;
+  }
 
-  uint seconds_per_turn() { return seconds_per_turn_; }
+  unsigned int seconds_per_turn() { return seconds_per_turn_; }
 
   // First turn is numbered 1, second turn numbered 2, etc.
   // Is 0 before the first turn starts.
-  uint turn_number() { return turn_number_; }
+  unsigned int turn_number() { return turn_number_; }
 
   // Tell the multiplayer director about a player's input.
   void InputPlayerCommand(CharacterId id,
@@ -105,8 +107,8 @@ class MultiplayerDirector {
   WorldTime start_turn_timer() { return start_turn_timer_; }
 
   // Set the number of AI players. The last N players are AIs.
-  void set_num_ai_players(uint n) { num_ai_players_ = n; }
-  uint num_ai_players() const { return num_ai_players_; }
+  void set_num_ai_players(unsigned int n) { num_ai_players_ = n; }
+  unsigned int num_ai_players() const { return num_ai_players_; }
 
  private:
   struct Command {
@@ -118,7 +120,7 @@ class MultiplayerDirector {
 
   void TriggerStartOfTurn();
   void TriggerEndOfTurn();
-  uint CalculateSecondsPerTurn(uint turn_number);
+  unsigned int CalculateSecondsPerTurn(unsigned int turn_number);
 
   // Get all the players' healths so we can send them in an update
   std::vector<uint8_t> ReadPlayerHealth();
@@ -140,10 +142,10 @@ class MultiplayerDirector {
   WorldTime turn_timer_;
   // In how long to start the next turn.
   WorldTime start_turn_timer_;
-  uint seconds_per_turn_;
-  uint turn_number_;
+  unsigned int seconds_per_turn_;
+  unsigned int turn_number_;
 
-  uint num_ai_players_;  // the last N players are AI.
+  unsigned int num_ai_players_;  // the last N players are AI.
 
   InputSystem *debug_input_system_;
 
