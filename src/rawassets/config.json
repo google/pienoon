@@ -1097,7 +1097,7 @@
           "nav_up" : ["MenuStart"]
         },
         {
-          "top_left" : { "x": 0.7, "y": 0.7 },
+          "top_left" : { "x": 0.7, "y": 0.85 },
           "bottom_right" : { "x": 1.0, "y": 1.0 },
           "ID" : "MenuExtras",
           "texture_normal" : [
@@ -1110,6 +1110,21 @@
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
           "nav_left" : ["MenuMultiScreen"],
           "nav_up" : ["MenuStart"]
+        },
+        {
+          "top_left" : { "x": 0.7, "y": 0.65 },
+          "bottom_right" : { "x": 1.0, "y": 0.85 },
+          "ID": "MenuCardboard",
+          "texture_normal" : [
+            { "standard" : "materials/cardboard_button.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/cardboard_button.bin" },
+          "texture_position" : { "x": 0.92, "y": 0.72 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted" : { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuStart"],
+          "nav_down" : ["MenuExtras"]
         }
     ],
     "static_image_list" : [
@@ -1127,19 +1142,25 @@
           ],
           "texture_position": { "x": 0.20, "y": 0.93 },
           "draw_scale": { "x": 0.8, "y": 0.8 },
-          "z_depth" : 0.1,
+          "z_depth" : 0.1
         },
         {
           "texture" : [ { "standard" : "materials/text_extras.bin" } ],
           "texture_position": { "x": 0.82, "y": 0.93 },
           "draw_scale": { "x": 0.8, "y": 0.8 },
-          "z_depth" : 0.1,
+          "z_depth" : 0.1
         },
         {
           "texture" : [ { "standard" : "materials/text_multiscreen.bin" } ],
           "texture_position" : { "x": 0.53, "y": 0.92 },
           "draw_scale": { "x": 1.2, "y": 1.2 },
-          "z_depth" : 0.1,
+          "z_depth" : 0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_cardboard.bin" } ],
+          "texture_position": { "x": 0.77, "y": 0.73 },
+          "draw_scale": { "x": 0.8, "y": 0.8 },
+          "z_depth" : 0.1
         }
     ],
     "imgui_list" : [
@@ -2587,6 +2608,53 @@
           "texture" : [ { "standard" : "materials/splash.bin" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ]
+  },
+
+  "cardboard_screen_buttons" : {
+    "starting_selection" : "MenuStart",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        // Trigger will start it because it is the starting selection
+        {
+          "top_left" : { "x": 0.0, "y": 0.0 },
+          "bottom_right" : { "x": 0.0, "y": 0.0 },
+          "ID" : "MenuStart",
+          "texture_normal" : [
+            { "standard" : "materials/menu_start.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/menu_start.bin" },
+          "texture_position" : { "x": 0.53, "y": 0.67 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 }
+        }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture_position": { "x": 0.5, "y": 0.5 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuStart",
+            "texture_foreground" : "textures/menu_start.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold"
+          }
         }
     ]
   },

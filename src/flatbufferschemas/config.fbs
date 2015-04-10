@@ -54,6 +54,7 @@ enum ButtonId : ushort {
   MenuMultiScreen,
   MenuMultiScreenHost,
   MenuMultiScreenJoin,
+  MenuCardboard,
   Counter1,
   Counter2,
   Counter3,
@@ -783,6 +784,7 @@ table Config {
   msx_connection_lost_screen_buttons:UiGroup;
   multiplayer_host:UiGroup;
   multiplayer_client:UiGroup;
+  cardboard_screen_buttons:UiGroup;
 
   // Tutorial
   //

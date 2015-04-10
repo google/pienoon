@@ -67,6 +67,7 @@ static const char* kLabelExtrasBackButton = "Extras back button";
 static const char* kLabelHowToPlayButton = "How to play";
 static const char* kLabelLeaderboardButton = "Leaderboard";
 static const char* kLabelMultiscreenButton = "Multiscreen";
+static const char* kLabelCardboardButton = "Cardboard";
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 static const char* kCategoryMultiscreen = "Multiscreen";
@@ -1043,6 +1044,10 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
              gui_menu_.menu_def() == config.msx_screen_buttons());
         if (in_submenu) {
           gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+        } else if (game_state_.is_in_cardboard()) {
+          gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+          game_state_.set_is_in_cardboard(false);
+          game_state_.Reset();
         } else {
           input_.exit_requested_ = true;
         }
@@ -1759,21 +1764,18 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
           SendTrackerEvent(kCategoryUi, kActionClickedButton,
                            kLabelStartButton);
           audio_engine_.PlaySound("JoinMatch");
-          if (menu_selection.controller_id == kTouchController) {
+          if (game_state_.is_in_cardboard()) {
+            // If we are currently in the cardboard device, we assume
+            // that it will be the controller running the game
+            HandlePlayersJoining(cardboard_controller_);
+            return kPlaying;
+          } else if (menu_selection.controller_id == kTouchController) {
             // When a touch controller exists, we assume it is the unique
             // input system for the game. We make the touch controller join the
             // game, and then start the game immediately.
             HandlePlayersJoining(touch_controller_);
             return kPlaying;
           }
-#ifdef ANDROID_CARDBOARD
-          else if (input_.cardboard_input().is_in_cardboard()) {
-            // If we are currently in the cardboard device, we assume
-            // that it will be the controller running the game
-            HandlePlayersJoining(cardboard_controller_);
-            return kPlaying;
-          }
-#endif
           return kJoining;
         }
         break;
@@ -1848,6 +1850,16 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
 #endif
         break;
       }
+      case ButtonId_MenuCardboard: {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelCardboardButton);
+        game_state_.set_is_in_cardboard(true);
+        game_state_.Reset();
+        TransitionToPieNoonState(kFinished);
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.cardboard_screen_buttons(), &matman_);
+        break;
+      }
 
       case ButtonId_MenuBack: {
         const Config& config = GetConfig();
@@ -1858,6 +1870,11 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
                          kLabelExtrasBackButton, game_state_.is_multiscreen());
         UpdateControllers(0);  // clear went_down()
         if (state_ == kMultiplayerWaiting) TransitionToPieNoonState(kFinished);
+        if (game_state_.is_in_cardboard()) {
+          game_state_.set_is_in_cardboard(false);
+          game_state_.Reset();
+          TransitionToPieNoonState(kFinished);
+        }
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         break;
       }
@@ -2152,12 +2169,6 @@ void PieNoonGame::UpdateControllers(WorldTime delta_time) {
 }
 
 void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
-#ifdef ANDROID_CARDBOARD
-  // If the device is in the cardboard, we don't want to use the touch controls
-  if (input_.cardboard_input().is_in_cardboard()) {
-    return;
-  }
-#endif  // ANDROID_CARDBOARD
   gui_menu_.AdvanceFrame(delta_time, &input_, vec2(renderer_.window_size()));
 
   // If we're playing the game, we have to send the menu events directly
@@ -2293,16 +2304,6 @@ void PieNoonGame::Run() {
       SDL_Delay(min_update_time - delta_time);
       continue;
     }
-
-#ifdef ANDROID_CARDBOARD
-    if (input_.cardboard_input().is_in_cardboard() !=
-        game_state_.is_in_cardboard()) {
-      game_state_.set_is_in_cardboard(
-          input_.cardboard_input().is_in_cardboard());
-      game_state_.Reset();
-      TransitionToPieNoonState(kFinished);
-    }
-#endif
 
     // TODO: Can we move these to 'Render'?
     renderer_.AdvanceFrame(input_.minimized_);
