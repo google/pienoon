@@ -913,6 +913,10 @@
   "ai_block_min_duration": 1000,
   "ai_block_max_duration": 2000,
 
+  "cardboard_center_material": "materials/pixel1x1.bin",
+  "cardboard_center_scale": { "x": 0.01, "y": 0.8 },
+  "cardboard_center_color": { "x": 0.3, "y": 0.3, "z": 0.3, "w": 1.0 },
+
   "touchscreen_zones" : {
     "starting_selection" : false,
     "cannonical_window_height": 800,

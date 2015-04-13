@@ -659,6 +659,9 @@ void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
   RenderScene(scene, left_eye_transform, half_res);
   GL_CALL(glViewport(half_width, 0, half_width, window_height));
   RenderScene(scene, right_eye_transform, half_res);
+  // Reset the viewport to the entire screen
+  GL_CALL(glViewport(0, 0, window_width, window_height));
+  RenderCardboardCenteringBar();
 #else
   (void)scene;
 #endif  // ANDROID_CARDBOARD
@@ -778,6 +781,28 @@ void PieNoonGame::CorrectCardboardCamera(mat4& cardboard_camera) {
   // The game's coordinate system has x and y reversed from the cardboard
   const mat4 rotation = mat4::FromScaleVector(vec3(-1, -1, 1));
   cardboard_camera = rotation * cardboard_camera * rotation;
+}
+
+void PieNoonGame::RenderCardboardCenteringBar() {
+  auto res = renderer_.window_size();
+  auto ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
+                                              static_cast<float>(res.y()), 0.0f,
+                                              -1.0f, 1.0f);
+  renderer_.model_view_projection() = ortho_mat;
+
+  const Config& config = GetConfig();
+  renderer_.color() = LoadVec4(config.cardboard_center_color());
+  auto material =
+      matman_.LoadMaterial(config.cardboard_center_material()->c_str());
+  material->Set(renderer_);
+  shader_textured_->Set(renderer_);
+
+  const vec3 center(res.x() / 2.0f, res.y() / 2.0f, 0.0f);
+  const vec3 scale(
+      renderer_.window_size().x() * config.cardboard_center_scale()->x(),
+      renderer_.window_size().y() * config.cardboard_center_scale()->y(),
+      0.0f);
+  Mesh::RenderAAQuadAlongX(center - (scale / 2.0f), center + (scale / 2.0f));
 }
 
 // Debug function to print out state machine transitions.

@@ -758,6 +758,11 @@ table Config {
   ai_block_min_duration:int;
   ai_block_max_duration:int;
 
+  // Description of centering bar used during Cardboard mode
+  cardboard_center_material:string;
+  cardboard_center_scale:Vec2;
+  cardboard_center_color:Vec4;
+
   // UI options
   //
   // Button layouts:
