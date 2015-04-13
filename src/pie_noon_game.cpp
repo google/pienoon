@@ -84,7 +84,7 @@ static const char* kLabelClientsDisconnected = "ClientDisconnect";
 static const char* kLabelConnectionLost = "ConnectionLost";
 #endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
 
-static const unsigned short kQuadIndices[] = {0, 1, 2, 2, 1, 3};
+static const unsigned int kQuadIndices[] = {0, 1, 2, 2, 1, 3};
 
 static const Attribute kQuadMeshFormat[] = {kPosition3f, kTexCoord2f, kNormal3f,
                                             kTangent4f, kEND};

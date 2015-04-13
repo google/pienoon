@@ -93,3 +93,10 @@ struct Vec4 {
   z:float;
   w:float;
 }
+
+struct Vec4ub {
+  x:ubyte;
+  y:ubyte;
+  z:ubyte;
+  w:ubyte;
+}
