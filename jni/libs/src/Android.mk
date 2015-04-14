@@ -100,6 +100,7 @@ PIE_NOON_SCHEMA_FILES := \
   $(PIE_NOON_SCHEMA_DIR)/config.fbs \
   $(PIE_NOON_SCHEMA_DIR)/components.fbs \
   $(PIE_NOON_SCHEMA_DIR)/materials.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/mesh.fbs \
   $(PIE_NOON_SCHEMA_DIR)/multiplayer.fbs \
   $(PIE_NOON_SCHEMA_DIR)/particles.fbs \
   $(PIE_NOON_SCHEMA_DIR)/pie_noon_common.fbs \
