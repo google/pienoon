@@ -26,12 +26,15 @@ enum AllocationLocation { kAddToFront, kAddToBack };
 // Pool allocator, implemented as a vector-based pair of linked lists.
 template <typename T>
 class VectorPool {
-  friend class Iterator;
+  template <bool> friend class IteratorTemplate;
   friend class VectorPoolReference;
   typedef uint32_t UniqueIdType;
 
  public:
-  class Iterator;
+  template <bool> class IteratorTemplate;
+
+  typedef IteratorTemplate<false> Iterator;
+  typedef IteratorTemplate<true> ConstIterator;
 
   // ---------------------------
   // Reference object for pointing into the vector pool.
@@ -43,7 +46,7 @@ class VectorPool {
   // moving the elements around in memory.
   class VectorPoolReference {
     friend class VectorPool<T>;
-    friend class Iterator;
+    template <bool> friend class IteratorTemplate;
 
    public:
     VectorPoolReference() : container_(nullptr), index_(0), unique_id_(0) {}
@@ -100,7 +103,7 @@ class VectorPool {
     T& operator*() {
       assert(IsValid());
       VectorPoolElement* element = container_->GetElement(index_);
-      return element;
+      return element->data;
     }
 
     // Const dereference operator.  Returns a const reference variable for the
@@ -145,56 +148,62 @@ class VectorPool {
   // Iterator for the vector pool.
   // Has constant-time access, so is a good choice for iterating
   // over the active elements that the pool owns.
-  class Iterator {
+  template<bool is_const>
+  class IteratorTemplate {
+    typedef typename std::conditional<is_const, const T&, T&>::type reference;
+    typedef typename std::conditional<is_const, const T*, T*>::type pointer;
+
     friend class VectorPool<T>;
 
    public:
-    Iterator(VectorPool<T>* container, size_t index)
+    IteratorTemplate(VectorPool<T>* container, size_t index)
         : container_(container), index_(index) {}
-    ~Iterator() {}
+    ~IteratorTemplate() {}
 
     // Standard equality operator
-    bool operator==(const Iterator& other) const {
+    bool operator==(const IteratorTemplate& other) const {
       return container_ == other.container_ && index_ == other.index_;
     }
 
     // Standard inequality operator
-    bool operator!=(const Iterator& other) const { return !operator==(other); }
+    bool operator!=(const IteratorTemplate& other) const {
+      return !operator==(other);
+    }
 
     // Prefix increment - moves the iterator one forward in the
     // list.
-    Iterator& operator++() {
+    IteratorTemplate& operator++() {
       index_ = container_->elements_[index_].next;
       return (*this);
     }
 
     // Postfix increment - moves the iterator one forward in the
     // list, but returns the original (unincremented) iterator.
-    Iterator operator++(int) {
-      Iterator temp = *this;
+    IteratorTemplate operator++(int) {
+      IteratorTemplate temp = *this;
       ++(*this);
       return temp;
     }
 
     // Prefix decrement - moves the iterator one back in the list
-    Iterator& operator--() {
+    IteratorTemplate& operator--() {
       index_ = container_->elements_[index_].prev;
       return (*this);
     }
 
     // Prefix decrement - moves the iterator one back in the list, but
     // returns the original (undecremented) iterator.
-    Iterator operator--(int) {
-      Iterator temp = *this;
+    IteratorTemplate operator--(int) {
+      IteratorTemplate temp = *this;
       --(*this);
       return temp;
     }
 
     // Iterator dereference
-    T& operator*() { return *(container_->GetElementData(index_)); }
+    reference operator*() { return *(container_->GetElementData(index_)); }
 
     // Member access on the object
-    T* operator->() { return container_->GetElementData(index_); }
+    pointer operator->() { return container_->GetElementData(index_); }
 
     // Converts the iterator into a VectorPoolReference, which is the preferred
     // way for holding onto references into the vector pool.
@@ -332,12 +341,22 @@ class VectorPool {
   }
 
   // Returns an iterator suitable for traversing all of the active elements
-  // in the vectorpool
+  // in the vectorpool.
   Iterator begin() { return Iterator(this, elements_[kFirstUsed].next); }
 
-  // returns an iterator at the end of the vectorpool, suitible for use as
+  // Returns an iterator at the end of the vectorpool, suitable for use as
   // an end condition when iterating over the active elements.
   Iterator end() { return Iterator(this, kLastUsed); }
+
+  // Returns a const iterator suitable for traversing all of the active elements
+  // in the vectorpool.
+  ConstIterator cbegin() {
+    return ConstIterator(this, elements_[kFirstUsed].next);
+  }
+
+  // Returns a const iterator at the end of the vectorpool, suitable for use as
+  // an end condition when iterating over the active elements.
+  ConstIterator cend() { return ConstIterator(this, kLastUsed); }
 
   // Expands the vector until it is at least new_size.  If the vector
   // already contains at least new_size elements, then there is no effect.
