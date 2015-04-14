@@ -673,10 +673,12 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   const Config& config = GetConfig();
   const Config& cardboard_config = GetCardboardConfig();
 
+  float viewport_angle = game_state_.is_in_cardboard()
+                             ? cardboard_config.viewport_angle()
+                             : config.viewport_angle();
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_ = mat4::Perspective(
-      config.viewport_angle(),
-      resolution.x() / static_cast<float>(resolution.y()),
+      viewport_angle, resolution.x() / static_cast<float>(resolution.y()),
       config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
 
   const mat4 camera_transform =
@@ -800,8 +802,7 @@ void PieNoonGame::RenderCardboardCenteringBar() {
   const vec3 center(res.x() / 2.0f, res.y() / 2.0f, 0.0f);
   const vec3 scale(
       renderer_.window_size().x() * config.cardboard_center_scale()->x(),
-      renderer_.window_size().y() * config.cardboard_center_scale()->y(),
-      0.0f);
+      renderer_.window_size().y() * config.cardboard_center_scale()->y(), 0.0f);
   Mesh::RenderAAQuadAlongX(center - (scale / 2.0f), center + (scale / 2.0f));
 }
 
@@ -1244,6 +1245,8 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
         // If we're in the multiscreen tutorial, go back to the multiscreen
         // menu.
         gui_menu_.Setup(config.msx_screen_buttons(), &matman_);
+      } else if (game_state_.is_in_cardboard()) {
+        gui_menu_.Setup(config.cardboard_screen_buttons(), &matman_);
       } else {
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
       }

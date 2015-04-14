@@ -905,6 +905,16 @@
   "ui_arrow_offset": { "x": -0.7, "y": 1.0, "z": 0.05 },
   "ui_arrow_scale": { "x": 1.7, "y": 1.7, "z": 1.7 },
 
+  "cardboard_center_material": "materials/pixel1x1.bin",
+  "cardboard_center_scale": { "x": 0.01, "y": 0.8 },
+  "cardboard_center_color": { "x": 0.3, "y": 0.3, "z": 0.3, "w": 1.0 },
+
+  "target_reticle_distance": 0.8,
+  "target_reticle_height": 0.5,
+  "cardboard_pie_offset": { "x": 1.0, "y": 0.1, "z": -0.02 },
+  "cardboard_pie_scale": { "x": 0.4, "y": 0.4, "z": 1.0 },
+  "cardboard_health_offset": { "x": 1.0, "y": 1.3, "z": 0.0 },
+
   "ai_minimum_time_between_actions": 200,
   "ai_maximum_time_between_actions": 1000,
   "ai_chance_to_block": 0.75,
@@ -912,10 +922,6 @@
   "ai_chance_to_throw": 0.2,
   "ai_block_min_duration": 1000,
   "ai_block_max_duration": 2000,
-
-  "cardboard_center_material": "materials/pixel1x1.bin",
-  "cardboard_center_scale": { "x": 0.01, "y": 0.8 },
-  "cardboard_center_color": { "x": 0.3, "y": 0.3, "z": 0.3, "w": 1.0 },
 
   "touchscreen_zones" : {
     "starting_selection" : false,
@@ -3176,6 +3182,12 @@
       "id": "Pixel1x1",
       "cardboard_front": "materials/pixel1x1.bin",
       "pixel_bounds": { "x": 1, "y": 1 }
+    },
+    {
+      "id": "TargetReticle",
+      "cardboard_front": "materials/target_reticle.bin",
+      "pixel_bounds": { "x": 256, "y": 256 },
+      "cardboard": true
     }
   ],
 
