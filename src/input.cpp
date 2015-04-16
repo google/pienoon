@@ -100,6 +100,7 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
 #endif
 
   // Reset our per-frame input state.
+  mousewheel_delta_ = mathfu::kZeros2i;
   for (auto it = button_map_.begin(); it != button_map_.end(); ++it) {
     it->second.AdvanceFrame();
   }
@@ -167,6 +168,10 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
       case SDL_MOUSEMOTION: {
         pointers_[0].mousedelta += vec2i(event.motion.xrel, event.motion.yrel);
         pointers_[0].mousepos = vec2i(event.button.x, event.button.y);
+        break;
+      }
+      case SDL_MOUSEWHEEL: {
+        mousewheel_delta_ += vec2i(event.wheel.x, event.wheel.y);
         break;
       }
       case SDL_WINDOWEVENT: {

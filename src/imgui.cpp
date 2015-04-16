@@ -81,27 +81,32 @@ InternalState *state = nullptr;
 
 class InternalState : public Group {
  public:
+  // We create one of these per GUI element, so new fields should only be
+  // added when absolutely necessary.
   struct Element {
     Element(const vec2i &_size, const char *_id)
         : size(_size),
+          extra_size(mathfu::kZeros2i),
           id(_id),
-          interactive(false),
-          event(EVENT_NONE) {}
-    vec2i size;        // Minimum size computed by layout pass.
+          interactive(false) {}
+    vec2i size;        // Minimum on-screen size computed by layout pass.
+    vec2i extra_size;  // Additional size in a scrolling area (TODO: remove?)
     const char *id;    // Id specified by the user.
     bool interactive;  // Wants to respond to user input.
-    Event event;       // Current event of the element. Updated in event pass.
   };
 
   InternalState(MaterialManager &matman, FontManager &fontman,
                 InputSystem &input)
       : Group(DIR_VERTICAL, ALIGN_TOPLEFT, 0, 0),
-        current_pass_(kGuiPassLayout),
-        canvas_size_(matman.renderer().window_size()),
+        layout_pass_(true),
         virtual_resolution_(IMGUI_DEFAULT_VIRTUAL_RESOLUTION),
         matman_(matman),
+        renderer_(matman.renderer()),
         input_(input),
         fontman_(fontman),
+        clip_position_(mathfu::kZeros2i),
+        clip_size_(mathfu::kZeros2i),
+        clip_inside_(false),
         pointer_max_active_index_(-1),
         gamepad_has_focus_element(false),
         gamepad_event(EVENT_HOVER) {
@@ -113,6 +118,7 @@ class InternalState : public Group {
     // TODO: pointer_max_active_index_ should start at -1 if on a touchscreen.
     for (int i = 0; i < InputSystem::kMaxSimultanuousPointers; i++) {
       pointer_buttons_[i] = &input.GetPointerButton(i);
+      clip_mouse_inside_[i] = true;
       if (pointer_buttons_[i]->is_down() || pointer_buttons_[i]->went_down() ||
           pointer_buttons_[i]->went_up()) {
         pointer_max_active_index_ = std::max(pointer_max_active_index_, i);
@@ -158,12 +164,25 @@ class InternalState : public Group {
 
   // Initialize the scaling factor for the virtual resolution.
   void SetScale() {
-    auto scale = vec2(matman_.renderer().window_size()) / virtual_resolution_;
+    auto scale = vec2(renderer_.window_size()) / virtual_resolution_;
     pixel_scale_ = std::min(scale.x(), scale.y());
   }
 
   // Retrieve the scaling factor for the virtual resolution.
   float GetScale() { return pixel_scale_; }
+
+  // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
+  // and the bottom right the windows size in pixels.
+  // This is currently hardcoded to use overlay on top of the entire GL window.
+  // If that ever changes, we also need to change our use of glScissor below.
+  void SetOrtho() {
+    auto res = renderer_.window_size();
+    auto ortho_mat = mathfu::OrthoHelper<float>(
+                       0.0f, static_cast<float>(res.x()),
+                       static_cast<float>(res.y()), 0.0f,
+                       -1.0f, 1.0f);
+    renderer_.model_view_projection() = ortho_mat;
+  }
 
   // Compute a space offset for a particular alignment for just the x or y
   // dimension.
@@ -184,37 +203,19 @@ class InternalState : public Group {
 
   // Determines placement for the UI as a whole inside the available space
   // (screen).
-  void PositionUI(const vec2i &canvas_size, float virtual_resolution,
+  void PositionUI(float virtual_resolution,
                   Alignment horizontal, Alignment vertical) {
-    if (current_pass_ == kGuiPassLayout) {
-      canvas_size_ = canvas_size;
+    if (layout_pass_) {
       virtual_resolution_ = virtual_resolution;
       SetScale();
-    } else if (current_pass_ == kGuiPassEvent ||
-               current_pass_ == kGuiPassRender) {
-      auto space = canvas_size_ - size_;
+    } else {
+      auto space = renderer_.window_size() - size_;
       position_ += AlignDimension(horizontal, 0, space) +
                    AlignDimension(vertical, 1, space);
     }
   }
 
-  // Switch from the layout pass to the event pass.
-  void StartEventPass() {
-    // If you hit this assert, you are missing an EndGroup().
-    assert(!group_stack_.size());
-
-    // Do nothing if there is no elements.
-    if (elements_.size() == 0) return;
-
-    size_ = elements_[0].size;
-
-    current_pass_ = kGuiPassEvent;
-    element_it_ = elements_.begin();
-
-    CheckGamePadNavigation();
-  }
-
-  // Switch from the event pass to the render pass.
+  // Switch from the layout pass to the render pass.
   void StartRenderPass() {
     // If you hit this assert, you are missing an EndGroup().
     assert(!group_stack_.size());
@@ -228,8 +229,10 @@ class InternalState : public Group {
     position_ = mathfu::kZeros2i;
     size_ = elements_[0].size;
 
-    current_pass_ = kGuiPassRender;
+    layout_pass_ = false;
     element_it_ = elements_.begin();
+
+    CheckGamePadNavigation();
   }
 
   // (event/render pass): retrieve the next corresponding cached element we
@@ -292,31 +295,23 @@ class InternalState : public Group {
   }
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
-                  const vec2i &size) {
-    if (current_pass_ == kGuiPassRender) {
-      auto &renderer = matman_.renderer();
-      renderer.color() = color;
-      sh->Set(renderer);
-      Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0));
-    }
+                  const vec2i &size, const vec4 &uv) {
+      renderer_.color() = color;
+      sh->Set(renderer_);
+      Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
+                               uv.xy(), uv.zw());
   }
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
-                  const vec2i &size, const vec4 &uv) {
-    if (current_pass_ == kGuiPassRender) {
-      auto &renderer = matman_.renderer();
-      renderer.color() = color;
-      sh->Set(renderer);
-      Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
-                               uv.xy(), uv.zw());
-    }
+                  const vec2i &size) {
+    RenderQuad(sh, color, pos, size, vec4(0, 0, 1, 1));
   }
 
   // An image element.
   void Image(const char *texture_name, float ysize) {
     auto tex = matman_.FindTexture(texture_name);
     assert(tex);  // You need to have called LoadTexture before.
-    if (current_pass_ == kGuiPassLayout) {
+    if (layout_pass_) {
       auto virtual_image_size =
           vec2(tex->size().x() * ysize / tex->size().y(), ysize);
       // Map the size to real screen pixels, rounding to the nearest int
@@ -324,12 +319,7 @@ class InternalState : public Group {
       auto size = VirtualToPhysical(virtual_image_size);
       NewElement(size, texture_name);
       Extend(size);
-    } else if (current_pass_ == kGuiPassEvent) {
-      auto element = NextElement(texture_name);
-      if (element) {
-        Advance(element->size);
-      }
-    } else if (current_pass_ == kGuiPassRender) {
+    } else {
       auto element = NextElement(texture_name);
       if (element) {
         tex->Set(0);
@@ -343,12 +333,12 @@ class InternalState : public Group {
   // Text label.
   void Label(const char *text, float ysize) {
     // Set text color.
-    matman_.renderer().color() = text_color_;
+    renderer_.color() = text_color_;
 
-#if USE_GLYPHCACHE
+#   if USE_GLYPHCACHE
     auto size = VirtualToPhysical(vec2(0, ysize));
     auto buffer = fontman_.GetBuffer(text, size.y());
-    if (current_pass_ == kGuiPassLayout) {
+    if (layout_pass_) {
       if (buffer == nullptr) {
         // Upload a texture & flush glyph cache
         fontman_.FlushAndUpdate();
@@ -364,12 +354,7 @@ class InternalState : public Group {
       }
       NewElement(buffer->get_size(), text);
       Extend(buffer->get_size());
-    } else if (current_pass_ == kGuiPassEvent) {
-      auto element = NextElement(text);
-      if (element) {
-        Advance(element->size);
-      }
-    } else if (current_pass_ == kGuiPassRender) {
+    } else {
       // Check if texture atlas needs to be updated.
       if (buffer->get_pass() > 0) {
         fontman_.StartRenderPass();
@@ -379,7 +364,7 @@ class InternalState : public Group {
       if (element) {
         fontman_.GetAtlasTexture()->Set(0);
 
-        font_shader_->Set(matman_.renderer());
+        font_shader_->Set(renderer_);
         auto pos = Position(*element);
         font_shader_->SetUniform("pos_offset", vec3(pos.x(), pos.y(), 0.0f));
 
@@ -392,7 +377,7 @@ class InternalState : public Group {
         Advance(element->size);
       }
     }
-#else
+#   else
     font_shader_->SetUniform("pos_offset", vec3(0.0f, 0.0f, 0.f));
 
     auto size = VirtualToPhysical(vec2(0, ysize));
@@ -401,16 +386,11 @@ class InternalState : public Group {
     auto scale = static_cast<float>(size.y()) /
                  static_cast<float>(tex->metrics().ascender() -
                                     tex->metrics().descender());
-    if (current_pass_ == kGuiPassLayout) {
+    if (layout_pass_) {
       auto image_size =
           vec2i(tex->size().x() * (uv.z() - uv.x()) * scale, size.y());
       NewElement(image_size, text);
       Extend(image_size);
-    } else if (current_pass_ == kGuiPassEvent) {
-      auto element = NextElement(text);
-      if (element) {
-        Advance(element->size);
-      }
     } else {
       auto element = NextElement(text);
       if (element) {
@@ -426,23 +406,18 @@ class InternalState : public Group {
         Advance(element->size);
       }
     }
-#endif
+#   endif
   }
 
   // Custom element with user supplied renderer.
   void CustomElement(
       const vec2 &virtual_size, const char *id,
       const std::function<void(const vec2i &pos, const vec2i &size)> renderer) {
-    if (current_pass_ == kGuiPassLayout) {
+    if (layout_pass_) {
       auto size = VirtualToPhysical(virtual_size);
       NewElement(size, id);
       Extend(size);
-    } else if (current_pass_ == kGuiPassEvent) {
-      auto element = NextElement(id);
-      if (element) {
-        Advance(element->size);
-      }
-    } else if (current_pass_ == kGuiPassRender) {
+    } else {
       auto element = NextElement(id);
       if (element) {
         renderer(Position(*element), element->size);
@@ -453,14 +428,11 @@ class InternalState : public Group {
 
   // Render texture on the screen.
   void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size) {
-    if (current_pass_ == kGuiPassRender) {
+    if (!layout_pass_) {
       tex.Set(0);
       RenderQuad(image_shader_, mathfu::kOnes4f, pos, size);
     }
   }
-
-  // Return current GUI pass.
-  GuiPass GetCurrentPass() { return current_pass_; }
 
   // An element that has sub-elements. Tracks its state in an instance of
   // Layout, that is pushed/popped from the stack as needed.
@@ -468,19 +440,9 @@ class InternalState : public Group {
                   const char *id) {
     Group layout(direction, align, spacing, elements_.size());
     group_stack_.push_back(*this);
-    if (current_pass_ == kGuiPassLayout) {
+    if (layout_pass_) {
       NewElement(mathfu::kZeros2i, id);
-    } else if (current_pass_ == kGuiPassEvent) {
-      auto element = NextElement(id);
-      if (element) {
-        layout.position_ = Position(*element);
-        layout.size_ = element->size;
-        // Make layout refer to element it originates from, iterator points
-        // to next element after the current one.
-        layout.element_idx_ = element_it_ - elements_.begin() - 1;
-      }
     } else {
-      // Render pass.
       auto element = NextElement(id);
       if (element) {
         layout.position_ = Position(*element);
@@ -503,7 +465,7 @@ class InternalState : public Group {
     auto element_idx = element_idx_;
     *static_cast<Group *>(this) = group_stack_.back();
     group_stack_.pop_back();
-    if (current_pass_ == kGuiPassLayout) {
+    if (layout_pass_) {
       size += margin;
       // Contribute the size of this group to its parent.
       Extend(size);
@@ -526,6 +488,72 @@ class InternalState : public Group {
     margin_ = VirtualToPhysical(margin.borders);
   }
 
+  void StartScroll(const vec2 &size, vec2i *offset) {
+    auto psize = VirtualToPhysical(size);
+    if (layout_pass_) {
+      // If you hit this assert, you are nesting scrolling areas, which is
+      // not supported.
+      assert(!clip_inside_);
+      clip_inside_ = true;
+      // Pass this size to EndScroll.
+      clip_size_ = psize;
+    } else {
+      // This currently assumes an ortho camera that corresponds to all pixels
+      // of the GL screen, which is exactly what Run() sets up.
+      // If that ever changes, this call will have to get more complicated,
+      // translating to whereever the GUI is placed, or in the case of 3D
+      // placement use another technique alltogether (render to texture,
+      // glClipPlane, or stencil buffer).
+      // TODO: does not support a scrolling area inside a scrolling area,
+      // should assert if this is attempted.
+      glEnable(GL_SCISSOR_TEST);
+      glScissor(position_.x(),
+                renderer_.window_size().y() - position_.y() - psize.y(),
+                psize.x(),
+                psize.y());
+      // Scroll the pane on user input.
+      // TODO: this will need to be generalized, as mousewheel only works on
+      // desktops.
+      const int scroll_speed = -16;  // TODO: configurable?
+      *offset = vec2i::Min(elements_[element_idx_].extra_size,
+                    vec2i::Max(mathfu::kZeros2i,
+                        *offset + input_.mousewheel_delta() * scroll_speed));
+      // See if the mouse is outside the clip area, so we can avoid events
+      // being triggered by elements that are not visible.
+      for (int i = 0; i <= pointer_max_active_index_; i++) {
+        if (!mathfu::InRange2D(input_.pointers_[i].mousepos,
+                               position_, position_ + psize)) {
+          clip_mouse_inside_[i] = false;
+        }
+      }
+      // Store size/position, so expensive rendering commands can choose to
+      // clip against the viewport.
+      // TODO: add culling code where appropriate.
+      clip_size_ = psize;
+      clip_position_ = position_;
+      // Start the rendering of this group at the offset before the start of
+      // the window to clip against. Also makes events work correctly.
+      position_ -= *offset;
+    }
+  }
+
+  void EndScroll() {
+    if (layout_pass_) {
+      // Track original size.
+      elements_[element_idx_].extra_size = size_ - clip_size_;
+      // Overwrite what was computed for the elements.
+      size_ = clip_size_;
+      clip_inside_ = false;
+    } else {
+      for (int i = 0; i <= pointer_max_active_index_; i++) {
+        clip_mouse_inside_[i] = true;
+      }
+      glDisable(GL_SCISSOR_TEST);
+    }
+  }
+
+  vec2i GroupSize() { return size_  + elements_[element_idx_].extra_size; }
+
   void RecordId(const char *id, int i) { persistent_.pointer_element[i] = id; }
   bool SameId(const char *id, int i) {
     return EqualId(id, persistent_.pointer_element[i]);
@@ -533,18 +561,18 @@ class InternalState : public Group {
 
   Event CheckEvent() {
     auto &element = elements_[element_idx_];
-    if (current_pass_ == kGuiPassLayout) {
+    if (layout_pass_) {
       element.interactive = true;
-    } else if (current_pass_ == kGuiPassEvent ||
-               current_pass_ == kGuiPassRender) {
-      // We only fire events during the second pass.
+    } else {
+      // We only fire events after the layout pass.
       // Check if this is an inactive part of an overlay.
       if (element.interactive) {
         auto id = element.id;
         // pointer_max_active_index_ is typically 0, so loop not expensive.
         for (int i = 0; i <= pointer_max_active_index_; i++) {
-          if (mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
-                                position_ + size_)) {
+          if (clip_mouse_inside_[i] &&
+              mathfu::InRange2D(input_.pointers_[i].mousepos,
+                                position_, position_ + size_)) {
             auto &button = *pointer_buttons_[i];
             int event = 0;
 
@@ -564,10 +592,6 @@ class InternalState : public Group {
             // We only report an event for the first finger to touch an element.
             // This is intentional.
             return static_cast<Event>(event);
-
-            // TODO: Is this correct below?
-            // element.event = static_cast<Event>(event);
-            // return element.event;
           }
         }
         // Generate hover events for the current element the gamepad is focused
@@ -578,7 +602,7 @@ class InternalState : public Group {
         }
       }
     }
-    return element.event;
+    return EVENT_NONE;
   }
 
   void CheckGamePadFocus() {
@@ -643,24 +667,26 @@ class InternalState : public Group {
   }
 
   void ColorBackground(const vec4 &color) {
-    RenderQuad(color_shader_, color, position_, size_);
+    if (!layout_pass_) {
+      RenderQuad(color_shader_, color, position_, GroupSize());
+    }
   }
 
   void ImageBackground(const Texture &tex) {
-    if (current_pass_ == kGuiPassRender) {
+    if (!layout_pass_) {
       tex.Set(0);
-      RenderQuad(image_shader_, mathfu::kOnes4f, position_, size_);
+      RenderQuad(image_shader_, mathfu::kOnes4f, position_, GroupSize());
     }
   }
 
   void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info) {
-    if (current_pass_ == kGuiPassRender) {
+    if (!layout_pass_) {
       tex.Set(0);
-      auto &renderer = matman_.renderer();
-      renderer.color() = mathfu::kOnes4f;
-      image_shader_->Set(renderer);
-      Mesh::RenderAAQuadAlongXNinePatch(vec3(vec2(position_), 0),
-                                        vec3(vec2(position_ + size_), 0),
+      renderer_.color() = mathfu::kOnes4f;
+      image_shader_->Set(renderer_);
+      auto pos = position_;
+      Mesh::RenderAAQuadAlongXNinePatch(vec3(vec2(pos), 0),
+                                        vec3(vec2(pos + GroupSize()), 0),
                                         tex.size(),
                                         patch_info);
     }
@@ -669,7 +695,7 @@ class InternalState : public Group {
   // Set Label's text color.
   void SetTextColor(const vec4 &color) { text_color_ = color; }
 
-  GuiPass current_pass_;
+  bool layout_pass_;
   std::vector<Element> elements_;
   std::vector<Element>::iterator element_it_;
   std::vector<Group> group_stack_;
@@ -678,11 +704,19 @@ class InternalState : public Group {
   float pixel_scale_;
 
   MaterialManager &matman_;
+  Renderer &renderer_;
   InputSystem &input_;
   FontManager &fontman_;
   Shader *image_shader_;
   Shader *font_shader_;
   Shader *color_shader_;
+
+  // Expensive rendering commands can check if they're inside this rect to
+  // cull themselves inside a scrolling group.
+  vec2i clip_position_;
+  vec2i clip_size_;
+  bool clip_mouse_inside_[InputSystem::kMaxSimultanuousPointers];
+  bool clip_inside_;
 
   // Widget properties.
   mathfu::vec4 text_color_;
@@ -726,26 +760,17 @@ void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
   gui_definition();
 
   // Second pass:
-  internal_state.StartEventPass();
-  gui_definition();
-  internal_state.CheckGamePadFocus();
-
-  // Third pass:
   internal_state.StartRenderPass();
 
-  // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
-  // and the bottom right the windows size in pixels.
-  auto &renderer = matman.renderer();
-  auto res = renderer.window_size();
-  auto ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
-                                              static_cast<float>(res.y()), 0.0f,
-                                              -1.0f, 1.0f);
-  renderer.model_view_projection() = ortho_mat;
+  internal_state.SetOrtho();
 
+  auto &renderer = matman.renderer();
   renderer.SetBlendMode(kBlendModeAlpha);
   renderer.DepthTest(false);
 
   gui_definition();
+
+  internal_state.CheckGamePadFocus();
 }
 
 InternalState *Gui() {
@@ -763,6 +788,18 @@ void StartGroup(Layout layout, float spacing, const char *id) {
   Gui()->StartGroup(GetDirection(layout), GetAlignment(layout), spacing, id);
 }
 
+void EndGroup() { Gui()->EndGroup(); }
+
+void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
+
+void StartScroll(const vec2 &size, vec2i *offset) {
+  Gui()->StartScroll(size, offset);
+}
+
+void EndScroll() {
+  Gui()->EndScroll();
+}
+
 void CustomElement(
     const vec2 &virtual_size, const char *id,
     const std::function<void(const vec2i &pos, const vec2i &size)> renderer) {
@@ -772,12 +809,6 @@ void CustomElement(
 void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size) {
   Gui()->RenderTexture(tex, pos, size);
 }
-
-GuiPass GetCurrentPass() { return Gui()->GetCurrentPass(); }
-
-void EndGroup() { Gui()->EndGroup(); }
-
-void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
 
 void SetTextColor(const mathfu::vec4 &color) { Gui()->SetTextColor(color); }
 
@@ -791,9 +822,8 @@ void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info) {
   Gui()->ImageBackgroundNinePatch(tex, patch_info);
 }
 
-void PositionUI(const vec2i &canvas_size, float virtual_resolution,
-                Layout horizontal, Layout vertical) {
-  Gui()->PositionUI(canvas_size, virtual_resolution, GetAlignment(horizontal),
+void PositionUI(float virtual_resolution, Layout horizontal, Layout vertical) {
+  Gui()->PositionUI(virtual_resolution, GetAlignment(horizontal),
                     GetAlignment(vertical));
 }
 
@@ -822,20 +852,24 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
              InputSystem &input) {
   static float f = 0.0f;
   f += 0.04f;
-
   static bool show_about = false;
+  static vec2i scroll_offset(mathfu::kZeros2i);
 
-  Run(matman, fontman, input, [&matman]() {
-    PositionUI(matman.renderer().window_size(), 1000, LAYOUT_HORIZONTAL_CENTER,
+  auto click_about_example = [&](const char *id, bool about_on)
+  {
+    if (ImageButton("textures/text_about.webp", 50, id) == EVENT_WENT_UP) {
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked: %s", id);
+      show_about = about_on;
+    }
+  };
+
+  Run(matman, fontman, input, [&]() {
+    PositionUI(1000, LAYOUT_HORIZONTAL_CENTER,
                LAYOUT_VERTICAL_RIGHT);
     StartGroup(LAYOUT_OVERLAY_CENTER, 0);
       StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
         StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-          if (ImageButton("textures/text_about.webp", 50, "my_id") ==
-              EVENT_WENT_UP) {
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
-            show_about = true;
-          }
+          click_about_example("my_id1", true);
           StartGroup(LAYOUT_HORIZONTAL_TOP, 0);
             Label("Property T", 30);
             SetTextColor(mathfu::vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -844,20 +878,19 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
             Label("ffWAWÄテスト", 30);
           EndGroup();
           StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-            auto splash_tex = matman.FindTexture("textures/splash.webp");
-            ImageBackgroundNinePatch(*splash_tex, vec4(0.2f, 0.2f, 0.8f, 0.8f));
-
-            Label("The quick brown fox jumps over the lazy dog", 32);
-            Label("The quick brown fox jumps over the lazy dog", 24);
-            Label("The quick brown fox jumps over the lazy dog", 20);
+            StartScroll(vec2(200, 100), &scroll_offset);
+              auto splash_tex = matman.FindTexture("textures/splash.webp");
+              ImageBackgroundNinePatch(*splash_tex,
+                                       vec4(0.2f, 0.2f, 0.8f, 0.8f));
+              Label("The quick brown fox jumps over the lazy dog", 32);
+              click_about_example("my_id4", true);
+              Label("The quick brown fox jumps over the lazy dog", 24);
+              Label("The quick brown fox jumps over the lazy dog", 20);
+            EndScroll();
           EndGroup();
         EndGroup();
         StartGroup(LAYOUT_VERTICAL_CENTER, 40);
-          if (ImageButton("textures/text_about.webp", 50, "my_id2") ==
-              EVENT_WENT_UP) {
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked 2!");
-            show_about = true;
-          }
+          click_about_example("my_id2", true);
           Image("textures/text_about.webp", 40);
           Image("textures/text_about.webp", 30);
         EndGroup();
@@ -872,11 +905,7 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
         StartGroup(LAYOUT_VERTICAL_LEFT, 20, "about_overlay");
           SetMargin(Margin(10));
           ColorBackground(vec4(0.5f, 0.5f, 0.0f, 1.0f));
-          if (ImageButton("textures/text_about.webp", 50, "my_id3") ==
-              EVENT_WENT_UP) {
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked 3");
-            show_about = false;
-          }
+          click_about_example("my_id3", false);
           Label("This is the about window! すし!", 32);
           Label("You should only be able to click on the", 24);
           Label("about button above, not anywhere else", 20);

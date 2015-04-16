@@ -101,16 +101,6 @@ struct Margin {
   vec4 borders;
 };
 
-// gui callback pass.
-// gui definition callback can check current IMGUI pass through
-// GetCurrentPass() API if it needs pass specific operations such as
-// complicated UI update.
-enum GuiPass {
-  kGuiPassLayout,
-  kGuiPassEvent,
-  kGuiPassRender,
-};
-
 // Convert virtual screen coordinate to physical value.
 mathfu::vec2i VirtualToPhysical(const mathfu::vec2 &v);
 
@@ -162,6 +152,13 @@ void ImageBackground(const Texture &tex);
 //http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch
 void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info);
 
+// Make the current group into a scrolling group that can display arbitrary
+// sized elements inside a window of "size", scrolled to the current "offset"
+// (which the caller should store somewhere that survives the current frame).
+// Call StartScroll right after StartGroup, and EndScroll right before EndGroup.
+void StartScroll(const vec2 &size, vec2i *offset);
+void EndScroll();
+
 // Put a custom element with given size.
 // Renderer function is invoked while render pass to render the element.
 void CustomElement(const vec2 &virtual_size,
@@ -170,26 +167,17 @@ void CustomElement(const vec2 &virtual_size,
                                             const vec2i &size)>renderer);
 void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size);
 
-// Retrieve current GUI pass. gui callback can determine current GUI pass via
-// this API and can do pass dependent operation.
-GuiPass GetCurrentPass();
-
 // The default virtual resolution used if none is set.
 const float IMGUI_DEFAULT_VIRTUAL_RESOLUTION = 1000.0f;
 
-// Position the GUI within a larger canvas, call this as first thing
+// Position the GUI within the screen as a whole, call this as first thing
 // in your gui_definition.
-// canvas_size: the size in pixels available for the GUI to render. This can
-// either be the entire screen, or a smaller area you want to restrict the
-// GUI to.
 // virtual_resolution: the virtual resolution of the smallest
 // dimension of your screen (the Y size in landscape mode, or X in portrait).
 // All dimension specified below are relative to this.
-// If this function is not called, it defaults to using the entire screen,
-// virtual resolution set to IMGUI_DEFAULT_VIRTUAL_RESOLUTION, and top/left
-// placement.
-void PositionUI(const vec2i &canvas_size, float virtual_resolution,
-                Layout horizontal, Layout vertical);
+// If this function is not called, it defaults to virtual resolution set to
+// IMGUI_DEFAULT_VIRTUAL_RESOLUTION, and top/left placement.
+void PositionUI(float virtual_resolution, Layout horizontal, Layout vertical);
 
 // TODO: Move into a test application.
 #define IMGUI_TEST 0
