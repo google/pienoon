@@ -56,7 +56,7 @@ main() {
 
   # Install the required SDK.
   android list sdk -a -u
-  update_package 'SDK Platform Android 5.0, API 21' \
+  update_package 'SDK Platform Android 5.0.1, API 21, revision 2'
     "${ANDROID_SDK_HOME}/platforms/android-21"
   update_package 'Google APIs, Android API 21,' \
     "${ANDROID_SDK_HOME}/add-ons/addon-google_apis-google-21"
