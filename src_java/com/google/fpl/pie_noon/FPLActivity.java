@@ -408,6 +408,14 @@ public class FPLActivity extends SDLActivity implements
     }
   }
 
+  public void UndistortFramebuffer() {
+    try {
+      cardboardView.undistortFramebuffer();
+    } catch (Exception e) {
+      Log.e("SDL", "exception", e);
+    }
+  }
+
   // Implemented in C++. (gpg_manager.cpp)
   private static native void nativeOnActivityResult(
       Activity activity,

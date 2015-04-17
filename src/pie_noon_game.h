@@ -93,6 +93,7 @@ class PieNoonGame {
   void GetCardboardTransforms(mat4& left_eye_transform,
                               mat4& right_eye_transform);
   void CorrectCardboardCamera(mat4& cardboard_camera);
+  void CardboardUndistortFramebuffer();
   void RenderCardboardCenteringBar();
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
