@@ -28,6 +28,7 @@
 
   "camera_position": { "x": -5.1, "y": 2.0, "z": 7.45 },
   "camera_target": { "x": 0.0, "y": 2.0, "z": 12.6 },
+  "viewport_angle": 1.570596, // Increase the view to 90 degrees (PI / 2)
 
   "pie_arc_height": 3.0,
   "pie_arc_height_variance": 0.5,

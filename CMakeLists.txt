@@ -222,6 +222,8 @@ set(pie_noon_SRCS
     src/controller.h
     src/font_manager.cpp
     src/font_manager.h
+    src/components/cardboard_player.cpp
+    src/components/cardboard_player.h
     src/components/drip_and_vanish.cpp
     src/components/drip_and_vanish.h
     src/components/player_character.cpp

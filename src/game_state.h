@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include "character.h"
+#include "components/cardboard_player.h"
 #include "components/drip_and_vanish.h"
 #include "components/player_character.h"
 #include "components/scene_object.h"
@@ -218,6 +219,8 @@ class GameState {
   DripAndVanishComponent drip_and_vanish_component_;
   // Component for drawing player characters:
   PlayerCharacterComponent player_character_component_;
+  // Component for drawing Cardboard mode information.
+  CardboardPlayerComponent cardboard_player_component_;
 
   // For multi-screen mode.
   MultiplayerDirector* multiplayer_director_;

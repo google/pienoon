@@ -740,6 +740,23 @@ table Config {
   // Burst of confetti when you join.
   joining_confetti_def:ParticleDef;
 
+  // Description of centering bar used during Cardboard mode
+  cardboard_center_material:string;
+  cardboard_center_scale:Vec2;
+  cardboard_center_color:Vec4;
+
+  // In world UI elements used in Cardboard mode
+  // Scale (0-1) between the player and their target
+  target_reticle_distance:float;
+  // Height of the reticle
+  target_reticle_height:float;
+  // Offset of the player's current pie size
+  cardboard_pie_offset:Vec3;
+  // The scale of the player's current pie size
+  cardboard_pie_scale:Vec3;
+  // Offset of the player's current health
+  cardboard_health_offset:Vec3;
+
   // AI options
   // Variance for how long AI players go without acting:
   ai_minimum_time_between_actions:int;
@@ -757,11 +774,6 @@ table Config {
   // Duration range (in milliseconds) that the AI will block for if threatened.
   ai_block_min_duration:int;
   ai_block_max_duration:int;
-
-  // Description of centering bar used during Cardboard mode
-  cardboard_center_material:string;
-  cardboard_center_scale:Vec2;
-  cardboard_center_color:Vec4;
 
   // UI options
   //

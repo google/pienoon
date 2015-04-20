@@ -32,6 +32,7 @@ table SceneObjectDef {
 // no data, (never loaded from raw data) but we need it to be a thing so
 // that it ends up in the enum.
 table PlayerCharacterDef {}
+table CardboardPlayerDef {}
 
 table DripAndVanishDef {
   //time, in seconds, that we take to drip.
@@ -93,7 +94,8 @@ union ComponentDataUnion {
   CardboardSceneryDef,
   ShakeablePropDef,
   DripAndVanishDef,
-  PlayerCharacterDef
+  PlayerCharacterDef,
+  CardboardPlayerDef
 }
 
 // Actual definition for each component.  Wrapped in a table because

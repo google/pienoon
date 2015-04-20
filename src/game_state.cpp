@@ -213,15 +213,19 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
       &drip_and_vanish_component_);
   entity_manager_.RegisterComponent<PlayerCharacterComponent>(
       &player_character_component_);
+  entity_manager_.RegisterComponent<CardboardPlayerComponent>(
+      &cardboard_player_component_);
 
   // Shakable Prop Component needs to know about some of our structures:
   shakeable_prop_component_.set_engine(&engine_);
   shakeable_prop_component_.set_config(config_);
   shakeable_prop_component_.LoadMotivatorSpecs();
   player_character_component_.set_config(config_);
+  cardboard_player_component_.set_config(config_);
 
   entity_manager_.set_entity_factory(&pie_noon_entity_factory_);
   player_character_component_.set_gamestate_ptr(this);
+  cardboard_player_component_.set_gamestate_ptr(this);
   // Load Entities from flatbuffer!
   for (size_t i = 0; i < layout_config->entity_list()->size(); i++) {
     entity_manager_.CreateEntityFromData(layout_config->entity_list()->Get(i));
@@ -253,6 +257,12 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
     PlayerCharacterData* pc_data =
         player_character_component_.AddEntity(entity);
     pc_data->character_id = id;
+
+    if (is_in_cardboard_ && id == 0) {
+      CardboardPlayerData* cp_data =
+          cardboard_player_component_.AddEntity(entity);
+      cp_data->character_id = 0;
+    }
   }
 
   particle_manager_.RemoveAllParticles();
@@ -436,6 +446,7 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
             CalculateCameraMovement(*config_->camera_move_to_base(),
                                     character->position(), camera_base_));
       }
+      character->set_pie_damage(0);
       break;
     }
     case EventId_ReleasePie: {
@@ -450,6 +461,7 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
       }
       ApplyScoringRule(config_->scoring_rules(), ScoreEvent_ThrewPie,
                        character->pie_damage(), character);
+      character->set_pie_damage(0);
       break;
     }
     case EventId_DeflectPie: {
