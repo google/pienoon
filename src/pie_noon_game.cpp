@@ -1286,8 +1286,8 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       // end up in this state after loading.
       if (state_ == kPlaying) {
         UploadEvents();
-        // For now, we always show leaderboards when a single player round ends:
-        if (!game_state_.is_multiscreen()) {
+        // Show the leaderboards when a regular single player round ends:
+        if (!game_state_.is_multiscreen() && !game_state_.is_in_cardboard()) {
           UploadAndShowLeaderboards();
         }
       }
