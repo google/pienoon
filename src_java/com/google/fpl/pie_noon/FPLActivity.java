@@ -50,6 +50,7 @@ import com.google.vrtoolkit.cardboard.CardboardDeviceParams;
 import com.google.vrtoolkit.cardboard.CardboardView;
 import com.google.vrtoolkit.cardboard.Eye;
 import com.google.vrtoolkit.cardboard.HeadTransform;
+import com.google.vrtoolkit.cardboard.ScreenParams;
 import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
 import com.google.vrtoolkit.cardboard.sensors.NfcSensor;
 import org.libsdl.app.SDLActivity;
@@ -121,15 +122,18 @@ public class FPLActivity extends SDLActivity implements
   boolean textDialogOpen = false;
   int queryResponse = -1;
 
+  protected boolean UseImmersiveMode() {
+    final int BUILD_VERSION_KITCAT = 18;
+    return android.os.Build.VERSION.SDK_INT >= BUILD_VERSION_KITCAT;
+  }
+
   @Override
   public void onWindowFocusChanged(boolean hasFocus) {
     super.onWindowFocusChanged(hasFocus);
     if (hasFocus) {
       textDialogOpen = false;
     }
-    final int BUILD_VERSION_KITCAT = 18;
-    if (android.os.Build.VERSION.SDK_INT >= BUILD_VERSION_KITCAT &&
-        hasFocus) {
+    if (UseImmersiveMode() && hasFocus) {
       // We use API 15 as our minimum, and these are the only features we
       // use in higher APIs, so we define cloned constants:
       final int SYSTEM_UI_FLAG_LAYOUT_STABLE = 256;  // API 16
@@ -343,6 +347,25 @@ public class FPLActivity extends SDLActivity implements
            .setLabel(label)
            .setValue(value)
            .build());
+  }
+
+  public int[] GetLandscapedSize() {
+    Point size = new Point();
+    // Immersive mode uses the full screen, so get the real size if using it
+    if (UseImmersiveMode()) {
+      getWindowManager().getDefaultDisplay().getRealSize(size);
+    } else {
+      getWindowManager().getDefaultDisplay().getSize(size);
+    }
+    return new int[] { Math.max(size.x, size.y), Math.min(size.x, size.y) };
+  }
+
+  public void SetHeadMountedDisplayResolution(int width, int height) {
+    ScreenParams params =
+      new ScreenParams(cardboardView.getHeadMountedDisplay().getScreenParams());
+    params.setWidth(width);
+    params.setHeight(height);
+    cardboardView.updateScreenParams(params);
   }
 
   @Override

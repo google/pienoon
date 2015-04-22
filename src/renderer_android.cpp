@@ -34,10 +34,28 @@ namespace fpl {
 static vec2i g_android_scaler_resolution;
 
 void AndroidSetScalerResolution(const vec2i& resolution) {
-  ANativeWindow* window = Android_JNI_GetNativeWindow();
-  int width = std::min(ANativeWindow_getWidth(window), resolution.x());
-  int height = std::min(ANativeWindow_getHeight(window), resolution.y());
+  // Check against the real size of the device
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID get_size =
+      env->GetMethodID(fpl_class, "GetLandscapedSize", "()[I");
+  jintArray size = (jintArray)env->CallObjectMethod(activity, get_size);
+  jint* size_ints = env->GetIntArrayElements(size, NULL);
+
+  int width = std::min(size_ints[0], resolution.x());
+  int height = std::min(size_ints[1], resolution.y());
   g_android_scaler_resolution = vec2i(width, height);
+
+  // Update the underlying activity with the scaled resolution
+  jmethodID set_resolution =
+      env->GetMethodID(fpl_class, "SetHeadMountedDisplayResolution", "(II)V");
+  env->CallVoidMethod(activity, set_resolution, width, height);
+
+  env->ReleaseIntArrayElements(size, size_ints, JNI_ABORT);
+  env->DeleteLocalRef(size);
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
 }
 
 const vec2i& AndroidGetScalerResolution() {
