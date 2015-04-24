@@ -870,7 +870,6 @@ void GameState::CreateJoinConfettiBurst(const Character& character) {
   const ParticleDef* def = config_->joining_confetti_def();
   vec3 character_color =
       LoadVec3(config_->character_colors()->Get(character.id()));
-
   SpawnParticles(
       character.position(), def, config_->joining_confetti_count(),
       vec4(character_color.x(), character_color.y(), character_color.z(), 1));
@@ -890,6 +889,12 @@ void GameState::SpawnParticles(const mathfu::vec3& position,
   const vec3 max_position_offset = LoadVec3(def->max_position_offset());
   const vec3 min_orientation_offset = LoadVec3(def->min_orientation_offset());
   const vec3 max_orientation_offset = LoadVec3(def->max_orientation_offset());
+
+  const Angle to_position = Angle::FromXZVector(position - camera().Position());
+  const vec3 additional_rotation =
+      is_in_cardboard()
+          ? vec3(0.0f, -(to_position.ToRadians() + fpl::kHalfPi), 0.0f)
+          : mathfu::kZeros3f;
 
   for (int i = 0; i < particle_count; i++) {
     Particle* p = particle_manager_.CreateParticle();
@@ -916,6 +921,7 @@ void GameState::SpawnParticles(const mathfu::vec3& position,
     p->set_base_position(position + vec3::RandomInRange(min_position_offset,
                                                         max_position_offset));
     p->set_base_orientation(
+        additional_rotation +
         vec3::RandomInRange(min_orientation_offset, max_orientation_offset));
     p->set_rotational_velocity(
         vec3::RandomInRange(min_angular_velocity, max_angular_velocity));
