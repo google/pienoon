@@ -51,6 +51,12 @@ void CardboardPlayerComponent::UpdateTargetReticle(entity::EntityRef entity) {
       character->position() + config_->target_reticle_distance() * to_target +
       config_->target_reticle_height() * mathfu::kAxisY3f);
   target_so_data->SetRotationAboutY(-angle_to_target.ToRadians());
+
+  // Stretch out the targeting arrow from the Player Character
+  PlayerCharacterData* pc_data = Data<PlayerCharacterData>(entity);
+  SceneObjectData* arrow_so_data =
+      Data<SceneObjectData>(pc_data->base_circle);
+  arrow_so_data->SetScaleX(config_->cardboard_arrow_scale());
 }
 
 void CardboardPlayerComponent::UpdateLoadedPie(entity::EntityRef entity) {

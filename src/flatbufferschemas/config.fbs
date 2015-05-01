@@ -756,6 +756,8 @@ table Config {
   cardboard_pie_scale:Vec3;
   // Offset of the player's current health
   cardboard_health_offset:Vec3;
+  // Scale to use for the player's arrow in the X direction
+  cardboard_arrow_scale:float;
 
   // AI options
   // Variance for how long AI players go without acting:
