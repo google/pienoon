@@ -55,7 +55,7 @@ class Mesh {
   ~Mesh();
 
   // Create one IBO to be part of this mesh. May be called more than once.
-  void AddIndices(const unsigned int *indices, int count, Material *mat);
+  void AddIndices(const unsigned short *indices, int count, Material *mat);
 
   // Render itself. Uniforms must have been set before calling this.
   void Render(Renderer &renderer, bool ignore_material = false);
@@ -68,7 +68,7 @@ class Mesh {
   // amounts of data, or dynamic data.
   static void RenderArray(GLenum primitive, int index_count,
                           const Attribute *format, int vertex_size,
-                          const char *vertices, const unsigned int *indices);
+                          const char *vertices, const unsigned short *indices);
 
   // Convenience method for rendering a Quad. bottom_left and top_right must
   // have their X coordinate be different, but either Y or Z can be the same.
@@ -88,7 +88,7 @@ class Mesh {
 
   // Compute normals and tangents given position and texcoords.
   static void ComputeNormalsTangents(NormalMappedVertex *vertices,
-                                     const unsigned int *indices,
+                                     const unsigned short *indices,
                                      int numverts, int numindices);
 
   enum {

@@ -173,7 +173,7 @@ Mesh *MaterialManager::LoadMesh(const char *filename) {
       auto mat = LoadMaterial(surface->material()->c_str());
       if (!mat) { delete mesh; return nullptr; }  // Error msg already set.
       mesh->AddIndices(
-          reinterpret_cast<const uint32_t *>(surface->indices()->Data()),
+          reinterpret_cast<const uint16_t *>(surface->indices()->Data()),
           surface->indices()->Length(), mat);
     }
     mesh_map_[filename] = mesh;

@@ -113,15 +113,15 @@ Mesh::~Mesh() {
   }
 }
 
-void Mesh::AddIndices(const unsigned int *index_data, int count,
+void Mesh::AddIndices(const unsigned short *index_data, int count,
                       Material *mat) {
   indices_.push_back(Indices());
   auto &idxs = indices_.back();
   idxs.count = count;
   GL_CALL(glGenBuffers(1, &idxs.ibo));
   GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxs.ibo));
-  GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(int), index_data,
-                       GL_STATIC_DRAW));
+  GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(short),
+                       index_data, GL_STATIC_DRAW));
   idxs.mat = mat;
 }
 
@@ -130,17 +130,17 @@ void Mesh::Render(Renderer &renderer, bool ignore_material) {
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
     if (!ignore_material) it->mat->Set(renderer);
     GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo));
-    GL_CALL(glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_INT, 0));
+    GL_CALL(glDrawElements(GL_TRIANGLES, it->count, GL_UNSIGNED_SHORT, 0));
   }
   UnSetAttributes(format_);
 }
 
 void Mesh::RenderArray(GLenum primitive, int index_count,
                        const Attribute *format, int vertex_size,
-                       const char *vertices, const unsigned int *indices) {
+                       const char *vertices, const unsigned short *indices) {
   SetAttributes(0, format, vertex_size, vertices);
   GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-  GL_CALL(glDrawElements(primitive, index_count, GL_UNSIGNED_INT, indices));
+  GL_CALL(glDrawElements(primitive, index_count, GL_UNSIGNED_SHORT, indices));
   UnSetAttributes(format);
 }
 
@@ -148,7 +148,7 @@ void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
                               const vec2 &tex_bottom_left,
                               const vec2 &tex_top_right) {
   static const Attribute format[] = {kPosition3f, kTexCoord2f, kEND};
-  static const unsigned int indices[] = { 0, 1, 2, 1, 2, 3 };
+  static const unsigned short indices[] = { 0, 1, 2, 1, 2, 3 };
   // vertex format is [x, y, z] [u, v]:
   const float vertices[] = {
       bottom_left.x(),     bottom_left.y(),     bottom_left.z(),
@@ -167,7 +167,7 @@ void Mesh::RenderAAQuadAlongXNinePatch(const vec3 &bottom_left,
                                        const vec2i &texture_size,
                                        const vec4 &patch_info) {
   static const Attribute format[] = {kPosition3f, kTexCoord2f, kEND};
-  static const unsigned int indices[] = {
+  static const unsigned short indices[] = {
       0, 1,  2, 1,  2, 3,  2, 3,  4,  3,  4,  5,  4,  5,  6,  5,  6,  7,
       1, 8,  3, 8,  3, 9,  3, 9,  5,  9,  5,  10, 5,  10, 7,  10, 7,  11,
       8, 12, 9, 12, 9, 13, 9, 13, 10, 13, 10, 14, 10, 14, 11, 14, 11, 15, };
@@ -210,7 +210,7 @@ void Mesh::RenderAAQuadAlongXNinePatch(const vec3 &bottom_left,
 
 // Compute normals and tangents for a mesh based on positions and texcoords.
 void Mesh::ComputeNormalsTangents(NormalMappedVertex *vertices,
-                                  const unsigned int *indices, int numverts,
+                                  const unsigned short *indices, int numverts,
                                   int numindices) {
   std::unique_ptr<vec3[]> binormals(new vec3[numverts]);
 

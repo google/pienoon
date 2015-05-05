@@ -19,7 +19,7 @@ include "pie_noon_common.fbs";  // FIXME: rename.
 namespace meshdef;
 
 table Surface {
-  indices:[uint] (required);
+  indices:[ushort] (required);
   material:string (required);  // e.g. "materials/example.bin"
 }
 
