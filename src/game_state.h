@@ -151,6 +151,9 @@ class GameState {
   void set_is_in_cardboard(bool b) { is_in_cardboard_ = b; }
   bool is_in_cardboard() const { return is_in_cardboard_; }
 
+  void set_use_undistort_rendering(bool b) { use_undistort_rendering_ = b; }
+  bool use_undistort_rendering() { return use_undistort_rendering_; }
+
  private:
   void ProcessSounds(pindrop::AudioEngine* audio_engine,
                      const Character& character, WorldTime delta_time) const;
@@ -231,6 +234,8 @@ class GameState {
   const Config* cardboard_config_;
   // Whether you are playing in Cardboard mode.
   bool is_in_cardboard_;
+  // Whether it should use undistortion rendering in Cardboard.
+  bool use_undistort_rendering_;
 };
 
 }  // pie_noon

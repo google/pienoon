@@ -112,7 +112,8 @@ GameState::GameState()
       sceneobject_component_(&engine_),
       multiplayer_director_(nullptr),
       is_multiscreen_(false),
-      is_in_cardboard_(false) {}
+      is_in_cardboard_(false),
+      use_undistort_rendering_(true) {}
 
 GameState::~GameState() {}
 
