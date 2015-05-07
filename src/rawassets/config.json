@@ -1071,22 +1071,22 @@
           "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
           "nav_left" : ["MenuSignIn"],
           "nav_right" : ["MenuExtras"],
-          "nav_down" : ["MenuMultiScreen"]
+          "nav_down" : ["MenuGameModes"]
         },
         {
           "top_left" : { "x": 0.3, "y": 0.85 },
           "bottom_right" : { "x": 0.7, "y": 1.0 },
-          "ID" : "MenuMultiScreen",
+          "ID" : "MenuGameModes",
           "texture_normal" : [
-            { "standard" : "materials/multiscreen_button.bin" },
+            { "standard" : "materials/text_game_modes.bin" }
           ],
           "texture_pressed" : {
-            "standard" : "materials/multiscreen_button.bin"
+            "standard" : "materials/text_game_modes.bin"
           },
-          "texture_position" : { "x": 0.37, "y": 0.92 },
-          "draw_scale_normal" : { "x": 0.4, "y": 0.4 },
-          "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
-          "draw_scale_pressed" : { "x": 0.5, "y": 0.5 },
+          "texture_position" : { "x": 0.5, "y": 0.92 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.4, "y": 1.4 },
+          "draw_scale_pressed" : { "x": 1.4, "y": 1.4 },
           "nav_right" : ["MenuExtras"],
           "nav_left" : ["MenuSignIn"],
           "nav_up" : ["MenuStart"]
@@ -1104,7 +1104,7 @@
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_right" : ["MenuMultiScreen"],
+          "nav_right" : ["MenuGameModes"],
           "nav_up" : ["MenuStart"]
         },
         {
@@ -1119,23 +1119,8 @@
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_left" : ["MenuMultiScreen"],
+          "nav_left" : ["MenuGameModes"],
           "nav_up" : ["MenuStart"]
-        },
-        {
-          "top_left" : { "x": 0.7, "y": 0.65 },
-          "bottom_right" : { "x": 1.0, "y": 0.85 },
-          "ID": "MenuCardboard",
-          "texture_normal" : [
-            { "standard" : "materials/cardboard_button.bin" }
-          ],
-          "texture_pressed" : { "standard" : "materials/cardboard_button.bin" },
-          "texture_position" : { "x": 0.92, "y": 0.72 },
-          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
-          "draw_scale_highlighted" : { "x": 1.0, "y": 1.0 },
-          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
-          "nav_left" : ["MenuStart"],
-          "nav_down" : ["MenuExtras"]
         }
     ],
     "static_image_list" : [
@@ -1162,16 +1147,16 @@
           "z_depth" : 0.1
         },
         {
-          "texture" : [ { "standard" : "materials/text_multiscreen.bin" } ],
-          "texture_position" : { "x": 0.53, "y": 0.92 },
-          "draw_scale": { "x": 1.2, "y": 1.2 },
-          "z_depth" : 0.1
+          "texture" : [ { "standard" : "materials/multiscreen_button.bin" } ],
+          "texture_position" : { "x": 0.34, "y": 0.92 },
+          "draw_scale": { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.1
         },
         {
-          "texture" : [ { "standard" : "materials/text_cardboard.bin" } ],
-          "texture_position": { "x": 0.77, "y": 0.73 },
-          "draw_scale": { "x": 0.8, "y": 0.8 },
-          "z_depth" : 0.1
+          "texture" : [ { "standard" : "materials/cardboard_button.bin" } ],
+          "texture_position" : { "x": 0.66, "y": 0.92 },
+          "draw_scale" : { "x": 0.8, "y": 0.8 },
+          "z_depth" : -0.1
         }
     ],
     "imgui_list" : [
@@ -2666,6 +2651,93 @@
             "foreground_size" : 0.1,
             "event_trigger" : "ButtonHold"
           }
+        }
+    ]
+  },
+
+  "game_modes_screen_buttons" : {
+    "starting_selection" : "MenuMultiScreen",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.05 },
+          "bottom_right" : { "x": 0.7, "y": 0.2 },
+          "ID" : "MenuMultiScreen",
+          "texture_normal" : [
+            { "standard" : "materials/text_multiscreen.bin" }
+          ],
+          "texture_pressed" : { "standard" :
+                                "materials/text_multiscreen.bin" },
+          "texture_position" : { "x": 0.55, "y": 0.15 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.4, "y": 1.4 },
+          "draw_scale_pressed" : { "x": 1.4, "y": 1.4 },
+          "nav_down" : ["MenuCardboard"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.35 },
+          "bottom_right" : { "x": 0.7, "y": 0.5 },
+          "ID" : "MenuCardboard",
+          "texture_normal" : [
+            { "standard" : "materials/text_cardboard.bin" }
+          ],
+          "texture_pressed" : { "standard" :
+                                "materials/text_cardboard.bin" },
+          "texture_position" : { "x": 0.55, "y": 0.45 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuMultiScreen"],
+          "nav_down" : ["MenuBack"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.65 },
+          "bottom_right" : { "x": 0.7, "y": 0.75 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_go_back.bin" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_go_back.bin" },
+          "texture_position" : { "x": 0.5, "y": 0.7 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuCardboard"]
+        }
+    ],
+    "static_image_list" : [
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture_position": { "x": 0.5, "y": 0.15 },
+          "draw_scale": { "x": 1.1, "y": 1.2 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/multiscreen_button.bin" } ],
+          "texture_position" : { "x": 0.35, "y": 0.15 },
+          "draw_scale" : { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture_position": { "x": 0.5, "y": 0.45 },
+          "draw_scale": { "x": 1.1, "y": 1.2 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/cardboard_button.bin" } ],
+          "texture_position" : { "x": 0.35, "y": 0.45 },
+          "draw_scale" : { "x": 0.8, "y": 0.8 },
+          "z_depth" : -0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture_position": { "x": 0.5, "y": 0.7 },
+          "draw_scale": { "x": 0.7, "y": 0.7 },
+          "z_depth" : -0.55
         }
     ]
   },

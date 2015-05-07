@@ -68,6 +68,7 @@ static const char* kLabelHowToPlayButton = "How to play";
 static const char* kLabelLeaderboardButton = "Leaderboard";
 static const char* kLabelMultiscreenButton = "Multiscreen";
 static const char* kLabelCardboardButton = "Cardboard";
+static const char* kLabelGameModesButton = "Game Modes";
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 static const char* kCategoryMultiscreen = "Multiscreen";
@@ -373,6 +374,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
   gui_menu_.LoadAssets(config.msx_host_disconnected_screen_buttons(), &matman_);
   gui_menu_.LoadAssets(config.msx_all_players_disconnected_screen_buttons(),
                        &matman_);
+  gui_menu_.LoadAssets(config.game_modes_screen_buttons(), &matman_);
   // Configure the full screen fader.
   full_screen_fader_.set_material(
       matman_.FindMaterial(config.fade_material()->c_str()));
@@ -1098,7 +1100,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
         const bool in_submenu =
             (gui_menu_.menu_def() == config.extras_screen_buttons() ||
-             gui_menu_.menu_def() == config.msx_screen_buttons());
+             gui_menu_.menu_def() == config.msx_screen_buttons() ||
+             gui_menu_.menu_def() == config.game_modes_screen_buttons());
         if (in_submenu) {
           gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         } else if (game_state_.is_in_cardboard()) {
@@ -1860,6 +1863,13 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         game_state_.set_is_multiscreen(false);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.extras_screen_buttons(), &matman_);
+        break;
+      }
+      case ButtonId_MenuGameModes: {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelGameModesButton);
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.game_modes_screen_buttons(), &matman_);
         break;
       }
       case ButtonId_MenuMultiScreen: {

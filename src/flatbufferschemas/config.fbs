@@ -55,6 +55,7 @@ enum ButtonId : ushort {
   MenuMultiScreenHost,
   MenuMultiScreenJoin,
   MenuCardboard,
+  MenuGameModes,
   Counter1,
   Counter2,
   Counter3,
@@ -804,6 +805,7 @@ table Config {
   multiplayer_host:UiGroup;
   multiplayer_client:UiGroup;
   cardboard_screen_buttons:UiGroup;
+  game_modes_screen_buttons:UiGroup;
 
   // Tutorial
   //

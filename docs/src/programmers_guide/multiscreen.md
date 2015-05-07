@@ -20,13 +20,14 @@ another turn begins until only 1 player remains standing!
 
 To play multi-screen mode, all of the devices must be connected to the
 same Wi-Fi network. On the Android TV device, use the controller to
-select "Multiscreen" from the Pie Noon menu, then "Host Game" (You can
-also view "How to Play" in the Multiscreen menu for game instructions).
+select "Game Modes" from the Pie Noon menu, then "Multiscreen", then
+"Host Game" (You can also view "How to Play" in the Multiscreen menu for
+game instructions).
 
-On 1 to 4 Android phones/tablets, choose "Multiscreen" and then "Join Game."
-After a few moments, the game should prompt you to connect to the Android
-TV device; select "Yes" and your phone will connect, and then wait for
-the game to start.
+On 1 to 4 Android phones/tablets, choose "Game Modes", then "Multiscreen",
+and then "Join Game." After a few moments, the game should prompt you to
+connect to the Android TV device; select "Yes" and your phone will connect,
+and then wait for the game to start.
 
 To start the game, use the Android TV controller to select the "Start"
 button after the desired number of players are connected. The remaining
