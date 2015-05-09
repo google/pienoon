@@ -18,30 +18,30 @@ namespace fpl;
 // Definition for spawning a particle.
 table ParticleDef {
   // The range for how much the particles are scaled when spawned:
-  min_scale:Vec3;
-  max_scale:Vec3;
+  min_scale:fpl.pie_noon.Vec3;
+  max_scale:fpl.pie_noon.Vec3;
 
   // If true, any randomly generated scale will be guaranteed to scale an
   // equal amount across all axes.
   preserve_aspect:bool;
 
   // Range for starting velocity of particle
-  min_velocity:Vec3;
-  max_velocity:Vec3;
+  min_velocity:fpl.pie_noon.Vec3;
+  max_velocity:fpl.pie_noon.Vec3;
 
   // Range for the initial position offset of the particle
-  min_position_offset:Vec3;
-  max_position_offset:Vec3;
+  min_position_offset:fpl.pie_noon.Vec3;
+  max_position_offset:fpl.pie_noon.Vec3;
 
   // Range for the initial orientation of the particle.  Expressed in
   // Euler angles.
-  min_orientation_offset:Vec3;
-  max_orientation_offset:Vec3;
+  min_orientation_offset:fpl.pie_noon.Vec3;
+  max_orientation_offset:fpl.pie_noon.Vec3;
 
   // Range for the rotational velocity of the particle.  Expressed in
   // Euler angles
-  min_angular_velocity:Vec3;
-  max_angular_velocity:Vec3;
+  min_angular_velocity:fpl.pie_noon.Vec3;
+  max_angular_velocity:fpl.pie_noon.Vec3;
 
   // Range for the lifetime of the particle, measured in milliseconds.
   min_duration:int;
@@ -56,13 +56,13 @@ table ParticleDef {
   fade_duration:int;
 
   // Acceleration applied to the particle's velocity over time.
-  acceleration:Vec3;
+  acceleration:fpl.pie_noon.Vec3;
 
   // A list of colors to tint the particles with.  One is selected at random
   // for each particle.
-  tint:[Vec4];
+  tint:[fpl.pie_noon.Vec4];
 
   // A list of object IDs that represent the particle's onscreen representation.
   // One is selected from the list at random for each particle.
-  renderable:[RenderableId];
+  renderable:[fpl.pie_noon.RenderableId];
 }

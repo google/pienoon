@@ -42,9 +42,9 @@ table DripAndVanishDef {
 }
 
 union MotivatorDataUnion {
-  OvershootParameters,
-  SmoothParameters,
-  TwitchParameters
+  motive.OvershootParameters,
+  motive.SmoothParameters,
+  motive.TwitchParameters
 }
 
 table MotivatorObjectDef {

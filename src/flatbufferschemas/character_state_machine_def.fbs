@@ -123,7 +123,7 @@ table Transition {
 table CharacterState {
   id:StateId;
   transitions:[Transition];
-  timeline:Timeline;
+  timeline:fpl.Timeline;
   conditional_events:[ConditionalEvent];
 }
 

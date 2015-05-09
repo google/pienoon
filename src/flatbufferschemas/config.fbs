@@ -335,7 +335,7 @@ table CameraMovementToSubject {
   time:int;
 
   // Parameterization of the magnet.
-  def:SmoothParameters;
+  def:motive.SmoothParameters;
 }
 
 table TurnLengthSpec {
@@ -485,7 +485,7 @@ table Config {
   scoring_rules:ScoringRules;
 
   // Audio engine configuration.
-  audio:AudioConfig;
+  audio:pindrop.AudioConfig;
 
   // Where the camera should be positioned.
   camera_position:Vec3;
@@ -564,8 +564,8 @@ table Config {
 
   // Defines the turning speed and wobble of the character's face angle, when
   // changing targets.
-  face_angle_def:OvershootParameters;
-  face_angle_twitch:Settled1fParameters;
+  face_angle_def:motive.OvershootParameters;
+  face_angle_twitch:motive.Settled1fParameters;
   face_angle_twitch_velocity:float;
 
   // Defines the angle that characters will tilt away from when looking
@@ -575,7 +575,7 @@ table Config {
   // Defines the movement of pies that count-down during the "join" state.
   // The pies gradually disappear one at a time to give the appearance of a
   // timer.
-  join_motivator_def:OvershootParameters;
+  join_motivator_def:motive.OvershootParameters;
   join_motivator_start_value:float;
   join_motivator_target_value:float;
   join_motivator_start_velocity:float;
@@ -593,7 +593,7 @@ table Config {
   blocked_sound_id_for_pie_damage:[string];
 
   // Defines how props shake when nearby characters are damaged.
-  motivator_specifications:[OvershootParameters];
+  motivator_specifications:[motive.OvershootParameters];
 
   // Maximum velocity that is added to the prop shake. In radians per tick.
   prop_shake_velocity:float;
@@ -729,17 +729,17 @@ table Config {
   renderables:[CardboardFigure];
 
   // Definition for pie splatter particles:
-  pie_splatter_def:ParticleDef;
+  pie_splatter_def:fpl.ParticleDef;
   pie_noon_particles_per_damage:int;
 
   // Confetti for the victor.
-  confetti_def:ParticleDef;
+  confetti_def:fpl.ParticleDef;
 
   // How much confetti to spawn when they press buttons.
   joining_confetti_count:int;
 
   // Burst of confetti when you join.
-  joining_confetti_def:ParticleDef;
+  joining_confetti_def:fpl.ParticleDef;
 
   // Description of centering bar used during Cardboard mode
   cardboard_center_material:string;
