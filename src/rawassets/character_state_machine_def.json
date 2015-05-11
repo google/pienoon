@@ -40,7 +40,7 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterIdle"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterIdle"
           }
         ]
       }
@@ -60,13 +60,13 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterWin"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterWin"
           }
         ],
         "events": [
           {
             "time": 0,
-            "event": "EventId.JumpWhileJoining",
+            "event": "fpl.pie_noon.EventId.JumpWhileJoining",
             "modifier": 0
           }
         ],
@@ -107,7 +107,7 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterIdle"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterIdle"
           }
         ]
       }
@@ -165,14 +165,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterLoad1"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterLoad1"
           }
         ],
         "accessories": [
           {
             "time": 0,
             "end_time": 0,
-            "renderable": "RenderableId.PieSmall",
+            "renderable": "fpl.pie_noon.RenderableId.PieSmall",
             "offset": {
               "x": 2,
               "y": 162
@@ -182,7 +182,7 @@
         "events": [
           {
             "time": 0,
-            "event": "EventId.LoadPie",
+            "event": "fpl.pie_noon.EventId.LoadPie",
             "modifier": 1
           }
         ],
@@ -247,14 +247,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterLoad2"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterLoad2"
           }
         ],
         "accessories": [
           {
             "time": 0,
             "end_time": 0,
-            "renderable": "RenderableId.PieMedium",
+            "renderable": "fpl.pie_noon.RenderableId.PieMedium",
             "offset": {
               "x": 14,
               "y": 350
@@ -264,7 +264,7 @@
         "events": [
           {
             "time": 0,
-            "event": "EventId.LoadPie",
+            "event": "fpl.pie_noon.EventId.LoadPie",
             "modifier": 3
           }
         ],
@@ -315,14 +315,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterLoad3"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterLoad3"
           }
         ],
         "accessories": [
           {
             "time": 0,
             "end_time": 0,
-            "renderable": "RenderableId.PieLarge",
+            "renderable": "fpl.pie_noon.RenderableId.PieLarge",
             "offset": {
               "x": -120,
               "y": 300
@@ -332,7 +332,7 @@
         "events": [
           {
             "time": 0,
-            "event": "EventId.LoadPie",
+            "event": "fpl.pie_noon.EventId.LoadPie",
             "modifier": 5
           }
         ],
@@ -365,13 +365,13 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterThrow"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterThrow"
           }
         ],
         "events": [
           {
             "time": 0,
-            "event": "EventId.ReleasePie",
+            "event": "fpl.pie_noon.EventId.ReleasePie",
             "modifier": 0
           }
         ],
@@ -404,14 +404,14 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterBlock"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterBlock"
           }
         ],
         "accessories": [
           {
             "time": 50,
             "end_time": 65000,
-            "renderable": "RenderableId.PieBlock",
+            "renderable": "fpl.pie_noon.RenderableId.PieBlock",
             "offset": {
               "x": -16,
               "y": 45
@@ -424,7 +424,7 @@
           "condition": {
             "went_down": "JustHit"
           },
-          "event": "EventId.DeflectPie"
+          "event": "fpl.pie_noon.EventId.DeflectPie"
         }
       ]
     },
@@ -455,25 +455,25 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterHitByPieFrame0"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame0"
           },
           {
             "time": 125,
-            "renderable": "RenderableId.CharacterHitByPieFrame1"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame1"
           },
           {
             "time": 250,
-            "renderable": "RenderableId.CharacterHitByPieFrame2"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame2"
           },
           {
             "time": 375,
-            "renderable": "RenderableId.CharacterHitByPieFrame3"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame3"
           }
         ],
         "events": [
           {
             "time": 0,
-            "event": "EventId.TakeDamage",
+            "event": "fpl.pie_noon.EventId.TakeDamage",
             "modifier": 0
           }
         ]
@@ -486,7 +486,7 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterKnockedOut"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterKnockedOut"
           }
         ],
         "sounds": [
@@ -504,7 +504,7 @@
         "renderables": [
           {
             "time": 0,
-            "renderable": "RenderableId.CharacterWin"
+            "renderable": "fpl.pie_noon.RenderableId.CharacterWin"
           }
         ],
         "sounds": [
