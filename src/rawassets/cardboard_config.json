@@ -357,7 +357,7 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentBush,
-              "position": { "x": -2.8, "y": -0.1, "z":21.4 },
+              "position": { "x": -1.5, "y": -0.1, "z":21.4 },
               "scale": { "x": 1, "y": 1, "z": 1 },
               "orientation": { "x": 0, "y": 0, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
@@ -381,7 +381,7 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentBush,
-              "position": { "x": -6.3, "y": 0, "z":20.4 },
+              "position": { "x": -7.5, "y": 0, "z":20.4 },
               "scale": { "x": 0.6, "y": 0.6, "z": 0.6 },
               "orientation": { "x": 0, "y": -20, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
@@ -405,7 +405,7 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentTree,
-              "position": { "x": 7.5, "y": 0, "z":21.7 },
+              "position": { "x": 6.5, "y": 0, "z":21.7 },
               "scale": { "x": 1, "y": 1, "z": 1 },
               "orientation": { "x": 0, "y": 40, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
@@ -429,7 +429,7 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentBush,
-              "position": { "x": 9, "y": -0.1, "z":16.6 },
+              "position": { "x": 8.5, "y": -0.1, "z":16.6 },
               "scale": { "x": 1, "y": 0.7, "z": 1 },
               "orientation": { "x": 0, "y": 60, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
@@ -492,6 +492,6 @@
             }
           }
         ]
-      },
+      }
     ]
 }
