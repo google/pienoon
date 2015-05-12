@@ -408,9 +408,9 @@ public class FPLActivity extends SDLActivity implements
     }
   }
 
-  public void UndistortFramebuffer() {
+  public void UndistortTexture(int textureId) {
     try {
-      cardboardView.undistortFramebuffer();
+      cardboardView.undistortTexture(textureId);
     } catch (Exception e) {
       Log.e("SDL", "exception", e);
     }

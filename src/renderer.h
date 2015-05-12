@@ -90,6 +90,11 @@ class Renderer {
   // Set to compare fragment against Z-buffer before writing, or not.
   void DepthTest(bool on);
 
+  // Call before rendering for Cardboard to set up the framebuffer
+  void BeginUndistortFramebuffer();
+  // Call when finished with Cardboard, to undistort and render the framebuffer
+  void FinishUndistortFramebuffer();
+
   Renderer()
       : model_view_projection_(mat4::Identity()),
         model_(mat4::Identity()),
@@ -98,7 +103,10 @@ class Renderer {
         camera_pos_(mathfu::kZeros3f),
         window_size_(mathfu::kZeros2i),
         window_(nullptr),
-        context_(nullptr) {}
+        context_(nullptr),
+        undistortFramebufferId_(0),
+        undistortTextureId_(0),
+        undistortRenderbufferId_(0) {}
   ~Renderer() { ShutDown(); }
 
   // Shader uniform: model_view_projection
@@ -134,6 +142,9 @@ class Renderer {
  private:
   GLuint CompileShader(GLenum stage, GLuint program, const GLchar *source);
 
+  // Initializes the framebuffer needed for Cardboard mode
+  void InitializeUndistortFramebuffer(int width, int height);
+
   // The mvp. Use the Ortho() and Perspective() methods in mathfu::Matrix
   // to conveniently change the camera.
   mat4 model_view_projection_;
@@ -152,6 +163,15 @@ class Renderer {
   BlendMode blend_mode_;
 
   bool use_16bpp_;
+
+  // The id of the framebuffer that is used for rendering for Cardboard.
+  // After rendering to it, passed to Cardboard's undistortTexture call, which
+  // will transform and render it appropriately
+  GLuint undistortFramebufferId_;
+  // The texture that is used with the framebuffer, needed for the color
+  GLuint undistortTextureId_;
+  // The renderbuffer that is used with the framebuffer, needed for the depth
+  GLuint undistortRenderbufferId_;
 };
 
 }  // namespace fpl

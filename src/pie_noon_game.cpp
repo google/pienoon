@@ -657,6 +657,9 @@ void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
   float window_height = viewport_size.y();
   auto res = renderer_.window_size();
   vec2i half_res(res.x() / 2.0f, res.y());
+  if (game_state_.use_undistort_rendering()) {
+    renderer_.BeginUndistortFramebuffer();
+  }
   GL_CALL(glViewport(0, 0, half_width, window_height));
   RenderScene(scene, left_eye_transform, half_res);
   GL_CALL(glViewport(half_width, 0, half_width, window_height));
@@ -664,7 +667,7 @@ void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
   // Reset the viewport to the entire screen
   GL_CALL(glViewport(0, 0, window_width, window_height));
   if (game_state_.use_undistort_rendering()) {
-    CardboardUndistortFramebuffer();
+    renderer_.FinishUndistortFramebuffer();
   }
   RenderCardboardCenteringBar();
 #else
@@ -743,19 +746,9 @@ void PieNoonGame::Render2DElements() {
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
   // and the bottom right the windows size in pixels.
   auto res = renderer_.window_size();
-  mat4 ortho_mat;
-  if (!game_state_.is_in_cardboard() ||
-      !game_state_.use_undistort_rendering()) {
-    ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
-                                           static_cast<float>(res.y()), 0.0f,
-                                           -1.0f, 1.0f);
-  } else {
-    // The undistortFramebuffer call causes everything to be flipped, so the UI
-    // needs to be flipped here
-    ortho_mat = mathfu::OrthoHelper<float>(static_cast<float>(res.x()), 0.0f,
-                                           0.0f, static_cast<float>(res.y()),
-                                           -1.0f, 1.0f);
-  }
+  mat4 ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
+                                              static_cast<float>(res.y()), 0.0f,
+                                              -1.0f, 1.0f);
   renderer_.model_view_projection() = ortho_mat;
 
 // Update the currently drawing Google Play Games image. Displays "Sign In"
@@ -795,27 +788,9 @@ void PieNoonGame::GetCardboardTransforms(mat4& left_eye_transform,
 }
 
 void PieNoonGame::CorrectCardboardCamera(mat4& cardboard_camera) {
-  // The game's coordinate system has x and y reversed from the cardboard.
-  // This causes the camera to be flipped, which the undistortFramebuffer call
-  // will correct.  Otherwise, we correct it ourselves.
+  // The game's coordinate system has x and y reversed from the cardboard
   const mat4 rotation = mat4::FromScaleVector(vec3(-1, -1, 1));
-  cardboard_camera = cardboard_camera * rotation;
-  if (!game_state_.use_undistort_rendering()) {
-    cardboard_camera = rotation * cardboard_camera;
-  }
-}
-
-void PieNoonGame::CardboardUndistortFramebuffer() {
-#ifdef __ANDROID__
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-  jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID undistort =
-      env->GetMethodID(fpl_class, "UndistortFramebuffer", "()V");
-  env->CallVoidMethod(activity, undistort);
-  env->DeleteLocalRef(fpl_class);
-  env->DeleteLocalRef(activity);
-#endif  // __ANDROID__
+  cardboard_camera = rotation * cardboard_camera * rotation;
 }
 
 void PieNoonGame::RenderCardboardCenteringBar() {
