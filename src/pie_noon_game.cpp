@@ -1215,6 +1215,12 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
   assert(state_ != next_state);  // Must actually transition.
   const Config& config = GetConfig();
 
+  if (next_state == kPaused) {
+    audio_engine_.Pause(true);
+  } else if (state_ == kPaused) {
+    audio_engine_.Pause(false);
+  }
+
   switch (next_state) {
     case kLoadingInitialMaterials: {
       break;
@@ -1254,14 +1260,11 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
         music_channel_ = audio_engine_.PlaySound("MusicAction");
         ambience_channel_ = audio_engine_.PlaySound("Ambience");
         game_state_.Reset(GameState::kTrackAnalytics);
-      } else {
-        audio_engine_.Pause(false);
       }
       break;
     }
     case kPaused: {
       gui_menu_.Setup(config.pause_screen_buttons(), &matman_);
-      audio_engine_.Pause(true);
       break;
     }
     case kMultiplayerWaiting: {
