@@ -116,9 +116,6 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
   }
   HandleGamepadEvents();
 #endif  // ANDROID_GAMEPAD
-#ifdef ANDROID_CARDBOARD
-  cardboard_input_.AdvanceFrame();
-#endif  // ANDROID_CARDBOARD
   // Poll events until Q is empty.
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
@@ -163,6 +160,11 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
             .Update(event.button.state == SDL_PRESSED);
         pointers_[0].mousepos = vec2i(event.button.x, event.button.y);
         pointers_[0].used = true;
+#ifdef ANDROID_CARDBOARD
+        if (event.button.state == SDL_PRESSED) {
+          cardboard_input_.OnCardboardTrigger();
+        }
+#endif
         break;
       }
       case SDL_MOUSEMOTION: {
@@ -201,6 +203,11 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
       }
     }
   }
+// Update the Cardboard input. Note this is after the mouse input, as that can
+// be treated as a trigger.
+#ifdef ANDROID_CARDBOARD
+  cardboard_input_.AdvanceFrame();
+#endif  // ANDROID_CARDBOARD
 }
 
 void InputSystem::HandleJoystickEvent(SDL_Event event) {

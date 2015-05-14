@@ -38,6 +38,11 @@ void CardboardController::Initialize(GameState* game_state,
 void CardboardController::AdvanceFrame(WorldTime /*delta_time*/) {
   ClearAllLogicalInputs();
 
+  // If not in Cardboard mode, there is no need to update this.
+  if (!game_state_->is_in_cardboard()) {
+    return;
+  }
+
 #ifdef ANDROID_CARDBOARD
   if (input_system_->cardboard_input().triggered()) {
     SetLogicalInputs(LogicalInputs_Select, true);
