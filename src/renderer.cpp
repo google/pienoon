@@ -518,7 +518,7 @@ void Renderer::FinishUndistortFramebuffer() {
   jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID undistort = env->GetMethodID(fpl_class, "UndistortTexture", "(I)V");
-  env->CallVoidMethod(activity, undistort, (jint)undistortFramebufferId_);
+  env->CallVoidMethod(activity, undistort, (jint)undistortTextureId_);
   env->DeleteLocalRef(fpl_class);
   env->DeleteLocalRef(activity);
 #endif  // __ANDROID__
