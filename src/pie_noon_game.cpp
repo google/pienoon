@@ -1902,6 +1902,9 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
                          kLabelCardboardButton);
         game_state_.set_is_in_cardboard(true);
         game_state_.Reset();
+#ifdef ANDROID_CARDBOARD
+        input_.cardboard_input().ResetHeadTracker();
+#endif
         TransitionToPieNoonState(kFinished);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.cardboard_screen_buttons(), &matman_);

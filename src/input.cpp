@@ -556,6 +556,19 @@ void CardboardInput::AdvanceFrame() {
   }
 }
 
+void CardboardInput::ResetHeadTracker() {
+#ifdef __ANDROID__
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID reset_head_tracker =
+      env->GetMethodID(fpl_class, "ResetHeadTracker", "()V");
+  env->CallVoidMethod(activity, reset_head_tracker);
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+#endif  // __ANDROID__
+}
+
 void CardboardInput::UpdateCardboardTransforms() {
 #ifdef __ANDROID__
   JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());

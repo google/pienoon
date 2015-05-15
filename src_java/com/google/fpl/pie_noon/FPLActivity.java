@@ -408,6 +408,11 @@ public class FPLActivity extends SDLActivity implements
     }
   }
 
+  // Reset the head tracker to the current heading
+  public void ResetHeadTracker() {
+    cardboardView.resetHeadTracker();
+  }
+
   public void UndistortTexture(int textureId) {
     try {
       cardboardView.undistortTexture(textureId);

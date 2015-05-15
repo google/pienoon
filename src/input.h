@@ -222,6 +222,9 @@ class CardboardInput {
   void AdvanceFrame();
   void OnCardboardTrigger() { pending_trigger_ = true; }
 
+  // Realign the head tracking with the current phone heading
+  void ResetHeadTracker();
+
  private:
   void UpdateCardboardTransforms();
 
