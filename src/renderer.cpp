@@ -131,6 +131,10 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
   vec2i size = AndroidGetScalerResolution();
   const vec2i viewport_size = size.x() && size.y() ? size : window_size_;
   InitializeUndistortFramebuffer(viewport_size.x(), viewport_size.y());
+#else
+(void)undistortFramebufferId_;
+(void)undistortTextureId_;
+(void)undistortRenderbufferId_;
 #endif
 
   return true;
