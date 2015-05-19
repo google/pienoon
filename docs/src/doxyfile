@@ -750,6 +750,8 @@ INPUT                  = "index.md" \
                          "programmers_guide/building_linux.md" \
                          "programmers_guide/building_osx.md" \
                          "programmers_guide/building_windows.md" \
+                         "programmers_guide/cardboard.md" \
+                         "programmers_guide/cardboard_gameplay.md" \
                          "programmers_guide/controllers.md" \
                          "programmers_guide/assets.md" \
                          "programmers_guide/engine.md" \
@@ -1150,7 +1152,9 @@ HTML_EXTRA_FILES       = \
   "programmers_guide/multiplayer_face.png" \
   "programmers_guide/multiplayer_wait.png" \
   "programmers_guide/multiplayer_throw.png" \
-  "programmers_guide/multiplayer_block.png" 
+  "programmers_guide/multiplayer_block.png" \
+  "programmers_guide/cardboard_in_game.png" \
+  "programmers_guide/cardboard_targeting.png"
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the stylesheet and background images according to

@@ -90,6 +90,8 @@ build and archive the game, and profile the game's CPU performance.
      * or against human adversaries using Bluetooth controllers.
      * or in multi-screen mode with an Android TV and 1-4 Android phones/tablets
        (*new in v1.1!*)
+     * or in a virtual reality mode with a Google Cardboard device (*new in
+       v1.2!*)
 
 ## Supported Platforms
 
