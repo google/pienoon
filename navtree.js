@@ -3,7 +3,8 @@ var NAVTREE =
   [ "Pie Noon", "index.html", [
     [ "Pie Noon    ", "index.html#pie_noon_index", null ],
     [ "Gameplay", "pie_noon_guide_gameplay.html", [
-      [ "Multi-screen Gameplay", "pie_noon_guide_gameplay_multiscreen.html", null ]
+      [ "Multi-screen Gameplay", "pie_noon_guide_gameplay_multiscreen.html", null ],
+      [ "Cardboard Gameplay", "pie_noon_guide_gameplay_cardboard.html", null ]
     ] ],
     [ "Programmer's Guide", "pie_noon_guide_overview.html", [
       [ "Building", "pie_noon_guide_building.html", [
@@ -18,7 +19,8 @@ var NAVTREE =
         [ "Engine", "pie_noon_guide_engine.html", null ],
         [ "Controllers", "pie_noon_guide_controllers.html", null ],
         [ "GUI", "pie_noon_guide_gui.html", null ],
-        [ "GPGMultiplayer", "pie_noon_guide_gpg_multiplayer.html", null ]
+        [ "GPGMultiplayer", "pie_noon_guide_gpg_multiplayer.html", null ],
+        [ "Cardboard", "pie_noon_guide_cardboard.html", null ]
       ] ]
     ] ],
     [ "Readme", "pie_noon_readme.html", null ],
