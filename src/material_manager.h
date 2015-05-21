@@ -60,6 +60,16 @@ class MaterialManager {
   // for these textures through Load*() will cause them to be loaded anew.
   void UnloadMaterial(const char *filename);
 
+  // Returns a previously loaded mesh, or nullptr.
+  Mesh *FindMesh(const char *filename);
+  // Loads a mesh, which is a compiled FlatBuffer file with
+  // root Mesh.
+  // If this returns nullptr, the error can be found in Renderer::last_error().
+  Mesh *LoadMesh(const char *filename);
+  // Deletes the mesh and removes it from the material manager. Any subsequent
+  // requests for this mesh through Load*() will cause them to be loaded anew.
+  void UnloadMesh(const char *filename);
+
   // Handy accessors, so you don't have to pass the renderer around too.
   Renderer &renderer() { return renderer_; }
   const Renderer &renderer() const { return renderer_; }
@@ -71,6 +81,7 @@ class MaterialManager {
   std::map<std::string, Shader *> shader_map_;
   std::map<std::string, Texture *> texture_map_;
   std::map<std::string, Material *> material_map_;
+  std::map<std::string, Mesh *> mesh_map_;
   AsyncLoader loader_;
 };
 

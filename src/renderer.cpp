@@ -124,6 +124,19 @@ bool Renderer::Initialize(const vec2i &window_size, const char *window_title) {
 #endif
 
       blend_mode_ = kBlendModeOff;
+
+// Set up undistortion framebuffer for Cardboard, using the scaled resolution
+// of the device, as it will be what is rendered at the end
+#ifdef __ANDROID__
+  vec2i size = AndroidGetScalerResolution();
+  const vec2i viewport_size = size.x() && size.y() ? size : window_size_;
+  InitializeUndistortFramebuffer(viewport_size.x(), viewport_size.y());
+#else
+(void)undistortFramebufferId_;
+(void)undistortTextureId_;
+(void)undistortRenderbufferId_;
+#endif
+
   return true;
 }
 
@@ -460,6 +473,59 @@ void Renderer::SetBlendMode(BlendMode blend_mode, float amount) {
 
   // Remember new mode as the current mode.
   blend_mode_ = blend_mode;
+}
+
+void Renderer::InitializeUndistortFramebuffer(int width, int height) {
+#ifdef __ANDROID__
+  // Set up a framebuffer that matches the window, such that we can render to
+  // it, and then undistort the result properly for Cardboard
+  GL_CALL(glGenTextures(1, &undistortTextureId_));
+  GL_CALL(glBindTexture(GL_TEXTURE_2D, undistortTextureId_));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                       GL_UNSIGNED_BYTE, nullptr));
+
+  GL_CALL(glGenRenderbuffers(1, &undistortRenderbufferId_));
+  GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, undistortRenderbufferId_));
+  GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width,
+                                height));
+
+  GL_CALL(glGenFramebuffers(1, &undistortFramebufferId_));
+  GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, undistortFramebufferId_));
+
+  GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                 GL_TEXTURE_2D, undistortTextureId_, 0));
+  GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                    GL_RENDERBUFFER, undistortRenderbufferId_));
+
+  GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+#else
+  (void)width;
+  (void)height;
+#endif  // __ANDROID__
+}
+
+void Renderer::BeginUndistortFramebuffer() {
+#ifdef __ANDROID__
+  GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, undistortFramebufferId_));
+  ClearFrameBuffer(mathfu::kZeros4f);
+#endif  // __ANDROID__
+}
+
+void Renderer::FinishUndistortFramebuffer() {
+#ifdef __ANDROID__
+  GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID undistort = env->GetMethodID(fpl_class, "UndistortTexture", "(I)V");
+  env->CallVoidMethod(activity, undistort, (jint)undistortTextureId_);
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+#endif  // __ANDROID__
 }
 
 }  // namespace fpl

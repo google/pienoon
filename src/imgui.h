@@ -63,6 +63,11 @@ enum Event {
   EVENT_HOVER = 8,
 };
 
+// Alignment and Direction of groups. Instead of using these directly, use
+// the Layout enum below.
+enum Alignment { ALIGN_TOPLEFT = 1, ALIGN_CENTER = 2, ALIGN_BOTTOMRIGHT = 3 };
+enum Direction { DIR_HORIZONTAL = 4, DIR_VERTICAL = 8, DIR_OVERLAY = 12 };
+
 // Specify how to layout a group. Elements can be positioned either
 // horizontally next to eachother or vertically, with elements aligned
 // to either side or centered.
@@ -71,16 +76,16 @@ enum Event {
 // A B C
 // A   C
 // A
-//
-// (Note: the order of these matters to the implementation, see
-// IsVertical and GetAlignment).
 enum Layout {
-  LAYOUT_HORIZONTAL_TOP,
-  LAYOUT_HORIZONTAL_CENTER,
-  LAYOUT_HORIZONTAL_BOTTOM,
-  LAYOUT_VERTICAL_LEFT,
-  LAYOUT_VERTICAL_CENTER,
-  LAYOUT_VERTICAL_RIGHT,
+  LAYOUT_HORIZONTAL_TOP    = DIR_HORIZONTAL | ALIGN_TOPLEFT,
+  LAYOUT_HORIZONTAL_CENTER = DIR_HORIZONTAL | ALIGN_CENTER,
+  LAYOUT_HORIZONTAL_BOTTOM = DIR_HORIZONTAL | ALIGN_BOTTOMRIGHT,
+
+  LAYOUT_VERTICAL_LEFT     = DIR_VERTICAL | ALIGN_TOPLEFT,
+  LAYOUT_VERTICAL_CENTER   = DIR_VERTICAL | ALIGN_CENTER,
+  LAYOUT_VERTICAL_RIGHT    = DIR_VERTICAL | ALIGN_BOTTOMRIGHT,
+
+  LAYOUT_OVERLAY_CENTER    = DIR_OVERLAY | ALIGN_CENTER,
 };
 
 // Specify margins for a group, in units of virtual resolution.
@@ -95,6 +100,12 @@ struct Margin {
 
   vec4 borders;
 };
+
+// Convert virtual screen coordinate to physical value.
+mathfu::vec2i VirtualToPhysical(const mathfu::vec2 &v);
+
+// Retrieve the scaling factor for the virtual resolution.
+float GetScale();
 
 // Render an image as a GUI element.
 // texture_name: filename of the image, must have been loaded with
@@ -112,7 +123,7 @@ void Label(const unsigned char *text, float ysize);
 // Create a group of elements with the given layout and intra-element spacing.
 // Start/end calls must be matched and may be nested to create more complex
 // layouts.
-void StartGroup(Layout layout, int spacing = 0,
+void StartGroup(Layout layout, float spacing = 0,
                 const char *id = "__group_id__");
 void EndGroup();
 
@@ -128,22 +139,45 @@ Event CheckEvent();
 // Set the background for the group. May use alpha.
 void ColorBackground(const vec4 &color);
 
+// Set the background texture for the group.
+void ImageBackground(const Texture &tex);
+
+// Set the background texture for the group with nine patch settings.
+// In the patch_info, the user can define nine patch settings
+// as vec4(x0, y0, x1, y1) where
+// (x0,y0): top-left corner of stretchable area in UV coordinate.
+// (x1,y1): bottom-right corner of stretchable area in UV coordinate.
+// The coordinates are in UV value in the texture (0.0 ~ 1.0).
+// For more information for nine patch, refer
+//http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch
+void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info);
+
+// Make the current group into a scrolling group that can display arbitrary
+// sized elements inside a window of "size", scrolled to the current "offset"
+// (which the caller should store somewhere that survives the current frame).
+// Call StartScroll right after StartGroup, and EndScroll right before EndGroup.
+void StartScroll(const vec2 &size, vec2i *offset);
+void EndScroll();
+
+// Put a custom element with given size.
+// Renderer function is invoked while render pass to render the element.
+void CustomElement(const vec2 &virtual_size,
+                   const char *id,
+                   const std::function<void(const vec2i &pos,
+                                            const vec2i &size)>renderer);
+void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size);
+
 // The default virtual resolution used if none is set.
 const float IMGUI_DEFAULT_VIRTUAL_RESOLUTION = 1000.0f;
 
-// Position the GUI within a larger canvas, call this as first thing
+// Position the GUI within the screen as a whole, call this as first thing
 // in your gui_definition.
-// canvas_size: the size in pixels available for the GUI to render. This can
-// either be the entire screen, or a smaller area you want to restrict the
-// GUI to.
 // virtual_resolution: the virtual resolution of the smallest
 // dimension of your screen (the Y size in landscape mode, or X in portrait).
 // All dimension specified below are relative to this.
-// If this function is not called, it defaults to using the entire screen,
-// virtual resolution set to IMGUI_DEFAULT_VIRTUAL_RESOLUTION, and top/left
-// placement.
-void PositionUI(const vec2i &canvas_size, float virtual_resolution,
-                Layout horizontal, Layout vertical);
+// If this function is not called, it defaults to virtual resolution set to
+// IMGUI_DEFAULT_VIRTUAL_RESOLUTION, and top/left placement.
+void PositionUI(float virtual_resolution, Layout horizontal, Layout vertical);
 
 // TODO: Move into a test application.
 #define IMGUI_TEST 0

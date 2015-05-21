@@ -61,6 +61,7 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/controller.cpp \
+  $(PIE_NOON_RELATIVE_DIR)/src/components/cardboard_player.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/drip_and_vanish.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/player_character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \
@@ -100,6 +101,7 @@ PIE_NOON_SCHEMA_FILES := \
   $(PIE_NOON_SCHEMA_DIR)/config.fbs \
   $(PIE_NOON_SCHEMA_DIR)/components.fbs \
   $(PIE_NOON_SCHEMA_DIR)/materials.fbs \
+  $(PIE_NOON_SCHEMA_DIR)/mesh.fbs \
   $(PIE_NOON_SCHEMA_DIR)/multiplayer.fbs \
   $(PIE_NOON_SCHEMA_DIR)/particles.fbs \
   $(PIE_NOON_SCHEMA_DIR)/pie_noon_common.fbs \

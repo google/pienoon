@@ -67,6 +67,8 @@ static const char* kLabelExtrasBackButton = "Extras back button";
 static const char* kLabelHowToPlayButton = "How to play";
 static const char* kLabelLeaderboardButton = "Leaderboard";
 static const char* kLabelMultiscreenButton = "Multiscreen";
+static const char* kLabelCardboardButton = "Cardboard";
+static const char* kLabelGameModesButton = "Game Modes";
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 static const char* kCategoryMultiscreen = "Multiscreen";
@@ -122,7 +124,7 @@ static inline const UiGroup* TitleScreenButtons(const Config& config) {
 /// scanned for this version string.  We track which applications are using it
 /// to measure popularity.  You are free to remove it (of course) but we would
 /// appreciate if you left it in.
-static const char kVersion[] = "Pie Noon 1.1.0";
+static const char kVersion[] = "Pie Noon 1.2.0";
 
 PieNoonGame::PieNoonGame()
     : state_(kUninitialized),
@@ -141,9 +143,9 @@ PieNoonGame::PieNoonGame()
       debug_previous_states_(),
       full_screen_fader_(&renderer_),
       fade_exit_state_(kUninitialized),
-      ambience_channel_(nullptr),
-      stinger_channel_(nullptr),
-      music_channel_(nullptr),
+      ambience_channel_(),
+      stinger_channel_(),
+      music_channel_(),
       next_achievement_index_(0) {
   version_ = kVersion;
 }
@@ -372,6 +374,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
   gui_menu_.LoadAssets(config.msx_host_disconnected_screen_buttons(), &matman_);
   gui_menu_.LoadAssets(config.msx_all_players_disconnected_screen_buttons(),
                        &matman_);
+  gui_menu_.LoadAssets(config.game_modes_screen_buttons(), &matman_);
   // Configure the full screen fader.
   full_screen_fader_.set_material(
       matman_.FindMaterial(config.fade_material()->c_str()));
@@ -389,9 +392,7 @@ bool PieNoonGame::InitializeGameState() {
   const Config& config = GetConfig();
 
   game_state_.set_config(&config);
-#ifdef ANDROID_CARDBOARD
   game_state_.set_cardboard_config(&GetCardboardConfig());
-#endif
 
   // Register the motivator types with the MotiveEngine.
   motive::OvershootInit::Register();
@@ -432,7 +433,7 @@ bool PieNoonGame::InitializeGameState() {
   // from a cardboard device can be handled correctly
   cardboard_controller_ = new CardboardController();
 
-  cardboard_controller_->Initialize(&input_);
+  cardboard_controller_->Initialize(&game_state_, &input_);
 
   AddController(cardboard_controller_);
 
@@ -629,13 +630,11 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
 }
 
 void PieNoonGame::Render(const SceneDescription& scene) {
-#ifdef ANDROID_CARDBOARD
   if (game_state_.is_in_cardboard()) {
     RenderForCardboard(scene);
-    return;
+  } else {
+    RenderForDefault(scene);
   }
-#endif  // ANDROID_CARDBOARD
-  RenderForDefault(scene);
 }
 
 void PieNoonGame::RenderForDefault(const SceneDescription& scene) {
@@ -658,10 +657,19 @@ void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
   float window_height = viewport_size.y();
   auto res = renderer_.window_size();
   vec2i half_res(res.x() / 2.0f, res.y());
+  if (game_state_.use_undistort_rendering()) {
+    renderer_.BeginUndistortFramebuffer();
+  }
   GL_CALL(glViewport(0, 0, half_width, window_height));
   RenderScene(scene, left_eye_transform, half_res);
   GL_CALL(glViewport(half_width, 0, half_width, window_height));
   RenderScene(scene, right_eye_transform, half_res);
+  // Reset the viewport to the entire screen
+  GL_CALL(glViewport(0, 0, window_width, window_height));
+  if (game_state_.use_undistort_rendering()) {
+    renderer_.FinishUndistortFramebuffer();
+  }
+  RenderCardboardCenteringBar();
 #else
   (void)scene;
 #endif  // ANDROID_CARDBOARD
@@ -671,14 +679,14 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
                               const mat4& additional_camera_changes,
                               const vec2i& resolution) {
   const Config& config = GetConfig();
-#ifdef ANDROID_CARDBOARD
   const Config& cardboard_config = GetCardboardConfig();
-#endif
 
+  float viewport_angle = game_state_.is_in_cardboard()
+                             ? cardboard_config.viewport_angle()
+                             : config.viewport_angle();
   // Final matrix that applies the view frustum to bring into screen space.
   mat4 perspective_matrix_ = mat4::Perspective(
-      config.viewport_angle(),
-      resolution.x() / static_cast<float>(resolution.y()),
+      viewport_angle, resolution.x() / static_cast<float>(resolution.y()),
       config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
 
   const mat4 camera_transform =
@@ -693,17 +701,12 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
   assert(ground_mat);
   ground_mat->Set(renderer_);
-#ifdef ANDROID_CARDBOARD
   const float ground_width = game_state_.is_in_cardboard()
                                  ? cardboard_config.ground_plane_width()
                                  : config.ground_plane_width();
   const float ground_depth = game_state_.is_in_cardboard()
                                  ? cardboard_config.ground_plane_depth()
                                  : config.ground_plane_depth();
-#else
-  const float ground_width = config.ground_plane_width();
-  const float ground_depth = config.ground_plane_depth();
-#endif
   Mesh::RenderAAQuadAlongX(vec3(-ground_width, 0, 0),
                            vec3(ground_width, 0, ground_depth), vec2(0, 0),
                            vec2(1.0f, 1.0f));
@@ -743,7 +746,7 @@ void PieNoonGame::Render2DElements() {
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
   // and the bottom right the windows size in pixels.
   auto res = renderer_.window_size();
-  auto ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
+  mat4 ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
                                               static_cast<float>(res.y()), 0.0f,
                                               -1.0f, 1.0f);
   renderer_.model_view_projection() = ortho_mat;
@@ -775,35 +778,40 @@ void PieNoonGame::Render2DElements() {
 
 void PieNoonGame::GetCardboardTransforms(mat4& left_eye_transform,
                                          mat4& right_eye_transform) {
-#ifdef __ANDROID__
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-  jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID get_eye_views =
-      env->GetMethodID(fpl_class, "GetEyeViews", "([F[F)V");
-  jfloatArray left_eye = env->NewFloatArray(16);
-  jfloatArray right_eye = env->NewFloatArray(16);
-  env->CallVoidMethod(activity, get_eye_views, left_eye, right_eye);
-  jfloat* left_eye_floats = env->GetFloatArrayElements(left_eye, NULL);
-  jfloat* right_eye_floats = env->GetFloatArrayElements(right_eye, NULL);
-  left_eye_transform = mat4(left_eye_floats);
-  right_eye_transform = mat4(right_eye_floats);
-  env->ReleaseFloatArrayElements(left_eye, left_eye_floats, JNI_ABORT);
-  env->ReleaseFloatArrayElements(right_eye, right_eye_floats, JNI_ABORT);
-  env->DeleteLocalRef(left_eye);
-  env->DeleteLocalRef(right_eye);
-  env->DeleteLocalRef(fpl_class);
-  env->DeleteLocalRef(activity);
+#ifdef ANDROID_CARDBOARD
+  left_eye_transform = mat4(input_.cardboard_input().left_eye_transform());
+  right_eye_transform = mat4(input_.cardboard_input().right_eye_transform());
 #else
   (void)left_eye_transform;
   (void)right_eye_transform;
-#endif  //__ANDROID__
+#endif  // ANDROID_CARDBOARD
 }
 
 void PieNoonGame::CorrectCardboardCamera(mat4& cardboard_camera) {
   // The game's coordinate system has x and y reversed from the cardboard
   const mat4 rotation = mat4::FromScaleVector(vec3(-1, -1, 1));
   cardboard_camera = rotation * cardboard_camera * rotation;
+}
+
+void PieNoonGame::RenderCardboardCenteringBar() {
+  auto res = renderer_.window_size();
+  auto ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
+                                              static_cast<float>(res.y()), 0.0f,
+                                              -1.0f, 1.0f);
+  renderer_.model_view_projection() = ortho_mat;
+
+  const Config& config = GetConfig();
+  renderer_.color() = LoadVec4(config.cardboard_center_color());
+  auto material =
+      matman_.LoadMaterial(config.cardboard_center_material()->c_str());
+  material->Set(renderer_);
+  shader_textured_->Set(renderer_);
+
+  const vec3 center(res.x() / 2.0f, res.y() / 2.0f, 0.0f);
+  const vec3 scale(
+      renderer_.window_size().x() * config.cardboard_center_scale()->x(),
+      renderer_.window_size().y() * config.cardboard_center_scale()->y(), 0.0f);
+  Mesh::RenderAAQuadAlongX(center - (scale / 2.0f), center + (scale / 2.0f));
 }
 
 // Debug function to print out state machine transitions.
@@ -837,11 +845,13 @@ const Config& PieNoonGame::GetConfig() const {
   return *fpl::pie_noon::GetConfig(config_source_.c_str());
 }
 
-#ifdef ANDROID_CARDBOARD
 const Config& PieNoonGame::GetCardboardConfig() const {
+#ifdef ANDROID_CARDBOARD
   return *fpl::pie_noon::GetConfig(cardboard_config_source_.c_str());
-}
+#else
+  return GetConfig();
 #endif
+}
 
 const CharacterStateMachineDef* PieNoonGame::GetStateMachine() const {
   return fpl::pie_noon::GetCharacterStateMachineDef(
@@ -1065,9 +1075,14 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       if (input_.GetButton(SDLK_AC_BACK).went_down()) {
         const bool in_submenu =
             (gui_menu_.menu_def() == config.extras_screen_buttons() ||
-             gui_menu_.menu_def() == config.msx_screen_buttons());
+             gui_menu_.menu_def() == config.msx_screen_buttons() ||
+             gui_menu_.menu_def() == config.game_modes_screen_buttons());
         if (in_submenu) {
           gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+        } else if (game_state_.is_in_cardboard()) {
+          gui_menu_.Setup(TitleScreenButtons(config), &matman_);
+          game_state_.set_is_in_cardboard(false);
+          game_state_.Reset();
         } else {
           input_.exit_requested_ = true;
         }
@@ -1175,6 +1190,12 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
   assert(state_ != next_state);  // Must actually transition.
   const Config& config = GetConfig();
 
+  if (next_state == kPaused) {
+    audio_engine_.Pause(true);
+  } else if (state_ == kPaused) {
+    audio_engine_.Pause(false);
+  }
+
   switch (next_state) {
     case kLoadingInitialMaterials: {
       break;
@@ -1202,18 +1223,23 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       }
 
       if (state_ != kPaused) {
+        if (ambience_channel_.Valid()) {
+          ambience_channel_.Stop();
+          ambience_channel_.Clear();
+        }
+        if (music_channel_.Valid()) {
+          music_channel_.Stop();
+          music_channel_.Clear();
+        }
         audio_engine_.PlaySound("StartMatch");
         music_channel_ = audio_engine_.PlaySound("MusicAction");
         ambience_channel_ = audio_engine_.PlaySound("Ambience");
         game_state_.Reset(GameState::kTrackAnalytics);
-      } else {
-        audio_engine_.Pause(false);
       }
       break;
     }
     case kPaused: {
       gui_menu_.Setup(config.pause_screen_buttons(), &matman_);
-      audio_engine_.Pause(true);
       break;
     }
     case kMultiplayerWaiting: {
@@ -1231,13 +1257,20 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
         // If we're in the multiscreen tutorial, go back to the multiscreen
         // menu.
         gui_menu_.Setup(config.msx_screen_buttons(), &matman_);
+      } else if (game_state_.is_in_cardboard()) {
+        gui_menu_.Setup(config.cardboard_screen_buttons(), &matman_);
       } else {
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
       }
       if (ambience_channel_.Valid()) {
         ambience_channel_.Stop();
+        ambience_channel_.Clear();
       }
-      stinger_channel_ = pindrop::Channel(nullptr);
+      if (music_channel_.Valid()) {
+        music_channel_.Stop();
+        music_channel_.Clear();
+      }
+      stinger_channel_.Clear();
       music_channel_ = audio_engine_.PlaySound("MusicMenu");
       for (size_t i = 0; i < game_state_.characters().size(); ++i) {
         auto& character = game_state_.characters()[i];
@@ -1265,8 +1298,8 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       // end up in this state after loading.
       if (state_ == kPlaying) {
         UploadEvents();
-        // For now, we always show leaderboards when a single player round ends:
-        if (!game_state_.is_multiscreen()) {
+        // Show the leaderboards when a regular single player round ends:
+        if (!game_state_.is_multiscreen() && !game_state_.is_in_cardboard()) {
           UploadAndShowLeaderboards();
         }
       }
@@ -1292,7 +1325,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     case kMultiscreenClient: {
       if (music_channel_.Valid() && music_channel_.Playing()) {
         music_channel_.Stop();
-        music_channel_ = pindrop::Channel(nullptr);
+        music_channel_.Clear();
       }
       break;
     }
@@ -1771,21 +1804,18 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
           SendTrackerEvent(kCategoryUi, kActionClickedButton,
                            kLabelStartButton);
           audio_engine_.PlaySound("JoinMatch");
-          if (menu_selection.controller_id == kTouchController) {
+          if (game_state_.is_in_cardboard()) {
+            // If we are currently in the cardboard device, we assume
+            // that it will be the controller running the game
+            HandlePlayersJoining(cardboard_controller_);
+            return kPlaying;
+          } else if (menu_selection.controller_id == kTouchController) {
             // When a touch controller exists, we assume it is the unique
             // input system for the game. We make the touch controller join the
             // game, and then start the game immediately.
             HandlePlayersJoining(touch_controller_);
             return kPlaying;
           }
-#ifdef ANDROID_CARDBOARD
-          else if (input_.cardboard_input().is_in_cardboard()) {
-            // If we are currently in the cardboard device, we assume
-            // that it will be the controller running the game
-            HandlePlayersJoining(cardboard_controller_);
-            return kPlaying;
-          }
-#endif
           return kJoining;
         }
         break;
@@ -1811,6 +1841,13 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         game_state_.set_is_multiscreen(false);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.extras_screen_buttons(), &matman_);
+        break;
+      }
+      case ButtonId_MenuGameModes: {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelGameModesButton);
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.game_modes_screen_buttons(), &matman_);
         break;
       }
       case ButtonId_MenuMultiScreen: {
@@ -1860,6 +1897,19 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
 #endif
         break;
       }
+      case ButtonId_MenuCardboard: {
+        SendTrackerEvent(kCategoryUi, kActionClickedButton,
+                         kLabelCardboardButton);
+        game_state_.set_is_in_cardboard(true);
+        game_state_.Reset();
+#ifdef ANDROID_CARDBOARD
+        input_.cardboard_input().ResetHeadTracker();
+#endif
+        TransitionToPieNoonState(kFinished);
+        const Config& config = GetConfig();
+        gui_menu_.Setup(config.cardboard_screen_buttons(), &matman_);
+        break;
+      }
 
       case ButtonId_MenuBack: {
         const Config& config = GetConfig();
@@ -1870,6 +1920,11 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
                          kLabelExtrasBackButton, game_state_.is_multiscreen());
         UpdateControllers(0);  // clear went_down()
         if (state_ == kMultiplayerWaiting) TransitionToPieNoonState(kFinished);
+        if (game_state_.is_in_cardboard()) {
+          game_state_.set_is_in_cardboard(false);
+          game_state_.Reset();
+          TransitionToPieNoonState(kFinished);
+        }
         gui_menu_.Setup(TitleScreenButtons(config), &matman_);
         break;
       }
@@ -2164,12 +2219,6 @@ void PieNoonGame::UpdateControllers(WorldTime delta_time) {
 }
 
 void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
-#ifdef ANDROID_CARDBOARD
-  // If the device is in the cardboard, we don't want to use the touch controls
-  if (input_.cardboard_input().is_in_cardboard()) {
-    return;
-  }
-#endif  // ANDROID_CARDBOARD
   gui_menu_.AdvanceFrame(delta_time, &input_, vec2(renderer_.window_size()));
 
   // If we're playing the game, we have to send the menu events directly
@@ -2305,16 +2354,6 @@ void PieNoonGame::Run() {
       SDL_Delay(min_update_time - delta_time);
       continue;
     }
-
-#ifdef ANDROID_CARDBOARD
-    if (input_.cardboard_input().is_in_cardboard() !=
-        game_state_.is_in_cardboard()) {
-      game_state_.set_is_in_cardboard(
-          input_.cardboard_input().is_in_cardboard());
-      game_state_.Reset();
-      TransitionToPieNoonState(kFinished);
-    }
-#endif
 
     // TODO: Can we move these to 'Render'?
     renderer_.AdvanceFrame(input_.minimized_);

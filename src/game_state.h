@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include "character.h"
+#include "components/cardboard_player.h"
 #include "components/drip_and_vanish.h"
 #include "components/player_character.h"
 #include "components/scene_object.h"
@@ -108,6 +109,7 @@ class GameState {
 
   GameCamera& camera() { return camera_; }
   const GameCamera& camera() const { return camera_; }
+  mathfu::mat4 CameraMatrix() const;
 
   std::vector<std::unique_ptr<Character>>& characters() { return characters_; }
   const std::vector<std::unique_ptr<Character>>& characters() const {
@@ -123,11 +125,9 @@ class GameState {
 
   void set_config(const Config* config) { config_ = config; }
 
-#ifdef ANDROID_CARDBOARD
   void set_cardboard_config(const Config* config) {
     cardboard_config_ = config;
   }
-#endif
 
   motive::MotiveEngine& engine() { return engine_; }
   ParticleManager& particle_manager() { return particle_manager_; }
@@ -148,10 +148,11 @@ class GameState {
   void set_is_multiscreen(bool b) { is_multiscreen_ = b; }
   bool is_multiscreen() const { return is_multiscreen_; }
 
-#ifdef ANDROID_CARDBOARD
   void set_is_in_cardboard(bool b) { is_in_cardboard_ = b; }
   bool is_in_cardboard() const { return is_in_cardboard_; }
-#endif
+
+  void set_use_undistort_rendering(bool b) { use_undistort_rendering_ = b; }
+  bool use_undistort_rendering() { return use_undistort_rendering_; }
 
  private:
   void ProcessSounds(pindrop::AudioEngine* audio_engine,
@@ -159,6 +160,8 @@ class GameState {
   void CreatePie(CharacterId original_source_id, CharacterId source_id,
                  CharacterId target_id, CharacterHealth original_damage,
                  CharacterHealth damage);
+  float CalculatePieYRotation(CharacterId source_id,
+                              CharacterId target_id) const;
   CharacterId DetermineDeflectionTarget(const ReceivedPie& pie) const;
   void ProcessEvent(pindrop::AudioEngine* audio_engine, Character* character,
                     unsigned int event, const EventData& event_data);
@@ -177,7 +180,6 @@ class GameState {
   CharacterId CalculateCharacterTarget(CharacterId id) const;
   float CalculateCharacterFacingAngleVelocity(const Character* character,
                                               WorldTime delta_time) const;
-  mathfu::mat4 CameraMatrix() const;
   int RequestedTurn(CharacterId id) const;
   Angle TiltTowardsStageFront(const Angle angle) const;
   Angle TiltCharacterAwayFromCamera(CharacterId id, const Angle angle) const;
@@ -220,6 +222,8 @@ class GameState {
   DripAndVanishComponent drip_and_vanish_component_;
   // Component for drawing player characters:
   PlayerCharacterComponent player_character_component_;
+  // Component for drawing Cardboard mode information.
+  CardboardPlayerComponent cardboard_player_component_;
 
   // For multi-screen mode.
   MultiplayerDirector* multiplayer_director_;
@@ -227,11 +231,11 @@ class GameState {
   // Whether you are playing in multiscreen mode.
   bool is_multiscreen_;
 
-#ifdef ANDROID_CARDBOARD
   const Config* cardboard_config_;
   // Whether you are playing in Cardboard mode.
   bool is_in_cardboard_;
-#endif
+  // Whether it should use undistortion rendering in Cardboard.
+  bool use_undistort_rendering_;
 };
 
 }  // pie_noon

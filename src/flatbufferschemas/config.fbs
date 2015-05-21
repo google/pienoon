@@ -54,6 +54,8 @@ enum ButtonId : ushort {
   MenuMultiScreen,
   MenuMultiScreenHost,
   MenuMultiScreenJoin,
+  MenuCardboard,
+  MenuGameModes,
   Counter1,
   Counter2,
   Counter3,
@@ -83,6 +85,7 @@ enum ButtonId : ushort {
 // after it has been released.
 enum ButtonEvent : ushort (bit_flags) {
   ButtonPress,
+  ButtonUp,
   ButtonHold
 }
 
@@ -158,6 +161,61 @@ table StaticImageDef {
   render_after_buttons : bool = false;
 }
 
+// Used for imggui defining GUI components.
+// These are game specific definitions and parsed in the game code.
+enum GroupLayout : ushort  {
+  GroupLayoutHorizontalTop,
+  GroupLayoutHorizontalCenter,
+  GroupLayoutHorizontalBottom,
+  GroupLayoutVerticalLeft,
+  GroupLayoutVerticalCenter,
+  GroupLayoutVerticalRight,
+}
+
+// User defined widget that has background image and oscillating image on it.
+table ImguiButtonDef {
+  // Identifier for each widget.  Should be unique across the UIGroup.
+  ID : ButtonId;
+  size : float;
+  margin : Vec4;
+
+  // Material to display for the touch zone, both in its normal
+  // state, and when it is registering a press.
+  texture_foreground : string;
+  texture_background : string;
+  foreground_position : Vec2;
+  foreground_size_pressed : float;
+  foreground_size_focus : float = 1.0;
+  foreground_size : float;
+  draw_scale_normal : Vec2;
+  draw_scale_pressed : Vec2;
+  event_trigger : ButtonEvent = ButtonPress;
+  button_id : string;
+}
+
+table StartGroupDef {
+  // Identifier for each widget.  Should be unique across the UIGroup.
+  ID : ButtonId;
+  layout : GroupLayout = GroupLayoutHorizontalCenter;
+  size : float;
+  margin : Vec4;
+  texture_background : string;
+}
+
+table EndGroupDef {
+  // Identifier for each widget.  Should be unique across the UIGroup.
+  ID : ButtonId;
+}
+
+union ImguiWidgetUnion {
+  StartGroupDef, ImguiButtonDef, EndGroupDef
+}
+
+table ImguiWidget {
+  // Type of the widget.
+  data : ImguiWidgetUnion;
+}
+
 table UiGroup {
   allow_controller_navigation : bool;
   starting_selection : ButtonId;
@@ -166,6 +224,8 @@ table UiGroup {
   cannonical_window_height : int;
   default_shader : string;
   default_inactive_shader: string;
+
+  imgui_list : [ImguiWidget];
 }
 
 table FixedAccessory {
@@ -275,7 +335,7 @@ table CameraMovementToSubject {
   time:int;
 
   // Parameterization of the magnet.
-  def:SmoothParameters;
+  def:motive.SmoothParameters;
 }
 
 table TurnLengthSpec {
@@ -425,7 +485,7 @@ table Config {
   scoring_rules:ScoringRules;
 
   // Audio engine configuration.
-  audio:AudioConfig;
+  audio:pindrop.AudioConfig;
 
   // Where the camera should be positioned.
   camera_position:Vec3;
@@ -504,8 +564,8 @@ table Config {
 
   // Defines the turning speed and wobble of the character's face angle, when
   // changing targets.
-  face_angle_def:OvershootParameters;
-  face_angle_twitch:Settled1fParameters;
+  face_angle_def:motive.OvershootParameters;
+  face_angle_twitch:motive.Settled1fParameters;
   face_angle_twitch_velocity:float;
 
   // Defines the angle that characters will tilt away from when looking
@@ -515,7 +575,7 @@ table Config {
   // Defines the movement of pies that count-down during the "join" state.
   // The pies gradually disappear one at a time to give the appearance of a
   // timer.
-  join_motivator_def:OvershootParameters;
+  join_motivator_def:motive.OvershootParameters;
   join_motivator_start_value:float;
   join_motivator_target_value:float;
   join_motivator_start_velocity:float;
@@ -533,7 +593,7 @@ table Config {
   blocked_sound_id_for_pie_damage:[string];
 
   // Defines how props shake when nearby characters are damaged.
-  motivator_specifications:[OvershootParameters];
+  motivator_specifications:[motive.OvershootParameters];
 
   // Maximum velocity that is added to the prop shake. In radians per tick.
   prop_shake_velocity:float;
@@ -669,17 +729,36 @@ table Config {
   renderables:[CardboardFigure];
 
   // Definition for pie splatter particles:
-  pie_splatter_def:ParticleDef;
+  pie_splatter_def:fpl.ParticleDef;
   pie_noon_particles_per_damage:int;
 
   // Confetti for the victor.
-  confetti_def:ParticleDef;
+  confetti_def:fpl.ParticleDef;
 
   // How much confetti to spawn when they press buttons.
   joining_confetti_count:int;
 
   // Burst of confetti when you join.
-  joining_confetti_def:ParticleDef;
+  joining_confetti_def:fpl.ParticleDef;
+
+  // Description of centering bar used during Cardboard mode
+  cardboard_center_material:string;
+  cardboard_center_scale:Vec2;
+  cardboard_center_color:Vec4;
+
+  // In world UI elements used in Cardboard mode
+  // Scale (0-1) between the player and their target
+  target_reticle_distance:float;
+  // Height of the reticle
+  target_reticle_height:float;
+  // Offset of the player's current pie size
+  cardboard_pie_offset:Vec3;
+  // The scale of the player's current pie size
+  cardboard_pie_scale:Vec3;
+  // Offset of the player's current health
+  cardboard_health_offset:Vec3;
+  // Scale to use for the player's arrow in the X direction
+  cardboard_arrow_scale:float;
 
   // AI options
   // Variance for how long AI players go without acting:
@@ -725,6 +804,8 @@ table Config {
   msx_connection_lost_screen_buttons:UiGroup;
   multiplayer_host:UiGroup;
   multiplayer_client:UiGroup;
+  cardboard_screen_buttons:UiGroup;
+  game_modes_screen_buttons:UiGroup;
 
   // Tutorial
   //

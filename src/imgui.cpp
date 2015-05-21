@@ -19,26 +19,23 @@
 namespace fpl {
 namespace gui {
 
-enum Alignment {
-  ALIGN_TOPLEFT,
-  ALIGN_CENTER,
-  ALIGN_BOTTOMRIGHT,
-};
-
-bool IsVertical(Layout layout) { return layout >= LAYOUT_VERTICAL_LEFT; }
+Direction GetDirection(Layout layout) {
+  return static_cast<Direction>(layout & ~(DIR_HORIZONTAL - 1));
+}
 
 Alignment GetAlignment(Layout layout) {
-  return static_cast<Alignment>(
-      layout -
-      (IsVertical(layout) ? LAYOUT_VERTICAL_LEFT - LAYOUT_HORIZONTAL_TOP : 0));
+  return static_cast<Alignment>(layout & (DIR_HORIZONTAL - 1));
 }
+
+static const char *kDummyId = "__null_id__";
 
 // This holds the transient state of a group while its layout is being
 // calculated / rendered.
 class Group {
  public:
-  Group(bool _vertical, Alignment _align, int _spacing, size_t _element_idx)
-      : vertical_(_vertical),
+  Group(Direction _direction, Alignment _align, int _spacing,
+        size_t _element_idx)
+      : direction_(_direction),
         align_(_align),
         spacing_(_spacing),
         size_(mathfu::kZeros2i),
@@ -49,14 +46,24 @@ class Group {
   // Extend this group with the size of a new element, and possibly spacing
   // if it wasn't the first element.
   void Extend(const vec2i &extension) {
-    size_ = vertical_
-                ? vec2i(std::max(size_.x(), extension.x()),
-                        size_.y() + extension.y() + (size_.y() ? spacing_ : 0))
-                : vec2i(size_.x() + extension.x() + (size_.x() ? spacing_ : 0),
-                        std::max(size_.y(), extension.y()));
+    switch (direction_) {
+      case DIR_HORIZONTAL:
+        size_ = vec2i(size_.x() + extension.x() + (size_.x() ? spacing_ : 0),
+                      std::max(size_.y(), extension.y()));
+        break;
+      case DIR_VERTICAL:
+        size_ = vec2i(std::max(size_.x(), extension.x()),
+                      size_.y() + extension.y() + (size_.y() ? spacing_ : 0));
+        break;
+      case DIR_OVERLAY:
+        size_ = vec2i(std::max(size_.x(), extension.x()),
+                      std::max(size_.y(), extension.y()));
+        break;
+
+    }
   }
 
-  bool vertical_;
+  Direction direction_;
   Alignment align_;
   int spacing_;
   vec2i size_;
@@ -74,24 +81,32 @@ InternalState *state = nullptr;
 
 class InternalState : public Group {
  public:
+  // We create one of these per GUI element, so new fields should only be
+  // added when absolutely necessary.
   struct Element {
     Element(const vec2i &_size, const char *_id)
-        : size(_size), id(_id), interactive(false) {}
-
-    vec2i size;        // Minimum size computed by layout pass.
+        : size(_size),
+          extra_size(mathfu::kZeros2i),
+          id(_id),
+          interactive(false) {}
+    vec2i size;        // Minimum on-screen size computed by layout pass.
+    vec2i extra_size;  // Additional size in a scrolling area (TODO: remove?)
     const char *id;    // Id specified by the user.
     bool interactive;  // Wants to respond to user input.
   };
 
   InternalState(MaterialManager &matman, FontManager &fontman,
                 InputSystem &input)
-      : Group(true, ALIGN_TOPLEFT, 0, 0),
+      : Group(DIR_VERTICAL, ALIGN_TOPLEFT, 0, 0),
         layout_pass_(true),
-        canvas_size_(matman.renderer().window_size()),
         virtual_resolution_(IMGUI_DEFAULT_VIRTUAL_RESOLUTION),
         matman_(matman),
+        renderer_(matman.renderer()),
         input_(input),
         fontman_(fontman),
+        clip_position_(mathfu::kZeros2i),
+        clip_size_(mathfu::kZeros2i),
+        clip_inside_(false),
         pointer_max_active_index_(-1),
         gamepad_has_focus_element(false),
         gamepad_event(EVENT_HOVER) {
@@ -103,6 +118,7 @@ class InternalState : public Group {
     // TODO: pointer_max_active_index_ should start at -1 if on a touchscreen.
     for (int i = 0; i < InputSystem::kMaxSimultanuousPointers; i++) {
       pointer_buttons_[i] = &input.GetPointerButton(i);
+      clip_mouse_inside_[i] = true;
       if (pointer_buttons_[i]->is_down() || pointer_buttons_[i]->went_down() ||
           pointer_buttons_[i]->went_up()) {
         pointer_max_active_index_ = std::max(pointer_max_active_index_, i);
@@ -148,8 +164,24 @@ class InternalState : public Group {
 
   // Initialize the scaling factor for the virtual resolution.
   void SetScale() {
-    auto scale = vec2(matman_.renderer().window_size()) / virtual_resolution_;
+    auto scale = vec2(renderer_.window_size()) / virtual_resolution_;
     pixel_scale_ = std::min(scale.x(), scale.y());
+  }
+
+  // Retrieve the scaling factor for the virtual resolution.
+  float GetScale() { return pixel_scale_; }
+
+  // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
+  // and the bottom right the windows size in pixels.
+  // This is currently hardcoded to use overlay on top of the entire GL window.
+  // If that ever changes, we also need to change our use of glScissor below.
+  void SetOrtho() {
+    auto res = renderer_.window_size();
+    auto ortho_mat = mathfu::OrthoHelper<float>(
+                       0.0f, static_cast<float>(res.x()),
+                       static_cast<float>(res.y()), 0.0f,
+                       -1.0f, 1.0f);
+    renderer_.model_view_projection() = ortho_mat;
   }
 
   // Compute a space offset for a particular alignment for just the x or y
@@ -171,27 +203,30 @@ class InternalState : public Group {
 
   // Determines placement for the UI as a whole inside the available space
   // (screen).
-  void PositionUI(const vec2i &canvas_size, float virtual_resolution,
+  void PositionUI(float virtual_resolution,
                   Alignment horizontal, Alignment vertical) {
     if (layout_pass_) {
-      canvas_size_ = canvas_size;
       virtual_resolution_ = virtual_resolution;
       SetScale();
     } else {
-      auto space = canvas_size_ - size_;
+      auto space = renderer_.window_size() - size_;
       position_ += AlignDimension(horizontal, 0, space) +
                    AlignDimension(vertical, 1, space);
     }
   }
 
-  // Switch from the layout pass to the render/event pass.
+  // Switch from the layout pass to the render pass.
   void StartRenderPass() {
     // If you hit this assert, you are missing an EndGroup().
     assert(!group_stack_.size());
 
+    // Do nothing if there is no elements.
+    if (elements_.size() == 0) return;
+
     // Update font manager if they need to upload font atlas texture.
     fontman_.StartRenderPass();
 
+    position_ = mathfu::kZeros2i;
     size_ = elements_[0].size;
 
     layout_pass_ = false;
@@ -200,10 +235,10 @@ class InternalState : public Group {
     CheckGamePadNavigation();
   }
 
-  // (render pass): retrieve the next corresponding cached element we
+  // (event/render pass): retrieve the next corresponding cached element we
   // created in the layout pass. This is slightly more tricky than a straight
   // lookup because event handlers may insert/remove elements.
-  const Element *NextElement(const char *id) {
+  Element *NextElement(const char *id) {
     auto backup = element_it_;
     while (element_it_ != elements_.end()) {
       // This loop usually returns on the first iteration, the only time it
@@ -226,33 +261,50 @@ class InternalState : public Group {
   // (render pass): move the group's current position past an element of
   // the given size.
   void Advance(const vec2i &size) {
-    position_ += vertical_ ? vec2i(0, size.y() + spacing_)
-                           : vec2i(size.x() + spacing_, 0);
+    switch (direction_) {
+      case DIR_HORIZONTAL:
+        position_ += vec2i(size.x() + spacing_, 0);
+        break;
+      case DIR_VERTICAL:
+        position_ += vec2i(0, size.y() + spacing_);
+        break;
+      case DIR_OVERLAY:
+        // Keep at starting position.
+        break;
+    }
   }
 
   // (render pass): return the position of the current element, as a function
   // of the group's current position and the alignment.
   vec2i Position(const Element &element) {
-    return position_ + margin_.xy() +
-           AlignDimension(align_, vertical_ ? 0 : 1,
-                          size_ - element.size - margin_.xy() - margin_.zw());
-  }
-
-  void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
-                  const vec2i &size) {
-    auto &renderer = matman_.renderer();
-    renderer.color() = color;
-    sh->Set(renderer);
-    Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0));
+    auto pos = position_ + margin_.xy();
+    auto space = size_ - element.size - margin_.xy() - margin_.zw();
+    switch (direction_) {
+      case DIR_HORIZONTAL:
+        pos += AlignDimension(align_, 1, space);
+        break;
+      case DIR_VERTICAL:
+        pos += AlignDimension(align_, 0, space);
+        break;
+      case DIR_OVERLAY:
+        pos += AlignDimension(align_, 0, space);
+        pos += AlignDimension(align_, 1, space);
+        break;
+    }
+    return pos;
   }
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
                   const vec2i &size, const vec4 &uv) {
-    auto &renderer = matman_.renderer();
-    renderer.color() = color;
-    sh->Set(renderer);
-    Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
-                             uv.xy(), uv.zw());
+      renderer_.color() = color;
+      sh->Set(renderer_);
+      Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
+                               uv.xy(), uv.zw());
+  }
+
+  void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
+                  const vec2i &size) {
+    RenderQuad(sh, color, pos, size, vec4(0, 0, 1, 1));
   }
 
   // An image element.
@@ -270,19 +322,20 @@ class InternalState : public Group {
     } else {
       auto element = NextElement(texture_name);
       if (element) {
-        auto position = Position(*element);
         tex->Set(0);
-        RenderQuad(image_shader_, mathfu::kOnes4f, position, element->size);
+        RenderQuad(image_shader_, mathfu::kOnes4f, Position(*element),
+                   element->size);
         Advance(element->size);
       }
     }
   }
+
   // Text label.
   void Label(const char *text, float ysize) {
     // Set text color.
-    matman_.renderer().color() = text_color_;
+    renderer_.color() = text_color_;
 
-#ifdef USE_GLYPHCACHE
+#   if USE_GLYPHCACHE
     auto size = VirtualToPhysical(vec2(0, ysize));
     auto buffer = fontman_.GetBuffer(text, size.y());
     if (layout_pass_) {
@@ -309,12 +362,11 @@ class InternalState : public Group {
 
       auto element = NextElement(text);
       if (element) {
-        auto position = Position(*element);
         fontman_.GetAtlasTexture()->Set(0);
 
-        font_shader_->Set(matman_.renderer());
-        font_shader_->SetUniform("pos_offset",
-                                 vec3(position.x(), position.y(), 0.f));
+        font_shader_->Set(renderer_);
+        auto pos = Position(*element);
+        font_shader_->SetUniform("pos_offset", vec3(pos.x(), pos.y(), 0.0f));
 
         const Attribute kFormat[] = {kPosition3f, kTexCoord2f, kEND};
         Mesh::RenderArray(
@@ -322,11 +374,10 @@ class InternalState : public Group {
             sizeof(FontVertex),
             reinterpret_cast<const char *>(buffer->get_vertices()->data()),
             buffer->get_indices()->data());
-
         Advance(element->size);
       }
     }
-#else
+#   else
     font_shader_->SetUniform("pos_offset", vec3(0.0f, 0.0f, 0.f));
 
     auto size = VirtualToPhysical(vec2(0, ysize));
@@ -343,11 +394,10 @@ class InternalState : public Group {
     } else {
       auto element = NextElement(text);
       if (element) {
-        auto position = Position(*element);
         tex->Set(0);
         // Note that some glyphs may render outside of element boundary.
-        vec2i pos =
-            position - vec2i(0, tex->metrics().internal_leading() * scale);
+        vec2i pos = Position(*element) -
+                    vec2i(0, tex->metrics().internal_leading() * scale);
         vec2i size = vec2i(element->size) +
                      vec2i(0, (tex->metrics().internal_leading() -
                                tex->metrics().external_leading()) *
@@ -356,13 +406,39 @@ class InternalState : public Group {
         Advance(element->size);
       }
     }
-#endif
+#   endif
+  }
+
+  // Custom element with user supplied renderer.
+  void CustomElement(
+      const vec2 &virtual_size, const char *id,
+      const std::function<void(const vec2i &pos, const vec2i &size)> renderer) {
+    if (layout_pass_) {
+      auto size = VirtualToPhysical(virtual_size);
+      NewElement(size, id);
+      Extend(size);
+    } else {
+      auto element = NextElement(id);
+      if (element) {
+        renderer(Position(*element), element->size);
+        Advance(element->size);
+      }
+    }
+  }
+
+  // Render texture on the screen.
+  void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size) {
+    if (!layout_pass_) {
+      tex.Set(0);
+      RenderQuad(image_shader_, mathfu::kOnes4f, pos, size);
+    }
   }
 
   // An element that has sub-elements. Tracks its state in an instance of
   // Layout, that is pushed/popped from the stack as needed.
-  void StartGroup(bool vertical, Alignment align, int spacing, const char *id) {
-    Group layout(vertical, align, spacing, elements_.size());
+  void StartGroup(Direction direction, Alignment align, float spacing,
+                  const char *id) {
+    Group layout(direction, align, spacing, elements_.size());
     group_stack_.push_back(*this);
     if (layout_pass_) {
       NewElement(mathfu::kZeros2i, id);
@@ -395,14 +471,88 @@ class InternalState : public Group {
       Extend(size);
       // Set the size of this group as the size of the element tracking it.
       elements_[element_idx].size = size;
+      // TODO: we currently just make the last group in any overlay group
+      // the one to receive events. This is sufficient for popups, but it be
+      // better if this could also be specified manually.
+      if (direction_ == DIR_OVERLAY) {
+        // Simply mark all elements before this last group as non-interactive.
+        for (size_t i = 0; i < element_idx; i++)
+          elements_[i].interactive = false;
+      }
     } else {
-      Advance(size);
+      Advance(elements_[element_idx].size);
     }
   }
 
   void SetMargin(const Margin &margin) {
     margin_ = VirtualToPhysical(margin.borders);
   }
+
+  void StartScroll(const vec2 &size, vec2i *offset) {
+    auto psize = VirtualToPhysical(size);
+    if (layout_pass_) {
+      // If you hit this assert, you are nesting scrolling areas, which is
+      // not supported.
+      assert(!clip_inside_);
+      clip_inside_ = true;
+      // Pass this size to EndScroll.
+      clip_size_ = psize;
+    } else {
+      // This currently assumes an ortho camera that corresponds to all pixels
+      // of the GL screen, which is exactly what Run() sets up.
+      // If that ever changes, this call will have to get more complicated,
+      // translating to whereever the GUI is placed, or in the case of 3D
+      // placement use another technique alltogether (render to texture,
+      // glClipPlane, or stencil buffer).
+      // TODO: does not support a scrolling area inside a scrolling area,
+      // should assert if this is attempted.
+      glEnable(GL_SCISSOR_TEST);
+      glScissor(position_.x(),
+                renderer_.window_size().y() - position_.y() - psize.y(),
+                psize.x(),
+                psize.y());
+      // Scroll the pane on user input.
+      // TODO: this will need to be generalized, as mousewheel only works on
+      // desktops.
+      const int scroll_speed = -16;  // TODO: configurable?
+      *offset = vec2i::Min(elements_[element_idx_].extra_size,
+                    vec2i::Max(mathfu::kZeros2i,
+                        *offset + input_.mousewheel_delta() * scroll_speed));
+      // See if the mouse is outside the clip area, so we can avoid events
+      // being triggered by elements that are not visible.
+      for (int i = 0; i <= pointer_max_active_index_; i++) {
+        if (!mathfu::InRange2D(input_.pointers_[i].mousepos,
+                               position_, position_ + psize)) {
+          clip_mouse_inside_[i] = false;
+        }
+      }
+      // Store size/position, so expensive rendering commands can choose to
+      // clip against the viewport.
+      // TODO: add culling code where appropriate.
+      clip_size_ = psize;
+      clip_position_ = position_;
+      // Start the rendering of this group at the offset before the start of
+      // the window to clip against. Also makes events work correctly.
+      position_ -= *offset;
+    }
+  }
+
+  void EndScroll() {
+    if (layout_pass_) {
+      // Track original size.
+      elements_[element_idx_].extra_size = size_ - clip_size_;
+      // Overwrite what was computed for the elements.
+      size_ = clip_size_;
+      clip_inside_ = false;
+    } else {
+      for (int i = 0; i <= pointer_max_active_index_; i++) {
+        clip_mouse_inside_[i] = true;
+      }
+      glDisable(GL_SCISSOR_TEST);
+    }
+  }
+
+  vec2i GroupSize() { return size_  + elements_[element_idx_].extra_size; }
 
   void RecordId(const char *id, int i) { persistent_.pointer_element[i] = id; }
   bool SameId(const char *id, int i) {
@@ -414,38 +564,42 @@ class InternalState : public Group {
     if (layout_pass_) {
       element.interactive = true;
     } else {
-      // We only fire events during the second pass.
-      auto id = element.id;
-      // pointer_max_active_index_ is typically 0, so loop not expensive.
-      for (int i = 0; i <= pointer_max_active_index_; i++) {
-        if (mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
-                              position_ + size_)) {
-          auto &button = *pointer_buttons_[i];
-          int event = 0;
+      // We only fire events after the layout pass.
+      // Check if this is an inactive part of an overlay.
+      if (element.interactive) {
+        auto id = element.id;
+        // pointer_max_active_index_ is typically 0, so loop not expensive.
+        for (int i = 0; i <= pointer_max_active_index_; i++) {
+          if (clip_mouse_inside_[i] &&
+              mathfu::InRange2D(input_.pointers_[i].mousepos,
+                                position_, position_ + size_)) {
+            auto &button = *pointer_buttons_[i];
+            int event = 0;
 
-          if (button.went_down()) {
-            RecordId(id, i);
-            event |= EVENT_WENT_DOWN;
+            if (button.went_down()) {
+              RecordId(id, i);
+              event |= EVENT_WENT_DOWN;
+            }
+            if (button.went_up() && SameId(id, i)) {
+              event |= EVENT_WENT_UP;
+            } else if (button.is_down() && SameId(id, i)) {
+              event |= EVENT_IS_DOWN;
+              // Record the last element we received an up on, as the target
+              // for keyboard input.
+              persistent_.keyboard_focus = id;
+            }
+            if (!event) event = EVENT_HOVER;
+            // We only report an event for the first finger to touch an element.
+            // This is intentional.
+            return static_cast<Event>(event);
           }
-          if (button.went_up() && SameId(id, i)) {
-            event |= EVENT_WENT_UP;
-          } else if (button.is_down() && SameId(id, i)) {
-            event |= EVENT_IS_DOWN;
-            // Record the last element we received an up on, as the target
-            // for keyboard input.
-            persistent_.keyboard_focus = id;
-          }
-          if (!event) event = EVENT_HOVER;
-          // We only report an event for the first finger to touch an element.
-          // This is intentional.
-          return static_cast<Event>(event);
         }
-      }
-      // Generate hover events for the current element the gamepad is focused
-      // on.
-      if (EqualId(persistent_.gamepad_focus, id)) {
-        gamepad_has_focus_element = true;
-        return gamepad_event;
+        // Generate hover events for the current element the gamepad is focused
+        // on.
+        if (EqualId(persistent_.gamepad_focus, id)) {
+          gamepad_has_focus_element = true;
+          return gamepad_event;
+        }
       }
     }
     return EVENT_NONE;
@@ -460,15 +614,15 @@ class InternalState : public Group {
 
   void CheckGamePadNavigation() {
     int dir = 0;
-// FIXME: this should work on other platforms too.
-#ifdef ANDROID_GAMEPAD
+    // FIXME: this should work on other platforms too.
+#   ifdef ANDROID_GAMEPAD
     auto &gamepads = input_.GamepadMap();
     for (auto &gamepad : gamepads) {
       dir = CheckButtons(gamepad.second.GetButton(Gamepad::kLeft),
                          gamepad.second.GetButton(Gamepad::kRight),
                          gamepad.second.GetButton(Gamepad::kButtonA));
     }
-#endif
+#   endif
     // For testing, also support keyboard:
     dir =
         CheckButtons(input_.GetButton(SDLK_LEFT), input_.GetButton(SDLK_RIGHT),
@@ -507,34 +661,62 @@ class InternalState : public Group {
         i = -1;
       // Back where we started, either there's no interactive elements, or
       // the vector is empty.
-      if (i == start) return dummy_id();
+      if (i == start) return kDummyId;
       if (elements_[i].interactive) return elements_[i].id;
     }
   }
 
   void ColorBackground(const vec4 &color) {
-    RenderQuad(color_shader_, color, position_, size_);
+    if (!layout_pass_) {
+      RenderQuad(color_shader_, color, position_, GroupSize());
+    }
+  }
+
+  void ImageBackground(const Texture &tex) {
+    if (!layout_pass_) {
+      tex.Set(0);
+      RenderQuad(image_shader_, mathfu::kOnes4f, position_, GroupSize());
+    }
+  }
+
+  void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info) {
+    if (!layout_pass_) {
+      tex.Set(0);
+      renderer_.color() = mathfu::kOnes4f;
+      image_shader_->Set(renderer_);
+      auto pos = position_;
+      Mesh::RenderAAQuadAlongXNinePatch(vec3(vec2(pos), 0),
+                                        vec3(vec2(pos + GroupSize()), 0),
+                                        tex.size(),
+                                        patch_info);
+    }
   }
 
   // Set Label's text color.
   void SetTextColor(const vec4 &color) { text_color_ = color; }
 
-  static const char *dummy_id() { return "__null_id__"; }
-
   bool layout_pass_;
   std::vector<Element> elements_;
-  std::vector<Element>::const_iterator element_it_;
+  std::vector<Element>::iterator element_it_;
   std::vector<Group> group_stack_;
   vec2i canvas_size_;
   float virtual_resolution_;
   float pixel_scale_;
 
   MaterialManager &matman_;
+  Renderer &renderer_;
   InputSystem &input_;
   FontManager &fontman_;
   Shader *image_shader_;
   Shader *font_shader_;
   Shader *color_shader_;
+
+  // Expensive rendering commands can check if they're inside this rect to
+  // cull themselves inside a scrolling group.
+  vec2i clip_position_;
+  vec2i clip_size_;
+  bool clip_mouse_inside_[InputSystem::kMaxSimultanuousPointers];
+  bool clip_inside_;
 
   // Widget properties.
   mathfu::vec4 text_color_;
@@ -550,9 +732,9 @@ class InternalState : public Group {
       // This is effectively a global, so no memory allocation or other
       // complex initialization here.
       for (int i = 0; i < InputSystem::kMaxSimultanuousPointers; i++) {
-        pointer_element[i] = dummy_id();
+        pointer_element[i] = kDummyId;
       }
-      gamepad_focus = keyboard_focus = dummy_id();
+      gamepad_focus = keyboard_focus = kDummyId;
     }
 
     // For each pointer, the element id that last received a down event.
@@ -580,15 +762,9 @@ void Run(MaterialManager &matman, FontManager &fontman, InputSystem &input,
   // Second pass:
   internal_state.StartRenderPass();
 
-  // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
-  // and the bottom right the windows size in pixels.
-  auto &renderer = matman.renderer();
-  auto res = renderer.window_size();
-  auto ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
-                                              static_cast<float>(res.y()), 0.0f,
-                                              -1.0f, 1.0f);
-  renderer.model_view_projection() = ortho_mat;
+  internal_state.SetOrtho();
 
+  auto &renderer = matman.renderer();
   renderer.SetBlendMode(kBlendModeAlpha);
   renderer.DepthTest(false);
 
@@ -608,13 +784,31 @@ void Image(const char *texture_name, float size) {
 
 void Label(const char *text, float size) { Gui()->Label(text, size); }
 
-void StartGroup(Layout layout, int spacing, const char *id) {
-  Gui()->StartGroup(IsVertical(layout), GetAlignment(layout), spacing, id);
+void StartGroup(Layout layout, float spacing, const char *id) {
+  Gui()->StartGroup(GetDirection(layout), GetAlignment(layout), spacing, id);
 }
 
 void EndGroup() { Gui()->EndGroup(); }
 
 void SetMargin(const Margin &margin) { Gui()->SetMargin(margin); }
+
+void StartScroll(const vec2 &size, vec2i *offset) {
+  Gui()->StartScroll(size, offset);
+}
+
+void EndScroll() {
+  Gui()->EndScroll();
+}
+
+void CustomElement(
+    const vec2 &virtual_size, const char *id,
+    const std::function<void(const vec2i &pos, const vec2i &size)> renderer) {
+  Gui()->CustomElement(virtual_size, id, renderer);
+}
+
+void RenderTexture(const Texture &tex, const vec2i &pos, const vec2i &size) {
+  Gui()->RenderTexture(tex, pos, size);
+}
 
 void SetTextColor(const mathfu::vec4 &color) { Gui()->SetTextColor(color); }
 
@@ -622,11 +816,22 @@ Event CheckEvent() { return Gui()->CheckEvent(); }
 
 void ColorBackground(const vec4 &color) { Gui()->ColorBackground(color); }
 
-void PositionUI(const vec2i &canvas_size, float virtual_resolution,
-                Layout horizontal, Layout vertical) {
-  Gui()->PositionUI(canvas_size, virtual_resolution, GetAlignment(horizontal),
+void ImageBackground(const Texture &tex) { Gui()->ImageBackground(tex); }
+
+void ImageBackgroundNinePatch(const Texture &tex, const vec4 &patch_info) {
+  Gui()->ImageBackgroundNinePatch(tex, patch_info);
+}
+
+void PositionUI(float virtual_resolution, Layout horizontal, Layout vertical) {
+  Gui()->PositionUI(virtual_resolution, GetAlignment(horizontal),
                     GetAlignment(vertical));
 }
+
+mathfu::vec2i VirtualToPhysical(const mathfu::vec2 &v) {
+  return Gui()->VirtualToPhysical(v);
+}
+
+float GetScale() { return Gui()->GetScale(); }
 
 // Example how to create a button. We will provide convenient pre-made
 // buttons like this, but it is expected many games will make custom buttons.
@@ -647,37 +852,65 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
              InputSystem &input) {
   static float f = 0.0f;
   f += 0.04f;
+  static bool show_about = false;
+  static vec2i scroll_offset(mathfu::kZeros2i);
 
-  Run(matman, fontman, input, [&matman]() {
-    PositionUI(matman.renderer().window_size(), 1000, LAYOUT_HORIZONTAL_CENTER,
+  auto click_about_example = [&](const char *id, bool about_on)
+  {
+    if (ImageButton("textures/text_about.webp", 50, id) == EVENT_WENT_UP) {
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked: %s", id);
+      show_about = about_on;
+    }
+  };
+
+  Run(matman, fontman, input, [&]() {
+    PositionUI(1000, LAYOUT_HORIZONTAL_CENTER,
                LAYOUT_VERTICAL_RIGHT);
-    StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
-    StartGroup(LAYOUT_VERTICAL_LEFT, 20);
-    if (ImageButton("textures/text_about.webp", 50, "my_id") == EVENT_WENT_UP)
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked!");
-    StartGroup(LAYOUT_HORIZONTAL_TOP, 0);
-    Label("Property T", 30);
-    SetTextColor(mathfu::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    Label("Test ", 30);
-    SetTextColor(mathfu::kOnes4f);
-    Label("ffWAWÄテスト", 30);
-    EndGroup();
-    Label("The quick brown fox jumps over the lazy dog", 32);
-    Label("The quick brown fox jumps over the lazy dog", 24);
-    Label("The quick brown fox jumps over the lazy dog", 20);
-    EndGroup();
-    StartGroup(LAYOUT_VERTICAL_CENTER, 40);
-    if (ImageButton("textures/text_about.webp", 50, "my_id2") == EVENT_WENT_UP)
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked 2!");
-    Image("textures/text_about.webp", 40);
-    Image("textures/text_about.webp", 30);
-    EndGroup();
-    StartGroup(LAYOUT_VERTICAL_RIGHT, 0);
-    SetMargin(Margin(100));
-    Image("textures/text_about.webp", 50);
-    Image("textures/text_about.webp", 40);
-    Image("textures/text_about.webp", 30);
-    EndGroup();
+    StartGroup(LAYOUT_OVERLAY_CENTER, 0);
+      StartGroup(LAYOUT_HORIZONTAL_TOP, 10);
+        StartGroup(LAYOUT_VERTICAL_LEFT, 20);
+          click_about_example("my_id1", true);
+          StartGroup(LAYOUT_HORIZONTAL_TOP, 0);
+            Label("Property T", 30);
+            SetTextColor(mathfu::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            Label("Test ", 30);
+            SetTextColor(mathfu::kOnes4f);
+            Label("ffWAWÄテスト", 30);
+          EndGroup();
+          StartGroup(LAYOUT_VERTICAL_LEFT, 20);
+            StartScroll(vec2(200, 100), &scroll_offset);
+              auto splash_tex = matman.FindTexture("textures/splash.webp");
+              ImageBackgroundNinePatch(*splash_tex,
+                                       vec4(0.2f, 0.2f, 0.8f, 0.8f));
+              Label("The quick brown fox jumps over the lazy dog", 32);
+              click_about_example("my_id4", true);
+              Label("The quick brown fox jumps over the lazy dog", 24);
+              Label("The quick brown fox jumps over the lazy dog", 20);
+            EndScroll();
+          EndGroup();
+        EndGroup();
+        StartGroup(LAYOUT_VERTICAL_CENTER, 40);
+          click_about_example("my_id2", true);
+          Image("textures/text_about.webp", 40);
+          Image("textures/text_about.webp", 30);
+        EndGroup();
+        StartGroup(LAYOUT_VERTICAL_RIGHT, 0);
+          SetMargin(Margin(100));
+          Image("textures/text_about.webp", 50);
+          Image("textures/text_about.webp", 40);
+          Image("textures/text_about.webp", 30);
+        EndGroup();
+      EndGroup();
+      if (show_about) {
+        StartGroup(LAYOUT_VERTICAL_LEFT, 20, "about_overlay");
+          SetMargin(Margin(10));
+          ColorBackground(vec4(0.5f, 0.5f, 0.0f, 1.0f));
+          click_about_example("my_id3", false);
+          Label("This is the about window! すし!", 32);
+          Label("You should only be able to click on the", 24);
+          Label("about button above, not anywhere else", 20);
+        EndGroup();
+      }
     EndGroup();
   });
 }

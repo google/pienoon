@@ -111,11 +111,9 @@ GameState::GameState()
       arrangement_(nullptr),
       sceneobject_component_(&engine_),
       multiplayer_director_(nullptr),
-      is_multiscreen_(false) {
-#ifdef ANDROID_CARDBOARD
-  is_in_cardboard_ = false;
-#endif
-}
+      is_multiscreen_(false),
+      is_in_cardboard_(false),
+      use_undistort_rendering_(true) {}
 
 GameState::~GameState() {}
 
@@ -198,12 +196,8 @@ void GameState::Reset() { Reset(analytics_mode_); }
 // Reset the game back to initial configuration.
 void GameState::Reset(AnalyticsMode analytics_mode) {
   time_ = 0;
-#ifdef ANDROID_CARDBOARD
   // Use a different config for defining the scene if in Cardboard
   const Config* layout_config = is_in_cardboard_ ? cardboard_config_ : config_;
-#else
-  const Config* layout_config = config_;
-#endif
   camera_base_.position = LoadVec3(layout_config->camera_position());
   camera_base_.target = LoadVec3(layout_config->camera_target());
   camera_.Initialize(camera_base_, &engine_);
@@ -220,15 +214,19 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
       &drip_and_vanish_component_);
   entity_manager_.RegisterComponent<PlayerCharacterComponent>(
       &player_character_component_);
+  entity_manager_.RegisterComponent<CardboardPlayerComponent>(
+      &cardboard_player_component_);
 
   // Shakable Prop Component needs to know about some of our structures:
   shakeable_prop_component_.set_engine(&engine_);
   shakeable_prop_component_.set_config(config_);
   shakeable_prop_component_.LoadMotivatorSpecs();
   player_character_component_.set_config(config_);
+  cardboard_player_component_.set_config(config_);
 
   entity_manager_.set_entity_factory(&pie_noon_entity_factory_);
   player_character_component_.set_gamestate_ptr(this);
+  cardboard_player_component_.set_gamestate_ptr(this);
   // Load Entities from flatbuffer!
   for (size_t i = 0; i < layout_config->entity_list()->size(); i++) {
     entity_manager_.CreateEntityFromData(layout_config->entity_list()->Get(i));
@@ -247,13 +245,11 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
         &engine_);
   }
 
-#ifdef ANDROID_CARDBOARD
   // When in cardboard, we want to make the first character invisible
   // as that is where the camera will be located
   if (is_in_cardboard_) {
     characters_[0]->set_visible(false);
   }
-#endif
 
   // Create player character entities:
   for (CharacterId id = 0; id < static_cast<CharacterId>(characters_.size());
@@ -262,6 +258,12 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
     PlayerCharacterData* pc_data =
         player_character_component_.AddEntity(entity);
     pc_data->character_id = id;
+
+    if (is_in_cardboard_ && id == 0) {
+      CardboardPlayerData* cp_data =
+          cardboard_player_component_.AddEntity(entity);
+      cp_data->character_id = 0;
+    }
   }
 
   particle_manager_.RemoveAllParticles();
@@ -315,16 +317,37 @@ static float CalculatePieRotations(const Config& config) {
   return config.pie_rotations() + bonus;
 }
 
+float GameState::CalculatePieYRotation(CharacterId source_id,
+                                       CharacterId target_id) const {
+  // The pie is rotated about Y a constant amount so that it's facing the
+  // target.
+  const auto& source = characters_[source_id];
+  const auto& target = characters_[target_id];
+  const vec3 vector_to_target = target->position() - source->position();
+  Angle angle_to_target = Angle::FromXZVector(vector_to_target);
+  if (is_in_cardboard_) {
+    // If it is going directly towards or away from the cardboard, we want to
+    // rotate it so it is visible
+    if (source_id == 0 || target_id == 0) {
+      angle_to_target += Angle::FromRadians(fpl::kHalfPi);
+    }
+  }
+  return -angle_to_target.ToRadians();
+}
+
 void GameState::CreatePie(CharacterId original_source_id, CharacterId source_id,
                           CharacterId target_id,
                           CharacterHealth original_damage,
                           CharacterHealth damage) {
-  const float peak_height = CalculatePieHeight(*config_);
+  const float peak_height =
+      CalculatePieHeight(is_in_cardboard_ ? *cardboard_config_ : *config_);
   const int rotations = CalculatePieRotations(*config_);
+  const float y_rotation = CalculatePieYRotation(source_id, target_id);
   pies_.push_back(std::unique_ptr<AirbornePie>(new AirbornePie(
       original_source_id, *characters_[source_id], *characters_[target_id],
       time_, config_->pie_flight_time(), original_damage, damage,
-      config_->pie_initial_height(), peak_height, rotations, &engine_)));
+      config_->pie_initial_height(), peak_height, rotations, y_rotation,
+      &engine_)));
 }
 
 CharacterId GameState::DetermineDeflectionTarget(const ReceivedPie& pie) const {
@@ -414,11 +437,8 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
       ShakeProps(shake_percent, character->position());
 
       // Move the camera.
-      if (total_damage >= config_->camera_move_on_damage_min_damage()
-#ifdef ANDROID_CARDBOARD
-          && !is_in_cardboard_
-#endif
-          ) {
+      if (total_damage >= config_->camera_move_on_damage_min_damage() &&
+          !is_in_cardboard_) {
         camera_.TerminateMovements();
         camera_.QueueMovement(
             CalculateCameraMovement(*config_->camera_move_on_damage(),
@@ -427,6 +447,7 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
             CalculateCameraMovement(*config_->camera_move_to_base(),
                                     character->position(), camera_base_));
       }
+      character->set_pie_damage(0);
       break;
     }
     case EventId_ReleasePie: {
@@ -441,6 +462,7 @@ void GameState::ProcessEvent(pindrop::AudioEngine* audio_engine,
       }
       ApplyScoringRule(config_->scoring_rules(), ScoreEvent_ThrewPie,
                        character->pie_damage(), character);
+      character->set_pie_damage(0);
       break;
     }
     case EventId_DeflectPie: {
@@ -849,7 +871,6 @@ void GameState::CreateJoinConfettiBurst(const Character& character) {
   const ParticleDef* def = config_->joining_confetti_def();
   vec3 character_color =
       LoadVec3(config_->character_colors()->Get(character.id()));
-
   SpawnParticles(
       character.position(), def, config_->joining_confetti_count(),
       vec4(character_color.x(), character_color.y(), character_color.z(), 1));
@@ -869,6 +890,12 @@ void GameState::SpawnParticles(const mathfu::vec3& position,
   const vec3 max_position_offset = LoadVec3(def->max_position_offset());
   const vec3 min_orientation_offset = LoadVec3(def->min_orientation_offset());
   const vec3 max_orientation_offset = LoadVec3(def->max_orientation_offset());
+
+  const Angle to_position = Angle::FromXZVector(position - camera().Position());
+  const vec3 additional_rotation =
+      is_in_cardboard()
+          ? vec3(0.0f, -(to_position.ToRadians() + fpl::kHalfPi), 0.0f)
+          : mathfu::kZeros3f;
 
   for (int i = 0; i < particle_count; i++) {
     Particle* p = particle_manager_.CreateParticle();
@@ -895,6 +922,7 @@ void GameState::SpawnParticles(const mathfu::vec3& position,
     p->set_base_position(position + vec3::RandomInRange(min_position_offset,
                                                         max_position_offset));
     p->set_base_orientation(
+        additional_rotation +
         vec3::RandomInRange(min_orientation_offset, max_orientation_offset));
     p->set_rotational_velocity(
         vec3::RandomInRange(min_angular_velocity, max_angular_velocity));
@@ -919,7 +947,8 @@ void GameState::AdvanceFrame(WorldTime delta_time,
                   countdown_timer_);
     }
   }
-  if (NumActiveCharacters(true) == 0) {
+  // Don't spawn in confetti when in cardboard, as it adds too many draw calls
+  if (NumActiveCharacters(true) == 0 && !is_in_cardboard()) {
     SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
   }
 
@@ -990,14 +1019,10 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     const CharacterId target_id = CalculateCharacterTarget(character->id());
     const Angle target_angle =
         AngleBetweenCharacters(character->id(), target_id);
-#ifdef ANDROID_CARDBOARD
     const Angle tilted_angle =
         is_in_cardboard_
             ? TiltCharacterAwayFromCamera(character->id(), target_angle)
             : TiltTowardsStageFront(target_angle);
-#else
-    const Angle tilted_angle = TiltTowardsStageFront(target_angle);
-#endif
     character->SetTarget(target_id, tilted_angle);
 
     // If we're requesting a turn but can't turn, move the face angle

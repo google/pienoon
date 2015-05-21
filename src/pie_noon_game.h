@@ -93,13 +93,12 @@ class PieNoonGame {
   void GetCardboardTransforms(mat4& left_eye_transform,
                               mat4& right_eye_transform);
   void CorrectCardboardCamera(mat4& cardboard_camera);
+  void RenderCardboardCenteringBar();
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
   void DebugCamera();
   const Config& GetConfig() const;
-#ifdef ANDROID_CARDBOARD
   const Config& GetCardboardConfig() const;
-#endif
   const CharacterStateMachineDef* GetStateMachine() const;
   Mesh* GetCardboardFront(int renderable_id);
   PieNoonState UpdatePieNoonState();

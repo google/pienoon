@@ -43,8 +43,10 @@ build/
 *.vcxproj.filters
 *.opensdf
 *.sdf
+*.pdb
 Debug/
 Win32/
+pingme.txt
 
 # qt creator
 *.cbp
