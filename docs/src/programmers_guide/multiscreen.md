@@ -5,6 +5,13 @@ Multi-screen Gameplay {#pie_noon_guide_gameplay_multiscreen}
 
 Multi-screen mode is a very different way of playing Pie Noon!
 
+\htmlonly
+<iframe width="560" height="315"
+  src="http://www.youtube.com/embed/aR5WQaq70fw?rel=0"
+  frameborder="0" allowfullscreen>
+</iframe>
+\endhtmlonly
+
 In this mode, you host a game on one Android device (most likely an
 Android TV, though you can host on tablets/phones as well) and join
 the game over local Wi-Fi on 1-4 Android phones or tablets.
