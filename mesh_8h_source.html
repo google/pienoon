@@ -178,37 +178,50 @@ $(document).ready(function(){initNavTree('mesh_8h_source.html','');});
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;                                 <span class="keyword">const</span> vec2 &amp;tex_bottom_left = vec2(0, 0),</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;                                 <span class="keyword">const</span> vec2 &amp;tex_top_right = vec2(1, 1));</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">// Compute normals and tangents given position and texcoords.</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> ComputeNormalsTangents(<a class="code" href="structfpl_1_1_normal_mapped_vertex.html">NormalMappedVertex</a> *vertices,</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                                     <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> *indices,</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                                     <span class="keywordtype">int</span> numverts, <span class="keywordtype">int</span> numindices);</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <span class="keyword">enum</span> {</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    kAttributePosition,</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    kAttributeNormal,</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    kAttributeTangent,</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    kAttributeTexCoord,</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    kAttributeColor</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  };</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> SetAttributes(GLuint vbo, <span class="keyword">const</span> Attribute *attributes,</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                            <span class="keywordtype">int</span> vertex_size, <span class="keyword">const</span> <span class="keywordtype">char</span> *buffer);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> UnSetAttributes(<span class="keyword">const</span> Attribute *attributes);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="keyword">struct </span>Indices {</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">int</span> count;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    GLuint ibo;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <a class="code" href="classfpl_1_1_material.html">Material</a> *mat;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">// Convenience method for rendering a Quad with nine patch settings.</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="comment">// In the patch_info, the user can define nine patch settings</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="comment">// as vec4(x0, y0, x1, y1) where</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  <span class="comment">// (x0,y0): top-left corner of stretchable area in UV coordinate.</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="comment">// (x1,y1): bottom-right corner of stretchable area in UV coordinate.</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> RenderAAQuadAlongXNinePatch(<span class="keyword">const</span> vec3 &amp;bottom_left,</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                                          <span class="keyword">const</span> vec3 &amp;top_right,</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                                          <span class="keyword">const</span> vec2i &amp;texture_size,</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                                          <span class="keyword">const</span> vec4 &amp;patch_info);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="comment">// Compute normals and tangents given position and texcoords.</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> ComputeNormalsTangents(<a class="code" href="structfpl_1_1_normal_mapped_vertex.html">NormalMappedVertex</a> *vertices,</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                                     <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> *indices,</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                                     <span class="keywordtype">int</span> numverts, <span class="keywordtype">int</span> numindices);</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <span class="keyword">enum</span> {</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    kAttributePosition,</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    kAttributeNormal,</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    kAttributeTangent,</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    kAttributeTexCoord,</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    kAttributeColor</div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  };</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  std::vector&lt;Indices&gt; indices_;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">size_t</span> vertex_size_;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keyword">const</span> Attribute *format_;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  GLuint vbo_;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;};</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;}  <span class="comment">// namespace fpl</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor">#endif  // FPL_MESH_H</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="comment">// Compute the byte size for a vertex from given attributes.</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> VertexSize(<span class="keyword">const</span> Attribute *attributes);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> SetAttributes(GLuint vbo, <span class="keyword">const</span> Attribute *attributes,</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                            <span class="keywordtype">int</span> vertex_size, <span class="keyword">const</span> <span class="keywordtype">char</span> *buffer);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> UnSetAttributes(<span class="keyword">const</span> Attribute *attributes);</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="keyword">struct </span>Indices {</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">int</span> count;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    GLuint ibo;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <a class="code" href="classfpl_1_1_material.html">Material</a> *mat;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  };</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  std::vector&lt;Indices&gt; indices_;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  <span class="keywordtype">size_t</span> vertex_size_;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="keyword">const</span> Attribute *format_;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  GLuint vbo_;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;};</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;}  <span class="comment">// namespace fpl</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="preprocessor">#endif  // FPL_MESH_H</span></div>
 <div class="ttc" id="classfpl_1_1_renderer_html"><div class="ttname"><a href="classfpl_1_1_renderer.html">fpl::Renderer</a></div><div class="ttdef"><b>Definition:</b> renderer.h:32</div></div>
 <div class="ttc" id="classfpl_1_1_material_html"><div class="ttname"><a href="classfpl_1_1_material.html">fpl::Material</a></div><div class="ttdef"><b>Definition:</b> material.h:89</div></div>
 <div class="ttc" id="classfpl_1_1_mesh_html"><div class="ttname"><a href="classfpl_1_1_mesh.html">fpl::Mesh</a></div><div class="ttdef"><b>Definition:</b> mesh.h:50</div></div>

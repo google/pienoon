@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Pie Noon: drip_and_vanish.h Source File</title>
+<title>Pie Noon: cardboard_player.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('drip__and__vanish_8h_source.html','');});
+$(document).ready(function(){initNavTree('cardboard__player_8h_source.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -97,7 +97,7 @@ $(document).ready(function(){initNavTree('drip__and__vanish_8h_source.html','');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">drip_and_vanish.h</div>  </div>
+<div class="title">cardboard_player.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2015 Google Inc. All rights reserved.</span></div>
@@ -114,47 +114,59 @@ $(document).ready(function(){initNavTree('drip__and__vanish_8h_source.html','');
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">// See the License for the specific language governing permissions and</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">// limitations under the License.</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#ifndef COMPONENTS_DRIPANDVANISH_H_</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define COMPONENTS_DRIPANDVANISH_H_</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#ifndef COMPONENTS_CARDBOARD_PLAYER_H_</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define COMPONENTS_CARDBOARD_PLAYER_H_</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;entity/component.h&quot;</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;common.h&quot;</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;components_generated.h&quot;</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &quot;scene_description.h&quot;</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &quot;mathfu/constants.h&quot;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;common.h&quot;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;components_generated.h&quot;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;config_generated.h&quot;</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &quot;entity/component.h&quot;</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &quot;scene_description.h&quot;</span></div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">namespace </span>fpl {</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">namespace </span>pie_noon {</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">// Data for accessory components.</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="structfpl_1_1pie__noon_1_1_drip_and_vanish_data.html">   28</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1pie__noon_1_1_drip_and_vanish_data.html">DripAndVanishData</a> {</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keywordtype">float</span> lifetime_remaining;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <span class="keywordtype">float</span> slide_time;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordtype">float</span> drip_distance;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  mathfu::vec3_packed start_position;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  mathfu::vec3_packed start_scale;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;};</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">// Basic behavior for pie splatters:  They stay there for a while,</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">// and then they slowly drip down and vanish.</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classfpl_1_1pie__noon_1_1_drip_and_vanish_component.html">   38</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1pie__noon_1_1_drip_and_vanish_component.html">DripAndVanishComponent</a> : <span class="keyword">public</span> <a class="code" href="classfpl_1_1entity_1_1_component.html">entity::Component</a>&lt;DripAndVanishData&gt; {</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">class </span>GameState;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">const</span> <span class="keywordtype">int</span> kMaxHealthAccessories = 3;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="structfpl_1_1pie__noon_1_1_cardboard_player_data.html">   31</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1pie__noon_1_1_cardboard_player_data.html">CardboardPlayerData</a> {</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> target_reticle;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> loaded_pie;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> health[kMaxHealthAccessories];</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  CharacterId character_id;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;};</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classfpl_1_1pie__noon_1_1_cardboard_player_component.html">   38</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1pie__noon_1_1_cardboard_player_component.html">CardboardPlayerComponent</a> : <span class="keyword">public</span> <a class="code" href="classfpl_1_1entity_1_1_component.html">entity::Component</a>&lt;CardboardPlayerData&gt; {</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; <span class="keyword">public</span>:</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> AddFromRawData(<a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a>&amp; entity, <span class="keyword">const</span> <span class="keywordtype">void</span>* data);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> UpdateAllEntities(entity::WorldTime <span class="comment">/*delta_time*/</span>);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> UpdateAllEntities(entity::WorldTime delta_time);</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> InitEntity(<a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a>&amp; entity);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordtype">void</span> SetStartingValues(<a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a>&amp; entity);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;};</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}  <span class="comment">// pie_noon</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}  <span class="comment">// fpl</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keywordtype">void</span> set_gamestate_ptr(<a class="code" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a>* gamestate_ptr) {</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    gamestate_ptr_ = gamestate_ptr;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  }</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keywordtype">void</span> set_config(<span class="keyword">const</span> Config* config) { config_ = config; }</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;FPL_ENTITY_REGISTER_COMPONENT(<a class="code" href="classfpl_1_1pie__noon_1_1_drip_and_vanish_component.html">fpl::pie_noon::DripAndVanishComponent</a>,</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                              <a class="code" href="structfpl_1_1pie__noon_1_1_drip_and_vanish_data.html">fpl::pie_noon::DripAndVanishData</a>,</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;                              fpl::pie_noon::ComponentDataUnion_DripAndVanishDef)</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#endif  // COMPONENTS_DRIPANDVANISH_H_</span></div>
-<div class="ttc" id="classfpl_1_1pie__noon_1_1_drip_and_vanish_component_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_drip_and_vanish_component.html">fpl::pie_noon::DripAndVanishComponent</a></div><div class="ttdef"><b>Definition:</b> drip_and_vanish.h:38</div></div>
-<div class="ttc" id="structfpl_1_1pie__noon_1_1_drip_and_vanish_data_html"><div class="ttname"><a href="structfpl_1_1pie__noon_1_1_drip_and_vanish_data.html">fpl::pie_noon::DripAndVanishData</a></div><div class="ttdef"><b>Definition:</b> drip_and_vanish.h:28</div></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keywordtype">void</span> UpdateTargetReticle(<a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> entity);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="keywordtype">void</span> UpdateLoadedPie(<a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> entity);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keywordtype">void</span> UpdateHealthAccessories(<a class="code" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> entity);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keyword">const</span> Config* config_;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <a class="code" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a>* gamestate_ptr_;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;};</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}  <span class="comment">// pie_noon</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;}  <span class="comment">// fpl</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;FPL_ENTITY_REGISTER_COMPONENT(</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <a class="code" href="classfpl_1_1pie__noon_1_1_cardboard_player_component.html">fpl::pie_noon::CardboardPlayerComponent</a>, <a class="code" href="structfpl_1_1pie__noon_1_1_cardboard_player_data.html">fpl::pie_noon::CardboardPlayerData</a>,</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    fpl::pie_noon::ComponentDataUnion_CardboardPlayerDef)</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">#endif  // COMPONENTS_CARDBOARD_PLAYER_H_</span></div>
+<div class="ttc" id="structfpl_1_1pie__noon_1_1_cardboard_player_data_html"><div class="ttname"><a href="structfpl_1_1pie__noon_1_1_cardboard_player_data.html">fpl::pie_noon::CardboardPlayerData</a></div><div class="ttdef"><b>Definition:</b> cardboard_player.h:31</div></div>
+<div class="ttc" id="classfpl_1_1pie__noon_1_1_game_state_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_game_state.html">fpl::pie_noon::GameState</a></div><div class="ttdef"><b>Definition:</b> game_state.h:57</div></div>
+<div class="ttc" id="classfpl_1_1pie__noon_1_1_cardboard_player_component_html"><div class="ttname"><a href="classfpl_1_1pie__noon_1_1_cardboard_player_component.html">fpl::pie_noon::CardboardPlayerComponent</a></div><div class="ttdef"><b>Definition:</b> cardboard_player.h:38</div></div>
 <div class="ttc" id="classfpl_1_1_vector_pool_1_1_vector_pool_reference_html"><div class="ttname"><a href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">fpl::VectorPool::VectorPoolReference</a></div><div class="ttdef"><b>Definition:</b> vector_pool.h:47</div></div>
 <div class="ttc" id="classfpl_1_1entity_1_1_component_html"><div class="ttname"><a href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component</a></div><div class="ttdef"><b>Definition:</b> component.h:33</div></div>
 </div><!-- fragment --></div><!-- contents -->

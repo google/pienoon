@@ -162,26 +162,38 @@ $(document).ready(function(){initNavTree('material__manager_8h_source.html','');
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="comment">// for these textures through Load*() will cause them to be loaded anew.</span></div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordtype">void</span> UnloadMaterial(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename);</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="comment">// Handy accessors, so you don&#39;t have to pass the renderer around too.</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <a class="code" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer() { <span class="keywordflow">return</span> renderer_; }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keyword">const</span> <a class="code" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> renderer_; }</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  DISALLOW_COPY_AND_ASSIGN(<a class="code" href="classfpl_1_1_material_manager.html">MaterialManager</a>);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <a class="code" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer_;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  std::map&lt;std::string, Shader *&gt; shader_map_;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  std::map&lt;std::string, Texture *&gt; texture_map_;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  std::map&lt;std::string, Material *&gt; material_map_;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <a class="code" href="classfpl_1_1_async_loader.html">AsyncLoader</a> loader_;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;};</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="comment">// Returns a previously loaded mesh, or nullptr.</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <a class="code" href="classfpl_1_1_mesh.html">Mesh</a> *FindMesh(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="comment">// Loads a mesh, which is a compiled FlatBuffer file with</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="comment">// root Mesh.</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="comment">// If this returns nullptr, the error can be found in Renderer::last_error().</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <a class="code" href="classfpl_1_1_mesh.html">Mesh</a> *LoadMesh(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="comment">// Deletes the mesh and removes it from the material manager. Any subsequent</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="comment">// requests for this mesh through Load*() will cause them to be loaded anew.</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keywordtype">void</span> UnloadMesh(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="comment">// Handy accessors, so you don&#39;t have to pass the renderer around too.</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <a class="code" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer() { <span class="keywordflow">return</span> renderer_; }</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="keyword">const</span> <a class="code" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> renderer_; }</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}  <span class="comment">// namespace fpl</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor">#endif  // MATERIAL_MANAGER_H</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  DISALLOW_COPY_AND_ASSIGN(<a class="code" href="classfpl_1_1_material_manager.html">MaterialManager</a>);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <a class="code" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer_;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  std::map&lt;std::string, Shader *&gt; shader_map_;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  std::map&lt;std::string, Texture *&gt; texture_map_;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  std::map&lt;std::string, Material *&gt; material_map_;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  std::map&lt;std::string, Mesh *&gt; mesh_map_;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <a class="code" href="classfpl_1_1_async_loader.html">AsyncLoader</a> loader_;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;};</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}  <span class="comment">// namespace fpl</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="preprocessor">#endif  // MATERIAL_MANAGER_H</span></div>
 <div class="ttc" id="classfpl_1_1_shader_html"><div class="ttname"><a href="classfpl_1_1_shader.html">fpl::Shader</a></div><div class="ttdef"><b>Definition:</b> shader.h:34</div></div>
 <div class="ttc" id="classfpl_1_1_renderer_html"><div class="ttname"><a href="classfpl_1_1_renderer.html">fpl::Renderer</a></div><div class="ttdef"><b>Definition:</b> renderer.h:32</div></div>
 <div class="ttc" id="classfpl_1_1_material_html"><div class="ttname"><a href="classfpl_1_1_material.html">fpl::Material</a></div><div class="ttdef"><b>Definition:</b> material.h:89</div></div>
+<div class="ttc" id="classfpl_1_1_mesh_html"><div class="ttname"><a href="classfpl_1_1_mesh.html">fpl::Mesh</a></div><div class="ttdef"><b>Definition:</b> mesh.h:50</div></div>
 <div class="ttc" id="classfpl_1_1_texture_html"><div class="ttname"><a href="classfpl_1_1_texture.html">fpl::Texture</a></div><div class="ttdef"><b>Definition:</b> material.h:42</div></div>
 <div class="ttc" id="classfpl_1_1_async_loader_html"><div class="ttname"><a href="classfpl_1_1_async_loader.html">fpl::AsyncLoader</a></div><div class="ttdef"><b>Definition:</b> async_loader.h:49</div></div>
 <div class="ttc" id="classfpl_1_1_material_manager_html"><div class="ttname"><a href="classfpl_1_1_material_manager.html">fpl::MaterialManager</a></div><div class="ttdef"><b>Definition:</b> material_manager.h:24</div></div>

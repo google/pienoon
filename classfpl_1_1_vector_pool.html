@@ -98,6 +98,7 @@ $(document).ready(function(){initNavTree('classfpl_1_1_vector_pool.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
@@ -109,12 +110,21 @@ $(document).ready(function(){initNavTree('classfpl_1_1_vector_pool.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_vector_pool_1_1_iterator.html">Iterator</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">IteratorTemplate</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfpl_1_1_vector_pool_1_1_vector_pool_element.html">VectorPoolElement</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">VectorPoolReference</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a54384a0acc78ef5d8ef1e0240864de66"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a54384a0acc78ef5d8ef1e0240864de66"></a>
+typedef <a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">IteratorTemplate</a>&lt; false &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Iterator</b></td></tr>
+<tr class="separator:a54384a0acc78ef5d8ef1e0240864de66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbe367e18710c9f75e15cc8b7a734e77"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adbe367e18710c9f75e15cc8b7a734e77"></a>
+typedef <a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">IteratorTemplate</a>&lt; true &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ConstIterator</b></td></tr>
+<tr class="separator:adbe367e18710c9f75e15cc8b7a734e77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -134,7 +144,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>FreeElement</b> (size
 void&#160;</td><td class="memItemRight" valign="bottom"><b>FreeElement</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">VectorPoolReference</a> element)</td></tr>
 <tr class="separator:a083fd8efbc8ee81d78dcae3b9e1ef027"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af400278fbfd6e4862ff3b0e4cfa8ddf5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af400278fbfd6e4862ff3b0e4cfa8ddf5"></a>
-<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>FreeElement</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator.html">Iterator</a> iter)</td></tr>
+<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>FreeElement</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">Iterator</a> iter)</td></tr>
 <tr class="separator:af400278fbfd6e4862ff3b0e4cfa8ddf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6cf8aac4c2f2bd17873b660b3157d9c1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6cf8aac4c2f2bd17873b660b3157d9c1"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>Size</b> () const </td></tr>
@@ -146,11 +156,17 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>active_count</b> ()
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
 <tr class="separator:a838ccd2aa8c3b383cd662cc9698f1ce5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a989f2a8a82cf60d8fbbb8abdcd583d4e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a989f2a8a82cf60d8fbbb8abdcd583d4e"></a>
-<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> ()</td></tr>
+<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> ()</td></tr>
 <tr class="separator:a989f2a8a82cf60d8fbbb8abdcd583d4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a494939f7714157a21b01fbbe6f7aa20a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a494939f7714157a21b01fbbe6f7aa20a"></a>
-<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> ()</td></tr>
+<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> ()</td></tr>
 <tr class="separator:a494939f7714157a21b01fbbe6f7aa20a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29b3bcbd595ab9809fb410fbf296f6e6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29b3bcbd595ab9809fb410fbf296f6e6"></a>
+<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">ConstIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cbegin</b> ()</td></tr>
+<tr class="separator:a29b3bcbd595ab9809fb410fbf296f6e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a35510edaefc3785f8814f3077a7702"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a35510edaefc3785f8814f3077a7702"></a>
+<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">ConstIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cend</b> ()</td></tr>
+<tr class="separator:a2a35510edaefc3785f8814f3077a7702"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d5b856b1cc90f46552f886774df3ab0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d5b856b1cc90f46552f886774df3ab0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Reserve</b> (size_t new_size)</td></tr>
 <tr class="separator:a6d5b856b1cc90f46552f886774df3ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -181,9 +197,10 @@ static const size_t&#160;</td><td class="memItemRight" valign="bottom"><b>kTotal
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a9830fc407400559db7e7783cc10a9394"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9830fc407400559db7e7783cc10a9394"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>Iterator</b></td></tr>
-<tr class="separator:a9830fc407400559db7e7783cc10a9394"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedce721db74a6ce654402c65ed52fe77"><td class="memTemplParams" colspan="2"><a class="anchor" id="aedce721db74a6ce654402c65ed52fe77"></a>
+template&lt;bool &gt; </td></tr>
+<tr class="memitem:aedce721db74a6ce654402c65ed52fe77"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>IteratorTemplate</b></td></tr>
+<tr class="separator:aedce721db74a6ce654402c65ed52fe77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb36557b9948252b778a74582370c9c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb36557b9948252b778a74582370c9c9"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>VectorPoolReference</b></td></tr>
 <tr class="separator:acb36557b9948252b778a74582370c9c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
