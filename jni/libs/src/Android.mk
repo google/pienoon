@@ -153,7 +153,7 @@ $(call import-add-path,$(DEPENDENCIES_PINDROP_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_WEBP_DIR)/..)
 
 $(call import-module,flatbuffers/android/jni)
-$(call import-module,audio_engine/jni)
+$(call import-module,pindrop/jni)
 $(call import-module,motive/jni)
 $(call import-module,mathfu/jni)
 $(call import-module,webp)
