@@ -16,8 +16,11 @@
 #define PIE_NOON_GAME_H
 
 #ifdef PLATFORM_MOBILE
+#ifdef __ANDROID__
 #define PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#endif // __ANDROID__
 #endif
+
 
 #include "ai_controller.h"
 #include "cardboard_controller.h"
