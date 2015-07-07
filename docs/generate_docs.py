@@ -21,7 +21,8 @@ import sys
 THIS_DIR = os.path.realpath(os.path.dirname(__file__))
 PROJECT_DIR = os.path.realpath(os.path.join(THIS_DIR, os.pardir))
 sys.path.extend(
-    [os.path.realpath(os.path.join(PROJECT_DIR, os.pardir, os.pardir, 'libs', 'fplutil')),
+    [os.path.realpath(os.path.join(PROJECT_DIR, os.pardir, os.pardir, 'libs',
+                                   'fplutil')),
      os.path.realpath(os.path.join(PROJECT_DIR, 'dependencies', 'fplutil'))])
 import docs  # pylint: disable=C6204
 
@@ -32,6 +33,8 @@ def main():
   Returns:
     0 if successful, 1 otherwise.
   """
+  os.environ['SHARED_DOCS_PATH'] = os.path.join(os.path.dirname(docs.__file__),
+                                                'src')
   sys.argv.extend(('--linklint-dir', THIS_DIR,
                    '--source-dir', os.path.join(THIS_DIR, 'src'),
                    '--project-dir', PROJECT_DIR))
