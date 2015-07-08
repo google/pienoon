@@ -7,7 +7,7 @@ Multi-screen mode is a very different way of playing Pie Noon!
 
 \htmlonly
 <iframe width="560" height="315"
-  src="http://www.youtube.com/embed/aR5WQaq70fw?rel=0"
+  src="https://www.youtube.com/embed/aR5WQaq70fw?rel=0"
   frameborder="0" allowfullscreen>
 </iframe>
 \endhtmlonly
