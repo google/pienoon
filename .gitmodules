@@ -43,3 +43,6 @@
 [submodule "dependencies/cardboard-java"]
 	path = dependencies/cardboard-java
 	url = https://github.com/googlesamples/cardboard-java.git
+[submodule "dependencies/pindrop"]
+	path = dependencies/pindrop
+	url = http://github.com/google/pindrop.git
