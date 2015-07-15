@@ -123,6 +123,16 @@
       "is_library": 1,
       "third_party": 1,
       "push": 0
+    },
+    {
+      "name": "cardboard-java",
+      "url": "https://github.com/googlesamples/cardboard-java.git",
+      "branch": "master",
+      "revision": "c2a953d093ef7b29b9b0a113c7d5d104fe5d188d",
+      "is_library": 1,
+      "third_party": 0,
+      "prebuilts" : 1,
+      "push": 0
     }
   ]
 }
