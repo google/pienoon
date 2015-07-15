@@ -21,7 +21,8 @@ import sys
 THIS_DIR = os.path.realpath(os.path.dirname(__file__))
 PROJECT_DIR = os.path.realpath(os.path.join(THIS_DIR, os.pardir))
 sys.path.extend(
-    [os.path.realpath(os.path.join(PROJECT_DIR, os.pardir, os.pardir, 'libs', 'fplutil')),
+    [os.path.realpath(os.path.join(PROJECT_DIR, os.pardir, os.pardir, 'libs',
+                                   'fplutil')),
      os.path.realpath(os.path.join(PROJECT_DIR, 'dependencies', 'fplutil'))])
 import docs  # pylint: disable=C6204
 

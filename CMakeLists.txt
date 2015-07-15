@@ -47,7 +47,7 @@ set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"
     CACHE PATH "Directory containing the fplutil library.")
-set(dependencies_pindrop_dir "${fpl_root}/audio_engine"
+set(dependencies_pindrop_dir "${fpl_root}/pindrop"
     CACHE PATH "Directory containing the pindrop library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")

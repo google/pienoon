@@ -41,7 +41,7 @@
       "push": 0
     },
     {
-      "name": "audio_engine",
+      "name": "pindrop",
       "url": "http://github.com/google/pindrop.git",
       "branch": "develop",
       "is_library": 1,

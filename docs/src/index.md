@@ -9,7 +9,7 @@ your friends. It is written in cross-platform C++.
 
 \htmlonly
 <iframe width="560" height="315"
-  src="http://www.youtube.com/embed/p1F6HRFnLoo?rel=0"
+  src="https://www.youtube.com/embed/p1F6HRFnLoo?rel=0"
   frameborder="0" allowfullscreen>
 </iframe>
 \endhtmlonly

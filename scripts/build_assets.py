@@ -51,7 +51,7 @@ else:
                                                    os.path.pardir, 'libs'))
 
 
-PINDROP_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'audio_engine'))
+PINDROP_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'pindrop'))
 
 MOTIVE_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'motive'))
 
