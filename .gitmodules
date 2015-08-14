@@ -10,9 +10,6 @@
 [submodule "dependencies/mathfu"]
 	path = dependencies/mathfu
 	url = http://github.com/google/mathfu.git
-[submodule "dependencies/vectorial"]
-	path = dependencies/vectorial
-	url = http://github.com/google/mathfu.git
 [submodule "dependencies/sdl"]
 	path = dependencies/sdl
 	url = http://github.com/google/pienoon.git
@@ -46,3 +43,9 @@
 [submodule "dependencies/pindrop"]
 	path = dependencies/pindrop
 	url = http://github.com/google/pindrop.git
+[submodule "dependencies/vectorial"]
+	path = dependencies/vectorial
+	url = http://github.com/scoopr/vectorial.git
+[submodule "vectorial"]
+	path = vectorial
+	url = http://github.com/scoopr/vectorial.git
