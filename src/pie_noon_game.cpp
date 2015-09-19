@@ -1090,7 +1090,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       return HandleMenuButtons(time);
     }
     case kTutorial: {
-      const unsigned int num_slides = tutorial_slides_.size();
+      const size_t num_slides = tutorial_slides_.size();
       const bool past_last_slide =
           tutorial_slide_index_ >= static_cast<int>(num_slides);
 
@@ -1272,7 +1272,8 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       }
       stinger_channel_.Clear();
       music_channel_ = audio_engine_.PlaySound("MusicMenu");
-      for (size_t i = 0; i < game_state_.characters().size(); ++i) {
+      for (flatbuffers::uoffset_t i = 0; i < game_state_.characters().size();
+           ++i) {
         auto& character = game_state_.characters()[i];
         if (character->controller()->controller_type() != Controller::kTypeAI) {
           // Assign characters AI characters while the menu is up.
@@ -1455,7 +1456,7 @@ ControllerId PieNoonGame::AddController(Controller* new_controller) {
     }
   }
   active_controllers_.push_back(std::unique_ptr<Controller>(new_controller));
-  return active_controllers_.size() - 1;
+  return static_cast<int>(active_controllers_.size()) - 1;
 }
 
 // Returns a controller as specified by its ID
@@ -1611,7 +1612,7 @@ void PieNoonGame::ProcessPlayerStatusMessage(
   auto c = game_state_.characters().begin();
   auto h = status.player_health()->begin();
   for (; c != game_state_.characters().end() &&
-         h != status.player_health()->end();
+             h != status.player_health()->end();
        ++c, ++h) {
     (*c)->set_health(*h);
   }
@@ -1742,7 +1743,7 @@ static void DisplayDialogBox(const char* title, const char* text_file_name,
 
 PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
   const ButtonId previous_focus = gui_menu_.GetFocus();
-  for (size_t i = 0; i < active_controllers_.size(); i++) {
+  for (flatbuffers::uoffset_t i = 0; i < active_controllers_.size(); i++) {
     Controller* controller = active_controllers_[i].get();
     if (controller != nullptr &&
         controller->controller_type() != Controller::kTypeAI) {
@@ -1943,8 +1944,8 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       case ButtonId_Multiplayer_Button3:
       case ButtonId_Multiplayer_Button4: {
         // Make sure we are during a turn, otherwise you can't toggle.
-        int button_num =
-            (int)menu_selection.button_id - ButtonId_Multiplayer_Button1;
+        int button_num = static_cast<int>(menu_selection.button_id) -
+                         ButtonId_Multiplayer_Button1;
         if (button_num == multiscreen_my_player_id_) {
           // Toggle the action
           if (multiscreen_action_to_perform_ == ButtonId_Attack)
@@ -2024,8 +2025,7 @@ void PieNoonGame::SendMultiscreenPlayerCommand() {
       multiplayer::CreatePlayerCommand(
           builder, multiscreen_action_aim_at_,
           (multiscreen_action_to_perform_ == ButtonId_Attack),
-          (multiscreen_action_to_perform_ == ButtonId_Defend))
-          .Union());
+          (multiscreen_action_to_perform_ == ButtonId_Defend)).Union());
 
   builder.Finish(message_root);
 

@@ -130,12 +130,12 @@ void InputSystem::AdvanceFrame(vec2i *window_size) {
       }
 #ifdef PLATFORM_MOBILE
       case SDL_FINGERDOWN: {
-        int i = UpdateDragPosition(event.tfinger, event.type, *window_size);
+        size_t i = UpdateDragPosition(event.tfinger, event.type, *window_size);
         GetPointerButton(i).Update(true);
         break;
       }
       case SDL_FINGERUP: {
-        int i = FindPointer(event.tfinger.fingerId);
+        size_t i = FindPointer(event.tfinger.fingerId);
         RemovePointer(i);
         GetPointerButton(i).Update(false);
         break;
