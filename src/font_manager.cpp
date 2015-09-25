@@ -25,6 +25,7 @@
 #include "font_manager.h"
 #include "utilities.h"
 
+using flatbuffers::uoffset_t;
 namespace fpl {
 
 // Singleton object of FreeType&Harfbuzz.
@@ -126,7 +127,7 @@ FontBuffer *FontManager::GetBuffer(const char *text, const float ysize) {
   mathfu::vec2 pos(mathfu::kZeros2f);
   FT_GlyphSlot glyph = face_->glyph;
 
-  for (size_t i = 0; i < glyph_count; ++i) {
+  for (uoffset_t i = 0; i < glyph_count; ++i) {
     auto code_point = glyph_info[i].codepoint;
     auto cache = GetCachedEntry(code_point, converted_ysize);
     if (cache == nullptr) {
@@ -205,7 +206,7 @@ FontBuffer *FontManager::UpdateUV(const int32_t ysize, FontBuffer *buffer) {
     FT_Set_Pixel_Sizes(face_, 0, ysize);
 
     auto code_points = buffer->get_code_points();
-    for (size_t i = 0; i < code_points->size(); ++i) {
+    for (uoffset_t i = 0; i < code_points->size(); ++i) {
       auto code_point = code_points->at(i);
       auto cache = GetCachedEntry(code_point, ysize);
       if (cache == nullptr) {
@@ -488,10 +489,12 @@ uint32_t FontManager::LayoutText(const char *text) {
   // Set harfbuzz settings.
   hb_buffer_set_direction(harfbuzz_buf_, HB_DIRECTION_LTR);
   hb_buffer_set_script(harfbuzz_buf_, HB_SCRIPT_LATIN);
-  hb_buffer_set_language(harfbuzz_buf_, hb_language_from_string(text, length));
+  hb_buffer_set_language(
+      harfbuzz_buf_, hb_language_from_string(text, static_cast<int>(length)));
 
   // Layout the text.
-  hb_buffer_add_utf8(harfbuzz_buf_, text, length, 0, length);
+  hb_buffer_add_utf8(harfbuzz_buf_, text, static_cast<int>(length), 0,
+                     static_cast<int>(length));
   hb_shape(harfbuzz_font_, harfbuzz_buf_, nullptr, 0);
 
   // Retrieve layout info.
@@ -516,15 +519,15 @@ bool FontManager::UpdateMetrics(const FT_GlyphSlot g,
   // necessary.
   if (g->bitmap_top > current_metrics.ascender() ||
       static_cast<int32_t>(g->bitmap_top - g->bitmap.rows) <
-      current_metrics.descender()) {
+          current_metrics.descender()) {
     *new_metrics = current_metrics;
     new_metrics->set_internal_leading(
         std::max(current_metrics.internal_leading(),
                  g->bitmap_top - current_metrics.ascender()));
     new_metrics->set_external_leading(
         std::min(current_metrics.external_leading(),
-                 static_cast<int32_t>(g->bitmap_top - g->bitmap.rows
-                                      - current_metrics.descender())));
+                 static_cast<int32_t>(g->bitmap_top - g->bitmap.rows -
+                                      current_metrics.descender())));
     new_metrics->set_base_line(new_metrics->internal_leading() +
                                new_metrics->ascender());
 

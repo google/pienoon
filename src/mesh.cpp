@@ -62,14 +62,16 @@ void Mesh::SetAttributes(GLuint vbo, const Attribute *attributes, int stride,
 size_t Mesh::VertexSize(const Attribute *attributes) {
   size_t size = 0;
   for (;;) {
+    // clang-format off
     switch (*attributes++) {
-      case kPosition3f: size += 3 * sizeof(float); break;
-      case kNormal3f:   size += 3 * sizeof(float); break;
-      case kTangent4f:  size += 4 * sizeof(float); break;
-      case kTexCoord2f: size += 2 * sizeof(float); break;
-      case kColor4ub:   size += 4;                 break;
-      case kEND:        return size;
+        case kPosition3f: size += 3 * sizeof(float); break;
+        case kNormal3f:   size += 3 * sizeof(float); break;
+        case kTangent4f:  size += 4 * sizeof(float); break;
+        case kTexCoord2f: size += 2 * sizeof(float); break;
+        case kColor4ub:   size += 4;                 break;
+        case kEND:        return size;
     }
+    // clang-format on
   }
 }
 
@@ -126,7 +128,7 @@ void Mesh::AddIndices(const unsigned short *index_data, int count,
 }
 
 void Mesh::Render(Renderer &renderer, bool ignore_material) {
-  SetAttributes(vbo_, format_, vertex_size_, nullptr);
+  SetAttributes(vbo_, format_, static_cast<int>(vertex_size_), nullptr);
   for (auto it = indices_.begin(); it != indices_.end(); ++it) {
     if (!ignore_material) it->mat->Set(renderer);
     GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, it->ibo));
@@ -148,7 +150,7 @@ void Mesh::RenderAAQuadAlongX(const vec3 &bottom_left, const vec3 &top_right,
                               const vec2 &tex_bottom_left,
                               const vec2 &tex_top_right) {
   static const Attribute format[] = {kPosition3f, kTexCoord2f, kEND};
-  static const unsigned short indices[] = { 0, 1, 2, 1, 2, 3 };
+  static const unsigned short indices[] = {0, 1, 2, 1, 2, 3};
   // vertex format is [x, y, z] [u, v]:
   const float vertices[] = {
       bottom_left.x(),     bottom_left.y(),     bottom_left.z(),
@@ -170,7 +172,8 @@ void Mesh::RenderAAQuadAlongXNinePatch(const vec3 &bottom_left,
   static const unsigned short indices[] = {
       0, 1,  2, 1,  2, 3,  2, 3,  4,  3,  4,  5,  4,  5,  6,  5,  6,  7,
       1, 8,  3, 8,  3, 9,  3, 9,  5,  9,  5,  10, 5,  10, 7,  10, 7,  11,
-      8, 12, 9, 12, 9, 13, 9, 13, 10, 13, 10, 14, 10, 14, 11, 14, 11, 15, };
+      8, 12, 9, 12, 9, 13, 9, 13, 10, 13, 10, 14, 10, 14, 11, 14, 11, 15,
+  };
   auto max = vec2::Max(bottom_left.xy(), top_right.xy());
   auto min = vec2::Min(bottom_left.xy(), top_right.xy());
   auto p0 = vec2(texture_size) * patch_info.xy() + min;
@@ -187,6 +190,7 @@ void Mesh::RenderAAQuadAlongXNinePatch(const vec3 &bottom_left,
 
   // vertex format is [x, y, z] [u, v]:
   float z = bottom_left.z();
+  // clang-format off
   const float vertices[] = {
       min.x(), min.y(), z, 0.0f,           0.0f,
       p0.x(),  min.y(), z, patch_info.x(), 0.0f,
@@ -204,6 +208,8 @@ void Mesh::RenderAAQuadAlongXNinePatch(const vec3 &bottom_left,
       max.x(), p0.y(),  z, 1.0f,           patch_info.y(),
       max.x(), p1.y(),  z, 1.0f,           patch_info.w(),
       max.x(), max.y(), z, 1.0f,           1.0f, };
+  // clang-format on
+
   Mesh::RenderArray(GL_TRIANGLES, 6 * 9, format, sizeof(float) * 5,
                     reinterpret_cast<const char *>(vertices), indices);
 }

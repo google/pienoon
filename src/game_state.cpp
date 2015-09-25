@@ -37,7 +37,7 @@ using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
-
+using flatbuffers::uoffset_t;
 namespace fpl {
 namespace pie_noon {
 
@@ -95,7 +95,7 @@ entity::EntityRef PieNoonEntityFactory::CreateEntityFromData(
   const EntityDefinition* def = static_cast<const EntityDefinition*>(data);
   assert(def != nullptr);
   entity::EntityRef entity = entity_manager->AllocateNewEntity();
-  for (size_t i = 0; i < def->component_list()->size(); i++) {
+  for (uoffset_t i = 0; i < def->component_list()->size(); i++) {
     const ComponentDefInstance* currentInstance = def->component_list()->Get(i);
     entity::ComponentInterface* component =
         entity_manager->GetComponent(currentInstance->data_type());
@@ -202,7 +202,8 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   camera_base_.target = LoadVec3(layout_config->camera_target());
   camera_.Initialize(camera_base_, &engine_);
   pies_.clear();
-  arrangement_ = GetBestArrangement(layout_config, characters_.size());
+  arrangement_ =
+      GetBestArrangement(layout_config, static_cast<int>(characters_.size()));
   analytics_mode_ = analytics_mode;
 
   entity_manager_.Clear();
@@ -228,7 +229,7 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   player_character_component_.set_gamestate_ptr(this);
   cardboard_player_component_.set_gamestate_ptr(this);
   // Load Entities from flatbuffer!
-  for (size_t i = 0; i < layout_config->entity_list()->size(); i++) {
+  for (uoffset_t i = 0; i < layout_config->entity_list()->size(); i++) {
     entity_manager_.CreateEntityFromData(layout_config->entity_list()->Get(i));
   }
 
@@ -669,8 +670,9 @@ void GameState::DetermineWinnersAndLosers() {
       break;
     }
   }
-  int winner_count = std::count_if(characters_.begin(), characters_.end(),
-                                   CharacterIsVictorious);
+  std::vector<std::unique_ptr<Character>>::difference_type winner_count =
+      std::count_if(characters_.begin(), characters_.end(),
+                    CharacterIsVictorious);
   for (size_t i = 0; i < characters_.size(); ++i) {
     auto& character = characters_[i];
     switch (winner_count) {

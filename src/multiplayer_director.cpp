@@ -188,7 +188,8 @@ void MultiplayerDirector::TriggerPlayerHitByPie(CharacterId player,
     }
   }
   while (num_splats > 0 && splats_available.size() > 0) {
-    unsigned int idx = mathfu::RandomInRange<int>(0, splats_available.size());
+    unsigned int idx = mathfu::RandomInRange<int>(
+        0, static_cast<int>(splats_available.size()));
     unsigned int splat_used = splats_available[idx];
     unsigned int splat_mask = (1 << splat_used);
     character_splats_[player] |= splat_mask;
@@ -336,7 +337,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   // don't change it.
 
   if (candidate_targets.size() > 0) {
-    int which = mathfu::RandomInRange<int>(0, candidate_targets.size());
+    int which = mathfu::RandomInRange<int>(
+        0, static_cast<int>(candidate_targets.size()));
     command.aim_at = candidate_targets[which];
   }
   // If we have no candidate targets, we won't change aim at all.

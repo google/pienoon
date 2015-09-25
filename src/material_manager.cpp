@@ -97,7 +97,8 @@ Material *MaterialManager::LoadMaterial(const char *filename) {
     auto matdef = matdef::GetMaterial(flatbuf.c_str());
     mat = new Material();
     mat->set_blend_mode(static_cast<BlendMode>(matdef->blendmode()));
-    for (size_t i = 0; i < matdef->texture_filenames()->size(); i++) {
+    for (flatbuffers::uoffset_t i = 0; i < matdef->texture_filenames()->size();
+         i++) {
       auto format =
           matdef->desired_format() && i < matdef->desired_format()->size()
               ? static_cast<TextureFormat>(matdef->desired_format()->Get(i))
@@ -128,7 +129,8 @@ Mesh *MaterialManager::FindMesh(const char *filename) {
   return FindInMap(mesh_map_, filename);
 }
 
-template<typename T> void CopyAttribute(const T *attr, uint8_t *&buf) {
+template <typename T>
+void CopyAttribute(const T *attr, uint8_t *&buf) {
   auto dest = (T *)buf;
   *dest = *attr;
   buf += sizeof(T);
@@ -146,9 +148,9 @@ Mesh *MaterialManager::LoadMesh(const char *filename) {
     // Collect what attributes are available.
     std::vector<Attribute> attrs;
     attrs.push_back(kPosition3f);
-    if (meshdef->normals())   attrs.push_back(kNormal3f);
-    if (meshdef->tangents())  attrs.push_back(kTangent4f);
-    if (meshdef->colors())    attrs.push_back(kColor4ub);
+    if (meshdef->normals()) attrs.push_back(kNormal3f);
+    if (meshdef->tangents()) attrs.push_back(kTangent4f);
+    if (meshdef->colors()) attrs.push_back(kColor4ub);
     if (meshdef->texcoords()) attrs.push_back(kTexCoord2f);
     attrs.push_back(kEND);
     auto vert_size = Mesh::VertexSize(attrs.data());
@@ -157,21 +159,25 @@ Mesh *MaterialManager::LoadMesh(const char *filename) {
     // Could use multiple buffers instead, but likely less efficient.
     auto buf = new uint8_t[vert_size * meshdef->positions()->Length()];
     auto p = buf;
-    for (size_t i = 0; i < meshdef->positions()->Length(); i++) {
+    for (flatbuffers::uoffset_t i = 0; i < meshdef->positions()->Length();
+         i++) {
       if (meshdef->positions()) CopyAttribute(meshdef->positions()->Get(i), p);
-      if (meshdef->normals())   CopyAttribute(meshdef->normals()->Get(i), p);
-      if (meshdef->tangents())  CopyAttribute(meshdef->tangents()->Get(i), p);
-      if (meshdef->colors())    CopyAttribute(meshdef->colors()->Get(i), p);
+      if (meshdef->normals()) CopyAttribute(meshdef->normals()->Get(i), p);
+      if (meshdef->tangents()) CopyAttribute(meshdef->tangents()->Get(i), p);
+      if (meshdef->colors()) CopyAttribute(meshdef->colors()->Get(i), p);
       if (meshdef->texcoords()) CopyAttribute(meshdef->texcoords()->Get(i), p);
     }
-    mesh = new Mesh(buf, meshdef->positions()->Length(), vert_size,
+    mesh = new Mesh(buf, meshdef->positions()->Length(), (int)vert_size,
                     attrs.data());
     delete[] buf;
     // Load indices an materials.
-    for (size_t i = 0; i < meshdef->surfaces()->size(); i++) {
+    for (flatbuffers::uoffset_t i = 0; i < meshdef->surfaces()->size(); i++) {
       auto surface = meshdef->surfaces()->Get(i);
       auto mat = LoadMaterial(surface->material()->c_str());
-      if (!mat) { delete mesh; return nullptr; }  // Error msg already set.
+      if (!mat) {
+        delete mesh;
+        return nullptr;
+      }  // Error msg already set.
       mesh->AddIndices(
           reinterpret_cast<const uint16_t *>(surface->indices()->Data()),
           surface->indices()->Length(), mat);

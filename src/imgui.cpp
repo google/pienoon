@@ -59,7 +59,6 @@ class Group {
         size_ = vec2i(std::max(size_.x(), extension.x()),
                       std::max(size_.y(), extension.y()));
         break;
-
     }
   }
 
@@ -178,9 +177,8 @@ class InternalState : public Group {
   void SetOrtho() {
     auto res = renderer_.window_size();
     auto ortho_mat = mathfu::OrthoHelper<float>(
-                       0.0f, static_cast<float>(res.x()),
-                       static_cast<float>(res.y()), 0.0f,
-                       -1.0f, 1.0f);
+        0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()), 0.0f,
+        -1.0f, 1.0f);
     renderer_.model_view_projection() = ortho_mat;
   }
 
@@ -203,8 +201,8 @@ class InternalState : public Group {
 
   // Determines placement for the UI as a whole inside the available space
   // (screen).
-  void PositionUI(float virtual_resolution,
-                  Alignment horizontal, Alignment vertical) {
+  void PositionUI(float virtual_resolution, Alignment horizontal,
+                  Alignment vertical) {
     if (layout_pass_) {
       virtual_resolution_ = virtual_resolution;
       SetScale();
@@ -296,10 +294,10 @@ class InternalState : public Group {
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
                   const vec2i &size, const vec4 &uv) {
-      renderer_.color() = color;
-      sh->Set(renderer_);
-      Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
-                               uv.xy(), uv.zw());
+    renderer_.color() = color;
+    sh->Set(renderer_);
+    Mesh::RenderAAQuadAlongX(vec3(vec2(pos), 0), vec3(vec2(pos + size), 0),
+                             uv.xy(), uv.zw());
   }
 
   void RenderQuad(Shader *sh, const vec4 &color, const vec2i &pos,
@@ -335,7 +333,7 @@ class InternalState : public Group {
     // Set text color.
     renderer_.color() = text_color_;
 
-#   if USE_GLYPHCACHE
+#if USE_GLYPHCACHE
     auto size = VirtualToPhysical(vec2(0, ysize));
     auto buffer = fontman_.GetBuffer(text, size.y());
     if (layout_pass_) {
@@ -370,14 +368,14 @@ class InternalState : public Group {
 
         const Attribute kFormat[] = {kPosition3f, kTexCoord2f, kEND};
         Mesh::RenderArray(
-            GL_TRIANGLES, buffer->get_indices()->size(), kFormat,
-            sizeof(FontVertex),
+            GL_TRIANGLES, static_cast<int>(buffer->get_indices()->size()),
+            kFormat, sizeof(FontVertex),
             reinterpret_cast<const char *>(buffer->get_vertices()->data()),
             buffer->get_indices()->data());
         Advance(element->size);
       }
     }
-#   else
+#else
     font_shader_->SetUniform("pos_offset", vec3(0.0f, 0.0f, 0.f));
 
     auto size = VirtualToPhysical(vec2(0, ysize));
@@ -406,7 +404,7 @@ class InternalState : public Group {
         Advance(element->size);
       }
     }
-#   endif
+#endif
   }
 
   // Custom element with user supplied renderer.
@@ -509,20 +507,20 @@ class InternalState : public Group {
       glEnable(GL_SCISSOR_TEST);
       glScissor(position_.x(),
                 renderer_.window_size().y() - position_.y() - psize.y(),
-                psize.x(),
-                psize.y());
+                psize.x(), psize.y());
       // Scroll the pane on user input.
       // TODO: this will need to be generalized, as mousewheel only works on
       // desktops.
       const int scroll_speed = -16;  // TODO: configurable?
-      *offset = vec2i::Min(elements_[element_idx_].extra_size,
-                    vec2i::Max(mathfu::kZeros2i,
-                        *offset + input_.mousewheel_delta() * scroll_speed));
+      *offset = vec2i::Min(
+          elements_[element_idx_].extra_size,
+          vec2i::Max(mathfu::kZeros2i,
+                     *offset + input_.mousewheel_delta() * scroll_speed));
       // See if the mouse is outside the clip area, so we can avoid events
       // being triggered by elements that are not visible.
       for (int i = 0; i <= pointer_max_active_index_; i++) {
-        if (!mathfu::InRange2D(input_.pointers_[i].mousepos,
-                               position_, position_ + psize)) {
+        if (!mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
+                               position_ + psize)) {
           clip_mouse_inside_[i] = false;
         }
       }
@@ -552,7 +550,7 @@ class InternalState : public Group {
     }
   }
 
-  vec2i GroupSize() { return size_  + elements_[element_idx_].extra_size; }
+  vec2i GroupSize() { return size_ + elements_[element_idx_].extra_size; }
 
   void RecordId(const char *id, int i) { persistent_.pointer_element[i] = id; }
   bool SameId(const char *id, int i) {
@@ -571,8 +569,8 @@ class InternalState : public Group {
         // pointer_max_active_index_ is typically 0, so loop not expensive.
         for (int i = 0; i <= pointer_max_active_index_; i++) {
           if (clip_mouse_inside_[i] &&
-              mathfu::InRange2D(input_.pointers_[i].mousepos,
-                                position_, position_ + size_)) {
+              mathfu::InRange2D(input_.pointers_[i].mousepos, position_,
+                                position_ + size_)) {
             auto &button = *pointer_buttons_[i];
             int event = 0;
 
@@ -614,15 +612,15 @@ class InternalState : public Group {
 
   void CheckGamePadNavigation() {
     int dir = 0;
-    // FIXME: this should work on other platforms too.
-#   ifdef ANDROID_GAMEPAD
+// FIXME: this should work on other platforms too.
+#ifdef ANDROID_GAMEPAD
     auto &gamepads = input_.GamepadMap();
     for (auto &gamepad : gamepads) {
       dir = CheckButtons(gamepad.second.GetButton(Gamepad::kLeft),
                          gamepad.second.GetButton(Gamepad::kRight),
                          gamepad.second.GetButton(Gamepad::kButtonA));
     }
-#   endif
+#endif
     // For testing, also support keyboard:
     dir =
         CheckButtons(input_.GetButton(SDLK_LEFT), input_.GetButton(SDLK_RIGHT),
@@ -632,7 +630,7 @@ class InternalState : public Group {
       for (auto &e : elements_) {
         if (EqualId(e.id, persistent_.gamepad_focus)) {
           persistent_.gamepad_focus =
-              NextInteractiveElement(&e - &elements_[0], dir);
+              NextInteractiveElement(static_cast<int>(&e - &elements_[0]), dir);
           break;
         }
       }
@@ -687,8 +685,7 @@ class InternalState : public Group {
       auto pos = position_;
       Mesh::RenderAAQuadAlongXNinePatch(vec3(vec2(pos), 0),
                                         vec3(vec2(pos + GroupSize()), 0),
-                                        tex.size(),
-                                        patch_info);
+                                        tex.size(), patch_info);
     }
   }
 
@@ -796,9 +793,7 @@ void StartScroll(const vec2 &size, vec2i *offset) {
   Gui()->StartScroll(size, offset);
 }
 
-void EndScroll() {
-  Gui()->EndScroll();
-}
+void EndScroll() { Gui()->EndScroll(); }
 
 void CustomElement(
     const vec2 &virtual_size, const char *id,
@@ -855,8 +850,7 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
   static bool show_about = false;
   static vec2i scroll_offset(mathfu::kZeros2i);
 
-  auto click_about_example = [&](const char *id, bool about_on)
-  {
+  auto click_about_example = [&](const char *id, bool about_on) {
     if (ImageButton("textures/text_about.webp", 50, id) == EVENT_WENT_UP) {
       SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "You clicked: %s", id);
       show_about = about_on;
@@ -864,6 +858,7 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
   };
 
   Run(matman, fontman, input, [&]() {
+    // clang-format off
     PositionUI(1000, LAYOUT_HORIZONTAL_CENTER,
                LAYOUT_VERTICAL_RIGHT);
     StartGroup(LAYOUT_OVERLAY_CENTER, 0);
@@ -912,6 +907,7 @@ void TestGUI(MaterialManager &matman, FontManager &fontman,
         EndGroup();
       }
     EndGroup();
+    // clang-format on
   });
 }
 
