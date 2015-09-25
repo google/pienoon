@@ -45,7 +45,19 @@ inline int chdir(const char* dirname) { return _chdir(dirname); }
 // false otherwise.
 bool ChangeToUpstreamDir(const char* const binary_dir,
                          const char* const target_dir) {
-#if !defined(__ANDROID__)
+#if defined(__IOS__)
+  // For iOS the assets are bundled under pie_noon_ios.app/assets
+  (void)binary_dir;
+  char real_path[256];
+  std::string current_dir = getcwd(real_path, sizeof(real_path));
+  current_dir += flatbuffers::kPathSeparator;
+  current_dir += target_dir;
+  int success = chdir(current_dir.c_str());
+  if (success == 0) return true;
+  SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to change directory to %s",
+               current_dir.c_str());
+  return false;
+#elif !defined(__ANDROID__)
   {
     std::string current_dir = binary_dir;
 
