@@ -192,10 +192,9 @@ endforeach()
 add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
 
 # Build rule that uses make to build the assets.
-get_property(flatc_location TARGET flatc PROPERTY LOCATION)
 add_custom_target(assets
   COMMAND python ${CMAKE_SOURCE_DIR}/scripts/build_assets.py
-                 --flatc ${flatc_location} --output ${CMAKE_BINARY_DIR}/assets
+                 --flatc $<TARGET_FILE:flatc> --output ${CMAKE_BINARY_DIR}/assets
   DEPENDS flatc ${CWEBP_TARGET})
 
 if(APPLE)
