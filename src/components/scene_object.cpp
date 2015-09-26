@@ -52,14 +52,14 @@ void SceneObjectData::Initialize(motive::MotiveEngine* engine) {
   // Create init structure for the 'transform_' Matrix Motivator.
   // TODO: This structure is the same every time. Change MatrixInit to be
   // constructable from POD so that this can be a constexpr.
-  motive::MatrixInit init(PIE_ARRAYSIZE(kTransformOperations));
+  motive::MatrixOpArray ops(PIE_ARRAYSIZE(kTransformOperations));
   for (size_t i = 0; i < PIE_ARRAYSIZE(kTransformOperations); ++i) {
     motive::MatrixOperationType op = kTransformOperations[i];
     const float default_value =
         motive::kScaleX <= op && op <= motive::kScaleZ ? 1.0f : 0.0f;
-    init.AddOp(op, default_value);
+    ops.AddOp(op, default_value);
   }
-
+  motive::MatrixInit init(ops);
   transform_.Initialize(init, engine);
 }
 
