@@ -520,6 +520,9 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load sound bank.\n");
   }
 
+  // Start loading sounds
+  audio_engine_.StartLoadingSoundFiles();
+
   input_.AddAppEventCallback(AudioEngineVolumeControl(&audio_engine_));
 
   if (!InitializeGameState()) return false;
@@ -984,7 +987,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       // When we initialized assets, we kicked off a thread to load all
       // textures. Here we check if those have finished loading.
       // We also leave the loading screen up for a minimum amount of time.
-      if (!Fading() && matman_.TryFinalize()
+      if (!Fading() && matman_.TryFinalize() && audio_engine_.TryFinalize()
 #if !IMGUI_TEST
           && (time - state_entry_time_) > config.min_loading_time()
 #endif  // IMGUI_TEST
@@ -2690,7 +2693,7 @@ void PieNoonGame::Run() {
 
       case kTutorial: {
         matman_.TryFinalize();
-
+        audio_engine_.TryFinalize();
         const bool should_transition =
             full_screen_fader_.Finished(world_time) && AnyControllerPresses();
         if (should_transition) {
