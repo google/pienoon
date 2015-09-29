@@ -172,12 +172,13 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
       motive::CurrentToTargetConstVelocity1f(0.0f, rotations * kTwoPi,
                                              flight_time));
 
-  motive::MatrixInit init(5);
-  init.AddOp(motive::kTranslateX, position_init, x_target);
-  init.AddOp(motive::kTranslateY, position_init, y_target);
-  init.AddOp(motive::kTranslateZ, position_init, z_target);
-  init.AddOp(motive::kRotateAboutY, y_rotation);
-  init.AddOp(motive::kRotateAboutZ, rotation_init, z_rotation_target);
+  motive::MatrixOpArray ops(5);
+  ops.AddOp(motive::kTranslateX, position_init, x_target);
+  ops.AddOp(motive::kTranslateY, position_init, y_target);
+  ops.AddOp(motive::kTranslateZ, position_init, z_target);
+  ops.AddOp(motive::kRotateAboutY, y_rotation);
+  ops.AddOp(motive::kRotateAboutZ, rotation_init, z_rotation_target);
+  motive::MatrixInit init(ops);
   motivator_.Initialize(init, engine);
 }
 
