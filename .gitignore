@@ -23,6 +23,11 @@ pie_noon.xcodeproj/
 pie_noon_ios/pie_noon_ios.xcodeproj/
 pie_noon_ios/pie_noon_ios.build/
 pie_noon_ios/tests/
+pie_noon_ios/assets/
+pie_noon_ios/macosx/pie_noon_ios.xcodeproj/
+pie_noon_ios/macosx/pie_noon_ios.build/
+pie_noon_ios/macosx/tests/
+pie_noon_ios/macosx/assets/
 pie_noon_macosx/pie_noon_macosx.xcodeproj/
 pie_noon_macosx/pie_noon_macosx.build/
 pie_noon_macosx/tests/

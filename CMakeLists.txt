@@ -11,7 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-cmake_minimum_required(VERSION 2.8.12)
+
+if(fpl_ios)
+  # seamless toggle between device and simulator
+  set(CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphoneos;-iphonesimulator")
+  add_definitions(-D__IOS__)
+  cmake_minimum_required(VERSION 3.3.1)
+else()
+  cmake_minimum_required(VERSION 2.8.12)
+endif()
 
 project(pie_noon)
 
@@ -45,6 +53,8 @@ set(dependencies_gtest_dir "${fpl_root}/googletest"
     CACHE PATH "Directory containing the GoogleTest library.")
 set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
+set(dependencies_fplbase_dir "${fpl_root}/fplbase"
+    CACHE PATH "Directory containing the FplBase library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"
     CACHE PATH "Directory containing the fplutil library.")
 set(dependencies_pindrop_dir "${fpl_root}/pindrop"
@@ -103,7 +113,10 @@ add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
 
 # Include SDL in this project while working around SDL requirement of out of
 # tree builds.
-set(SDL_SHARED OFF CACHE BOOL "Build a shared version of the library")
+if(NOT fpl_ios)
+  set(SDL_SHARED OFF CACHE BOOL "Build a shared version of the library")
+endif()
+
 # (hack) We redefine install to stop SDL's CMakeLists.txt from referring to SDL2 lib
 function(install)
 endfunction(install)
@@ -116,7 +129,7 @@ set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/.)
 if(APPLE)
   set(SDL_AUDIO_DRIVER_COREAUDIO 1)
 endif(APPLE)
-if(NOT pie_noon_only_flatc AND NOT TARGET SDL2-static)
+if(NOT pie_noon_only_flatc AND NOT TARGET SDL2-static AND NOT fpl_ios)
   add_subdirectory(${dependencies_sdl_dir} ${tmp_dir}/sdl)
 endif()
 set(CMAKE_BINARY_DIR ${BIN_DIR})
@@ -150,8 +163,10 @@ if(NOT pie_noon_only_flatc)
 endif()
 
 # Include SDL Mixer.
-set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
-if(NOT pie_noon_only_flatc AND NOT TARGET sdl_mixer)
+if(NOT fpl_ios)
+  set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
+endif()
+if(NOT pie_noon_only_flatc AND NOT TARGET sdl_mixer AND NOT fpl_ios)
   add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" ${tmp_dir}/sdl_mixer)
 endif()
 
@@ -167,6 +182,11 @@ set(CMAKE_BUILD_TYPE ${original_build_type})
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
 if(NOT TARGET flatc)
   add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
+endif()
+
+# Include fplbase in this project.
+if(NOT pie_noon_only_flatc AND NOT TARGET fplbase)
+  add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
 endif()
 
 # Generate source files for all FlatBuffers schema files under the src
@@ -186,21 +206,47 @@ foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
     COMMAND flatc --gen-includes -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -I ${dependencies_motive_dir}/schemas
         -I ${dependencies_pindrop_dir}/schemas -c ${flatbuffers_schema}
-    DEPENDS flatc motive pindrop ${flatbuffers_schema})
+    DEPENDS flatc $<TARGET_FILE:motive> $<TARGET_FILE:pindrop>
+            ${flatbuffers_schema})
   list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
-add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
+add_custom_target(generated_includes 
+                DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES} motive pindrop)
 
 # Build rule that uses make to build the assets.
 add_custom_target(assets
   COMMAND python ${CMAKE_SOURCE_DIR}/scripts/build_assets.py
-                 --flatc $<TARGET_FILE:flatc> --output ${CMAKE_BINARY_DIR}/assets
+              --flatc $<TARGET_FILE:flatc> --output ${CMAKE_BINARY_DIR}/assets
   DEPENDS flatc ${CWEBP_TARGET})
 
+# Set iOS specific attributes
+# This is required for the output dependencies for generated
+# includes (e.g. motive pindrop) to end up the right directory
+# This is necessary because iOS adds $(EFFECTIVE_PLATFORM_NAME)
+# viz. -iphoneos and -iphonesimulator in front of the configuration name
+# e.g. Debug-iphoneos instead of Debug
+mathfu_set_ios_attributes(generated_includes)
+
+# Set iOS specific attributes in for dependent libs
+mathfu_set_ios_attributes(flatbuffers)
+mathfu_set_ios_attributes(libfreetype)
+mathfu_set_ios_attributes(webp)
+mathfu_set_ios_attributes(libharfbuzz)
+
 if(APPLE)
-  find_library(OPENGL_LIBRARIES NAMES GL GLU)
-  SET(CMAKE_CXX_LINK_FLAGS "-framework OpenGL")
+  if(NOT fpl_ios)
+    find_library(OPENGL_LIBRARIES NAMES GL GLU)
+    set(CMAKE_CXX_LINK_FLAGS "-framework OpenGL")
+  else()
+    set(CMAKE_CXX_LINK_FLAGS "-lSDL2 -lSDL2_mixer -framework OpenGLES
+        -framework CoreGraphics -framework Foundation
+        -framework CoreLocation -framework CoreFoundation
+        -framework QuartzCore -framework UIKit
+        -framework AudioToolbox -framework GLKit")
+  endif()
 endif()
+
+
 
 # PieNoon source files.
 set(pie_noon_SRCS
@@ -302,12 +348,14 @@ include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${PINDROP_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
+include_directories(${dependencies_fplbase_dir}/include)
 include_directories(${dependencies_motive_dir}/include)
 include_directories(${dependencies_pindrop_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/include)
 include_directories(${dependencies_webp_distr_dir}/src)
 
 # SDL includes.
+set(SDL2_SOURCE_DIR "${dependencies_sdl_dir}")
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 
 # libogg includes.
@@ -326,7 +374,7 @@ include_directories(${dependencies_harfbuzz_distr_dir}/src)
 include_directories(${dependencies_freetype_distr_dir}/include)
 
 # Detect clang
-if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR 
+if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR
    CMAKE_CXX_COMPILER_ID MATCHES ".*clang")
   set(CMAKE_COMPILER_IS_CLANGXX 1)
 endif()
@@ -350,7 +398,6 @@ if(PIE_NOON_DEBUG)
   #add_definitions(-D_DEBUG)
 endif()
 
-set (SDL_LIBRARIES SDL2-static)
 if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES)
   set(OPENGL_LIBRARIES opengl32)
@@ -358,23 +405,107 @@ if(WIN32)
   link_directories("$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}")
 endif()
 
-# Executable target.
-add_executable(pie_noon ${pie_noon_SRCS})
-# Additional flags for the target.
-mathfu_configure_flags(pie_noon)
-# Dependencies for the executable target.
-add_dependencies(pie_noon generated_includes assets)
-target_link_libraries(pie_noon
-  ${SDL_LIBRARIES}
-  motive
-  pindrop
-  sdl_mixer
-  libvorbis
-  libogg
-  libharfbuzz
-  libfreetype
-  ${OPENGL_LIBRARIES}
-  webp)
+if(NOT fpl_ios)
+  set(SDL_LIBRARIES SDL2-static)
+  # Executable target.
+  add_executable(pie_noon ${pie_noon_SRCS})
+  # Additional flags for the target.
+  mathfu_configure_flags(pie_noon)
+  # Dependencies for the executable target.
+  add_dependencies(pie_noon generated_includes assets motive)
+  target_link_libraries(pie_noon
+    ${SDL_LIBRARIES}
+    motive
+    pindrop
+    sdl_mixer
+    libvorbis
+    libogg
+    libharfbuzz
+    libfreetype
+    fplbase
+    ${OPENGL_LIBRARIES}
+    webp)
+else()
+  # Copy resources from macosx version
+  file(GLOB_RECURSE pie_noon_RESOURCES
+    ${CMAKE_CURRENT_BINARY_DIR}/macosx/assets/*.*)
+  foreach(FILE ${pie_noon_RESOURCES})
+    file(RELATIVE_PATH variable
+      ${CMAKE_CURRENT_BINARY_DIR}/macosx/assets ${FILE})
+    get_filename_component(dir ${variable} DIRECTORY)
+    set_source_files_properties(
+      ${FILE}
+      PROPERTIES
+      MACOSX_PACKAGE_LOCATION pie_noon.app/assets/${dir}
+      GENERATED TRUE)
+  endforeach()
+
+  # Link directories for SDL2
+  link_directories("${dependencies_sdl_dir}/Xcode-iOS/SDL/build")
+  link_directories("${dependencies_sdl_mixer_distr_dir}/Xcode-iOS/build")
+
+  # Executable target.
+  add_executable(pie_noon MACOSX_BUNDLE ${pie_noon_SRCS} ${pie_noon_RESOURCES})
+
+  # Additional flags for the target.
+  mathfu_configure_flags(pie_noon)
+
+  # Add SDL2 targets
+  add_custom_target(sdl2_device
+    COMMAND xcodebuild -configuration $(CONFIGURATION) -sdk iphoneos
+    ARCHS=\"arm64 armv7\" ONLY_ACTIVE_ARCH=NO
+    -project ${dependencies_sdl_dir}/Xcode-iOS/SDL/SDL.xcodeproj)
+
+  add_custom_target(sdl2_simulator
+    COMMAND xcodebuild -configuration $(CONFIGURATION) -sdk iphonesimulator
+    ARCHS=\"i386 x86_64\" ONLY_ACTIVE_ARCH=NO
+    -project ${dependencies_sdl_dir}/Xcode-iOS/SDL/SDL.xcodeproj)
+
+  add_custom_target(sdl2_mixer_device
+    COMMAND xcodebuild -configuration $(CONFIGURATION) -sdk iphoneos
+    ARCHS=\"arm64 armv7\" ONLY_ACTIVE_ARCH=NO
+    -project ${dependencies_sdl_mixer_distr_dir}/Xcode-iOS/SDL_mixer.xcodeproj)
+
+  add_custom_target(sdl2_mixer_simulator
+    COMMAND xcodebuild -configuration $(CONFIGURATION) -sdk iphonesimulator
+    ARCHS=\"i386 x86_64\" ONLY_ACTIVE_ARCH=NO
+  -project ${dependencies_sdl_mixer_distr_dir}/Xcode-iOS/SDL_mixer.xcodeproj)
+
+  # Dependencies for the executable target.
+  add_dependencies(pie_noon libharfbuzz libfreetype pindrop motive webp
+    sdl2_device sdl2_simulator sdl2_mixer_device sdl2_mixer_simulator
+    generated_includes)
+
+  # Skip the platform compiler checks for cross compiling
+  set(CMAKE_CXX_COMPILER_WORKS TRUE)
+  set(CMAKE_C_COMPILER_WORKS TRUE)
+
+  # Set iOS specific attributes
+  mathfu_set_ios_attributes(pie_noon)
+
+  set_target_properties(pie_noon PROPERTIES
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
+  set_target_properties(pie_noon PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST pie_noon_ios.plist)
+  set_target_properties(pie_noon PROPERTIES
+    XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
+
+  # Use the TARGET_FILE generator expression to get the full path of these libs
+  # This is necessary because iOS adds $(EFFECTIVE_PLATFORM_NAME)
+  # viz. -iphoneos and -iphonesimulator in front of the configuration name
+  # e.g. Debug-iphoneos instead of Debug
+  target_link_libraries(pie_noon
+    $<TARGET_FILE:motive>
+    $<TARGET_FILE:pindrop>
+    $<TARGET_FILE:libharfbuzz>
+    $<TARGET_FILE:libfreetype>
+    $<TARGET_FILE:webp>)
+endif()
+
+# Create a zipped tar of all the necessary files to run the game.
+add_custom_target(export
+  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/export.py
+  DEPENDS pie_noon)
 
 # Tests.
 if(NOT pie_noon_only_flatc)
@@ -383,8 +514,5 @@ if(NOT pie_noon_only_flatc)
   endif()
 endif()
 
-# Create a zipped tar of all the necessary files to run the game.
-add_custom_target(export
-  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/export.py
-  DEPENDS pie_noon)
+
 
