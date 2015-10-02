@@ -18,13 +18,21 @@ googletest/
 mathfu/
 sdl/
 pie_noon.build/
-pie_noon.xcodeproj/
 pie_noon.dir/
+pie_noon.xcodeproj/
+pie_noon_ios/pie_noon_ios.xcodeproj/
+pie_noon_ios/pie_noon_ios.build/
+pie_noon_ios/tests/
+pie_noon_macosx/pie_noon_macosx.xcodeproj/
+pie_noon_macosx/pie_noon_macosx.build/
+pie_noon_macosx/tests/
+pie_noon_macosx/assets/
 tests/Debug/
 tests/Release/
 tests/pie_noon.build/
 tests/angle_test.dir/
 tests/character_state_machine_test.dir/
+tests/impel_test.dir/
 libogg/liblibogg.a
 libvorbis/liblibvorbis.a
 sdl_mixer/libsdl_mixer.a
@@ -33,6 +41,10 @@ webp/libexampleutil.a
 webp/cwebp
 webp/dwebp
 webp/include/*
+*.o
+*.d
+*.a
+xcuserdata
 
 # Visual Studio files
 build/
@@ -69,4 +81,5 @@ src_java/org/
 
 # symlink to the Google Play Services library.
 google-play-services_lib
+
 
