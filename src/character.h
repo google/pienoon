@@ -225,7 +225,7 @@ class AirbornePie {
   WorldTime flight_time_;
   CharacterHealth original_damage_;
   CharacterHealth damage_;
-  motive::MotivatorMatrix4f motivator_;
+  motive::MatrixMotivator4f motivator_;
 };
 
 // Return index of first item with time >= t.

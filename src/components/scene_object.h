@@ -161,7 +161,7 @@ class SceneObjectData {
 
   // Position, orientation, and scale (in local space) of the object.
   // Composed of the basic matrix operations in TransformMatrixOperations.
-  motive::MotivatorMatrix4f transform_;
+  motive::MatrixMotivator4f transform_;
 
   // The parent defines the scene heirarchy. This scene object is positioned
   // relative to its parent. That is,
