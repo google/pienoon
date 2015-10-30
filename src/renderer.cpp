@@ -169,6 +169,7 @@ void Renderer::ShutDown() {
     SDL_DestroyWindow(window_);
     window_ = nullptr;
   }
+  SDL_Quit();
 }
 
 void Renderer::ClearFrameBuffer(const vec4 &color) {
