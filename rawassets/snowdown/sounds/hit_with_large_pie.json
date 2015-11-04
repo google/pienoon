@@ -1,0 +1,26 @@
+{
+  "name": "HitWithLargePie",
+  "bus": "game_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_01.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_04.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_05.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_08.ogg"
+      }
+    }
+  ]
+}

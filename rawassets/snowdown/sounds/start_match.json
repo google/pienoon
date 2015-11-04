@@ -1,0 +1,11 @@
+{
+  "name": "StartMatch",
+  "bus": "ui_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/start_01.ogg"
+      }
+    }
+  ]
+}

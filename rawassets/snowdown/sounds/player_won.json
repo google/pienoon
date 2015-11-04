@@ -1,0 +1,46 @@
+{
+  "name": "PlayerWon",
+  "bus": "voices",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_01.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_02.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_03.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_04.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_05.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_06.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_07.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charwin_08.ogg"
+      }
+    }
+  ]
+}

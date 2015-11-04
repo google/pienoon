@@ -1,0 +1,23 @@
+{
+  "name": "Loading_2",
+  "bus": "game_sound_effects",
+  "gain": 0.2,
+  "priority": 0.4,
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/throwready_03.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throwready_04.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throwready_05.ogg"
+      }
+    }
+  ]
+}

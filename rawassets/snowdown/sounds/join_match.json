@@ -1,0 +1,11 @@
+{
+  "name": "JoinMatch",
+  "bus": "ui_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/joingame_01.ogg"
+      }
+    }
+  ]
+}

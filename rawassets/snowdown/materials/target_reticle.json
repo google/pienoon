@@ -1,0 +1,10 @@
+{
+    "texture_filenames": [
+        "textures/target_reticle.webp"
+    ],
+    "blendmode": "ALPHA",
+    "desired_format": [
+        "F_8888"
+    ]
+}
+

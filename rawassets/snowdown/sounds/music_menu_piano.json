@@ -1,0 +1,13 @@
+{
+  "name": "MusicMenuPiano",
+  "bus": "title_screen_music",
+  "stream": true,
+  "loop": true,
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/music_menu_piano.ogg"
+      }
+    }
+  ]
+}

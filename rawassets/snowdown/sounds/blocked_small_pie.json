@@ -1,0 +1,21 @@
+{
+  "name": "BlockedSmallPie",
+  "bus": "game_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/charblock_01.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charblock_02.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charblock_03.ogg"
+      }
+    }
+  ]
+}

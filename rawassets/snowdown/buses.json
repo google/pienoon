@@ -1,0 +1,61 @@
+{
+  "buses": [
+    {
+      "name": "master",
+      "gain": 1.0,
+      "child_buses": [
+        "sound_effects",
+        "voices",
+        "music"
+      ]
+    },
+    {
+      "name": "voices",
+      "gain": 1.0
+    },
+    {
+      "name": "sound_effects",
+      "gain": 1.0,
+      "child_buses" : [
+        "game_sound_effects",
+        "ui_sound_effects"
+      ]
+    },
+    {
+      "name": "game_sound_effects",
+      "gain": 1.0
+    },
+    {
+      "name": "ui_sound_effects",
+      "gain": 1.0
+    },
+    {
+      "name": "ambience",
+      "gain": 1.0
+    },
+    {
+      "name": "music",
+      "gain": 1.0,
+      "child_buses": [
+        "title_screen_music",
+        "stingers"
+      ]
+    },
+    {
+      "name": "title_screen_music",
+      "gain": 1.0,
+      "duck_buses": [
+        "game_sound_effects"
+      ],
+      "duck_gain": 0.1
+    },
+    {
+      "name": "stingers",
+      "gain": 1.0,
+      "duck_buses": [
+        "game_sound_effects"
+      ],
+      "duck_gain": 0.1
+    }
+  ]
+}

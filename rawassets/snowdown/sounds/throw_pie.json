@@ -1,0 +1,46 @@
+{
+  "name": "ThrowPie",
+  "bus": "game_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_01.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_02.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_03.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_04.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_05.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_06.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_07.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/throw_08.ogg"
+      }
+    }
+  ]
+}

@@ -1,0 +1,520 @@
+{
+  "states": [
+    {
+      "id": "Idling",
+      "transitions": [
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "went_down": "JustHit"
+          }
+        },
+        {
+          "target_state": "Loading_1",
+          "condition": {
+            "went_down": "AnimationEnd"
+          }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "is_down": "Deflect",
+            "time": 100
+          }
+        },
+        {
+          "target_state": "Won",
+          "condition": {
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 400,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterIdle"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Jumping",
+      "transitions": [
+        {
+          "target_state": "Joining",
+          "condition": {
+            "went_down": "AnimationEnd"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 200,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterWin"
+          }
+        ],
+        "events": [
+          {
+            "time": 0,
+            "event": "fpl.pie_noon.EventId.JumpWhileJoining",
+            "modifier": 0
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "PlayerWon"
+          }
+        ]
+      }
+    },
+
+    {
+      "id": "Joining",
+      "transitions": [
+        {
+          "target_state": "Jumping",
+          "condition": {
+            "went_down": "Deflect",
+            "time": 100
+          }
+        },
+        {
+          "target_state": "Jumping",
+          "condition": {
+            "went_down": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Jumping",
+          "condition": {
+            "is_down": "JoinedGame"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 750,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterIdle"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Loading_1",
+      "transitions": [
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "went_down": "JustHit"
+          }
+        },
+        {
+          "target_state": "Throwing",
+          "condition": {
+            "went_down": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "is_down": "Deflect"
+          }
+        },
+        {
+          "target_state": "Won",
+          "condition": {
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
+          }
+        },
+        {
+          "target_state": "Loading_2",
+          "condition": {
+            "game_mode" : "SinglePlayerOnly",
+            "went_down": "AnimationEnd"
+          }
+        },
+        {
+          "target_state": "Loading_2",
+          "condition": {
+            "game_mode" : "MultiPlayerOnly",
+            "went_down": "TriggerPieGrowth"
+          }
+        },
+      ],
+      "timeline": {
+        "end_time": 750,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterLoad1"
+          }
+        ],
+        "accessories": [
+          {
+            "time": 0,
+            "end_time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.PieSmall",
+            "offset": {
+              "x": 2,
+              "y": 162
+            }
+          }
+        ],
+        "events": [
+          {
+            "time": 0,
+            "event": "fpl.pie_noon.EventId.LoadPie",
+            "modifier": 1
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "Loading_1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Loading_2",
+      "transitions": [
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "went_down": "JustHit"
+          }
+        },
+        {
+          "target_state": "Throwing",
+          "condition": {
+            "went_down": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "is_down": "Deflect"
+          }
+        },
+        {
+          "target_state": "Won",
+          "condition": {
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
+          }
+        },
+        {
+          "target_state": "Loading_3",
+          "condition": {
+            "game_mode" : "SinglePlayerOnly",
+            "went_down": "AnimationEnd"
+          }
+        },
+        {
+          "target_state": "Loading_3",
+          "condition": {
+            "game_mode" : "MultiPlayerOnly",
+            "went_down": "TriggerPieGrowth"
+          }
+        },
+      ],
+      "timeline": {
+        "end_time": 750,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterLoad2"
+          }
+        ],
+        "accessories": [
+          {
+            "time": 0,
+            "end_time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.PieMedium",
+            "offset": {
+              "x": 14,
+              "y": 350
+            }
+          }
+        ],
+        "events": [
+          {
+            "time": 0,
+            "event": "fpl.pie_noon.EventId.LoadPie",
+            "modifier": 3
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "Loading_2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Loading_3",
+      "transitions": [
+        {
+          "target_state": "Won",
+          "condition": {
+            "is_down": "Won"
+          }
+        },
+        {
+          "target_state": "KO",
+          "condition": {
+            "is_down": "Lost"
+          }
+        },
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "went_down": "JustHit"
+          }
+        },
+        {
+          "target_state": "Throwing",
+          "condition": {
+            "went_down": "ThrowPie"
+          }
+        },
+        {
+          "target_state": "Blocking",
+          "condition": {
+            "is_down": "Deflect"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 750,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterLoad3"
+          }
+        ],
+        "accessories": [
+          {
+            "time": 0,
+            "end_time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.PieLarge",
+            "offset": {
+              "x": -120,
+              "y": 300
+            }
+          }
+        ],
+        "events": [
+          {
+            "time": 0,
+            "event": "fpl.pie_noon.EventId.LoadPie",
+            "modifier": 5
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "Loading_3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Throwing",
+      "transitions": [
+        {
+          "target_state": "Idling",
+          "condition": {
+            "went_down": "AnimationEnd"
+          }
+        },
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "went_down": "JustHit"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 750,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterThrow"
+          }
+        ],
+        "events": [
+          {
+            "time": 0,
+            "event": "fpl.pie_noon.EventId.ReleasePie",
+            "modifier": 0
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "ThrowPie"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Blocking",
+      "transitions": [
+        {
+          "target_state": "Idling",
+          "condition": {
+            "is_up": "Deflect"
+          }
+        },
+        {
+          "target_state": "Loading_1",
+          "condition": {
+            "went_down": "ThrowPie"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterBlock"
+          }
+        ],
+        "accessories": [
+          {
+            "time": 50,
+            "end_time": 65000,
+            "renderable": "fpl.pie_noon.RenderableId.PieBlock",
+            "offset": {
+              "x": -16,
+              "y": 45
+            }
+          }
+        ]
+      },
+      "conditional_events": [
+        {
+          "condition": {
+            "went_down": "JustHit"
+          },
+          "event": "fpl.pie_noon.EventId.DeflectPie"
+        }
+      ]
+    },
+    {
+      "id": "HitByPie",
+      "transitions": [
+        {
+          "target_state": "KO",
+          "condition": {
+            "went_down": "NoHealth"
+          }
+        },
+        {
+          "target_state": "Idling",
+          "condition": {
+            "went_down": "AnimationEnd"
+          }
+        },
+        {
+          "target_state": "HitByPie",
+          "condition": {
+            "went_down": "JustHit"
+          }
+        }
+      ],
+      "timeline": {
+        "end_time": 500,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame0"
+          },
+          {
+            "time": 125,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame1"
+          },
+          {
+            "time": 250,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame2"
+          },
+          {
+            "time": 375,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterHitByPieFrame3"
+          }
+        ],
+        "events": [
+          {
+            "time": 0,
+            "event": "fpl.pie_noon.EventId.TakeDamage",
+            "modifier": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "KO",
+      "timeline": {
+        "end_time": 750,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterKnockedOut"
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "PlayerLost"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Won",
+      "timeline": {
+        "end_time": 1000,
+        "renderables": [
+          {
+            "time": 0,
+            "renderable": "fpl.pie_noon.RenderableId.CharacterWin"
+          }
+        ],
+        "sounds": [
+          {
+            "time": 0,
+            "sound": "PlayerWon"
+          }
+        ]
+      }
+    }
+  ],
+  "initial_state": "Idling"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "BlockedMediumPie",
+  "bus": "game_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/charblock_04.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charblock_05.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/charblock_06.ogg"
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "HitWithMediumPie",
+  "bus": "game_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_02.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_03.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_06.ogg"
+      }
+    },
+    {
+      "audio_sample": {
+        "filename": "sounds/piehit_07.ogg"
+      }
+    }
+  ]
+}

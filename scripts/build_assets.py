@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Builds all assets under src/rawassets/, writing the results to assets/.
+"""Builds all assets under rawassets/[sub], writing results to assets/[sub].
 
 Finds the flatbuffer compiler and cwebp tool and then uses them to convert the
 JSON files to flatbuffer binary files and the png files to webp files so that
@@ -83,7 +83,7 @@ CWEBP_PATHS = [
 ASSETS_PATH = os.path.join(PROJECT_ROOT, 'assets')
 
 # Directory where unprocessed assets can be found.
-RAW_ASSETS_PATH = os.path.join(PROJECT_ROOT, 'src', 'rawassets')
+RAW_ASSETS_PATH = os.path.join(PROJECT_ROOT, 'rawassets', 'snowdown')
 
 # Directory where unprocessed sound flatbuffer data can be found.
 RAW_SOUND_PATH = os.path.join(RAW_ASSETS_PATH, 'sounds')

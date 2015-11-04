@@ -1,0 +1,11 @@
+{
+  "name": "FocusMenuItem",
+  "bus": "ui_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/focus_menu_item.ogg"
+      }
+    }
+  ]
+}
