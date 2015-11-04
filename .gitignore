@@ -7,6 +7,14 @@ tests/*_test
 *.bin
 *.webp
 
+# Assets
+assets/*.pieconfig
+assets/*.piestate
+assets/*.pinbus
+assets/sound_banks/*.pinbank
+assets/sounds/*.pinsound
+assets/materials/*.fplmat
+
 # CMake files
 CMakeCache.txt
 CMakeFiles/

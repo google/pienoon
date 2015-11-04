@@ -891,3 +891,5 @@ table Config {
 }
 
 root_type Config;
+file_identifier "PIEC";
+file_extension "pieconfig";

@@ -135,3 +135,5 @@ table CharacterStateMachineDef {
 }
 
 root_type CharacterStateMachineDef;
+file_identifier "PIES";
+file_extension "piestate";

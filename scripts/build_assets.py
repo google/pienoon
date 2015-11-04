@@ -126,9 +126,10 @@ class FlatbuffersConversionData(object):
     input_files: A list of input files to convert.
   """
 
-  def __init__(self, schema, input_files):
+  def __init__(self, schema, extension, input_files):
     """Initializes this object's schema and input_files."""
     self.schema = schema
+    self.extension = extension
     self.input_files = input_files
 
 
@@ -147,23 +148,29 @@ def find_in_paths(name, paths):
 FLATBUFFERS_CONVERSION_DATA = [
     FlatbuffersConversionData(
         schema=find_in_paths('config.fbs', SCHEMA_PATHS),
+        extension='.pieconfig',
         input_files=[os.path.join(RAW_ASSETS_PATH, 'config.json'),
                      os.path.join(RAW_ASSETS_PATH, 'cardboard_config.json')]),
     FlatbuffersConversionData(
         schema=find_in_paths('buses.fbs', SCHEMA_PATHS),
+        extension='.pinbus',
         input_files=[os.path.join(RAW_ASSETS_PATH, 'buses.json')]),
     FlatbuffersConversionData(
         schema=find_in_paths('sound_bank_def.fbs', SCHEMA_PATHS),
+        extension='.pinbank',
         input_files=glob.glob(os.path.join(RAW_SOUND_BANK_PATH, '*.json'))),
     FlatbuffersConversionData(
         schema=find_in_paths('character_state_machine_def.fbs', SCHEMA_PATHS),
+        extension='.piestate',
         input_files=[os.path.join(RAW_ASSETS_PATH,
                                   'character_state_machine_def.json')]),
     FlatbuffersConversionData(
         schema=find_in_paths('sound_collection_def.fbs', SCHEMA_PATHS),
+        extension='.pinsound',
         input_files=glob.glob(os.path.join(RAW_SOUND_PATH, '*.json'))),
     FlatbuffersConversionData(
         schema=find_in_paths('materials.fbs', SCHEMA_PATHS),
+        extension='.fplmat',
         input_files=glob.glob(os.path.join(RAW_MATERIAL_PATH, '*.json')))
 ]
 
@@ -257,15 +264,19 @@ def needs_rebuild(source, target):
       os.path.getmtime(source) > os.path.getmtime(target))
 
 
-def processed_json_path(path, target_directory):
+def processed_json_path(path, target_directory, target_extension):
   """Take the path to a raw json asset and convert it to target bin path.
 
   Args:
+    path: Path to the source JSON file.
     target_directory: Path to the target assets directory.
+    target_extension: Extension of the target file.
+
+  Returns:
+    Path to the target file from the source JSON.
   """
   return path.replace(RAW_ASSETS_PATH, target_directory).replace(
-    '.json', '.bin')
-
+      '.json', target_extension)
 
 def generate_flatbuffer_binaries(flatc, target_directory):
   """Run the flatbuffer compiler on the all of the flatbuffer json files.
@@ -276,13 +287,15 @@ def generate_flatbuffer_binaries(flatc, target_directory):
   """
   for element in FLATBUFFERS_CONVERSION_DATA:
     schema = element.schema
-    for json in element.input_files:
-      target = processed_json_path(json, target_directory)
+    for json_file in element.input_files:
+      target = processed_json_path(json_file, target_directory,
+                                   element.extension)
       target_file_dir = os.path.dirname(target)
       if not os.path.exists(target_file_dir):
         os.makedirs(target_file_dir)
-      if needs_rebuild(json, target) or needs_rebuild(schema, target):
-        convert_json_to_flatbuffer_binary(flatc, json, schema, target_file_dir)
+      if needs_rebuild(json_file, target) or needs_rebuild(schema, target):
+        convert_json_to_flatbuffer_binary(flatc, json_file, schema,
+                                          target_file_dir)
 
 
 def generate_webp_textures(target_directory):
@@ -341,7 +354,7 @@ def clean_flatbuffer_binaries(target_directory):
   """
   for element in FLATBUFFERS_CONVERSION_DATA:
     for json in element.input_files:
-      path = processed_json_path(json, target_directory)
+      path = processed_json_path(json, target_directory, element.extension)
       if os.path.isfile(path):
         os.remove(path)
 
