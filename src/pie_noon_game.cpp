@@ -92,10 +92,10 @@ static const Attribute kQuadMeshFormat[] = {kPosition3f, kTexCoord2f, kNormal3f,
 
 static const char kAssetsDir[] = "assets";
 
-static const char kConfigFileName[] = "config.bin";
+static const char kConfigFileName[] = "config.pieconfig";
 
 #ifdef ANDROID_CARDBOARD
-static const char kCardboardConfigFileName[] = "cardboard_config.bin";
+static const char kCardboardConfigFileName[] = "cardboard_config.pieconfig";
 #endif
 
 #ifdef __ANDROID__
@@ -168,7 +168,7 @@ PieNoonGame::~PieNoonGame() {
 
 bool PieNoonGame::InitializeConfig() {
   if (!LoadFile(kConfigFileName, &config_source_)) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load config.bin\n");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "can't load %s\n", kConfigFileName);
     return false;
   }
   return true;
@@ -352,7 +352,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
     return false;
 
   // Load shadow material:
-  shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.bin");
+  shadow_mat_ = matman_.LoadMaterial("materials/floor_shadows.fplmat");
   if (!shadow_mat_) return false;
 
   // Load debug shader if available
@@ -403,7 +403,7 @@ bool PieNoonGame::InitializeGameState() {
   motive::MatrixInit::Register();
 
   // Load flatbuffer into buffer.
-  if (!LoadFile("character_state_machine_def.bin", &state_machine_source_)) {
+  if (!LoadFile("character_state_machine_def.piestate", &state_machine_source_)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Error loading character state machine.\n");
     return false;
@@ -519,7 +519,7 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
                  "Failed to initialize audio engine.\n");
   }
 
-  if (!audio_engine_.LoadSoundBank("sound_banks/sound_assets.bin")) {
+  if (!audio_engine_.LoadSoundBank("sound_banks/sound_assets.pinbank")) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load sound bank.\n");
   }
 
@@ -704,7 +704,7 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   renderer_.model_view_projection() = camera_transform;
   renderer_.color() = mathfu::kOnes4f;
   shader_textured_->Set(renderer_);
-  auto ground_mat = matman_.LoadMaterial("materials/floor.bin");
+  auto ground_mat = matman_.LoadMaterial("materials/floor.fplmat");
   assert(ground_mat);
   ground_mat->Set(renderer_);
   const float ground_width = game_state_.is_in_cardboard()

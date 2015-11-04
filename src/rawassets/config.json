@@ -638,7 +638,7 @@
     "output_channels": "Stereo",
     "output_buffer_size": 2048,
     "mixer_channels": 16,
-    "bus_file": "buses.bin"
+    "bus_file": "buses.pinbus"
   },
 
     "confetti_def": {
@@ -892,20 +892,20 @@
   "stick_y_offset": -1.0,
   "stick_front_z_offset": -0.01,
   "stick_back_z_offset": -0.09,
-  "stick_front": "materials/stick.bin",
-  "stick_back": "materials/stick_back.bin",
+  "stick_front": "materials/stick.fplmat",
+  "stick_back": "materials/stick_back.fplmat",
   "stick_bounds": { "x": 64, "y": 256 },
 
-  "loading_material": "materials/loading.bin",
-  "loading_logo": "materials/loading_logo.bin",
-  "fade_material": "materials/pixel1x1.bin",
+  "loading_material": "materials/loading.fplmat",
+  "loading_logo": "materials/loading_logo.fplmat",
+  "fade_material": "materials/pixel1x1.fplmat",
   "min_loading_time": 2000,
   "full_screen_fade_time": 250,
 
   "ui_arrow_offset": { "x": -0.7, "y": 1.0, "z": 0.05 },
   "ui_arrow_scale": { "x": 1.7, "y": 1.7, "z": 1.7 },
 
-  "cardboard_center_material": "materials/pixel1x1.bin",
+  "cardboard_center_material": "materials/pixel1x1.fplmat",
   "cardboard_center_scale": { "x": 0.01, "y": 0.8 },
   "cardboard_center_color": { "x": 0.3, "y": 0.3, "z": 0.3, "w": 1.0 },
 
@@ -935,8 +935,8 @@
         "bottom_right" : { "x": 0.2, "y": 1.0 },
         "ID" : "Left",
         "event_trigger" : "ButtonPress",
-        "texture_normal" : [ { "standard" : "materials/arrow.bin" } ],
-        "texture_pressed" : { "standard" : "materials/arrow.bin" },
+        "texture_normal" : [ { "standard" : "materials/arrow.fplmat" } ],
+        "texture_pressed" : { "standard" : "materials/arrow.fplmat" },
         "texture_position" : { "x": 0.1, "y": 0.85 },
         "draw_scale_normal" : { "x": -0.5, "y": 0.5 },
         "draw_scale_pressed" : { "x": -1.0, "y": 1.0 }
@@ -946,8 +946,8 @@
         "bottom_right" : { "x": 0.4, "y": 1.0 },
         "ID" : "Right",
         "event_trigger" : "ButtonPress",
-        "texture_normal" : [ { "standard" : "materials/arrow.bin" } ],
-        "texture_pressed" : { "standard" : "materials/arrow.bin" },
+        "texture_normal" : [ { "standard" : "materials/arrow.fplmat" } ],
+        "texture_pressed" : { "standard" : "materials/arrow.fplmat" },
         "texture_position" : { "x": 0.3, "y": 0.85 },
         "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
         "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
@@ -957,8 +957,8 @@
         "bottom_right" : { "x": 1.0, "y": 1.0 },
         "ID" : "Defend",
         "event_trigger" : "ButtonHold",
-        "texture_normal" : [ { "standard" : "materials/pie_block.bin" } ],
-        "texture_pressed" : { "standard" : "materials/pie_block.bin" },
+        "texture_normal" : [ { "standard" : "materials/pie_block.fplmat" } ],
+        "texture_pressed" : { "standard" : "materials/pie_block.fplmat" },
         "texture_position" : { "x": 0.9, "y": 0.85 },
         "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
         "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
@@ -968,7 +968,7 @@
         "bottom_right" : { "x": 0.8, "y": 1.0 },
         "ID" : "Attack",
         "event_trigger" : "ButtonPress",
-        "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
+        "texture_pressed" : { "standard" : "materials/ui_pie.fplmat" },
         "texture_position" : { "x": 0.7, "y": 0.85 },
         "draw_scale_normal" : { "x":  0.7, "y": 0.7 },
         "draw_scale_pressed" : { "x": 0.9, "y": 0.9 }
@@ -978,8 +978,8 @@
         "bottom_right" : { "x": 1.0, "y": 0.7 },
         "ID" : "Attack",
         "event_trigger" : "ButtonPress",
-        "texture_normal" : [ { "standard" : "materials/ui_pie.bin" } ],
-        "texture_pressed" : { "standard" : "materials/ui_pie.bin" },
+        "texture_normal" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+        "texture_pressed" : { "standard" : "materials/ui_pie.fplmat" },
         "texture_position" : { "x": 0.7, "y": 0.85 },
         "draw_scale_normal" : { "x":  0.5, "y": 0.5 },
         "draw_scale_pressed" : { "x": 0.9, "y": 0.9 }
@@ -1062,9 +1062,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.6 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/menu_start.bin" }
+            { "standard" : "materials/menu_start.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/menu_start.bin" },
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
           "texture_position" : { "x": 0.53, "y": 0.45 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1078,10 +1078,10 @@
           "bottom_right" : { "x": 0.7, "y": 1.0 },
           "ID" : "MenuGameModes",
           "texture_normal" : [
-            { "standard" : "materials/text_game_modes.bin" }
+            { "standard" : "materials/text_game_modes.fplmat" }
           ],
           "texture_pressed" : {
-            "standard" : "materials/text_game_modes.bin"
+            "standard" : "materials/text_game_modes.fplmat"
           },
           "texture_position" : { "x": 0.5, "y": 0.92 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
@@ -1096,10 +1096,10 @@
           "bottom_right" : { "x": 0.3, "y": 1.0 },
           "ID" : "MenuSignIn",
           "texture_normal" : [
-            { "standard" : "materials/gpg_button.bin" },
-            { "standard" : "materials/gpg_button_disabled.bin" }
+            { "standard" : "materials/gpg_button.fplmat" },
+            { "standard" : "materials/gpg_button_disabled.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/gpg_button.bin" },
+          "texture_pressed" : { "standard" : "materials/gpg_button.fplmat" },
           "texture_position" : { "x": 0.08, "y": 0.92 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -1112,9 +1112,9 @@
           "bottom_right" : { "x": 1.0, "y": 1.0 },
           "ID" : "MenuExtras",
           "texture_normal" : [
-            { "standard" : "materials/license_button.bin" }
+            { "standard" : "materials/license_button.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/license_button.bin" },
+          "texture_pressed" : { "standard" : "materials/license_button.fplmat" },
           "texture_position" : { "x": 0.92, "y": 0.92 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -1126,34 +1126,34 @@
     "static_image_list" : [
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
         },
         {
           "ID" : "MenuSignInText",
           "texture" : [
-              { "standard" : "materials/text_sign_out.bin" },
-              { "standard" : "materials/text_sign_in.bin" }
+              { "standard" : "materials/text_sign_out.fplmat" },
+              { "standard" : "materials/text_sign_in.fplmat" }
           ],
           "texture_position": { "x": 0.20, "y": 0.93 },
           "draw_scale": { "x": 0.8, "y": 0.8 },
           "z_depth" : 0.1
         },
         {
-          "texture" : [ { "standard" : "materials/text_extras.bin" } ],
+          "texture" : [ { "standard" : "materials/text_extras.fplmat" } ],
           "texture_position": { "x": 0.82, "y": 0.93 },
           "draw_scale": { "x": 0.8, "y": 0.8 },
           "z_depth" : 0.1
         },
         {
-          "texture" : [ { "standard" : "materials/multiscreen_button.bin" } ],
+          "texture" : [ { "standard" : "materials/multiscreen_button.fplmat" } ],
           "texture_position" : { "x": 0.34, "y": 0.92 },
           "draw_scale": { "x": 0.4, "y": 0.4 },
           "z_depth" : -0.1
         },
         {
-          "texture" : [ { "standard" : "materials/cardboard_button.bin" } ],
+          "texture" : [ { "standard" : "materials/cardboard_button.fplmat" } ],
           "texture_position" : { "x": 0.66, "y": 0.92 },
           "draw_scale" : { "x": 0.8, "y": 0.8 },
           "z_depth" : -0.1
@@ -1233,9 +1233,9 @@
           "bottom_right" : { "x": 0.8, "y": 0.6 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/menu_start.bin" }
+            { "standard" : "materials/menu_start.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/menu_start.bin" },
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
           "texture_position" : { "x": 0.53, "y": 0.45 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1245,7 +1245,7 @@
     "static_image_list" : [
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
         }
@@ -1279,9 +1279,9 @@
           "bottom_right" : { "x": 0.85, "y": 0.54 },
           "ID" : "MenuAbout",
           "texture_normal" : [
-            { "standard" : "materials/environment_bush.bin" }
+            { "standard" : "materials/environment_bush.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/environment_bush.bin" },
+          "texture_pressed" : { "standard" : "materials/environment_bush.fplmat" },
           "texture_position" : { "x": 0.545, "y": 0.47 },
           "draw_scale_normal" : { "x": 0.22, "y": 0.22 },
           "draw_scale_highlighted": { "x": 0.24, "y": 0.24 },
@@ -1294,9 +1294,9 @@
           "bottom_right" : { "x": 0.5, "y": 0.73 },
           "ID" : "MenuLeaderboard",
           "texture_normal" : [
-            { "standard" : "materials/ui_cloud.bin" }
+            { "standard" : "materials/ui_cloud.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/ui_cloud.bin" },
+          "texture_pressed" : { "standard" : "materials/ui_cloud.fplmat" },
           "texture_position" : { "x": 0.455, "y": 0.65 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -1310,9 +1310,9 @@
           "bottom_right" : { "x": 0.85, "y": 0.73 },
           "ID" : "MenuAchievements",
           "texture_normal" : [
-            { "standard" : "materials/health.bin" }
+            { "standard" : "materials/health.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/health.bin" },
+          "texture_pressed" : { "standard" : "materials/health.fplmat" },
           "texture_position" : { "x": 0.545, "y": 0.65 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -1326,9 +1326,9 @@
           "bottom_right" : { "x": 0.5, "y": 0.93 },
           "ID" : "MenuHowToPlay",
           "texture_normal" : [
-            { "standard" : "materials/ui_throw.bin" }
+            { "standard" : "materials/ui_throw.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/ui_throw.bin" },
+          "texture_pressed" : { "standard" : "materials/ui_throw.fplmat" },
           "texture_position" : { "x": 0.455, "y": 0.81 },
           "draw_scale_normal" : { "x": 0.4, "y": 0.4 },
           "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
@@ -1341,9 +1341,9 @@
           "bottom_right" : { "x": 0.85, "y": 0.93 },
           "ID" : "MenuLicense",
           "texture_normal" : [
-            { "standard" : "materials/license_button.bin" }
+            { "standard" : "materials/license_button.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/license_button.bin" },
+          "texture_pressed" : { "standard" : "materials/license_button.fplmat" },
           "texture_position" : { "x": 0.545, "y": 0.81 },
           "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -1368,57 +1368,57 @@
     "static_image_list" : [
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
         },
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.73 },
           "draw_scale": { "x": 1.64, "y": 2.1 },
           "z_depth" : -0.45
         },
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/environment_string.bin" } ],
+          "texture" : [ { "standard" : "materials/environment_string.fplmat" } ],
           "texture_position": { "x": 0.68, "y": 0.57 },
           "draw_scale": { "x": 0.4, "y": 1.0 },
           "z_depth" : -0.55
         },
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/environment_string.bin" } ],
+          "texture" : [ { "standard" : "materials/environment_string.fplmat" } ],
           "texture_position": { "x": 0.32, "y": 0.57 },
           "draw_scale": { "x": 0.4, "y": 1.0 },
           "z_depth" : -0.55
         },
         {
-          "texture" : [ { "standard" : "materials/text_about.bin" } ],
+          "texture" : [ { "standard" : "materials/text_about.fplmat" } ],
           "texture_position": { "x": 0.655, "y": 0.48 },
           "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         },
         {
-          "texture" : [ { "standard" : "materials/text_leaderboard.bin" } ],
+          "texture" : [ { "standard" : "materials/text_leaderboard.fplmat" } ],
           "texture_position": { "x": 0.335, "y": 0.65 },
           "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         },
         {
-          "texture" : [ { "standard" : "materials/text_achievements.bin" } ],
+          "texture" : [ { "standard" : "materials/text_achievements.fplmat" } ],
           "texture_position": { "x": 0.705, "y": 0.65 },
           "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         },
         {
-          "texture" : [ { "standard" : "materials/text_how_to_play.bin" } ],
+          "texture" : [ { "standard" : "materials/text_how_to_play.fplmat" } ],
           "texture_position": { "x": 0.355, "y": 0.81 },
           "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
         },
         {
-          "texture" : [ { "standard" : "materials/text_license.bin" } ],
+          "texture" : [ { "standard" : "materials/text_license.fplmat" } ],
           "texture_position": { "x": 0.655, "y": 0.81 },
           "draw_scale": { "x": 0.55, "y": 0.55 },
           "z_depth" : -0.4
@@ -1576,10 +1576,10 @@
           "bottom_right" : { "x": 0.7, "y": 0.4 },
           "ID" : "MenuMultiScreenJoin",
           "texture_normal" : [
-            { "standard" : "materials/text_multiscreen_join.bin" }
+            { "standard" : "materials/text_multiscreen_join.fplmat" }
           ],
           "texture_pressed" : { "standard" :
-                                "materials/text_multiscreen_join.bin" },
+                                "materials/text_multiscreen_join.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.35 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1591,10 +1591,10 @@
           "bottom_right" : { "x": 0.7, "y": 0.55 },
           "ID" : "MenuMultiScreenHost",
           "texture_normal" : [
-            { "standard" : "materials/text_multiscreen_host.bin" }
+            { "standard" : "materials/text_multiscreen_host.fplmat" }
           ],
           "texture_pressed" : { "standard" :
-                                "materials/text_multiscreen_host.bin" },
+                                "materials/text_multiscreen_host.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.5 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1607,10 +1607,10 @@
           "bottom_right" : { "x": 0.7, "y": 0.7 },
           "ID" : "MenuHowToPlay",
           "texture_normal" : [
-            { "standard" : "materials/text_multiscreen_how_to_play.bin" }
+            { "standard" : "materials/text_multiscreen_how_to_play.fplmat" }
           ],
           "texture_pressed" : {
-            "standard" : "materials/text_multiscreen_how_to_play.bin"
+            "standard" : "materials/text_multiscreen_how_to_play.fplmat"
           },
           "texture_position" : { "x": 0.5, "y": 0.65 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
@@ -1624,9 +1624,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.85 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_go_back.bin" }
+            { "standard" : "materials/text_go_back.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_go_back.bin" },
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.8 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1637,36 +1637,36 @@
     "static_image_list" :
       [
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.15 },
           "draw_scale": { "x": 1.1, "y": 1.2 },
           "z_depth" : -0.45
         },        {
-          "texture" : [ { "standard" : "materials/text_multiscreen.bin" } ],
+          "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.15 },
           "draw_scale": { "x": 1.4, "y": 1.4 },
           "z_depth" : -0.4
         },
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.35 },
           "draw_scale": { "x": 0.7, "y": 0.7 },
           "z_depth" : -0.55
         },
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.5 },
           "draw_scale": { "x": 0.7, "y": 0.7 },
           "z_depth" : -0.55
         },
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.65 },
           "draw_scale": { "x": 0.7, "y": 0.7 },
           "z_depth" : -0.55
         },
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.8 },
           "draw_scale": { "x": 0.7, "y": 0.7 },
           "z_depth" : -0.55
@@ -1686,9 +1686,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_cancel.bin" }
+            { "standard" : "materials/text_cancel.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_cancel.bin" },
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1698,31 +1698,31 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/text_please_wait.bin" } ],
+        "texture" : [ { "standard" : "materials/text_please_wait.fplmat" } ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen_join.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen_join.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -1742,9 +1742,9 @@
           "bottom_right" : { "x": 0.8, "y": 0.6 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/menu_start.bin" }
+            { "standard" : "materials/menu_start.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/menu_start.bin" },
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.62 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1756,9 +1756,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.85 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_cancel.bin" }
+            { "standard" : "materials/text_cancel.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_cancel.bin" },
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.8 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1769,28 +1769,28 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.4 },
         "draw_scale": { "x": 1.6, "y": 1.3 },
         "z_depth" : -0.55
       },
       {
         // behind the cancel button
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.8 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         // behind the start button
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.62 },
         "draw_scale": { "x": 0.8, "y": 1.0 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_waiting_for_players.bin" }
+          { "standard" : "materials/text_waiting_for_players.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.37 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
@@ -1798,7 +1798,7 @@
       },
       {
         "texture" : [
-          { "standard" : "materials/text_connected_players.bin" }
+          { "standard" : "materials/text_connected_players.fplmat" }
         ],
         "texture_position" : { "x": 0.46, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
@@ -1807,11 +1807,11 @@
       {
         "ID" : "Multiplayer_NumPlayers",
         "texture" : [
-          { "standard" : "materials/text_0.bin" },
-          { "standard" : "materials/text_1.bin" },
-          { "standard" : "materials/text_2.bin" },
-          { "standard" : "materials/text_3.bin" },
-          { "standard" : "materials/text_4.bin" }
+          { "standard" : "materials/text_0.fplmat" },
+          { "standard" : "materials/text_1.fplmat" },
+          { "standard" : "materials/text_2.fplmat" },
+          { "standard" : "materials/text_3.fplmat" },
+          { "standard" : "materials/text_4.fplmat" }
         ],
         "texture_position" : { "x": 0.7, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
@@ -1819,13 +1819,13 @@
       },
       {
         // title text
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen_host.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen_host.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -1845,9 +1845,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_cancel.bin" }
+            { "standard" : "materials/text_cancel.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_cancel.bin" },
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1857,33 +1857,33 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_searching_for_host.bin" }
+          { "standard" : "materials/text_searching_for_host.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen_host.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen_host.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -1903,9 +1903,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_cancel.bin" }
+            { "standard" : "materials/text_cancel.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_cancel.bin" },
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1915,33 +1915,33 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_waiting_for_connection.bin" }
+          { "standard" : "materials/text_waiting_for_connection.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen_join.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen_join.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -1961,9 +1961,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_go_back.bin" }
+            { "standard" : "materials/text_go_back.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_go_back.bin" },
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -1973,33 +1973,33 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_cant_host_game.bin" }
+          { "standard" : "materials/text_cant_host_game.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.9, "y": 1.9 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen_host.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen_host.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -2019,9 +2019,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_go_back.bin" }
+            { "standard" : "materials/text_go_back.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_go_back.bin" },
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -2031,33 +2031,33 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_connection_lost.bin" }
+          { "standard" : "materials/text_connection_lost.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -2078,9 +2078,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_go_back.bin" }
+            { "standard" : "materials/text_go_back.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_go_back.bin" },
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -2090,33 +2090,33 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_all_players_disconnected.bin" }
+          { "standard" : "materials/text_all_players_disconnected.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -2136,9 +2136,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_go_back.bin" }
+            { "standard" : "materials/text_go_back.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_go_back.bin" },
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -2148,33 +2148,33 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_host_disconnected.bin" }
+          { "standard" : "materials/text_host_disconnected.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -2194,9 +2194,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.8 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_cancel.bin" }
+            { "standard" : "materials/text_cancel.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_cancel.bin" },
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.75 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -2206,33 +2206,33 @@
     "static_image_list" : [
       {
         // Splash screen image specified by this material name.
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.5 },
         "draw_scale": { "x": 1.64, "y": 2.1 },
         "z_depth" : -0.55
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.75 },
         "draw_scale": { "x": 0.7, "y": 0.7 },
         "z_depth" : -0.55
       },
       {
         "texture" : [
-          { "standard" : "materials/text_waiting_for_game.bin" }
+          { "standard" : "materials/text_waiting_for_game.fplmat" }
         ],
         "texture_position" : { "x": 0.5, "y": 0.45 },
         "draw_scale" : { "x": 1.2, "y": 1.2 },
         "z_depth" : -0.4
       },
       {
-        "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.1, "y": 1.2 },
         "z_depth" : -0.45
       },
       {
-        "texture" : [ { "standard" : "materials/text_multiscreen_join.bin" } ],
+        "texture" : [ { "standard" : "materials/text_multiscreen_join.fplmat" } ],
         "texture_position": { "x": 0.5, "y": 0.15 },
         "draw_scale": { "x": 1.4, "y": 1.4 },
         "z_depth" : -0.4
@@ -2252,9 +2252,9 @@
           "bottom_right" : { "x": 0.8, "y": 0.6 },
           "ID" : "MenuResume",
           "texture_normal" : [
-            { "standard" : "materials/text_resume.bin" }
+            { "standard" : "materials/text_resume.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_resume.bin" },
+          "texture_pressed" : { "standard" : "materials/text_resume.fplmat" },
           "texture_position" : { "x": 0.52, "y": 0.45 },
           "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -2264,7 +2264,7 @@
     "static_image_list" : [
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
         }
@@ -2298,14 +2298,14 @@
         {
           "ID" : "Multiplayer_Go",
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.2 },
           "draw_scale": { "x": 1, "y": 1 },
           "z_depth" : -0.45
         },
         {
           "ID" : "Multiplayer_Look",
-          "texture" : [ { "standard" : "materials/text_look_down.bin" } ],
+          "texture" : [ { "standard" : "materials/text_look_down.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.2 },
           "draw_scale": { "x": 1, "y": 1 },
           "z_depth" : -0.4
@@ -2326,12 +2326,12 @@
             "bottom_right" : { "x": 0.25, "y": 0.38 },
             "ID" : "Multiplayer_Button2",
             "texture_normal" : [
-              { "standard" : "materials/ui_multiplayer_face.bin" },
-              { "standard" : "materials/ui_multiplayer_ko.bin" },
-              { "standard" : "materials/ui_multiplayer_wait.bin" },
-              { "standard" : "materials/ui_multiplayer_block.bin" },
-              { "standard" : "materials/ui_multiplayer_throw.bin" },
-              { "standard" : "materials/ui_multiplayer_dead.bin" }
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
             ],
             "texture_position" : { "x": 0.2, "y": 0.3 },
             "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
@@ -2347,12 +2347,12 @@
             "bottom_right" : { "x": 0.85, "y": 0.38 },
             "ID" : "Multiplayer_Button3",
             "texture_normal" : [
-              { "standard" : "materials/ui_multiplayer_face.bin" },
-              { "standard" : "materials/ui_multiplayer_ko.bin" },
-              { "standard" : "materials/ui_multiplayer_wait.bin" },
-              { "standard" : "materials/ui_multiplayer_block.bin" },
-              { "standard" : "materials/ui_multiplayer_throw.bin" },
-              { "standard" : "materials/ui_multiplayer_dead.bin" }
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
             ],
             "texture_position" : { "x": 0.8, "y": 0.3 },
             "draw_scale_normal" : { "x": -1.5, "y": 1.5 },
@@ -2368,12 +2368,12 @@
             "bottom_right" : { "x": 0.25, "y": 0.78 },
             "ID" : "Multiplayer_Button1",
             "texture_normal" : [
-              { "standard" : "materials/ui_multiplayer_face.bin" },
-              { "standard" : "materials/ui_multiplayer_ko.bin" },
-              { "standard" : "materials/ui_multiplayer_wait.bin" },
-              { "standard" : "materials/ui_multiplayer_block.bin" },
-              { "standard" : "materials/ui_multiplayer_throw.bin" },
-              { "standard" : "materials/ui_multiplayer_dead.bin" }
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
             ],
             "texture_position" : { "x": 0.2, "y": 0.7 },
             "draw_scale_normal" : { "x":  1.5, "y": 1.5 },
@@ -2389,12 +2389,12 @@
             "bottom_right" : { "x": 0.85, "y": 0.78 },
             "ID" : "Multiplayer_Button4",
             "texture_normal" : [
-              { "standard" : "materials/ui_multiplayer_face.bin" },
-              { "standard" : "materials/ui_multiplayer_ko.bin" },
-              { "standard" : "materials/ui_multiplayer_wait.bin" },
-              { "standard" : "materials/ui_multiplayer_block.bin" },
-              { "standard" : "materials/ui_multiplayer_throw.bin" },
-              { "standard" : "materials/ui_multiplayer_dead.bin" }
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
             ],
             "texture_position" : { "x": 0.8, "y": 0.7 },
             "draw_scale_normal" : { "x": -1.5, "y": 1.5 },
@@ -2410,49 +2410,49 @@
         {
           // Splash screen image specified by this material name.
           "ID" : "MenuMultiScreen",
-          "texture" : [ { "standard" : "materials/cardboard_bg.bin" } ],
+          "texture" : [ { "standard" : "materials/cardboard_bg.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.5 },
           "draw_scale": { "x": 3, "y": 3 },
           "z_depth" : -0.55
         },
         {
           "ID" : "Counter1",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.40, "y": 0.5 },
           "draw_scale": { "x": 0.4, "y": 0.4 },
           "z_depth" : -0.2
         },
         {
           "ID" : "Counter2",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.45, "y": 0.5 },
           "draw_scale": { "x": 0.4, "y": 0.4 },
           "z_depth" : -0.2
         },
         {
           "ID" : "Counter3",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.50, "y": 0.5 },
           "draw_scale": { "x": 0.4, "y": 0.4 },
           "z_depth" : -0.2
         },
         {
           "ID" : "Counter4",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.55, "y": 0.5 },
           "draw_scale": { "x": 0.4, "y": 0.4 },
           "z_depth" : -0.2
         },
         {
           "ID" : "Counter5",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.60, "y": 0.5 },
           "draw_scale": { "x": 0.4, "y": 0.4 },
           "z_depth" : -0.2
         },
         {
           "ID" : "Multiplayer_Look",
-          "texture" : [ { "standard" : "materials/text_look_up.bin" } ],
+          "texture" : [ { "standard" : "materials/text_look_up.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.3 },
           "draw_scale": { "x": 1.1, "y": 1.1 },
           "z_depth" : -0.2
@@ -2460,7 +2460,7 @@
         {
           "ID" : "Multiplayer_Go",
           "texture" : [
-            { "standard" : "materials/text_choose_action_and_target.bin" }
+            { "standard" : "materials/text_choose_action_and_target.fplmat" }
           ],
           "texture_position": { "x": 0.5, "y": 0.3 },
           "draw_scale": { "x": 1.9, "y": 1.9 },
@@ -2469,9 +2469,9 @@
         {
           "ID" : "Multiplayer_Label1",
           "texture" : [
-            { "standard" : "materials/text_grow.bin" } ,
-            { "standard" : "materials/text_block.bin" } ,
-            { "standard" : "materials/text_throw.bin" } ,
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
           ],
           "texture_position": { "x": 0.2, "y": 0.85 },
           "draw_scale": { "x": 1.2, "y": 1.2 },
@@ -2480,9 +2480,9 @@
         {
           "ID" : "Multiplayer_Label2",
           "texture" : [
-            { "standard" : "materials/text_grow.bin" } ,
-            { "standard" : "materials/text_block.bin" } ,
-            { "standard" : "materials/text_throw.bin" } ,
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
           ],
           "texture_position": { "x": 0.2, "y": 0.45 },
           "draw_scale": { "x": 1.2, "y": 1.2 },
@@ -2491,9 +2491,9 @@
         {
           "ID" : "Multiplayer_Label3",
           "texture" : [
-            { "standard" : "materials/text_grow.bin" } ,
-            { "standard" : "materials/text_block.bin" } ,
-            { "standard" : "materials/text_throw.bin" } ,
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
           ],
           "texture_position": { "x": 0.8, "y": 0.45 },
           "draw_scale": { "x": 1.2, "y": 1.2 },
@@ -2502,9 +2502,9 @@
         {
           "ID" : "Multiplayer_Label4",
           "texture" : [
-            { "standard" : "materials/text_grow.bin" } ,
-            { "standard" : "materials/text_block.bin" } ,
-            { "standard" : "materials/text_throw.bin" } ,
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
           ],
           "texture_position": { "x": 0.8, "y": 0.85 },
           "draw_scale": { "x": 1.2, "y": 1.2 },
@@ -2513,7 +2513,7 @@
         {
           "ID" : "Multiplayer_Splat1",
           "texture" : [
-            { "standard" : "materials/multiscreen_splat1.bin" } ,
+            { "standard" : "materials/multiscreen_splat1.fplmat" } ,
           ],
           "texture_position": { "x": 0.2, "y": 0.7 },
           "draw_scale": { "x": 3.3, "y": 3.3 },
@@ -2524,7 +2524,7 @@
         {
           "ID" : "Multiplayer_Splat2",
           "texture" : [
-            { "standard" : "materials/multiscreen_splat2.bin" } ,
+            { "standard" : "materials/multiscreen_splat2.fplmat" } ,
           ],
           "texture_position": { "x": 0.2, "y": 0.3 },
           "draw_scale": { "x": 3.3, "y": 3.3 },
@@ -2535,7 +2535,7 @@
         {
           "ID" : "Multiplayer_Splat3",
           "texture" : [
-            { "standard" : "materials/multiscreen_splat1.bin" } ,
+            { "standard" : "materials/multiscreen_splat1.fplmat" } ,
           ],
           "texture_position": { "x": 0.8, "y": 0.3 },
           "draw_scale": { "x": 3.3, "y": 3.3 },
@@ -2546,7 +2546,7 @@
         {
           "ID" : "Multiplayer_Splat4",
           "texture" : [
-            { "standard" : "materials/multiscreen_splat2.bin" } ,
+            { "standard" : "materials/multiscreen_splat2.fplmat" } ,
           ],
           "texture_position": { "x": 0.8, "y": 0.7 },
           "draw_scale": { "x": 3.3, "y": 3.3 },
@@ -2566,42 +2566,42 @@
     "static_image_list" : [
         {
           "ID" : "Counter1",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.36, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter2",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.44, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter3",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.52, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter4",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.60, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
           "ID" : "Counter5",
-          "texture" : [ { "standard" : "materials/ui_pie.bin" } ],
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
           "texture_position": { "x": 0.68, "y": 0.435 },
           "draw_scale": { "x": 0.4, "y": 0.4 }
         },
         {
-          "texture" : [ { "standard" : "materials/text_join_in.bin" } ],
+          "texture" : [ { "standard" : "materials/text_join_in.fplmat" } ],
           "texture_position": { "x": 0.58, "y": 0.445 },
           "draw_scale": { "x": 0.8, "y": 0.8 }
         },
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
         }
@@ -2621,9 +2621,9 @@
           "bottom_right" : { "x": 0.0, "y": 0.0 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/menu_start.bin" }
+            { "standard" : "materials/menu_start.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/menu_start.bin" },
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
           "texture_position" : { "x": 0.53, "y": 0.67 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -2633,7 +2633,7 @@
     "static_image_list" : [
         {
           // Splash screen image specified by this material name.
-          "texture" : [ { "standard" : "materials/splash.bin" } ],
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.5 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
         }
@@ -2667,10 +2667,10 @@
           "bottom_right" : { "x": 0.7, "y": 0.2 },
           "ID" : "MenuMultiScreen",
           "texture_normal" : [
-            { "standard" : "materials/text_multiscreen.bin" }
+            { "standard" : "materials/text_multiscreen.fplmat" }
           ],
           "texture_pressed" : { "standard" :
-                                "materials/text_multiscreen.bin" },
+                                "materials/text_multiscreen.fplmat" },
           "texture_position" : { "x": 0.55, "y": 0.15 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.4, "y": 1.4 },
@@ -2682,10 +2682,10 @@
           "bottom_right" : { "x": 0.7, "y": 0.5 },
           "ID" : "MenuCardboard",
           "texture_normal" : [
-            { "standard" : "materials/text_cardboard.bin" }
+            { "standard" : "materials/text_cardboard.fplmat" }
           ],
           "texture_pressed" : { "standard" :
-                                "materials/text_cardboard.bin" },
+                                "materials/text_cardboard.fplmat" },
           "texture_position" : { "x": 0.55, "y": 0.45 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -2698,9 +2698,9 @@
           "bottom_right" : { "x": 0.7, "y": 0.75 },
           "ID" : "MenuBack",
           "texture_normal" : [
-            { "standard" : "materials/text_go_back.bin" }
+            { "standard" : "materials/text_go_back.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_go_back.bin" },
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
           "texture_position" : { "x": 0.5, "y": 0.7 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
@@ -2710,31 +2710,31 @@
     ],
     "static_image_list" : [
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.15 },
           "draw_scale": { "x": 1.1, "y": 1.2 },
           "z_depth" : -0.55
         },
         {
-          "texture" : [ { "standard" : "materials/multiscreen_button.bin" } ],
+          "texture" : [ { "standard" : "materials/multiscreen_button.fplmat" } ],
           "texture_position" : { "x": 0.35, "y": 0.15 },
           "draw_scale" : { "x": 0.4, "y": 0.4 },
           "z_depth" : -0.1
         },
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.45 },
           "draw_scale": { "x": 1.1, "y": 1.2 },
           "z_depth" : -0.55
         },
         {
-          "texture" : [ { "standard" : "materials/cardboard_button.bin" } ],
+          "texture" : [ { "standard" : "materials/cardboard_button.fplmat" } ],
           "texture_position" : { "x": 0.35, "y": 0.45 },
           "draw_scale" : { "x": 0.8, "y": 0.8 },
           "z_depth" : -0.1
         },
         {
-          "texture" : [ { "standard" : "materials/splash_menu.bin" } ],
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.7 },
           "draw_scale": { "x": 0.7, "y": 0.7 },
           "z_depth" : -0.55
@@ -2743,25 +2743,25 @@
   },
 
   "tutorial_slides": [
-      "materials/tutorial_you.bin",
-      "materials/tutorial_pie.bin",
-      "materials/tutorial_aim.bin",
-      "materials/tutorial_throw.bin",
-      "materials/tutorial_health.bin",
-      "materials/tutorial_deflect.bin",
-      "materials/tutorial_deflect_direction.bin",
-      "materials/tutorial_win.bin"
+      "materials/tutorial_you.fplmat",
+      "materials/tutorial_pie.fplmat",
+      "materials/tutorial_aim.fplmat",
+      "materials/tutorial_throw.fplmat",
+      "materials/tutorial_health.fplmat",
+      "materials/tutorial_deflect.fplmat",
+      "materials/tutorial_deflect_direction.fplmat",
+      "materials/tutorial_win.fplmat"
   ],
   "tutorial_num_future_slides_to_load": 2,
   "tutorial_fade_time": 200,
   "tutorial_aspect_ratio": 0.848,
 
   "multiscreen_tutorial_slides": [
-      "materials/msx_tutorial_1.bin",
-      "materials/msx_tutorial_2.bin",
-      "materials/msx_tutorial_3.bin",
-      "materials/msx_tutorial_4.bin",
-      "materials/msx_tutorial_5.bin",
+      "materials/msx_tutorial_1.fplmat",
+      "materials/msx_tutorial_2.fplmat",
+      "materials/msx_tutorial_3.fplmat",
+      "materials/msx_tutorial_4.fplmat",
+      "materials/msx_tutorial_5.fplmat",
   ],
   "multiscreen_tutorial_aspect_ratio": 0.828,
 
@@ -2936,13 +2936,13 @@
   "renderables": [
     {
       "id": "Invalid",
-      "cardboard_front": "materials/invalid.bin",
+      "cardboard_front": "materials/invalid.fplmat",
       "pixel_bounds": { "x": 256, "y": 512 }
     },
     {
       "id": "CharacterIdle",
-      "cardboard_front": "materials/character_idle.bin",
-      "cardboard_back": "materials/character_idle_back.bin",
+      "cardboard_front": "materials/character_idle.fplmat",
+      "cardboard_back": "materials/character_idle_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 161, "y": 256 }, // (224, 357) --> (161, 256)
       "geometry_scale": 1.3945, // 357 / 256
@@ -2954,8 +2954,8 @@
     },
     {
       "id": "CharacterLoad1",
-      "cardboard_front": "materials/character_load1.bin",
-      "cardboard_back": "materials/character_load1_back.bin",
+      "cardboard_front": "materials/character_load1.fplmat",
+      "cardboard_back": "materials/character_load1_back.fplmat",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 195, "y": 256 }, // (257, 337) --> (195, 256)
       "geometry_scale": 1.3164, // 337 / 256
@@ -2967,8 +2967,8 @@
     },
     {
       "id": "CharacterLoad2",
-      "cardboard_front": "materials/character_load2.bin",
-      "cardboard_back": "materials/character_load2_back.bin",
+      "cardboard_front": "materials/character_load2.fplmat",
+      "cardboard_back": "materials/character_load2_back.fplmat",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 200, "y": 256 }, // (289, 370) --> (200, 256)
       "geometry_scale": 1.4453, // 370 / 256
@@ -2980,8 +2980,8 @@
     },
     {
       "id": "CharacterLoad3",
-      "cardboard_front": "materials/character_load3.bin",
-      "cardboard_back": "materials/character_load3_back.bin",
+      "cardboard_front": "materials/character_load3.fplmat",
+      "cardboard_back": "materials/character_load3_back.fplmat",
       "offset": { "x": -0.9, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 208 }, // (384,312) --> (256, 208)
       "geometry_scale": 1.5, // 384 / 256
@@ -2993,8 +2993,8 @@
     },
     {
       "id": "CharacterThrow",
-      "cardboard_front": "materials/character_throw.bin",
-      "cardboard_back": "materials/character_throw_back.bin",
+      "cardboard_front": "materials/character_throw.fplmat",
+      "cardboard_back": "materials/character_throw_back.fplmat",
       "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 240, "y": 256 }, // (321,343) --> (240, 256)
       "geometry_scale": 1.3398, // 343 / 256
@@ -3006,8 +3006,8 @@
     },
     {
       "id": "CharacterBlock",
-      "cardboard_front": "materials/character_block.bin",
-      "cardboard_back": "materials/character_block_back.bin",
+      "cardboard_front": "materials/character_block.fplmat",
+      "cardboard_back": "materials/character_block_back.fplmat",
       "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 189, "y": 256 }, // (269,365) --> (189, 256)
       "geometry_scale": 1.4258, // 365 / 256
@@ -3019,8 +3019,8 @@
     },
     {
       "id": "CharacterHitByPieFrame0",
-      "cardboard_front": "materials/character_hit_by_pie_frame0.bin",
-      "cardboard_back": "materials/character_hit_by_pie_frame0_back.bin",
+      "cardboard_front": "materials/character_hit_by_pie_frame0.fplmat",
+      "cardboard_back": "materials/character_hit_by_pie_frame0_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 240 }, // (298,279) --> (256, 240)
       "geometry_scale": 1.1640, // 298 / 256
@@ -3032,8 +3032,8 @@
     },
     {
       "id": "CharacterHitByPieFrame1",
-      "cardboard_front": "materials/character_hit_by_pie_frame1.bin",
-      "cardboard_back": "materials/character_hit_by_pie_frame1_back.bin",
+      "cardboard_front": "materials/character_hit_by_pie_frame1.fplmat",
+      "cardboard_back": "materials/character_hit_by_pie_frame1_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 214 }, // (290,242) --> (256, 214)
       "geometry_scale": 1.1328, // 290 / 256
@@ -3045,8 +3045,8 @@
     },
     {
       "id": "CharacterHitByPieFrame2",
-      "cardboard_front": "materials/character_hit_by_pie_frame2.bin",
-      "cardboard_back": "materials/character_hit_by_pie_frame2_back.bin",
+      "cardboard_front": "materials/character_hit_by_pie_frame2.fplmat",
+      "cardboard_back": "materials/character_hit_by_pie_frame2_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 211, "y": 256 }, // (232,282) --> (211, 256)
       "geometry_scale": 1.1015, // 282 / 256
@@ -3058,8 +3058,8 @@
     },
     {
       "id": "CharacterHitByPieFrame3",
-      "cardboard_front": "materials/character_hit_by_pie_frame3.bin",
-      "cardboard_back": "materials/character_hit_by_pie_frame3_back.bin",
+      "cardboard_front": "materials/character_hit_by_pie_frame3.fplmat",
+      "cardboard_back": "materials/character_hit_by_pie_frame3_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 191, "y": 256 }, // (219,294) --> (191, 256)
       "geometry_scale": 1.1484, // 294 / 256
@@ -3071,8 +3071,8 @@
     },
     {
       "id": "CharacterKnockedOut",
-      "cardboard_front": "materials/character_knocked_out.bin",
-      "cardboard_back": "materials/character_knocked_out_back.bin",
+      "cardboard_front": "materials/character_knocked_out.fplmat",
+      "cardboard_back": "materials/character_knocked_out_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 197 }, // (262,201) --> (256, 197)
       "geometry_scale": 1.0234, // 262 / 256
@@ -3084,8 +3084,8 @@
     },
     {
       "id": "CharacterWin",
-      "cardboard_front": "materials/character_win.bin",
-      "cardboard_back": "materials/character_win_back.bin",
+      "cardboard_front": "materials/character_win.fplmat",
+      "cardboard_back": "materials/character_win_back.fplmat",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 206, "y": 256 }, // (316,392) --> (206, 256)
       "geometry_scale": 1.53125, // 392 / 256
@@ -3101,7 +3101,7 @@
     },
     {
       "id": "PieSmall",
-      "cardboard_front": "materials/pie_small.bin",
+      "cardboard_front": "materials/pie_small.fplmat",
       "offset": { "x": 0.0, "y": -0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 64 },
       "shadow": true,
@@ -3109,7 +3109,7 @@
     },
     {
       "id": "PieMedium",
-      "cardboard_front": "materials/pie_medium.bin",
+      "cardboard_front": "materials/pie_medium.fplmat",
       "offset": { "x": 0.0, "y": -0.3, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 },
       "shadow": true,
@@ -3117,7 +3117,7 @@
     },
     {
       "id": "PieLarge",
-      "cardboard_front": "materials/pie_large.bin",
+      "cardboard_front": "materials/pie_large.fplmat",
       "offset": { "x": 0.0, "y": -0.5, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 221 }, // (273,236) --> (256,221)
       "geometry_scale": 1.4, // 1.0664 = 273 / 256, but grew a little
@@ -3126,7 +3126,7 @@
     },
     {
       "id": "PieBlock",
-      "cardboard_front": "materials/pie_block.bin",
+      "cardboard_front": "materials/pie_block.fplmat",
       "pixel_bounds": { "x": 256, "y": 244 }, // (211,193) --> (256,234)
       "geometry_scale": 0.8242, // 211 / 256
       "shadow": true,
@@ -3134,25 +3134,25 @@
     },
     {
       "id": "EnvironmentSky",
-      "cardboard_front": "materials/environment_sky.bin",
+      "cardboard_front": "materials/environment_sky.fplmat",
       "pixel_bounds": { "x": 1024, "y": 512 }, // (4096,2048) --> (1024,512)
       "geometry_scale": 4.5 // 4096 / 1024
     },
     {
       "id": "EnvironmentCloud",
-      "cardboard_front": "materials/environment_cloud.bin",
+      "cardboard_front": "materials/environment_cloud.fplmat",
       "pixel_bounds": { "x": 256, "y": 200 },
       "geometry_scale": 2.8,
       "cardboard": true
     },
     {
       "id": "EnvironmentCloudShadow",
-      "cardboard_front": "materials/environment_cloud_shadow.bin",
+      "cardboard_front": "materials/environment_cloud_shadow.fplmat",
       "pixel_bounds": { "x": 1024, "y": 1024 }
     },
     {
       "id": "EnvironmentSun",
-      "cardboard_front": "materials/environment_sun.bin",
+      "cardboard_front": "materials/environment_sun.fplmat",
       "pixel_bounds": { "x": 128, "y": 256 },
       "geometry_scale": 2.5,
       "cardboard": true
@@ -3161,11 +3161,11 @@
       "id": "EnvironmentSunGlow",
       "pixel_bounds": { "x": 128, "y": 110 }, // (656,560) --> (128, 110)
       "geometry_scale": 5.125, // 656 / 128
-      "cardboard_front": "materials/environment_sun_glow.bin"
+      "cardboard_front": "materials/environment_sun_glow.fplmat"
     },
     {
       "id": "EnvironmentTree",
-      "cardboard_front": "materials/environment_tree.bin",
+      "cardboard_front": "materials/environment_tree.fplmat",
       "pixel_bounds": { "x": 364, "y": 512 }, // (683,960) --> (364, 512)
       "geometry_scale": 1.875, // 960 / 512
       "shadow": true,
@@ -3173,54 +3173,54 @@
     },
     {
       "id": "EnvironmentBush",
-      "cardboard_front": "materials/environment_bush.bin",
+      "cardboard_front": "materials/environment_bush.fplmat",
       "pixel_bounds": { "x": 512, "y": 256 },
       "shadow": true,
       "cardboard": true
     },
     {
       "id": "EnvironmentString",
-      "cardboard_front": "materials/environment_string.bin",
+      "cardboard_front": "materials/environment_string.fplmat",
       "pixel_bounds": { "x": 32, "y": 128 },
       "geometry_scale": 0.625 // 20 / 32
     },
     {
       "id": "EnvironmentStageFront",
-      "cardboard_front": "materials/environment_stage_front.bin",
+      "cardboard_front": "materials/environment_stage_front.fplmat",
       "pixel_bounds": { "x": 1024, "y": 128 }, // (4096,512) --> (1024, 128)
       "geometry_scale": 4.0 // 4096 / 1024
     },
     {
       "id": "EnvironmentStageGround",
-      "cardboard_front": "materials/environment_stage_ground.bin",
+      "cardboard_front": "materials/environment_stage_ground.fplmat",
       "pixel_bounds": { "x": 1024, "y": 256 }, // (4096,1024) --> (1024, 256)
       "geometry_scale": 4.0 // 4096 / 1024
     },
     {
       "id": "EnvironmentStageEdge",
-      "cardboard_front": "materials/environment_stage_edge.bin",
+      "cardboard_front": "materials/environment_stage_edge.fplmat",
       "pixel_bounds": { "x": 256, "y": 512 }
     },
     {
       "id": "EnvironmentStoreFront",
-      "cardboard_front": "materials/environment_store_front.bin",
+      "cardboard_front": "materials/environment_store_front.fplmat",
       "pixel_bounds": { "x": 512, "y": 396 }, // (1133, 877) --> (512, 396)
       "geometry_scale": 2.2129 // 1133 / 512
     },
     {
       "id": "EnvironmentStoreRoom",
-      "cardboard_front": "materials/environment_store_room.bin",
+      "cardboard_front": "materials/environment_store_room.fplmat",
       "pixel_bounds": { "x": 1024, "y": 395 }, // (1946, 750) --> (1024, 395)
       "geometry_scale": 1.9004 // 1946 / 1024
     },
     {
       "id": "EnvironmentAmbientOcclusionShadow",
-      "cardboard_front": "materials/environment_ambient_occlusion_shadow.bin",
+      "cardboard_front": "materials/environment_ambient_occlusion_shadow.fplmat",
       "pixel_bounds": { "x": 16, "y": 128 }
     },
     {
       "id": "Splatter1",
-      "cardboard_front": "materials/splatter1.bin",
+      "cardboard_front": "materials/splatter1.fplmat",
       "pixel_bounds": { "x": 105, "y": 128 }, // (125, 157) --> (105, 128)
       "geometry_scale": 1.2266, // 157 / 128
       "shadow": true,
@@ -3228,7 +3228,7 @@
     },
     {
       "id": "Splatter2",
-      "cardboard_front": "materials/splatter2.bin",
+      "cardboard_front": "materials/splatter2.fplmat",
       "pixel_bounds": { "x": 105, "y": 128 }, // (140, 161) --> (112, 128)
       "geometry_scale": 1.2578, // 161 / 128
       "shadow": true,
@@ -3236,7 +3236,7 @@
     },
     {
       "id": "Splatter3",
-      "cardboard_front": "materials/splatter3.bin",
+      "cardboard_front": "materials/splatter3.fplmat",
       "pixel_bounds": { "x": 105, "y": 128 }, // (137, 183) --> (96, 128)
       "geometry_scale": 1.4297, // 183 / 128
       "shadow": true,
@@ -3244,23 +3244,23 @@
     },
     {
       "id": "Health",
-      "cardboard_front": "materials/health.bin",
+      "cardboard_front": "materials/health.fplmat",
       "pixel_bounds": { "x": 128, "y": 128 },
       "geometry_scale": 2.0
     },
     {
       "id": "UiArrow",
-      "cardboard_front": "materials/arrow.bin",
+      "cardboard_front": "materials/arrow.fplmat",
       "pixel_bounds": { "x": 256, "y": 149 }
     },
     {
       "id": "Pixel1x1",
-      "cardboard_front": "materials/pixel1x1.bin",
+      "cardboard_front": "materials/pixel1x1.fplmat",
       "pixel_bounds": { "x": 1, "y": 1 }
     },
     {
       "id": "TargetReticle",
-      "cardboard_front": "materials/target_reticle.bin",
+      "cardboard_front": "materials/target_reticle.fplmat",
       "pixel_bounds": { "x": 256, "y": 256 },
       "cardboard": true
     }

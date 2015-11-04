@@ -3,75 +3,75 @@
     // SoundDefs must be in the order specified by the SoundId enum.
     // See pie_noon_common.fbs for the SoundId enum.
     // ThrowPie
-    "sounds/throw_pie.bin",
+    "sounds/throw_pie.pinsound",
 
     // HitWithSmallPie
-    "sounds/hit_with_small_pie.bin",
+    "sounds/hit_with_small_pie.pinsound",
 
     // HitWithMediumPie
-    "sounds/hit_with_medium_pie.bin",
+    "sounds/hit_with_medium_pie.pinsound",
 
     // HitWithLargePie
-    "sounds/hit_with_large_pie.bin",
+    "sounds/hit_with_large_pie.pinsound",
 
     // BlockedSmallPie
-    "sounds/blocked_small_pie.bin",
+    "sounds/blocked_small_pie.pinsound",
 
     // BlockedMediumPie
-    "sounds/blocked_medium_pie.bin",
+    "sounds/blocked_medium_pie.pinsound",
 
     // BlockedLargePie
-    "sounds/blocked_large_pie.bin",
+    "sounds/blocked_large_pie.pinsound",
 
     // Loading_1
-    "sounds/loading_1.bin",
+    "sounds/loading_1.pinsound",
 
     // Loading_2
-    "sounds/loading_2.bin",
+    "sounds/loading_2.pinsound",
 
     // Loading_3
-    "sounds/loading_3.bin",
+    "sounds/loading_3.pinsound",
 
     // Turning
-    "sounds/turning.bin",
+    "sounds/turning.pinsound",
 
     // PlayerWon
-    "sounds/player_won.bin",
+    "sounds/player_won.pinsound",
 
     // PlayerLost
-    "sounds/player_lost.bin",
+    "sounds/player_lost.pinsound",
 
     // JoinMatch
-    "sounds/join_match.bin",
+    "sounds/join_match.pinsound",
 
     // StartMatch
-    "sounds/start_match.bin",
+    "sounds/start_match.pinsound",
 
     // MusicMenu
-    "sounds/music_menu.bin",
+    "sounds/music_menu.pinsound",
 
     // MusicMenuPiano
-    "sounds/music_menu_piano.bin",
+    "sounds/music_menu_piano.pinsound",
 
     // MusicAction
-    "sounds/music_action.bin",
+    "sounds/music_action.pinsound",
 
     // StingerWin
-    "sounds/stinger_win.bin",
+    "sounds/stinger_win.pinsound",
 
     // StingerDraw
-    "sounds/stinger_draw.bin",
+    "sounds/stinger_draw.pinsound",
 
     // StingerLose
-    "sounds/stinger_lose.bin",
+    "sounds/stinger_lose.pinsound",
 
     // Ambience
-    "sounds/ambience.bin",
+    "sounds/ambience.pinsound",
 
     // FocusMenuItem
-    "sounds/focus_menu_item.bin",
+    "sounds/focus_menu_item.pinsound",
 
     // InvalidInput
-    "sounds/invalid_input.bin"
+    "sounds/invalid_input.pinsound"
   ]
 }
