@@ -151,6 +151,7 @@ void GuiMenu::LoadDebugShaderAndOptions(const Config* config,
 // Force the material manager to load all the textures and shaders
 // used in the UI group.
 void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
+  if (menu_def == nullptr) return;
   const size_t length_button_list = ArrayLength(menu_def->button_list());
   matman->LoadShader(menu_def->default_shader()->c_str());
   matman->LoadShader(menu_def->default_inactive_shader()->c_str());
