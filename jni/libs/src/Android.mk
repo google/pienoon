@@ -111,14 +111,24 @@ PIE_NOON_SCHEMA_FILES := \
 # Make each source file dependent upon the assets
 $(foreach src,$(LOCAL_SRC_FILES),$(eval $(LOCAL_PATH)/$$(src): build_assets))
 
+PIE_NOON_FLATBUFFER_INCLUDE_DIRS := \
+  $(DEPENDENCIES_PINDROP_DIR)/schemas \
+  $(DEPENDENCIES_MOTIVE_DIR)/schemas
+
+# Override JNI_OnLoad functions.
+FPLBASE_JNI_ONLOAD_FUNCTIONS := SDL_JNI_OnLoad GPG_JNI_OnLoad
+
 ifeq (,$(PIE_NOON_RUN_ONCE))
 PIE_NOON_RUN_ONCE := 1
 $(call flatbuffers_header_build_rules,\
   $(PIE_NOON_SCHEMA_FILES),\
   $(PIE_NOON_SCHEMA_DIR),\
   $(PIE_NOON_GENERATED_OUTPUT_DIR),\
-  $(DEPENDENCIES_PINDROP_DIR)/schemas $(DEPENDENCIES_MOTIVE_DIR)/schemas,\
-  $(LOCAL_SRC_FILES))
+  $(PIE_NOON_FLATBUFFER_INCLUDE_DIRS),\
+  $(LOCAL_SRC_FILES),\
+  pie_noon_generated_includes,\
+  motive_generated_includes \
+  pindrop_generated_includes)
 
 .PHONY: clean_generated_includes
 clean_generated_includes:
@@ -132,8 +142,7 @@ LOCAL_STATIC_LIBRARIES := \
   libgpg \
   libmathfu \
   libwebp \
-  SDL2 \
-  SDL2_mixer \
+  libfplbase \
   libpindrop \
   libmotive \
   libfreetype \
@@ -152,6 +161,7 @@ $(call import-add-path,$(DEPENDENCIES_MOTIVE_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_PINDROP_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_WEBP_DIR)/..)
 
+$(call import-module,fplbase/jni)
 $(call import-module,flatbuffers/android/jni)
 $(call import-module,pindrop/jni)
 $(call import-module,motive/jni)

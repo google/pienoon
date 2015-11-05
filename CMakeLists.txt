@@ -427,15 +427,14 @@ if(NOT fpl_ios)
   # Dependencies for the executable target.
   add_dependencies(pie_noon generated_includes assets motive)
   target_link_libraries(pie_noon
-    ${SDL_LIBRARIES}
     motive
+    fplbase
     pindrop
     sdl_mixer
     libvorbis
     libogg
     libharfbuzz
     libfreetype
-    fplbase
     ${OPENGL_LIBRARIES}
     webp)
 else()

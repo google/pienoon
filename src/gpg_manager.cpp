@@ -354,8 +354,9 @@ void GPGManager::FetchPlayer() {
 }  // fpl
 
 #ifdef __ANDROID__
-jint JNI_OnLoad(JavaVM *vm, void *reserved) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "main: JNI_OnLoad called");
+extern "C" JNIEXPORT
+jint GPG_JNI_OnLoad(JavaVM *vm, void *reserved) {
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "GPG_JNI_OnLoad called");
 
   gpg::AndroidInitialization::JNI_OnLoad(vm);
 
