@@ -4,12 +4,12 @@ Building for Android    {#pie_noon_guide_building_android}
 
 # Version Requirements
 
-Following are the minimum required versions for the tools and libraries you
+Following are the minimum tested versions for the tools and libraries you
 need for building [Pie Noon][] for Android:
 
 -   [Android SDK][]:  Android 5.0 (API Level 21)
 -   [ADT][]: 20140702
--   [Android NDK][]: android-ndk-r10c
+-   [Android NDK][]: android-ndk-r10e
 -   NDK plugn for Eclipse: Bundled with ADT
 -   [Google Play Games C++ SDK][]: 1.4 or above
 -   [cmake][]: 2.8.12 or newer
