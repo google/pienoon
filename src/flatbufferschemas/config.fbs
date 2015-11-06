@@ -694,6 +694,15 @@ table Config {
   loading_logo:string;
   // Minimum time (in milliseconds) to display the loading screen.
   min_loading_time:int;
+  // Max game loading animation/swing arc angle in degree (0.0 - 360)
+  loading_anim_amplitude:float;
+  // Game loading scale factor for vertical translation
+  // It is multiplied into height of viewport window, then applied
+  // to game loading anim translation. Valid value is (0.0 -- 1.0)
+  loading_anim_vert_translation:float;
+  // Game loading texture scale factor for vertical translation
+  loading_texture_vert_translation:float;
+
   // Material used to render full screen to fade from loading screen.
   fade_material:string;
   // Length of time (in milliseconds) of fades between game states.
