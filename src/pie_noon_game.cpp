@@ -110,10 +110,12 @@ static inline WorldTime CurrentWorldTime() { return SDL_GetTicks(); }
 
 static inline const UiGroup* TitleScreenButtons(const Config& config) {
 #ifdef __ANDROID__
-  return config.title_screen_buttons_android();
+  const bool android_title_screen = true;
 #else
-  return config.title_screen_buttons_non_android();
+  const bool android_title_screen = config.always_use_android_title_screen();
 #endif
+  return android_title_screen ? config.title_screen_buttons_android() :
+                                config.title_screen_buttons_non_android();
 }
 
 /// kVersion is used by Google developers to identify which
@@ -1907,14 +1909,14 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       case ButtonId_MenuCardboard: {
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelCardboardButton);
+#ifdef ANDROID_CARDBOARD
         game_state_.set_is_in_cardboard(true);
         game_state_.Reset();
-#ifdef ANDROID_CARDBOARD
         input_.cardboard_input().ResetHeadTracker();
-#endif
         TransitionToPieNoonState(kFinished);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.cardboard_screen_buttons(), &matman_);
+#endif
         break;
       }
 

@@ -781,6 +781,7 @@ table Config {
   // UI options
   //
   // Button layouts:
+  always_use_android_title_screen:bool;
   touchscreen_zones:UiGroup;
   pause_screen_buttons:UiGroup;
   title_screen_buttons_android:UiGroup;

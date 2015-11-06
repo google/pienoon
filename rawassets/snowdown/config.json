@@ -883,6 +883,7 @@
   "ai_block_min_duration": 1000,
   "ai_block_max_duration": 2000,
 
+  "always_use_android_title_screen" : true,
   "touchscreen_zones" : {
     "starting_selection" : false,
     "cannonical_window_height": 800,
