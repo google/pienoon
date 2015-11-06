@@ -642,24 +642,24 @@
   },
 
     "confetti_def": {
-      "min_scale":  { "x": 12.0, "y": 12.0, "z": 12.0 },
-      "max_scale":  { "x": 15.0, "y": 15.0, "z": 15.0 },
-      "preserve_aspect": true,
+      "min_scale":  { "x": 0.75, "y": 0.75, "z": 0.75 },
+      "max_scale":  { "x": 0.75, "y": 0.75, "z": 0.75 },
+      "preserve_aspect": false,
       "min_velocity":  { "x": -0.002, "y": -0.003, "z": -0.002 },
       "max_velocity":  { "x": 0.002, "y": -0.005, "z": 0.002 },
       "min_position_offset":  { "x": -10, "y": 0.0, "z": -10 },
       "max_position_offset":  { "x": 10, "y": 0.0, "z": 10 },
       "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
-      "max_orientation_offset":  { "x": 6.282, "y": 6.282, "z": 6.282 },
-      "min_angular_velocity": { "x": -0.02 , "y": -0.02, "z": -0.02 },
-      "max_angular_velocity": { "x": 0.02, "y": 0.02, "z": 0.02 },
+      "max_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
+      "min_angular_velocity": { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "max_angular_velocity": { "x": 0.0, "y": 0.0, "z": 0.0 },
       "min_duration": 4000,
       "max_duration": 5000,
       "shrink_duration": 1000,
       "fade_duration": 0,
       "acceleration":  { "x": 0.0, "y": 0.0, "z": 0.0 },
       "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 }],
-      "renderable": ["Pixel1x1"]
+      "renderable": ["SnowParticle"]
     },
 
     "joining_confetti_count" : 100,
@@ -673,7 +673,7 @@
       "min_position_offset":  { "x": -1, "y": 1.0, "z": -1 },
       "max_position_offset":  { "x": 1, "y": 4.0, "z": 1 },
       "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
-      "max_orientation_offset":  { "x": 6.282, "y": 6.282, "z": 6.282 },
+      "max_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
       "min_angular_velocity": { "x": -0.02 , "y": -0.02, "z": -0.02 },
       "max_angular_velocity": { "x": 0.02, "y": 0.02, "z": 0.02 },
       "min_duration": 1000,
@@ -1831,6 +1831,11 @@
       "id": "Pixel1x1",
       "cardboard_front": "materials/pixel1x1.fplmat",
       "pixel_bounds": { "x": 1, "y": 1 }
+    },
+    {
+      "id": "SnowParticle",
+      "cardboard_front": "materials/snow_particle.fplmat",
+      "pixel_bounds": { "x": 32, "y": 32 }
     },
     {
       "id": "TargetReticle",

@@ -949,10 +949,7 @@ void GameState::AdvanceFrame(WorldTime delta_time,
                   countdown_timer_);
     }
   }
-  // Don't spawn in confetti when in cardboard, as it adds too many draw calls
-  if (NumActiveCharacters(true) == 0 && !is_in_cardboard()) {
-    SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
-  }
+  SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
 
   // Damage is queued up per character then applied during event processing.
   std::vector<EventData> event_data(characters_.size());
