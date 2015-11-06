@@ -33,40 +33,6 @@
         ]
       },
 
-      // Ambient occlusion shadow:
-      {
-        "component_list": [
-          {
-            "data_type": SceneObjectDef,
-            "data": {
-              "renderable_id": EnvironmentAmbientOcclusionShadow,
-              "position": { "x": -8.5, "y": 0.005, "z":4 },
-              "scale": { "x": 80, "y": 1, "z":1 },
-              "orientation": { "x": 90, "y": -40, "z":0 },
-              "origin_point": { "x": 0, "y": 0, "z":0 },
-              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
-            }
-          }
-        ]
-      },
-
-      // Ambient occlusion shadow:
-      {
-        "component_list": [
-          {
-            "data_type": SceneObjectDef,
-            "data": {
-              "renderable_id": EnvironmentAmbientOcclusionShadow,
-              "position": { "x": 2.5, "y": 0.01, "z":6.7 },
-              "scale": { "x": 160, "y": 2, "z":1 },
-              "orientation": { "x": 90, "y": 0, "z":0 },
-              "origin_point": { "x": 0, "y": 0, "z":0 },
-              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
-            }
-          }
-        ]
-      },
-
       // Sun glow:
       {
         "component_list": [
@@ -91,9 +57,9 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentStoreFront,
-              "position": { "x": -8.5, "y": 0, "z":5 },
+              "position": { "x": -8.9, "y": 0, "z":6 },
               "scale": { "x": 1, "y": 1, "z":1 },
-              "orientation": { "x": 0, "y": -40, "z":0 },
+              "orientation": { "x": 0, "y": -20, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
               "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
             }
@@ -115,7 +81,7 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentStoreRoom,
-              "position": { "x": 2.5, "y": 0, "z":7.5 },
+              "position": { "x": 2.5, "y": 0, "z":7.8 },
               "scale": { "x": 1, "y": 1, "z":1 },
               "orientation": { "x": 0, "y": 0, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
@@ -214,7 +180,7 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentBush,
-              "position": { "x": -2.8, "y": -0.1, "z":6.7 },
+              "position": { "x": -1.8, "y": -0.1, "z":6.7 },
               "scale": { "x": 1, "y": 1, "z": 1 },
               "orientation": { "x": 0, "y": 0, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
@@ -231,14 +197,14 @@
         ]
       },
 
-      // Bush:
+      // Small Left Bush:
       {
         "component_list": [
           {
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentBush,
-              "position": { "x": -4.5, "y": 0, "z":5.7 },
+              "position": { "x": -5, "y": 0, "z":5.7 },
               "scale": { "x": 0.6, "y": 0.6, "z": 0.6 },
               "orientation": { "x": 0, "y": -20, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
@@ -255,7 +221,7 @@
         ]
       },
 
-      // Tree:
+      // Right Tree:
       {
         "component_list": [
           {
@@ -279,16 +245,16 @@
         ]
       },
 
-      // Bush:
+      // Right Bush:
       {
         "component_list": [
           {
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentBush,
-              "position": { "x": 9, "y": 0, "z":1 },
+              "position": { "x": 9.5, "y": 0, "z":1 },
               "scale": { "x": 1, "y": 1, "z": 1 },
-              "orientation": { "x": 0, "y": 20, "z":0 },
+              "orientation": { "x": 0, "y": 45, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
               "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
             }
@@ -310,8 +276,8 @@
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentTree,
-              "position": { "x": -7.5, "y": 0, "z":2.5 },
-              "scale": { "x": 0.8, "y": 0.8, "z": 0.8 },
+              "position": { "x": -8, "y": 0, "z":2.5 },
+              "scale": { "x": 0.9, "y": 0.9, "z": 0.9 },
               "orientation": { "x": 0, "y": -45, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
               "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
@@ -351,16 +317,16 @@
         ]
       },
 
-      // Tree
+      // Small Left Tree
       {
         "component_list": [
           {
             "data_type": SceneObjectDef,
             "data": {
               "renderable_id": EnvironmentTree,
-              "position": { "x": -10, "y": 0, "z":0.7 },
-              "scale": { "x": -0.8, "y": 0.7, "z": 1 },
-              "orientation": { "x": 0, "y": -80, "z":0 },
+              "position": { "x": -7, "y": 0, "z":6 },
+              "scale": { "x": 0.7, "y": 0.7, "z": 1 },
+              "orientation": { "x": 0, "y": -25, "z":0 },
               "origin_point": { "x": 0, "y": 0, "z":0 },
               "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
             }
@@ -369,7 +335,7 @@
             "data_type": ShakeablePropDef,
             "data": {
               "shake_motivator": Sway,
-              "shake_scale": 0.6
+              "shake_scale": 1.0
             }
           }
         ]
@@ -1556,7 +1522,7 @@
       "id": "CharacterLoad3",
       "cardboard_front": "materials/character_load3.fplmat",
       "cardboard_back": "materials/character_load3_back.fplmat",
-      "offset": { "x": -0.9, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (384,312) --> (256, 208)
       "geometry_scale": 1.5, // 384 / 256
       "stick": true,
@@ -1676,8 +1642,8 @@
     {
       "id": "PieSmall",
       "cardboard_front": "materials/pie_small.fplmat",
-      "offset": { "x": 0.0, "y": -0.2, "z": 0.0 },
-      "pixel_bounds": { "x": 128, "y": 64 },
+      "offset": { "x": -1.2, "y": 0.5, "z": 0.0 },
+      "pixel_bounds": { "x": 64, "y": 64 },
       "shadow": true,
       "cardboard": false
     },
