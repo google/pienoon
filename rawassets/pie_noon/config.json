@@ -900,6 +900,9 @@
   "loading_logo": "materials/loading_logo.fplmat",
   "fade_material": "materials/pixel1x1.fplmat",
   "min_loading_time": 2000,
+  "loading_anim_amplitude": 60.0,
+  "loading_anim_vert_translation": 0.5,
+  "loading_texture_vert_translation":0.7,
   "full_screen_fade_time": 250,
 
   "ui_arrow_offset": { "x": -0.7, "y": 1.0, "z": 0.05 },

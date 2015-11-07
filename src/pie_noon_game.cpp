@@ -2660,11 +2660,15 @@ void PieNoonGame::Run() {
         const auto mid = res / 2;
         const float time = static_cast<float>(world_time) /
                            static_cast<float>(kMillisecondsPerSecond);
-        auto rot_mat = mat3::RotationZ(time * 3.0f);
+        const mat3 rot_mat = mat3::RotationZ(sin(time * 3.0f) *
+                     Angle::FromDegrees(config.loading_anim_amplitude() / 2)
+                     .ToRadians());
         renderer_.model_view_projection() =
-            ortho_mat * mat4::FromTranslationVector(
-                            vec3(static_cast<float>(mid.x()),
-                                 static_cast<float>(mid.y()) * 0.7f, 0.0f)) *
+            ortho_mat *
+            mat4::FromTranslationVector(
+                      vec3(static_cast<float>(mid.x()),
+                      res.y() * config.loading_anim_vert_translation(),
+                      0.0f)) *
             mat4::FromRotationMatrix(rot_mat);
         auto extend = vec2(spinmat->textures()[0]->size());
         renderer_.color() = mathfu::kOnes4f;
@@ -2677,8 +2681,9 @@ void PieNoonGame::Run() {
         extend = vec2(logomat->textures()[0]->size()) / 10;
         renderer_.model_view_projection() =
             ortho_mat * mat4::FromTranslationVector(
-                            vec3(static_cast<float>(mid.x()),
-                                 static_cast<float>(res.y()) * 0.7f, 0.0f));
+                       vec3(static_cast<float>(mid.x()),
+                            res.y() * config.loading_texture_vert_translation(),
+                            0.0f));
         renderer_.color() = mathfu::kOnes4f;
         logomat->Set(renderer_);
         shader_textured_->Set(renderer_);
