@@ -430,7 +430,7 @@ bool PieNoonGame::InitializeGameState() {
 
   vec2 window_size = vec2(static_cast<float>(renderer_.window_size().x()),
                           static_cast<float>(renderer_.window_size().y()));
-  touch_controller_->Initialize(&input_, window_size, &config);
+  touch_controller_->Initialize(&input_, window_size, &config, &game_state_);
 
   AddController(touch_controller_);
 
@@ -2228,16 +2228,6 @@ void PieNoonGame::UpdateControllers(WorldTime delta_time) {
 
 void PieNoonGame::UpdateTouchButtons(WorldTime delta_time) {
   gui_menu_.AdvanceFrame(delta_time, &input_, vec2(renderer_.window_size()));
-
-  // If we're playing the game, we have to send the menu events directly
-  // to the touch controller, so it can act on them.
-  if (state_ == kPlaying) {
-    for (MenuSelection menu_selection = gui_menu_.GetRecentSelection();
-         menu_selection.button_id != ButtonId_Undefined;
-         menu_selection = gui_menu_.GetRecentSelection()) {
-      touch_controller_->HandleTouchButtonInput(menu_selection.button_id, true);
-    }
-  }
 }
 
 pindrop::Channel PieNoonGame::PlayStinger() {

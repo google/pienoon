@@ -63,7 +63,8 @@ enum LogicalInputs:ushort (bit_flags) {
   Won,
   Lost,
   JoinedGame,
-  TriggerPieGrowth
+  TriggerPieGrowth,
+  TurnToTarget,
 }
 
 enum GameModeCondition:ushort {

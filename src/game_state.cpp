@@ -742,6 +742,12 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
   const int target_state = CharacterState(id);
   if (target_state == StateId_KO) return current_target;
 
+  // Check the inputs to see if we explicitly request a character.
+  const uint32_t logical_inputs = character->controller()->went_down();
+  if (logical_inputs & LogicalInputs_TurnToTarget) {
+    return character->controller()->target_id();
+  }
+
   // Check the inputs to see how requests for target change.
   const int requested_turn = RequestedTurn(id);
   if (requested_turn == 0) return current_target;

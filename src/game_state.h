@@ -121,6 +121,8 @@ class GameState {
     return pies_;
   }
 
+  const CharacterArrangement& arrangement() const { return *arrangement_; }
+
   WorldTime time() const { return time_; }
 
   void set_config(const Config* config) { config_ = config; }

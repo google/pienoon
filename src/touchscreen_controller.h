@@ -22,6 +22,7 @@
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
 #include "controller.h"
+#include "game_state.h"
 #include "input.h"
 #include "player_controller.h"
 #include "pie_noon_common_generated.h"
@@ -41,18 +42,21 @@ class TouchscreenController : public Controller {
   // The input_system and scheme pointers are unowned and must outlive this
   // object.
   void Initialize(InputSystem* input_system, vec2 window_size,
-                  const Config* config);
+                  const Config* config, const GameState* game_state);
 
   // Map the input from the physical inputs to logical game inputs.
   virtual void AdvanceFrame(WorldTime delta_time);
 
-  void HandleTouchButtonInput(int input, bool value);
-
  private:
+  mathfu::vec3 CameraRayFromScreenCoord(const mathfu::vec2i& screen) const;
+  CharacterId CharacterIdFromRay(const mathfu::vec3& ray,
+                                 const mathfu::vec3& position) const;
+
   // A pointer to the object to query for the current input state.
   InputSystem* input_system_;
   vec2 window_size_;
   const Config* config_;
+  const GameState* game_state_;
 };
 
 }  // pie_noon
