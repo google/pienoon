@@ -60,6 +60,9 @@ class Controller {
   CharacterId character_id() const { return character_id_; }
   void set_character_id(CharacterId new_id) { character_id_ = new_id; }
 
+  CharacterId target_id() const { return target_id_; }
+  void set_target_id(CharacterId new_id) { target_id_ = new_id; }
+
   // Clear all the currently set logical inputs.
   void ClearAllLogicalInputs();
 
@@ -69,6 +72,7 @@ class Controller {
   uint32_t went_down_;
   uint32_t went_up_;
   CharacterId character_id_;  // the ID of the player we're controlling
+  CharacterId target_id_;     // the ID of the player we want to target
   ControllerType controller_type_;
 };
 

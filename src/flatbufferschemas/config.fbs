@@ -36,8 +36,6 @@ enum ButtonId : ushort {
   Undefined,
   InvalidInput,
   Cancel,
-  Left,
-  Right,
   Attack,
   Defend,
   MenuStart,
