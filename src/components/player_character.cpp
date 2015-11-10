@@ -94,6 +94,7 @@ void PlayerCharacterComponent::UpdateUiArrow(entity::EntityRef entity) {
   circle_so_data->SetTranslation(so_data->Translation());
   circle_so_data->SetOriginPoint(LoadVec3(config_->ui_arrow_offset()));
   circle_so_data->SetScale(LoadVec3(config_->ui_arrow_scale()));
+  circle_so_data->set_visible(DrawBaseCircle(entity));
 }
 
 // Keep the scene object visible flag up to date
@@ -247,6 +248,24 @@ void PlayerCharacterComponent::AddFromRawData(entity::EntityRef& entity,
                                               const void* /*raw_data*/) {
   entity_manager_->AddEntityToComponent(entity,
                                         ComponentDataUnion_PlayerCharacterDef);
+}
+
+Controller::ControllerType PlayerCharacterComponent::ControllerType(
+    const entity::EntityRef& entity) const {
+  const PlayerCharacterData* pc_data = GetEntityData(entity);
+  return gamestate_ptr_->characters()[pc_data->character_id]
+      ->controller()
+      ->controller_type();
+}
+
+bool PlayerCharacterComponent::DrawBaseCircle(
+    const entity::EntityRef& entity) const {
+  // Output the base circle only for certain controller types. For others
+  // (for example, for touch) it causes confusion, since players think they
+  // can interact with it.
+  const Controller::ControllerType controller_type = ControllerType(entity);
+  return controller_type == Controller::kTypeGamepad ||
+         controller_type == Controller::kTypeCardboard;
 }
 
 void PlayerCharacterComponent::InitEntity(entity::EntityRef& entity) {

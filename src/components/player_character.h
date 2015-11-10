@@ -58,6 +58,10 @@ class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
   void UpdateVisibility(entity::EntityRef entity);
   int PopulatePieAccessories(entity::EntityRef entity, int num_accessories);
   int PopulateHealthAccessories(entity::EntityRef entity, int num_accessories);
+  Controller::ControllerType ControllerType(
+      const entity::EntityRef& entity) const;
+  bool DrawBaseCircle(const entity::EntityRef& entity) const;
+
   const Config* config_;
   GameState* gamestate_ptr_;
 };
