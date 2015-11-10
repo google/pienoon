@@ -81,6 +81,7 @@ void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
   entity_data->SetOriginPoint(LoadVec3(scene_object_data->origin_point()));
 
   entity_data->set_renderable_id(scene_object_data->renderable_id());
+  entity_data->set_variant(scene_object_data->variant());
   entity_data->set_tint(LoadVec4(scene_object_data->tint()));
   entity_data->set_visible(scene_object_data->visible() != 0);
 }
@@ -151,7 +152,8 @@ void SceneObjectComponent::PopulateScene(SceneDescription* scene) {
     if (VisibleInHierarchy(entity)) {
       SceneObjectData* data = GetEntityData(entity);
       scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
-          data->renderable_id(), data->global_matrix(), data->tint())));
+          data->renderable_id(), data->variant(), data->global_matrix(),
+          data->tint())));
     }
   }
 }

@@ -63,8 +63,10 @@ void PlayerCharacterComponent::UpdateCharacterFacing(entity::EntityRef entity) {
 
   const WorldTime anim_time = gamestate_ptr_->GetAnimationTime(*character);
   const uint16_t renderable_id = character->RenderableId(anim_time);
+  const uint16_t variant = character->Variant();
 
   so_data->set_renderable_id(renderable_id);
+  so_data->set_variant(variant);
   so_data->SetTranslation(character->position());
 }
 

@@ -80,6 +80,10 @@ class Character {
   // Calculate the renderable id for the character at 'anim_time'.
   uint16_t RenderableId(WorldTime anim_time) const;
 
+  // Return the render variant. For characters: 0 for AI, 1 for player
+  // controlled.
+  uint16_t Variant() const;
+
   // On-screen color. Used in shader when rendering.
   mathfu::vec4 Color() const;
 

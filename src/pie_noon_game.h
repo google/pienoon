@@ -103,7 +103,7 @@ class PieNoonGame {
   const Config& GetConfig() const;
   const Config& GetCardboardConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
-  Mesh* GetCardboardFront(int renderable_id);
+  Mesh* GetCardboardFront(int renderable_id, int variant);
   PieNoonState UpdatePieNoonState();
   void TransitionToPieNoonState(PieNoonState next_state);
   PieNoonState UpdatePieNoonStateAndTransition();
@@ -186,6 +186,7 @@ class PieNoonGame {
 
   // Map RenderableId to rendering mesh.
   std::vector<Mesh*> cardboard_fronts_;
+  std::vector<Mesh*> cardboard_front_variants_;
   std::vector<Mesh*> cardboard_backs_;
 
   // Rendering mesh for front and back of the stick that props cardboard.

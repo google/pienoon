@@ -1109,8 +1109,8 @@ void GameState::AddParticlesToScene(SceneDescription* scene) const {
   auto plist = particle_manager_.get_particle_list();
   for (auto it = plist.begin(); it != plist.end(); ++it) {
     scene->renderables().push_back(std::unique_ptr<Renderable>(
-        new Renderable((*it)->renderable_id(), (*it)->CalculateMatrix(),
-                       (*it)->CurrentTint())));
+        new Renderable((*it)->renderable_id(), 0,
+                       (*it)->CalculateMatrix(), (*it)->CurrentTint())));
   }
 }
 
@@ -1136,7 +1136,7 @@ void GameState::PopulateScene(SceneDescription* scene) {
       auto& pie = *it;
       scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
           EnumerationValueForPieDamage<uint16_t>(
-              pie->damage(), *(config_->renderable_id_for_pie_damage())),
+              pie->damage(), *(config_->renderable_id_for_pie_damage())), 0,
           pie->Matrix())));
     }
   }
@@ -1150,19 +1150,19 @@ void GameState::PopulateScene(SceneDescription* scene) {
       const mat4 axis_dot =
           mat4::FromTranslationVector(vec3(static_cast<float>(i), 0.0f, 0.0f));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(RenderableId_PieSmall, axis_dot)));
+          new Renderable(RenderableId_PieSmall, 0, axis_dot)));
     }
     for (int i = 0; i < 4; ++i) {
       const mat4 axis_dot =
           mat4::FromTranslationVector(vec3(0.0f, 0.0f, static_cast<float>(i)));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(RenderableId_PieSmall, axis_dot)));
+          new Renderable(RenderableId_PieSmall, 0, axis_dot)));
     }
     for (int i = 0; i < 2; ++i) {
       const mat4 axis_dot =
           mat4::FromTranslationVector(vec3(0.0f, static_cast<float>(i), 0.0f));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(RenderableId_PieSmall, axis_dot)));
+          new Renderable(RenderableId_PieSmall, 0, axis_dot)));
     }
   }
 
@@ -1170,7 +1170,7 @@ void GameState::PopulateScene(SceneDescription* scene) {
   // Rotate about z-axis so that it faces the camera.
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
     scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
-        static_cast<uint16_t>(config_->draw_fixed_renderable()),
+        static_cast<uint16_t>(config_->draw_fixed_renderable()), 0,
         mat4::FromRotationMatrix(
             Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
   }

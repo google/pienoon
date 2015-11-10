@@ -36,6 +36,7 @@ class SceneObjectData {
       : global_matrix_(mathfu::mat4::Identity()),
         tint_(mathfu::kOnes4f),
         renderable_id_(0),
+        variant_(0),
         visible_(true) {
   }
   void Initialize(motive::MotiveEngine* engine);
@@ -129,6 +130,9 @@ class SceneObjectData {
   uint16_t renderable_id() const { return renderable_id_; }
   void set_renderable_id(uint16_t id) { renderable_id_ = id; }
 
+  uint16_t variant() const { return variant_; }
+  void set_variant(uint16_t variant) { variant_ = variant; }
+
   bool visible() const { return visible_; }
   void set_visible(bool visible) { visible_ = visible; }
 
@@ -175,6 +179,9 @@ class SceneObjectData {
 
   // Id of object model to render.
   uint16_t renderable_id_;
+
+  // Id of object model to render.
+  uint16_t variant_;
 
   // Whether object is currently on-screen or not.
   bool visible_;

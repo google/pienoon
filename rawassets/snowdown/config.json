@@ -1413,6 +1413,7 @@
     {
       "id": "CharacterThrow",
       "cardboard_front": "materials/character_throw.fplmat",
+      "cardboard_front_variant": "materials/character_throw_variant.fplmat",
       "cardboard_back": "materials/character_throw_back.fplmat",
       "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (321,343) --> (240, 256)

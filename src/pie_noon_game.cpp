@@ -133,6 +133,7 @@ PieNoonGame::PieNoonGame()
       state_entry_time_(0),
       matman_(renderer_),
       cardboard_fronts_(RenderableId_Count, nullptr),
+      cardboard_front_variants_(RenderableId_Count, nullptr),
       cardboard_backs_(RenderableId_Count, nullptr),
       stick_front_(nullptr),
       stick_back_(nullptr),
@@ -156,6 +157,9 @@ PieNoonGame::~PieNoonGame() {
   for (int i = 0; i < RenderableId_Count; ++i) {
     delete cardboard_fronts_[i];
     cardboard_fronts_[i] = nullptr;
+
+    delete cardboard_front_variants_[i];
+    cardboard_front_variants_[i] = nullptr;
 
     delete cardboard_backs_[i];
     cardboard_backs_[i] = nullptr;
@@ -318,6 +322,11 @@ bool PieNoonGame::InitializeRenderingAssets() {
     cardboard_fronts_[id] =
         CreateVerticalQuadMesh(renderable->cardboard_front(), front_offset,
                                pixel_bounds, pixel_to_world_scale);
+
+    cardboard_front_variants_[id] =
+        CreateVerticalQuadMesh(renderable->cardboard_front_variant(),
+                               front_offset, pixel_bounds,
+                               pixel_to_world_scale);
 
     cardboard_backs_[id] =
         CreateVerticalQuadMesh(renderable->cardboard_back(), back_offset,
@@ -567,12 +576,22 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
 
 // Returns the mesh for renderable_id, if we have one, or the pajama mesh
 // (a mesh with a texture that's obviously wrong), if we don't.
-Mesh* PieNoonGame::GetCardboardFront(int renderable_id) {
-  const bool is_valid_id = 0 <= renderable_id &&
-                           renderable_id < RenderableId_Count &&
-                           cardboard_fronts_[renderable_id] != nullptr;
-  return is_valid_id ? cardboard_fronts_[renderable_id]
-                     : cardboard_fronts_[RenderableId_Invalid];
+Mesh* PieNoonGame::GetCardboardFront(int renderable_id, int variant) {
+  // Return the invalid mesh if the indices are out of bounds.
+  Mesh* invalid_front = cardboard_fronts_[RenderableId_Invalid];
+  if (renderable_id < 0 || RenderableId_Count <= renderable_id) {
+    return invalid_front;
+  }
+
+  // Return the variant, if requested and available.
+  if (variant != 0) {
+    Mesh* variant_front = cardboard_front_variants_[renderable_id];
+    if (variant_front != nullptr) return variant_front;
+  }
+
+  // Return the front if available. Otherwise, return the invalid mesh.
+  Mesh* front = cardboard_fronts_[renderable_id];
+  return front == nullptr ? invalid_front : front;
 }
 
 void PieNoonGame::RenderCardboard(const SceneDescription& scene,
@@ -632,7 +651,7 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
     } else {
       shader_textured_->Set(renderer_);
     }
-    Mesh* front = GetCardboardFront(id);
+    Mesh* front = GetCardboardFront(id, renderable->variant());
     front->Render(renderer_);
   }
 }
@@ -730,7 +749,7 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const auto& renderable = scene.renderables()[i];
     const int id = renderable->id();
-    Mesh* front = GetCardboardFront(id);
+    Mesh* front = GetCardboardFront(id, renderable->variant());
     if (config.renderables()->Get(id)->shadow()) {
       renderer_.model() = renderable->world_matrix();
       shader_simple_shadow_->Set(renderer_);

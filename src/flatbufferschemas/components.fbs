@@ -26,6 +26,7 @@ table SceneObjectDef {
   origin_point:Vec3;
   tint:Vec4;
   renderable_id:RenderableId;
+  variant:ushort;
   visible:bool = true;
 }
 

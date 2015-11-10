@@ -263,6 +263,10 @@ table CardboardFigure {
   // Material for the front of the cardboard cutout.
   cardboard_front:string;
 
+  // Material for the front of the cardboard cutout. Variant when `variant`
+  // is non-zero. Used for player controlled characters, for instance.
+  cardboard_front_variant:string;
+
   // Material for the inside surface of the cardboard cutout. That is, showing
   // the corrugations.
   cardboard_back:string;
