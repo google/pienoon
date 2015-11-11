@@ -188,6 +188,8 @@ endif()
 
 # Include fplbase in this project.
 if(NOT pie_noon_only_flatc AND NOT TARGET fplbase)
+  set(fplbase_build_mesh_pipeline OFF CACHE BOOL "")
+  set(fplbase_build_samples OFF CACHE BOOL "")
   add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
 endif()
 
@@ -241,17 +243,12 @@ mathfu_set_ios_attributes(libfreetype)
 mathfu_set_ios_attributes(webp)
 mathfu_set_ios_attributes(libharfbuzz)
 
-if(APPLE)
-  if(NOT fpl_ios)
-    find_library(OPENGL_LIBRARIES NAMES GL GLU)
-    set(CMAKE_CXX_LINK_FLAGS "-framework OpenGL")
-  else()
-    set(CMAKE_CXX_LINK_FLAGS "-lSDL2 -lSDL2_mixer -framework OpenGLES
-        -framework CoreGraphics -framework Foundation
-        -framework CoreLocation -framework CoreFoundation
-        -framework QuartzCore -framework UIKit
-        -framework AudioToolbox -framework GLKit")
-  endif()
+if(APPLE AND fpl_ios)
+  set(CMAKE_CXX_LINK_FLAGS "-lSDL2 -lSDL2_mixer -framework OpenGLES
+      -framework CoreGraphics -framework Foundation
+      -framework CoreLocation -framework CoreFoundation
+      -framework QuartzCore -framework UIKit
+      -framework AudioToolbox -framework GLKit")
 endif()
 
 
@@ -435,7 +432,6 @@ if(NOT fpl_ios)
     libogg
     libharfbuzz
     libfreetype
-    ${OPENGL_LIBRARIES}
     webp)
 else()
   # Copy resources from macosx version
