@@ -1,0 +1,7 @@
+{
+    "texture_filenames": [
+        "textures/hit02_variant.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
+}

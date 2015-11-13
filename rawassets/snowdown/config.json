@@ -1361,6 +1361,7 @@
     {
       "id": "CharacterIdle",
       "cardboard_front": "materials/character_idle.fplmat",
+      "cardboard_front_variant": "materials/character_idle_variant.fplmat",
       "cardboard_back": "materials/character_idle_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (224, 357) --> (161, 256)
@@ -1374,6 +1375,7 @@
     {
       "id": "CharacterLoad1",
       "cardboard_front": "materials/character_load1.fplmat",
+      "cardboard_front_variant": "materials/character_load1_variant.fplmat",
       "cardboard_back": "materials/character_load1_back.fplmat",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (257, 337) --> (195, 256)
@@ -1387,6 +1389,7 @@
     {
       "id": "CharacterLoad2",
       "cardboard_front": "materials/character_load2.fplmat",
+      "cardboard_front_variant": "materials/character_load2_variant.fplmat",
       "cardboard_back": "materials/character_load2_back.fplmat",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (289, 370) --> (200, 256)
@@ -1400,6 +1403,7 @@
     {
       "id": "CharacterLoad3",
       "cardboard_front": "materials/character_load3.fplmat",
+      "cardboard_front_variant": "materials/character_load3_variant.fplmat",
       "cardboard_back": "materials/character_load3_back.fplmat",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (384,312) --> (256, 208)
@@ -1427,6 +1431,7 @@
     {
       "id": "CharacterBlock",
       "cardboard_front": "materials/character_block.fplmat",
+      "cardboard_front_variant": "materials/character_block_variant.fplmat",
       "cardboard_back": "materials/character_block_back.fplmat",
       "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 200, "y": 256 }, // (269,365) --> (189, 256)
@@ -1440,6 +1445,7 @@
     {
       "id": "CharacterHitByPieFrame0",
       "cardboard_front": "materials/character_hit_by_pie_frame0.fplmat",
+      "cardboard_front_variant": "materials/character_hit_by_pie_frame0_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame0_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (298,279) --> (256, 240)
@@ -1453,6 +1459,7 @@
     {
       "id": "CharacterHitByPieFrame1",
       "cardboard_front": "materials/character_hit_by_pie_frame1.fplmat",
+      "cardboard_front_variant": "materials/character_hit_by_pie_frame1_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame1_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (290,242) --> (256, 214)
@@ -1466,6 +1473,7 @@
     {
       "id": "CharacterHitByPieFrame2",
       "cardboard_front": "materials/character_hit_by_pie_frame2.fplmat",
+      "cardboard_front_variant": "materials/character_hit_by_pie_frame2_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame2_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (232,282) --> (211, 256)
@@ -1479,6 +1487,7 @@
     {
       "id": "CharacterHitByPieFrame3",
       "cardboard_front": "materials/character_hit_by_pie_frame3.fplmat",
+      "cardboard_front_variant": "materials/character_hit_by_pie_frame3_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame3_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (219,294) --> (191, 256)
@@ -1492,6 +1501,7 @@
     {
       "id": "CharacterKnockedOut",
       "cardboard_front": "materials/character_knocked_out.fplmat",
+      "cardboard_front_variant": "materials/character_knocked_out_variant.fplmat",
       "cardboard_back": "materials/character_knocked_out_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (262,201) --> (256, 197)
@@ -1505,6 +1515,7 @@
     {
       "id": "CharacterWin",
       "cardboard_front": "materials/character_win.fplmat",
+      "cardboard_front_variant": "materials/character_win_variant.fplmat",
       "cardboard_back": "materials/character_win_back.fplmat",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (316,392) --> (206, 256)
