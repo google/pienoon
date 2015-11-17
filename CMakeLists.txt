@@ -199,29 +199,22 @@ set(FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src/*.fbs)
 
-set(FLATBUFFERS_SCHEMA_INCLUDES
-    -I ${dependencies_motive_dir}/schemas
-    -I ${dependencies_pindrop_dir}/schemas)
+set(flatbuffers_schema_includes
+    ${dependencies_motive_dir}/schemas
+    ${dependencies_pindrop_dir}/schemas)
 
+set (flatbuffers_additional_dependencies
+     motive_generated_includes
+     pindrop_generated_includes)
 # Generate rules to build the set of output files from the set of input
 # schema files.
-unset(FLATBUFFERS_GENERATED_INCLUDES)
-foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
-  get_filename_component(filename ${flatbuffers_schema} NAME_WE)
-  set(flatbuffers_include
-      ${FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
-  add_custom_command(
-    OUTPUT ${flatbuffers_include}
-    COMMAND flatc --gen-mutable -o ${FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        ${FLATBUFFERS_SCHEMA_INCLUDES} -c ${flatbuffers_schema}
-    DEPENDS
-        flatc
-        motive_generated_includes
-        pindrop_generated_includes
-        ${flatbuffers_schema})
-  list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
-endforeach()
-add_custom_target(generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
+build_flatbuffers("${FLATBUFFERS_SCHEMAS}"
+                  "${flatbuffers_schema_includes}"
+                  "generated_includes"
+                  "${flatbuffers_additional_dependencies}"
+                  "${FLATBUFFERS_GENERATED_INCLUDES_DIR}"
+                  ""
+                  "")
 
 # Build rule that uses make to build the assets.
 add_custom_target(assets
@@ -348,12 +341,13 @@ if(WIN32)
   include_directories(external/include/windows)
   include_directories(external/include/harfbuzz)
 endif()
-include_directories(${FLATBUFFERS_GENERATED_INCLUDES_DIR})
 get_property(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
-             TARGET motive_generated_includes PROPERTY MOTIVE_DIR)
+             TARGET motive_generated_includes
+             PROPERTY GENERATED_INCLUDES_DIR)
 include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 get_property(PINDROP_FLATBUFFERS_GENERATED_INCLUDES_DIR
-             TARGET pindrop_generated_includes PROPERTY PINDROP_DIR)
+             TARGET pindrop_generated_includes
+             PROPERTY GENERATED_INCLUDES_DIR)
 include_directories(${PINDROP_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
