@@ -37,6 +37,7 @@ using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat3;
 using mathfu::mat4;
+using motive::Angle;
 
 #ifdef _WIN32
 #define snprintf(buffer, count, format, ...) \

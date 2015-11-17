@@ -22,6 +22,7 @@ namespace pie_noon {
 
 using mathfu::vec3;
 using mathfu::mat4;
+using motive::Angle;
 
 CardboardController::CardboardController()
     : Controller(kTypeCardboard),

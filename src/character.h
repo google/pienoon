@@ -60,7 +60,7 @@ class Character {
             const CharacterStateMachineDef* character_state_machine_def);
 
   // Resets the character to the start-of-game state.
-  void Reset(CharacterId target, CharacterHealth health, Angle face_angle,
+  void Reset(CharacterId target, CharacterHealth health, motive::Angle face_angle,
              const mathfu::vec3& position, motive::MotiveEngine* engine);
 
   // Fake a reaction to input by making the character's face angle
@@ -72,10 +72,10 @@ class Character {
   void force_target(CharacterId target) { target_ = target; }
 
   // Gets the character's current face angle.
-  Angle FaceAngle() const { return Angle(face_angle_.Value()); }
+  motive::Angle FaceAngle() const { return motive::Angle(face_angle_.Value()); }
 
   // Sets the character's target and our target face angle.
-  void SetTarget(CharacterId target, Angle angle_to_target);
+  void SetTarget(CharacterId target, motive::Angle angle_to_target);
 
   // Calculate the renderable id for the character at 'anim_time'.
   uint16_t RenderableId(WorldTime anim_time) const;

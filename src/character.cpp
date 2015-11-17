@@ -31,6 +31,10 @@ using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
+using motive::Angle;
+using motive::kPi;
+using motive::kTwoPi;
+using motive::Range;
 
 namespace fpl {
 namespace pie_noon {
@@ -144,8 +148,8 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
   // x,z positions are within a reasonable bound.
   // Rotations are anglular values.
   const motive::SmoothInit position_init(
-      fpl::Range(-kMaxPosition, kMaxPosition), false);
-  const motive::SmoothInit rotation_init(fpl::Range(-kPi, kPi), true);
+      Range(-kMaxPosition, kMaxPosition), false);
+  const motive::SmoothInit rotation_init(Range(-kPi, kPi), true);
 
   // Move x,z at constant speed from source to target.
   const motive::MotiveTarget1f x_target(motive::CurrentToTargetConstVelocity1f(

@@ -20,6 +20,8 @@
 #include "utilities.h"
 
 using mathfu::vec3;
+using motive::Angle;
+using motive::kHalfPi;
 
 namespace fpl {
 namespace pie_noon {
@@ -43,7 +45,7 @@ void CardboardPlayerComponent::UpdateTargetReticle(entity::EntityRef entity) {
   std::unique_ptr<Character>& target = character_vector[character->target()];
   const vec3 to_target = target->position() - character->position();
   Angle angle_to_target =
-      Angle::FromXZVector(to_target) + Angle::FromRadians(fpl::kHalfPi);
+      Angle::FromXZVector(to_target) + Angle::FromRadians(kHalfPi);
 
   SceneObjectData* target_so_data =
       Data<SceneObjectData>(cp_data->target_reticle);
@@ -144,7 +146,7 @@ void CardboardPlayerComponent::InitEntity(entity::EntityRef& entity) {
                                         ComponentDataUnion_SceneObjectDef);
   SceneObjectData* pie_so_data = Data<SceneObjectData>(cp_data->loaded_pie);
   pie_so_data->set_parent(pc_data->base_circle);
-  pie_so_data->SetRotationAboutZ(-fpl::kHalfPi);
+  pie_so_data->SetRotationAboutZ(-kHalfPi);
   pie_so_data->SetTranslation(LoadVec3(config_->cardboard_pie_offset()));
   pie_so_data->SetScale(LoadVec3(config_->cardboard_pie_scale()));
 
@@ -156,7 +158,7 @@ void CardboardPlayerComponent::InitEntity(entity::EntityRef& entity) {
                                           ComponentDataUnion_SceneObjectDef);
     SceneObjectData* heart_so_data = Data<SceneObjectData>(heart);
     heart_so_data->set_parent(pc_data->base_circle);
-    heart_so_data->SetRotationAboutZ(-fpl::kHalfPi);
+    heart_so_data->SetRotationAboutZ(-kHalfPi);
     heart_so_data->set_visible(false);
   }
 }

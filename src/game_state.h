@@ -81,11 +81,11 @@ class GameState {
   void PopulateScene(SceneDescription* scene);
 
   // Angle between two characters.
-  Angle AngleBetweenCharacters(CharacterId source_id,
+  motive::Angle AngleBetweenCharacters(CharacterId source_id,
                                CharacterId target_id) const;
 
-  // Angle to the character's target.
-  Angle TargetFaceAngle(CharacterId id) const;
+  // motive::Angle to the character's target.
+  motive::Angle TargetFaceAngle(CharacterId id) const;
 
   // Returns one of the RenderableId enums.
   uint16_t CharacterState(CharacterId id) const;
@@ -183,8 +183,8 @@ class GameState {
   float CalculateCharacterFacingAngleVelocity(const Character* character,
                                               WorldTime delta_time) const;
   int RequestedTurn(CharacterId id) const;
-  Angle TiltTowardsStageFront(const Angle angle) const;
-  Angle TiltCharacterAwayFromCamera(CharacterId id, const Angle angle) const;
+  motive::Angle TiltTowardsStageFront(const motive::Angle angle) const;
+  motive::Angle TiltCharacterAwayFromCamera(CharacterId id, const motive::Angle angle) const;
   motive::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
   void CreatePieSplatter(pindrop::AudioEngine* audio_engine,

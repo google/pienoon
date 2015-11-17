@@ -241,7 +241,7 @@ class PieNoonGame {
 
   // Debug data. For displaying when a character's state has changed.
   std::vector<int> debug_previous_states_;
-  std::vector<Angle> debug_previous_angles_;
+  std::vector<motive::Angle> debug_previous_angles_;
 
   TouchscreenController* touch_controller_;
   GuiMenu gui_menu_;

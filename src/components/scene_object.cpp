@@ -24,6 +24,7 @@ namespace pie_noon {
 using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
+using motive::kDegreesToRadians;
 
 // Basic matrix operation for each component of the 'transform_'
 // Matrix Motivator.

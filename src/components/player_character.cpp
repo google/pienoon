@@ -22,6 +22,8 @@
 
 using mathfu::vec3;
 using mathfu::mat4;
+using motive::Angle;
+using motive::kDegreesToRadians;
 
 namespace fpl {
 namespace pie_noon {

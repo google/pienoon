@@ -32,12 +32,17 @@
 #include "timeline_generated.h"
 #include "utilities.h"
 
+using flatbuffers::uoffset_t;
 using mathfu::vec2i;
 using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
-using flatbuffers::uoffset_t;
+using motive::Angle;
+using motive::kDegreesToRadians;
+using motive::kHalfPi;
+using motive::kPi;
+
 namespace fpl {
 namespace pie_noon {
 
@@ -330,7 +335,7 @@ float GameState::CalculatePieYRotation(CharacterId source_id,
     // If it is going directly towards or away from the cardboard, we want to
     // rotate it so it is visible
     if (source_id == 0 || target_id == 0) {
-      angle_to_target += Angle::FromRadians(fpl::kHalfPi);
+      angle_to_target += Angle::FromRadians(kHalfPi);
     }
   }
   return -angle_to_target.ToRadians();
@@ -813,9 +818,9 @@ Angle GameState::TiltCharacterAwayFromCamera(CharacterId id,
   const Angle face_to_camera = angle - towards_camera;
   const float face_to_camera_value = face_to_camera.Abs().ToRadians();
   const float tilt_factor =
-      fpl::kHalfPi / (fpl::kDegreesToRadians * config_->tilt_away_angle());
+      kHalfPi / (kDegreesToRadians * config_->tilt_away_angle());
   const float adjusted_to_camera =
-      ((face_to_camera_value * (tilt_factor - 1)) + fpl::kHalfPi) / tilt_factor;
+      ((face_to_camera_value * (tilt_factor - 1)) + kHalfPi) / tilt_factor;
   const Angle adjusted_to_camera_signed =
       Angle::FromRadians(adjusted_to_camera) *
       (face_to_camera.ToRadians() < 0 ? -1 : 1);
@@ -902,7 +907,7 @@ void GameState::SpawnParticles(const mathfu::vec3& position,
   const Angle to_position = Angle::FromXZVector(position - camera().Position());
   const vec3 additional_rotation =
       is_in_cardboard()
-          ? vec3(0.0f, -(to_position.ToRadians() + fpl::kHalfPi), 0.0f)
+          ? vec3(0.0f, -(to_position.ToRadians() + kHalfPi), 0.0f)
           : mathfu::kZeros3f;
 
   for (int i = 0; i < particle_count; i++) {
