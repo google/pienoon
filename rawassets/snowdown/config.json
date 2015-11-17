@@ -608,8 +608,8 @@
   },
 
     "confetti_def": {
-      "min_scale":  { "x": 0.75, "y": 0.75, "z": 0.75 },
-      "max_scale":  { "x": 0.75, "y": 0.75, "z": 0.75 },
+      "min_scale":  { "x": 0.25, "y": 0.25, "z": 0.25 },
+      "max_scale":  { "x": 0.35, "y": 0.35, "z": 0.35 },
       "preserve_aspect": false,
       "min_velocity":  { "x": -0.002, "y": -0.003, "z": -0.002 },
       "max_velocity":  { "x": 0.002, "y": -0.005, "z": 0.002 },
@@ -900,10 +900,10 @@
           "bottom_right" : { "x": 0.7, "y": 0.6 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/menu_start.fplmat" }
+            { "standard" : "materials/loading_arrows.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
-          "texture_position" : { "x": 0.53, "y": 0.45 },
+          "texture_pressed" : { "standard" : "materials/loading_arrows.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.5 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
           "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
@@ -916,13 +916,13 @@
           "bottom_right" : { "x": 0.3, "y": 1.0 },
           "ID" : "MenuHowToPlay",
           "texture_normal" : [
-            { "standard" : "materials/ui_throw.fplmat" },
+            { "standard" : "materials/how_to_play.fplmat" },
           ],
-          "texture_pressed" : { "standard" : "materials/ui_throw.fplmat" },
-          "texture_position" : { "x": 0.08, "y": 0.92 },
-          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
-          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
-          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "texture_pressed" : { "standard" : "materials/how_to_play.fplmat" },
+          "texture_position" : { "x": 0.12, "y": 0.84 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.3, "y": 1.3 },
+          "draw_scale_pressed" : { "x": 1.3, "y": 1.3 },
           "nav_right" : ["MenuCardboard"],
           "nav_up" : ["MenuStart"]
         },
@@ -931,15 +931,15 @@
           "bottom_right" : { "x": 1.0, "y": 1.0 },
           "ID" : "MenuCardboard",
           "texture_normal" : [
-            { "standard" : "materials/cardboard_button.fplmat" }
+            { "standard" : "materials/cardboard_icon.fplmat" }
           ],
           "texture_pressed" : {
-            "standard" : "materials/cardboard_button.fplmat"
+            "standard" : "materials/cardboard_icon.fplmat"
           },
-          "texture_position": { "x": 0.91, "y": 0.9 },
-          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
-          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
-          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "texture_position": { "x": 0.9, "y": 0.85 },
+          "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
+          "draw_scale_highlighted": { "x": 1.1, "y": 1.1 },
+          "draw_scale_pressed" : { "x": 1.1, "y": 1.1 },
           "nav_left" : ["MenuHowToPlay"],
           "nav_up" : ["MenuStart"]
         }
@@ -952,17 +952,11 @@
           "draw_scale": { "x": 0.82, "y": 0.82 }
         },
         {
-          "ID" : "MenuSignInText",
-          "texture" : [ { "standard" : "materials/text_how_to_play.fplmat" } ],
-          "texture_position": { "x": 0.40, "y": 0.93 },
-          "draw_scale": { "x": 0.8, "y": 0.8 },
-          "z_depth" : 0.1
-        },
-        {
-          "texture" : [ { "standard" : "materials/text_cardboard.fplmat" } ],
-          "texture_position": { "x": 0.76, "y": 0.93 },
-          "draw_scale" : { "x": 0.8, "y": 0.8 },
-          "z_depth" : -0.1
+          // Start icon.
+          "texture" : [ { "standard" : "materials/start_icon.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.5 },
+          "draw_scale": { "x": 1.0, "y":1.0 },
+          "z_depth" : 0.5
         }
     ],
     "imgui_list" : [
@@ -1054,6 +1048,13 @@
           "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
+        },
+        {
+          // Start icon.
+          "texture" : [ { "standard" : "materials/start_icon.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.5 },
+          "draw_scale": { "x": 1.0, "y":1.0 },
+          "z_depth" : 0.5
         }
     ],
     "imgui_list" : [
@@ -1100,6 +1101,13 @@
           "texture" : [ { "standard" : "materials/splash.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.28 },
           "draw_scale": { "x": 0.82, "y": 0.82 }
+        },
+        {
+          // Start icon.
+          "texture" : [ { "standard" : "materials/start_icon.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.5 },
+          "draw_scale": { "x": 1.0, "y":1.0 },
+          "z_depth" : 0.5
         }
     ],
     "imgui_list" : [
@@ -1363,7 +1371,7 @@
       "cardboard_front": "materials/character_idle.fplmat",
       "cardboard_front_variant": "materials/character_idle_variant.fplmat",
       "cardboard_back": "materials/character_idle_back.fplmat",
-      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "offset": { "x": 0.1, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (224, 357) --> (161, 256)
       "geometry_scale": 1.5, // 357 / 256
       "stick": true,
@@ -1377,7 +1385,7 @@
       "cardboard_front": "materials/character_load1.fplmat",
       "cardboard_front_variant": "materials/character_load1_variant.fplmat",
       "cardboard_back": "materials/character_load1_back.fplmat",
-      "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.2, "y": 0.1, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (257, 337) --> (195, 256)
       "geometry_scale": 1.5, // 337 / 256
       "stick": true,
@@ -1391,7 +1399,7 @@
       "cardboard_front": "materials/character_load2.fplmat",
       "cardboard_front_variant": "materials/character_load2_variant.fplmat",
       "cardboard_back": "materials/character_load2_back.fplmat",
-      "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.4, "y": 0.1, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (289, 370) --> (200, 256)
       "geometry_scale": 1.5, // 370 / 256
       "stick": true,
@@ -1405,7 +1413,7 @@
       "cardboard_front": "materials/character_load3.fplmat",
       "cardboard_front_variant": "materials/character_load3_variant.fplmat",
       "cardboard_back": "materials/character_load3_back.fplmat",
-      "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.7, "y": 0.1, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (384,312) --> (256, 208)
       "geometry_scale": 1.5, // 384 / 256
       "stick": true,
@@ -1419,7 +1427,7 @@
       "cardboard_front": "materials/character_throw.fplmat",
       "cardboard_front_variant": "materials/character_throw_variant.fplmat",
       "cardboard_back": "materials/character_throw_back.fplmat",
-      "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
+      "offset": { "x": 0.2, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (321,343) --> (240, 256)
       "geometry_scale": 1.5, // 343 / 256
       "stick": true,
@@ -1447,7 +1455,7 @@
       "cardboard_front": "materials/character_hit_by_pie_frame0.fplmat",
       "cardboard_front_variant": "materials/character_hit_by_pie_frame0_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame0_back.fplmat",
-      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (298,279) --> (256, 240)
       "geometry_scale": 1.5, // 298 / 256
       "stick": true,
@@ -1461,7 +1469,7 @@
       "cardboard_front": "materials/character_hit_by_pie_frame1.fplmat",
       "cardboard_front_variant": "materials/character_hit_by_pie_frame1_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame1_back.fplmat",
-      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (290,242) --> (256, 214)
       "geometry_scale": 1.5, // 290 / 256
       "stick": true,
@@ -1475,7 +1483,7 @@
       "cardboard_front": "materials/character_hit_by_pie_frame2.fplmat",
       "cardboard_front_variant": "materials/character_hit_by_pie_frame2_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame2_back.fplmat",
-      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (232,282) --> (211, 256)
       "geometry_scale": 1.5, // 282 / 256
       "stick": true,
@@ -1489,7 +1497,7 @@
       "cardboard_front": "materials/character_hit_by_pie_frame3.fplmat",
       "cardboard_front_variant": "materials/character_hit_by_pie_frame3_variant.fplmat",
       "cardboard_back": "materials/character_hit_by_pie_frame3_back.fplmat",
-      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (219,294) --> (191, 256)
       "geometry_scale": 1.5, // 294 / 256
       "stick": true,
