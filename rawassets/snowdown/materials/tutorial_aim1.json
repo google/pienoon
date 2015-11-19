@@ -1,0 +1,9 @@
+{
+    "texture_filenames": [
+        "textures/tutorial_aim1.webp"
+    ],
+    "blendmode": "ALPHA",
+    "desired_format": [
+        "F_888"
+    ]
+}

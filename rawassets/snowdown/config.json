@@ -1175,18 +1175,23 @@
   },
 
   "tutorial_slides": [
-      "materials/tutorial_you.fplmat",
-      "materials/tutorial_pie.fplmat",
-      "materials/tutorial_aim.fplmat",
-      "materials/tutorial_throw.fplmat",
-      "materials/tutorial_health.fplmat",
-      "materials/tutorial_deflect.fplmat",
-      "materials/tutorial_deflect_direction.fplmat",
+      "materials/tutorial_start.fplmat",
+      "materials/tutorial_aim1.fplmat",
+      "materials/tutorial_throw1.fplmat",
+      "materials/tutorial_hit1.fplmat",
+      "materials/tutorial_aim2.fplmat",
+      "materials/tutorial_throw2.fplmat",
+      "materials/tutorial_hit2.fplmat",
+      "materials/tutorial_block.fplmat",
+      "materials/tutorial_block1.fplmat",
+      "materials/tutorial_block2.fplmat",
+      "materials/tutorial_block3.fplmat",
+      "materials/tutorial_block4.fplmat",
       "materials/tutorial_win.fplmat"
   ],
   "tutorial_num_future_slides_to_load": 2,
-  "tutorial_fade_time": 200,
-  "tutorial_aspect_ratio": 0.848,
+  "tutorial_fade_time": 0,
+  "tutorial_aspect_ratio": 1.0,
 
   "multiscreen_tutorial_slides": [
   ],
