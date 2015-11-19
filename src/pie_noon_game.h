@@ -132,7 +132,7 @@ class PieNoonGame {
 
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
-  bool AnyControllerPresses();
+  bool AnyControllerPresses() const;
   void LoadTutorialSlide(int slide_index);
   void LoadInitialTutorialSlides();
   void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
@@ -160,6 +160,7 @@ class PieNoonGame {
   void ReloadMultiscreenMenu();
   void UpdateMultiscreenMenuIcons();
   void SetupWaitingForPlayersMenu();
+  bool ShouldTransitionFromSlide(WorldTime world_time) const;
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -272,7 +273,8 @@ class PieNoonGame {
   pindrop::Channel music_channel_;
 
   // Tutorial slides we are in the midst of displaying.
-  std::vector<std::string> tutorial_slides_;
+  const flatbuffers::Vector<flatbuffers::Offset<fpl::pie_noon::Slide>>*
+      tutorial_slides_;
 
   // Tutorial aspect ratio
   float tutorial_aspect_ratio_;

@@ -435,6 +435,18 @@ table MultiscreenOptions {
   splat_drip_speed:float;
 }
 
+table Slide {
+  // File name of the image to load. Should be a .fplmat file.
+  image:string;
+
+  // Time to display the slide, in ms. If 0 display until screen tapped.
+  display_time:int;
+
+  // Time to fade out and fade in at the end of this slide.
+  // If 0, switch immediatly to next slide without fade.
+  fade_time:int;
+}
+
 table Config {
 
   // List of all entities that we spawn automatically at game start.
@@ -822,7 +834,7 @@ table Config {
   // Tutorial
   //
   // List of materials to display, one after the other, on the full screen.
-  tutorial_slides:[string];
+  tutorial_slides:[Slide];
 
   // Scale every material above by (tutorial_aspect_ratio, 1). Lets the textures
   // be squished into the nearest power of two size, even if that changes the
@@ -834,12 +846,9 @@ table Config {
   // loading at a time. Recall that loading is done asynchronously.
   tutorial_num_future_slides_to_load:int;
 
-  // Total time to fade out on current slide and fade back in on next slide.
-  tutorial_fade_time:int;
-
   // List of materials to display, one after the other, on the full screen,
   // for multiscreen mode's "How to Play".
-  multiscreen_tutorial_slides:[string];
+  multiscreen_tutorial_slides:[Slide];
 
   // Scale every material above by (tutorial_aspect_ratio, 1). Lets the textures
   // be squished into the nearest power of two size, even if that changes the

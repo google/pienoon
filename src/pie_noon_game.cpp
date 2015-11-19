@@ -1149,7 +1149,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       return HandleMenuButtons(time);
     }
     case kTutorial: {
-      const size_t num_slides = tutorial_slides_.size();
+      const size_t num_slides = tutorial_slides_->size();
       const bool past_last_slide =
           tutorial_slide_index_ >= static_cast<int>(num_slides);
 
@@ -1363,13 +1363,9 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
     }
     case kTutorial: {
       tutorial_slide_index_ = 0;
-      auto tutorials = (game_state_.is_multiscreen()
-                            ? GetConfig().multiscreen_tutorial_slides()
-                            : GetConfig().tutorial_slides());
-      tutorial_slides_.clear();
-      for (unsigned int i = 0; i < tutorials->Length(); i++) {
-        tutorial_slides_.push_back(std::string(tutorials->Get(i)->c_str()));
-      }
+      tutorial_slides_ = game_state_.is_multiscreen()
+                             ? GetConfig().multiscreen_tutorial_slides()
+                             : GetConfig().tutorial_slides();
       tutorial_aspect_ratio_ =
           game_state_.is_multiscreen()
               ? GetConfig().multiscreen_tutorial_aspect_ratio()
@@ -2332,10 +2328,10 @@ pindrop::Channel PieNoonGame::PlayStinger() {
 // Return the file name for the material at slide_index. If slide_index is
 // invalid, return nullptr.
 const char* PieNoonGame::TutorialSlideName(int slide_index) {
-  const int num_slides = static_cast<int>(tutorial_slides_.size());
+  const int num_slides = static_cast<int>(tutorial_slides_->size());
   return (slide_index < 0 || slide_index >= num_slides)
              ? nullptr
-             : tutorial_slides_[slide_index].c_str();
+             : tutorial_slides_->Get(slide_index)->image()->c_str();
 }
 
 static bool ControllerHasPress(const Controller* controller) {
@@ -2345,7 +2341,7 @@ static bool ControllerHasPress(const Controller* controller) {
 }
 
 // Return true if a button press or touch screen touch has happened this frame.
-bool PieNoonGame::AnyControllerPresses() {
+bool PieNoonGame::AnyControllerPresses() const {
   for (auto it = active_controllers_.begin(); it != active_controllers_.end();
        ++it) {
     const Controller* controller = it->get();
@@ -2357,7 +2353,7 @@ bool PieNoonGame::AnyControllerPresses() {
 // Load into memory the tutorial slide at slide_index, if slide_index is valid.
 // We preload some tutorial slides so that we can transition to them.
 void PieNoonGame::LoadTutorialSlide(int slide_index) {
-  const int num_slides = static_cast<int>(tutorial_slides_.size());
+  const int num_slides = static_cast<int>(tutorial_slides_->size());
   if (slide_index < 0 || slide_index >= num_slides) return;
 
   const char* slide_name = TutorialSlideName(slide_index);
@@ -2401,6 +2397,24 @@ void PieNoonGame::RenderInMiddleOfScreen(const mat4& ortho_mat,
   material->Set(renderer_);
   shader_textured_->Set(renderer_);
   Mesh::RenderAAQuadAlongX(bottom_left, top_right, vec2(0, 1), vec2(1, 0));
+}
+
+bool PieNoonGame::ShouldTransitionFromSlide(WorldTime world_time) const {
+  // Never transition while the fader is active.
+  if (!full_screen_fader_.Finished(world_time)) return false;
+
+  // Always transition on controller presses.
+  if (AnyControllerPresses()) return true;
+
+  // If no display time is specified for this slide, don't transition
+  // automatically.
+  const Slide* slide = tutorial_slides_->Get(tutorial_slide_index_);
+  const WorldTime display_time = slide->display_time();
+  if (display_time == 0) return false;
+
+  // If we're exceeded our wait time, transition.
+  const WorldTime time_in_slide = world_time - tutorial_slide_time_;
+  return time_in_slide >= display_time;
 }
 
 void PieNoonGame::Run() {
@@ -2766,12 +2780,15 @@ void PieNoonGame::Run() {
       case kTutorial: {
         matman_.TryFinalize();
         audio_engine_.TryFinalize();
-        const bool should_transition =
-            full_screen_fader_.Finished(world_time) && AnyControllerPresses();
+        const bool should_transition = ShouldTransitionFromSlide(world_time);
         if (should_transition) {
           // Start fade-out --> fade-in transition.
-          full_screen_fader_.Start(world_time, config.tutorial_fade_time(),
-                                   mathfu::kZeros4f, false);
+          const WorldTime fade_time =
+              tutorial_slides_->Get(tutorial_slide_index_)->fade_time();
+          if (fade_time > 0) {
+            full_screen_fader_.Start(world_time, fade_time, mathfu::kZeros4f,
+                                     false);
+          }
 
           // Initiate asynchronous loading of a slide, several slides before
           // it is needed.
@@ -2791,27 +2808,28 @@ void PieNoonGame::Run() {
         }
 
         // Overlay the darkening texture.
+        bool advance_slide = should_transition;
         if (!full_screen_fader_.Finished(world_time)) {
-          const bool opaque = full_screen_fader_.Render(world_time);
-          if (opaque) {
-            // Unload current slide to save memory.
-            matman_.UnloadMaterial(slide_name);
+          advance_slide = full_screen_fader_.Render(world_time);
+        }
+        if (advance_slide) {
+          // Unload current slide to save memory.
+          matman_.UnloadMaterial(slide_name);
 
-            const unsigned int SLIDE_NUMBER_BUFFER_SIZE = 32;
-            char slide_number[SLIDE_NUMBER_BUFFER_SIZE];
-            snprintf(slide_number, sizeof(slide_number),
-                     game_state_.is_multiscreen() ? kLabelMSSlideDurationFmt
-                                                  : kLabelSlideDurationFmt,
-                     tutorial_slide_index_);
-            SendTrackerEvent(kCategoryUi, game_state_.is_multiscreen()
-                                              ? kActionViewedMSTutorialSlide
-                                              : kActionViewedTutorialSlide,
-                             slide_number, world_time - tutorial_slide_time_);
+          const unsigned int SLIDE_NUMBER_BUFFER_SIZE = 32;
+          char slide_number[SLIDE_NUMBER_BUFFER_SIZE];
+          snprintf(slide_number, sizeof(slide_number),
+                   game_state_.is_multiscreen() ? kLabelMSSlideDurationFmt
+                                                : kLabelSlideDurationFmt,
+                   tutorial_slide_index_);
+          SendTrackerEvent(kCategoryUi, game_state_.is_multiscreen()
+                                            ? kActionViewedMSTutorialSlide
+                                            : kActionViewedTutorialSlide,
+                           slide_number, world_time - tutorial_slide_time_);
 
-            // When completely dark, transition to the next slide.
-            tutorial_slide_index_++;
-            tutorial_slide_time_ = world_time;
-          }
+          // When completely dark, transition to the next slide.
+          tutorial_slide_index_++;
+          tutorial_slide_time_ = world_time;
         }
 
         UpdatePieNoonStateAndTransition();

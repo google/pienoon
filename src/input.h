@@ -306,6 +306,10 @@ class InputSystem {
     return GetButton(static_cast<int>(pointer + SDLK_POINTER1));
   }
 
+  const Button &GetPointerButton(SDL_FingerID pointer) const {
+    return const_cast<InputSystem *>(this)->GetPointerButton(pointer);
+  }
+
   void OpenConnectedJoysticks();
   void CloseOpenJoysticks();
   void UpdateConnectedJoystickList();
