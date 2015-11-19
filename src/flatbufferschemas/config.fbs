@@ -75,6 +75,7 @@ enum ButtonId : ushort {
   Multiplayer_Splat3,
   Multiplayer_Splat4,
   Multiplayer_SplatFull,
+  Sushi,
 }
 
 // Setting a button to Hold means it will fire as long
