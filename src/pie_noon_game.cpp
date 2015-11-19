@@ -104,6 +104,11 @@ static const int kAndroidMaxScreenWidth = 1920;
 static const int kAndroidMaxScreenHeight = 1080;
 #endif
 
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+static GPGManager::GPGIds gpg_ids[kMaxStats];
+static std::vector<std::string> achievement_ids;
+#endif
+
 // Return the elapsed milliseconds since the start of the program. This number
 // will loop back to 0 after about 49 days; always take the difference to
 // properly handle the wrap-around case.
@@ -505,6 +510,30 @@ class AudioEngineVolumeControl {
   pindrop::AudioEngine* audio_;
 };
 
+bool PieNoonGame::InitializeGpgIds() {
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  const Config& config = GetConfig();
+
+  // Load the Google Play Games ids from Android resources.
+  std::vector<std::string> leaderboards;
+  std::vector<std::string> events;
+  StringArrayResource(config.gpg_leaderboards_resource()->c_str(), &leaderboards);
+  StringArrayResource(config.gpg_events_resource()->c_str(), &events);
+  StringArrayResource(config.gpg_achievements_resource()->c_str(), &achievement_ids);
+  const bool ids_valid = static_cast<int>(leaderboards.size()) == kMaxStats &&
+                         static_cast<int>(events.size()) == kMaxStats;
+  if (!ids_valid) return false;
+
+  // Convert them to our global variable that stores values.
+  // TODO: Load directly into these arrays to eliminate this copy.
+  for (int i = 0; i < kMaxStats; ++i) {
+    gpg_ids[i].leaderboard = leaderboards[i];
+    gpg_ids[i].event = events[i];
+  }
+#endif // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+  return true;
+}
+
 // Initialize each member in turn. This is logically just one function, since
 // the order of initialization cannot be changed. However, it's nice for
 // debugging and readability to have each section lexographically separate.
@@ -517,6 +546,8 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
 #ifdef ANDROID_CARDBOARD
   if (!InitializeCardboardConfig()) return false;
 #endif
+  if (!InitializeGpgIds()) return false;
+
   if (!InitializeRenderer()) return false;
 
   if (!InitializeRenderingAssets()) return false;
@@ -1383,20 +1414,6 @@ void PieNoonGame::FadeToPieNoonState(PieNoonState next_state,
   }
 }
 
-#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-static GPGManager::GPGIds gpg_ids[] = {
-    {"CgkI97yope0IEAIQAw", "CgkI97yope0IEAIQCg"},  // kWins
-    {"CgkI97yope0IEAIQBA", "CgkI97yope0IEAIQCw"},  // kLosses
-    {"CgkI97yope0IEAIQBQ", "CgkI97yope0IEAIQDA"},  // kDraws
-    {"CgkI97yope0IEAIQAg", "CgkI97yope0IEAIQCQ"},  // kAttacks
-    {"CgkI97yope0IEAIQBg", "CgkI97yope0IEAIQDQ"},  // kHits
-    {"CgkI97yope0IEAIQBw", "CgkI97yope0IEAIQDg"},  // kBlocks
-    {"CgkI97yope0IEAIQCA", "CgkI97yope0IEAIQDw"},  // kMisses
-};
-static_assert(sizeof(gpg_ids) / sizeof(GPGManager::GPGIds) == kMaxStats,
-              "update leaderboard_ids");
-#endif
-
 void PieNoonGame::UploadEvents() {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   // Now upload all stats:
@@ -1404,7 +1421,8 @@ void PieNoonGame::UploadEvents() {
   Character* character = game_state_.characters()[0].get();
   for (int ps = kWins; ps < kMaxStats; ps++) {
     gpg_manager.IncrementEvent(
-        gpg_ids[ps].event, character->GetStat(static_cast<PlayerStats>(ps)));
+        gpg_ids[ps].event.c_str(),
+        character->GetStat(static_cast<PlayerStats>(ps)));
   }
   character->ResetStats();
 #endif
@@ -1417,14 +1435,8 @@ void PieNoonGame::CheckForNewAchievements() {
   Character* character = game_state_.characters()[0].get();
   if (character->State() == StateId_Throwing &&
       character->state_last_update() != StateId_Throwing) {
-    static const char* achievements[] = {"CgkI97yope0IEAIQEA",   // 100
-                                         "CgkI97yope0IEAIQEQ",   // 250
-                                         "CgkI97yope0IEAIQEg",   // 1000
-                                         "CgkI97yope0IEAIQEw",   // 2500
-                                         "CgkI97yope0IEAIQFA"};  // 10000
-    int list_size = sizeof(achievements) / sizeof(char*);
-    for (int i = 0; i < list_size; i++) {
-      gpg_manager.IncrementAchievement(achievements[i]);
+    for (size_t i = 0; i < achievement_ids.size(); i++) {
+      gpg_manager.IncrementAchievement(achievement_ids[i].c_str());
     }
   }
 #endif
@@ -1690,6 +1702,50 @@ bool PieNoonGame::ShowMultiscreenSplat(int splat_num) {
     }
   }
   return false;  // no new splat displayed
+}
+
+// static
+// Load a string array from Android resources.
+void PieNoonGame::StringArrayResource(const char* resource_name,
+                                      std::vector<std::string>* strings) {
+  strings->empty();
+
+#ifdef __ANDROID__
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jstring resource_name_java = env->NewStringUTF(resource_name);
+
+  // Get ids of the class methods.
+  jmethodID len_string_array_resource =
+      env->GetMethodID(fpl_class, "LenStringArrayResource",
+                       "(Ljava/lang/String;)I");
+  jmethodID get_string_array_resource =
+      env->GetMethodID(fpl_class, "GetStringArrayResource",
+                       "(Ljava/lang/String;I)Ljava/lang/String;");
+
+  // For now, we read each of the strings with a different JNI call.
+  // TODO: Compact these into one function that returns an array of strings.
+  int len_array = env->CallIntMethod(activity, len_string_array_resource,
+                                     resource_name_java);
+  strings->reserve(len_array);
+  for (int i = 0; i < len_array; ++i) {
+    jobject string_java_obj = env->CallObjectMethod(activity,
+                                                    get_string_array_resource,
+                                                    resource_name_java, i);
+    jstring string_java = static_cast<jstring>(string_java_obj);
+    const char* string_c = env->GetStringUTFChars(string_java, NULL);
+    strings->push_back(std::string(string_c));
+    env->ReleaseStringUTFChars(string_java, string_c);
+    env->DeleteLocalRef(string_java_obj);
+  }
+
+  env->DeleteLocalRef(resource_name_java);
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+#else
+  (void)resource_name;
+#endif
 }
 
 int PieNoonGame::ReadPreference(const char* key, int initial_value,

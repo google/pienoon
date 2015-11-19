@@ -200,7 +200,7 @@ void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
       const char *leaderboard_id = nullptr;
       for (size_t i = 0; i < id_len; i++) {
         if (ids[i].event == it->first) {
-          leaderboard_id = ids[i].leaderboard;
+          leaderboard_id = ids[i].leaderboard.c_str();
         }
       }
       assert(leaderboard_id);

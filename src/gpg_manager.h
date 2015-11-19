@@ -48,7 +48,8 @@ class GPGManager {
   bool LoggedIn();
 
   struct GPGIds {
-    const char *leaderboard, *event;
+    std::string leaderboard;
+    std::string event;
   };
 
   // Request this stat to be saved for the logged in

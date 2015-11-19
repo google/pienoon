@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.nfc.NdefMessage;
 import android.os.Bundle;
@@ -317,6 +318,28 @@ public class FPLActivity extends SDLActivity implements
 
   public int ReadPreference(String key, int default_value) {
     return getPreferences(Context.MODE_PRIVATE).getInt(key, default_value);
+  }
+
+  // TODO: Expose this as the JNI function and delete the separate Len() and
+  //       Get() functions below.
+  private String[] StringArrayResource(String resource_name) {
+    try {
+      Resources res = getResources();
+      int id = res.getIdentifier(resource_name, "array", getPackageName());
+      return res.getStringArray(id);
+
+    } catch (Exception e) {
+      Log.e("SDL", "exception", e);
+      return new String[0];
+    }
+  }
+
+  public int LenStringArrayResource(String resource_name) {
+    return StringArrayResource(resource_name).length;
+  }
+
+  public String GetStringArrayResource(String resource_name, int index) {
+    return StringArrayResource(resource_name)[index];
   }
 
   public int DpToPx(int dp) {

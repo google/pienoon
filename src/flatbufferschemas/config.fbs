@@ -900,6 +900,11 @@ table Config {
 
   // Debug shader to show bounds for menu buttons
   menu_button_debug_shader:string;
+
+  // Resources names. Different between snowdown and pie_noon.
+  gpg_leaderboards_resource:string;
+  gpg_events_resource:string;
+  gpg_achievements_resource:string;
 }
 
 root_type Config;

@@ -2782,6 +2782,10 @@
   "draw_touch_button_bounds": false,
   "menu_button_debug_shader": "shaders/color",
 
+  "gpg_leaderboards_resource": "play_games_leaderboards",
+  "gpg_events_resource": "play_games_events",
+  "gpg_achievements_resource": "play_games_achievements",
+
   "splatter_map": [
     { "indices": [] },
     { "indices": [4] },

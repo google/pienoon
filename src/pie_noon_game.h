@@ -78,6 +78,7 @@ class PieNoonGame {
 #ifdef ANDROID_CARDBOARD
   bool InitializeCardboardConfig();
 #endif
+  bool InitializeGpgIds();
   bool InitializeRenderer();
   Mesh* CreateVerticalQuadMesh(const flatbuffers::String* material_name,
                                const vec3& offset, const vec2& pixel_bounds,
@@ -146,6 +147,8 @@ class PieNoonGame {
   static int ReadPreference(const char* key, int initial_value,
                             int failure_value);
   static void WritePreference(const char* key, int value);
+  static void StringArrayResource(const char* resource_name,
+                                  std::vector<std::string>* strings);
 
   void CheckForNewAchievements();
 
