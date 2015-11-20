@@ -1001,7 +1001,6 @@
           "data" : {
             "ID" : "MenuSignIn",
             "texture_foreground" : "textures/play_games_connected_button.webp",
-            "texture_background" : "textures/text_sign_in.webp",
             "size" : 0.065,
             "margin": { "x": -0.05, "y": 0.35, "z" : 0.34, "w" : 0.0 },
             "foreground_position": { "x": -0.15, "y": -0.04 },
@@ -1017,7 +1016,6 @@
           "data" : {
             "ID" : "MenuExtras",
             "texture_foreground" : "textures/license_button.webp",
-            "texture_background" : "textures/text_extras.webp",
             "size" : 0.065,
             "margin": { "x": 0.34, "y": 0.35, "z" : 0.3, "w" : 0.0 },
             "foreground_position": { "x": 0.26, "y": -0.04 },
@@ -1101,9 +1099,9 @@
           "bottom_right" : { "x": 0.8, "y": 0.6 },
           "ID" : "MenuResume",
           "texture_normal" : [
-            { "standard" : "materials/text_resume.fplmat" }
+            { "standard" : "" }
           ],
-          "texture_pressed" : { "standard" : "materials/text_resume.fplmat" },
+          "texture_pressed" : { "standard" : "" },
           "texture_position" : { "x": 0.52, "y": 0.45 },
           "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -1130,8 +1128,7 @@
           "data_type": ImguiButtonDef,
           "data" : {
             "ID" : "MenuResume",
-            "texture_foreground" : "textures/text_resume.webp",
-            "texture_background" : "textures/splash.webp",
+            "texture_foreground" : "textures/splash.webp",
             "size" : 0.53,
             "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
             "foreground_position": { "x": 0.38, "y": 0.38 },

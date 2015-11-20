@@ -1,9 +1,0 @@
-{
-    "texture_filenames": [
-        "textures/text_searching_for_host.webp"
-    ],
-    "blendmode": "ALPHA",
-    "desired_format": [
-        "F_8888"
-    ]
-}
