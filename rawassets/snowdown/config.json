@@ -968,7 +968,7 @@
         },
         {
           // Start icon.
-          "texture" : [ { "standard" : "materials/start_icon.fplmat" } ],
+          "texture" : [ { "standard" : "materials/menu_start_blue.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.5 },
           "draw_scale": { "x": 1.0, "y":1.0 },
           "z_depth" : 0.5
@@ -1152,9 +1152,9 @@
           "bottom_right" : { "x": 0.0, "y": 0.0 },
           "ID" : "MenuStart",
           "texture_normal" : [
-            { "standard" : "materials/menu_start.fplmat" }
+            { "standard" : "materials/menu_start_blue.fplmat" }
           ],
-          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
+          "texture_pressed" : { "standard" : "materials/menu_start_blue.fplmat" },
           "texture_position" : { "x": 0.53, "y": 0.67 },
           "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
           "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
