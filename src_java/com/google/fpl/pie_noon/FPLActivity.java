@@ -19,6 +19,7 @@ package com.google.fpl.pie_noon;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.os.Bundle;
 import android.text.Html;
@@ -441,6 +443,17 @@ public class FPLActivity extends SDLActivity implements
       cardboardView.undistortTexture(textureId);
     } catch (Exception e) {
       Log.e("SDL", "exception", e);
+    }
+  }
+
+  // Launch / install Zooshi in Santa mode.
+  public void LaunchZooshiSanta() {
+    try {
+        startActivity(new Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("http://google.github.io/zooshi/launch/default/santa")));
+    } catch (ActivityNotFoundException e) {
+      // If we can't open a web link something is *very* wrong with the device.
     }
   }
 

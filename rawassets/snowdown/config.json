@@ -942,6 +942,21 @@
           "draw_scale_pressed" : { "x": 1.1, "y": 1.1 },
           "nav_left" : ["MenuHowToPlay"],
           "nav_up" : ["MenuStart"]
+        },
+        {
+          "top_left" : { "x": 0.88, "y": -0.5 },
+          "bottom_right" : { "x": 1.0, "y": 0.22 },
+          "ID" : "Sushi",
+          "texture_normal" : [
+            { "standard" : "materials/zooshi_icon.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/zooshi_icon.fplmat" },
+          "texture_position" : { "x": 0.97, "y": 0.07 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuGameModes"],
+          "nav_up" : ["MenuStart"]
         }
     ],
     "static_image_list" : [

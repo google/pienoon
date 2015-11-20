@@ -20,8 +20,8 @@
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
 #include "imgui.h"
-#include "motive/io/flatbuffers.h"
 #include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 #include "motive/math/angle.h"
 #include "multiplayer_generated.h"
 #include "pie_noon_common_generated.h"
@@ -120,8 +120,8 @@ static inline const UiGroup* TitleScreenButtons(const Config& config) {
 #else
   const bool android_title_screen = config.always_use_android_title_screen();
 #endif
-  return android_title_screen ? config.title_screen_buttons_android() :
-                                config.title_screen_buttons_non_android();
+  return android_title_screen ? config.title_screen_buttons_android()
+                              : config.title_screen_buttons_non_android();
 }
 
 /// kVersion is used by Google developers to identify which
@@ -329,10 +329,9 @@ bool PieNoonGame::InitializeRenderingAssets() {
         CreateVerticalQuadMesh(renderable->cardboard_front(), front_offset,
                                pixel_bounds, pixel_to_world_scale);
 
-    cardboard_front_variants_[id] =
-        CreateVerticalQuadMesh(renderable->cardboard_front_variant(),
-                               front_offset, pixel_bounds,
-                               pixel_to_world_scale);
+    cardboard_front_variants_[id] = CreateVerticalQuadMesh(
+        renderable->cardboard_front_variant(), front_offset, pixel_bounds,
+        pixel_to_world_scale);
 
     cardboard_backs_[id] =
         CreateVerticalQuadMesh(renderable->cardboard_back(), back_offset,
@@ -420,7 +419,8 @@ bool PieNoonGame::InitializeGameState() {
   motive::MatrixInit::Register();
 
   // Load flatbuffer into buffer.
-  if (!LoadFile("character_state_machine_def.piestate", &state_machine_source_)) {
+  if (!LoadFile("character_state_machine_def.piestate",
+                &state_machine_source_)) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                  "Error loading character state machine.\n");
     return false;
@@ -930,12 +930,9 @@ void PieNoonGame::DebugCamera() {
   if (!input_.GetButton(SDLK_POINTER1).is_down()) return;
 
   static const ButtonToTranslation kDebugCameraButtons[] = {
-      {'d', mathfu::kAxisX3f},
-      {'a', -mathfu::kAxisX3f},
-      {'w', mathfu::kAxisZ3f},
-      {'s', -mathfu::kAxisZ3f},
-      {'q', mathfu::kAxisY3f},
-      {'e', -mathfu::kAxisY3f},
+      {'d', mathfu::kAxisX3f}, {'a', -mathfu::kAxisX3f},
+      {'w', mathfu::kAxisZ3f}, {'s', -mathfu::kAxisZ3f},
+      {'q', mathfu::kAxisY3f}, {'e', -mathfu::kAxisY3f},
   };
 
   // Convert key presses to translations along camera axes.
@@ -1644,7 +1641,7 @@ void PieNoonGame::ProcessPlayerStatusMessage(
   auto c = game_state_.characters().begin();
   auto h = status.player_health()->begin();
   for (; c != game_state_.characters().end() &&
-             h != status.player_health()->end();
+         h != status.player_health()->end();
        ++c, ++h) {
     (*c)->set_health(*h);
   }
@@ -1988,6 +1985,20 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         break;
       }
 
+#if defined(__ANDROID__)
+      case ButtonId_Sushi: {
+        JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+        jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+        jclass activity_class = env->GetObjectClass(activity);
+        jmethodID launch_zooshi =
+            env->GetMethodID(activity_class, "LaunchZooshiSanta", "()V");
+        env->CallVoidMethod(activity, launch_zooshi);
+        env->DeleteLocalRef(activity_class);
+        env->DeleteLocalRef(activity);
+        break;
+      }
+#endif  // defined(__ANDROID__)
+
       case ButtonId_MenuBack: {
         const Config& config = GetConfig();
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
@@ -2101,7 +2112,8 @@ void PieNoonGame::SendMultiscreenPlayerCommand() {
       multiplayer::CreatePlayerCommand(
           builder, multiscreen_action_aim_at_,
           (multiscreen_action_to_perform_ == ButtonId_Attack),
-          (multiscreen_action_to_perform_ == ButtonId_Defend)).Union());
+          (multiscreen_action_to_perform_ == ButtonId_Defend))
+          .Union());
 
   builder.Finish(message_root);
 
@@ -2736,15 +2748,15 @@ void PieNoonGame::Run() {
         const auto mid = res / 2;
         const float time = static_cast<float>(world_time) /
                            static_cast<float>(kMillisecondsPerSecond);
-        const mat3 rot_mat = mat3::RotationZ(sin(time * 3.0f) *
-                     Angle::FromDegrees(config.loading_anim_amplitude() / 2)
-                     .ToRadians());
+        const mat3 rot_mat = mat3::RotationZ(
+            sin(time * 3.0f) *
+            Angle::FromDegrees(config.loading_anim_amplitude() / 2)
+                .ToRadians());
         renderer_.model_view_projection() =
             ortho_mat *
             mat4::FromTranslationVector(
-                      vec3(static_cast<float>(mid.x()),
-                      res.y() * config.loading_anim_vert_translation(),
-                      0.0f)) *
+                vec3(static_cast<float>(mid.x()),
+                     res.y() * config.loading_anim_vert_translation(), 0.0f)) *
             mat4::FromRotationMatrix(rot_mat);
         auto extend = vec2(spinmat->textures()[0]->size());
         renderer_.color() = mathfu::kOnes4f;
@@ -2756,10 +2768,10 @@ void PieNoonGame::Run() {
 
         extend = vec2(logomat->textures()[0]->size()) / 10;
         renderer_.model_view_projection() =
-            ortho_mat * mat4::FromTranslationVector(
-                       vec3(static_cast<float>(mid.x()),
-                            res.y() * config.loading_texture_vert_translation(),
-                            0.0f));
+            ortho_mat *
+            mat4::FromTranslationVector(vec3(
+                static_cast<float>(mid.x()),
+                res.y() * config.loading_texture_vert_translation(), 0.0f));
         renderer_.color() = mathfu::kOnes4f;
         logomat->Set(renderer_);
         shader_textured_->Set(renderer_);
