@@ -34,6 +34,7 @@ enum RenderableId : ushort {
   PieLarge,
   PieBlock,
   EnvironmentSky,
+  EnvironmentSkyTop,
   EnvironmentCloud,
   EnvironmentCloudShadow,
   EnvironmentSun,
