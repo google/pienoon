@@ -1624,6 +1624,12 @@
       "pixel_bounds": { "x": 1024, "y": 512 }, // (4096,2048) --> (1024,512)
       "geometry_scale": 4.5 // 4096 / 1024
     },
+     {
+      "id": "EnvironmentSkyTop",
+      "cardboard_front": "materials/environment_sky_top.fplmat",
+      "pixel_bounds": { "x": 1024, "y": 512 }, // (4096,2048) --> (1024,512)
+      "geometry_scale": 4.5 // 4096 / 1024
+    },
     {
       "id": "EnvironmentCloud",
       "cardboard_front": "materials/environment_cloud.fplmat",

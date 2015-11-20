@@ -108,7 +108,7 @@
           {
             "data_type": SceneObjectDef,
             "data": {
-              "renderable_id": EnvironmentSky,
+              "renderable_id": EnvironmentSkyTop,
               "position": { "x": 0, "y": 18, "z":14 },
               "scale": { "x": 1.1, "y": 0.8, "z":1 },
               "orientation": { "x": -90, "y": 0, "z":0 },
@@ -125,7 +125,7 @@
           {
             "data_type": SceneObjectDef,
             "data": {
-              "renderable_id": EnvironmentSky,
+              "renderable_id": EnvironmentSkyTop,
               "position": { "x": 0, "y": 18, "z":14 },
               "scale": { "x": 1.1, "y": 0.8, "z":1 },
               "orientation": { "x": 90, "y": 0, "z":0 },
