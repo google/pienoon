@@ -44,7 +44,8 @@ static inline float DistFromRay(const vec3& ray, const vec3& point) {
 TouchscreenController::TouchscreenController()
     : Controller(kTypeTouchScreen),
       input_system_(nullptr),
-      game_state_(nullptr) {}
+      game_state_(nullptr),
+      deflect_time_remaining_(0) {}
 
 void TouchscreenController::Initialize(InputSystem* input_system,
                                        vec2 window_size, const Config* config,
@@ -110,14 +111,15 @@ CharacterId TouchscreenController::CharacterIdFromRay(
   return best_id;
 }
 
-void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
+void TouchscreenController::AdvanceFrame(WorldTime delta_time) {
   ClearAllLogicalInputs();
+
   for (size_t i = 0; i < input_system_->pointers_.size(); ++i) {
     const Pointer& pointer = input_system_->pointers_[i];
     if (!pointer.used) continue;
 
-    // Turn and throw are triggered by went_down().
-    // Block is active with is_down().
+    // Both deflect and turn-and-throw are triggered by went_down().
+    // Deflect is maintained on is_down().
     const Button& pointer_button = input_system_->GetPointerButton(pointer.id);
     if (!pointer_button.went_down() && !pointer_button.is_down()) continue;
 
@@ -129,21 +131,34 @@ void TouchscreenController::AdvanceFrame(WorldTime /*delta_time*/) {
     const CharacterId target_id = CharacterIdFromRay(ray, camera_position);
     if (target_id == kNoCharacter) continue;
 
-    // If we're holding on ourself, deflect.
+    // If we pressed ourself, deflect.
     if (target_id == character_id_) {
-      assert(pointer_button.is_down());
       set_target_id(kNoCharacter);
-      SetLogicalInputs(LogicalInputs_Deflect, true);
+
+      // Only boost the counter on the press. For holds, we maintain only.
+      const WorldTime deflect_time_boost = pointer_button.went_down() ?
+                                           config_->touch_deflect_time() : 1;
+      deflect_time_remaining_ = std::max(deflect_time_remaining_,
+                                         deflect_time_boost);
       break;
     }
 
-    // If we're clicking another character, turn and throw.
+    // If we're clicking another character, turn to that character.
+    // If we're not currently blocking, throw at that character, too.
     if (pointer_button.went_down()) {
       set_target_id(target_id);
       SetLogicalInputs(LogicalInputs_TurnToTarget, true);
-      SetLogicalInputs(LogicalInputs_ThrowPie, true);
+      if (deflect_time_remaining_ <= 0) {
+        SetLogicalInputs(LogicalInputs_ThrowPie, true);
+      }
       break;
     }
+  }
+
+  // Deflects hold for a fixed amount of time.
+  if (deflect_time_remaining_ > 0) {
+    SetLogicalInputs(LogicalInputs_Deflect, true);
+    deflect_time_remaining_ -= delta_time;
   }
 }
 

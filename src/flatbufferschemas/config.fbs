@@ -521,6 +521,10 @@ table Config {
   // How long the game should run. Only used in HighScore mode.
   game_time:int;
 
+  // How long the player should deflect when the character is touched on
+  // a touchscreen, in ms.
+  touch_deflect_time:int;
+
   // First player to reach this score wins the game. Only used in ReachTarget
   // mode.
   target_score:int;

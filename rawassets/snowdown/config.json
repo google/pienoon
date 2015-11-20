@@ -549,6 +549,7 @@
 
   "game_mode": "Survival",
   "game_time": 20000,
+  "touch_deflect_time": 1000,
   "character_health": 10,
   "target_score": 10,
 

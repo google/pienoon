@@ -57,6 +57,7 @@ class TouchscreenController : public Controller {
   vec2 window_size_;
   const Config* config_;
   const GameState* game_state_;
+  WorldTime deflect_time_remaining_;
 };
 
 }  // pie_noon
