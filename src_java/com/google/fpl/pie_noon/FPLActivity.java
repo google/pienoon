@@ -27,6 +27,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.os.Bundle;
@@ -53,6 +55,8 @@ import com.google.vrtoolkit.cardboard.CardboardDeviceParams;
 import com.google.vrtoolkit.cardboard.CardboardView;
 import com.google.vrtoolkit.cardboard.Eye;
 import com.google.vrtoolkit.cardboard.HeadTransform;
+import com.google.vrtoolkit.cardboard.PhoneParams;
+import com.google.vrtoolkit.cardboard.proto.Phone;
 import com.google.vrtoolkit.cardboard.ScreenParams;
 import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
 import com.google.vrtoolkit.cardboard.sensors.NfcSensor;
@@ -63,6 +67,8 @@ public class FPLActivity extends SDLActivity implements
 
   private final String PROPERTY_ID = "XX-XXXXXXXX-X";
   private Tracker tracker = null;
+
+  private static final float METERS_PER_INCH = 0.0254f;
 
   // Fields used in order to interact with a Cardboard device
   private CardboardView cardboardView;
@@ -80,38 +86,52 @@ public class FPLActivity extends SDLActivity implements
     super.onCreate(savedInstanceState);
     tracker = GoogleAnalytics.getInstance(this).newTracker(PROPERTY_ID);
 
-    // Instantiate fields used by Cardboard
-    cardboardView = new CardboardView(this);
-    headTransform = new HeadTransform();
-    leftEye = new Eye(Eye.Type.LEFT);
-    rightEye = new Eye(Eye.Type.RIGHT);
-    monocularEye = new Eye(Eye.Type.MONOCULAR);
-    leftEyeNoDistortion = new Eye(Eye.Type.LEFT);
-    rightEyeNoDistortion = new Eye(Eye.Type.RIGHT);
-    magnetSensor = new MagnetSensor(this);
-    magnetSensor.setOnCardboardTriggerListener(this);
-    nfcSensor = NfcSensor.getInstance(this);
-    nfcSensor.addOnCardboardNfcListener(this);
-    NdefMessage tagContents = nfcSensor.getTagContents();
-    if (tagContents != null) {
-      updateCardboardDeviceParams(CardboardDeviceParams.createFromNfcContents(tagContents));
+    try {
+      SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+      boolean useCardboard = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null &&
+                             sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null;
+
+      // Instantiate fields used by Cardboard
+      if (useCardboard) {
+        cardboardView = new CardboardView(this);
+        headTransform = new HeadTransform();
+        leftEye = new Eye(Eye.Type.LEFT);
+        rightEye = new Eye(Eye.Type.RIGHT);
+        monocularEye = new Eye(Eye.Type.MONOCULAR);
+        leftEyeNoDistortion = new Eye(Eye.Type.LEFT);
+        rightEyeNoDistortion = new Eye(Eye.Type.RIGHT);
+        magnetSensor = new MagnetSensor(this);
+        magnetSensor.setOnCardboardTriggerListener(this);
+        nfcSensor = NfcSensor.getInstance(this);
+        nfcSensor.addOnCardboardNfcListener(this);
+        NdefMessage tagContents = nfcSensor.getTagContents();
+        if (tagContents != null) {
+          updateCardboardDeviceParams(CardboardDeviceParams.createFromNfcContents(tagContents));
+        }
+      }
+    } catch (Exception e) {
+      Log.e("SDL", "exception", e);
     }
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    cardboardView.onResume();
-    magnetSensor.start();
-    nfcSensor.onResume(this);
+    if (cardboardView != null) {
+      cardboardView.onResume();
+      magnetSensor.start();
+      nfcSensor.onResume(this);
+    }
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    cardboardView.onPause();
-    magnetSensor.stop();
-    nfcSensor.onPause(this);
+    if (cardboardView != null) {
+      cardboardView.onPause();
+      magnetSensor.stop();
+      nfcSensor.onPause(this);
+    }
   }
 
   // GPG's GUIs need activity lifecycle events to function properly, but
@@ -278,7 +298,7 @@ public class FPLActivity extends SDLActivity implements
     int keyCode = event.getKeyCode();
     // Disable the volume keys while in a cardboard
     if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) &&
-        nfcSensor.isDeviceInCardboard()) {
+        (nfcSensor != null && nfcSensor.isDeviceInCardboard())) {
       return true;
     }
     return super.dispatchKeyEvent(event);
@@ -386,11 +406,24 @@ public class FPLActivity extends SDLActivity implements
   }
 
   public void SetHeadMountedDisplayResolution(int width, int height) {
-    ScreenParams params =
-      new ScreenParams(cardboardView.getHeadMountedDisplay().getScreenParams());
-    params.setWidth(width);
-    params.setHeight(height);
-    cardboardView.updateScreenParams(params);
+    // If hardware scaling is used, the width x height will be less than the
+    // displays natural resolution, so the PPI (pixels per inch) will also
+    // be different. So, we use this trick to recalculate the ScreenParam's PPI
+    // values (which are normally just read from the display).
+    try {
+      if (cardboardView == null) return;
+      Display display = getWindowManager().getDefaultDisplay();
+      ScreenParams sp = new ScreenParams(display);
+      Phone.PhoneParams pp = new Phone.PhoneParams();
+      pp.setXPpi(width / sp.getWidthMeters() * METERS_PER_INCH);
+      pp.setYPpi(height / sp.getHeightMeters() * METERS_PER_INCH);
+      sp = ScreenParams.fromProto(display, pp);
+      sp.setWidth(width);
+      sp.setHeight(height);
+      cardboardView.updateScreenParams(sp);
+    } catch (Exception e) {
+      Log.e("SDL", "exception", e);
+    }
   }
 
   @Override
@@ -412,11 +445,15 @@ public class FPLActivity extends SDLActivity implements
   }
 
   protected void updateCardboardDeviceParams(CardboardDeviceParams newParams) {
-    cardboardView.updateCardboardDeviceParams(newParams);
+    if (cardboardView == null) {
+      cardboardView.updateCardboardDeviceParams(newParams);
+    }
   }
 
   // Function to access the transforms of the eyes, which includes head tracking
   public void GetEyeViews(float[] leftTransform, float[] rightTransform) {
+    if (cardboardView == null) return;
+
     cardboardView.getCurrentEyeParams(headTransform,
                                       leftEye,
                                       rightEye,
@@ -435,12 +472,16 @@ public class FPLActivity extends SDLActivity implements
 
   // Reset the head tracker to the current heading
   public void ResetHeadTracker() {
-    cardboardView.resetHeadTracker();
+    if (cardboardView != null) {
+      cardboardView.resetHeadTracker();
+    }
   }
 
   public void UndistortTexture(int textureId) {
     try {
-      cardboardView.undistortTexture(textureId);
+      if (cardboardView != null) {
+        cardboardView.undistortTexture(textureId);
+      }
     } catch (Exception e) {
       Log.e("SDL", "exception", e);
     }
