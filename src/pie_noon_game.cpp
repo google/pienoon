@@ -775,6 +775,13 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   // Render shadows for all Renderables first, with depth testing off so
   // they blend properly.
   renderer_.DepthTest(false);
+  // This is a bit of a hack - We want to be in kBlendModeAlpha, but
+  // FPLBase's renderer assumes that no one else is messing with the openGL
+  // settings besides it.  Since cardboard mode makes its own openGL calls,
+  // we have to set some other blend mode first, so that it will recognize
+  // that things have change, and it should call glBlendMode(GL_ENABLE) again.
+  renderer_.SetBlendMode(kBlendModeOff);
+  renderer_.SetBlendMode(kBlendModeAlpha);
   renderer_.model_view_projection() = camera_transform;
   renderer_.light_pos() = *scene.lights()[0];  // TODO: check amount of lights.
   shader_simple_shadow_->SetUniform("world_scale_bias", world_scale_bias);
