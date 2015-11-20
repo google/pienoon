@@ -1159,10 +1159,6 @@
           "top_left" : { "x": 0.2, "y": 0.0 },
           "bottom_right" : { "x": 0.8, "y": 0.6 },
           "ID" : "MenuResume",
-          "texture_normal" : [
-            { "standard" : "" }
-          ],
-          "texture_pressed" : { "standard" : "" },
           "texture_position" : { "x": 0.52, "y": 0.45 },
           "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
@@ -1178,7 +1174,7 @@
         },
         {
           // Start icon.
-          "texture" : [ { "standard" : "materials/start_icon.fplmat" } ],
+          "texture" : [ { "standard" : "materials/menu_start_blue.fplmat" } ],
           "texture_position": { "x": 0.5, "y": 0.5 },
           "draw_scale": { "x": 1.0, "y":1.0 },
           "z_depth" : 0.5
