@@ -28,9 +28,3 @@ extern "C" int FPL_main(int argc, char* argv[]) {
 
   return 0;
 }
-
-#if !(TARGET_IPHONE_SIMULATOR)
-// TODO: Investigate why this works on iOS devices but doesn't seem to work on
-// iOS Simulators (i386/x86_64).
-MATHFU_DEFINE_GLOBAL_SIMD_AWARE_NEW_DELETE
-#endif  // TARGET_IPHONE_SIMULATOR
