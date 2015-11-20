@@ -1,0 +1,9 @@
+{
+    "texture_filenames": [
+        "textures/start_splash_blue.webp"
+    ],
+    "blendmode": "ALPHA",
+    "desired_format": [
+        "F_8888"
+    ]
+}
