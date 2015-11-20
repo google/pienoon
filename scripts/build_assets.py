@@ -64,7 +64,8 @@ FLATBUFFERS_PATHS = [
     os.path.join(PROJECT_ROOT, 'bin', 'Release'),
     os.path.join(PROJECT_ROOT, 'bin', 'Debug'),
     os.path.join(FLATBUFFERS_ROOT, 'Debug'),
-    os.path.join(FLATBUFFERS_ROOT, 'Release')
+    os.path.join(FLATBUFFERS_ROOT, 'Release'),
+    FLATBUFFERS_ROOT,
 ]
 
 # Directory that contains the cwebp tool.

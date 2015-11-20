@@ -109,7 +109,8 @@ PIE_NOON_SCHEMA_FILES := \
   $(PIE_NOON_SCHEMA_DIR)/timeline.fbs
 
 # Make each source file dependent upon the assets
-$(foreach src,$(LOCAL_SRC_FILES),$(eval $(LOCAL_PATH)/$$(src): build_assets))
+$(foreach src,$(LOCAL_SRC_FILES),\
+  $(eval $(call local-source-file-path,$(src)): | build_assets))
 
 PIE_NOON_FLATBUFFER_INCLUDE_DIRS := \
   $(DEPENDENCIES_PINDROP_DIR)/schemas \
@@ -154,6 +155,8 @@ LOCAL_SHARED_LIBRARIES :=
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -lz -lEGL -landroid
 
 include $(BUILD_SHARED_LIBRARY)
+
+$(LOCAL_BUILT_MODULE): build_assets
 
 $(call import-add-path,$(DEPENDENCIES_FLATBUFFERS_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
