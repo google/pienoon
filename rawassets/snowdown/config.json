@@ -1474,7 +1474,7 @@
       "id": "CharacterIdle",
       "cardboard_fronts": [ "materials/character_idle_variant.fplmat", "materials/character_idle.fplmat" ],
       "cardboard_back": "materials/character_idle_back.fplmat",
-      "offset": { "x": 0.1, "y": 0.2, "z": 0.0 },
+      "offset": { "x": 0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (224, 357) --> (161, 256)
       "geometry_scale": 1.5, // 357 / 256
       "stick": true,
