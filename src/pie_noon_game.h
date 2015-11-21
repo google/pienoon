@@ -93,7 +93,8 @@ class PieNoonGame {
   void RenderScene(const SceneDescription& scene,
                    const mat4& additional_camera_changes,
                    const vec2i& resolution);
-  void Render2DElements();
+  void Render2DElements(const SceneDescription& scene,
+                        const mat4& additional_camera_changes);
   void GetCardboardTransforms(mat4& left_eye_transform,
                               mat4& right_eye_transform);
   void CorrectCardboardCamera(mat4& cardboard_camera);

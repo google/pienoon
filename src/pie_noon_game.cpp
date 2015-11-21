@@ -803,17 +803,49 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   RenderCardboard(scene, camera_transform);
 
   // Render any UI/HUD/Splash on top
-  Render2DElements();
+  Render2DElements(scene, additional_camera_changes);
 }
 
-void PieNoonGame::Render2DElements() {
+void PieNoonGame::Render2DElements(const SceneDescription& scene,
+                                   const mat4& additional_camera_changes) {
   // Set up an ortho camera for all 2D elements, with (0, 0) in the top left,
   // and the bottom right the windows size in pixels.
-  auto res = renderer_.window_size();
-  mat4 ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
-                                              static_cast<float>(res.y()), 0.0f,
-                                              -1.0f, 1.0f);
-  renderer_.model_view_projection() = ortho_mat;
+  mathfu::vec2i res = renderer_.window_size();
+
+  if (!game_state_.is_in_cardboard()) {
+    mat4 ortho_mat = mathfu::OrthoHelper<float>(
+        0.0f, static_cast<float>(res.x()), static_cast<float>(res.y()), 0.0f,
+        -1.0f, 1.0f);
+    renderer_.model_view_projection() = ortho_mat;
+  } else {
+    // Center it at 0, 0
+    const mat4 translate_mat =
+        mat4::FromTranslationVector(vec3(-res.x() / 2, -res.y() / 2, 0));
+    // Scale it into a more reasonable size:
+    const mat4 scale_mat = mat4::FromScaleVector(vec3(0.010, -0.010, -1.0));
+    // Move it to a nice spot in world space:
+    const mat4 translate2_mat =
+        mat4::FromTranslationVector(vec3(0.0, 4.0, 12.6));
+    const Config& config = GetConfig();
+    const Config& cardboard_config = GetCardboardConfig();
+
+    float viewport_angle = cardboard_config.viewport_angle();
+
+    mat4 perspective_matrix_ = mat4::Perspective(
+        viewport_angle, res.x() / static_cast<float>(res.y()),
+        config.viewport_near_plane(), config.viewport_far_plane(), -1.0f);
+
+    const mat4 camera_transform =
+        perspective_matrix_ * (additional_camera_changes * scene.camera());
+
+    mat4 rotate_towards_camera = mat4::FromRotationMatrix(
+        mathfu::quat::FromAngleAxis(0.5 * M_PI / 2.0, mathfu::kAxisY3f)
+            .ToMatrix());
+
+    renderer_.model_view_projection() = camera_transform * translate2_mat *
+                                        rotate_towards_camera * scale_mat *
+                                        translate_mat;
+  }
 
 // Update the currently drawing Google Play Games image. Displays "Sign In"
 // when currently signed-out, and "Sign Out" when currently signed in.
@@ -2694,7 +2726,7 @@ void PieNoonGame::Run() {
           // Issue draw calls for the 'scene'.
           Render(scene_);
         } else {
-          Render2DElements();
+          Render2DElements(scene_, mat4::Identity());
         }
 
 // TEMP: testing GUI on top of everything else.
