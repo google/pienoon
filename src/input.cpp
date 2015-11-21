@@ -550,10 +550,8 @@ CardboardInput InputSystem::cardboard_input_;
 void CardboardInput::AdvanceFrame() {
   UpdateCardboardTransforms();
 
-  if (pending_trigger_ != triggered_) {
-    triggered_ = pending_trigger_;
-    pending_trigger_ = false;
-  }
+  triggered_ = pending_trigger_;
+  pending_trigger_ = false;
 }
 
 void CardboardInput::ResetHeadTracker() {
