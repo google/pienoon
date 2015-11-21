@@ -111,6 +111,8 @@ public class FPLActivity extends SDLActivity implements
       }
     } catch (Exception e) {
       Log.e("SDL", "exception", e);
+    } catch (Error e) {
+      Log.e("SDL", "error", e);
     }
   }
 
