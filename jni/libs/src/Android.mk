@@ -44,10 +44,9 @@ LOCAL_C_INCLUDES := \
   $(DEPENDENCIES_SDL_DIR)/include \
   $(DEPENDENCIES_SDL_MIXER_DIR) \
   $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include \
-  $(DEPENDENCIES_FREETYPE_DIR)/include \
-  $(DEPENDENCIES_HARFBUZZ_DIR)/src \
+  $(DEPENDENCIES_FPLBASE_DIR)/include \
+  $(DEPENDENCIES_FLATUI_DIR)/include \
   $(DEPENDENCIES_GPG_DIR)/include \
-  $(DEPENDENCIES_WEBP_DIR)/src \
   ${PIE_NOON_DIR}/external/include/harfbuzz \
   $(PIE_NOON_GENERATED_OUTPUT_DIR) \
   src
@@ -56,7 +55,6 @@ LOCAL_SRC_FILES := \
   $(subst $(LOCAL_PATH)/,,$(DEPENDENCIES_SDL_DIR))/src/main/android/SDL_android_main.c \
   $(PIE_NOON_RELATIVE_DIR)/src/ai_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/analytics_tracking.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/async_loader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/cardboard_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/character_state_machine.cpp \
@@ -67,7 +65,6 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/shakeable_prop.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/entity/entity_manager.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/font_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/full_screen_fader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gamepad_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/game_camera.cpp \
@@ -75,24 +72,15 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/gpg_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gpg_multiplayer.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gui_menu.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/imgui.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/input.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/main.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/material.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/material_manager.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/mesh.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/multiplayer_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/multiplayer_director.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/player_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/particles.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/precompiled.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/renderer.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/renderer_android.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/shader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/pie_noon_game.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_button.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/utilities.cpp
+  $(PIE_NOON_RELATIVE_DIR)/src/touchscreen_controller.cpp
 
 PIE_NOON_SCHEMA_DIR := $(PIE_NOON_DIR)/src/flatbufferschemas
 
@@ -100,8 +88,6 @@ PIE_NOON_SCHEMA_FILES := \
   $(PIE_NOON_SCHEMA_DIR)/character_state_machine_def.fbs \
   $(PIE_NOON_SCHEMA_DIR)/config.fbs \
   $(PIE_NOON_SCHEMA_DIR)/components.fbs \
-  $(PIE_NOON_SCHEMA_DIR)/materials.fbs \
-  $(PIE_NOON_SCHEMA_DIR)/mesh.fbs \
   $(PIE_NOON_SCHEMA_DIR)/multiplayer.fbs \
   $(PIE_NOON_SCHEMA_DIR)/particles.fbs \
   $(PIE_NOON_SCHEMA_DIR)/pie_noon_common.fbs \
@@ -113,6 +99,7 @@ $(foreach src,$(LOCAL_SRC_FILES),\
   $(eval $(call local-source-file-path,$(src)): | build_assets))
 
 PIE_NOON_FLATBUFFER_INCLUDE_DIRS := \
+  $(DEPENDENCIES_FPLBASE_DIR)/schemas \
   $(DEPENDENCIES_PINDROP_DIR)/schemas \
   $(DEPENDENCIES_MOTIVE_DIR)/schemas
 
@@ -129,6 +116,7 @@ $(call flatbuffers_header_build_rules,\
   $(LOCAL_SRC_FILES),\
   pie_noon_generated_includes,\
   motive_generated_includes \
+  fplbase_generated_includes \
   pindrop_generated_includes)
 
 .PHONY: clean_generated_includes
@@ -142,12 +130,10 @@ clean: clean_assets clean_generated_includes
 LOCAL_STATIC_LIBRARIES := \
   libgpg \
   libmathfu \
-  libwebp \
   libfplbase \
+  libflatui \
   libpindrop \
   libmotive \
-  libfreetype \
-  libharfbuzz \
   libflatbuffers
 
 LOCAL_SHARED_LIBRARIES :=
@@ -160,6 +146,8 @@ $(LOCAL_BUILT_MODULE): build_assets
 
 $(call import-add-path,$(DEPENDENCIES_FLATBUFFERS_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_FPLBASE_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_FLATUI_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MOTIVE_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_PINDROP_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_WEBP_DIR)/..)
@@ -168,6 +156,6 @@ $(call import-module,fplbase/jni)
 $(call import-module,flatbuffers/android/jni)
 $(call import-module,pindrop/jni)
 $(call import-module,motive/jni)
+$(call import-module,flatui/jni)
 $(call import-module,mathfu/jni)
-$(call import-module,webp)
 

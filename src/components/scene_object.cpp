@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_object.h"
-#include "motive/math/angle.h"
+#include "precompiled.h"
 #include "components_generated.h"
 #include "motive/init.h"
-#include "utilities.h"
+#include "motive/math/angle.h"
+#include "scene_object.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -93,8 +93,7 @@ void SceneObjectComponent::InitEntity(entity::EntityRef& entity) {
 }
 
 void SceneObjectComponent::UpdateGlobalMatrix(
-    entity::EntityRef& entity,
-    std::vector<bool>& matrix_updated) {
+    entity::EntityRef& entity, std::vector<bool>& matrix_updated) {
   const size_t data_index = GetEntityDataIndex(entity);
   SceneObjectData* data = GetEntityData(data_index);
 
@@ -110,7 +109,6 @@ void SceneObjectComponent::UpdateGlobalMatrix(
     SceneObjectData* parent = GetEntityData(parent_index);
     data->set_global_matrix(parent->global_matrix() * data->LocalMatrix());
   } else {
-
     // No parent means that our local matrix equals the global matrix.
     data->set_global_matrix(data->LocalMatrix());
   }
@@ -126,7 +124,6 @@ void SceneObjectComponent::UpdateGlobalMatrices() {
 
   // Loop through every entity and update its global matrix.
   for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-
     // The update process is recursive, so we may have already calculated a
     // matrix by the time we get there. If so, skip over it.
     if (!matrix_updated[iter.index()] && iter->data.visible()) {
@@ -152,9 +149,9 @@ void SceneObjectComponent::PopulateScene(SceneDescription* scene) {
     entity::EntityRef entity = iter->entity;
     if (VisibleInHierarchy(entity)) {
       SceneObjectData* data = GetEntityData(entity);
-      scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
-          data->renderable_id(), data->variant(), data->global_matrix(),
-          data->tint())));
+      scene->renderables().push_back(std::unique_ptr<Renderable>(
+          new Renderable(data->renderable_id(), data->variant(),
+                         data->global_matrix(), data->tint())));
     }
   }
 }

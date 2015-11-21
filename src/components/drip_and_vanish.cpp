@@ -14,7 +14,6 @@
 
 #include "drip_and_vanish.h"
 #include "scene_object.h"
-#include "utilities.h"
 
 namespace fpl {
 namespace pie_noon {

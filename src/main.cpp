@@ -20,7 +20,7 @@ extern "C" int FPL_main(int argc, char* argv[]) {
   fpl::pie_noon::PieNoonGame game;
   const char* binary_directory = argc > 0 ? argv[0] : "";
   if (!game.Initialize(binary_directory)) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "PieNoon: init failed, exiting!");
+    fplbase::LogError(fplbase::kError, "PieNoon: init failed, exiting!");
     return 1;
   }
 
@@ -28,5 +28,3 @@ extern "C" int FPL_main(int argc, char* argv[]) {
 
   return 0;
 }
-
-MATHFU_DEFINE_GLOBAL_SIMD_AWARE_NEW_DELETE

@@ -19,11 +19,8 @@
 #include "common.h"
 #include "config_generated.h"
 #include "controller.h"
-#include "input.h"
-#include "material_manager.h"
-#include "renderer.h"
+#include "precompiled.h"
 #include "touchscreen_button.h"
-#include "imgui.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -46,8 +43,8 @@ class GuiMenu {
 
   void AdvanceFrame(WorldTime delta_time, InputSystem* input,
                     const vec2& window_size);
-  void Setup(const UiGroup* menudef, MaterialManager* matman);
-  void LoadAssets(const UiGroup* menu_def, MaterialManager* matman);
+  void Setup(const UiGroup* menudef, AssetManager* matman);
+  void LoadAssets(const UiGroup* menu_def, AssetManager* matman);
   void Render(Renderer* renderer);
   void AdvanceFrame(WorldTime delta_time);
   MenuSelection GetRecentSelection();
@@ -58,20 +55,20 @@ class GuiMenu {
   TouchscreenButton* FindButtonById(ButtonId id);
   StaticImage* FindImageById(ButtonId id);
   const UiGroup* menu_def() const { return menu_def_; }
-  void LoadDebugShaderAndOptions(const Config* config, MaterialManager* matman);
+  void LoadDebugShaderAndOptions(const Config* config, AssetManager* matman);
 
  private:
   void ClearRecentSelections();
   void UpdateFocus(const flatbuffers::Vector<uint16_t>* destination_list);
 
   // imgui custom button definition.
-  gui::Event ImguiButton(const ImguiButtonDef& data);
+  flatui::Event ImguiButton(const ImguiButtonDef& data);
   void RenderTexture(const Texture& tex, const vec2& pos, const vec2& size,
                      const vec2& scale);
 
   const UiGroup* menu_def_;
   InputSystem* input_;
-  MaterialManager* matman_;
+  AssetManager* matman_;
   FontManager* fontman_;
 
   const char* debug_shader;

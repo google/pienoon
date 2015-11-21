@@ -18,13 +18,12 @@
 #include "character.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
-#include "motive/io/flatbuffers.h"
 #include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 #include "motive/util.h"
 #include "pie_noon_common_generated.h"
 #include "scoring_rules_generated.h"
 #include "timeline_generated.h"
-#include "utilities.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
@@ -151,8 +150,8 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
       damage_(damage) {
   // x,z positions are within a reasonable bound.
   // Rotations are anglular values.
-  const motive::SmoothInit position_init(
-      Range(-kMaxPosition, kMaxPosition), false);
+  const motive::SmoothInit position_init(Range(-kMaxPosition, kMaxPosition),
+                                         false);
   const motive::SmoothInit rotation_init(Range(-kPi, kPi), true);
 
   // Move x,z at constant speed from source to target.
@@ -204,24 +203,23 @@ void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,
     }
     case RewardType_AddDamage: {
       character->set_score(character->score() + damage);
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i got %i %s!\n",
-                  character->id(), damage, damage == 1 ? "point" : "points");
+      LogInfo(kApplication, "Player %i got %i %s!\n", character->id(), damage,
+              damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_SubtractDamage: {
       character->set_score(character->score() - damage);
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i lost %i %s!\n",
-                  character->id(), damage, damage == 1 ? "point" : "points");
+      LogInfo(kApplication, "Player %i lost %i %s!\n", character->id(), damage,
+              damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_AddPointValue: {
       character->set_score(character->score() + rule->point_value());
       if (rule->point_value()) {
         int points = rule->point_value();
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i %s %i %s!\n",
-                    character->id(), points > 0 ? "got" : "lost",
-                    std::abs(points),
-                    std::abs(points) == 1 ? "point" : "points");
+        LogInfo(kApplication, "Player %i %s %i %s!\n", character->id(),
+                points > 0 ? "got" : "lost", std::abs(points),
+                std::abs(points) == 1 ? "point" : "points");
       }
       break;
     }

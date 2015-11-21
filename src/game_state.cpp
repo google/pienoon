@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <math.h>
 #include "precompiled.h"
 #include "analytics_tracking.h"
 #include "audio_config_generated.h"
@@ -22,15 +21,14 @@
 #include "config_generated.h"
 #include "controller.h"
 #include "game_state.h"
-#include "motive/io/flatbuffers.h"
 #include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 #include "motive/util.h"
 #include "multiplayer_director.h"
 #include "pie_noon_common_generated.h"
 #include "pindrop/pindrop.h"
 #include "scene_description.h"
 #include "timeline_generated.h"
-#include "utilities.h"
 
 using flatbuffers::uoffset_t;
 using mathfu::vec2i;
@@ -623,8 +621,7 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->Active()) {
           character->set_victory_state(kVictorious);
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
-                      static_cast<int>(i) + 1);
+          LogInfo(kApplication, "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
@@ -640,17 +637,16 @@ void GameState::DetermineWinnersAndLosers() {
           const auto& character = characters_[i];
           if (character->score() == high_score) {
             character->set_victory_state(kVictorious);
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
-                        static_cast<int>(i) + 1);
+            LogInfo(kApplication, "Player %i wins!\n", static_cast<int>(i) + 1);
           } else {
             character->set_victory_state(kFailure);
           }
         }
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
+        LogInfo(kApplication, "Final scores:\n");
         for (size_t i = 0; i < characters_.size(); ++i) {
           const auto& character = characters_[i];
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "  Player %i: %i\n",
-                      static_cast<int>(i) + 1, character->score());
+          LogInfo(kApplication, "  Player %i: %i\n", static_cast<int>(i) + 1,
+                  character->score());
         }
       }
       break;
@@ -660,17 +656,16 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->score() >= config_->target_score()) {
           character->set_victory_state(kVictorious);
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
-                      static_cast<int>(i) + 1);
+          LogInfo(kApplication, "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
       }
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
+      LogInfo(kApplication, "Final scores:\n");
       for (size_t i = 0; i < characters_.size(); ++i) {
         const auto& character = characters_[i];
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "  Player %i: %i\n",
-                    static_cast<int>(i) + 1, character->score());
+        LogInfo(kApplication, "  Player %i: %i\n", static_cast<int>(i) + 1,
+                character->score());
       }
       break;
     }
@@ -906,9 +901,8 @@ void GameState::SpawnParticles(const mathfu::vec3& position,
 
   const Angle to_position = Angle::FromXZVector(position - camera().Position());
   const vec3 additional_rotation =
-      is_in_cardboard()
-          ? vec3(0.0f, -(to_position.ToRadians() + kHalfPi), 0.0f)
-          : mathfu::kZeros3f;
+      is_in_cardboard() ? vec3(0.0f, -(to_position.ToRadians() + kHalfPi), 0.0f)
+                        : mathfu::kZeros3f;
 
   for (int i = 0; i < particle_count; i++) {
     Particle* p = particle_manager_.CreateParticle();
@@ -956,8 +950,7 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     int countdown = (config_->game_time() - time_) / kMillisecondsPerSecond;
     if (countdown != countdown_timer_) {
       countdown_timer_ = countdown;
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Timer remaining: %i\n",
-                  countdown_timer_);
+      LogInfo(kApplication, "Timer remaining: %i\n", countdown_timer_);
     }
   }
   SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
@@ -1114,8 +1107,8 @@ void GameState::AddParticlesToScene(SceneDescription* scene) const {
   auto plist = particle_manager_.get_particle_list();
   for (auto it = plist.begin(); it != plist.end(); ++it) {
     scene->renderables().push_back(std::unique_ptr<Renderable>(
-        new Renderable((*it)->renderable_id(), 0,
-                       (*it)->CalculateMatrix(), (*it)->CurrentTint())));
+        new Renderable((*it)->renderable_id(), 0, (*it)->CalculateMatrix(),
+                       (*it)->CurrentTint())));
   }
 }
 
@@ -1141,8 +1134,8 @@ void GameState::PopulateScene(SceneDescription* scene) {
       auto& pie = *it;
       scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
           EnumerationValueForPieDamage<uint16_t>(
-              pie->damage(), *(config_->renderable_id_for_pie_damage())), 0,
-          pie->Matrix())));
+              pie->damage(), *(config_->renderable_id_for_pie_damage())),
+          0, pie->Matrix())));
     }
   }
 

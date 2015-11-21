@@ -15,10 +15,10 @@
 #ifndef CARDBOARD_CONTROLLER_H_
 #define CARDBOARD_CONTROLLER_H_
 
-#include "precompiled.h"
 #include "controller.h"
+#include "fplbase/input.h"
 #include "game_state.h"
-#include "input.h"
+#include "precompiled.h"
 
 namespace fpl {
 namespace pie_noon {

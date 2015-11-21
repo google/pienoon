@@ -55,6 +55,8 @@ PINDROP_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'pindrop'))
 
 MOTIVE_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'motive'))
 
+FPLBASE_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT, 'fplbase'))
+
 FLATBUFFERS_ROOT = os.path.abspath(os.path.join(DEPENDENCIES_ROOT,
                                                 'flatbuffers'))
 
@@ -102,6 +104,7 @@ RAW_TEXTURE_PATH = os.path.join(RAW_ASSETS_PATH, 'textures')
 SCHEMA_PATHS = [
     os.path.join(PROJECT_ROOT, 'src', 'flatbufferschemas'),
     os.path.join(PINDROP_ROOT, 'schemas'),
+    os.path.join(FPLBASE_ROOT, 'schemas'),
     os.path.join(MOTIVE_ROOT, 'schemas')
 ]
 

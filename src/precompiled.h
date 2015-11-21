@@ -16,14 +16,14 @@
 #define PIE_NOON_SRC_PRECOMPILED_H
 
 #include <assert.h>
-#include <cstdint>
-#include <functional>
-#include <map>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <vector>
 #include <algorithm>
+#include <cstdint>
+#include <functional>
+#include <map>
+#include <vector>
 
 #if defined(_WIN32)
 #include <direct.h>  // for _chdir
@@ -34,12 +34,12 @@
 
 #include "flatbuffers/util.h"
 
-#include "mathfu/matrix.h"
-#include "mathfu/vector_4.h"
-#include "mathfu/glsl_mappings.h"
-#include "mathfu/quaternion.h"
 #include "mathfu/constants.h"
+#include "mathfu/glsl_mappings.h"
+#include "mathfu/matrix.h"
+#include "mathfu/quaternion.h"
 #include "mathfu/utilities.h"
+#include "mathfu/vector_4.h"
 
 #include "SDL.h"
 #include "SDL_log.h"
@@ -49,7 +49,25 @@
 #include "gpg/gpg.h"
 #endif
 
-#include "glplatform.h"
+#include "flatui/flatui.h"
+#include "fplbase/asset_manager.h"
+#include "fplbase/flatbuffer_utils.h"
+#include "fplbase/input.h"
+#include "fplbase/shader.h"
+#include "fplbase/utilities.h"
+
+// TODO: This is BAD, but an older version of Pie Noon had a complete
+// copy of FPLBase & FlatUI as part of its code, so this achieves the exact same
+// effect. Should replace this in the future.
+namespace fpl {
+using namespace fplbase;
+using namespace flatui;
+using mathfu::mat4;
+using mathfu::vec2;
+using mathfu::vec2i;
+using mathfu::vec3;
+using mathfu::vec4;
+}
 
 #ifdef _WIN32
 #pragma hdrstop

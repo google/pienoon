@@ -15,9 +15,9 @@
 #ifndef PIE_NOON_SCENE_DESCRIPTION_H
 #define PIE_NOON_SCENE_DESCRIPTION_H
 
-#include "mathfu/glsl_mappings.h"
 #include <memory>
 #include <vector>
+#include "mathfu/glsl_mappings.h"
 
 namespace fpl {
 
@@ -25,8 +25,10 @@ class Renderable {
  public:
   Renderable(uint16_t id, uint16_t variant, const mathfu::mat4& world_matrix,
              const mathfu::vec4& color = mathfu::vec4(1, 1, 1, 1))
-      : id_(id), variant_(variant), world_matrix_(world_matrix), color_(color)
-  {}
+      : id_(id),
+        variant_(variant),
+        world_matrix_(world_matrix),
+        color_(color) {}
 
   uint16_t id() const { return id_; }
   void set_id(uint16_t id) { id_ = id; }

@@ -15,9 +15,9 @@
 #ifndef PARTICLES_H
 #define PARTICLES_H
 
+#include <list>
 #include "common.h"
 #include "scene_description.h"
-#include <list>
 
 namespace fpl {
 namespace pie_noon {

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "gpg_multiplayer.h"
 #include <algorithm>
+#include "gpg_multiplayer.h"
 
 namespace fpl {
 
@@ -40,9 +40,8 @@ bool GPGMultiplayer::Initialize(const std::string& service_id) {
   message_listener_.reset(nullptr);
 
   if (nearby_connections_ == nullptr) {
-    SDL_LogError(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "GPGMultiplayer: Unable to build a NearbyConnections instance.");
+    LogError(fplbase::kApplication,
+             "GPGMultiplayer: Unable to build a NearbyConnections instance.");
     return false;
   }
 
@@ -100,9 +99,9 @@ void GPGMultiplayer::ResetToIdle() {
 }
 
 void GPGMultiplayer::DisconnectInstance(const std::string& instance_id) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "GPGMultiplayer: Disconnect player (instance_id='%s')",
-              instance_id.c_str());
+  LogInfo(fplbase::kApplication,
+          "GPGMultiplayer: Disconnect player (instance_id='%s')",
+          instance_id.c_str());
   nearby_connections_->Disconnect(instance_id);
 
   pthread_mutex_lock(&instance_mutex_);
@@ -121,8 +120,7 @@ void GPGMultiplayer::DisconnectInstance(const std::string& instance_id) {
 }
 
 void GPGMultiplayer::DisconnectAll() {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "GPGMultiplayer: Disconnect all players");
+  LogInfo(fplbase::kApplication, "GPGMultiplayer: Disconnect all players");
   // In case there are any connection requests outstanding, reject them.
   RejectAllConnectionRequests();
 
@@ -146,28 +144,28 @@ void GPGMultiplayer::SendConnectionRequest(
     message_listener_.reset(new MessageListener(
         [this](const std::string& instance_id,
                std::vector<uint8_t> const& payload, bool is_reliable) {
-          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                       "GPGMultiplayer: OnMessageReceived(%s) callback",
-                       instance_id.c_str());
+          LogInfo(fplbase::kApplication,
+                  "GPGMultiplayer: OnMessageReceived(%s) callback",
+                  instance_id.c_str());
           this->MessageReceivedCallback(instance_id, payload, is_reliable);
         },
         [this](const std::string& instance_id) {
-          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                       "GPGMultiplayer: OnDisconnect(%s) callback",
-                       instance_id.c_str());
+          LogInfo(fplbase::kApplication,
+                  "GPGMultiplayer: OnDisconnect(%s) callback",
+                  instance_id.c_str());
           this->DisconnectedCallback(instance_id);
         }));
   }
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "GPGMultiplayer: Sending connection request to %s",
-              host_instance_id.c_str());
+  LogInfo(fplbase::kApplication,
+          "GPGMultiplayer: Sending connection request to %s",
+          host_instance_id.c_str());
 
   // Immediately stop discovery once we start connecting.
   nearby_connections_->SendConnectionRequest(
       my_instance_name_, host_instance_id, std::vector<uint8_t>{},
       [this](int64_t client_id, gpg::ConnectionResponse const& response) {
-        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                     "GPGMultiplayer: OnConnectionResponse() callback");
+        LogInfo(fplbase::kApplication,
+                "GPGMultiplayer: OnConnectionResponse() callback");
         this->ConnectionResponseCallback(response);
       },
       message_listener_.get());
@@ -179,21 +177,20 @@ void GPGMultiplayer::AcceptConnectionRequest(
     message_listener_.reset(new MessageListener(
         [this](const std::string& instance_id,
                std::vector<uint8_t> const& payload, bool is_reliable) {
-          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                       "GPGMultiplayer: OnMessageReceived(%s) callback",
-                       instance_id.c_str());
+          LogInfo(fplbase::kApplication,
+                  "GPGMultiplayer: OnMessageReceived(%s) callback",
+                  instance_id.c_str());
           this->MessageReceivedCallback(instance_id, payload, is_reliable);
         },
         [this](const std::string& instance_id) {
-          SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                       "GPGMultiplayer: OnDisconnect(%s) callback",
-                       instance_id.c_str());
+          LogInfo(fplbase::kApplication,
+                  "GPGMultiplayer: OnDisconnect(%s) callback",
+                  instance_id.c_str());
           this->DisconnectedCallback(instance_id);
         }));
   }
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "GPGMultiplayer: Accepting connection from %s",
-              client_instance_id.c_str());
+  LogInfo(fplbase::kApplication, "GPGMultiplayer: Accepting connection from %s",
+          client_instance_id.c_str());
   nearby_connections_->AcceptConnectionRequest(
       client_instance_id, std::vector<uint8_t>{}, message_listener_.get());
 
@@ -210,9 +207,8 @@ void GPGMultiplayer::AcceptConnectionRequest(
 
 void GPGMultiplayer::RejectConnectionRequest(
     const std::string& client_instance_id) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "GPGMultiplayer: Rejecting connection from %s",
-              client_instance_id.c_str());
+  LogInfo(fplbase::kApplication, "GPGMultiplayer: Rejecting connection from %s",
+          client_instance_id.c_str());
   nearby_connections_->RejectConnectionRequest(client_instance_id);
 
   pthread_mutex_lock(&instance_mutex_);
@@ -241,9 +237,9 @@ void GPGMultiplayer::Update() {
     MultiplayerState next_state = next_states_.front();
     next_states_.pop();
     pthread_mutex_unlock(&state_mutex_);
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "GPGMultiplayer: Exiting state %d to enter state %d", state(),
-                 next_state);
+    LogInfo(fplbase::kApplication,
+            "GPGMultiplayer: Exiting state %d to enter state %d", state(),
+            next_state);
     TransitionState(state(), next_state);
   } else {
     pthread_mutex_unlock(&state_mutex_);
@@ -289,8 +285,8 @@ void GPGMultiplayer::Update() {
       bool has_pending_instance = !pending_instances_.empty();
       pthread_mutex_unlock(&instance_mutex_);
       if (!has_disconnected_instance) {
-        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                     "GPGMultiplayer: No disconnected instances.");
+        LogInfo(fplbase::kApplication,
+                "GPGMultiplayer: No disconnected instances.");
         QueueNextState(kConnected);
       } else if (has_pending_instance) {
         // Check if the pending instance is one of the disconnected ones.
@@ -380,8 +376,7 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
           new_state != kDiscoveringWaitingForHost &&
           new_state != kDiscovering) {
         nearby_connections_->StopDiscovery(service_id_);
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPGMultiplayer: Stopped discovery.");
+        LogInfo(fplbase::kApplication, "GPGMultiplayer: Stopped discovery.");
       }
       break;
     }
@@ -392,8 +387,7 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
       if (new_state != kAdvertising && new_state != kAdvertisingPromptedUser &&
           new_state != kConnectedWithDisconnections) {
         nearby_connections_->StopAdvertising();
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPGMultiplayer: Stopped advertising");
+        LogInfo(fplbase::kApplication, "GPGMultiplayer: Stopped advertising");
       }
       break;
     }
@@ -426,16 +420,15 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
             my_instance_name_, app_identifiers_, gpg::Duration::zero(),
             [this](int64_t client_id,
                    gpg::StartAdvertisingResult const& result) {
-              SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                           "GPGMultiplayer: StartAdvertising callback");
+              LogInfo(fplbase::kApplication,
+                      "GPGMultiplayer: StartAdvertising callback");
               this->StartAdvertisingCallback(result);
             },
             [this](int64_t client_id,
                    gpg::ConnectionRequest const& connection_request) {
               this->ConnectionRequestCallback(connection_request);
             });
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPGMultiplayer: Starting advertising");
+        LogInfo(fplbase::kApplication, "GPGMultiplayer: Starting advertising");
       }
       break;
     }
@@ -456,8 +449,7 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
         }
         nearby_connections_->StartDiscovery(service_id_, gpg::Duration::zero(),
                                             discovery_listener_.get());
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "GPGMultiplayer: Starting discovery");
+        LogInfo(fplbase::kApplication, "GPGMultiplayer: Starting discovery");
       }
       break;
     }
@@ -492,8 +484,7 @@ void GPGMultiplayer::TransitionState(MultiplayerState old_state,
       break;
     }
     case kConnected: {
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "GPGMultiplayer: Connection activated.");
+      LogInfo(fplbase::kApplication, "GPGMultiplayer: Connection activated.");
       break;
     }
     default: {
@@ -586,13 +577,13 @@ void GPGMultiplayer::StartAdvertisingCallback(
     gpg::StartAdvertisingResult const& result) {
   // We've started hosting
   if (result.status == gpg::StartAdvertisingResult::StatusCode::SUCCESS) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "GPGMultiplayer: Started advertising (name='%s')",
-                 result.local_endpoint_name.c_str());
+    LogInfo(fplbase::kApplication,
+            "GPGMultiplayer: Started advertising (name='%s')",
+            result.local_endpoint_name.c_str());
   } else {
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                 "GPGMultiplayer: FAILED to start advertising, error code %d",
-                 result.status);
+    LogError(fplbase::kApplication,
+             "GPGMultiplayer: FAILED to start advertising, error code %d",
+             result.status);
     if (state() == kConnectedWithDisconnections) {
       // We couldn't allow reconnections, sorry!
       ClearDisconnectedInstances();
@@ -606,10 +597,10 @@ void GPGMultiplayer::StartAdvertisingCallback(
 // Callback on the host when a client tries to connect.
 void GPGMultiplayer::ConnectionRequestCallback(
     gpg::ConnectionRequest const& connection_request) {
-  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-               "GPGMultiplayer: Incoming connection (instance_id=%s,name=%s)",
-               connection_request.remote_endpoint_id.c_str(),
-               connection_request.remote_endpoint_name.c_str());
+  LogInfo(fplbase::kApplication,
+          "GPGMultiplayer: Incoming connection (instance_id=%s,name=%s)",
+          connection_request.remote_endpoint_id.c_str(),
+          connection_request.remote_endpoint_name.c_str());
   // process the incoming connection
   pthread_mutex_lock(&instance_mutex_);
   pending_instances_.push_back(connection_request.remote_endpoint_id);
@@ -621,7 +612,7 @@ void GPGMultiplayer::ConnectionRequestCallback(
 // Callback on the client when it discovers a host.
 void GPGMultiplayer::DiscoveryEndpointFoundCallback(
     gpg::EndpointDetails const& endpoint_details) {
-  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "GPGMultiplayer: Found endpoint");
+  LogInfo(fplbase::kApplication, "GPGMultiplayer: Found endpoint");
   pthread_mutex_lock(&instance_mutex_);
   instance_names_[endpoint_details.endpoint_id] = endpoint_details.name;
   discovered_instances_.push_back(endpoint_details.endpoint_id);
@@ -631,7 +622,7 @@ void GPGMultiplayer::DiscoveryEndpointFoundCallback(
 // Callback on the client when a host it previous discovered disappears.
 void GPGMultiplayer::DiscoveryEndpointLostCallback(
     const std::string& instance_id) {
-  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "GPGMultiplayer: Lost endpoint");
+  LogInfo(fplbase::kApplication, "GPGMultiplayer: Lost endpoint");
   pthread_mutex_lock(&instance_mutex_);
   auto i = std::find(discovered_instances_.begin(), discovered_instances_.end(),
                      instance_id);
@@ -645,7 +636,7 @@ void GPGMultiplayer::DiscoveryEndpointLostCallback(
 void GPGMultiplayer::ConnectionResponseCallback(
     gpg::ConnectionResponse const& response) {
   if (response.status == gpg::ConnectionResponse::StatusCode::ACCEPTED) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "GPGMultiplayer: Connected!");
+    LogInfo(fplbase::kApplication, "GPGMultiplayer: Connected!");
 
     pthread_mutex_lock(&instance_mutex_);
     connected_instances_.push_back(response.remote_endpoint_id);
@@ -654,9 +645,9 @@ void GPGMultiplayer::ConnectionResponseCallback(
 
     QueueNextState(kConnected);
   } else {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "GPGMultiplayer: Didn't connect, response status = %d",
-                 response.status);
+    LogInfo(fplbase::kApplication,
+            "GPGMultiplayer: Didn't connect, response status = %d",
+            response.status);
     QueueNextState(kDiscovering);
   }
 }
@@ -677,9 +668,9 @@ void GPGMultiplayer::DisconnectedCallback(const std::string& instance_id) {
     // We are connected, and we have other instances connected besides this one.
     // Rather than simply disconnecting this instance, let's remember it so we
     // can give it back its connection slot if it tries to reconnect.
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "GPGMultiplayer: Allowing reconnection by instance %s",
-                 instance_id.c_str());
+    LogInfo(fplbase::kApplication,
+            "GPGMultiplayer: Allowing reconnection by instance %s",
+            instance_id.c_str());
     pthread_mutex_lock(&instance_mutex_);
     auto i = connected_instances_reverse_.find(instance_id);
     if (i != connected_instances_reverse_.end()) {
@@ -752,13 +743,12 @@ int GPGMultiplayer::AddNewConnectedInstance(const std::string& instance_id) {
     }
   }
   if (state() == kConnectedWithDisconnections && new_index >= 0) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "GPGMultiplayer: Connected a reconnected player");
+    LogInfo(fplbase::kApplication,
+            "GPGMultiplayer: Connected a reconnected player");
     reconnected_players_.push(new_index);
   }
-  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-               "GPGMultiplayer: Instance %s goes in slot %d",
-               instance_id.c_str(), new_index);
+  LogInfo(fplbase::kApplication, "GPGMultiplayer: Instance %s goes in slot %d",
+          instance_id.c_str(), new_index);
   return new_index;
 }
 
@@ -811,8 +801,8 @@ bool GPGMultiplayer::DisplayConnectionDialog(const char* title,
   }
   bool question_shown = false;
 
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  JNIEnv* env = AndroidGetJNIEnv();
+  jobject activity = AndroidGetActivity();
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID is_text_dialog_open =
       env->GetMethodID(fpl_class, "isTextDialogOpen", "()Z");
@@ -859,8 +849,8 @@ GPGMultiplayer::DialogResponse GPGMultiplayer::GetConnectionDialogResponse() {
   if (auto_connect_) {
     return kDialogYes;
   }
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  JNIEnv* env = AndroidGetJNIEnv();
+  jobject activity = AndroidGetActivity();
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID get_query_dialog_response =
       env->GetMethodID(fpl_class, "getQueryDialogResponse", "()I");

@@ -15,8 +15,8 @@
 #ifndef GAME_STATE_H_
 #define GAME_STATE_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 #include "character.h"
 #include "components/cardboard_player.h"
 #include "components/drip_and_vanish.h"
@@ -37,7 +37,6 @@ class AudioEngine;
 
 namespace fpl {
 
-class InputSystem;
 class SceneDescription;
 
 namespace pie_noon {
@@ -82,7 +81,7 @@ class GameState {
 
   // Angle between two characters.
   motive::Angle AngleBetweenCharacters(CharacterId source_id,
-                               CharacterId target_id) const;
+                                       CharacterId target_id) const;
 
   // motive::Angle to the character's target.
   motive::Angle TargetFaceAngle(CharacterId id) const;
@@ -184,7 +183,8 @@ class GameState {
                                               WorldTime delta_time) const;
   int RequestedTurn(CharacterId id) const;
   motive::Angle TiltTowardsStageFront(const motive::Angle angle) const;
-  motive::Angle TiltCharacterAwayFromCamera(CharacterId id, const motive::Angle angle) const;
+  motive::Angle TiltCharacterAwayFromCamera(CharacterId id,
+                                            const motive::Angle angle) const;
   motive::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
   void CreatePieSplatter(pindrop::AudioEngine* audio_engine,

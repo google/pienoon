@@ -22,7 +22,8 @@ namespace entity {
 
 // A templated struct for holding type-dependent data, and a macro
 // for declaring it.
-template <typename T> struct ComponentIdLookup {};
+template <typename T>
+struct ComponentIdLookup {};
 
 // Each component needs to use this macro somewhere in its header, in order
 // to declare the necessary constants for lookups.  Note that since the macro
@@ -34,7 +35,7 @@ template <typename T> struct ComponentIdLookup {};
 // type that the component was specialized for.)
 // Id is the unique identifier that is associated with the component.
 #define FPL_ENTITY_REGISTER_COMPONENT(ComponentType, DataType, Id) \
-  FPL_ENTITY_REGISTER_COMPONENT_ID(ComponentType, Id) \
+  FPL_ENTITY_REGISTER_COMPONENT_ID(ComponentType, Id)              \
   FPL_ENTITY_REGISTER_COMPONENT_ID(DataType, Id)
 
 // This macro handles the lower level job of generating code to associate data
@@ -42,12 +43,13 @@ template <typename T> struct ComponentIdLookup {};
 // invoking it directly.  (Since registration of a component requires multiple
 // datatype/ID registrations.)
 #define FPL_ENTITY_REGISTER_COMPONENT_ID(DataType, Id) \
-  namespace fpl { \
-  namespace entity { \
-  template<> struct ComponentIdLookup<DataType> { \
-    static const int kComponentId = Id; \
-  }; \
-  } \
+  namespace fpl {                                      \
+  namespace entity {                                   \
+  template <>                                          \
+  struct ComponentIdLookup<DataType> {                 \
+    static const int kComponentId = Id;                \
+  };                                                   \
+  }                                                    \
   }
 
 }  // entity

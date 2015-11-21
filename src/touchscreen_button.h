@@ -15,13 +15,10 @@
 #ifndef TOUCHSCREEN_BUTTON_H
 #define TOUCHSCREEN_BUTTON_H
 
-#include "precompiled.h"
 #include "common.h"
 #include "config_generated.h"
-#include "input.h"
-#include "material.h"
-#include "renderer.h"
 #include "pie_noon_common_generated.h"
+#include "precompiled.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -36,7 +33,7 @@ class TouchscreenButton {
   void Render(Renderer& renderer);
   void AdvanceFrame(WorldTime delta_time);
   ButtonId GetId() const;
-  bool WillCapturePointer(const Pointer& pointer, vec2 window_size);
+  bool WillCapturePointer(const InputPointer& pointer, vec2 window_size);
   bool IsTriggered();
 
   Button& button() { return button_; }

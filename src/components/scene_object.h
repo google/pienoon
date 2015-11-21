@@ -15,12 +15,12 @@
 #ifndef COMPONENTS_SCENEOBJECT_H_
 #define COMPONENTS_SCENEOBJECT_H_
 
-#include "entity/component.h"
 #include "common.h"
 #include "components_generated.h"
-#include "scene_description.h"
+#include "entity/component.h"
 #include "mathfu/constants.h"
 #include "motive/motivator.h"
+#include "scene_description.h"
 
 namespace motive {
 class MatrixInit;
@@ -37,8 +37,7 @@ class SceneObjectData {
         tint_(mathfu::kOnes4f),
         renderable_id_(0),
         variant_(0),
-        visible_(true) {
-  }
+        visible_(true) {}
   void Initialize(motive::MotiveEngine* engine);
 
   // Set components of the transformation from object-to-local space.
@@ -67,7 +66,7 @@ class SceneObjectData {
   void SetRotationAboutZ(float angle) {
     transform_.SetChildValue1f(kRotateAboutZ, angle);
   }
-  void SetRotationAboutAxis(float angle, Axis axis) {
+  void SetRotationAboutAxis(float angle, fplbase::Axis axis) {
     transform_.SetChildValue1f(kRotateAboutX + axis, angle);
   }
   void SetPreRotation(const mathfu::vec3& rotation) {
@@ -82,7 +81,7 @@ class SceneObjectData {
   void SetPreRotationAboutZ(float angle) {
     transform_.SetChildValue1f(kPreRotateAboutZ, angle);
   }
-  void SetPreRotationAboutAxis(float angle, Axis axis) {
+  void SetPreRotationAboutAxis(float angle, fplbase::Axis axis) {
     transform_.SetChildValue1f(kPreRotateAboutX + axis, angle);
   }
   void SetTranslation(const mathfu::vec3& translation) {
@@ -105,9 +104,7 @@ class SceneObjectData {
   mathfu::vec3 Rotation() const {
     return transform_.ChildValue3f(kRotateAboutX);
   }
-  mathfu::vec3 Scale() const {
-    return transform_.ChildValue3f(kScaleX);
-  }
+  mathfu::vec3 Scale() const { return transform_.ChildValue3f(kScaleX); }
   mathfu::vec3 OriginPoint() const {
     return transform_.ChildValue3f(kTranslateToOriginX);
   }

@@ -16,11 +16,6 @@
 
 #include "full_screen_fader.h"
 
-#include "material.h"
-#include "mesh.h"
-#include "renderer.h"
-#include "shader.h"
-
 namespace fpl {
 namespace pie_noon {
 
@@ -60,9 +55,9 @@ bool FullScreenFader::Render(const WorldTime& time) {
   }
 
   // Render the overlay in front on the screen.
-  renderer_->model_view_projection() =
-      ortho_mat_ * mat4::FromTranslationVector(vec3(0.0f, 0.0f, 0.1f));
-  renderer_->color() = vec4(0.0f, 0.0f, 0.0f, alpha);
+  renderer_->set_model_view_projection(
+      ortho_mat_ * mat4::FromTranslationVector(vec3(0.0f, 0.0f, 0.1f)));
+  renderer_->set_color(vec4(0.0f, 0.0f, 0.0f, alpha));
   material_->Set(*renderer_);
   shader_->Set(*renderer_);
   Mesh::RenderAAQuadAlongX(vec3(0.0f, static_cast<float>(extents_.y()), 0.0f),

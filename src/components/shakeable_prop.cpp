@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <assert.h>
+#include "precompiled.h"
 #include "scene_object.h"
 #include "shakeable_prop.h"
-#include "utilities.h"
 
 using mathfu::vec3;
 using mathfu::vec4;

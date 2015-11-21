@@ -13,11 +13,10 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "pie_noon_game.h"
 #include "common.h"
 #include "controller.h"
 #include "multiplayer_director.h"
-#include "utilities.h"
+#include "pie_noon_game.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -90,7 +89,7 @@ void MultiplayerDirector::AdvanceFrame(WorldTime delta_time) {
 }
 
 void MultiplayerDirector::TriggerEndOfTurn() {
-  SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "MultiplayerDirector: END TURN");
+  LogInfo(kApplication, "MultiplayerDirector: END TURN");
   // if we have any AI players, set their commands now
   if (config_->multiscreen_options()->ai_enabled()) {
     for (unsigned int i = 0; i < num_ai_players(); i++) {
@@ -165,8 +164,7 @@ void MultiplayerDirector::TriggerStartOfTurn() {
 void MultiplayerDirector::TriggerPlayerHitByPie(CharacterId player,
                                                 int damage) {
   if (!game_running_) return;
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "MultiplayerDirector: %d hit for %d", player, damage);
+  LogInfo(kApplication, "MultiplayerDirector: %d hit for %d", player, damage);
   int num_splats = 0;
   if (damage >=
       config_->multiscreen_options()->heavy_splat_damage_threshold()) {
@@ -228,22 +226,22 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
 
   float action = mathfu::Random<float>();
   if (action < options->ai_chance_to_throw()) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "MultiplayerDirector: AI %d setting action to throw", id);
+    LogInfo(kApplication, "MultiplayerDirector: AI %d setting action to throw",
+            id);
     command.is_firing = true;
     command.is_blocking = false;
   }
   action -= options->ai_chance_to_throw();
   if (action >= 0 && action < options->ai_chance_to_block()) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "MultiplayerDirector: AI %d setting action to block", id);
+    LogInfo(kApplication, "MultiplayerDirector: AI %d setting action to block",
+            id);
     command.is_firing = false;
     command.is_blocking = true;
   }
   action -= options->ai_chance_to_block();
   if (action >= 0 && action < options->ai_chance_to_wait()) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "MultiplayerDirector: AI %d setting action to wait", id);
+    LogInfo(kApplication, "MultiplayerDirector: AI %d setting action to wait",
+            id);
     command.is_firing = false;
     command.is_blocking = false;
   }
@@ -258,8 +256,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   if (target < options->ai_chance_to_target_largest_pie()) {
     // First get the max pie damage. Then put everyone with that pie damage
     // into the candidate targets list.
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "MultiplayerDirector: AI %d targeting largest pie", id);
+    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting largest pie",
+            id);
 
     int max_pie = -1;
     for (unsigned int i = 0; i < controllers_.size(); i++) {
@@ -281,8 +279,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   if (target >= 0 && target < options->ai_chance_to_target_lowest_health()) {
     // First get the lowest enemy health. Then put everyone with that health
     // into the candidate targets list.
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "MultiplayerDirector: AI %d targeting lowest health", id);
+    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting lowest health",
+            id);
     int min_health = config_->character_health() + 1;
     for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
@@ -303,8 +301,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   if (target >= 0 && target < options->ai_chance_to_target_highest_health()) {
     // First get the highest enemy health. Then put everyone with that health
     // into the candidate targets list.
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "MultiplayerDirector: AI %d targeting highest health", id);
+    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting highest health",
+            id);
     int max_health = -1;
     for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
@@ -323,8 +321,7 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   }
   target -= options->ai_chance_to_target_highest_health();
   if (target >= 0 && target < options->ai_chance_to_target_random()) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-                 "MultiplayerDirector: AI %d targeting randomly", id);
+    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting randomly", id);
     // Just put all living enemies in the list.
     for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
@@ -355,124 +352,124 @@ void MultiplayerDirector::DebugInput(InputSystem* input) {
   // player 3: Z X C to aim, V B N to fire or block or idle
 
   // Player 0
-  if (input->GetButton(SDLK_1).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key 1: Player 0 AimAt 1");
+  if (input->GetButton(FPLK_1).went_down()) {
+    LogInfo(kApplication, "MP: Key 1: Player 0 AimAt 1");
     commands_[0].aim_at = 1;
   }
-  if (input->GetButton(SDLK_2).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key 2: Player 0 AimAt 2");
+  if (input->GetButton(FPLK_2).went_down()) {
+    LogInfo(kApplication, "MP: Key 2: Player 0 AimAt 2");
     commands_[0].aim_at = 2;
   }
-  if (input->GetButton(SDLK_3).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key 3: Player 0 AimAt 3");
+  if (input->GetButton(FPLK_3).went_down()) {
+    LogInfo(kApplication, "MP: Key 3: Player 0 AimAt 3");
     commands_[0].aim_at = 3;
   }
-  if (input->GetButton(SDLK_4).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key 4: Player 0 Fire");
+  if (input->GetButton(FPLK_4).went_down()) {
+    LogInfo(kApplication, "MP: Key 4: Player 0 Fire");
     commands_[0].is_firing = true;
     commands_[0].is_blocking = false;
   }
-  if (input->GetButton(SDLK_5).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key 5: Player 0 Block");
+  if (input->GetButton(FPLK_5).went_down()) {
+    LogInfo(kApplication, "MP: Key 5: Player 0 Block");
     commands_[0].is_blocking = true;
     commands_[0].is_firing = false;
   }
-  if (input->GetButton(SDLK_6).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key 6: Player 0 Wait");
+  if (input->GetButton(FPLK_6).went_down()) {
+    LogInfo(kApplication, "MP: Key 6: Player 0 Wait");
     commands_[0].is_blocking = false;
     commands_[0].is_firing = false;
   }
 
   // Player 1
-  if (input->GetButton(SDLK_q).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key Q: Player 1 AimAt 0");
+  if (input->GetButton(FPLK_q).went_down()) {
+    LogInfo(kApplication, "MP: Key Q: Player 1 AimAt 0");
     commands_[1].aim_at = 0;
   }
-  if (input->GetButton(SDLK_w).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key W: Player 1 AimAt 2");
+  if (input->GetButton(FPLK_w).went_down()) {
+    LogInfo(kApplication, "MP: Key W: Player 1 AimAt 2");
     commands_[1].aim_at = 2;
   }
-  if (input->GetButton(SDLK_e).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key E: Player 1 AimAt 3");
+  if (input->GetButton(FPLK_e).went_down()) {
+    LogInfo(kApplication, "MP: Key E: Player 1 AimAt 3");
     commands_[1].aim_at = 3;
   }
-  if (input->GetButton(SDLK_r).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key R: Player 1 Fire");
+  if (input->GetButton(FPLK_r).went_down()) {
+    LogInfo(kApplication, "MP: Key R: Player 1 Fire");
     commands_[1].is_firing = true;
     commands_[1].is_blocking = false;
   }
-  if (input->GetButton(SDLK_t).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key T: Player 1 Block");
+  if (input->GetButton(FPLK_t).went_down()) {
+    LogInfo(kApplication, "MP: Key T: Player 1 Block");
     commands_[1].is_blocking = true;
     commands_[1].is_firing = false;
   }
-  if (input->GetButton(SDLK_y).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key Y: Player 1 Wait");
+  if (input->GetButton(FPLK_y).went_down()) {
+    LogInfo(kApplication, "MP: Key Y: Player 1 Wait");
     commands_[1].is_blocking = false;
     commands_[1].is_firing = false;
   }
 
   // Player 2
-  if (input->GetButton(SDLK_a).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key A: Player 2 AimAt 0");
+  if (input->GetButton(FPLK_a).went_down()) {
+    LogInfo(kApplication, "MP: Key A: Player 2 AimAt 0");
     commands_[2].aim_at = 0;
   }
-  if (input->GetButton(SDLK_s).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key S: Player 2 AimAt 1");
+  if (input->GetButton(FPLK_s).went_down()) {
+    LogInfo(kApplication, "MP: Key S: Player 2 AimAt 1");
     commands_[2].aim_at = 1;
   }
-  if (input->GetButton(SDLK_d).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key D: Player 2 AimAt 3");
+  if (input->GetButton(FPLK_d).went_down()) {
+    LogInfo(kApplication, "MP: Key D: Player 2 AimAt 3");
     commands_[2].aim_at = 3;
   }
-  if (input->GetButton(SDLK_f).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key F: Player 2 Fire");
+  if (input->GetButton(FPLK_f).went_down()) {
+    LogInfo(kApplication, "MP: Key F: Player 2 Fire");
     commands_[2].is_firing = true;
     commands_[2].is_blocking = false;
   }
-  if (input->GetButton(SDLK_g).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key G: Player 2 Block");
+  if (input->GetButton(FPLK_g).went_down()) {
+    LogInfo(kApplication, "MP: Key G: Player 2 Block");
     commands_[2].is_blocking = true;
     commands_[2].is_firing = false;
   }
-  if (input->GetButton(SDLK_h).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key H: Player 2 Wait");
+  if (input->GetButton(FPLK_h).went_down()) {
+    LogInfo(kApplication, "MP: Key H: Player 2 Wait");
     commands_[2].is_blocking = false;
     commands_[2].is_firing = false;
   }
 
   // Player 3
-  if (input->GetButton(SDLK_z).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key Z: Player 3 AimAt 0");
+  if (input->GetButton(FPLK_z).went_down()) {
+    LogInfo(kApplication, "MP: Key Z: Player 3 AimAt 0");
     commands_[3].aim_at = 0;
   }
-  if (input->GetButton(SDLK_x).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key X: Player 3 AimAt 1");
+  if (input->GetButton(FPLK_x).went_down()) {
+    LogInfo(kApplication, "MP: Key X: Player 3 AimAt 1");
     commands_[3].aim_at = 1;
   }
-  if (input->GetButton(SDLK_c).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key C: Player 3 AimAt 2");
+  if (input->GetButton(FPLK_c).went_down()) {
+    LogInfo(kApplication, "MP: Key C: Player 3 AimAt 2");
     commands_[3].aim_at = 2;
   }
-  if (input->GetButton(SDLK_v).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key V: Player 3 Fire");
+  if (input->GetButton(FPLK_v).went_down()) {
+    LogInfo(kApplication, "MP: Key V: Player 3 Fire");
     commands_[3].is_firing = true;
     commands_[3].is_blocking = false;
   }
-  if (input->GetButton(SDLK_b).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key B: Player 3 Block");
+  if (input->GetButton(FPLK_b).went_down()) {
+    LogInfo(kApplication, "MP: Key B: Player 3 Block");
     commands_[3].is_blocking = true;
     commands_[3].is_firing = false;
   }
-  if (input->GetButton(SDLK_n).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Key N: Player 3 Wait");
+  if (input->GetButton(FPLK_n).went_down()) {
+    LogInfo(kApplication, "MP: Key N: Player 3 Wait");
     commands_[3].is_blocking = false;
     commands_[3].is_firing = false;
   }
 
   // Enter triggers end of turn manually.
-  if (input->GetButton(SDLK_RETURN).went_down()) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "MP: Enter: Trigger EndOfTurn");
+  if (input->GetButton(FPLK_RETURN).went_down()) {
+    LogInfo(kApplication, "MP: Enter: Trigger EndOfTurn");
     turn_timer_ = 1;
   }
 }
@@ -503,7 +500,8 @@ void MultiplayerDirector::SendStartTurnMsg(unsigned int seconds) {
   auto message_root = multiplayer::CreateMessageRoot(
       builder, multiplayer::Data_StartTurn,
       multiplayer::CreateStartTurn(builder, (unsigned short)seconds,
-                                   player_status).Union());
+                                   player_status)
+          .Union());
   builder.Finish(message_root);
 
   std::vector<uint8_t> message(builder.GetBufferPointer(),

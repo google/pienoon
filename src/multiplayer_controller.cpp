@@ -16,7 +16,6 @@
 #include "common.h"
 #include "controller.h"
 #include "multiplayer_controller.h"
-#include "utilities.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -75,9 +74,9 @@ void MultiplayerController::AdvanceFrame(WorldTime delta_time) {
   if (aim_at_character_id_ != kNoCharacter) {
     // we have a character to aim at, make sure we are aimed there.
     if (character->target() != aim_at_character_id_) {
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "MultiplayerController: player %d executing aim at %d",
-                  character_id_, aim_at_character_id_);
+      LogInfo(kApplication,
+              "MultiplayerController: player %d executing aim at %d",
+              character_id_, aim_at_character_id_);
       character->force_target(aim_at_character_id_);
       return;
     }
@@ -85,18 +84,17 @@ void MultiplayerController::AdvanceFrame(WorldTime delta_time) {
 
   if (block_hold_ > 0 && block_delay_ == 0) {
     SetLogicalInputs(LogicalInputs_Deflect, true);
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "MultiplayerController: player %d executing block %d",
-                character_id_, block_hold_);
+    LogInfo(kApplication, "MultiplayerController: player %d executing block %d",
+            character_id_, block_hold_);
     return;
   }
 
   if (throw_pie_delay_ > 0 && character_state != StateId_Throwing) {
     throw_pie_delay_ -= delta_time;
     if (throw_pie_delay_ <= 0) {
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "MultiplayerController: player %d executing throw pie",
-                  character_id_);
+      LogInfo(kApplication,
+              "MultiplayerController: player %d executing throw pie",
+              character_id_);
       SetLogicalInputs(LogicalInputs_ThrowPie, true);
       throw_pie_delay_ = 0;
       return;
@@ -114,9 +112,9 @@ void MultiplayerController::AdvanceFrame(WorldTime delta_time) {
 
 void MultiplayerController::HoldBlock(WorldTime block_delay,
                                       WorldTime block_hold) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "MultiplayerController: player %d queue in %d: block %d",
-              character_id_, block_delay, block_hold);
+  LogInfo(kApplication,
+          "MultiplayerController: player %d queue in %d: block %d",
+          character_id_, block_delay, block_hold);
   if (block_delay <= 0) block_delay = 1;  // must be > 1 to trigger
   if (block_hold <= 0) block_hold = 1;
   block_delay_ = block_delay;
@@ -124,24 +122,23 @@ void MultiplayerController::HoldBlock(WorldTime block_delay,
 }
 
 void MultiplayerController::AimAtCharacter(CharacterId character_id) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "MultiplayerController: player %d queue aim at %d", character_id_,
-              character_id);
+  LogInfo(kApplication, "MultiplayerController: player %d queue aim at %d",
+          character_id_, character_id);
   if (character_id_ != character_id) aim_at_character_id_ = character_id;
 }
 
 void MultiplayerController::ThrowPie(WorldTime throw_delay) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "MultiplayerController: player %d queue in %d: throw pie",
-              character_id_, throw_delay);
+  LogInfo(kApplication,
+          "MultiplayerController: player %d queue in %d: throw pie",
+          character_id_, throw_delay);
   if (throw_delay <= 0) throw_delay = 1;  // must be > 1 to trigger
   throw_pie_delay_ = throw_delay;
 }
 
 void MultiplayerController::GrowPie(WorldTime grow_delay) {
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "MultiplayerController: player %d queue in %d: grow pie",
-              character_id_, grow_delay);
+  LogInfo(kApplication,
+          "MultiplayerController: player %d queue in %d: grow pie",
+          character_id_, grow_delay);
   if (grow_delay <= 0) grow_delay = 1;  // must be > 1 to trigger
   grow_pie_delay_ = grow_delay;
 }

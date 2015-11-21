@@ -17,7 +17,6 @@
 #include "game_state.h"
 #include "player_character.h"
 #include "scene_object.h"
-#include "utilities.h"
 
 using mathfu::vec3;
 using motive::Angle;
@@ -56,8 +55,7 @@ void CardboardPlayerComponent::UpdateTargetReticle(entity::EntityRef entity) {
 
   // Stretch out the targeting arrow from the Player Character
   PlayerCharacterData* pc_data = Data<PlayerCharacterData>(entity);
-  SceneObjectData* arrow_so_data =
-      Data<SceneObjectData>(pc_data->base_circle);
+  SceneObjectData* arrow_so_data = Data<SceneObjectData>(pc_data->base_circle);
   arrow_so_data->SetScaleX(config_->cardboard_arrow_scale());
 }
 

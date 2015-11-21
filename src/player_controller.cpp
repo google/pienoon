@@ -14,11 +14,11 @@
 
 #include "precompiled.h"
 #include <vector>
+#include "character_state_machine_def_generated.h"
 #include "common.h"
 #include "controller.h"
 #include "player_controller.h"
 #include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -47,37 +47,29 @@ void PlayerController::AdvanceFrame(WorldTime /*delta_time*/) {
   }
 }
 
-const Keybind kKeyBinds0[] = {{SDLK_e, LogicalInputs_Select},
-                              {SDLK_w, LogicalInputs_ThrowPie},
-                              {SDLK_s, LogicalInputs_Deflect},
-                              {SDLK_w, LogicalInputs_Up},
-                              {SDLK_s, LogicalInputs_Down},
-                              {SDLK_a, LogicalInputs_Left},
-                              {SDLK_d, LogicalInputs_Right}};
+const Keybind kKeyBinds0[] = {
+    {FPLK_e, LogicalInputs_Select},  {FPLK_w, LogicalInputs_ThrowPie},
+    {FPLK_s, LogicalInputs_Deflect}, {FPLK_w, LogicalInputs_Up},
+    {FPLK_s, LogicalInputs_Down},    {FPLK_a, LogicalInputs_Left},
+    {FPLK_d, LogicalInputs_Right}};
 
-const Keybind kKeyBinds1[] = {{SDLK_o, LogicalInputs_Select},
-                              {SDLK_i, LogicalInputs_ThrowPie},
-                              {SDLK_k, LogicalInputs_Deflect},
-                              {SDLK_i, LogicalInputs_Up},
-                              {SDLK_k, LogicalInputs_Down},
-                              {SDLK_j, LogicalInputs_Left},
-                              {SDLK_l, LogicalInputs_Right}};
+const Keybind kKeyBinds1[] = {
+    {FPLK_o, LogicalInputs_Select},  {FPLK_i, LogicalInputs_ThrowPie},
+    {FPLK_k, LogicalInputs_Deflect}, {FPLK_i, LogicalInputs_Up},
+    {FPLK_k, LogicalInputs_Down},    {FPLK_j, LogicalInputs_Left},
+    {FPLK_l, LogicalInputs_Right}};
 
-const Keybind kKeyBinds2[] = {{SDLK_RETURN, LogicalInputs_Select},
-                              {SDLK_UP, LogicalInputs_ThrowPie},
-                              {SDLK_DOWN, LogicalInputs_Deflect},
-                              {SDLK_UP, LogicalInputs_Up},
-                              {SDLK_DOWN, LogicalInputs_Down},
-                              {SDLK_LEFT, LogicalInputs_Left},
-                              {SDLK_RIGHT, LogicalInputs_Right}};
+const Keybind kKeyBinds2[] = {
+    {FPLK_RETURN, LogicalInputs_Select}, {FPLK_UP, LogicalInputs_ThrowPie},
+    {FPLK_DOWN, LogicalInputs_Deflect},  {FPLK_UP, LogicalInputs_Up},
+    {FPLK_DOWN, LogicalInputs_Down},     {FPLK_LEFT, LogicalInputs_Left},
+    {FPLK_RIGHT, LogicalInputs_Right}};
 
-const Keybind kKeyBinds3[] = {{SDLK_KP_ENTER, LogicalInputs_Select},
-                              {SDLK_KP_8, LogicalInputs_ThrowPie},
-                              {SDLK_KP_5, LogicalInputs_Deflect},
-                              {SDLK_KP_8, LogicalInputs_Up},
-                              {SDLK_KP_5, LogicalInputs_Down},
-                              {SDLK_KP_4, LogicalInputs_Left},
-                              {SDLK_KP_6, LogicalInputs_Right}};
+const Keybind kKeyBinds3[] = {
+    {FPLK_KP_ENTER, LogicalInputs_Select}, {FPLK_KP_8, LogicalInputs_ThrowPie},
+    {FPLK_KP_5, LogicalInputs_Deflect},    {FPLK_KP_8, LogicalInputs_Up},
+    {FPLK_KP_5, LogicalInputs_Down},       {FPLK_KP_4, LogicalInputs_Left},
+    {FPLK_KP_6, LogicalInputs_Right}};
 
 const ControlScheme ControlScheme::kDefaultSchemes[] = {
     {std::vector<Keybind>(kKeyBinds0, &kKeyBinds0[PIE_ARRAYSIZE(kKeyBinds0)])},

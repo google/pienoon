@@ -22,7 +22,6 @@
 #include "SDL_keycode.h"
 #include "controller.h"
 #include "player_controller.h"
-#include "input.h"
 
 namespace fpl {
 namespace pie_noon {

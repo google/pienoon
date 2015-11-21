@@ -16,10 +16,10 @@
 #define GPG_MANAGER_H
 
 #include "common.h"
-#include "pthread.h"
 #include "gpg/achievement_manager.h"
 #include "gpg/player_manager.h"
 #include "gpg/types.h"
+#include "pthread.h"
 
 namespace fpl {
 

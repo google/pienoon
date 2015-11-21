@@ -79,6 +79,5 @@ function(test_executable name)
 endfunction()
 
 test_executable(character_state_machine ../src/character_state_machine.cpp)
-test_executable(font_manager)
 test_executable(vector_pool)
 

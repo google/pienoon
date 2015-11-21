@@ -26,12 +26,14 @@ enum AllocationLocation { kAddToFront, kAddToBack };
 // Pool allocator, implemented as a vector-based pair of linked lists.
 template <typename T>
 class VectorPool {
-  template <bool> friend class IteratorTemplate;
+  template <bool>
+  friend class IteratorTemplate;
   friend class VectorPoolReference;
   typedef uint32_t UniqueIdType;
 
  public:
-  template <bool> class IteratorTemplate;
+  template <bool>
+  class IteratorTemplate;
 
   typedef IteratorTemplate<false> Iterator;
   typedef IteratorTemplate<true> ConstIterator;
@@ -46,7 +48,8 @@ class VectorPool {
   // moving the elements around in memory.
   class VectorPoolReference {
     friend class VectorPool<T>;
-    template <bool> friend class IteratorTemplate;
+    template <bool>
+    friend class IteratorTemplate;
 
    public:
     VectorPoolReference() : container_(nullptr), index_(0), unique_id_(0) {}
@@ -148,7 +151,7 @@ class VectorPool {
   // Iterator for the vector pool.
   // Has constant-time access, so is a good choice for iterating
   // over the active elements that the pool owns.
-  template<bool is_const>
+  template <bool is_const>
   class IteratorTemplate {
     typedef typename std::conditional<is_const, const T&, T&>::type reference;
     typedef typename std::conditional<is_const, const T*, T*>::type pointer;
@@ -211,9 +214,7 @@ class VectorPool {
       return VectorPoolReference(container_, index_);
     }
 
-    size_t index() const {
-      return index_;
-    }
+    size_t index() const { return index_; }
 
    private:
     VectorPool<T>* container_;

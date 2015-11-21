@@ -17,9 +17,7 @@
 
 #include "precompiled.h"
 
-#include "SDL_keycode.h"
 #include "controller.h"
-#include "input.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -28,7 +26,7 @@ namespace pie_noon {
 // input.
 struct Keybind {
   // The physical button that must pressed.
-  SDL_Keycode physical_input;
+  FPL_Keycode physical_input;
 
   // The game specific input the button represents
   uint32_t logical_input;

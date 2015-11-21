@@ -17,7 +17,6 @@
 #include "common.h"
 #include "controller.h"
 #include "touchscreen_controller.h"
-#include "utilities.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -114,8 +113,8 @@ CharacterId TouchscreenController::CharacterIdFromRay(
 void TouchscreenController::AdvanceFrame(WorldTime delta_time) {
   ClearAllLogicalInputs();
 
-  for (size_t i = 0; i < input_system_->pointers_.size(); ++i) {
-    const Pointer& pointer = input_system_->pointers_[i];
+  for (size_t i = 0; i < input_system_->get_pointers().size(); ++i) {
+    const InputPointer& pointer = input_system_->get_pointers()[i];
     if (!pointer.used) continue;
 
     // Both deflect and turn-and-throw are triggered by went_down().
@@ -136,10 +135,10 @@ void TouchscreenController::AdvanceFrame(WorldTime delta_time) {
       set_target_id(kNoCharacter);
 
       // Only boost the counter on the press. For holds, we maintain only.
-      const WorldTime deflect_time_boost = pointer_button.went_down() ?
-                                           config_->touch_deflect_time() : 1;
-      deflect_time_remaining_ = std::max(deflect_time_remaining_,
-                                         deflect_time_boost);
+      const WorldTime deflect_time_boost =
+          pointer_button.went_down() ? config_->touch_deflect_time() : 1;
+      deflect_time_remaining_ =
+          std::max(deflect_time_remaining_, deflect_time_boost);
       break;
     }
 

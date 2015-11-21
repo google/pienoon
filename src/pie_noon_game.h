@@ -23,16 +23,16 @@
 
 #include "ai_controller.h"
 #include "cardboard_controller.h"
+#include "fplbase/asset_manager.h"
+#include "fplbase/input.h"
+#include "fplbase/renderer.h"
 #include "full_screen_fader.h"
 #include "game_state.h"
 #include "gui_menu.h"
-#include "input.h"
-#include "material_manager.h"
 #include "multiplayer_controller.h"
 #include "multiplayer_director.h"
 #include "pindrop/pindrop.h"
 #include "player_controller.h"
-#include "renderer.h"
 #include "scene_description.h"
 #include "touchscreen_button.h"
 #include "touchscreen_controller.h"
@@ -132,7 +132,7 @@ class PieNoonGame {
 
   ButtonId CurrentlyAnimatingJoinImage(WorldTime time) const;
   const char* TutorialSlideName(int slide_index);
-  bool AnyControllerPresses() const;
+  bool AnyControllerPresses();
   void LoadTutorialSlide(int slide_index);
   void LoadInitialTutorialSlides();
   void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
@@ -144,9 +144,6 @@ class PieNoonGame {
   // returns true if a new splat was displayed
   bool ShowMultiscreenSplat(int splat_num);
 
-  static int ReadPreference(const char* key, int initial_value,
-                            int failure_value);
-  static void WritePreference(const char* key, int value);
   static void StringArrayResource(const char* resource_name,
                                   std::vector<std::string>* strings);
 
@@ -160,7 +157,7 @@ class PieNoonGame {
   void ReloadMultiscreenMenu();
   void UpdateMultiscreenMenuIcons();
   void SetupWaitingForPlayersMenu();
-  bool ShouldTransitionFromSlide(WorldTime world_time) const;
+  bool ShouldTransitionFromSlide(WorldTime world_time);
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -184,7 +181,7 @@ class PieNoonGame {
   Renderer renderer_;
 
   // Load and own rendering resources.
-  MaterialManager matman_;
+  AssetManager matman_;
 
   // Manage ownership and playing of audio assets.
   pindrop::AudioEngine audio_engine_;

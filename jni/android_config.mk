@@ -36,18 +36,16 @@ DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers
 DEPENDENCIES_PINDROP_DIR?=$(FPL_ROOT)/pindrop
 # Location of the fplutil library.
 DEPENDENCIES_FPLUTIL_DIR?=$(FPL_ROOT)/fplutil
-# Location of the Freetype library.
-DEPENDENCIES_FREETYPE_DIR?=$(THIRD_PARTY_ROOT)/freetype
-# Location of the HarfBuzz library.
-DEPENDENCIES_HARFBUZZ_DIR?=$(THIRD_PARTY_ROOT)/harfbuzz
+# Location of the fplbase library.
+DEPENDENCIES_FPLBASE_DIR?=$(FPL_ROOT)/fplbase
+# Location of the flatui library.
+DEPENDENCIES_FLATUI_DIR?=$(FPL_ROOT)/flatui
 # Location of the MathFu library.
 DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
 # Location of the Motive library.
 DEPENDENCIES_MOTIVE_DIR?=$(FPL_ROOT)/motive
 # Location of the Google Play Games library.
 DEPENDENCIES_GPG_DIR?=$(PREBUILTS_ROOT)/gpg-cpp-sdk/android
-# Location of the webp library.
-DEPENDENCIES_WEBP_DIR?=$(THIRD_PARTY_ROOT)/webp
 # Location of the Cardboard library.
 DEPENDENCIES_CARDBOARD_DIR?=$(PREBUILTS_ROOT)/cardboard-java/CardboardSample
 

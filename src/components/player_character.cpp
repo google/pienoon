@@ -14,11 +14,10 @@
 
 #include <memory>
 #include "character.h"
+#include "game_state.h"
 #include "pie_noon_common_generated.h"
 #include "player_character.h"
 #include "scene_object.h"
-#include "utilities.h"
-#include "game_state.h"
 
 using mathfu::vec3;
 using mathfu::mat4;

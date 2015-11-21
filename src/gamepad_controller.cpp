@@ -14,11 +14,11 @@
 
 #include "precompiled.h"
 #include <vector>
+#include "character_state_machine_def_generated.h"
 #include "common.h"
 #include "controller.h"
 #include "gamepad_controller.h"
 #include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
 
 namespace fpl {
 namespace pie_noon {

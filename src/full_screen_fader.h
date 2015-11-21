@@ -15,14 +15,10 @@
 #ifndef FULL_SCREEN_FADER_H
 #define FULL_SCREEN_FADER_H
 
-#include "precompiled.h"
 #include "common.h"
+#include "precompiled.h"
 
 namespace fpl {
-
-class Renderer;
-class Material;
-class Shader;
 
 namespace pie_noon {
 

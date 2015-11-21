@@ -15,14 +15,14 @@
 #ifndef PIE_NOON_CHARACTER_H_
 #define PIE_NOON_CHARACTER_H_
 
-#include "motive/math/angle.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
-#include "motive/util.h"
+#include "motive/math/angle.h"
 #include "motive/motivator.h"
-#include "player_controller.h"
+#include "motive/util.h"
 #include "pie_noon_common_generated.h"
+#include "player_controller.h"
 #include "timeline_generated.h"
 
 namespace motive {
@@ -60,8 +60,9 @@ class Character {
             const CharacterStateMachineDef* character_state_machine_def);
 
   // Resets the character to the start-of-game state.
-  void Reset(CharacterId target, CharacterHealth health, motive::Angle face_angle,
-             const mathfu::vec3& position, motive::MotiveEngine* engine);
+  void Reset(CharacterId target, CharacterHealth health,
+             motive::Angle face_angle, const mathfu::vec3& position,
+             motive::MotiveEngine* engine);
 
   // Fake a reaction to input by making the character's face angle
   // jitter slightly in the requested direction. Does not change the

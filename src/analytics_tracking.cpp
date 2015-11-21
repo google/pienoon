@@ -19,10 +19,9 @@ namespace fpl {
 
 void SendTrackerEvent(const char *category, const char *action) {
 #ifdef __ANDROID__
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SendTrackerEvent (%s, %s)\n",
-              category, action);
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  LogInfo(kApplication, "SendTrackerEvent (%s, %s)\n", category, action);
+  JNIEnv *env = AndroidGetJNIEnv();
+  jobject activity = AndroidGetActivity();
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID send_tracker_event = env->GetMethodID(
       fpl_class, "SendTrackerEvent", "(Ljava/lang/String;Ljava/lang/String;)V");
@@ -43,10 +42,10 @@ void SendTrackerEvent(const char *category, const char *action) {
 void SendTrackerEvent(const char *category, const char *action,
                       const char *label) {
 #ifdef __ANDROID__
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SendTrackerEvent (%s, %s, %s)\n",
-              category, action, label);
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  LogInfo(kApplication, "SendTrackerEvent (%s, %s, %s)\n", category, action,
+          label);
+  JNIEnv *env = AndroidGetJNIEnv();
+  jobject activity = AndroidGetActivity();
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID send_tracker_event = env->GetMethodID(
       fpl_class, "SendTrackerEvent",
@@ -71,11 +70,10 @@ void SendTrackerEvent(const char *category, const char *action,
 void SendTrackerEvent(const char *category, const char *action,
                       const char *label, int value) {
 #ifdef __ANDROID__
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-              "SendTrackerEvent (%s, %s, %s, %i)\n", category, action, label,
-              value);
-  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  LogInfo(kApplication, "SendTrackerEvent (%s, %s, %s, %i)\n", category, action,
+          label, value);
+  JNIEnv *env = AndroidGetJNIEnv();
+  jobject activity = AndroidGetActivity();
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID send_tracker_event = env->GetMethodID(
       fpl_class, "SendTrackerEvent",

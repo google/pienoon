@@ -15,17 +15,15 @@
 #ifndef TOUCHSCREEN_CONTROLLER_H_
 #define TOUCHSCREEN_CONTROLLER_H_
 
-#include "precompiled.h"
-#include <vector>
-#include "SDL_keycode.h"
 #include "audio_config_generated.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
 #include "controller.h"
+#include "fplbase/input.h"
 #include "game_state.h"
-#include "input.h"
-#include "player_controller.h"
 #include "pie_noon_common_generated.h"
+#include "player_controller.h"
+#include "precompiled.h"
 #include "timeline_generated.h"
 
 namespace fpl {

@@ -1,5 +1,4 @@
 #include "touchscreen_button.h"
-#include "utilities.h"
 
 #if defined(_DEBUG)
 #define DEBUG_RENDER_BOUNDS
@@ -28,7 +27,7 @@ ButtonId TouchscreenButton::GetId() const {
   }
 }
 
-bool TouchscreenButton::WillCapturePointer(const Pointer& pointer,
+bool TouchscreenButton::WillCapturePointer(const fplbase::InputPointer& pointer,
                                            vec2 window_size) {
   if (is_visible_ &&
       pointer.mousepos.x() / window_size.x() >= button_def_->top_left()->x() &&
@@ -48,8 +47,8 @@ void TouchscreenButton::AdvanceFrame(WorldTime delta_time, InputSystem* input,
   button_.AdvanceFrame();
   bool down = false;
 
-  for (size_t i = 0; i < input->pointers_.size(); i++) {
-    const Pointer& pointer = input->pointers_[i];
+  for (size_t i = 0; i < input->get_pointers().size(); i++) {
+    const fplbase::InputPointer& pointer = input->get_pointers()[i];
     const Button pointer_button = input->GetPointerButton(pointer.id);
     if ((pointer_button.is_down() || pointer_button.went_down()) &&
         WillCapturePointer(pointer, window_size)) {
@@ -73,7 +72,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
   if (!is_visible_) {
     return;
   }
-  renderer.color() = color_;
+  renderer.set_color(color_);
 
   Material* mat = (button_.is_down() && down_material_ != nullptr)
                       ? down_material_
@@ -104,7 +103,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
                        button_def()->texture_position()->y() * window_size.y(),
                        kButtonZDepth);
 
-  renderer.color() = mathfu::kOnes4f;
+  renderer.set_color(mathfu::kOnes4f);
   if (is_active_ || inactive_shader_ == nullptr) {
     shader_->Set(renderer);
   } else {
@@ -147,22 +146,26 @@ void TouchscreenButton::DebugRender(const vec3& position,
     static unsigned short indicesButtonDef[] = {1, 0, 1, 2, 2, 3, 3, 0};
     float verticesButtonDef[] = {
         button_def()->top_left()->x() * window_size.x(),
-        button_def()->top_left()->y() * window_size.y(), kButtonZDepth,
+        button_def()->top_left()->y() * window_size.y(),
+        kButtonZDepth,
         button_def()->top_left()->x() * window_size.x(),
-        button_def()->bottom_right()->y() * window_size.y(), kButtonZDepth,
+        button_def()->bottom_right()->y() * window_size.y(),
+        kButtonZDepth,
         button_def()->bottom_right()->x() * window_size.x(),
-        button_def()->bottom_right()->y() * window_size.y(), kButtonZDepth,
+        button_def()->bottom_right()->y() * window_size.y(),
+        kButtonZDepth,
         button_def()->bottom_right()->x() * window_size.x(),
-        button_def()->top_left()->y() * window_size.y(), kButtonZDepth,
+        button_def()->top_left()->y() * window_size.y(),
+        kButtonZDepth,
     };
     Mesh::RenderArray(GL_LINES, 8, kFormat, sizeof(float) * 3,
                       reinterpret_cast<const char*>(verticesButtonDef),
                       indicesButtonDef);
   }
-  #else
-  (void) position;
-  (void) texture_size;
-  (void) renderer;
+#else
+  (void)position;
+  (void)texture_size;
+  (void)renderer;
 #endif  // DEBUG_RENDER_BOUNDS
 }
 
@@ -201,7 +204,7 @@ bool StaticImage::Valid() const {
 void StaticImage::Render(Renderer& renderer) {
   if (!Valid()) return;
   if (!is_visible_) return;
-  renderer.color() = color_;
+  renderer.set_color(color_);
 
   Material* material = materials_[current_material_index_];
   const vec2 window_size = vec2(renderer.window_size());

@@ -15,14 +15,14 @@
 #ifndef COMPONENTS_SHAKEABLE_PROP_H_
 #define COMPONENTS_SHAKEABLE_PROP_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 #include "common.h"
 #include "components_generated.h"
 #include "config_generated.h"
 #include "entity/component.h"
-#include "motive/io/flatbuffers.h"
 #include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 #include "motive/util.h"
 
 namespace fpl {
@@ -31,7 +31,7 @@ namespace pie_noon {
 struct ShakeablePropData {
   ShakeablePropData() {}
   float shake_scale;
-  Axis axis;
+  fplbase::Axis axis;
   motive::Motivator1f motivator;
 };
 
@@ -56,8 +56,8 @@ class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::ShakeablePropComponent,
-    fpl::pie_noon::ShakeablePropData,
+FPL_ENTITY_REGISTER_COMPONENT(
+    fpl::pie_noon::ShakeablePropComponent, fpl::pie_noon::ShakeablePropData,
     fpl::pie_noon::ComponentDataUnion_ShakeablePropDef)
 
 #endif  // COMPONENTS_SHAKEABLE_PROP_H_
