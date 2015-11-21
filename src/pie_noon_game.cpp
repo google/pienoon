@@ -138,9 +138,6 @@ PieNoonGame::PieNoonGame()
     : state_(kUninitialized),
       state_entry_time_(0),
       matman_(renderer_),
-      cardboard_fronts_(RenderableId_Count, nullptr),
-      cardboard_front_variants_(RenderableId_Count, nullptr),
-      cardboard_backs_(RenderableId_Count, nullptr),
       stick_front_(nullptr),
       stick_back_(nullptr),
       shader_lit_textured_normal_(nullptr),
@@ -157,15 +154,18 @@ PieNoonGame::PieNoonGame()
       music_channel_(),
       next_achievement_index_(0) {
   version_ = kVersion;
+  for (size_t i = 0; i < RenderableId_Count; ++i) {
+    cardboard_backs_[i] = nullptr;
+  }
 }
 
 PieNoonGame::~PieNoonGame() {
   for (int i = 0; i < RenderableId_Count; ++i) {
-    delete cardboard_fronts_[i];
-    cardboard_fronts_[i] = nullptr;
-
-    delete cardboard_front_variants_[i];
-    cardboard_front_variants_[i] = nullptr;
+    std::vector<Mesh*>& fronts = cardboard_fronts_[i];
+    for (size_t j = 0; j < fronts.size(); ++j) {
+      delete fronts[j];
+      fronts[j] = nullptr;
+    }
 
     delete cardboard_backs_[i];
     cardboard_backs_[i] = nullptr;
@@ -325,13 +325,13 @@ bool PieNoonGame::InitializeRenderingAssets() {
     const float pixel_to_world_scale =
         renderable->geometry_scale() * config.pixel_to_world_scale();
 
-    cardboard_fronts_[id] =
-        CreateVerticalQuadMesh(renderable->cardboard_front(), front_offset,
-                               pixel_bounds, pixel_to_world_scale);
-
-    cardboard_front_variants_[id] = CreateVerticalQuadMesh(
-        renderable->cardboard_front_variant(), front_offset, pixel_bounds,
-        pixel_to_world_scale);
+    const auto front = renderable->cardboard_fronts();
+    cardboard_fronts_[id].resize(front->size(), nullptr);
+    for (size_t i = 0; i < front->size(); ++i) {
+      cardboard_fronts_[id][i] =
+          CreateVerticalQuadMesh(front->Get(i), front_offset,
+                                 pixel_bounds, pixel_to_world_scale);
+    }
 
     cardboard_backs_[id] =
         CreateVerticalQuadMesh(renderable->cardboard_back(), back_offset,
@@ -339,7 +339,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
   }
 
   // We default to the invalid texture, so it has to exist.
-  if (!cardboard_fronts_[RenderableId_Invalid]) {
+  if (!cardboard_fronts_[RenderableId_Invalid][0]) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Can't load backup texture.\n");
     return false;
   }
@@ -610,19 +610,17 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
 // (a mesh with a texture that's obviously wrong), if we don't.
 Mesh* PieNoonGame::GetCardboardFront(int renderable_id, int variant) {
   // Return the invalid mesh if the indices are out of bounds.
-  Mesh* invalid_front = cardboard_fronts_[RenderableId_Invalid];
+  Mesh* invalid_front = cardboard_fronts_[RenderableId_Invalid][0];
   if (renderable_id < 0 || RenderableId_Count <= renderable_id) {
     return invalid_front;
   }
 
-  // Return the variant, if requested and available.
-  if (variant != 0) {
-    Mesh* variant_front = cardboard_front_variants_[renderable_id];
-    if (variant_front != nullptr) return variant_front;
-  }
-
-  // Return the front if available. Otherwise, return the invalid mesh.
-  Mesh* front = cardboard_fronts_[renderable_id];
+  // Clamp the variant to the valid range.
+  // Return it, if available. Otherwise, return the invalid front.
+  const std::vector<Mesh*>& fronts = cardboard_fronts_[renderable_id];
+  const int variant_clamped = mathfu::Clamp(
+      variant, 0, static_cast<int>(fronts.size()) - 1);
+  Mesh* front = fronts[variant_clamped];
   return front == nullptr ? invalid_front : front;
 }
 

@@ -105,8 +105,7 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 }
 
 uint16_t Character::Variant() const {
-  const bool ai = controller_->controller_type() == Controller::kTypeAI;
-  return ai ? 0 : 1;
+  return id_;
 }
 
 mathfu::vec4 Character::Color() const {
