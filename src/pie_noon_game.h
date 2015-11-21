@@ -189,9 +189,8 @@ class PieNoonGame {
   pindrop::AudioEngine audio_engine_;
 
   // Map RenderableId to rendering mesh.
-  std::vector<Mesh*> cardboard_fronts_;
-  std::vector<Mesh*> cardboard_front_variants_;
-  std::vector<Mesh*> cardboard_backs_;
+  std::vector<Mesh*> cardboard_fronts_[RenderableId_Count];
+  Mesh* cardboard_backs_[RenderableId_Count];
 
   // Rendering mesh for front and back of the stick that props cardboard.
   Mesh* stick_front_;
