@@ -489,14 +489,37 @@ public class FPLActivity extends SDLActivity implements
     }
   }
 
+  public boolean IsCardboardSupported() {
+    return (cardboardView != null);
+  }
+
   // Launch / install Zooshi in Santa mode.
   public void LaunchZooshiSanta() {
     try {
+      // Can't open a market:// URL, maybe we don't have Google Play
+      // installed. Try the web URL instead.
+      // Try to launch Zooshi.
+      Intent launchZooshi =
+          getPackageManager().getLaunchIntentForPackage("com.google.fpl.zooshi");
+      if (launchZooshi == null) {
+        throw new Exception();
+      }
+      startActivity(new Intent(
+          Intent.ACTION_VIEW,
+          Uri.parse("http://google.github.io/zooshi/launch/default/santa")));
+    }
+    catch (Exception e) {
+      // We couldn't open a web page or it wasn't handled by Zooshi.
+      // Link to the Zooshi store page instead.
+      try {
         startActivity(new Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("http://google.github.io/zooshi/launch/default/santa")));
-    } catch (ActivityNotFoundException e) {
-      // If we can't open a web link something is *very* wrong with the device.
+            Uri.parse("market://details?id=com.google.fpl.zooshi")));
+      }
+      catch (Exception e2) {
+        // If we can't do any of these, something is odd about this device.
+        // I give up.xs
+      }
     }
   }
 

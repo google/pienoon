@@ -910,6 +910,7 @@
           "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
           "nav_left" : ["MenuHowToPlay"],
           "nav_right" : ["MenuCardboard"],
+          "nav_up" : ["Sushi"],
           "nav_down" : ["MenuHowToPlay"]
         },
         {
@@ -957,7 +958,7 @@
           "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
           "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
           "nav_left" : ["MenuGameModes"],
-          "nav_up" : ["MenuStart"]
+          "nav_down" : ["MenuStart"]
         }
     ],
     "static_image_list" : [
