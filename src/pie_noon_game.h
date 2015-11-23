@@ -18,9 +18,8 @@
 #ifdef PLATFORM_MOBILE
 #ifdef __ANDROID__
 #define PIE_NOON_USES_GOOGLE_PLAY_GAMES
-#endif // __ANDROID__
+#endif  // __ANDROID__
 #endif
-
 
 #include "ai_controller.h"
 #include "cardboard_controller.h"
@@ -175,6 +174,7 @@ class PieNoonGame {
   std::string config_source_;
 #ifdef ANDROID_CARDBOARD
   std::string cardboard_config_source_;
+  bool cardboard_supported_;
 #endif
 
   // Report touches, button presses, keyboard presses.

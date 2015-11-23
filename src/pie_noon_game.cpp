@@ -157,6 +157,21 @@ PieNoonGame::PieNoonGame()
   for (size_t i = 0; i < RenderableId_Count; ++i) {
     cardboard_backs_[i] = nullptr;
   }
+
+#ifdef ANDROID_CARDBOARD
+  // Check if Cardboard mode is supported on this device.
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass activity_class = env->GetObjectClass(activity);
+  jmethodID is_cardboard_supported =
+      env->GetMethodID(activity_class, "IsCardboardSupported", "()Z");
+  jboolean has_cardboard =
+      env->CallBooleanMethod(activity, is_cardboard_supported);
+  env->DeleteLocalRef(activity_class);
+  env->DeleteLocalRef(activity);
+
+  cardboard_supported_ = has_cardboard;
+#endif  // ANDROID_CARDBOARD
 }
 
 PieNoonGame::~PieNoonGame() {
@@ -328,9 +343,8 @@ bool PieNoonGame::InitializeRenderingAssets() {
     const auto front = renderable->cardboard_fronts();
     cardboard_fronts_[id].resize(front->size(), nullptr);
     for (size_t i = 0; i < front->size(); ++i) {
-      cardboard_fronts_[id][i] =
-          CreateVerticalQuadMesh(front->Get(i), front_offset,
-                                 pixel_bounds, pixel_to_world_scale);
+      cardboard_fronts_[id][i] = CreateVerticalQuadMesh(
+          front->Get(i), front_offset, pixel_bounds, pixel_to_world_scale);
     }
 
     cardboard_backs_[id] =
@@ -517,9 +531,11 @@ bool PieNoonGame::InitializeGpgIds() {
   // Load the Google Play Games ids from Android resources.
   std::vector<std::string> leaderboards;
   std::vector<std::string> events;
-  StringArrayResource(config.gpg_leaderboards_resource()->c_str(), &leaderboards);
+  StringArrayResource(config.gpg_leaderboards_resource()->c_str(),
+                      &leaderboards);
   StringArrayResource(config.gpg_events_resource()->c_str(), &events);
-  StringArrayResource(config.gpg_achievements_resource()->c_str(), &achievement_ids);
+  StringArrayResource(config.gpg_achievements_resource()->c_str(),
+                      &achievement_ids);
   const bool ids_valid = static_cast<int>(leaderboards.size()) == kMaxStats &&
                          static_cast<int>(events.size()) == kMaxStats;
   if (!ids_valid) return false;
@@ -530,7 +546,7 @@ bool PieNoonGame::InitializeGpgIds() {
     gpg_ids[i].leaderboard = leaderboards[i];
     gpg_ids[i].event = events[i];
   }
-#endif // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+#endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
   return true;
 }
 
@@ -618,8 +634,8 @@ Mesh* PieNoonGame::GetCardboardFront(int renderable_id, int variant) {
   // Clamp the variant to the valid range.
   // Return it, if available. Otherwise, return the invalid front.
   const std::vector<Mesh*>& fronts = cardboard_fronts_[renderable_id];
-  const int variant_clamped = mathfu::Clamp(
-      variant, 0, static_cast<int>(fronts.size()) - 1);
+  const int variant_clamped =
+      mathfu::Clamp(variant, 0, static_cast<int>(fronts.size()) - 1);
   Mesh* front = fronts[variant_clamped];
   return front == nullptr ? invalid_front : front;
 }
@@ -865,6 +881,13 @@ void PieNoonGame::Render2DElements(const SceneDescription& scene,
   auto leaderboards_button = gui_menu_.FindButtonById(ButtonId_MenuLeaderboard);
   if (leaderboards_button) leaderboards_button->set_is_active(is_logged_in);
 
+#endif
+
+#ifdef ANDROID_CARDBOARD
+  if (!cardboard_supported_) {
+    auto cardboard_button = gui_menu_.FindButtonById(ButtonId_MenuCardboard);
+    if (cardboard_button) cardboard_button->set_is_visible(false);
+  }
 #endif
 
   // Loop through the 2D elements. Draw each subsequent one slightly closer
@@ -1747,9 +1770,8 @@ void PieNoonGame::StringArrayResource(const char* resource_name,
   jstring resource_name_java = env->NewStringUTF(resource_name);
 
   // Get ids of the class methods.
-  jmethodID len_string_array_resource =
-      env->GetMethodID(fpl_class, "LenStringArrayResource",
-                       "(Ljava/lang/String;)I");
+  jmethodID len_string_array_resource = env->GetMethodID(
+      fpl_class, "LenStringArrayResource", "(Ljava/lang/String;)I");
   jmethodID get_string_array_resource =
       env->GetMethodID(fpl_class, "GetStringArrayResource",
                        "(Ljava/lang/String;I)Ljava/lang/String;");
@@ -1760,9 +1782,8 @@ void PieNoonGame::StringArrayResource(const char* resource_name,
                                      resource_name_java);
   strings->reserve(len_array);
   for (int i = 0; i < len_array; ++i) {
-    jobject string_java_obj = env->CallObjectMethod(activity,
-                                                    get_string_array_resource,
-                                                    resource_name_java, i);
+    jobject string_java_obj = env->CallObjectMethod(
+        activity, get_string_array_resource, resource_name_java, i);
     jstring string_java = static_cast<jstring>(string_java_obj);
     const char* string_c = env->GetStringUTFChars(string_java, NULL);
     strings->push_back(std::string(string_c));
