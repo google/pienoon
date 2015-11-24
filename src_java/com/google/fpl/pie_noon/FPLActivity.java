@@ -20,6 +20,7 @@ package com.google.fpl.pie_noon;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -496,29 +497,36 @@ public class FPLActivity extends SDLActivity implements
   // Launch / install Zooshi in Santa mode.
   public void LaunchZooshiSanta() {
     try {
-      // Can't open a market:// URL, maybe we don't have Google Play
-      // installed. Try the web URL instead.
-      // Try to launch Zooshi.
-      Intent launchZooshi =
-          getPackageManager().getLaunchIntentForPackage("com.google.fpl.zooshi");
-      if (launchZooshi == null) {
-        throw new Exception();
-      }
-      startActivity(new Intent(
+      // Load this URL, which if Zooshi is installed it should handle.
+      Intent runZooshi = new Intent(
           Intent.ACTION_VIEW,
-          Uri.parse("http://google.github.io/zooshi/launch/default/santa")));
+          Uri.parse("http://google.github.io/zooshi/launch/default/santa"));
+      runZooshi.setComponent(
+          new ComponentName("com.google.fpl.zooshi",
+              "com.google.fpl.zooshi.ZooshiActivity"));
+      startActivity(runZooshi);
     }
-    catch (Exception e) {
-      // We couldn't open a web page or it wasn't handled by Zooshi.
+    catch (ActivityNotFoundException e) {
+      // The link wasn't handled by Zooshi.
       // Link to the Zooshi store page instead.
       try {
-        startActivity(new Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("market://details?id=com.google.fpl.zooshi")));
+        if (this.getClass().getSimpleName().equals("FPLTvActivity")) {
+          // On Android TV, we don't have a web browser, so we need to go
+          // straight to Google Play to download Zooshi.
+          startActivity(new Intent(
+              Intent.ACTION_VIEW,
+              Uri.parse("market://details?id=com.google.fpl.zooshi")));
+        }
+        else {
+          // Not on an Android TV, so load our landing page instead.
+          startActivity(new Intent(
+              Intent.ACTION_VIEW,
+              Uri.parse("http://google.github.io/zooshi/launch/default/santa")));
+        }
       }
-      catch (Exception e2) {
+      catch (ActivityNotFoundException e2) {
         // If we can't do any of these, something is odd about this device.
-        // I give up.xs
+        // I give up.
       }
     }
   }
