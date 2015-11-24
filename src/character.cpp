@@ -105,7 +105,12 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
 }
 
 uint16_t Character::Variant() const {
-  return id_;
+  // Always display the bottom left character as the user variant, even when
+  // all AIs are playing. This reinforces the idea that, in single player mode,
+  // you are the bottom left character.
+  const bool use_ai_variant =
+      id_ != 0 && controller_->controller_type() == Controller::kTypeAI;
+  return use_ai_variant ? 0 : (id_ + 1) % config_->character_count();
 }
 
 mathfu::vec4 Character::Color() const {

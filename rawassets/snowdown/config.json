@@ -586,9 +586,9 @@
 
   "character_colors": [
     { "x":  1.0, "y": 1.0, "z":  1.0 },
-    { "x":  0.0, "y": 1.0, "z":  0.0 },
-    { "x":  0.0, "y": 0.0, "z":  1.0 },
-    { "x":  1.0, "y": 1.0, "z":  0.0 },
+    { "x":  1.0, "y": 1.0, "z":  1.0 },
+    { "x":  1.0, "y": 1.0, "z":  1.0 },
+    { "x":  1.0, "y": 1.0, "z":  1.0 },
     { "x":  0.0, "y": 1.0, "z":  1.0 },
     { "x":  1.0, "y": 0.0, "z":  1.0 },
     { "x":  1.0, "y": 1.0, "z":  1.0 },
@@ -1473,7 +1473,7 @@
     },
     {
       "id": "CharacterIdle",
-      "cardboard_fronts": [ "materials/character_idle_variant.fplmat", "materials/character_idle.fplmat" ],
+      "cardboard_fronts": [ "materials/character_idle.fplmat", "materials/character_idle_variant.fplmat", "materials/character_idle_variant3.fplmat", "materials/character_idle_variant4.fplmat" ],
       "cardboard_back": "materials/character_idle_back.fplmat",
       "offset": { "x": 0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (224, 357) --> (161, 256)
@@ -1486,7 +1486,7 @@
     },
     {
       "id": "CharacterLoad1",
-      "cardboard_fronts": [ "materials/character_load1_variant.fplmat", "materials/character_load1.fplmat" ],
+      "cardboard_fronts": [ "materials/character_load1.fplmat", "materials/character_load1_variant.fplmat", "materials/character_load1_variant3.fplmat", "materials/character_load1_variant4.fplmat" ],
       "cardboard_back": "materials/character_load1_back.fplmat",
       "offset": { "x": -0.2, "y": 0.1, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (257, 337) --> (195, 256)
@@ -1499,7 +1499,7 @@
     },
     {
       "id": "CharacterLoad2",
-      "cardboard_fronts": [ "materials/character_load2_variant.fplmat", "materials/character_load2.fplmat" ],
+      "cardboard_fronts": [ "materials/character_load2.fplmat", "materials/character_load2_variant.fplmat", "materials/character_load2_variant3.fplmat", "materials/character_load2_variant4.fplmat" ],
       "cardboard_back": "materials/character_load2_back.fplmat",
       "offset": { "x": -0.4, "y": 0.1, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (289, 370) --> (200, 256)
@@ -1512,7 +1512,7 @@
     },
     {
       "id": "CharacterLoad3",
-      "cardboard_fronts": [ "materials/character_load3_variant.fplmat", "materials/character_load3.fplmat" ],
+      "cardboard_fronts": [ "materials/character_load3.fplmat", "materials/character_load3_variant.fplmat", "materials/character_load3_variant3.fplmat", "materials/character_load3_variant4.fplmat" ],
       "cardboard_back": "materials/character_load3_back.fplmat",
       "offset": { "x": -0.7, "y": 0.1, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (384,312) --> (256, 208)
@@ -1525,7 +1525,7 @@
     },
     {
       "id": "CharacterThrow",
-      "cardboard_fronts": [ "materials/character_throw_variant.fplmat", "materials/character_throw.fplmat" ],
+      "cardboard_fronts": [ "materials/character_throw.fplmat", "materials/character_throw_variant.fplmat", "materials/character_throw_variant3.fplmat", "materials/character_throw_variant4.fplmat" ],
       "cardboard_back": "materials/character_throw_back.fplmat",
       "offset": { "x": 0.2, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (321,343) --> (240, 256)
@@ -1538,7 +1538,7 @@
     },
     {
       "id": "CharacterBlock",
-      "cardboard_fronts": [ "materials/character_block_variant.fplmat", "materials/character_block.fplmat" ],
+      "cardboard_fronts": [ "materials/character_block.fplmat", "materials/character_block_variant.fplmat", "materials/character_block_variant3.fplmat", "materials/character_block_variant4.fplmat" ],
       "cardboard_back": "materials/character_block_back.fplmat",
       "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 200, "y": 256 }, // (269,365) --> (189, 256)
@@ -1551,7 +1551,7 @@
     },
     {
       "id": "CharacterHitByPieFrame0",
-      "cardboard_fronts": [ "materials/character_hit_by_pie_frame0_variant.fplmat", "materials/character_hit_by_pie_frame0.fplmat" ],
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame0.fplmat", "materials/character_hit_by_pie_frame0_variant.fplmat", "materials/character_hit_by_pie_frame0_variant3.fplmat", "materials/character_hit_by_pie_frame0_variant4.fplmat" ],
       "cardboard_back": "materials/character_hit_by_pie_frame0_back.fplmat",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (298,279) --> (256, 240)
@@ -1564,7 +1564,7 @@
     },
     {
       "id": "CharacterHitByPieFrame1",
-      "cardboard_fronts": [ "materials/character_hit_by_pie_frame1_variant.fplmat", "materials/character_hit_by_pie_frame1.fplmat" ],
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame1.fplmat", "materials/character_hit_by_pie_frame1_variant.fplmat", "materials/character_hit_by_pie_frame1_variant3.fplmat", "materials/character_hit_by_pie_frame1_variant4.fplmat" ],
       "cardboard_back": "materials/character_hit_by_pie_frame1_back.fplmat",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (290,242) --> (256, 214)
@@ -1577,7 +1577,7 @@
     },
     {
       "id": "CharacterHitByPieFrame2",
-      "cardboard_fronts": [ "materials/character_hit_by_pie_frame2_variant.fplmat", "materials/character_hit_by_pie_frame2.fplmat" ],
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame2.fplmat", "materials/character_hit_by_pie_frame2_variant.fplmat", "materials/character_hit_by_pie_frame2_variant3.fplmat", "materials/character_hit_by_pie_frame2_variant4.fplmat" ],
       "cardboard_back": "materials/character_hit_by_pie_frame2_back.fplmat",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (232,282) --> (211, 256)
@@ -1590,7 +1590,7 @@
     },
     {
       "id": "CharacterHitByPieFrame3",
-      "cardboard_fronts": [ "materials/character_hit_by_pie_frame3_variant.fplmat", "materials/character_hit_by_pie_frame3.fplmat" ],
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame3.fplmat", "materials/character_hit_by_pie_frame3_variant.fplmat", "materials/character_hit_by_pie_frame3_variant3.fplmat", "materials/character_hit_by_pie_frame3_variant4.fplmat" ],
       "cardboard_back": "materials/character_hit_by_pie_frame3_back.fplmat",
       "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (219,294) --> (191, 256)
@@ -1603,7 +1603,7 @@
     },
     {
       "id": "CharacterKnockedOut",
-      "cardboard_fronts": [ "materials/character_knocked_out_variant.fplmat", "materials/character_knocked_out.fplmat" ],
+      "cardboard_fronts": [ "materials/character_knocked_out.fplmat", "materials/character_knocked_out_variant.fplmat", "materials/character_knocked_out_variant3.fplmat", "materials/character_knocked_out_variant4.fplmat" ],
       "cardboard_back": "materials/character_knocked_out_back.fplmat",
       "offset": { "x": 0, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (262,201) --> (256, 197)
@@ -1616,7 +1616,7 @@
     },
     {
       "id": "CharacterWin",
-      "cardboard_fronts": [ "materials/character_win_variant.fplmat", "materials/character_win.fplmat" ],
+      "cardboard_fronts": [ "materials/character_win.fplmat", "materials/character_win_variant.fplmat", "materials/character_win_variant3.fplmat", "materials/character_win_variant4.fplmat" ],
       "cardboard_back": "materials/character_win_back.fplmat",
       "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
       "pixel_bounds": { "x": 256, "y": 256 }, // (316,392) --> (206, 256)
