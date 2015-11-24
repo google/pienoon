@@ -18,7 +18,9 @@
 package com.google.fpl.pie_noon;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -537,6 +539,19 @@ public class FPLActivity extends SDLActivity implements
         // I give up.
       }
     }
+  }
+
+  public void relaunch() {
+    Context context = getBaseContext();
+    Intent restartIntent = context.getPackageManager()
+      .getLaunchIntentForPackage(context.getPackageName() );
+    PendingIntent intent = PendingIntent.getActivity(
+      context, 0,
+      restartIntent, Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    AlarmManager manager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    int delay = 1;
+    manager.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
+    System.exit(2);
   }
 
   // Implemented in C++. (gpg_manager.cpp)

@@ -181,4 +181,103 @@ bool MipmapGeneration16bppSupported() {
 #endif
 }
 
+#ifdef __ANDROID__
+static jobject GetSharedPreference(JNIEnv *env, jobject activity) {
+  jclass activity_class = env->GetObjectClass(activity);
+  jmethodID get_preferences = env->GetMethodID(
+      activity_class, "getSharedPreferences",
+      "(Ljava/lang/String;I)Landroid/content/SharedPreferences;");
+  jstring file = env->NewStringUTF("preference");
+  // The last value: Content.MODE_PRIVATE = 0.
+  jobject preference =
+      env->CallObjectMethod(activity, get_preferences, file, 0);
+  env->DeleteLocalRef(activity_class);
+  env->DeleteLocalRef(file);
+  return preference;
+}
+#endif  // __ANDROID__
+
+int32_t LoadPreference(const char* key, int32_t initial_value) {
+#ifdef __ANDROID__
+  // Use Android preference API to store an integer value.
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jobject preference = GetSharedPreference(env, activity);
+  jclass preference_class = env->GetObjectClass(preference);
+
+  // Retrieve blob as a String.
+  jstring pref_key = env->NewStringUTF(key);
+  jmethodID get_int= env->GetMethodID(
+      preference_class, "getInt",
+      "(Ljava/lang/String;I)I");
+  auto value = env->CallIntMethod(preference, get_int, pref_key, initial_value);
+
+  // Release objects references.
+  env->DeleteLocalRef(pref_key);
+  env->DeleteLocalRef(preference_class);
+  env->DeleteLocalRef(preference);
+  env->DeleteLocalRef(activity);
+  return value;
+#else
+  (void)key;
+  return initial_value;
+#endif
+}
+
+bool SavePreference(const char* key, int32_t value) {
+#ifdef __ANDROID__
+  // Use Android preference API to store an integer value.
+  JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jobject preference = GetSharedPreference(env, activity);
+  jclass preference_class = env->GetObjectClass(preference);
+
+  // Retrieve an editor.
+  jmethodID edit = env->GetMethodID(
+      preference_class, "edit", "()Landroid/content/SharedPreferences$Editor;");
+  jobject editor = env->CallObjectMethod(preference, edit);
+  jclass editor_class = env->GetObjectClass(editor);
+
+  // Put blob as a String.
+  jstring pref_key = env->NewStringUTF(key);
+  jmethodID put_int =
+      env->GetMethodID(editor_class, "putInt",
+                       "(Ljava/lang/String;I)Landroid/content/"
+                       "SharedPreferences$Editor;");
+  env->CallObjectMethod(editor, put_int, pref_key, value);
+
+  // Commit a change.
+  jmethodID commit = env->GetMethodID(editor_class, "commit", "()Z");
+  jboolean ret = env->CallBooleanMethod(editor, commit);
+
+  // Release objects references.
+  env->DeleteLocalRef(pref_key);
+  env->DeleteLocalRef(editor_class);
+  env->DeleteLocalRef(editor);
+  env->DeleteLocalRef(preference_class);
+  env->DeleteLocalRef(preference);
+  env->DeleteLocalRef(activity);
+
+  return ret;
+#else
+  (void)key;
+  (void)value;
+  return false;
+#endif  // __ANDROID__
+}
+
+void RelaunchApplication() {
+#ifdef __ANDROID__
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+
+  jmethodID mid_relaunch = env->GetMethodID(fpl_class, "relaunch", "()V");
+  env->CallVoidMethod(activity, mid_relaunch);
+
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+#endif  // __ANDROID__
+}
+
 }  // namespace fpl

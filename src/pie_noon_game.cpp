@@ -232,6 +232,28 @@ bool PieNoonGame::InitializeRenderer() {
     return false;
   }
 
+#ifdef __ANDROID__
+  // Restart the app if HW scaler setting failed.
+  auto retry = LoadPreference("HWScalerRetry", 0);
+  const auto kMaxRetry = 3;
+  auto current_window_size = AndroidGetScalerResolution();
+  if (current_window_size.x() != window_size->x() ||
+      current_window_size.y() != window_size->y() ) {
+    if (retry < kMaxRetry) {
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                   "HW Scalar failed. Restarting application.");
+      SavePreference("HWScalerRetry", retry + 1);
+      RelaunchApplication();
+      return false;
+    }
+    // The HW may not support the API. Fallback to native resolution pass until
+    // the API success next time.
+  } else {
+    // HW scaler setting was success. Clear retry counter.
+    SavePreference("HWScalerRetry", 0);
+  }
+#endif
+
   renderer_.color() = mathfu::kOnes4f;
   // Initialize the first frame as black.
   renderer_.ClearFrameBuffer(mathfu::kZeros4f);

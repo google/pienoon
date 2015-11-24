@@ -66,6 +66,12 @@ bool TouchScreenDevice();
 
 bool MipmapGeneration16bppSupported();
 
+// Load/Save single integer value to a preference.
+int32_t LoadPreference(const char* key, int32_t initial_value);
+bool SavePreference(const char* key, int32_t value);
+
+void RelaunchApplication();
+
 }  // namespace fpl
 
 #endif  // PIE_NOON_UTILITIES_H
