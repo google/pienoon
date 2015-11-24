@@ -835,7 +835,12 @@ table Config {
   // Tutorial
   //
   // List of materials to display, one after the other, on the full screen.
+  // Used for touchscreen.
   tutorial_slides:[Slide];
+
+  // List of materials to display, one after the other, on the full screen.
+  // Used for gamepad (i.e. Android TV).
+  gamepad_tutorial_slides:[Slide];
 
   // Scale every material above by (tutorial_aspect_ratio, 1). Lets the textures
   // be squished into the nearest power of two size, even if that changes the

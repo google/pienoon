@@ -1265,6 +1265,22 @@ void PieNoonGame::InitCountdownImage(int seconds) {
   }
 }
 
+// Checks whether or not the activity is running on a Android-TV device.
+static bool IsTvDevice() {
+#ifdef __ANDROID__
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  jclass fpl_class = env->GetObjectClass(activity);
+  jmethodID is_tv_device = env->GetMethodID(fpl_class, "IsTvDevice", "()Z");
+  jboolean result = env->CallBooleanMethod(activity, is_tv_device);
+  env->DeleteLocalRef(fpl_class);
+  env->DeleteLocalRef(activity);
+  return result;
+#else
+  return false;
+#endif  // __ANDROID
+}
+
 void PieNoonGame::UpdateCountdownImage(WorldTime time) {
   // Count down by deactivating pies images.
   const ButtonId id = CurrentlyAnimatingJoinImage(time);
@@ -1422,7 +1438,9 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       tutorial_slide_index_ = 0;
       tutorial_slides_ = game_state_.is_multiscreen()
                              ? GetConfig().multiscreen_tutorial_slides()
-                             : GetConfig().tutorial_slides();
+                             : IsTvDevice()
+                                  ? GetConfig().gamepad_tutorial_slides()
+                                  : GetConfig().tutorial_slides();
       tutorial_aspect_ratio_ =
           game_state_.is_multiscreen()
               ? GetConfig().multiscreen_tutorial_aspect_ratio()
