@@ -1,6 +1,6 @@
 {
     "texture_filenames": [
-        "textures/tutorial_deflect.webp"
+        "textures/tutorial_hit1_tv.webp"
     ],
     "blendmode": "ALPHA",
     "desired_format": [

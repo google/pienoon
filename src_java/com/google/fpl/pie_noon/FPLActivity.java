@@ -19,6 +19,7 @@ package com.google.fpl.pie_noon;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.hardware.Sensor;
@@ -451,6 +453,12 @@ public class FPLActivity extends SDLActivity implements
     if (cardboardView == null) {
       cardboardView.updateCardboardDeviceParams(newParams);
     }
+  }
+
+  // Returns true if the current device is a TV device, false otherwise.
+  public boolean IsTvDevice() {
+    UiModeManager uiModeManager = (UiModeManager)getSystemService(UI_MODE_SERVICE);
+    return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
   }
 
   // Function to access the transforms of the eyes, which includes head tracking
