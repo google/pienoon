@@ -208,7 +208,9 @@ class CardboardInput {
         right_eye_transform_(),
         is_in_cardboard_(false),
         triggered_(false),
-        pending_trigger_(false) {}
+        pending_trigger_(false),
+        device_orientation_(0),
+        device_orientation_at_reset_(0) {}
 
   bool is_in_cardboard() const { return is_in_cardboard_; }
   void set_is_in_cardboard(bool is_in_cardboard) {
@@ -225,6 +227,9 @@ class CardboardInput {
   // Realign the head tracking with the current phone heading
   void ResetHeadTracker();
 
+  void set_device_orientation(int rotation) { device_orientation_ = rotation; }
+  int device_orientation() { return device_orientation_; }
+
  private:
   void UpdateCardboardTransforms();
 
@@ -233,6 +238,11 @@ class CardboardInput {
   bool is_in_cardboard_;
   bool triggered_;
   bool pending_trigger_;
+  // The device's default rotation, as defined here:
+  // http://developer.android.com/reference/android/view/Surface.html#ROTATION_0
+  int device_orientation_;
+  // The device's rotation the last time reset head tracker was called.
+  int device_orientation_at_reset_;
 };
 #endif  // ANDROID_CARDBOARD
 
@@ -299,6 +309,7 @@ class InputSystem {
 
   static void OnCardboardTrigger();
   static void SetDeviceInCardboard(bool in_cardboard);
+  static void SetDeviceOrientation(int rotation);
 #endif  // ANDROID_CARDBOARD
 
   // Get a Button object for a pointer index.
