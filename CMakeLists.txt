@@ -42,7 +42,7 @@ get_filename_component(
 
 # If the dependencies directory exists, assume this is the root directory for
 # all libraries required by this project.
-set(dependencies_root "${CMAKE_CURRENT_LIST_DIR}/dependencies")
+set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
 if(EXISTS "${dependencies_root}")
   set(third_party_root "${dependencies_root}")
   set(fpl_root "${dependencies_root}")
@@ -339,6 +339,8 @@ set(pie_noon_SRCS
 include_directories(src)
 if(WIN32)
   include_directories(external/include/windows)
+endif()
+if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   include_directories(external/include/harfbuzz)
 endif()
 get_property(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
