@@ -46,6 +46,7 @@ import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
@@ -85,6 +86,8 @@ public class FPLActivity extends SDLActivity implements
   private Eye monocularEye;
   private Eye leftEyeNoDistortion;
   private Eye rightEyeNoDistortion;
+  private OrientationEventListener orientationListener;
+  private int cachedDeviceRotation;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -113,6 +116,7 @@ public class FPLActivity extends SDLActivity implements
         if (tagContents != null) {
           updateCardboardDeviceParams(CardboardDeviceParams.createFromNfcContents(tagContents));
         }
+        orientationListener = CreateOrientationListener();
       }
     } catch (Exception e) {
       Log.e("SDL", "exception", e);
@@ -128,6 +132,7 @@ public class FPLActivity extends SDLActivity implements
       cardboardView.onResume();
       magnetSensor.start();
       nfcSensor.onResume(this);
+      orientationListener.enable();
     }
   }
 
@@ -138,6 +143,7 @@ public class FPLActivity extends SDLActivity implements
       cardboardView.onPause();
       magnetSensor.stop();
       nfcSensor.onPause(this);
+      orientationListener.disable();
     }
   }
 
@@ -554,6 +560,19 @@ public class FPLActivity extends SDLActivity implements
     System.exit(2);
   }
 
+  private OrientationEventListener CreateOrientationListener() {
+    return new OrientationEventListener(this) {
+        @Override
+        public void onOrientationChanged(int orientation) {
+          int rotation = getWindowManager().getDefaultDisplay().getRotation();
+          if (rotation != cachedDeviceRotation) {
+            cachedDeviceRotation = rotation;
+            nativeOnDisplayRotationChanged(rotation);
+          }
+        }
+      };
+  }
+
   // Implemented in C++. (gpg_manager.cpp)
   private static native void nativeOnActivityResult(
       Activity activity,
@@ -574,5 +593,8 @@ public class FPLActivity extends SDLActivity implements
 
   // Implemented in C++. (input.cpp)
   private static native void nativeSetDeviceInCardboard(boolean inCardboard);
+
+  // Implemented in C++. (input.cpp)
+  private static native void nativeOnDisplayRotationChanged(int rotation);
 
 }
