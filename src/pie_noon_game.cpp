@@ -912,6 +912,18 @@ void PieNoonGame::Render2DElements(const SceneDescription& scene,
   }
 #endif
 
+  auto sushi_button = gui_menu_.FindButtonById(ButtonId_Sushi);
+  if (sushi_button) {
+    bool show_sushi_button = false;
+#ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
+    // Magic strings comes from res/values/play_games.xml
+    // if the first achievement is unlocked, display the sushi.
+    show_sushi_button = (show_sushi_button ||
+                         gpg_manager.IsAchievementUnlocked(achievement_ids[0]));
+#endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
+    sushi_button->set_is_visible(show_sushi_button);
+  }
+
   // Loop through the 2D elements. Draw each subsequent one slightly closer
   // to the camera so that they appear on top of the previous ones.
   gui_menu_.Render(&renderer_);
