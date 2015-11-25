@@ -26,7 +26,7 @@ project(pie_noon)
 # Compile the game with the debug flag
 set(PIE_NOON_DEBUG ON)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -35,14 +35,14 @@ set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 
 # Directory which contains the source for 3rd party libraries.
 get_filename_component(
-    third_party_root "${CMAKE_SOURCE_DIR}/../../../../external" REALPATH)
+    third_party_root "${CMAKE_CURRENT_LIST_DIR}/../../../../external" REALPATH)
 # Directory which contains source for FPL libraries.
 get_filename_component(
-    fpl_root "${CMAKE_SOURCE_DIR}/../../libs" REALPATH)
+    fpl_root "${CMAKE_CURRENT_LIST_DIR}/../../libs" REALPATH)
 
 # If the dependencies directory exists, assume this is the root directory for
 # all libraries required by this project.
-set(dependencies_root "${CMAKE_SOURCE_DIR}/dependencies")
+set(dependencies_root "${CMAKE_CURRENT_LIST_DIR}/dependencies")
 if(EXISTS "${dependencies_root}")
   set(third_party_root "${dependencies_root}")
   set(fpl_root "${dependencies_root}")
@@ -197,7 +197,7 @@ endif()
 # directory.
 set(FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
-file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_SOURCE_DIR}/src/*.fbs)
+file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_CURRENT_LIST_DIR}/src/*.fbs)
 
 set(flatbuffers_schema_includes
     ${dependencies_motive_dir}/schemas
@@ -218,7 +218,7 @@ build_flatbuffers("${FLATBUFFERS_SCHEMAS}"
 
 # Build rule that uses make to build the assets.
 add_custom_target(assets
-  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/build_assets.py
+  COMMAND python ${CMAKE_CURRENT_LIST_DIR}/scripts/build_assets.py
               --flatc $<TARGET_FILE:flatc> --output ${CMAKE_BINARY_DIR}/assets
   DEPENDS flatc ${CWEBP_TARGET})
 
@@ -506,13 +506,13 @@ endif()
 
 # Create a zipped tar of all the necessary files to run the game.
 add_custom_target(export
-  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/export.py
+  COMMAND python ${CMAKE_CURRENT_LIST_DIR}/scripts/export.py
   DEPENDS pie_noon)
 
 # Tests.
 if(NOT pie_noon_only_flatc)
   if(pie_noon_build_tests)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
   endif()
 endif()
 
