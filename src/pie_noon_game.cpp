@@ -2408,6 +2408,10 @@ bool PieNoonGame::ShouldTransitionFromSlide(WorldTime world_time) {
   // Never transition while the fader is active.
   if (!full_screen_fader_.Finished(world_time)) return false;
 
+  // Don't transition when already passed the number of slides.
+  const int num_slides = static_cast<int>(tutorial_slides_->size());
+  if (tutorial_slide_index_ >= num_slides) return false;
+
   // Always transition on controller presses.
   if (AnyControllerPresses()) return true;
 
@@ -2433,7 +2437,10 @@ void PieNoonGame::Run() {
 
   while (!input_.exit_requested() &&
          !input_.GetButton(FPLK_ESCAPE).went_down()) {
+    // Process input device messages since the last game loop.
+    // Update render window size.
     input_.AdvanceFrame(&renderer_.window_size());
+
     // Milliseconds elapsed since last update. To avoid burning through the
     // CPU, enforce a minimum time between updates. For example, if
     // min_update_time is 1, we will not exceed 1000Hz update time.
@@ -2448,10 +2455,6 @@ void PieNoonGame::Run() {
     // TODO: Can we move these to 'Render'?
     renderer_.AdvanceFrame(input_.minimized(), input_.Time());
     renderer_.ClearFrameBuffer(mathfu::kZeros4f);
-
-    // Process input device messages since the last game loop.
-    // Update render window size.
-    input_.AdvanceFrame(&renderer_.window_size());
 
     UpdateGamepadControllers();
     UpdateControllers(delta_time);
@@ -2802,29 +2805,34 @@ void PieNoonGame::Run() {
           }
         }
 
-        // Overlay the darkening texture.
-        bool advance_slide = should_transition;
-        if (!full_screen_fader_.Finished(world_time)) {
-          advance_slide = full_screen_fader_.Render(world_time);
-        }
-        if (advance_slide) {
-          // Unload current slide to save memory.
-          matman_.UnloadMaterial(slide_name);
+        const int num_slides = static_cast<int>(tutorial_slides_->size());
+        if (tutorial_slide_index_ < num_slides) {
+          // Overlay the darkening texture.
+          bool advance_slide = should_transition;
+          if (!full_screen_fader_.Finished(world_time)) {
+            advance_slide = full_screen_fader_.Render(world_time);
+          }
+          if (advance_slide) {
+            // Unload current slide to save memory.
+            if (slide_name != nullptr) {
+              matman_.UnloadMaterial(slide_name);
+            }
 
-          const unsigned int SLIDE_NUMBER_BUFFER_SIZE = 32;
-          char slide_number[SLIDE_NUMBER_BUFFER_SIZE];
-          snprintf(slide_number, sizeof(slide_number),
-                   game_state_.is_multiscreen() ? kLabelMSSlideDurationFmt
-                                                : kLabelSlideDurationFmt,
-                   tutorial_slide_index_);
-          SendTrackerEvent(kCategoryUi, game_state_.is_multiscreen()
-                                            ? kActionViewedMSTutorialSlide
-                                            : kActionViewedTutorialSlide,
-                           slide_number, world_time - tutorial_slide_time_);
+            const unsigned int SLIDE_NUMBER_BUFFER_SIZE = 32;
+            char slide_number[SLIDE_NUMBER_BUFFER_SIZE];
+            snprintf(slide_number, sizeof(slide_number),
+                     game_state_.is_multiscreen() ? kLabelMSSlideDurationFmt
+                                                  : kLabelSlideDurationFmt,
+                     tutorial_slide_index_);
+            SendTrackerEvent(kCategoryUi, game_state_.is_multiscreen()
+                                              ? kActionViewedMSTutorialSlide
+                                              : kActionViewedTutorialSlide,
+                             slide_number, world_time - tutorial_slide_time_);
 
-          // When completely dark, transition to the next slide.
-          tutorial_slide_index_++;
-          tutorial_slide_time_ = world_time;
+            // When completely dark, transition to the next slide.
+            tutorial_slide_index_++;
+            tutorial_slide_time_ = world_time;
+          }
         }
 
         UpdatePieNoonStateAndTransition();
