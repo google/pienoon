@@ -385,7 +385,7 @@ static GameCameraMovement CalculateCameraMovement(
                         base.target * LoadVec3(m.target_from_base());
   movement.start_velocity = m.start_velocity();
   movement.time = static_cast<float>(m.time());
-  SmoothInitFromFlatBuffers(*m.def(), &movement.init);
+  SplineInitFromFlatBuffers(*m.def(), &movement.init);
   return movement;
 }
 

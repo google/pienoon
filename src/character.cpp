@@ -150,9 +150,9 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
       damage_(damage) {
   // x,z positions are within a reasonable bound.
   // Rotations are anglular values.
-  const motive::SmoothInit position_init(Range(-kMaxPosition, kMaxPosition),
+  const motive::SplineInit position_init(Range(-kMaxPosition, kMaxPosition),
                                          false);
-  const motive::SmoothInit rotation_init(Range(-kPi, kPi), true);
+  const motive::SplineInit rotation_init(Range(-kPi, kPi), true);
 
   // Move x,z at constant speed from source to target.
   const motive::MotiveTarget1f x_target(motive::CurrentToTargetConstVelocity1f(

@@ -335,7 +335,7 @@ table CameraMovementToSubject {
   time:int;
 
   // Parameterization of the magnet.
-  def:motive.SmoothParameters;
+  def:motive.SplineParameters;
 }
 
 table TurnLengthSpec {

@@ -44,7 +44,7 @@ struct GameCameraMovement {
   GameCameraState end;
   float start_velocity;
   float time;
-  motive::SmoothInit init;
+  motive::SplineInit init;
 };
 
 // Class that encapsilates camera motion.
@@ -105,7 +105,7 @@ class GameCamera {
   // MotiveEngine that runs the percent_ Motivator.
   motive::MotiveEngine* engine_;
 
-  // Percent we have moved from start_ to end_. Animated with a smooth
+  // Percent we have moved from start_ to end_. Animated with a spline
   // Motivator.
   motive::Motivator1f percent_;
 

@@ -447,7 +447,7 @@ bool PieNoonGame::InitializeGameState() {
 
   // Register the motivator types with the MotiveEngine.
   motive::OvershootInit::Register();
-  motive::SmoothInit::Register();
+  motive::SplineInit::Register();
   motive::MatrixInit::Register();
 
   // Load flatbuffer into buffer.
