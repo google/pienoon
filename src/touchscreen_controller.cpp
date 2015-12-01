@@ -90,10 +90,6 @@ CharacterId TouchscreenController::CharacterIdFromRay(
   float best_dist = std::numeric_limits<float>::infinity();
   CharacterId best_id = kNoCharacter;
   for (CharacterId id = 0; id < num_ids; ++id) {
-    // Ignore KO'd characters.
-    const int character_state = game_state_->CharacterState(id);
-    if (character_state == StateId_KO) continue;
-
     // Calculate horizontal distance from ray to character position.
     const vec3 character_position =
         LoadVec3(arrangement.character_data()->Get(id)->position());
@@ -128,7 +124,12 @@ void TouchscreenController::AdvanceFrame(WorldTime delta_time) {
     const vec3 ray = CameraRayFromScreenCoord(pointer.mousepos);
     const vec3 camera_position = game_state_->camera().Position();
     const CharacterId target_id = CharacterIdFromRay(ray, camera_position);
+    // Do nothing if there is no character.
     if (target_id == kNoCharacter) continue;
+
+    // Ignore KO'd characters.
+    const int character_state = game_state_->CharacterState(target_id);
+    if (character_state == StateId_KO) continue;
 
     // If we pressed ourself, deflect.
     if (target_id == character_id_) {
