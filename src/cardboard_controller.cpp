@@ -44,8 +44,8 @@ void CardboardController::AdvanceFrame(WorldTime /*delta_time*/) {
     return;
   }
 
-#ifdef ANDROID_CARDBOARD
-  if (input_system_->cardboard_input().triggered()) {
+#ifdef ANDROID_HMD
+  if (input_system_->head_mounted_display_input().triggered()) {
     SetLogicalInputs(LogicalInputs_Select, true);
     SetLogicalInputs(LogicalInputs_ThrowPie, true);
   }
@@ -55,7 +55,7 @@ void CardboardController::AdvanceFrame(WorldTime /*delta_time*/) {
     // it back into world space.
     const mat4 camera = game_state_->CameraMatrix();
     const mat4 cardboard_transform =
-        input_system_->cardboard_input().left_eye_transform() *
+        input_system_->head_mounted_display_input().head_transform() *
         camera.Inverse();
     const vec3 forward = (cardboard_transform * mathfu::kAxisZ4f).xyz();
     const Angle forward_angle = Angle::FromXZVector(forward);
@@ -85,7 +85,7 @@ void CardboardController::AdvanceFrame(WorldTime /*delta_time*/) {
     }
   }
 
-#endif  // ANDROID_CARDBOARD
+#endif  // ANDROID_HMD
 }
 
 }  // pie_noon

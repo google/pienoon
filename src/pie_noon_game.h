@@ -15,11 +15,9 @@
 #ifndef PIE_NOON_GAME_H
 #define PIE_NOON_GAME_H
 
-#ifdef PLATFORM_MOBILE
 #ifdef __ANDROID__
 #define PIE_NOON_USES_GOOGLE_PLAY_GAMES
 #endif  // __ANDROID__
-#endif
 
 #include "ai_controller.h"
 #include "cardboard_controller.h"
@@ -74,7 +72,7 @@ class PieNoonGame {
 
  private:
   bool InitializeConfig();
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
   bool InitializeCardboardConfig();
 #endif
   bool InitializeGpgIds();
@@ -94,10 +92,7 @@ class PieNoonGame {
                    const vec2i& resolution);
   void Render2DElements(const SceneDescription& scene,
                         const mat4& additional_camera_changes);
-  void GetCardboardTransforms(mat4& left_eye_transform,
-                              mat4& right_eye_transform);
   void CorrectCardboardCamera(mat4& cardboard_camera);
-  void RenderCardboardCenteringBar();
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
   void DebugCamera();
@@ -169,9 +164,8 @@ class PieNoonGame {
 
   // Hold configuration binary data.
   std::string config_source_;
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
   std::string cardboard_config_source_;
-  bool cardboard_supported_;
 #endif
 
   // Report touches, button presses, keyboard presses.

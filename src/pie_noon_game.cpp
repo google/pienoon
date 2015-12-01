@@ -18,6 +18,7 @@
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
+#include "fplbase/glplatform.h"
 #include "motive/init.h"
 #include "motive/io/flatbuffers.h"
 #include "motive/math/angle.h"
@@ -27,6 +28,10 @@
 #include "pindrop/pindrop.h"
 #include "timeline_generated.h"
 #include "touchscreen_controller.h"
+
+#ifdef ANDROID_HMD
+#include "fplbase/renderer_hmd.h"
+#endif  // ANDROID_HMD
 
 using motive::Angle;
 using mathfu::mat3;
@@ -87,7 +92,7 @@ static const char kAssetsDir[] = "assets";
 
 static const char kConfigFileName[] = "config.pieconfig";
 
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
 static const char kCardboardConfigFileName[] = "cardboard_config.pieconfig";
 #endif
 
@@ -151,21 +156,6 @@ PieNoonGame::PieNoonGame()
   for (size_t i = 0; i < RenderableId_Count; ++i) {
     cardboard_backs_[i] = nullptr;
   }
-
-#ifdef ANDROID_CARDBOARD
-  // Check if Cardboard mode is supported on this device.
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-  jclass activity_class = env->GetObjectClass(activity);
-  jmethodID is_cardboard_supported =
-      env->GetMethodID(activity_class, "IsCardboardSupported", "()Z");
-  jboolean has_cardboard =
-      env->CallBooleanMethod(activity, is_cardboard_supported);
-  env->DeleteLocalRef(activity_class);
-  env->DeleteLocalRef(activity);
-
-  cardboard_supported_ = has_cardboard;
-#endif  // ANDROID_CARDBOARD
 }
 
 PieNoonGame::~PieNoonGame() {
@@ -195,7 +185,7 @@ bool PieNoonGame::InitializeConfig() {
   return true;
 }
 
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
 bool PieNoonGame::InitializeCardboardConfig() {
   if (!LoadFile(kCardboardConfigFileName, &cardboard_config_source_)) {
     LogError(kError, "can't load %s\n", kCardboardConfigFileName);
@@ -203,7 +193,7 @@ bool PieNoonGame::InitializeCardboardConfig() {
   }
   return true;
 }
-#endif  // ANDROID_CARDBOARD
+#endif  // ANDROID_HMD
 
 // Initialize the 'renderer_' member. No other members have been initialized at
 // this point.
@@ -245,6 +235,13 @@ bool PieNoonGame::InitializeRenderer() {
     // HW scaler setting was success. Clear retry counter.
     SavePreference("HWScalerRetry", 0);
   }
+#endif
+
+#ifdef ANDROID_HMD
+  vec2i size = fplbase::AndroidGetScalerResolution();
+  const vec2i viewport_size =
+      size.x() && size.y() ? size : renderer_.window_size();
+  fplbase::InitializeUndistortFramebuffer(viewport_size.x(), viewport_size.y());
 #endif
 
   renderer_.set_color(mathfu::kOnes4f);
@@ -580,7 +577,7 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
   if (!ChangeToUpstreamDir(binary_directory, kAssetsDir)) return false;
 
   if (!InitializeConfig()) return false;
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
   if (!InitializeCardboardConfig()) return false;
 #endif
   if (!InitializeGpgIds()) return false;
@@ -733,37 +730,29 @@ void PieNoonGame::RenderForDefault(const SceneDescription& scene) {
 }
 
 void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
-#ifdef ANDROID_CARDBOARD
-  mat4 left_eye_transform, right_eye_transform;
-  GetCardboardTransforms(left_eye_transform, right_eye_transform);
-  // Convert the transforms from cardboard space to game space
-  CorrectCardboardCamera(left_eye_transform);
-  CorrectCardboardCamera(right_eye_transform);
-  // Perform two render passes, one for each half of the screen
-  vec2i size = AndroidGetScalerResolution();
-  const vec2i viewport_size =
-      size.x() && size.y() ? size : renderer_.window_size();
-  float window_width = viewport_size.x();
-  float half_width = window_width / 2.0f;
-  float window_height = viewport_size.y();
+#ifdef ANDROID_HMD
+  fplbase::HeadMountedDisplayViewSettings view_settings;
+  HeadMountedDisplayRenderStart(input_.head_mounted_display_input(),
+                                &renderer_, mathfu::kZeros4f,
+                                game_state_.use_undistort_rendering(),
+                                &view_settings);
   auto res = renderer_.window_size();
   vec2i half_res(res.x() / 2.0f, res.y());
-  if (game_state_.use_undistort_rendering()) {
-    renderer_.BeginUndistortFramebuffer();
+  // Perform two render passes, one for each half of the screen
+  for (int i = 0; i < 2; i++) {
+    GL_CALL(glViewport(view_settings.viewport_extents[i][0],
+        view_settings.viewport_extents[i][1],
+        view_settings.viewport_extents[i][2],
+        view_settings.viewport_extents[i][3]));
+    // Convert the transforms from cardboard space to game space
+    CorrectCardboardCamera(view_settings.viewport_transforms[i]);
+    RenderScene(scene, view_settings.viewport_transforms[i], half_res);
   }
-  GL_CALL(glViewport(0, 0, half_width, window_height));
-  RenderScene(scene, left_eye_transform, half_res);
-  GL_CALL(glViewport(half_width, 0, half_width, window_height));
-  RenderScene(scene, right_eye_transform, half_res);
-  // Reset the viewport to the entire screen
-  GL_CALL(glViewport(0, 0, window_width, window_height));
-  if (game_state_.use_undistort_rendering()) {
-    renderer_.FinishUndistortFramebuffer();
-  }
-  RenderCardboardCenteringBar();
+  HeadMountedDisplayRenderEnd(&renderer_,
+                              game_state_.use_undistort_rendering());
 #else
   (void)scene;
-#endif  // ANDROID_CARDBOARD
+#endif  // ANDROID_HMD
 }
 
 void PieNoonGame::RenderScene(const SceneDescription& scene,
@@ -901,12 +890,10 @@ void PieNoonGame::Render2DElements(const SceneDescription& scene,
 
 #endif
 
-#ifdef ANDROID_CARDBOARD
-  if (!cardboard_supported_) {
+  if (!fplbase::SupportsHeadMountedDisplay()) {
     auto cardboard_button = gui_menu_.FindButtonById(ButtonId_MenuCardboard);
     if (cardboard_button) cardboard_button->set_is_visible(false);
   }
-#endif
 
   auto sushi_button = gui_menu_.FindButtonById(ButtonId_Sushi);
   if (sushi_button) {
@@ -925,42 +912,10 @@ void PieNoonGame::Render2DElements(const SceneDescription& scene,
   gui_menu_.Render(&renderer_);
 }
 
-void PieNoonGame::GetCardboardTransforms(mat4& left_eye_transform,
-                                         mat4& right_eye_transform) {
-#ifdef ANDROID_CARDBOARD
-  left_eye_transform = mat4(input_.cardboard_input().left_eye_transform());
-  right_eye_transform = mat4(input_.cardboard_input().right_eye_transform());
-#else
-  (void)left_eye_transform;
-  (void)right_eye_transform;
-#endif  // ANDROID_CARDBOARD
-}
-
 void PieNoonGame::CorrectCardboardCamera(mat4& cardboard_camera) {
   // The game's coordinate system has x and y reversed from the cardboard
   const mat4 rotation = mat4::FromScaleVector(vec3(-1, -1, 1));
   cardboard_camera = rotation * cardboard_camera * rotation;
-}
-
-void PieNoonGame::RenderCardboardCenteringBar() {
-  auto res = renderer_.window_size();
-  auto ortho_mat = mathfu::OrthoHelper<float>(0.0f, static_cast<float>(res.x()),
-                                              static_cast<float>(res.y()), 0.0f,
-                                              -1.0f, 1.0f);
-  renderer_.set_model_view_projection(ortho_mat);
-
-  const Config& config = GetConfig();
-  renderer_.set_color(LoadVec4(config.cardboard_center_color()));
-  auto material =
-      matman_.LoadMaterial(config.cardboard_center_material()->c_str());
-  material->Set(renderer_);
-  shader_textured_->Set(renderer_);
-
-  const vec3 center(res.x() / 2.0f, res.y() / 2.0f, 0.0f);
-  const vec3 scale(
-      renderer_.window_size().x() * config.cardboard_center_scale()->x(),
-      renderer_.window_size().y() * config.cardboard_center_scale()->y(), 0.0f);
-  Mesh::RenderAAQuadAlongX(center - (scale / 2.0f), center + (scale / 2.0f));
 }
 
 // Debug function to print out state machine transitions.
@@ -994,7 +949,7 @@ const Config& PieNoonGame::GetConfig() const {
 }
 
 const Config& PieNoonGame::GetCardboardConfig() const {
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
   return *fpl::pie_noon::GetConfig(cardboard_config_source_.c_str());
 #else
   return GetConfig();
@@ -1290,22 +1245,6 @@ void PieNoonGame::InitCountdownImage(int seconds) {
   }
 }
 
-// Checks whether or not the activity is running on a Android-TV device.
-static bool IsTvDevice() {
-#ifdef __ANDROID__
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
-  jclass fpl_class = env->GetObjectClass(activity);
-  jmethodID is_tv_device = env->GetMethodID(fpl_class, "IsTvDevice", "()Z");
-  jboolean result = env->CallBooleanMethod(activity, is_tv_device);
-  env->DeleteLocalRef(fpl_class);
-  env->DeleteLocalRef(activity);
-  return result;
-#else
-  return false;
-#endif  // __ANDROID
-}
-
 void PieNoonGame::UpdateCountdownImage(WorldTime time) {
   // Count down by deactivating pies images.
   const ButtonId id = CurrentlyAnimatingJoinImage(time);
@@ -1463,7 +1402,7 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       tutorial_slide_index_ = 0;
       tutorial_slides_ = game_state_.is_multiscreen()
                              ? GetConfig().multiscreen_tutorial_slides()
-                             : IsTvDevice()
+                             : fplbase::IsTvDevice()
                                   ? GetConfig().gamepad_tutorial_slides()
                                   : GetConfig().tutorial_slides();
       tutorial_aspect_ratio_ =
@@ -2031,14 +1970,14 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
       case ButtonId_MenuCardboard: {
         SendTrackerEvent(kCategoryUi, kActionClickedButton,
                          kLabelCardboardButton);
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
         game_state_.set_is_in_cardboard(true);
         game_state_.Reset();
-        input_.cardboard_input().ResetHeadTracker();
+        input_.head_mounted_display_input().ResetHeadTracker();
         TransitionToPieNoonState(kFinished);
         const Config& config = GetConfig();
         gui_menu_.Setup(config.cardboard_screen_buttons(), &matman_);
-#endif
+#endif  // ANDROID_HMD
         break;
       }
 

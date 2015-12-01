@@ -359,7 +359,7 @@ extern "C" JNIEXPORT jint GPG_JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_google_fpl_pie_1noon_FPLActivity_nativeOnActivityResult(
+Java_com_google_fpl_fplbase_FPLActivity_nativeOnActivityResult(
     JNIEnv *env, jobject thiz, jobject activity, jint request_code,
     jint result_code, jobject data) {
   gpg::AndroidSupport::OnActivityResult(env, activity, request_code,
