@@ -928,132 +928,6 @@
   "ai_block_min_duration": 1000,
   "ai_block_max_duration": 2000,
 
-  "touchscreen_zones" : {
-    "starting_selection" : false,
-    "cannonical_window_height": 800,
-    "default_shader" : "shaders/textured",
-    "default_inactive_shader" : "shaders/grayscale",
-    "button_list" : [
-      {
-        "top_left" : { "x": 0.0, "y": 0.7 },
-        "bottom_right" : { "x": 0.2, "y": 1.0 },
-        "ID" : "Left",
-        "event_trigger" : "ButtonPress",
-        "texture_normal" : [ { "standard" : "materials/arrow.fplmat" } ],
-        "texture_pressed" : { "standard" : "materials/arrow.fplmat" },
-        "texture_position" : { "x": 0.1, "y": 0.85 },
-        "draw_scale_normal" : { "x": -0.5, "y": 0.5 },
-        "draw_scale_pressed" : { "x": -1.0, "y": 1.0 }
-      },
-      {
-        "top_left" : { "x": 0.2, "y": 0.7 },
-        "bottom_right" : { "x": 0.4, "y": 1.0 },
-        "ID" : "Right",
-        "event_trigger" : "ButtonPress",
-        "texture_normal" : [ { "standard" : "materials/arrow.fplmat" } ],
-        "texture_pressed" : { "standard" : "materials/arrow.fplmat" },
-        "texture_position" : { "x": 0.3, "y": 0.85 },
-        "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
-      },
-      {
-        "top_left" : { "x": 0.8, "y": 0.7 },
-        "bottom_right" : { "x": 1.0, "y": 1.0 },
-        "ID" : "Defend",
-        "event_trigger" : "ButtonHold",
-        "texture_normal" : [ { "standard" : "materials/pie_block.fplmat" } ],
-        "texture_pressed" : { "standard" : "materials/pie_block.fplmat" },
-        "texture_position" : { "x": 0.9, "y": 0.85 },
-        "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-        "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
-      },
-      {
-        "top_left" : { "x": 0.4, "y": 0.7 },
-        "bottom_right" : { "x": 0.8, "y": 1.0 },
-        "ID" : "Attack",
-        "event_trigger" : "ButtonPress",
-        "texture_pressed" : { "standard" : "materials/ui_pie.fplmat" },
-        "texture_position" : { "x": 0.7, "y": 0.85 },
-        "draw_scale_normal" : { "x":  0.7, "y": 0.7 },
-        "draw_scale_pressed" : { "x": 0.9, "y": 0.9 }
-      },
-      {
-        "top_left" : { "x": 0.0, "y": 0.0 },
-        "bottom_right" : { "x": 1.0, "y": 0.7 },
-        "ID" : "Attack",
-        "event_trigger" : "ButtonPress",
-        "texture_normal" : [ { "standard" : "materials/ui_pie.fplmat" } ],
-        "texture_pressed" : { "standard" : "materials/ui_pie.fplmat" },
-        "texture_position" : { "x": 0.7, "y": 0.85 },
-        "draw_scale_normal" : { "x":  0.5, "y": 0.5 },
-        "draw_scale_pressed" : { "x": 0.9, "y": 0.9 }
-      }
-    ],
-    "imgui_list" : [
-        {
-          "data_type": StartGroupDef,
-          "data" : {
-            "size" : 0.0,
-            "layout" : "GroupLayoutHorizontalCenter",
-            "margin": { "x": 0.0, "y": 0.0, "z" : 0.0, "w" : 0.0 },
-          }
-        },
-        {
-          "data_type": ImguiButtonDef,
-          "data" : {
-            "ID" : "Left",
-            "size" : 0.32,
-            "margin": { "x": 0.15, "y": 0.77, "z" : 0.0, "w" : 0.0 },
-            "event_trigger" : "ButtonPress",
-            "texture_background" : "textures/chalkarrowcircle.webp",
-            "draw_scale_normal" : { "x": -0.5, "y": 0.5 },
-            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
-          }
-        },
-        {
-          "data_type": ImguiButtonDef,
-          "data" : {
-            "ID" : "Right",
-            "size" : 0.32,
-            "margin": { "x": 0.16, "y": 0.77, "z" : 0.0, "w" : 0.0 },
-            "event_trigger" : "ButtonPress",
-            "texture_background" : "textures/chalkarrowcircle.webp",
-            "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
-          }
-        },
-        {
-          "data_type": ImguiButtonDef,
-          "data" : {
-            "ID" : "Attack",
-            "size" : 0.32,
-            "margin": { "x": 0.48, "y": 0.77, "z" : 0.0, "w" : 0.0 },
-            "event_trigger" : "ButtonPress",
-            "texture_background" : "textures/pie_level03.webp",
-            "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
-          }
-        },
-        {
-          "data_type": ImguiButtonDef,
-          "data" : {
-            "ID" : "Defend",
-            "size" : 0.32,
-            "margin": { "x": 0.16, "y": 0.77, "z" : 0.0, "w" : 0.0 },
-            "event_trigger" : "ButtonHold",
-            "texture_background" : "textures/shield_pie.webp",
-            "draw_scale_normal" : { "x": 0.5, "y": 0.5 },
-            "draw_scale_pressed" : { "x": 2.0, "y": 2.0 }
-          }
-        },
-        {
-          "data_type": EndGroupDef,
-          "data" : {
-          }
-        },
-    ]
-  },
-
   "title_screen_buttons_android" : {
     "starting_selection" : "MenuStart",
     "allow_controller_navigation" : true,
@@ -3172,6 +3046,12 @@
       "geometry_scale": 4.5 // 4096 / 1024
     },
     {
+      // Not present in regular Pie Noon, only in Snowdown mode.
+      "id": "EnvironmentSkyTop",
+      "cardboard_fronts": [  ],
+      "pixel_bounds": { "x": 1, "y": 1 },
+    },
+    {
       "id": "EnvironmentCloud",
       "cardboard_fronts": [ "materials/environment_cloud.fplmat" ],
       "pixel_bounds": { "x": 256, "y": 200 },
@@ -3194,7 +3074,7 @@
       "id": "EnvironmentSunGlow",
       "pixel_bounds": { "x": 128, "y": 110 }, // (656,560) --> (128, 110)
       "geometry_scale": 5.125, // 656 / 128
-      "cardboard_fronts": [ "materials/environment_sun_glow.fplmat ]"
+      "cardboard_fronts": [ "materials/environment_sun_glow.fplmat" ]
     },
     {
       "id": "EnvironmentTree",
@@ -3289,6 +3169,12 @@
     {
       "id": "Pixel1x1",
       "cardboard_fronts": [ "materials/pixel1x1.fplmat" ],
+      "pixel_bounds": { "x": 1, "y": 1 }
+    },
+    {
+      // Not present in regular Pie Noon, only in Snowdown mode.
+      "id": "SnowParticle",
+      "cardboard_fronts": [ ],
       "pixel_bounds": { "x": 1, "y": 1 }
     },
     {

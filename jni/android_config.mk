@@ -57,3 +57,7 @@ $(eval DEPENDENCIES_DIR_VALUE:=$$(DEPENDENCIES_$(DEP_DIR)_DIR))
 print_dependency:
 	@echo $(abspath $(DEPENDENCIES_DIR_VALUE))
 endif
+
+# Uncomment this line and rebuild assets to force a specific assets overlay as
+# the default.
+#DEFAULT_OVERLAY?=snowdown

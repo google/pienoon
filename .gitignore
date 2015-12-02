@@ -14,6 +14,12 @@ assets/*.pinbus
 assets/sound_banks/*.pinbank
 assets/sounds/*.pinsound
 assets/materials/*.fplmat
+assets/overlays/*/*.pieconfig
+assets/overlays/*/*.piestate
+assets/overlays/*/*.pinbus
+assets/overlays/*/sound_banks/*.pinbank
+assets/overlays/*/sounds/*.pinsound
+assets/overlays/*/materials/*.fplmat
 
 # CMake files
 CMakeCache.txt

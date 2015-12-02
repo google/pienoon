@@ -29,6 +29,8 @@
 #include "timeline_generated.h"
 #include "touchscreen_controller.h"
 
+#include "SDL.h"
+
 #ifdef ANDROID_HMD
 #include "fplbase/glplatform.h"
 #include "fplbase/renderer_hmd.h"
@@ -93,6 +95,8 @@ static const char kAssetsDir[] = "assets";
 
 static const char kConfigFileName[] = "config.pieconfig";
 
+static const char kDefaultOverlayFile[] = "default_overlay.txt";
+
 #ifdef ANDROID_HMD
 static const char kCardboardConfigFileName[] = "cardboard_config.pieconfig";
 #endif
@@ -106,6 +110,8 @@ static const int kAndroidMaxScreenHeight = 1080;
 static GPGManager::GPGIds gpg_ids[kMaxStats];
 static std::vector<std::string> achievement_ids;
 #endif
+
+std::string PieNoonGame::overlay_name_;
 
 // Return the elapsed milliseconds since the start of the program. This number
 // will loop back to 0 after about 49 days; always take the difference to
@@ -154,6 +160,7 @@ PieNoonGame::PieNoonGame()
       stinger_channel_(),
       music_channel_(),
       next_achievement_index_(0) {
+  fplbase::SetLoadFileFunction(PieNoonGame::LoadFile);
   version_ = kVersion;
   for (size_t i = 0; i < RenderableId_Count; ++i) {
     cardboard_backs_[i] = nullptr;
@@ -569,6 +576,21 @@ bool PieNoonGame::InitializeGpgIds() {
   return true;
 }
 
+bool PieNoonGame::LoadFile(const char* filename, std::string* dest) {
+  const char* read_filename = filename;
+  std::string overlay;
+  if (!overlay_name_.empty()) {
+    overlay = "overlays/" + overlay_name_ + "/" + std::string(filename);
+    const char* overlay_filename = overlay.c_str();
+    auto handle = SDL_RWFromFile(overlay_filename, "rb");
+    if (handle) {
+      SDL_RWclose(handle);
+      read_filename = overlay_filename;
+    }
+  }
+  return fplbase::LoadFileRaw(read_filename, dest);
+}
+
 // Initialize each member in turn. This is logically just one function, since
 // the order of initialization cannot be changed. However, it's nice for
 // debugging and readability to have each section lexographically separate.
@@ -576,6 +598,19 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
   LogInfo(kApplication, "PieNoon initializing...\n");
 
   if (!ChangeToUpstreamDir(binary_directory, kAssetsDir)) return false;
+
+  if (overlay_name_ == "") {
+    std::string default_overlay;
+    if (LoadFile(kDefaultOverlayFile, &default_overlay)) {
+      // trim whitespace from the end of the file contents
+      default_overlay.erase(default_overlay.find_last_not_of(" \n\r\t") + 1);
+      if (default_overlay != "") {
+        LogInfo(kApplication, "Forcing default overlay of %s\n",
+                default_overlay.c_str());
+        PieNoonGame::SetOverlayName(default_overlay.c_str());
+      }
+    }
+  }
 
   if (!InitializeConfig()) return false;
 #ifdef ANDROID_HMD
@@ -2845,6 +2880,34 @@ void PieNoonGame::Run() {
     }
   }
 }
+
+#if defined(__ANDROID__)
+void PieNoonGame::ParseViewIntentData(const std::string& intent_data,
+                                      std::string* launch_mode,
+                                      std::string* overlay) {
+  static const char kDefaultLaunchMode[] = "default";
+  static const char kPathPrefix[] = "http://google.github.io/pienoon/launch/";
+  assert(launch_mode);
+  assert(overlay);
+  *launch_mode = kDefaultLaunchMode;
+  *overlay = "";
+  if (intent_data.empty()) return;
+
+  LogInfo("Started with view intent %s", intent_data.c_str());
+  size_t path_prefix_length = strlen(kPathPrefix);
+  if (intent_data.compare(0, path_prefix_length, kPathPrefix) == 0) {
+    std::string launch_arguments =
+        intent_data.substr(path_prefix_length, std::string::npos);
+    size_t split_pos = launch_arguments.find("/");
+    if (split_pos != std::string::npos) {
+      *launch_mode = launch_arguments.substr(0, split_pos);
+      *overlay = launch_arguments.substr(split_pos + 1, std::string::npos);
+    }
+    LogInfo(kApplication, "Detected launch URL %s (mode=%s, overlay=%s)\n",
+            launch_arguments.c_str(), launch_mode->c_str(), overlay->c_str());
+  }
+}
+#endif  // defined(__ANDROID__)
 
 }  // pie_noon
 }  // fpl

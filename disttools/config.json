@@ -133,6 +133,24 @@
       "third_party": 0,
       "prebuilts" : 1,
       "push": 0
+    },
+    {
+      "name": "corgi",
+      "url": "http://github.com/google/corgi.git",
+      "branch": "develop",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0,
+      "fetch_dependencies": 1
+    },
+    {
+      "name": "scene_lab",
+      "url": "http://github.com/google/scene_lab.git",
+      "branch": "develop",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0,
+      "fetch_dependencies": 1
     }
   ]
 }

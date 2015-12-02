@@ -25,6 +25,7 @@ ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
 .PHONY: build_assets
 build_assets: $(flatc_target)
 	$(hide) python $(PIE_NOON_DIR)/scripts/build_assets.py
+	echo $(DEFAULT_OVERLAY)>$(PIE_NOON_DIR)/assets/default_overlay.txt
 
 .PHONY: clean_assets
 clean_assets:

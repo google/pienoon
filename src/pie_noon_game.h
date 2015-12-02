@@ -70,6 +70,18 @@ class PieNoonGame {
   bool Initialize(const char* const binary_directory);
   void Run();
 
+  // Set the overlay directory name to optionally load assets from.
+  static void SetOverlayName(const char* overlay_name) {
+    overlay_name_ = overlay_name;
+  }
+
+#if defined(__ANDROID__)
+  // Parse launch mode and overlay directory name from Intent data.
+  static void ParseViewIntentData(const std::string& intent_data,
+                                  std::string* launch_mode,
+                                  std::string* overlay);
+#endif  // defined(__ANDROID__)
+
  private:
   bool InitializeConfig();
 #ifdef ANDROID_HMD
@@ -153,6 +165,10 @@ class PieNoonGame {
   void UpdateMultiscreenMenuIcons();
   void SetupWaitingForPlayersMenu();
   bool ShouldTransitionFromSlide(WorldTime world_time);
+
+  // Overrides fplbase::LoadFile() in order to optionally load files from
+  // overlay directories.
+  static bool LoadFile(const char* filename, std::string* dest);
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -291,6 +307,9 @@ class PieNoonGame {
 
   // The Worldtime when the game was paused, used just for analytics.
   WorldTime pause_time_;
+
+  // Name of the optional overlay to load assets from.
+  static std::string overlay_name_;
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;

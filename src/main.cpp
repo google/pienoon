@@ -19,6 +19,17 @@
 extern "C" int FPL_main(int argc, char* argv[]) {
   fpl::pie_noon::PieNoonGame game;
   const char* binary_directory = argc > 0 ? argv[0] : "";
+  std::string overlay;
+#if defined(__ANDROID__)
+  // launch_mode is not used as the app would have launched with the
+  // appropriate activity already.
+  std::string launch_mode;
+  fpl::pie_noon::PieNoonGame::ParseViewIntentData(
+      fplbase::AndroidGetViewIntentData(), &launch_mode, &overlay);
+#else
+  overlay = argc > 1 ? argv[1] : "";
+#endif  // defined(__ANDROID__)
+  fpl::pie_noon::PieNoonGame::SetOverlayName(overlay.c_str());
   if (!game.Initialize(binary_directory)) {
     fplbase::LogError(fplbase::kError, "PieNoon: init failed, exiting!");
     return 1;

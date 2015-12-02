@@ -13,10 +13,9 @@
 // limitations under the License.
 
 // An activity for AndroidTV.
-// Just extending FPLActivty without any changes.
+// Just extending PieNoonActivity without any changes.
 
 package com.google.fpl.pie_noon;
 
 public class PieNoonTvActivity extends PieNoonActivity {
 }
-
