@@ -13,12 +13,12 @@
 // limitations under the License.
 
 #include "precompiled.h"
+#include "SDL_events.h"
 #include "analytics_tracking.h"
 #include "audio_config_generated.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
-#include "fplbase/glplatform.h"
 #include "motive/init.h"
 #include "motive/io/flatbuffers.h"
 #include "motive/math/angle.h"
@@ -30,6 +30,7 @@
 #include "touchscreen_controller.h"
 
 #ifdef ANDROID_HMD
+#include "fplbase/glplatform.h"
 #include "fplbase/renderer_hmd.h"
 #endif  // ANDROID_HMD
 
@@ -117,7 +118,8 @@ static inline const UiGroup* TitleScreenButtons(const Config& config) {
 #ifdef __ANDROID__
   const bool android_title_screen = true;
 #else
-  const bool android_title_screen = config.always_use_android_title_screen();
+  const bool android_title_screen =
+      config.always_use_android_title_screen() != 0;
 #endif
   return android_title_screen ? config.title_screen_buttons_android()
                               : config.title_screen_buttons_non_android();
@@ -221,10 +223,9 @@ bool PieNoonGame::InitializeRenderer() {
   const auto kMaxRetry = 3;
   auto current_window_size = AndroidGetScalerResolution();
   if (current_window_size.x() != window_size->x() ||
-      current_window_size.y() != window_size->y() ) {
+      current_window_size.y() != window_size->y()) {
     if (retry < kMaxRetry) {
-      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                   "HW Scalar failed. Restarting application.");
+      LogError("HW Scalar failed. Restarting application.");
       SavePreference("HWScalerRetry", retry + 1);
       RelaunchApplication();
       return false;
@@ -732,18 +733,17 @@ void PieNoonGame::RenderForDefault(const SceneDescription& scene) {
 void PieNoonGame::RenderForCardboard(const SceneDescription& scene) {
 #ifdef ANDROID_HMD
   fplbase::HeadMountedDisplayViewSettings view_settings;
-  HeadMountedDisplayRenderStart(input_.head_mounted_display_input(),
-                                &renderer_, mathfu::kZeros4f,
-                                game_state_.use_undistort_rendering(),
-                                &view_settings);
+  HeadMountedDisplayRenderStart(
+      input_.head_mounted_display_input(), &renderer_, mathfu::kZeros4f,
+      game_state_.use_undistort_rendering(), &view_settings);
   auto res = renderer_.window_size();
   vec2i half_res(res.x() / 2.0f, res.y());
   // Perform two render passes, one for each half of the screen
   for (int i = 0; i < 2; i++) {
     GL_CALL(glViewport(view_settings.viewport_extents[i][0],
-        view_settings.viewport_extents[i][1],
-        view_settings.viewport_extents[i][2],
-        view_settings.viewport_extents[i][3]));
+                       view_settings.viewport_extents[i][1],
+                       view_settings.viewport_extents[i][2],
+                       view_settings.viewport_extents[i][3]));
     // Convert the transforms from cardboard space to game space
     CorrectCardboardCamera(view_settings.viewport_transforms[i]);
     RenderScene(scene, view_settings.viewport_transforms[i], half_res);
@@ -845,10 +845,10 @@ void PieNoonGame::Render2DElements(const SceneDescription& scene,
     const mat4 translate_mat =
         mat4::FromTranslationVector(vec3(-res.x() / 2, -res.y() / 2, 0));
     // Scale it into a more reasonable size:
-    const mat4 scale_mat = mat4::FromScaleVector(vec3(0.010, -0.010, -1.0));
+    const mat4 scale_mat = mat4::FromScaleVector(vec3(0.010f, -0.010f, -1.0f));
     // Move it to a nice spot in world space:
     const mat4 translate2_mat =
-        mat4::FromTranslationVector(vec3(0.0, 4.0, 12.6));
+        mat4::FromTranslationVector(vec3(0.0f, 4.0f, 12.6f));
     const Config& config = GetConfig();
     const Config& cardboard_config = GetCardboardConfig();
 
@@ -862,7 +862,8 @@ void PieNoonGame::Render2DElements(const SceneDescription& scene,
         perspective_matrix_ * (additional_camera_changes * scene.camera());
 
     mat4 rotate_towards_camera = mat4::FromRotationMatrix(
-        mathfu::quat::FromAngleAxis(0.5 * M_PI / 2.0, mathfu::kAxisY3f)
+        mathfu::quat::FromAngleAxis(0.5f * static_cast<float>(M_PI) / 2.0f,
+                                    mathfu::kAxisY3f)
             .ToMatrix());
 
     renderer_.set_model_view_projection(camera_transform * translate2_mat *
@@ -1082,9 +1083,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       // When we initialized assets, we kicked off a thread to load all
       // textures. Here we check if those have finished loading.
       // We also leave the loading screen up for a minimum amount of time.
-      if (!Fading() && matman_.TryFinalize() && audio_engine_.TryFinalize()
-          && (time - state_entry_time_) > config.min_loading_time()
-              ) {
+      if (!Fading() && matman_.TryFinalize() && audio_engine_.TryFinalize() &&
+          (time - state_entry_time_) > config.min_loading_time()) {
         // If we've already displayed the tutorial before, jump straight to
         // the game. If we don't have the capability to record our previous
         // tutorial views, also jump straight to the game.
@@ -1403,8 +1403,8 @@ void PieNoonGame::TransitionToPieNoonState(PieNoonState next_state) {
       tutorial_slides_ = game_state_.is_multiscreen()
                              ? GetConfig().multiscreen_tutorial_slides()
                              : fplbase::IsTvDevice()
-                                  ? GetConfig().gamepad_tutorial_slides()
-                                  : GetConfig().tutorial_slides();
+                                   ? GetConfig().gamepad_tutorial_slides()
+                                   : GetConfig().tutorial_slides();
       tutorial_aspect_ratio_ =
           game_state_.is_multiscreen()
               ? GetConfig().multiscreen_tutorial_aspect_ratio()
@@ -1645,11 +1645,11 @@ void PieNoonGame::ProcessMultiplayerMessages() {
               (const multiplayer::PlayerStatus*)message->data();
           ProcessPlayerStatusMessage(*player_status);
         } else {
-          SDL_LogWarn(kApplication,
-                      "Multiplayer message has a data type of NONE.");
+          LogError(kApplication,
+                   "Multiplayer message has a data type of NONE.");
         }
       } else {
-        SDL_LogWarn(kApplication, "Got a malformed multiplayer message!");
+        LogError(kApplication, "Got a malformed multiplayer message!");
       }
     }
   }
@@ -1743,8 +1743,8 @@ void PieNoonGame::StringArrayResource(const char* resource_name,
   strings->empty();
 
 #ifdef __ANDROID__
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
   jstring resource_name_java = env->NewStringUTF(resource_name);
 
@@ -1786,8 +1786,8 @@ static void DisplayDialogBox(const char* title, const char* text_file_name,
     LogError(kError, "can't load %s", text_file_name);
     return;
   }
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID is_text_dialog_open =
       env->GetMethodID(fpl_class, "isTextDialogOpen", "()Z");
@@ -1983,8 +1983,8 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
 
 #if defined(__ANDROID__)
       case ButtonId_Sushi: {
-        JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
-        jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+        JNIEnv* env = reinterpret_cast<JNIEnv*>(AndroidGetJNIEnv());
+        jobject activity = reinterpret_cast<jobject>(AndroidGetActivity());
         jclass activity_class = env->GetObjectClass(activity);
         jmethodID launch_zooshi =
             env->GetMethodID(activity_class, "LaunchZooshiSanta", "()V");
@@ -2129,9 +2129,9 @@ void PieNoonGame::ReloadMultiscreenMenu() {
     // now).
     struct SavedSplatState {
       ButtonId button_id;
-      mathfu::vec2 position;
-      mathfu::vec2 scale;
-      mathfu::vec4 color;
+      mathfu::vec2_packed position;
+      mathfu::vec2_packed scale;
+      mathfu::vec4_packed color;
       SavedSplatState(ButtonId b, mathfu::vec2 pos, mathfu::vec2 sc,
                       const mathfu::vec4& col)
           : button_id(b), position(pos), scale(sc), color(col) {}
@@ -2149,13 +2149,14 @@ void PieNoonGame::ReloadMultiscreenMenu() {
     // Now reload the menu.
     gui_menu_.Setup(gui_menu_.menu_def(), &matman_);
     // Now restore the saved state for any visible splats.
-    for (const SavedSplatState& state : states) {
+    for (auto iter = states.begin(); iter != states.end(); ++iter) {
+      const SavedSplatState& state = *iter;
       auto splat = gui_menu_.FindImageById(state.button_id);
       if (splat != nullptr) {
         splat->set_is_visible(true);
-        splat->set_texture_position(state.position);
-        splat->set_scale(state.scale);
-        splat->set_color(state.color);
+        splat->set_texture_position(vec2(state.position));
+        splat->set_scale(vec2(state.scale));
+        splat->set_color(vec4(state.color));
       }
     }
   }
@@ -2352,7 +2353,7 @@ bool PieNoonGame::AnyControllerPresses() {
     const Controller* controller = it->get();
     if (ControllerHasPress(controller)) return true;
   }
-  return input_.GetPointerButton(K_POINTER1).went_down();
+  return input_.GetPointerButton(static_cast<FingerId>(K_POINTER1)).went_down();
 }
 
 // Load into memory the tutorial slide at slide_index, if slide_index is valid.

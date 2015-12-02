@@ -39,14 +39,15 @@ bool GPGManager::Initialize(bool ui_login) {
   /*
   // This code is here because we may be able to do this part of the
   // initialization here in the future, rather than relying on JNI_OnLoad below.
-  auto env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+  auto env = reinterpret_cast<JNIEnv *>(AndroidGetJNIEnv());
   JavaVM *vm = nullptr;
   auto ret = env->GetJavaVM(&vm);
   assert(ret >= 0);
   gpg::AndroidInitialization::JNI_OnLoad(vm);
   */
   gpg::AndroidPlatformConfiguration platform_configuration;
-  platform_configuration.SetActivity((jobject)SDL_AndroidGetActivity());
+  platform_configuration.SetActivity(
+      static_cast<jobject>(AndroidGetActivity()));
 
   // Creates a games_services object that has lambda callbacks.
   game_services_ =
@@ -87,7 +88,7 @@ bool GPGManager::Initialize(bool ui_login) {
           .Create(platform_configuration);
 
   if (!game_services_) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "GPG: failed to create GameServices!");
+    LogError("GPG: failed to create GameServices!");
     return false;
   }
 
@@ -146,8 +147,8 @@ bool GPGManager::LoggedIn() {
 #endif
   assert(game_services_);
   if (state_ < kAuthed) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_ERROR,
-                 "GPG: player not logged in, can\'t interact with gpg!");
+    LogError(fplbase::kApplication,
+             "GPG: player not logged in, can\'t interact with gpg!");
     return false;
   }
   return true;
@@ -340,7 +341,7 @@ void GPGManager::FetchPlayer() {
                   player_data->AvatarUrl(gpg::ImageResolution::HI_RES).c_str());
           player_data_.reset(player_data);
         } else {
-          SDL_LogError(fplbase::kApplication, "GPG: failed to get player info");
+          LogError(fplbase::kApplication, "GPG: failed to get player info");
           player_data_.reset(nullptr);
         }
         pthread_mutex_unlock(&players_mutex_);

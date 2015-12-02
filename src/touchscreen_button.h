@@ -54,10 +54,10 @@ class TouchscreenButton {
     down_material_ = down_material;
   }
 
-  mathfu::vec2 up_offset() const { return up_offset_; }
+  mathfu::vec2 up_offset() const { return mathfu::vec2(up_offset_); }
   void set_up_offset(mathfu::vec2 up_offset) { up_offset_ = up_offset; }
 
-  mathfu::vec2 down_offset() const { return down_offset_; }
+  mathfu::vec2 down_offset() const { return mathfu::vec2(down_offset_); }
   void set_down_offset(mathfu::vec2 down_offset) { down_offset_ = down_offset; }
 
   const ButtonDef* button_def() const { return button_def_; }
@@ -88,7 +88,7 @@ class TouchscreenButton {
   }
 
   void set_color(const mathfu::vec4& color) { color_ = color; }
-  const mathfu::vec4& color() { return color_; }
+  mathfu::vec4 color() { return mathfu::vec4(color_); }
 
   void SetCannonicalWindowHeight(int height) {
     one_over_cannonical_window_height_ = 1.0f / static_cast<float>(height);
@@ -110,11 +110,11 @@ class TouchscreenButton {
   Material* down_material_;
 
   // Allow overriding the default color in code.
-  mathfu::vec4 color_;
+  mathfu::vec4_packed color_;
 
   // Offsets to draw the textures at,
-  mathfu::vec2 up_offset_;
-  mathfu::vec2 down_offset_;
+  mathfu::vec2_packed up_offset_;
+  mathfu::vec2_packed down_offset_;
 
   bool is_active_;
   bool is_visible_;
@@ -138,7 +138,7 @@ class StaticImage {
     return image_def_ == nullptr ? ButtonId_Undefined : image_def_->ID();
   }
   const StaticImageDef* image_def() const { return image_def_; }
-  const mathfu::vec2& scale() const { return scale_; }
+  mathfu::vec2 scale() const { return mathfu::vec2(scale_); }
   void set_scale(const mathfu::vec2& scale) { scale_ = scale; }
   void set_current_material_index(int i) { current_material_index_ = i; }
 
@@ -146,14 +146,14 @@ class StaticImage {
   bool is_visible() { return is_visible_; }
 
   void set_color(const mathfu::vec4& color) { color_ = color; }
-  const mathfu::vec4& color() { return color_; }
+  mathfu::vec4 color() { return mathfu::vec4(color_); }
 
   // Set the image position on screen, expressed as a fraction of the screen
   // dimensions to place the center point.
   void set_texture_position(const mathfu::vec2& position) {
     texture_position_ = position;
   }
-  const mathfu::vec2& texture_position() { return texture_position_; }
+  mathfu::vec2 texture_position() { return mathfu::vec2(texture_position_); }
 
  private:
   // Flatbuffer's definition of this image.
@@ -170,13 +170,13 @@ class StaticImage {
   Shader* shader_;
 
   // Draw image bigger or smaller. (1.0f, 1.0f) means no scaling.
-  mathfu::vec2 scale_;
+  mathfu::vec2_packed scale_;
 
   // Where to display the texture on screen.
-  mathfu::vec2 texture_position_;
+  mathfu::vec2_packed texture_position_;
 
   // Allow overriding the default color in code.
-  mathfu::vec4 color_;
+  mathfu::vec4_packed color_;
 
   // Scale the textures by the y-axis so that they are (proportionally)
   // the same height on every platform.

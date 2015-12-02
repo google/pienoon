@@ -14,6 +14,7 @@
 
 #include "precompiled.h"
 #include <algorithm>
+#include "fplbase/utilities.h"
 #include "gpg_multiplayer.h"
 
 namespace fpl {
@@ -30,7 +31,7 @@ bool GPGMultiplayer::Initialize(const std::string& service_id) {
 
   service_id_ = service_id;
   gpg::AndroidPlatformConfiguration platform_configuration;
-  platform_configuration.SetActivity((jobject)SDL_AndroidGetActivity());
+  platform_configuration.SetActivity((jobject)AndroidGetActivity());
 
   gpg::NearbyConnections::Builder nearby_builder;
   nearby_connections_ = nearby_builder.SetDefaultOnLog(gpg::LogLevel::VERBOSE)
