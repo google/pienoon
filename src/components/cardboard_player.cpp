@@ -22,21 +22,25 @@ using mathfu::vec3;
 using motive::Angle;
 using motive::kHalfPi;
 
+CORGI_DEFINE_COMPONENT(fpl::pie_noon::CardboardPlayerComponent,
+                       fpl::pie_noon::CardboardPlayerData)
+
 namespace fpl {
 namespace pie_noon {
 
 void CardboardPlayerComponent::UpdateAllEntities(
-    entity::WorldTime /*delta_time*/) {
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    entity::EntityRef entity = iter->entity;
+    corgi::WorldTime /*delta_time*/) {
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
+    corgi::EntityRef entity = iter->entity;
     UpdateTargetReticle(entity);
     UpdateLoadedPie(entity);
     UpdateHealthAccessories(entity);
   }
 }
 
-void CardboardPlayerComponent::UpdateTargetReticle(entity::EntityRef entity) {
-  CardboardPlayerData* cp_data = GetEntityData(entity);
+void CardboardPlayerComponent::UpdateTargetReticle(corgi::EntityRef entity) {
+  CardboardPlayerData* cp_data = GetComponentData(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
   std::unique_ptr<Character>& character =
@@ -59,8 +63,8 @@ void CardboardPlayerComponent::UpdateTargetReticle(entity::EntityRef entity) {
   arrow_so_data->SetScaleX(config_->cardboard_arrow_scale());
 }
 
-void CardboardPlayerComponent::UpdateLoadedPie(entity::EntityRef entity) {
-  CardboardPlayerData* cp_data = GetEntityData(entity);
+void CardboardPlayerComponent::UpdateLoadedPie(corgi::EntityRef entity) {
+  CardboardPlayerData* cp_data = GetComponentData(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
   std::unique_ptr<Character>& character =
@@ -81,8 +85,8 @@ void CardboardPlayerComponent::UpdateLoadedPie(entity::EntityRef entity) {
 }
 
 void CardboardPlayerComponent::UpdateHealthAccessories(
-    entity::EntityRef entity) {
-  CardboardPlayerData* cp_data = GetEntityData(entity);
+    corgi::EntityRef entity) {
+  CardboardPlayerData* cp_data = GetComponentData(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
   std::unique_ptr<Character>& character =
@@ -103,7 +107,7 @@ void CardboardPlayerComponent::UpdateHealthAccessories(
                              -i * config_->accessory_z_increment());
     const vec2 scale(LoadVec2(heart->scale()));
 
-    entity::EntityRef& heart_entity = cp_data->health[i];
+    corgi::EntityRef& heart_entity = cp_data->health[i];
     SceneObjectData* heart_so_data = Data<SceneObjectData>(heart_entity);
     heart_so_data->set_visible(true);
     heart_so_data->SetTranslation(LoadVec3(config_->cardboard_health_offset()) +
@@ -118,30 +122,28 @@ void CardboardPlayerComponent::UpdateHealthAccessories(
   }
 }
 
-void CardboardPlayerComponent::AddFromRawData(entity::EntityRef& entity,
+void CardboardPlayerComponent::AddFromRawData(corgi::EntityRef& entity,
                                               const void* /*raw_data*/) {
-  entity_manager_->AddEntityToComponent(entity,
-                                        ComponentDataUnion_CardboardPlayerDef);
+  entity_manager_->AddEntityToComponent<CardboardPlayerComponent>(entity);
 }
 
-void CardboardPlayerComponent::InitEntity(entity::EntityRef& entity) {
-  CardboardPlayerData* cp_data = GetEntityData(entity);
+void CardboardPlayerComponent::InitEntity(corgi::EntityRef& entity) {
+  CardboardPlayerData* cp_data = GetComponentData(entity);
 
-  entity_manager_->AddEntityToComponent(entity,
-                                        ComponentDataUnion_PlayerCharacterDef);
+  entity_manager_->AddEntityToComponent<PlayerCharacterComponent>(entity);
   PlayerCharacterData* pc_data = Data<PlayerCharacterData>(entity);
 
   cp_data->target_reticle = entity_manager_->AllocateNewEntity();
-  entity_manager_->AddEntityToComponent(cp_data->target_reticle,
-                                        ComponentDataUnion_SceneObjectDef);
+  entity_manager_->AddEntityToComponent<SceneObjectComponent>(
+      cp_data->target_reticle);
   SceneObjectData* target_so_data =
       Data<SceneObjectData>(cp_data->target_reticle);
   target_so_data->set_renderable_id(RenderableId_TargetReticle);
 
   // Set up the pie display, attached to the arrow on the PlayerCharacter
   cp_data->loaded_pie = entity_manager_->AllocateNewEntity();
-  entity_manager_->AddEntityToComponent(cp_data->loaded_pie,
-                                        ComponentDataUnion_SceneObjectDef);
+  entity_manager_->AddEntityToComponent<SceneObjectComponent>(
+      cp_data->loaded_pie);
   SceneObjectData* pie_so_data = Data<SceneObjectData>(cp_data->loaded_pie);
   pie_so_data->set_parent(pc_data->base_circle);
   pie_so_data->SetRotationAboutZ(-kHalfPi);
@@ -150,10 +152,9 @@ void CardboardPlayerComponent::InitEntity(entity::EntityRef& entity) {
 
   // Set up slots for health, attached to the arrow
   for (int i = 0; i < kMaxHealthAccessories; i++) {
-    entity::EntityRef& heart = cp_data->health[i];
+    corgi::EntityRef& heart = cp_data->health[i];
     heart = entity_manager_->AllocateNewEntity();
-    entity_manager_->AddEntityToComponent(heart,
-                                          ComponentDataUnion_SceneObjectDef);
+    entity_manager_->AddEntityToComponent<SceneObjectComponent>(heart);
     SceneObjectData* heart_so_data = Data<SceneObjectData>(heart);
     heart_so_data->set_parent(pc_data->base_circle);
     heart_so_data->SetRotationAboutZ(-kHalfPi);

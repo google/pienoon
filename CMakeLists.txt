@@ -55,6 +55,8 @@ set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
 set(dependencies_fplbase_dir "${fpl_root}/fplbase"
     CACHE PATH "Directory containing the FplBase library.")
+set(dependencies_corgi_dir "${fpl_root}/corgi"
+    CACHE PATH "Directory containing the CORGI library.")
 set(dependencies_flatui_dir "${fpl_root}/flatui"
     CACHE PATH "Directory containing the FlatUI library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"
@@ -139,6 +141,11 @@ if(NOT pie_noon_only_flatc AND NOT TARGET fplbase)
   add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
 endif()
 
+# Include entities.
+if(NOT TARGET corgi)
+  add_subdirectory("${dependencies_corgi_dir}" ${tmp_dir}/corgi)
+endif()
+
 # Include FlatUI in this project.
 if(NOT pie_noon_only_flatc AND NOT TARGET flatui)
   add_subdirectory("${dependencies_flatui_dir}" ${tmp_dir}/flatui)
@@ -221,11 +228,6 @@ set(pie_noon_SRCS
     src/components/scene_object.h
     src/components/shakeable_prop.cpp
     src/components/shakeable_prop.h
-    src/entity/component_interface.h
-    src/entity/entity.h
-    src/entity/entity_manager.cpp
-    src/entity/entity_manager.h
-    src/entity/vector_pool.h
     src/full_screen_fader.cpp
     src/full_screen_fader.h
     src/game_camera.cpp
@@ -280,6 +282,7 @@ include_directories(${dependencies_fplbase_dir}/include)
 include_directories(${dependencies_flatui_dir}/include)
 include_directories(${dependencies_motive_dir}/include)
 include_directories(${dependencies_pindrop_dir}/include)
+include_directories(${dependencies_corgi_dir}/include)
 
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
@@ -334,6 +337,7 @@ if(NOT fpl_ios)
   add_dependencies(pie_noon generated_includes assets motive)
   target_link_libraries(pie_noon
     motive
+    corgi
     fplbase
     flatui
     pindrop

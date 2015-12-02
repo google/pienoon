@@ -18,6 +18,9 @@
 #include "motive/math/angle.h"
 #include "scene_object.h"
 
+CORGI_DEFINE_COMPONENT(fpl::pie_noon::SceneObjectComponent,
+                       fpl::pie_noon::SceneObjectData)
+
 namespace fpl {
 namespace pie_noon {
 
@@ -64,7 +67,7 @@ void SceneObjectData::Initialize(motive::MotiveEngine* engine) {
   transform_.Initialize(init, engine);
 }
 
-void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
+void SceneObjectComponent::AddFromRawData(corgi::EntityRef& entity,
                                           const void* raw_data) {
   auto component_data = static_cast<const ComponentDefInstance*>(raw_data);
   assert(component_data->data_type() == ComponentDataUnion_SceneObjectDef);
@@ -87,26 +90,26 @@ void SceneObjectComponent::AddFromRawData(entity::EntityRef& entity,
   entity_data->set_visible(scene_object_data->visible() != 0);
 }
 
-void SceneObjectComponent::InitEntity(entity::EntityRef& entity) {
-  SceneObjectData* data = GetEntityData(entity);
+void SceneObjectComponent::InitEntity(corgi::EntityRef& entity) {
+  SceneObjectData* data = GetComponentData(entity);
   data->Initialize(engine_);
 }
 
 void SceneObjectComponent::UpdateGlobalMatrix(
-    entity::EntityRef& entity, std::vector<bool>& matrix_updated) {
-  const size_t data_index = GetEntityDataIndex(entity);
-  SceneObjectData* data = GetEntityData(data_index);
+    corgi::EntityRef& entity, std::vector<bool>& matrix_updated) {
+  const size_t data_index = GetComponentDataIndex(entity);
+  SceneObjectData* data = GetComponentData(data_index);
 
   if (data->HasParent()) {
     // Recurse into parent if its matrix has not been calculated.
-    const size_t parent_index = GetEntityDataIndex(data->parent());
+    const size_t parent_index = GetComponentDataIndex(data->parent());
     if (!matrix_updated[parent_index]) {
       UpdateGlobalMatrix(data->parent(), matrix_updated);
     }
 
     // Multiply our local matrix by our parent's global matrix to get our
     // global matrix.
-    SceneObjectData* parent = GetEntityData(parent_index);
+    SceneObjectData* parent = GetComponentData(parent_index);
     data->set_global_matrix(parent->global_matrix() * data->LocalMatrix());
   } else {
     // No parent means that our local matrix equals the global matrix.
@@ -120,10 +123,11 @@ void SceneObjectComponent::UpdateGlobalMatrix(
 
 // Traverse scene hierarchy convert local matrices into global matrices.
 void SceneObjectComponent::UpdateGlobalMatrices() {
-  std::vector<bool> matrix_updated(entity_data_.Size(), false);
+  std::vector<bool> matrix_updated(component_data_.Size(), false);
 
   // Loop through every entity and update its global matrix.
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
     // The update process is recursive, so we may have already calculated a
     // matrix by the time we get there. If so, skip over it.
     if (!matrix_updated[iter.index()] && iter->data.visible()) {
@@ -133,8 +137,8 @@ void SceneObjectComponent::UpdateGlobalMatrices() {
 }
 
 bool SceneObjectComponent::VisibleInHierarchy(
-    const entity::EntityRef& entity) const {
-  const SceneObjectData* data = GetEntityData(entity);
+    const corgi::EntityRef& entity) const {
+  const SceneObjectData* data = GetComponentData(entity);
   if (!data->HasParent()) {
     return data->visible();
   } else {
@@ -145,10 +149,11 @@ bool SceneObjectComponent::VisibleInHierarchy(
 void SceneObjectComponent::PopulateScene(SceneDescription* scene) {
   UpdateGlobalMatrices();
 
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    entity::EntityRef entity = iter->entity;
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
+    corgi::EntityRef entity = iter->entity;
     if (VisibleInHierarchy(entity)) {
-      SceneObjectData* data = GetEntityData(entity);
+      SceneObjectData* data = GetComponentData(entity);
       scene->renderables().push_back(std::unique_ptr<Renderable>(
           new Renderable(data->renderable_id(), data->variant(),
                          data->global_matrix(), data->tint())));

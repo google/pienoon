@@ -34,6 +34,8 @@ DEPENDENCIES_SDL_MIXER_DIR?=$(THIRD_PARTY_ROOT)/sdl_mixer
 DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers
 # Location of the Pindrop library.
 DEPENDENCIES_PINDROP_DIR?=$(FPL_ROOT)/pindrop
+# Location of the CORGI library.
+DEPENDENCIES_CORGI_DIR?=$(FPL_ROOT)/corgi
 # Location of the fplutil library.
 DEPENDENCIES_FPLUTIL_DIR?=$(FPL_ROOT)/fplutil
 # Location of the fplbase library.

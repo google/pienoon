@@ -91,9 +91,7 @@ table CardboardSceneryDef {
 // possible, so it can reset all the transformations before everyone else
 // messes with them.
 union ComponentDataUnion {
-  SceneObjectDef,   // Ideally this should be first.
-  MotivatorObjectDef,
-  CardboardSceneryDef,
+  SceneObjectDef,
   ShakeablePropDef,
   DripAndVanishDef,
   PlayerCharacterDef,

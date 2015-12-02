@@ -91,17 +91,40 @@ static T EnumerationValueForPieDamage(
   return static_cast<T>(lookup_vector.Get(clamped_damage));
 }
 
+static corgi::ComponentId ConvertEnumToComponentId(
+    ComponentDataUnion component) {
+  // We handle this via a switch rather than a static array to make it more
+  // robust.  (IDs are not assigned until after components are registered.)
+  switch (component) {
+    case ComponentDataUnion_NONE:
+      return corgi::kInvalidComponent;
+    case ComponentDataUnion_SceneObjectDef:
+      return corgi::ComponentIdLookup<SceneObjectComponent>::component_id;
+    case ComponentDataUnion_ShakeablePropDef:
+      return corgi::ComponentIdLookup<ShakeablePropComponent>::component_id;
+    case ComponentDataUnion_DripAndVanishDef:
+      return corgi::ComponentIdLookup<DripAndVanishComponent>::component_id;
+    case ComponentDataUnion_PlayerCharacterDef:
+      return corgi::ComponentIdLookup<PlayerCharacterComponent>::component_id;
+    case ComponentDataUnion_CardboardPlayerDef:
+      return corgi::ComponentIdLookup<CardboardPlayerComponent>::component_id;
+    default:
+      // Anything else is invalid.
+      return corgi::kInvalidComponent;
+  }
+}
+
 // Factory method for the entity manager, for converting data (in our case.
 // flatbuffer definitions) into entities and sticking them into the system.
-entity::EntityRef PieNoonEntityFactory::CreateEntityFromData(
-    const void* data, entity::EntityManager* entity_manager) {
+corgi::EntityRef PieNoonEntityFactory::CreateEntityFromData(
+    const void* data, corgi::EntityManager* entity_manager) {
   const EntityDefinition* def = static_cast<const EntityDefinition*>(data);
   assert(def != nullptr);
-  entity::EntityRef entity = entity_manager->AllocateNewEntity();
+  corgi::EntityRef entity = entity_manager->AllocateNewEntity();
   for (uoffset_t i = 0; i < def->component_list()->size(); i++) {
     const ComponentDefInstance* currentInstance = def->component_list()->Get(i);
-    entity::ComponentInterface* component =
-        entity_manager->GetComponent(currentInstance->data_type());
+    corgi::ComponentInterface* component = entity_manager->GetComponent(
+        ConvertEnumToComponentId(currentInstance->data_type()));
     assert(component != nullptr);
     component->AddFromRawData(entity, currentInstance);
   }
@@ -258,7 +281,7 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   // Create player character entities:
   for (CharacterId id = 0; id < static_cast<CharacterId>(characters_.size());
        ++id) {
-    entity::EntityRef entity = entity_manager_.AllocateNewEntity();
+    corgi::EntityRef entity = entity_manager_.AllocateNewEntity();
     PlayerCharacterData* pc_data =
         player_character_component_.AddEntity(entity);
     pc_data->character_id = id;
@@ -520,11 +543,12 @@ static vec3 RandomInRangeVec3(const vec3& min_range, const vec3& max_range) {
               mathfu::RandomInRange(min_range.z(), max_range.z()));
 }
 
-void GameState::AddSplatterToProp(entity::EntityRef prop) {
+void GameState::AddSplatterToProp(corgi::EntityRef prop) {
   static RenderableId id_list[] = {
       RenderableId_Splatter1, RenderableId_Splatter2, RenderableId_Splatter3};
-  if (prop->IsRegisteredForComponent(ComponentDataUnion_SceneObjectDef)) {
-    entity::EntityRef splatter =
+  if (entity_manager_.GetComponent<SceneObjectComponent>()->HasDataForEntity(
+          prop)) {
+    corgi::EntityRef splatter =
         entity_manager_.CreateEntityFromData(config_->splatter_def());
     auto so_data = entity_manager_.GetComponentData<SceneObjectData>(splatter);
 

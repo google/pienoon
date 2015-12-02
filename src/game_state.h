@@ -23,8 +23,8 @@
 #include "components/player_character.h"
 #include "components/scene_object.h"
 #include "components/shakeable_prop.h"
-#include "entity/entity.h"
-#include "entity/entity_manager.h"
+#include "corgi/entity.h"
+#include "corgi/entity_manager.h"
 #include "game_camera.h"
 #include "motive/engine.h"
 #include "motive/processor.h"
@@ -47,10 +47,10 @@ struct EventData;
 struct ReceivedPie;
 class MultiplayerDirector;
 
-class PieNoonEntityFactory : public entity::EntityFactoryInterface {
+class PieNoonEntityFactory : public corgi::EntityFactoryInterface {
  public:
-  virtual entity::EntityRef CreateEntityFromData(
-      const void* data, entity::EntityManager* entity_manager);
+  virtual corgi::EntityRef CreateEntityFromData(
+      const void* data, corgi::EntityManager* entity_manager);
 };
 
 class GameState {
@@ -194,7 +194,7 @@ class GameState {
                       const int particle_count,
                       const mathfu::vec4& base_tint = mathfu::vec4(1, 1, 1, 1));
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
-  void AddSplatterToProp(entity::EntityRef prop);
+  void AddSplatterToProp(corgi::EntityRef prop);
 
   WorldTime time_;
   // countdown_time_ is in seconds and is derived from the length of the game
@@ -212,7 +212,7 @@ class GameState {
   AnalyticsMode analytics_mode_;
 
   // Entity manager that tracks all of our entities.
-  entity::EntityManager entity_manager_;
+  corgi::EntityManager entity_manager_;
   // Entity factory for creating entities from flatbuffers:
   PieNoonEntityFactory pie_noon_entity_factory_;
 

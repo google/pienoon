@@ -17,7 +17,7 @@
 
 #include "common.h"
 #include "components_generated.h"
-#include "entity/component.h"
+#include "corgi/component.h"
 #include "mathfu/constants.h"
 #include "scene_description.h"
 
@@ -35,19 +35,18 @@ struct DripAndVanishData {
 
 // Basic behavior for pie splatters:  They stay there for a while,
 // and then they slowly drip down and vanish.
-class DripAndVanishComponent : public entity::Component<DripAndVanishData> {
+class DripAndVanishComponent : public corgi::Component<DripAndVanishData> {
  public:
-  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
-  virtual void UpdateAllEntities(entity::WorldTime /*delta_time*/);
-  virtual void InitEntity(entity::EntityRef& entity);
-  void SetStartingValues(entity::EntityRef& entity);
+  virtual void AddFromRawData(corgi::EntityRef& entity, const void* data);
+  virtual void UpdateAllEntities(corgi::WorldTime /*delta_time*/);
+  virtual void InitEntity(corgi::EntityRef& entity);
+  void SetStartingValues(corgi::EntityRef& entity);
 };
 
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(
-    fpl::pie_noon::DripAndVanishComponent, fpl::pie_noon::DripAndVanishData,
-    fpl::pie_noon::ComponentDataUnion_DripAndVanishDef)
+CORGI_REGISTER_COMPONENT(fpl::pie_noon::DripAndVanishComponent,
+                         fpl::pie_noon::DripAndVanishData)
 
 #endif  // COMPONENTS_DRIPANDVANISH_H_

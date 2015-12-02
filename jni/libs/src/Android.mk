@@ -64,7 +64,6 @@ LOCAL_SRC_FILES := \
   $(PIE_NOON_RELATIVE_DIR)/src/components/player_character.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/scene_object.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/components/shakeable_prop.cpp \
-  $(PIE_NOON_RELATIVE_DIR)/src/entity/entity_manager.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/full_screen_fader.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/gamepad_controller.cpp \
   $(PIE_NOON_RELATIVE_DIR)/src/game_camera.cpp \
@@ -133,6 +132,7 @@ LOCAL_STATIC_LIBRARIES := \
   libfplbase \
   libflatui \
   libpindrop \
+  libcorgi \
   libmotive \
   libflatbuffers
 
@@ -150,11 +150,13 @@ $(call import-add-path,$(DEPENDENCIES_FPLBASE_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_FLATUI_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MOTIVE_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_PINDROP_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_CORGI_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_WEBP_DIR)/..)
 
 $(call import-module,fplbase/jni)
 $(call import-module,flatbuffers/android/jni)
 $(call import-module,pindrop/jni)
+$(call import-module,corgi/jni)
 $(call import-module,motive/jni)
 $(call import-module,flatui/jni)
 $(call import-module,mathfu/jni)

@@ -17,7 +17,7 @@
 
 #include "common.h"
 #include "components_generated.h"
-#include "entity/component.h"
+#include "corgi/component.h"
 #include "mathfu/constants.h"
 #include "motive/motivator.h"
 #include "scene_description.h"
@@ -117,9 +117,9 @@ class SceneObjectData {
   const mathfu::mat4& global_matrix() const { return global_matrix_; }
 
   bool HasParent() const { return parent_.IsValid(); }
-  entity::EntityRef& parent() { return parent_; }
-  const entity::EntityRef& parent() const { return parent_; }
-  void set_parent(entity::EntityRef& parent) { parent_ = parent; }
+  corgi::EntityRef& parent() { return parent_; }
+  const corgi::EntityRef& parent() const { return parent_; }
+  void set_parent(corgi::EntityRef& parent) { parent_ = parent; }
 
   mathfu::vec4 tint() const { return mathfu::vec4(tint_); }
   void set_tint(const mathfu::vec4& tint) { tint_ = tint; }
@@ -169,7 +169,7 @@ class SceneObjectData {
   //    global_matrix_ = parent_->global_matrix * transform_.Value()
   // If no parent is specified, the 'transform_' is assumed to be in global
   // space already.
-  entity::EntityRef parent_;
+  corgi::EntityRef parent_;
 
   // Color of object.
   mathfu::vec4_packed tint_;
@@ -186,19 +186,19 @@ class SceneObjectData {
 
 // A sceneobject is "a thing I want to place in the scene and move around."
 // So it contains basic drawing info.
-class SceneObjectComponent : public entity::Component<SceneObjectData> {
+class SceneObjectComponent : public corgi::Component<SceneObjectData> {
  public:
   explicit SceneObjectComponent(motive::MotiveEngine* engine)
       : engine_(engine) {}
-  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
-  virtual void InitEntity(entity::EntityRef& entity);
+  virtual void AddFromRawData(corgi::EntityRef& entity, const void* data);
+  virtual void InitEntity(corgi::EntityRef& entity);
   void PopulateScene(SceneDescription* scene);
 
  private:
-  void UpdateGlobalMatrix(entity::EntityRef& entity,
+  void UpdateGlobalMatrix(corgi::EntityRef& entity,
                           std::vector<bool>& matrix_calculated);
   void UpdateGlobalMatrices();
-  bool VisibleInHierarchy(const entity::EntityRef& entity) const;
+  bool VisibleInHierarchy(const corgi::EntityRef& entity) const;
 
   motive::MotiveEngine* engine_;
 };
@@ -206,8 +206,7 @@ class SceneObjectComponent : public entity::Component<SceneObjectData> {
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::SceneObjectComponent,
-                              fpl::pie_noon::SceneObjectData,
-                              fpl::pie_noon::ComponentDataUnion_SceneObjectDef)
+CORGI_REGISTER_COMPONENT(fpl::pie_noon::SceneObjectComponent,
+                         fpl::pie_noon::SceneObjectData)
 
 #endif  // COMPONENTS_SCENEOBJECT_H_

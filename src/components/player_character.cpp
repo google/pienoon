@@ -19,6 +19,9 @@
 #include "player_character.h"
 #include "scene_object.h"
 
+CORGI_DEFINE_COMPONENT(fpl::pie_noon::PlayerCharacterComponent,
+                       fpl::pie_noon::PlayerCharacterData)
+
 using mathfu::vec3;
 using mathfu::mat4;
 using motive::Angle;
@@ -28,9 +31,10 @@ namespace fpl {
 namespace pie_noon {
 
 void PlayerCharacterComponent::UpdateAllEntities(
-    entity::WorldTime /*delta_time*/) {
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    entity::EntityRef entity = iter->entity;
+    corgi::WorldTime /*delta_time*/) {
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
+    corgi::EntityRef entity = iter->entity;
     int num_accessories = 0;
     UpdateCharacterFacing(entity);
     UpdateCharacterTint(entity);
@@ -42,12 +46,12 @@ void PlayerCharacterComponent::UpdateAllEntities(
 }
 
 // Make sure the character is correctly positioned and facing the correct way:
-void PlayerCharacterComponent::UpdateCharacterFacing(entity::EntityRef entity) {
+void PlayerCharacterComponent::UpdateCharacterFacing(corgi::EntityRef entity) {
   SceneObjectData* so_data = Data<SceneObjectData>(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
 
-  PlayerCharacterData* pc_data = GetEntityData(entity);
+  PlayerCharacterData* pc_data = GetComponentData(entity);
 
   std::unique_ptr<Character>& character =
       character_vector[pc_data->character_id];
@@ -71,8 +75,8 @@ void PlayerCharacterComponent::UpdateCharacterFacing(entity::EntityRef entity) {
   so_data->SetTranslation(character->position());
 }
 
-void PlayerCharacterComponent::UpdateCharacterTint(entity::EntityRef entity) {
-  PlayerCharacterData* pc_data = GetEntityData(entity);
+void PlayerCharacterComponent::UpdateCharacterTint(corgi::EntityRef entity) {
+  PlayerCharacterData* pc_data = GetComponentData(entity);
   SceneObjectData* so_data = Data<SceneObjectData>(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
@@ -82,8 +86,8 @@ void PlayerCharacterComponent::UpdateCharacterTint(entity::EntityRef entity) {
 }
 
 // Keep the circle underfoot up to date and pointing the right way:
-void PlayerCharacterComponent::UpdateUiArrow(entity::EntityRef entity) {
-  PlayerCharacterData* pc_data = GetEntityData(entity);
+void PlayerCharacterComponent::UpdateUiArrow(corgi::EntityRef entity) {
+  PlayerCharacterData* pc_data = GetComponentData(entity);
   SceneObjectData* so_data = Data<SceneObjectData>(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
@@ -101,12 +105,12 @@ void PlayerCharacterComponent::UpdateUiArrow(entity::EntityRef entity) {
 }
 
 // Keep the scene object visible flag up to date
-void PlayerCharacterComponent::UpdateVisibility(entity::EntityRef entity) {
+void PlayerCharacterComponent::UpdateVisibility(corgi::EntityRef entity) {
   SceneObjectData* so_data = Data<SceneObjectData>(entity);
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
 
-  PlayerCharacterData* pc_data = GetEntityData(entity);
+  PlayerCharacterData* pc_data = GetComponentData(entity);
 
   std::unique_ptr<Character>& character =
       character_vector[pc_data->character_id];
@@ -116,12 +120,12 @@ void PlayerCharacterComponent::UpdateVisibility(entity::EntityRef entity) {
 
 // Add the accessories that are part of the character's timeline animation.
 // Pies, and Pie Block Pans, mostly.
-int PlayerCharacterComponent::PopulatePieAccessories(entity::EntityRef entity,
+int PlayerCharacterComponent::PopulatePieAccessories(corgi::EntityRef entity,
                                                      int num_accessories) {
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
 
-  PlayerCharacterData* pc_data = GetEntityData(entity);
+  PlayerCharacterData* pc_data = GetComponentData(entity);
   std::unique_ptr<Character>& character =
       character_vector[pc_data->character_id];
 
@@ -138,7 +142,7 @@ int PlayerCharacterComponent::PopulatePieAccessories(entity::EntityRef entity,
          ++it) {
       const TimelineAccessory& accessory = *timeline->accessories()->Get(*it);
 
-      entity::EntityRef& accessory_entity =
+      corgi::EntityRef& accessory_entity =
           pc_data->accessories[num_accessories];
 
       SceneObjectData* accessory_so_data =
@@ -162,11 +166,11 @@ int PlayerCharacterComponent::PopulatePieAccessories(entity::EntityRef entity,
 
 // Populate the health and splatter damage accessories:
 int PlayerCharacterComponent::PopulateHealthAccessories(
-    entity::EntityRef entity, int num_accessories) {
+    corgi::EntityRef entity, int num_accessories) {
   std::vector<std::unique_ptr<Character>>& character_vector =
       gamestate_ptr_->characters();
 
-  PlayerCharacterData* pc_data = GetEntityData(entity);
+  PlayerCharacterData* pc_data = GetComponentData(entity);
   std::unique_ptr<Character>& character =
       character_vector[pc_data->character_id];
 
@@ -216,7 +220,7 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
                             accessories[j].offset);
         const vec2 scale(LoadVec2(accessory->scale()));
 
-        entity::EntityRef& accessory_entity =
+        corgi::EntityRef& accessory_entity =
             pc_data->accessories[num_accessories];
 
         SceneObjectData* accessory_so_data =
@@ -247,22 +251,21 @@ int PlayerCharacterComponent::PopulateHealthAccessories(
   return num_accessories;
 }
 
-void PlayerCharacterComponent::AddFromRawData(entity::EntityRef& entity,
+void PlayerCharacterComponent::AddFromRawData(corgi::EntityRef& entity,
                                               const void* /*raw_data*/) {
-  entity_manager_->AddEntityToComponent(entity,
-                                        ComponentDataUnion_PlayerCharacterDef);
+  entity_manager_->AddEntityToComponent<PlayerCharacterComponent>(entity);
 }
 
 Controller::ControllerType PlayerCharacterComponent::ControllerType(
-    const entity::EntityRef& entity) const {
-  const PlayerCharacterData* pc_data = GetEntityData(entity);
+    const corgi::EntityRef& entity) const {
+  const PlayerCharacterData* pc_data = GetComponentData(entity);
   return gamestate_ptr_->characters()[pc_data->character_id]
       ->controller()
       ->controller_type();
 }
 
 bool PlayerCharacterComponent::DrawBaseCircle(
-    const entity::EntityRef& entity) const {
+    const corgi::EntityRef& entity) const {
   // Output the base circle only for certain controller types. For others
   // (for example, for touch) it causes confusion, since players think they
   // can interact with it.
@@ -271,15 +274,14 @@ bool PlayerCharacterComponent::DrawBaseCircle(
          controller_type == Controller::kTypeCardboard;
 }
 
-void PlayerCharacterComponent::InitEntity(entity::EntityRef& entity) {
-  entity_manager_->AddEntityToComponent(entity,
-                                        ComponentDataUnion_SceneObjectDef);
+void PlayerCharacterComponent::InitEntity(corgi::EntityRef& entity) {
+  entity_manager_->AddEntityToComponent<SceneObjectComponent>(entity);
 
-  PlayerCharacterData* pc_data = GetEntityData(entity);
+  PlayerCharacterData* pc_data = GetComponentData(entity);
 
   pc_data->base_circle = entity_manager_->AllocateNewEntity();
-  entity_manager_->AddEntityToComponent(pc_data->base_circle,
-                                        ComponentDataUnion_SceneObjectDef);
+  entity_manager_->AddEntityToComponent<SceneObjectComponent>(
+      pc_data->base_circle);
 
   SceneObjectData* circle_so_data = Data<SceneObjectData>(pc_data->base_circle);
 
@@ -288,11 +290,9 @@ void PlayerCharacterComponent::InitEntity(entity::EntityRef& entity) {
 
   // set up slots for accessories:
   for (int i = 0; i < kMaxAccessories; i++) {
-    entity::EntityRef& accessory = pc_data->accessories[i];
+    corgi::EntityRef& accessory = pc_data->accessories[i];
     accessory = entity_manager_->AllocateNewEntity();
-    entity_manager_->AddEntityToComponent(accessory,
-                                          ComponentDataUnion_SceneObjectDef);
-
+    entity_manager_->AddEntityToComponent<SceneObjectComponent>(accessory);
     SceneObjectData* accessory_so_data = Data<SceneObjectData>(accessory);
 
     accessory_so_data->set_visible(false);
