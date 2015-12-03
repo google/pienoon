@@ -143,6 +143,8 @@ endif()
 
 # Include entities.
 if(NOT TARGET corgi)
+  # Don't build the CORGI component library, just build CORGI itself.
+  set(corgi_build_component_library OFF CACHE BOOL "")
   add_subdirectory("${dependencies_corgi_dir}" ${tmp_dir}/corgi)
 endif()
 
