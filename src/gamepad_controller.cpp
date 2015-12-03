@@ -23,6 +23,8 @@
 namespace fpl {
 namespace pie_noon {
 
+static const AndroidInputDeviceId kInvalidControllerId = -1;
+
 GamepadController::GamepadController()
     : Controller(kTypeGamepad),
       input_system_(nullptr),

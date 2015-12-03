@@ -140,7 +140,10 @@ void MultiplayerDirector::TriggerEndOfTurn() {
 
 unsigned int MultiplayerDirector::CalculateSecondsPerTurn(
     unsigned int turn_number) {
-  for (auto turn_spec : *config_->multiscreen_options()->turn_length()) {
+  auto turn_spec_list = config_->multiscreen_options()->turn_length();
+  for (auto iter = turn_spec_list->begin(); iter != turn_spec_list->end();
+       ++iter) {
+    const auto& turn_spec = *iter;
     if (turn_spec->until_turn_number() == -1 ||
         turn_number <=
             static_cast<unsigned int>(turn_spec->until_turn_number()))
@@ -548,9 +551,10 @@ void MultiplayerDirector::SendPlayerStatusMsg() {
 
 std::vector<uint8_t> MultiplayerDirector::ReadPlayerHealth() {
   std::vector<uint8_t> vec;
-  for (auto controller : controllers_) {
+  for (auto iter = controllers_.begin(); iter != controllers_.end(); ++iter) {
+    auto controller = *iter;
     int health = controller->GetCharacter().health();
-    vec.push_back((health < 0) ? 0 : (uint8_t)health);
+    vec.push_back((health < 0) ? 0 : static_cast<uint8_t>(health));
   }
   return vec;
 }

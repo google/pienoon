@@ -41,10 +41,6 @@
 #include "mathfu/utilities.h"
 #include "mathfu/vector_4.h"
 
-#include "SDL.h"
-#include "SDL_log.h"
-#include "SDL_mixer.h"
-
 #ifdef __ANDROID__
 #include "gpg/gpg.h"
 #endif

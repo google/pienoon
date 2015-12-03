@@ -67,29 +67,17 @@ set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
 set(dependencies_sdl_dir "${third_party_root}/sdl"
     CACHE PATH "Directory containing the SDL library.")
-set(dependencies_libogg_cmake_dir "${CMAKE_MODULE_PATH}/libogg"
-    CACHE PATH "Directory containing the libogg cmake project.")
 set(dependencies_libogg_distr_dir "${third_party_root}/libogg"
     CACHE PATH "Directory containing the libogg library.")
-set(dependencies_libvorbis_cmake_dir "${CMAKE_MODULE_PATH}/libvorbis"
-    CACHE PATH "Directory containing the libvorbis cmake project.")
 set(dependencies_libvorbis_distr_dir "${third_party_root}/libvorbis"
     CACHE PATH "Directory containing the libvorbis library.")
 set(dependencies_motive_dir "${fpl_root}/motive"
     CACHE PATH "Directory containing the motive animation library.")
-set(dependencies_sdl_mixer_cmake_dir "${CMAKE_MODULE_PATH}/sdl_mixer"
-    CACHE PATH "Directory containing the SDL Mixer cmake project.")
 set(dependencies_sdl_mixer_distr_dir "${third_party_root}/sdl_mixer"
     CACHE PATH "Directory containing the SDL Mixer library.")
 
 # Option to enable / disable the test build.
 option(pie_noon_build_tests "Build tests for this project." ON)
-
-# Option to enable / disable the build of cwebp from source.
-option(pie_noon_build_cwebp "Build cwebp from source." OFF)
-
-# Option to only build flatc
-option(pie_noon_only_flatc "Only build FlatBuffers compiler." OFF)
 
 # Include MathFu in this project with test and benchmark builds disabled.
 set(mathfu_build_benchmarks OFF CACHE BOOL "")
@@ -97,35 +85,17 @@ set(mathfu_build_tests OFF CACHE BOOL "")
 add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
 
 # Include pindrop.
-if(NOT pie_noon_only_flatc AND NOT TARGET pindrop)
+if(NOT TARGET pindrop)
   set(pindrop_build_demo OFF CACHE BOOL "")
   set(pindrop_build_tests OFF CACHE BOOL "")
   add_subdirectory("${dependencies_pindrop_dir}" ${tmp_dir}/pindrop)
 endif()
 
 # Include motive.
-if(NOT pie_noon_only_flatc AND NOT TARGET motive)
+if(NOT TARGET motive)
   set(motive_build_samples OFF CACHE BOOL "")
   set(motive_build_tests OFF CACHE BOOL "")
   add_subdirectory("${dependencies_motive_dir}" ${tmp_dir}/motive)
-endif()
-
-# Include libogg.
-if(NOT pie_noon_only_flatc AND NOT TARGET libogg)
-  add_subdirectory("${dependencies_libogg_cmake_dir}" ${tmp_dir}/libogg)
-endif()
-
-# Include libvorbis.
-if(NOT pie_noon_only_flatc AND NOT TARGET libvorbis)
-  add_subdirectory("${dependencies_libvorbis_cmake_dir}" ${tmp_dir}/libvorbis)
-endif()
-
-# Include SDL Mixer.
-if(NOT fpl_ios)
-  set(SDL_MIXER_OGG_SUPPORT ON CACHE BOOL "Compile in Ogg Vorbis support")
-endif()
-if(NOT pie_noon_only_flatc AND NOT TARGET sdl_mixer AND NOT fpl_ios)
-  add_subdirectory("${dependencies_sdl_mixer_cmake_dir}" ${tmp_dir}/sdl_mixer)
 endif()
 
 # Include FlatBuffers in this project.
@@ -135,7 +105,7 @@ if(NOT TARGET flatc)
 endif()
 
 # Include FPLBase in this project.
-if(NOT pie_noon_only_flatc AND NOT TARGET fplbase)
+if(NOT TARGET fplbase)
   set(fplbase_build_mesh_pipeline OFF CACHE BOOL "")
   set(fplbase_build_samples OFF CACHE BOOL "")
   add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
@@ -149,7 +119,7 @@ if(NOT TARGET corgi)
 endif()
 
 # Include FlatUI in this project.
-if(NOT pie_noon_only_flatc AND NOT TARGET flatui)
+if(NOT TARGET flatui)
   add_subdirectory("${dependencies_flatui_dir}" ${tmp_dir}/flatui)
 endif()
 
@@ -289,15 +259,6 @@ include_directories(${dependencies_corgi_dir}/include)
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 
-# libogg includes.
-include_directories(${dependencies_libogg_distr_dir}/include)
-
-# libvorbis includes.
-include_directories(${dependencies_libvorbis_distr_dir}/include)
-
-# SDL Mixer includes.
-include_directories(${dependencies_sdl_mixer_distr_dir})
-
 # Detect clang
 if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR
    CMAKE_CXX_COMPILER_ID MATCHES ".*clang")
@@ -320,13 +281,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
 if(PIE_NOON_DEBUG)
   # if we want to define this, it needs to be only in debug builds
-  #add_definitions(-D_DEBUG)
+  add_definitions(-D_DEBUG)
 endif()
 
 if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES)
-  set(OPENGL_LIBRARIES opengl32)
-  set(SDL_LIBRARIES SDL2main ${SDL_LIBRARIES})
   link_directories("$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}")
 endif()
 
@@ -404,11 +363,6 @@ add_custom_target(export
   DEPENDS pie_noon)
 
 # Tests.
-if(NOT pie_noon_only_flatc)
-  if(pie_noon_build_tests)
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
-  endif()
+if(pie_noon_build_tests)
+  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
 endif()
-
-
-

@@ -72,7 +72,7 @@ void TouchscreenButton::Render(Renderer& renderer) {
   if (!is_visible_) {
     return;
   }
-  renderer.set_color(color_);
+  renderer.set_color(vec4(color_));
 
   Material* mat = (button_.is_down() && down_material_ != nullptr)
                       ? down_material_
@@ -136,12 +136,12 @@ void TouchscreenButton::DebugRender(const vec3& position,
         bottom_left.y(), bottom_left.z(), bottom_left.x(), top_right.y(),
         top_right.z(),   top_right.x(),   top_right.y(),   top_right.z(),
     };
-    renderer.color() = vec4(1.0f, 0.0f, 1.0f, 1.0f);
+    renderer.set_color(vec4(1.0f, 0.0f, 1.0f, 1.0f));
     debug_shader_->Set(renderer);
-    Mesh::RenderArray(GL_LINES, 8, kFormat, sizeof(float) * 3,
+    Mesh::RenderArray(fplbase::Mesh::kLines, 8, kFormat, sizeof(float) * 3,
                       reinterpret_cast<const char*>(vertices), kIndices);
 
-    renderer.color() = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    renderer.set_color(vec4(1.0f, 1.0f, 0.0f, 1.0f));
     debug_shader_->Set(renderer);
     static unsigned short indicesButtonDef[] = {1, 0, 1, 2, 2, 3, 3, 0};
     float verticesButtonDef[] = {
@@ -158,7 +158,7 @@ void TouchscreenButton::DebugRender(const vec3& position,
         button_def()->top_left()->y() * window_size.y(),
         kButtonZDepth,
     };
-    Mesh::RenderArray(GL_LINES, 8, kFormat, sizeof(float) * 3,
+    Mesh::RenderArray(fplbase::Mesh::kLines, 8, kFormat, sizeof(float) * 3,
                       reinterpret_cast<const char*>(verticesButtonDef),
                       indicesButtonDef);
   }
@@ -204,15 +204,15 @@ bool StaticImage::Valid() const {
 void StaticImage::Render(Renderer& renderer) {
   if (!Valid()) return;
   if (!is_visible_) return;
-  renderer.set_color(color_);
+  renderer.set_color(vec4(color_));
 
   Material* material = materials_[current_material_index_];
   const vec2 window_size = vec2(renderer.window_size());
   const float texture_scale =
       window_size.y() * one_over_cannonical_window_height_;
   const vec2 texture_size =
-      texture_scale * vec2(material->textures()[0]->size()) * scale_;
-  const vec2 position_percent = texture_position_;
+      texture_scale * vec2(material->textures()[0]->size()) * vec2(scale_);
+  const vec2 position_percent = vec2(texture_position_);
   const vec2 position = window_size * position_percent;
 
   const vec3 position3d(position.x(), position.y(), image_def_->z_depth());

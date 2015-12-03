@@ -141,7 +141,7 @@ void GuiMenu::LoadDebugShaderAndOptions(const Config* config,
     debug_shader = config->menu_button_debug_shader()->c_str();
     matman->LoadShader(debug_shader);
   }
-  draw_debug_bounds = config->draw_touch_button_bounds();
+  draw_debug_bounds = config->draw_touch_button_bounds() != 0;
 }
 
 // Force the material manager to load all the textures and shaders
