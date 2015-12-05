@@ -25,7 +25,7 @@ namespace pie_noon {
 
 PlayerController::PlayerController() : Controller(kTypePlayer) {}
 
-void PlayerController::Initialize(InputSystem* input_system,
+void PlayerController::Initialize(fplbase::InputSystem* input_system,
                                   const ControlScheme* scheme) {
   input_system_ = input_system;
   scheme_ = scheme;
@@ -48,28 +48,40 @@ void PlayerController::AdvanceFrame(WorldTime /*delta_time*/) {
 }
 
 const Keybind kKeyBinds0[] = {
-    {FPLK_e, LogicalInputs_Select},  {FPLK_w, LogicalInputs_ThrowPie},
-    {FPLK_s, LogicalInputs_Deflect}, {FPLK_w, LogicalInputs_Up},
-    {FPLK_s, LogicalInputs_Down},    {FPLK_a, LogicalInputs_Left},
-    {FPLK_d, LogicalInputs_Right}};
+    {fplbase::FPLK_e, LogicalInputs_Select},
+    {fplbase::FPLK_w, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_s, LogicalInputs_Deflect},
+    {fplbase::FPLK_w, LogicalInputs_Up},
+    {fplbase::FPLK_s, LogicalInputs_Down},
+    {fplbase::FPLK_a, LogicalInputs_Left},
+    {fplbase::FPLK_d, LogicalInputs_Right}};
 
 const Keybind kKeyBinds1[] = {
-    {FPLK_o, LogicalInputs_Select},  {FPLK_i, LogicalInputs_ThrowPie},
-    {FPLK_k, LogicalInputs_Deflect}, {FPLK_i, LogicalInputs_Up},
-    {FPLK_k, LogicalInputs_Down},    {FPLK_j, LogicalInputs_Left},
-    {FPLK_l, LogicalInputs_Right}};
+    {fplbase::FPLK_o, LogicalInputs_Select},
+    {fplbase::FPLK_i, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_k, LogicalInputs_Deflect},
+    {fplbase::FPLK_i, LogicalInputs_Up},
+    {fplbase::FPLK_k, LogicalInputs_Down},
+    {fplbase::FPLK_j, LogicalInputs_Left},
+    {fplbase::FPLK_l, LogicalInputs_Right}};
 
 const Keybind kKeyBinds2[] = {
-    {FPLK_RETURN, LogicalInputs_Select}, {FPLK_UP, LogicalInputs_ThrowPie},
-    {FPLK_DOWN, LogicalInputs_Deflect},  {FPLK_UP, LogicalInputs_Up},
-    {FPLK_DOWN, LogicalInputs_Down},     {FPLK_LEFT, LogicalInputs_Left},
-    {FPLK_RIGHT, LogicalInputs_Right}};
+    {fplbase::FPLK_RETURN, LogicalInputs_Select},
+    {fplbase::FPLK_UP, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_DOWN, LogicalInputs_Deflect},
+    {fplbase::FPLK_UP, LogicalInputs_Up},
+    {fplbase::FPLK_DOWN, LogicalInputs_Down},
+    {fplbase::FPLK_LEFT, LogicalInputs_Left},
+    {fplbase::FPLK_RIGHT, LogicalInputs_Right}};
 
 const Keybind kKeyBinds3[] = {
-    {FPLK_KP_ENTER, LogicalInputs_Select}, {FPLK_KP_8, LogicalInputs_ThrowPie},
-    {FPLK_KP_5, LogicalInputs_Deflect},    {FPLK_KP_8, LogicalInputs_Up},
-    {FPLK_KP_5, LogicalInputs_Down},       {FPLK_KP_4, LogicalInputs_Left},
-    {FPLK_KP_6, LogicalInputs_Right}};
+    {fplbase::FPLK_KP_ENTER, LogicalInputs_Select},
+    {fplbase::FPLK_KP_8, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_KP_5, LogicalInputs_Deflect},
+    {fplbase::FPLK_KP_8, LogicalInputs_Up},
+    {fplbase::FPLK_KP_5, LogicalInputs_Down},
+    {fplbase::FPLK_KP_4, LogicalInputs_Left},
+    {fplbase::FPLK_KP_6, LogicalInputs_Right}};
 
 const ControlScheme ControlScheme::kDefaultSchemes[] = {
     {std::vector<Keybind>(kKeyBinds0, &kKeyBinds0[PIE_ARRAYSIZE(kKeyBinds0)])},

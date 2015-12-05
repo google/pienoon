@@ -19,7 +19,7 @@
 namespace fpl {
 namespace pie_noon {
 
-FullScreenFader::FullScreenFader(Renderer* renderer)
+FullScreenFader::FullScreenFader(fplbase::Renderer* renderer)
     : start_time_(0),
       half_fade_time_(0),
       fade_in_(false),
@@ -60,9 +60,10 @@ bool FullScreenFader::Render(const WorldTime& time) {
   renderer_->set_color(vec4(0.0f, 0.0f, 0.0f, alpha));
   material_->Set(*renderer_);
   shader_->Set(*renderer_);
-  Mesh::RenderAAQuadAlongX(vec3(0.0f, static_cast<float>(extents_.y()), 0.0f),
-                           vec3(static_cast<float>(extents_.x()), 0.0f, 0.0f),
-                           vec2(0.0f, 1.0f), vec2(1.0f, 0.0f));
+  fplbase::Mesh::RenderAAQuadAlongX(
+        vec3(0.0f, static_cast<float>(extents_.y()), 0.0f),
+        vec3(static_cast<float>(extents_.x()), 0.0f, 0.0f),
+        vec2(0.0f, 1.0f), vec2(1.0f, 0.0f));
   return opaque;
 }
 

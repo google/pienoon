@@ -39,7 +39,7 @@ class TouchscreenController : public Controller {
   // Set up a controller using the given input system and control scheme.
   // The input_system and scheme pointers are unowned and must outlive this
   // object.
-  void Initialize(InputSystem* input_system, vec2 window_size,
+  void Initialize(fplbase::InputSystem* input_system, vec2 window_size,
                   const Config* config, const GameState* game_state);
 
   // Map the input from the physical inputs to logical game inputs.
@@ -51,7 +51,7 @@ class TouchscreenController : public Controller {
                                  const mathfu::vec3& position) const;
 
   // A pointer to the object to query for the current input state.
-  InputSystem* input_system_;
+  fplbase::InputSystem* input_system_;
   vec2 window_size_;
   const Config* config_;
   const GameState* game_state_;

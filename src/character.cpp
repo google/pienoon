@@ -203,23 +203,26 @@ void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,
     }
     case RewardType_AddDamage: {
       character->set_score(character->score() + damage);
-      LogInfo(kApplication, "Player %i got %i %s!\n", character->id(), damage,
-              damage == 1 ? "point" : "points");
+      fplbase::LogInfo(fplbase::kApplication, "Player %i got %i %s!\n",
+                       character->id(), damage,
+                       damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_SubtractDamage: {
       character->set_score(character->score() - damage);
-      LogInfo(kApplication, "Player %i lost %i %s!\n", character->id(), damage,
-              damage == 1 ? "point" : "points");
+      fplbase::LogInfo(fplbase::kApplication, "Player %i lost %i %s!\n",
+                       character->id(), damage,
+                       damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_AddPointValue: {
       character->set_score(character->score() + rule->point_value());
       if (rule->point_value()) {
         int points = rule->point_value();
-        LogInfo(kApplication, "Player %i %s %i %s!\n", character->id(),
-                points > 0 ? "got" : "lost", std::abs(points),
-                std::abs(points) == 1 ? "point" : "points");
+        fplbase::LogInfo(fplbase::kApplication, "Player %i %s %i %s!\n",
+                         character->id(),
+                         points > 0 ? "got" : "lost", std::abs(points),
+                         std::abs(points) == 1 ? "point" : "points");
       }
       break;
     }

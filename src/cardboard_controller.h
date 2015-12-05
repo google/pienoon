@@ -27,14 +27,14 @@ class CardboardController : public Controller {
  public:
   CardboardController();
 
-  void Initialize(GameState* game_state, InputSystem* input_system);
+  void Initialize(GameState* game_state, fplbase::InputSystem* input_system);
 
   virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
   GameState* game_state_;  // Pointer to the gamestate object
   // A pointer to the object to query for the current input state.
-  InputSystem* input_system_;
+  fplbase::InputSystem* input_system_;
 };
 
 }  // pie_noon

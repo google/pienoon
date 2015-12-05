@@ -645,7 +645,8 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->Active()) {
           character->set_victory_state(kVictorious);
-          LogInfo(kApplication, "Player %i wins!\n", static_cast<int>(i) + 1);
+          fplbase::LogInfo(fplbase::kApplication,
+                           "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
@@ -661,16 +662,18 @@ void GameState::DetermineWinnersAndLosers() {
           const auto& character = characters_[i];
           if (character->score() == high_score) {
             character->set_victory_state(kVictorious);
-            LogInfo(kApplication, "Player %i wins!\n", static_cast<int>(i) + 1);
+            fplbase::LogInfo(fplbase::kApplication,
+                             "Player %i wins!\n", static_cast<int>(i) + 1);
           } else {
             character->set_victory_state(kFailure);
           }
         }
-        LogInfo(kApplication, "Final scores:\n");
+        fplbase::LogInfo(fplbase::kApplication, "Final scores:\n");
         for (size_t i = 0; i < characters_.size(); ++i) {
           const auto& character = characters_[i];
-          LogInfo(kApplication, "  Player %i: %i\n", static_cast<int>(i) + 1,
-                  character->score());
+          fplbase::LogInfo(fplbase::kApplication,
+                           "  Player %i: %i\n", static_cast<int>(i) + 1,
+                           character->score());
         }
       }
       break;
@@ -680,16 +683,18 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->score() >= config_->target_score()) {
           character->set_victory_state(kVictorious);
-          LogInfo(kApplication, "Player %i wins!\n", static_cast<int>(i) + 1);
+          fplbase::LogInfo(fplbase::kApplication,
+                           "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
       }
-      LogInfo(kApplication, "Final scores:\n");
+      fplbase::LogInfo(fplbase::kApplication, "Final scores:\n");
       for (size_t i = 0; i < characters_.size(); ++i) {
         const auto& character = characters_[i];
-        LogInfo(kApplication, "  Player %i: %i\n", static_cast<int>(i) + 1,
-                character->score());
+        fplbase::LogInfo(fplbase::kApplication,
+                         "  Player %i: %i\n", static_cast<int>(i) + 1,
+                         character->score());
       }
       break;
     }
@@ -974,7 +979,8 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     int countdown = (config_->game_time() - time_) / kMillisecondsPerSecond;
     if (countdown != countdown_timer_) {
       countdown_timer_ = countdown;
-      LogInfo(kApplication, "Timer remaining: %i\n", countdown_timer_);
+      fplbase::LogInfo(fplbase::kApplication, "Timer remaining: %i\n",
+                       countdown_timer_);
     }
   }
   SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);

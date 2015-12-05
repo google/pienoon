@@ -27,19 +27,23 @@ class TouchscreenButton {
  public:
   TouchscreenButton();
 
-  void AdvanceFrame(WorldTime delta_time, InputSystem* input, vec2 window_size);
+  void AdvanceFrame(WorldTime delta_time, fplbase::InputSystem* input,
+                    vec2 window_size);
 
   // bool HandlePointer(Pointer pointer, vec2 window_size);
-  void Render(Renderer& renderer);
+  void Render(fplbase::Renderer& renderer);
   void AdvanceFrame(WorldTime delta_time);
   ButtonId GetId() const;
-  bool WillCapturePointer(const InputPointer& pointer, vec2 window_size);
+  bool WillCapturePointer(const fplbase::InputPointer& pointer,
+                          vec2 window_size);
   bool IsTriggered();
 
-  Button& button() { return button_; }
+  fplbase::Button& button() { return button_; }
 
-  const std::vector<Material*>& up_materials() const { return up_materials_; }
-  void set_up_material(size_t i, Material* up_material) {
+  const std::vector<fplbase::Material*>& up_materials() const {
+    return up_materials_;
+  }
+  void set_up_material(size_t i, fplbase::Material* up_material) {
     assert(up_material);
     if (i >= up_materials_.size()) up_materials_.resize(i + 1);
     up_materials_[i] = up_material;
@@ -49,8 +53,8 @@ class TouchscreenButton {
     up_current_ = which;
   }
 
-  Material* down_material() const { return down_material_; }
-  void set_down_material(Material* down_material) {
+  fplbase::Material* down_material() const { return down_material_; }
+  void set_down_material(fplbase::Material* down_material) {
     down_material_ = down_material;
   }
 
@@ -63,17 +67,17 @@ class TouchscreenButton {
   const ButtonDef* button_def() const { return button_def_; }
   void set_button_def(const ButtonDef* button_def) { button_def_ = button_def; }
 
-  Shader* inactive_shader() const { return inactive_shader_; }
-  void set_inactive_shader(Shader* inactive_shader) {
+  fplbase::Shader* inactive_shader() const { return inactive_shader_; }
+  void set_inactive_shader(fplbase::Shader* inactive_shader) {
     inactive_shader_ = inactive_shader;
   }
 
-  Shader* shader() const { return shader_; }
-  void set_shader(Shader* shader) { shader_ = shader; }
-  Shader* debug_shader() const { return debug_shader_; }
-  void set_debug_shader(Shader* shader) { debug_shader_ = shader; }
+  fplbase::Shader* shader() const { return shader_; }
+  void set_shader(fplbase::Shader* shader) { shader_ = shader; }
+  fplbase::Shader* debug_shader() const { return debug_shader_; }
+  void set_debug_shader(fplbase::Shader* shader) { debug_shader_ = shader; }
   void DebugRender(const vec3& position, const vec3& texture_size,
-                   Renderer& renderer) const;
+                   fplbase::Renderer& renderer) const;
   void set_draw_bounds(bool enable) { draw_bounds_ = enable; };
 
   bool is_active() const { return is_active_; }
@@ -95,19 +99,19 @@ class TouchscreenButton {
   }
 
  private:
-  Button button_;
+  fplbase::Button button_;
   WorldTime elapsed_time_;
 
   const ButtonDef* button_def_;
-  Shader* shader_;
-  Shader* inactive_shader_;
-  Shader* debug_shader_;
+  fplbase::Shader* shader_;
+  fplbase::Shader* inactive_shader_;
+  fplbase::Shader* debug_shader_;
 
   // Textures to draw for the up/down states:
-  std::vector<Material*> up_materials_;
+  std::vector<fplbase::Material*> up_materials_;
   size_t up_current_;
 
-  Material* down_material_;
+  fplbase::Material* down_material_;
 
   // Allow overriding the default color in code.
   mathfu::vec4_packed color_;
@@ -130,9 +134,10 @@ class StaticImage {
  public:
   StaticImage();
   void Initialize(const StaticImageDef& image_def,
-                  std::vector<Material*> materials, Shader* shader,
+                  std::vector<fplbase::Material*> materials,
+                  fplbase::Shader* shader,
                   int cannonical_window_height);
-  void Render(Renderer& renderer);
+  void Render(fplbase::Renderer& renderer);
   bool Valid() const;
   ButtonId GetId() const {
     return image_def_ == nullptr ? ButtonId_Undefined : image_def_->ID();
@@ -161,13 +166,13 @@ class StaticImage {
 
   // A list of materials that can be drawn. Choose current material with
   // set_current_material_index.
-  std::vector<Material*> materials_;
+  std::vector<fplbase::Material*> materials_;
 
   // The material that is currently being displayed.
   int current_material_index_;
 
   // The shader used to render the material.
-  Shader* shader_;
+  fplbase::Shader* shader_;
 
   // Draw image bigger or smaller. (1.0f, 1.0f) means no scaling.
   mathfu::vec2_packed scale_;

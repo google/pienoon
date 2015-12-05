@@ -23,15 +23,15 @@
 namespace fpl {
 namespace pie_noon {
 
-static const AndroidInputDeviceId kInvalidControllerId = -1;
+static const fplbase::AndroidInputDeviceId kInvalidControllerId = -1;
 
 GamepadController::GamepadController()
     : Controller(kTypeGamepad),
       input_system_(nullptr),
       controller_id_(kInvalidControllerId) {}
 
-void GamepadController::Initialize(InputSystem* input_system,
-                                   AndroidInputDeviceId controller_id) {
+void GamepadController::Initialize(fplbase::InputSystem* input_system,
+                                   fplbase::AndroidInputDeviceId controller_id) {
   input_system_ = input_system;
   controller_id_ = controller_id;
   ClearAllLogicalInputs();
@@ -42,26 +42,27 @@ static const float kAnalogDeadZone = 0.25f;
 
 void GamepadController::AdvanceFrame(WorldTime /*delta_time*/) {
   went_down_ = went_up_ = 0;
-  Gamepad gamepad = input_system_->GetGamepad(controller_id_);
-  SetLogicalInputs(LogicalInputs_Up, gamepad.GetButton(Gamepad::kUp).is_down());
+  fplbase::Gamepad gamepad = input_system_->GetGamepad(controller_id_);
+  SetLogicalInputs(LogicalInputs_Up,
+                   gamepad.GetButton(fplbase::Gamepad::kUp).is_down());
   SetLogicalInputs(LogicalInputs_Down,
-                   gamepad.GetButton(Gamepad::kDown).is_down());
+                   gamepad.GetButton(fplbase::Gamepad::kDown).is_down());
   SetLogicalInputs(LogicalInputs_Left,
-                   gamepad.GetButton(Gamepad::kLeft).is_down());
+                   gamepad.GetButton(fplbase::Gamepad::kLeft).is_down());
   SetLogicalInputs(LogicalInputs_Right,
-                   gamepad.GetButton(Gamepad::kRight).is_down());
+                   gamepad.GetButton(fplbase::Gamepad::kRight).is_down());
 
   SetLogicalInputs(LogicalInputs_ThrowPie,
-                   gamepad.GetButton(Gamepad::kUp).is_down() ||
-                       gamepad.GetButton(Gamepad::kButtonA).is_down());
+                   gamepad.GetButton(fplbase::Gamepad::kUp).is_down() ||
+                       gamepad.GetButton(fplbase::Gamepad::kButtonA).is_down());
   SetLogicalInputs(LogicalInputs_Deflect,
-                   gamepad.GetButton(Gamepad::kDown).is_down() ||
-                       gamepad.GetButton(Gamepad::kButtonB).is_down());
+                   gamepad.GetButton(fplbase::Gamepad::kDown).is_down() ||
+                       gamepad.GetButton(fplbase::Gamepad::kButtonB).is_down());
 
   SetLogicalInputs(LogicalInputs_Select,
-                   gamepad.GetButton(Gamepad::kButtonA).is_down());
+                   gamepad.GetButton(fplbase::Gamepad::kButtonA).is_down());
   SetLogicalInputs(LogicalInputs_Cancel,
-                   gamepad.GetButton(Gamepad::kButtonB).is_down());
+                   gamepad.GetButton(fplbase::Gamepad::kButtonB).is_down());
 }
 
 }  // pie_noon

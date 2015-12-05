@@ -65,7 +65,9 @@ class MultiplayerDirector {
 
   // If testing on PC, pass in your PC keyboard input system to use debug
   // keys for testing turn-based timings.
-  void SetDebugInputSystem(InputSystem *input) { debug_input_system_ = input; }
+  void SetDebugInputSystem(fplbase::InputSystem *input) {
+    debug_input_system_ = input;
+  }
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   // Tell one of your connected players what his player number is.
@@ -128,7 +130,7 @@ class MultiplayerDirector {
   // Tell the multiplayer director to choose AI commands for this player.
   void ChooseAICommand(CharacterId id);
 
-  void DebugInput(InputSystem *input);
+  void DebugInput(fplbase::InputSystem *input);
 
   // Get all the players' onscreen splats to send in an update
   std::vector<uint8_t> ReadPlayerSplats();
@@ -147,7 +149,7 @@ class MultiplayerDirector {
 
   unsigned int num_ai_players_;  // the last N players are AI.
 
-  InputSystem *debug_input_system_;
+  fplbase::InputSystem *debug_input_system_;
 
   std::vector<Command> commands_;
 

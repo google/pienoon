@@ -88,8 +88,10 @@ static const char* kLabelConnectionLost = "ConnectionLost";
 
 static const unsigned short kQuadIndices[] = {0, 1, 2, 2, 1, 3};
 
-static const Attribute kQuadMeshFormat[] = {kPosition3f, kTexCoord2f, kNormal3f,
-                                            kTangent4f, kEND};
+static const fplbase::Attribute kQuadMeshFormat[] = {
+  fplbase::kPosition3f, fplbase::kTexCoord2f, fplbase::kNormal3f,
+  fplbase::kTangent4f, fplbase::kEND
+};
 
 static const char kAssetsDir[] = "assets";
 
@@ -116,7 +118,7 @@ std::string PieNoonGame::overlay_name_;
 // Return the elapsed milliseconds since the start of the program. This number
 // will loop back to 0 after about 49 days; always take the difference to
 // properly handle the wrap-around case.
-static inline WorldTime CurrentWorldTime(const InputSystem& input) {
+static inline WorldTime CurrentWorldTime(const fplbase::InputSystem& input) {
   return static_cast<WorldTime>(input.Time() * 1000);
 }
 
@@ -169,7 +171,7 @@ PieNoonGame::PieNoonGame()
 
 PieNoonGame::~PieNoonGame() {
   for (int i = 0; i < RenderableId_Count; ++i) {
-    std::vector<Mesh*>& fronts = cardboard_fronts_[i];
+    std::vector<fplbase::Mesh*>& fronts = cardboard_fronts_[i];
     for (size_t j = 0; j < fronts.size(); ++j) {
       delete fronts[j];
       fronts[j] = nullptr;
@@ -188,7 +190,7 @@ PieNoonGame::~PieNoonGame() {
 
 bool PieNoonGame::InitializeConfig() {
   if (!LoadFile(kConfigFileName, &config_source_)) {
-    LogError(kError, "can't load %s\n", kConfigFileName);
+    fplbase::LogError(fplbase::kError, "can't load %s\n", kConfigFileName);
     return false;
   }
   return true;
@@ -197,7 +199,7 @@ bool PieNoonGame::InitializeConfig() {
 #ifdef ANDROID_HMD
 bool PieNoonGame::InitializeCardboardConfig() {
   if (!LoadFile(kCardboardConfigFileName, &cardboard_config_source_)) {
-    LogError(kError, "can't load %s\n", kCardboardConfigFileName);
+    fplbase::LogError(fplbase::kError, "can't load %s\n", kCardboardConfigFileName);
     return false;
   }
   return true;
@@ -219,29 +221,29 @@ bool PieNoonGame::InitializeRenderer() {
   assert(window_size);
   if (!renderer_.Initialize(LoadVec2i(window_size),
                             config.window_title()->c_str())) {
-    LogError(kError, "Renderer initialization error: %s\n",
+    fplbase::LogError(fplbase::kError, "Renderer initialization error: %s\n",
              renderer_.last_error().c_str());
     return false;
   }
 
 #ifdef __ANDROID__
   // Restart the app if HW scaler setting failed.
-  auto retry = LoadPreference("HWScalerRetry", 0);
+  auto retry = fplbase::LoadPreference("HWScalerRetry", 0);
   const auto kMaxRetry = 3;
-  auto current_window_size = AndroidGetScalerResolution();
+  auto current_window_size = fplbase::AndroidGetScalerResolution();
   if (current_window_size.x() != window_size->x() ||
       current_window_size.y() != window_size->y()) {
     if (retry < kMaxRetry) {
-      LogError("HW Scalar failed. Restarting application.");
-      SavePreference("HWScalerRetry", retry + 1);
-      RelaunchApplication();
+      fplbase::LogError("HW Scalar failed. Restarting application.");
+      fplbase::SavePreference("HWScalerRetry", retry + 1);
+      fplbase::RelaunchApplication();
       return false;
     }
     // The HW may not support the API. Fallback to native resolution pass until
     // the API success next time.
   } else {
     // HW scaler setting was success. Clear retry counter.
-    SavePreference("HWScalerRetry", 0);
+    fplbase::SavePreference("HWScalerRetry", 0);
   }
 #endif
 
@@ -289,15 +291,15 @@ static void CreateVerticalQuad(const vec3& offset, const vec2& geo_size,
   vertices[2].tc = vec2(coord_bottom_left[0], coord_top_right[1]);
   vertices[3].tc = coord_top_right;
 
-  Mesh::ComputeNormalsTangents(vertices, &kQuadIndices[0], kQuadNumVertices,
-                               kQuadNumIndices);
+  fplbase::Mesh::ComputeNormalsTangents(vertices, &kQuadIndices[0],
+      kQuadNumVertices, kQuadNumIndices);
 }
 
 // Creates a mesh of a single quad (two triangles) vertically upright.
 // The quad's has x and y size determined by the size of the texture.
 // The quad is offset in (x,y,z) space by the 'offset' variable.
 // Returns a mesh with the quad and texture, or nullptr if anything went wrong.
-Mesh* PieNoonGame::CreateVerticalQuadMesh(
+fplbase::Mesh* PieNoonGame::CreateVerticalQuadMesh(
     const flatbuffers::String* material_name, const vec3& offset,
     const vec2& pixel_bounds, float pixel_to_world_scale) {
   // Don't try to load obviously invalid materials. Suppresses error logs from
@@ -306,7 +308,7 @@ Mesh* PieNoonGame::CreateVerticalQuadMesh(
     return nullptr;
 
   // Load the material from file, and check validity.
-  Material* material = matman_.LoadMaterial(material_name->c_str());
+  auto material = matman_.LoadMaterial(material_name->c_str());
   bool material_valid = material != nullptr && material->textures().size() > 0;
   if (!material_valid) return nullptr;
 
@@ -324,8 +326,8 @@ Mesh* PieNoonGame::CreateVerticalQuadMesh(
   CreateVerticalQuad(offset, geo_size, texture_coord_size, vertices);
 
   // Create mesh and add in quad indices.
-  Mesh* mesh = new Mesh(vertices, kQuadNumVertices, sizeof(NormalMappedVertex),
-                        kQuadMeshFormat);
+  auto mesh = new fplbase::Mesh(vertices, kQuadNumVertices,
+                                sizeof(NormalMappedVertex), kQuadMeshFormat);
   mesh->AddIndices(kQuadIndices, kQuadNumIndices, material);
   return mesh;
 }
@@ -337,9 +339,10 @@ bool PieNoonGame::InitializeRenderingAssets() {
 
   // Check data validity.
   if (config.renderables()->Length() != RenderableId_Count) {
-    LogError(kError, "%s's 'renderables' array has %d entries, needs %d.\n",
-             kConfigFileName, config.renderables()->Length(),
-             RenderableId_Count);
+    fplbase::LogError(fplbase::kError,
+                      "%s's 'renderables' array has %d entries, needs %d.\n",
+                      kConfigFileName, config.renderables()->Length(),
+                      RenderableId_Count);
     return false;
   }
 
@@ -380,7 +383,7 @@ bool PieNoonGame::InitializeRenderingAssets() {
 
   // We default to the invalid texture, so it has to exist.
   if (!cardboard_fronts_[RenderableId_Invalid][0]) {
-    LogError(kError, "Can't load backup texture.\n");
+    fplbase::LogError(fplbase::kError, "Can't load backup texture.\n");
     return false;
   }
 
@@ -461,14 +464,15 @@ bool PieNoonGame::InitializeGameState() {
   // Load flatbuffer into buffer.
   if (!LoadFile("character_state_machine_def.piestate",
                 &state_machine_source_)) {
-    LogError(kError, "Error loading character state machine.\n");
+    fplbase::LogError(fplbase::kError,
+                      "Error loading character state machine.\n");
     return false;
   }
 
   // Grab the state machine from the buffer.
   auto state_machine_def = GetStateMachine();
   if (!CharacterStateMachineDef_Validate(state_machine_def)) {
-    LogError(kError, "State machine is invalid.\n");
+    fplbase::LogError(fplbase::kError, "State machine is invalid.\n");
     return false;
   }
 
@@ -595,9 +599,9 @@ bool PieNoonGame::LoadFile(const char* filename, std::string* dest) {
 // the order of initialization cannot be changed. However, it's nice for
 // debugging and readability to have each section lexographically separate.
 bool PieNoonGame::Initialize(const char* const binary_directory) {
-  LogInfo(kApplication, "PieNoon initializing...\n");
+  fplbase::LogInfo(fplbase::kApplication, "PieNoon initializing...\n");
 
-  if (!ChangeToUpstreamDir(binary_directory, kAssetsDir)) return false;
+  if (!fplbase::ChangeToUpstreamDir(binary_directory, kAssetsDir)) return false;
 
   if (overlay_name_ == "") {
     std::string default_overlay;
@@ -605,7 +609,8 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
       // trim whitespace from the end of the file contents
       default_overlay.erase(default_overlay.find_last_not_of(" \n\r\t") + 1);
       if (default_overlay != "") {
-        LogInfo(kApplication, "Forcing default overlay of %s\n",
+        fplbase::LogInfo(fplbase::kApplication,
+                         "Forcing default overlay of %s\n",
                 default_overlay.c_str());
         PieNoonGame::SetOverlayName(default_overlay.c_str());
       }
@@ -628,11 +633,12 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
   // strictly necessary for gameplay, so don't die if the audio engine fails to
   // initialize.
   if (!audio_engine_.Initialize(GetConfig().audio())) {
-    LogError(kApplication, "Failed to initialize audio engine.\n");
+    fplbase::LogError(fplbase::kApplication,
+                      "Failed to initialize audio engine.\n");
   }
 
   if (!audio_engine_.LoadSoundBank("sound_banks/sound_assets.pinbank")) {
-    LogError(kApplication, "Failed to load sound bank.\n");
+    fplbase::LogError(fplbase::kApplication, "Failed to load sound bank.\n");
   }
 
   // Start loading sounds
@@ -643,14 +649,15 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
   if (!InitializeGameState()) return false;
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
-  if (!gpg_manager.Initialize(LoadPreference("logged_in", 1) != 0))
+  if (!gpg_manager.Initialize(fplbase::LoadPreference("logged_in", 1) != 0))
     return false;
 
   if (!gpg_multiplayer_.Initialize(GetConfig()
                                        .multiscreen_options()
                                        ->nearby_connections_service_id()
                                        ->c_str())) {
-    LogError(kApplication, "GPGMultiplayer::Initialize failed\n");
+    fplbase::LogError(fplbase::kApplication,
+                      "GPGMultiplayer::Initialize failed\n");
     return false;
   }
   for (unsigned int i = 0; i < GetConfig()
@@ -669,25 +676,25 @@ bool PieNoonGame::Initialize(const char* const binary_directory) {
       GetConfig().multiscreen_options()->max_players());
 #endif
 
-  LogInfo(kApplication, "PieNoon initialization complete\n");
+  fplbase::LogInfo(fplbase::kApplication, "PieNoon initialization complete\n");
   return true;
 }
 
 // Returns the mesh for renderable_id, if we have one, or the pajama mesh
 // (a mesh with a texture that's obviously wrong), if we don't.
-Mesh* PieNoonGame::GetCardboardFront(int renderable_id, int variant) {
+fplbase::Mesh* PieNoonGame::GetCardboardFront(int renderable_id, int variant) {
   // Return the invalid mesh if the indices are out of bounds.
-  Mesh* invalid_front = cardboard_fronts_[RenderableId_Invalid][0];
+  auto invalid_front = cardboard_fronts_[RenderableId_Invalid][0];
   if (renderable_id < 0 || RenderableId_Count <= renderable_id) {
     return invalid_front;
   }
 
   // Clamp the variant to the valid range.
   // Return it, if available. Otherwise, return the invalid front.
-  const std::vector<Mesh*>& fronts = cardboard_fronts_[renderable_id];
+  auto& fronts = cardboard_fronts_[renderable_id];
   const int variant_clamped =
       mathfu::Clamp(variant, 0, static_cast<int>(fronts.size()) - 1);
-  Mesh* front = fronts[variant_clamped];
+  auto front = fronts[variant_clamped];
   return front == nullptr ? invalid_front : front;
 }
 
@@ -748,7 +755,7 @@ void PieNoonGame::RenderCardboard(const SceneDescription& scene,
     } else {
       shader_textured_->Set(renderer_);
     }
-    Mesh* front = GetCardboardFront(id, renderable->variant());
+    auto front = GetCardboardFront(id, renderable->variant());
     front->Render(renderer_);
   }
 }
@@ -822,7 +829,7 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   const float ground_depth = game_state_.is_in_cardboard()
                                  ? cardboard_config.ground_plane_depth()
                                  : config.ground_plane_depth();
-  Mesh::RenderAAQuadAlongX(vec3(-ground_width, 0, 0),
+  fplbase::Mesh::RenderAAQuadAlongX(vec3(-ground_width, 0, 0),
                            vec3(ground_width, 0, ground_depth), vec2(0, 0),
                            vec2(1.0f, 1.0f));
   const vec4 world_scale_bias(1.0f / (2.0f * ground_width), 1.0f / ground_depth,
@@ -836,15 +843,15 @@ void PieNoonGame::RenderScene(const SceneDescription& scene,
   // settings besides it.  Since cardboard mode makes its own openGL calls,
   // we have to set some other blend mode first, so that it will recognize
   // that things have change, and it should call glBlendMode(GL_ENABLE) again.
-  renderer_.SetBlendMode(kBlendModeOff);
-  renderer_.SetBlendMode(kBlendModeAlpha);
+  renderer_.SetBlendMode(fplbase::kBlendModeOff);
+  renderer_.SetBlendMode(fplbase::kBlendModeAlpha);
   renderer_.set_model_view_projection(camera_transform);
   renderer_.set_light_pos(*scene.lights()[0]);  // TODO: check amount of lights.
   shader_simple_shadow_->SetUniform("world_scale_bias", world_scale_bias);
   for (size_t i = 0; i < scene.renderables().size(); ++i) {
     const auto& renderable = scene.renderables()[i];
     const int id = renderable->id();
-    Mesh* front = GetCardboardFront(id, renderable->variant());
+    auto front = GetCardboardFront(id, renderable->variant());
     if (config.renderables()->Get(id)->shadow()) {
       renderer_.set_model(renderable->world_matrix());
       shader_simple_shadow_->Set(renderer_);
@@ -961,7 +968,8 @@ void PieNoonGame::DebugPrintCharacterStates() {
     auto& character = game_state_.characters()[i];
     auto id = character->state_machine()->current_state()->id();
     if (debug_previous_states_[i] != id) {
-      LogInfo(kApplication, "character %d - Health %2d, State %s [%d]\n", i,
+      fplbase::LogInfo(fplbase::kApplication,
+                       "character %d - Health %2d, State %s [%d]\n", i,
               character->health(), EnumNameStateId(id), id);
       debug_previous_states_[i] = id;
     }
@@ -973,7 +981,7 @@ void PieNoonGame::DebugPrintPieStates() {
   for (unsigned int i = 0; i < game_state_.pies().size(); ++i) {
     auto& pie = game_state_.pies()[i];
     const vec3 position = pie->Position();
-    LogInfo(kApplication,
+    fplbase::LogInfo(fplbase::kApplication,
             "Pie from [%i]->[%i] w/ %i dmg at pos[%.2f, %.2f, %.2f]\n",
             pie->source(), pie->target(), pie->damage(), position.x(),
             position.y(), position.z());
@@ -1007,7 +1015,7 @@ void PieNoonGame::DebugCamera() {
   const Config& config = GetConfig();
 
   // Only move the camera if the left mouse button (or first finger) is down.
-  if (!input_.GetButton(K_POINTER1).is_down()) return;
+  if (!input_.GetButton(fplbase::K_POINTER1).is_down()) return;
 
   static const ButtonToTranslation kDebugCameraButtons[] = {
       {'d', mathfu::kAxisX3f}, {'a', -mathfu::kAxisX3f},
@@ -1051,7 +1059,8 @@ void PieNoonGame::DebugCamera() {
     camera.OverridePosition(new_position);
 
     if (config.print_camera_orientation()) {
-      LogInfo(kApplication, "camera position (%.5ff, %.5ff, %.5ff)\n",
+      fplbase::LogInfo(fplbase::kApplication,
+                       "camera position (%.5ff, %.5ff, %.5ff)\n",
               new_position[0], new_position[1], new_position[2]);
     }
   }
@@ -1068,7 +1077,8 @@ void PieNoonGame::DebugCamera() {
     camera.OverrideTarget(new_target);
 
     if (config.print_camera_orientation()) {
-      LogInfo(kApplication, "camera target (%.5ff, %.5ff, %.5ff)\n",
+      fplbase::LogInfo(fplbase::kApplication,
+                       "camera target (%.5ff, %.5ff, %.5ff)\n",
               new_target[0], new_target[1], new_target[2]);
     }
   }
@@ -1123,7 +1133,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         // If we've already displayed the tutorial before, jump straight to
         // the game. If we don't have the capability to record our previous
         // tutorial views, also jump straight to the game.
-        int displayed_tutorial = LoadPreference("displayed_tutorial", 0);
+        int displayed_tutorial = fplbase::LoadPreference("displayed_tutorial",
+                                                         0);
         const PieNoonState first_state =
             displayed_tutorial ? kFinished : kTutorial;
         tutorial_slide_time_ = time;
@@ -1154,8 +1165,8 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       break;
     }
     case kPlaying: {
-      if (input_.GetButton(FPLK_AC_BACK).went_down() ||
-          input_.GetButton(FPLK_p).went_down() ||
+      if (input_.GetButton(fplbase::FPLK_AC_BACK).went_down() ||
+          input_.GetButton(fplbase::FPLK_p).went_down() ||
           input_.minimized_frame() == input_.frames()) {
         SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelPauseButton,
                          game_state_.is_multiscreen());
@@ -1180,7 +1191,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       break;
     }
     case kPaused: {
-      if (input_.GetButton(FPLK_AC_BACK).went_down()) {
+      if (input_.GetButton(fplbase::FPLK_AC_BACK).went_down()) {
         SendTrackerEvent(kCategoryUi, kActionClickedButton, kLabelUnpauseButton,
                          time - pause_time_);
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
@@ -1192,7 +1203,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       return HandleMenuButtons(time);
     }
     case kMultiplayerWaiting: {
-      if (input_.GetButton(FPLK_AC_BACK).went_down()) {
+      if (input_.GetButton(fplbase::FPLK_AC_BACK).went_down()) {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_multiplayer_.ResetToIdle();
 #endif
@@ -1203,7 +1214,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
     }
 
     case kFinished: {
-      if (input_.GetButton(FPLK_AC_BACK).went_down()) {
+      if (input_.GetButton(fplbase::FPLK_AC_BACK).went_down()) {
         const bool in_submenu =
             (gui_menu_.menu_def() == config.extras_screen_buttons() ||
              gui_menu_.menu_def() == config.msx_screen_buttons() ||
@@ -1229,7 +1240,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
         // Record that we've successfully displayed the tutorial so that we
         // don't display it again next time.
         if (!game_state_.is_multiscreen()) {
-          SavePreference("displayed_tutorial", 1);
+          fplbase::SavePreference("displayed_tutorial", 1);
 
           // Fade out the tutorial screen and fade in the main menu.
           FadeToPieNoonState(kFinished, config.full_screen_fade_time(),
@@ -1243,7 +1254,7 @@ PieNoonState PieNoonGame::UpdatePieNoonState() {
       break;
     }
     case kMultiscreenClient: {
-      if (input_.GetButton(FPLK_AC_BACK).went_down()) {
+      if (input_.GetButton(fplbase::FPLK_AC_BACK).went_down()) {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_multiplayer_.DisconnectAll();
 #endif  // PIE_NOON_USES_GOOGLE_PLAY_GAMES
@@ -1602,7 +1613,7 @@ void PieNoonGame::HandlePlayersJoining() {
 }
 
 void PieNoonGame::AttachMultiplayerControllers() {
-  LogInfo(kApplication, "AttachMultiplayerControllers");
+  fplbase::LogInfo(fplbase::kApplication, "AttachMultiplayerControllers");
   for (auto it = active_controllers_.begin(); it != active_controllers_.end();
        ++it) {
     if (it->get()->controller_type() == Controller::kTypeMultiplayer) {
@@ -1631,7 +1642,8 @@ void PieNoonGame::ProcessMultiplayerMessages() {
         if (message->data_type() == multiplayer::Data_PlayerAssignment) {
           const multiplayer::PlayerAssignment* player_assignment =
               (const multiplayer::PlayerAssignment*)message->data();
-          LogInfo(kApplication, "Process a player assignment: %d\n",
+          fplbase::LogInfo(fplbase::kApplication,
+                           "Process a player assignment: %d\n",
                   player_assignment->player_id());
           StartMultiscreenGameAsClient(
               (CharacterId)player_assignment->player_id());
@@ -1651,7 +1663,8 @@ void PieNoonGame::ProcessMultiplayerMessages() {
         } else if (message->data_type() == multiplayer::Data_StartTurn) {
           const multiplayer::StartTurn* start_turn =
               (const multiplayer::StartTurn*)message->data();
-          LogInfo(kApplication, "Multiplayer message: StartTurn.");
+          fplbase::LogInfo(fplbase::kApplication,
+                           "Multiplayer message: StartTurn.");
           multiscreen_turn_number_++;
           // start the countdown for another turn
           multiscreen_turn_end_time_ =
@@ -1671,7 +1684,8 @@ void PieNoonGame::ProcessMultiplayerMessages() {
         } else if (message->data_type() == multiplayer::Data_EndGame) {
           const multiplayer::EndGame* end_game =
               (const multiplayer::EndGame*)message->data();
-          LogInfo(kApplication, "Multiplayer message: EndGame.");
+          fplbase::LogInfo(fplbase::kApplication,
+                           "Multiplayer message: EndGame.");
           ProcessPlayerStatusMessage(*end_game->player_status());
           // The game is over, go to the wait screen.
           TransitionToPieNoonState(kMultiplayerWaiting);
@@ -1680,11 +1694,11 @@ void PieNoonGame::ProcessMultiplayerMessages() {
               (const multiplayer::PlayerStatus*)message->data();
           ProcessPlayerStatusMessage(*player_status);
         } else {
-          LogError(kApplication,
+          fplbase::LogError(fplbase::kApplication,
                    "Multiplayer message has a data type of NONE.");
         }
       } else {
-        LogError(kApplication, "Got a malformed multiplayer message!");
+        fplbase::LogError(fplbase::kApplication, "Got a malformed multiplayer message!");
       }
     }
   }
@@ -1693,14 +1707,14 @@ void PieNoonGame::ProcessMultiplayerMessages() {
   // their player number.
   while (gpg_multiplayer_.HasReconnectedPlayer()) {
     int player = gpg_multiplayer_.GetReconnectedPlayer();
-    LogInfo(
-        kApplication,
+    fplbase::LogInfo(
+        fplbase::kApplication,
         "Got reconnected player %d (instance %s), send his assignment again.",
         player);
     auto instance_id = gpg_multiplayer_.GetInstanceIdByPlayerNumber(player);
     if (instance_id != "") {
-      LogInfo(
-          kApplication,
+      fplbase::LogInfo(
+          fplbase::kApplication,
           "Got reconnected player %d (instance %s), send his assignment again.",
           player, instance_id.c_str());
       multiplayer_director_->SendPlayerAssignmentMsg(instance_id, player);
@@ -1778,8 +1792,8 @@ void PieNoonGame::StringArrayResource(const char* resource_name,
   strings->empty();
 
 #ifdef __ANDROID__
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(AndroidGetActivity());
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(fplbase::AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(fplbase::AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
   jstring resource_name_java = env->NewStringUTF(resource_name);
 
@@ -1817,12 +1831,12 @@ static void DisplayDialogBox(const char* title, const char* text_file_name,
                              bool html) {
 #ifdef __ANDROID__
   std::string dialog_text;
-  if (!LoadFile(text_file_name, &dialog_text)) {
-    LogError(kError, "can't load %s", text_file_name);
+  if (!fplbase::LoadFile(text_file_name, &dialog_text)) {
+    fplbase::LogError(fplbase::kError, "can't load %s", text_file_name);
     return;
   }
-  JNIEnv* env = reinterpret_cast<JNIEnv*>(AndroidGetJNIEnv());
-  jobject activity = reinterpret_cast<jobject>(AndroidGetActivity());
+  JNIEnv* env = reinterpret_cast<JNIEnv*>(fplbase::AndroidGetJNIEnv());
+  jobject activity = reinterpret_cast<jobject>(fplbase::AndroidGetActivity());
   jclass fpl_class = env->GetObjectClass(activity);
   jmethodID is_text_dialog_open =
       env->GetMethodID(fpl_class, "isTextDialogOpen", "()Z");
@@ -1864,7 +1878,7 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
        menu_selection = gui_menu_.GetRecentSelection()) {
     switch (menu_selection.button_id) {
       case ButtonId_MenuSignIn: {
-        LogInfo(kApplication, "Menu: SIGN IN/OUT");
+        fplbase::LogInfo(fplbase::kApplication, "Menu: SIGN IN/OUT");
         bool signed_in = false;
         audio_engine_.PlaySound("JoinMatch");
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
@@ -1887,13 +1901,13 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
         DisplayDialogBox("About", "about.html", true);
         break;
       case ButtonId_MenuStart:
-        LogInfo(kApplication, "Menu: START pressed");
+        fplbase::LogInfo(fplbase::kApplication, "Menu: START pressed");
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         if (state_ == kMultiplayerWaiting) {
           if (gpg_multiplayer_.is_hosting() &&
               gpg_multiplayer_.GetNumConnectedPlayers() >= 1) {
             // We have at least one player, let's start the game.
-            LogInfo(kApplication, "Multiplayer start button");
+            fplbase::LogInfo(fplbase::kApplication, "Multiplayer start button");
             StartMultiscreenGameAsHost();
             AttachMultiplayerControllers();
 
@@ -2018,8 +2032,8 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
 
 #if defined(__ANDROID__)
       case ButtonId_Sushi: {
-        JNIEnv* env = reinterpret_cast<JNIEnv*>(AndroidGetJNIEnv());
-        jobject activity = reinterpret_cast<jobject>(AndroidGetActivity());
+        JNIEnv* env = reinterpret_cast<JNIEnv*>(fplbase::AndroidGetJNIEnv());
+        jobject activity = reinterpret_cast<jobject>(fplbase::AndroidGetActivity());
         jclass activity_class = env->GetObjectClass(activity);
         jmethodID launch_zooshi =
             env->GetMethodID(activity_class, "LaunchZooshiSanta", "()V");
@@ -2094,13 +2108,15 @@ PieNoonState PieNoonGame::HandleMenuButtons(WorldTime time) {
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
 
 void PieNoonGame::StartMultiscreenGameAsHost() {
-  LogInfo(kApplication, "Multiplayer StartMultiscreenGameAsHost");
+  fplbase::LogInfo(fplbase::kApplication,
+                   "Multiplayer StartMultiscreenGameAsHost");
   gpg_multiplayer_.StopAdvertising();
   int connected_players = gpg_multiplayer_.GetNumConnectedPlayers();
   // send each player their player ID and start the game
   for (int i = 0; i < connected_players; i++) {
     const auto& instance_id = gpg_multiplayer_.GetInstanceIdByPlayerNumber(i);
-    LogInfo(kApplication, "Multiplayer Send assignment %d to instance %s", i,
+    fplbase::LogInfo(fplbase::kApplication,
+                     "Multiplayer Send assignment %d to instance %s", i,
             instance_id.c_str());
     multiplayer_director_->SendPlayerAssignmentMsg(instance_id, i);
   }
@@ -2115,7 +2131,8 @@ void PieNoonGame::StartMultiscreenGameAsHost() {
 }
 
 void PieNoonGame::StartMultiscreenGameAsClient(CharacterId id) {
-  LogInfo(kApplication, "Multiplayer StartMultiscreenGameAsClient");
+  fplbase::LogInfo(fplbase::kApplication,
+                   "Multiplayer StartMultiscreenGameAsClient");
   // Set up the menu screen.
   gui_menu_.Setup(GetConfig().multiplayer_client(), &matman_);
   game_state_.Reset(GameState::kNoAnalytics);
@@ -2147,7 +2164,8 @@ void PieNoonGame::SendMultiscreenPlayerCommand() {
 
   const multiplayer::MessageRoot* msgtest =
       multiplayer::GetMessageRoot(builder.GetBufferPointer());
-  LogInfo(kApplication, "SendMessage data type of %d", msgtest->data_type());
+  fplbase::LogInfo(fplbase::kApplication, "SendMessage data type of %d",
+                   msgtest->data_type());
 
   std::vector<uint8_t> message(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
@@ -2388,7 +2406,8 @@ bool PieNoonGame::AnyControllerPresses() {
     const Controller* controller = it->get();
     if (ControllerHasPress(controller)) return true;
   }
-  return input_.GetPointerButton(static_cast<FingerId>(K_POINTER1)).went_down();
+  return input_.GetPointerButton(static_cast<fplbase::FingerId>(
+                                   fplbase::K_POINTER1)).went_down();
 }
 
 // Load into memory the tutorial slide at slide_index, if slide_index is valid.
@@ -2416,7 +2435,7 @@ void PieNoonGame::LoadInitialTutorialSlides() {
 // much of the screen as possible.
 void PieNoonGame::RenderInMiddleOfScreen(const mat4& ortho_mat,
                                          float aspect_ratio,
-                                         Material* material) {
+                                         fplbase::Material* material) {
   // Calculate the texture scale. We want to fill the screen as much as we can,
   // but not change the aspect ratio. That means we letterbox either
   // horizontally or vertically.
@@ -2437,7 +2456,8 @@ void PieNoonGame::RenderInMiddleOfScreen(const mat4& ortho_mat,
   renderer_.set_color(mathfu::kOnes4f);
   material->Set(renderer_);
   shader_textured_->Set(renderer_);
-  Mesh::RenderAAQuadAlongX(bottom_left, top_right, vec2(0, 1), vec2(1, 0));
+  fplbase::Mesh::RenderAAQuadAlongX(bottom_left, top_right, vec2(0, 1),
+                                    vec2(1, 0));
 }
 
 bool PieNoonGame::ShouldTransitionFromSlide(WorldTime world_time) {
@@ -2472,7 +2492,7 @@ void PieNoonGame::Run() {
   game_state_.Reset(GameState::kNoAnalytics);
 
   while (!input_.exit_requested() &&
-         !input_.GetButton(FPLK_ESCAPE).went_down()) {
+         !input_.GetButton(fplbase::FPLK_ESCAPE).went_down()) {
     // Process input device messages since the last game loop.
     // Update render window size.
     input_.AdvanceFrame(&renderer_.window_size());
@@ -2745,14 +2765,15 @@ void PieNoonGame::Run() {
         // For testing,
         // we'll check if a sixth finger went down on the touch screen,
         // if so we update the leaderboards and show the UI:
-        if (input_.GetButton(K_POINTER6).went_down()) {
+        if (input_.GetButton(fplbase::K_POINTER6).went_down()) {
           UploadEvents();
           // For testing, show UI:
           UploadAndShowLeaderboards();
         }
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
         gpg_manager.Update();
-        SavePreference("logged_in", static_cast<int>(gpg_manager.LoggedIn()));
+        fplbase::SavePreference("logged_in",
+                                static_cast<int>(gpg_manager.LoggedIn()));
         CheckForNewAchievements();
 #endif
         break;
@@ -2784,7 +2805,7 @@ void PieNoonGame::Run() {
         renderer_.set_color(mathfu::kOnes4f);
         spinmat->Set(renderer_);
         shader_textured_->Set(renderer_);
-        Mesh::RenderAAQuadAlongX(vec3(-extend.x(), extend.y(), 0),
+        fplbase::Mesh::RenderAAQuadAlongX(vec3(-extend.x(), extend.y(), 0),
                                  vec3(extend.x(), -extend.y(), 0), vec2(0, 1),
                                  vec2(1, 0));
 
@@ -2797,7 +2818,7 @@ void PieNoonGame::Run() {
         renderer_.set_color(mathfu::kOnes4f);
         logomat->Set(renderer_);
         shader_textured_->Set(renderer_);
-        Mesh::RenderAAQuadAlongX(vec3(-extend.x(), extend.y(), 0),
+        fplbase::Mesh::RenderAAQuadAlongX(vec3(-extend.x(), extend.y(), 0),
                                  vec3(extend.x(), -extend.y(), 0), vec2(0, 1),
                                  vec2(1, 0));
       }  // Fallthrough
@@ -2835,7 +2856,7 @@ void PieNoonGame::Run() {
         // Draw the slide covering the entire screen.
         const char* slide_name = TutorialSlideName(tutorial_slide_index_);
         if (slide_name != nullptr) {
-          Material* slide = matman_.FindMaterial(slide_name);
+          auto slide = matman_.FindMaterial(slide_name);
           if (slide->textures()[0]->id()) {
             RenderInMiddleOfScreen(ortho_mat, tutorial_aspect_ratio_, slide);
           }
@@ -2903,7 +2924,8 @@ void PieNoonGame::ParseViewIntentData(const std::string& intent_data,
       *launch_mode = launch_arguments.substr(0, split_pos);
       *overlay = launch_arguments.substr(split_pos + 1, std::string::npos);
     }
-    LogInfo(kApplication, "Detected launch URL %s (mode=%s, overlay=%s)\n",
+    fplbase::LogInfo(fplbase::kApplication,
+                     "Detected launch URL %s (mode=%s, overlay=%s)\n",
             launch_arguments.c_str(), launch_mode->c_str(), overlay->c_str());
   }
 }

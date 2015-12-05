@@ -89,7 +89,7 @@ void MultiplayerDirector::AdvanceFrame(WorldTime delta_time) {
 }
 
 void MultiplayerDirector::TriggerEndOfTurn() {
-  LogInfo(kApplication, "MultiplayerDirector: END TURN");
+  fplbase::LogInfo(fplbase::kApplication, "MultiplayerDirector: END TURN");
   // if we have any AI players, set their commands now
   if (config_->multiscreen_options()->ai_enabled()) {
     for (unsigned int i = 0; i < num_ai_players(); i++) {
@@ -167,7 +167,8 @@ void MultiplayerDirector::TriggerStartOfTurn() {
 void MultiplayerDirector::TriggerPlayerHitByPie(CharacterId player,
                                                 int damage) {
   if (!game_running_) return;
-  LogInfo(kApplication, "MultiplayerDirector: %d hit for %d", player, damage);
+  fplbase::LogInfo(fplbase::kApplication,
+                   "MultiplayerDirector: %d hit for %d", player, damage);
   int num_splats = 0;
   if (damage >=
       config_->multiscreen_options()->heavy_splat_damage_threshold()) {
@@ -229,21 +230,24 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
 
   float action = mathfu::Random<float>();
   if (action < options->ai_chance_to_throw()) {
-    LogInfo(kApplication, "MultiplayerDirector: AI %d setting action to throw",
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerDirector: AI %d setting action to throw",
             id);
     command.is_firing = true;
     command.is_blocking = false;
   }
   action -= options->ai_chance_to_throw();
   if (action >= 0 && action < options->ai_chance_to_block()) {
-    LogInfo(kApplication, "MultiplayerDirector: AI %d setting action to block",
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerDirector: AI %d setting action to block",
             id);
     command.is_firing = false;
     command.is_blocking = true;
   }
   action -= options->ai_chance_to_block();
   if (action >= 0 && action < options->ai_chance_to_wait()) {
-    LogInfo(kApplication, "MultiplayerDirector: AI %d setting action to wait",
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerDirector: AI %d setting action to wait",
             id);
     command.is_firing = false;
     command.is_blocking = false;
@@ -259,7 +263,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   if (target < options->ai_chance_to_target_largest_pie()) {
     // First get the max pie damage. Then put everyone with that pie damage
     // into the candidate targets list.
-    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting largest pie",
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerDirector: AI %d targeting largest pie",
             id);
 
     int max_pie = -1;
@@ -282,7 +287,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   if (target >= 0 && target < options->ai_chance_to_target_lowest_health()) {
     // First get the lowest enemy health. Then put everyone with that health
     // into the candidate targets list.
-    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting lowest health",
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerDirector: AI %d targeting lowest health",
             id);
     int min_health = config_->character_health() + 1;
     for (unsigned int i = 0; i < controllers_.size(); i++) {
@@ -304,7 +310,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   if (target >= 0 && target < options->ai_chance_to_target_highest_health()) {
     // First get the highest enemy health. Then put everyone with that health
     // into the candidate targets list.
-    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting highest health",
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerDirector: AI %d targeting highest health",
             id);
     int max_health = -1;
     for (unsigned int i = 0; i < controllers_.size(); i++) {
@@ -324,7 +331,8 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   }
   target -= options->ai_chance_to_target_highest_health();
   if (target >= 0 && target < options->ai_chance_to_target_random()) {
-    LogInfo(kApplication, "MultiplayerDirector: AI %d targeting randomly", id);
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerDirector: AI %d targeting randomly", id);
     // Just put all living enemies in the list.
     for (unsigned int i = 0; i < controllers_.size(); i++) {
       const Character& enemy = controllers_[i]->GetCharacter();
@@ -347,7 +355,7 @@ void MultiplayerDirector::ChooseAICommand(CharacterId id) {
   commands_[id] = command;
 }
 
-void MultiplayerDirector::DebugInput(InputSystem* input) {
+void MultiplayerDirector::DebugInput(fplbase::InputSystem* input) {
   // debug keys: 3 players to aim at, 2 buttons for fire or block
   // player 0: 1 2 3 to aim, 4 5 6 to fire or block or idle
   // player 1: Q W E to aim, R T Y to fire or block or idle
@@ -355,124 +363,124 @@ void MultiplayerDirector::DebugInput(InputSystem* input) {
   // player 3: Z X C to aim, V B N to fire or block or idle
 
   // Player 0
-  if (input->GetButton(FPLK_1).went_down()) {
-    LogInfo(kApplication, "MP: Key 1: Player 0 AimAt 1");
+  if (input->GetButton(fplbase::FPLK_1).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key 1: Player 0 AimAt 1");
     commands_[0].aim_at = 1;
   }
-  if (input->GetButton(FPLK_2).went_down()) {
-    LogInfo(kApplication, "MP: Key 2: Player 0 AimAt 2");
+  if (input->GetButton(fplbase::FPLK_2).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key 2: Player 0 AimAt 2");
     commands_[0].aim_at = 2;
   }
-  if (input->GetButton(FPLK_3).went_down()) {
-    LogInfo(kApplication, "MP: Key 3: Player 0 AimAt 3");
+  if (input->GetButton(fplbase::FPLK_3).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key 3: Player 0 AimAt 3");
     commands_[0].aim_at = 3;
   }
-  if (input->GetButton(FPLK_4).went_down()) {
-    LogInfo(kApplication, "MP: Key 4: Player 0 Fire");
+  if (input->GetButton(fplbase::FPLK_4).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key 4: Player 0 Fire");
     commands_[0].is_firing = true;
     commands_[0].is_blocking = false;
   }
-  if (input->GetButton(FPLK_5).went_down()) {
-    LogInfo(kApplication, "MP: Key 5: Player 0 Block");
+  if (input->GetButton(fplbase::FPLK_5).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key 5: Player 0 Block");
     commands_[0].is_blocking = true;
     commands_[0].is_firing = false;
   }
-  if (input->GetButton(FPLK_6).went_down()) {
-    LogInfo(kApplication, "MP: Key 6: Player 0 Wait");
+  if (input->GetButton(fplbase::FPLK_6).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key 6: Player 0 Wait");
     commands_[0].is_blocking = false;
     commands_[0].is_firing = false;
   }
 
   // Player 1
-  if (input->GetButton(FPLK_q).went_down()) {
-    LogInfo(kApplication, "MP: Key Q: Player 1 AimAt 0");
+  if (input->GetButton(fplbase::FPLK_q).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key Q: Player 1 AimAt 0");
     commands_[1].aim_at = 0;
   }
-  if (input->GetButton(FPLK_w).went_down()) {
-    LogInfo(kApplication, "MP: Key W: Player 1 AimAt 2");
+  if (input->GetButton(fplbase::FPLK_w).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key W: Player 1 AimAt 2");
     commands_[1].aim_at = 2;
   }
-  if (input->GetButton(FPLK_e).went_down()) {
-    LogInfo(kApplication, "MP: Key E: Player 1 AimAt 3");
+  if (input->GetButton(fplbase::FPLK_e).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key E: Player 1 AimAt 3");
     commands_[1].aim_at = 3;
   }
-  if (input->GetButton(FPLK_r).went_down()) {
-    LogInfo(kApplication, "MP: Key R: Player 1 Fire");
+  if (input->GetButton(fplbase::FPLK_r).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key R: Player 1 Fire");
     commands_[1].is_firing = true;
     commands_[1].is_blocking = false;
   }
-  if (input->GetButton(FPLK_t).went_down()) {
-    LogInfo(kApplication, "MP: Key T: Player 1 Block");
+  if (input->GetButton(fplbase::FPLK_t).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key T: Player 1 Block");
     commands_[1].is_blocking = true;
     commands_[1].is_firing = false;
   }
-  if (input->GetButton(FPLK_y).went_down()) {
-    LogInfo(kApplication, "MP: Key Y: Player 1 Wait");
+  if (input->GetButton(fplbase::FPLK_y).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key Y: Player 1 Wait");
     commands_[1].is_blocking = false;
     commands_[1].is_firing = false;
   }
 
   // Player 2
-  if (input->GetButton(FPLK_a).went_down()) {
-    LogInfo(kApplication, "MP: Key A: Player 2 AimAt 0");
+  if (input->GetButton(fplbase::FPLK_a).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key A: Player 2 AimAt 0");
     commands_[2].aim_at = 0;
   }
-  if (input->GetButton(FPLK_s).went_down()) {
-    LogInfo(kApplication, "MP: Key S: Player 2 AimAt 1");
+  if (input->GetButton(fplbase::FPLK_s).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key S: Player 2 AimAt 1");
     commands_[2].aim_at = 1;
   }
-  if (input->GetButton(FPLK_d).went_down()) {
-    LogInfo(kApplication, "MP: Key D: Player 2 AimAt 3");
+  if (input->GetButton(fplbase::FPLK_d).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key D: Player 2 AimAt 3");
     commands_[2].aim_at = 3;
   }
-  if (input->GetButton(FPLK_f).went_down()) {
-    LogInfo(kApplication, "MP: Key F: Player 2 Fire");
+  if (input->GetButton(fplbase::FPLK_f).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key F: Player 2 Fire");
     commands_[2].is_firing = true;
     commands_[2].is_blocking = false;
   }
-  if (input->GetButton(FPLK_g).went_down()) {
-    LogInfo(kApplication, "MP: Key G: Player 2 Block");
+  if (input->GetButton(fplbase::FPLK_g).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key G: Player 2 Block");
     commands_[2].is_blocking = true;
     commands_[2].is_firing = false;
   }
-  if (input->GetButton(FPLK_h).went_down()) {
-    LogInfo(kApplication, "MP: Key H: Player 2 Wait");
+  if (input->GetButton(fplbase::FPLK_h).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key H: Player 2 Wait");
     commands_[2].is_blocking = false;
     commands_[2].is_firing = false;
   }
 
   // Player 3
-  if (input->GetButton(FPLK_z).went_down()) {
-    LogInfo(kApplication, "MP: Key Z: Player 3 AimAt 0");
+  if (input->GetButton(fplbase::FPLK_z).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key Z: Player 3 AimAt 0");
     commands_[3].aim_at = 0;
   }
-  if (input->GetButton(FPLK_x).went_down()) {
-    LogInfo(kApplication, "MP: Key X: Player 3 AimAt 1");
+  if (input->GetButton(fplbase::FPLK_x).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key X: Player 3 AimAt 1");
     commands_[3].aim_at = 1;
   }
-  if (input->GetButton(FPLK_c).went_down()) {
-    LogInfo(kApplication, "MP: Key C: Player 3 AimAt 2");
+  if (input->GetButton(fplbase::FPLK_c).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key C: Player 3 AimAt 2");
     commands_[3].aim_at = 2;
   }
-  if (input->GetButton(FPLK_v).went_down()) {
-    LogInfo(kApplication, "MP: Key V: Player 3 Fire");
+  if (input->GetButton(fplbase::FPLK_v).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key V: Player 3 Fire");
     commands_[3].is_firing = true;
     commands_[3].is_blocking = false;
   }
-  if (input->GetButton(FPLK_b).went_down()) {
-    LogInfo(kApplication, "MP: Key B: Player 3 Block");
+  if (input->GetButton(fplbase::FPLK_b).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key B: Player 3 Block");
     commands_[3].is_blocking = true;
     commands_[3].is_firing = false;
   }
-  if (input->GetButton(FPLK_n).went_down()) {
-    LogInfo(kApplication, "MP: Key N: Player 3 Wait");
+  if (input->GetButton(fplbase::FPLK_n).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Key N: Player 3 Wait");
     commands_[3].is_blocking = false;
     commands_[3].is_firing = false;
   }
 
   // Enter triggers end of turn manually.
-  if (input->GetButton(FPLK_RETURN).went_down()) {
-    LogInfo(kApplication, "MP: Enter: Trigger EndOfTurn");
+  if (input->GetButton(fplbase::FPLK_RETURN).went_down()) {
+    fplbase::LogInfo(fplbase::kApplication, "MP: Enter: Trigger EndOfTurn");
     turn_timer_ = 1;
   }
 }

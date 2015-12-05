@@ -74,7 +74,7 @@ void MultiplayerController::AdvanceFrame(WorldTime delta_time) {
   if (aim_at_character_id_ != kNoCharacter) {
     // we have a character to aim at, make sure we are aimed there.
     if (character->target() != aim_at_character_id_) {
-      LogInfo(kApplication,
+      fplbase::LogInfo(fplbase::kApplication,
               "MultiplayerController: player %d executing aim at %d",
               character_id_, aim_at_character_id_);
       character->force_target(aim_at_character_id_);
@@ -84,15 +84,16 @@ void MultiplayerController::AdvanceFrame(WorldTime delta_time) {
 
   if (block_hold_ > 0 && block_delay_ == 0) {
     SetLogicalInputs(LogicalInputs_Deflect, true);
-    LogInfo(kApplication, "MultiplayerController: player %d executing block %d",
-            character_id_, block_hold_);
+    fplbase::LogInfo(fplbase::kApplication,
+                     "MultiplayerController: player %d executing block %d",
+                     character_id_, block_hold_);
     return;
   }
 
   if (throw_pie_delay_ > 0 && character_state != StateId_Throwing) {
     throw_pie_delay_ -= delta_time;
     if (throw_pie_delay_ <= 0) {
-      LogInfo(kApplication,
+      fplbase::LogInfo(fplbase::kApplication,
               "MultiplayerController: player %d executing throw pie",
               character_id_);
       SetLogicalInputs(LogicalInputs_ThrowPie, true);
@@ -112,7 +113,7 @@ void MultiplayerController::AdvanceFrame(WorldTime delta_time) {
 
 void MultiplayerController::HoldBlock(WorldTime block_delay,
                                       WorldTime block_hold) {
-  LogInfo(kApplication,
+  fplbase::LogInfo(fplbase::kApplication,
           "MultiplayerController: player %d queue in %d: block %d",
           character_id_, block_delay, block_hold);
   if (block_delay <= 0) block_delay = 1;  // must be > 1 to trigger
@@ -122,13 +123,14 @@ void MultiplayerController::HoldBlock(WorldTime block_delay,
 }
 
 void MultiplayerController::AimAtCharacter(CharacterId character_id) {
-  LogInfo(kApplication, "MultiplayerController: player %d queue aim at %d",
+  fplbase::LogInfo(fplbase::kApplication,
+                   "MultiplayerController: player %d queue aim at %d",
           character_id_, character_id);
   if (character_id_ != character_id) aim_at_character_id_ = character_id;
 }
 
 void MultiplayerController::ThrowPie(WorldTime throw_delay) {
-  LogInfo(kApplication,
+  fplbase::LogInfo(fplbase::kApplication,
           "MultiplayerController: player %d queue in %d: throw pie",
           character_id_, throw_delay);
   if (throw_delay <= 0) throw_delay = 1;  // must be > 1 to trigger
@@ -136,7 +138,7 @@ void MultiplayerController::ThrowPie(WorldTime throw_delay) {
 }
 
 void MultiplayerController::GrowPie(WorldTime grow_delay) {
-  LogInfo(kApplication,
+  fplbase::LogInfo(fplbase::kApplication,
           "MultiplayerController: player %d queue in %d: grow pie",
           character_id_, grow_delay);
   if (grow_delay <= 0) grow_delay = 1;  // must be > 1 to trigger

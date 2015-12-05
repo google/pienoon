@@ -52,12 +52,7 @@
 #include "fplbase/shader.h"
 #include "fplbase/utilities.h"
 
-// TODO: This is BAD, but an older version of Pie Noon had a complete
-// copy of FPLBase & FlatUI as part of its code, so this achieves the exact same
-// effect. Should replace this in the future.
 namespace fpl {
-using namespace fplbase;
-using namespace flatui;
 using mathfu::mat4;
 using mathfu::vec2;
 using mathfu::vec2i;

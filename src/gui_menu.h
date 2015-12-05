@@ -41,11 +41,11 @@ class GuiMenu {
  public:
   GuiMenu();
 
-  void AdvanceFrame(WorldTime delta_time, InputSystem* input,
+  void AdvanceFrame(WorldTime delta_time, fplbase::InputSystem* input,
                     const vec2& window_size);
-  void Setup(const UiGroup* menudef, AssetManager* matman);
-  void LoadAssets(const UiGroup* menu_def, AssetManager* matman);
-  void Render(Renderer* renderer);
+  void Setup(const UiGroup* menudef, fplbase::AssetManager* matman);
+  void LoadAssets(const UiGroup* menu_def, fplbase::AssetManager* matman);
+  void Render(fplbase::Renderer* renderer);
   void AdvanceFrame(WorldTime delta_time);
   MenuSelection GetRecentSelection();
   void HandleControllerInput(uint32_t logical_input,
@@ -55,7 +55,8 @@ class GuiMenu {
   TouchscreenButton* FindButtonById(ButtonId id);
   StaticImage* FindImageById(ButtonId id);
   const UiGroup* menu_def() const { return menu_def_; }
-  void LoadDebugShaderAndOptions(const Config* config, AssetManager* matman);
+  void LoadDebugShaderAndOptions(const Config* config,
+                                 fplbase::AssetManager* matman);
 
  private:
   void ClearRecentSelections();
@@ -63,13 +64,13 @@ class GuiMenu {
 
   // imgui custom button definition.
   flatui::Event ImguiButton(const ImguiButtonDef& data);
-  void RenderTexture(const Texture& tex, const vec2& pos, const vec2& size,
-                     const vec2& scale);
+  void RenderTexture(const fplbase::Texture& tex, const vec2& pos,
+                     const vec2& size, const vec2& scale);
 
   const UiGroup* menu_def_;
-  InputSystem* input_;
-  AssetManager* matman_;
-  FontManager* fontman_;
+  fplbase::InputSystem* input_;
+  fplbase::AssetManager* matman_;
+  flatui::FontManager* fontman_;
 
   const char* debug_shader;
   bool draw_debug_bounds;

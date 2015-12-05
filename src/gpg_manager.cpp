@@ -47,7 +47,7 @@ bool GPGManager::Initialize(bool ui_login) {
   */
   gpg::AndroidPlatformConfiguration platform_configuration;
   platform_configuration.SetActivity(
-      static_cast<jobject>(AndroidGetActivity()));
+      static_cast<jobject>(fplbase::AndroidGetActivity()));
 
   // Creates a games_services object that has lambda callbacks.
   game_services_ =
@@ -61,7 +61,7 @@ bool GPGManager::Initialize(bool ui_login) {
           })
           .SetOnAuthActionFinished([this](gpg::AuthOperation op,
                                           gpg::AuthStatus status) {
-            LogInfo(fplbase::kApplication,
+            fplbase::LogInfo(fplbase::kApplication,
                     "GPG: Sign in finished with a result of %d (%d)", status,
                     state_);
             if (op == gpg::AuthOperation::SIGN_IN) {
@@ -79,16 +79,17 @@ bool GPGManager::Initialize(bool ui_login) {
               }
             } else if (op == gpg::AuthOperation::SIGN_OUT) {
               state_ = kStart;
-              LogInfo(fplbase::kApplication,
+              fplbase::LogInfo(fplbase::kApplication,
                       "GPG: SIGN OUT finished with a result of %d", status);
             } else {
-              LogInfo(fplbase::kApplication, "GPG: unknown auth op %d", op);
+              fplbase::LogInfo(fplbase::kApplication, "GPG: unknown auth op %d",
+                               op);
             }
           })
           .Create(platform_configuration);
 
   if (!game_services_) {
-    LogError("GPG: failed to create GameServices!");
+    fplbase::LogError("GPG: failed to create GameServices!");
     return false;
   }
 
@@ -147,7 +148,7 @@ bool GPGManager::LoggedIn() {
 #endif
   assert(game_services_);
   if (state_ < kAuthed) {
-    LogError(fplbase::kApplication,
+    fplbase::LogError(fplbase::kApplication,
              "GPG: player not logged in, can\'t interact with gpg!");
     return false;
   }
@@ -160,15 +161,15 @@ void GPGManager::ToggleSignIn() {
 #endif
   delayed_login_ = false;
   if (state_ == kAuthed) {
-    LogInfo(fplbase::kApplication, "GPG: Attempting to log out...");
+    fplbase::LogInfo(fplbase::kApplication, "GPG: Attempting to log out...");
     game_services_->SignOut();
   } else if (state_ == kStart || state_ == kAuthUIFailed) {
-    LogInfo(fplbase::kApplication, "GPG: Attempting to log in...");
+    fplbase::LogInfo(fplbase::kApplication, "GPG: Attempting to log in...");
     state_ = kManualSignBackIn;
     do_ui_login_ = true;
   } else {
-    LogInfo(fplbase::kApplication, "GPG: Ignoring log in/out in state %d",
-            state_);
+    fplbase::LogInfo(fplbase::kApplication,
+                     "GPG: Ignoring log in/out in state %d", state_);
     delayed_login_ = true;
   }
 }
@@ -206,7 +207,8 @@ void GPGManager::ShowLeaderboards(const GPGIds *ids, size_t id_len) {
       if (leaderboard_id) {
         game_services_->Leaderboards().SubmitScore(leaderboard_id,
                                                    it->second.Count());
-        LogInfo(fplbase::kApplication, "GPG: submitted score %llu for id %s",
+        fplbase::LogInfo(fplbase::kApplication,
+                         "GPG: submitted score %llu for id %s",
                 it->second.Count(), leaderboard_id);
       }
     }
@@ -323,7 +325,7 @@ void GPGManager::ShowAchievements() {
   if (!LoggedIn()) return;
   LogInfo(fplbase::kApplication, "GPG: launching achievement UI");
   game_services_->Achievements().ShowAllUI([](const gpg::UIStatus &status) {
-    LogInfo(fplbase::kApplication,
+    fplbase::LogInfo(fplbase::kApplication,
             "GPG: Achievement UI FAILED, UIStatus is: %d", status);
   });
 }
@@ -335,13 +337,14 @@ void GPGManager::FetchPlayer() {
         pthread_mutex_lock(&players_mutex_);
         if (IsSuccess(fsr.status)) {
           gpg::Player *player_data = new gpg::Player(fsr.data);
-          LogInfo(fplbase::kApplication,
+          fplbase::LogInfo(fplbase::kApplication,
                   "GPG: got player info. ID = %s, name = %s, avatar=%s",
                   player_data->Id().c_str(), player_data->Name().c_str(),
                   player_data->AvatarUrl(gpg::ImageResolution::HI_RES).c_str());
           player_data_.reset(player_data);
         } else {
-          LogError(fplbase::kApplication, "GPG: failed to get player info");
+          fplbase::LogError(fplbase::kApplication,
+                            "GPG: failed to get player info");
           player_data_.reset(nullptr);
         }
         pthread_mutex_unlock(&players_mutex_);
@@ -352,7 +355,7 @@ void GPGManager::FetchPlayer() {
 
 #ifdef __ANDROID__
 extern "C" JNIEXPORT jint GPG_JNI_OnLoad(JavaVM *vm, void *reserved) {
-  LogInfo(fplbase::kApplication, "GPG_JNI_OnLoad called");
+  fplbase::LogInfo(fplbase::kApplication, "GPG_JNI_OnLoad called");
 
   gpg::AndroidInitialization::JNI_OnLoad(vm);
 
@@ -365,6 +368,6 @@ Java_com_google_fpl_fplbase_FPLActivity_nativeOnActivityResult(
     jint result_code, jobject data) {
   gpg::AndroidSupport::OnActivityResult(env, activity, request_code,
                                         result_code, data);
-  LogInfo(fplbase::kApplication, "GPG: nativeOnActivityResult");
+  fplbase::LogInfo(fplbase::kApplication, "GPG: nativeOnActivityResult");
 }
 #endif

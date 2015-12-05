@@ -46,7 +46,7 @@ TouchscreenController::TouchscreenController()
       game_state_(nullptr),
       deflect_time_remaining_(0) {}
 
-void TouchscreenController::Initialize(InputSystem* input_system,
+void TouchscreenController::Initialize(fplbase::InputSystem* input_system,
                                        vec2 window_size, const Config* config,
                                        const GameState* game_state) {
   input_system_ = input_system;
@@ -110,12 +110,12 @@ void TouchscreenController::AdvanceFrame(WorldTime delta_time) {
   ClearAllLogicalInputs();
 
   for (size_t i = 0; i < input_system_->get_pointers().size(); ++i) {
-    const InputPointer& pointer = input_system_->get_pointers()[i];
+    auto& pointer = input_system_->get_pointers()[i];
     if (!pointer.used) continue;
 
     // Both deflect and turn-and-throw are triggered by went_down().
     // Deflect is maintained on is_down().
-    const Button& pointer_button = input_system_->GetPointerButton(pointer.id);
+    auto& pointer_button = input_system_->GetPointerButton(pointer.id);
     if (!pointer_button.went_down() && !pointer_button.is_down()) continue;
 
     // Convert the mouse pointer to a ray in the world, then cast it at

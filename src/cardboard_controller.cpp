@@ -30,7 +30,7 @@ CardboardController::CardboardController()
       input_system_(nullptr) {}
 
 void CardboardController::Initialize(GameState* game_state,
-                                     InputSystem* input_system) {
+                                     fplbase::InputSystem* input_system) {
   game_state_ = game_state;
   input_system_ = input_system;
   ClearAllLogicalInputs();

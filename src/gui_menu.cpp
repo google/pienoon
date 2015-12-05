@@ -34,7 +34,7 @@ GuiMenu::GuiMenu()
 
 static const char* TextureName(const ButtonTexture& button_texture) {
   const bool touch_screen =
-      button_texture.touch_screen() != nullptr && TouchScreenDevice();
+      button_texture.touch_screen() != nullptr && fplbase::TouchScreenDevice();
   return touch_screen ? button_texture.touch_screen()->c_str()
                       : button_texture.standard()->c_str();
 }
@@ -44,7 +44,7 @@ static inline size_t ArrayLength(const T* array) {
   return array == nullptr ? 0 : array->Length();
 }
 
-void GuiMenu::Setup(const UiGroup* menu_def, AssetManager* matman) {
+void GuiMenu::Setup(const UiGroup* menu_def, fplbase::AssetManager* matman) {
   ClearRecentSelections();
 
   // Save material manager instance for later use.
@@ -81,16 +81,17 @@ void GuiMenu::Setup(const UiGroup* menu_def, AssetManager* matman) {
     const char* shader_name = (button->shader() == nullptr)
                                   ? menu_def->default_shader()->c_str()
                                   : button->shader()->c_str();
-    Shader* shader = matman->FindShader(shader_name);
+    fplbase::Shader* shader = matman->FindShader(shader_name);
 
     const char* inactive_shader_name =
         (button->inactive_shader() == nullptr)
             ? menu_def->default_inactive_shader()->c_str()
             : button->inactive_shader()->c_str();
-    Shader* inactive_shader = matman->FindShader(inactive_shader_name);
+    fplbase::Shader* inactive_shader = matman->FindShader(inactive_shader_name);
 
     if (shader == nullptr) {
-      LogInfo(kApplication, "Buttons used in menus must specify a shader!");
+      fplbase::LogInfo(fplbase::kApplication,
+                       "Buttons used in menus must specify a shader!");
     }
     button_list_[i].set_shader(shader);
     button_list_[i].set_inactive_shader(inactive_shader);
@@ -111,20 +112,22 @@ void GuiMenu::Setup(const UiGroup* menu_def, AssetManager* matman) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
 
     const int num_textures = image_def.texture()->Length();
-    std::vector<Material*> materials(num_textures);
+    std::vector<fplbase::Material*> materials(num_textures);
     for (int j = 0; j < num_textures; ++j) {
       const char* material_name = TextureName(*image_def.texture()->Get(j));
       materials[j] = matman->FindMaterial(material_name);
       if (materials[j] == nullptr) {
-        LogError(kApplication, "Static image '%s' not found", material_name);
+        fplbase::LogError(fplbase::kApplication, "Static image '%s' not found",
+                          material_name);
       }
     }
     const char* shader_name = (image_def.shader() == nullptr)
                                   ? menu_def->default_shader()->c_str()
                                   : image_def.shader()->c_str();
-    Shader* shader = matman->FindShader(shader_name);
+    fplbase::Shader* shader = matman->FindShader(shader_name);
     if (shader == nullptr) {
-      LogError(kApplication, "Static image missing shader '%s'", shader_name);
+      fplbase::LogError(fplbase::kApplication,
+                        "Static image missing shader '%s'", shader_name);
     }
 
     image_list_[i].Initialize(image_def, materials, shader,
@@ -135,7 +138,7 @@ void GuiMenu::Setup(const UiGroup* menu_def, AssetManager* matman) {
 // Loads the debug shader if available
 // Sets option to draw render bounds for button
 void GuiMenu::LoadDebugShaderAndOptions(const Config* config,
-                                        AssetManager* matman) {
+                                        fplbase::AssetManager* matman) {
   if (config->menu_button_debug_shader() != nullptr &&
       config->menu_button_debug_shader()->size() > 0) {
     debug_shader = config->menu_button_debug_shader()->c_str();
@@ -146,7 +149,8 @@ void GuiMenu::LoadDebugShaderAndOptions(const Config* config,
 
 // Force the material manager to load all the textures and shaders
 // used in the UI group.
-void GuiMenu::LoadAssets(const UiGroup* menu_def, AssetManager* matman) {
+void GuiMenu::LoadAssets(const UiGroup* menu_def,
+                         fplbase::AssetManager* matman) {
   if (menu_def == nullptr) return;
   const size_t length_button_list = ArrayLength(menu_def->button_list());
   matman->LoadShader(menu_def->default_shader()->c_str());
@@ -183,7 +187,7 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, AssetManager* matman) {
   }
 }
 
-void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
+void GuiMenu::AdvanceFrame(WorldTime delta_time, fplbase::InputSystem* input,
                            const vec2& window_size) {
   // Save input system for a later use.
   input_ = input;
@@ -335,7 +339,7 @@ flatui::Event GuiMenu::ImguiButton(const ImguiButtonDef& data) {
 }
 #endif
 
-void GuiMenu::Render(Renderer* renderer) {
+void GuiMenu::Render(fplbase::Renderer* renderer) {
 #ifndef USE_IMGUI
   // Render touch controls, as long as the touch-controller is active.
   for (size_t i = 0; i < image_list_.size(); i++) {
