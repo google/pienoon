@@ -48,6 +48,15 @@ shows how to use several open source technology components developed by Google.
 </tr>
 <tr>
   <td>
+    <img src="info_panel_corgi.png"
+     style="height: 20em" />
+   [CORGI][], an extensible entity-component system, allows for easy
+   abstraction of game behaviors into reusable components, which can be
+   mixed and matched to create any new behavior you can imagine!
+  </td>
+</tr>
+<tr>
+  <td>
     <img src="info_panel_procedural_animation_mathfu.png"
      style="height: 20em" />
    [MathFu][], a geometry math library optimized for [ARM][] and [x86][]
@@ -72,6 +81,24 @@ shows how to use several open source technology components developed by Google.
      style="height: 20em" />
    The [Renderer](@ref pie_noon_guide_engine_renderer) is used
    conjunction with a normal mapping shader to provide cardboard rendering.
+  </td>
+</tr>
+<tr>
+  <td>
+    <img src="info_panel_flatui.png"
+     style="height: 20em" />
+   [FlatUI][], an immediate mode GUI library, written in C++ with the aim of
+   being a simple, efficient way to add menus, HUDs, and other in-game UI.
+   and HMDs.
+  </td>
+</tr>
+<tr>
+  <td>
+    <img src="info_panel_fplbase.png"
+     style="height: 20em" />
+   [FPLBase][], a low-level game library that handles input, rendering,
+   resource-loading, as well as useful interfaces for Android input devices
+   and HMDs.
   </td>
 </tr>
 </table>
@@ -136,8 +163,11 @@ depends upon, so download the source from [GitHub][] using:
   [Android]: http://www.android.com
   [Android TV]: http://www.android.com/tv/
   [ARM]: http://en.wikipedia.org/wiki/ARM_architecture
+  [CORGI]: http://google.github.io/corgi/index.html
   [Engine]: @ref pie_noon_guide_engine
   [FlatBuffers]: http://google-opensource.blogspot.ca/2014/06/flatbuffers-memory-efficient.html
+  [FlatUI]: http://google.github.io/flatui/
+  [FPLBase]: http://google.github.io/fplbase/
   [fplutil]: http://android-developers.blogspot.ca/2014/11/utilities-for-cc-android-developers.html
   [JSON]: http://www.json.org/
   [Linux]: http://en.m.wikipedia.org/wiki/Linux
