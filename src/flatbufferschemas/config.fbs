@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+include "common.fbs";
 include "audio_config.fbs";
 include "components.fbs";
 include "motive.fbs";
@@ -36,8 +37,6 @@ enum ButtonId : ushort {
   Undefined,
   InvalidInput,
   Cancel,
-  Left,
-  Right,
   Attack,
   Defend,
   MenuStart,
@@ -77,6 +76,7 @@ enum ButtonId : ushort {
   Multiplayer_Splat3,
   Multiplayer_Splat4,
   Multiplayer_SplatFull,
+  Sushi,
 }
 
 // Setting a button to Hold means it will fire as long
@@ -117,17 +117,17 @@ table ButtonDef {
   // These are used to demarcate the zone boundaries,
   // Coordinate values can range from 0-1.  (0,0) represents the upper
   // left corner of the touch screen, (1, 1) is lower right.
-  top_left : Vec2;
-  bottom_right : Vec2;
+  top_left : fplbase.Vec2;
+  bottom_right : fplbase.Vec2;
 
   // Material to display for the touch zone, both in its normal
   // state, and when it is registering a press.
   texture_normal : [ButtonTexture];
   texture_pressed : ButtonTexture;
   texture_selected : string;
-  draw_scale_normal : Vec2;
-  draw_scale_pressed : Vec2;
-  draw_scale_highlighted : Vec2;
+  draw_scale_normal : fplbase.Vec2;
+  draw_scale_pressed : fplbase.Vec2;
+  draw_scale_highlighted : fplbase.Vec2;
   shader : string;
   inactive_shader : string;
 
@@ -141,7 +141,7 @@ table ButtonDef {
   // Position to draw the texture at:
   // (Designates the center of the texture, and like the zone boundaries, is
   // expressed as a fraction of the screen width/height.)
-  texture_position : Vec2;
+  texture_position : fplbase.Vec2;
 
   // does this button start out active?
   starts_active : bool = true;
@@ -154,8 +154,8 @@ table StaticImageDef {
   ID : ButtonId;
   texture : [ButtonTexture];
   shader : string;
-  draw_scale : Vec2;
-  texture_position : Vec2;
+  draw_scale : fplbase.Vec2;
+  texture_position : fplbase.Vec2;
   z_depth : float = -0.5;
   visible : bool = true;
   render_after_buttons : bool = false;
@@ -177,18 +177,18 @@ table ImguiButtonDef {
   // Identifier for each widget.  Should be unique across the UIGroup.
   ID : ButtonId;
   size : float;
-  margin : Vec4;
+  margin : fplbase.Vec4;
 
   // Material to display for the touch zone, both in its normal
   // state, and when it is registering a press.
   texture_foreground : string;
   texture_background : string;
-  foreground_position : Vec2;
+  foreground_position : fplbase.Vec2;
   foreground_size_pressed : float;
   foreground_size_focus : float = 1.0;
   foreground_size : float;
-  draw_scale_normal : Vec2;
-  draw_scale_pressed : Vec2;
+  draw_scale_normal : fplbase.Vec2;
+  draw_scale_pressed : fplbase.Vec2;
   event_trigger : ButtonEvent = ButtonPress;
   button_id : string;
 }
@@ -198,7 +198,7 @@ table StartGroupDef {
   ID : ButtonId;
   layout : GroupLayout = GroupLayoutHorizontalCenter;
   size : float;
-  margin : Vec4;
+  margin : fplbase.Vec4;
   texture_background : string;
 }
 
@@ -230,11 +230,11 @@ table UiGroup {
 
 table FixedAccessory {
   // Location for the splatter texture to appear.
-  location:Vec2i;
+  location:fplbase.Vec2i;
 
   // Size of the splatter texture. 1 is size as authored, >1 is bigger, <1 is
   // smaller.
-  scale:Vec2;
+  scale:fplbase.Vec2;
 
   // Which renderable should be used for this splotch.
   renderable:RenderableId;
@@ -247,7 +247,7 @@ table AccessoryGroup {
 
 table CharacterData {
   // Where the character should be placed in the world.
-  position:Vec3;
+  position:fplbase.Vec3;
 
   // 1 if left turns clockwise, -1 if left turns counter-clockwise.
   // Intuitive controls depend on layout of surrounding characters.
@@ -262,8 +262,8 @@ table CardboardFigure {
   // by the data structure here.
   id:RenderableId;
 
-  // Material for the front of the cardboard cutout.
-  cardboard_front:string;
+  // Material for the front of the cardboard cutout. Indexed by `variant`.
+  cardboard_fronts:[string];
 
   // Material for the inside surface of the cardboard cutout. That is, showing
   // the corrugations.
@@ -272,7 +272,7 @@ table CardboardFigure {
   // Horizontal displacement of the renderable. Used to keep the characters
   // centered around the stick that props them up, while keeping the stick
   // stationary.
-  offset:Vec3;
+  offset:fplbase.Vec3;
 
   // Optionally specify bounding box around geometry.
   // x-coordinate is width. y-coordinate is height.
@@ -282,7 +282,7 @@ table CardboardFigure {
   //   left: -pixel_bounds.x / 2
   //   right: pixel_bounds.x / 2
   // If left as the default nullptr, bounding box is ignored.
-  pixel_bounds:Vec2i;
+  pixel_bounds:fplbase.Vec2i;
 
   // Scale the cardboard geometry. We convert from pixel-size to world-size by
   // multiplying geometry_scale * pixel_to_world_scale (see below).
@@ -298,10 +298,10 @@ table CardboardFigure {
   cardboard:bool = false;
 
   // Offset to the splatter accessories, in pixels.
-  splatter_offset:Vec2i;
+  splatter_offset:fplbase.Vec2i;
 
   // Offset to health accessories (i.e. hearts), in pixels.
-  health_offset:Vec2i;
+  health_offset:fplbase.Vec2i;
 }
 
 // Each arrangement should have it a unique number of players How many people
@@ -313,18 +313,18 @@ table CharacterArrangement {
 table CameraMovementToSubject {
   // Percent of camera position to take from subject position.
   // e.g. If (0.5, 0.5, 0.5), half the subject position is used.
-  position_from_subject:Vec3;
+  position_from_subject:fplbase.Vec3;
 
   // Percent of camera position to take from the base camera position.
   // The base camera position is set by 'camera_position' in Config.
-  position_from_base:Vec3;
+  position_from_base:fplbase.Vec3;
 
   // Percent of camera target to take from subject position.
-  target_from_subject:Vec3;
+  target_from_subject:fplbase.Vec3;
 
   // Percent of camera target to take from the base camera target.
   // The base camera target is set by 'camera_target' in Config.
-  target_from_base:Vec3;
+  target_from_base:fplbase.Vec3;
 
   // Start speed we move towards the target position. Higher values indicate
   // sudden movement, as though you've been hit by something. In percent/tick,
@@ -335,7 +335,7 @@ table CameraMovementToSubject {
   time:int;
 
   // Parameterization of the magnet.
-  def:motive.SmoothParameters;
+  def:motive.SplineParameters;
 }
 
 table TurnLengthSpec {
@@ -433,6 +433,18 @@ table MultiscreenOptions {
   splat_drip_speed:float;
 }
 
+table Slide {
+  // File name of the image to load. Should be a .fplmat file.
+  image:string;
+
+  // Time to display the slide, in ms. If 0 display until screen tapped.
+  display_time:int;
+
+  // Time to fade out and fade in at the end of this slide.
+  // If 0, switch immediatly to next slide without fade.
+  fade_time:int;
+}
+
 table Config {
 
   // List of all entities that we spawn automatically at game start.
@@ -450,8 +462,8 @@ table Config {
 
   // Values for the size and location of splatters when they appear on
   // background props:
-  splatter_range_min:Vec3;
-  splatter_range_max:Vec3;
+  splatter_range_min:fplbase.Vec3;
+  splatter_range_max:fplbase.Vec3;
   splatter_scale_min:float;
   splatter_scale_max:float;
 
@@ -470,10 +482,10 @@ table Config {
   number_of_keyboard_controllers:uint;
 
   // Character primary colors.
-  character_colors:[Vec3];
+  character_colors:[fplbase.Vec3];
 
   // Color to draw AIs.
-  ai_color:Vec3;
+  ai_color:fplbase.Vec3;
 
   // This modulates the primary colors
   character_global_brightness_factor:float;
@@ -488,13 +500,13 @@ table Config {
   audio:pindrop.AudioConfig;
 
   // Where the camera should be positioned.
-  camera_position:Vec3;
+  camera_position:fplbase.Vec3;
 
   // Where the camera should be pointed at.
-  camera_target:Vec3;
+  camera_target:fplbase.Vec3;
 
   // The positions of the light sources.
-  light_positions:[Vec3];
+  light_positions:[fplbase.Vec3];
 
   // Controls the end game victory and loss conditions.
   game_mode:GameMode;
@@ -505,6 +517,10 @@ table Config {
 
   // How long the game should run. Only used in HighScore mode.
   game_time:int;
+
+  // How long the player should deflect when the character is touched on
+  // a touchscreen, in ms.
+  touch_deflect_time:int;
 
   // First player to reach this score wins the game. Only used in ReachTarget
   // mode.
@@ -626,7 +642,7 @@ table Config {
   // Rendering constants.
   //
   // Size of the target screen. In pixels.
-  window_size:Vec2i;
+  window_size:fplbase.Vec2i;
 
   // Name of the target window. Used on desktop platforms.
   window_title:string;
@@ -661,9 +677,9 @@ table Config {
   cardboard_bias_towards_stage_front:float;
 
   // Cardboard lighting properties:
-  cardboard_ambient_material:Vec3;
-  cardboard_diffuse_material:Vec3;
-  cardboard_specular_material:Vec3;
+  cardboard_ambient_material:fplbase.Vec3;
+  cardboard_diffuse_material:fplbase.Vec3;
+  cardboard_specular_material:fplbase.Vec3;
   cardboard_shininess:float;
   cardboard_normalmap_scale:float;
 
@@ -686,7 +702,7 @@ table Config {
   // 'cardboard_back'.
   stick_back:string;
 
-  stick_bounds:Vec2;
+  stick_bounds:fplbase.Vec2;
 
   // Spinning material displayed on the loading screen
   loading_material:string;
@@ -694,6 +710,15 @@ table Config {
   loading_logo:string;
   // Minimum time (in milliseconds) to display the loading screen.
   min_loading_time:int;
+  // Max game loading animation/swing arc angle in degree (0.0 - 360)
+  loading_anim_amplitude:float;
+  // Game loading scale factor for vertical translation
+  // It is multiplied into height of viewport window, then applied
+  // to game loading anim translation. Valid value is (0.0 -- 1.0)
+  loading_anim_vert_translation:float;
+  // Game loading texture scale factor for vertical translation
+  loading_texture_vert_translation:float;
+
   // Material used to render full screen to fade from loading screen.
   fade_material:string;
   // Length of time (in milliseconds) of fades between game states.
@@ -701,10 +726,10 @@ table Config {
   full_screen_fade_time:int;
 
   // Offset of UI arrow from the character. Z is forward. X is side. Y is up.
-  ui_arrow_offset:Vec3;
+  ui_arrow_offset:fplbase.Vec3;
 
   // Scale of UI arrow from it's authored size. Z is length. X is width.
-  ui_arrow_scale:Vec3;
+  ui_arrow_scale:fplbase.Vec3;
 
   // Map damage to sets of accessories. That is splatter_map[damage] is the set
   // indices into splatter_accessories[] that should be rendered when the
@@ -743,8 +768,8 @@ table Config {
 
   // Description of centering bar used during Cardboard mode
   cardboard_center_material:string;
-  cardboard_center_scale:Vec2;
-  cardboard_center_color:Vec4;
+  cardboard_center_scale:fplbase.Vec2;
+  cardboard_center_color:fplbase.Vec4;
 
   // In world UI elements used in Cardboard mode
   // Scale (0-1) between the player and their target
@@ -752,11 +777,11 @@ table Config {
   // Height of the reticle
   target_reticle_height:float;
   // Offset of the player's current pie size
-  cardboard_pie_offset:Vec3;
+  cardboard_pie_offset:fplbase.Vec3;
   // The scale of the player's current pie size
-  cardboard_pie_scale:Vec3;
+  cardboard_pie_scale:fplbase.Vec3;
   // Offset of the player's current health
-  cardboard_health_offset:Vec3;
+  cardboard_health_offset:fplbase.Vec3;
   // Scale to use for the player's arrow in the X direction
   cardboard_arrow_scale:float;
 
@@ -781,6 +806,7 @@ table Config {
   // UI options
   //
   // Button layouts:
+  always_use_android_title_screen:bool;
   touchscreen_zones:UiGroup;
   pause_screen_buttons:UiGroup;
   title_screen_buttons_android:UiGroup;
@@ -810,7 +836,12 @@ table Config {
   // Tutorial
   //
   // List of materials to display, one after the other, on the full screen.
-  tutorial_slides:[string];
+  // Used for touchscreen.
+  tutorial_slides:[Slide];
+
+  // List of materials to display, one after the other, on the full screen.
+  // Used for gamepad (i.e. Android TV).
+  gamepad_tutorial_slides:[Slide];
 
   // Scale every material above by (tutorial_aspect_ratio, 1). Lets the textures
   // be squished into the nearest power of two size, even if that changes the
@@ -822,12 +853,9 @@ table Config {
   // loading at a time. Recall that loading is done asynchronously.
   tutorial_num_future_slides_to_load:int;
 
-  // Total time to fade out on current slide and fade back in on next slide.
-  tutorial_fade_time:int;
-
   // List of materials to display, one after the other, on the full screen,
   // for multiscreen mode's "How to Play".
-  multiscreen_tutorial_slides:[string];
+  multiscreen_tutorial_slides:[Slide];
 
   // Scale every material above by (tutorial_aspect_ratio, 1). Lets the textures
   // be squished into the nearest power of two size, even if that changes the
@@ -863,7 +891,7 @@ table Config {
   draw_fixed_renderable:RenderableId;
 
   // When button pressed, how far to translate the camera in the world.
-  button_to_camera_translation_scale:Vec3;
+  button_to_camera_translation_scale:fplbase.Vec3;
 
   // Translate mouse movement to camera rotation in the world.
   mouse_to_camera_rotation_scale:float;
@@ -882,6 +910,19 @@ table Config {
 
   // Options for multiscreen mode.
   multiscreen_options:MultiscreenOptions;
+
+  // Enable debug shader rendering for buttons only works if menu_button_debug_shader is set to a shader
+  draw_touch_button_bounds:bool;
+
+  // Debug shader to show bounds for menu buttons
+  menu_button_debug_shader:string;
+
+  // Resources names. Different between snowdown and pie_noon.
+  gpg_leaderboards_resource:string;
+  gpg_events_resource:string;
+  gpg_achievements_resource:string;
 }
 
 root_type Config;
+file_identifier "PIEC";
+file_extension "pieconfig";

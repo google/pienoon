@@ -19,15 +19,11 @@
 
 #include "precompiled.h"
 
-#include "SDL_keycode.h"
 #include "controller.h"
 #include "player_controller.h"
-#include "input.h"
 
 namespace fpl {
 namespace pie_noon {
-
-static const SDL_JoystickID kInvalidControllerId = -1;
 
 // A GamepadController tracks the current state of a human player's logical
 // inputs. It is responsible for polling the gamepad for the current state
@@ -39,18 +35,19 @@ class GamepadController : public Controller {
   // Set up a controller using the given input system and control scheme.
   // The input_system and scheme pointers are unowned and must outlive this
   // object.
-  void Initialize(InputSystem* input_system, SDL_JoystickID joystick_id);
+  void Initialize(fplbase::InputSystem* input_system,
+                  fplbase::AndroidInputDeviceId joystick_id);
 
   // Map the input from the physical inputs to logical game inputs.
   virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
   // A pointer to the object to query for the current input state.
-  InputSystem* input_system_;
+  fplbase::InputSystem* input_system_;
 
 #ifdef ANDROID_GAMEPAD
   // The device ID of the controller we're listening to.
-  AndroidInputDeviceId controller_id_;
+  fplbase::AndroidInputDeviceId controller_id_;
 #endif  // ANDROID_GAMEPAD
 };
 

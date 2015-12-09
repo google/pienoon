@@ -1,0 +1,7 @@
+{
+    "texture_filenames": [
+        "textures/firing_blue.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
+}

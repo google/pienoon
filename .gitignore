@@ -7,6 +7,20 @@ tests/*_test
 *.bin
 *.webp
 
+# Assets
+assets/*.pieconfig
+assets/*.piestate
+assets/*.pinbus
+assets/sound_banks/*.pinbank
+assets/sounds/*.pinsound
+assets/materials/*.fplmat
+assets/overlays/*/*.pieconfig
+assets/overlays/*/*.piestate
+assets/overlays/*/*.pinbus
+assets/overlays/*/sound_banks/*.pinbank
+assets/overlays/*/sounds/*.pinsound
+assets/overlays/*/materials/*.fplmat
+
 # CMake files
 CMakeCache.txt
 CMakeFiles/
@@ -18,13 +32,26 @@ googletest/
 mathfu/
 sdl/
 pie_noon.build/
-pie_noon.xcodeproj/
 pie_noon.dir/
+pie_noon.xcodeproj/
+pie_noon_ios/pie_noon_ios.xcodeproj/
+pie_noon_ios/pie_noon_ios.build/
+pie_noon_ios/tests/
+pie_noon_ios/assets/
+pie_noon_ios/macosx/pie_noon_ios.xcodeproj/
+pie_noon_ios/macosx/pie_noon_ios.build/
+pie_noon_ios/macosx/tests/
+pie_noon_ios/macosx/assets/
+pie_noon_macosx/pie_noon_macosx.xcodeproj/
+pie_noon_macosx/pie_noon_macosx.build/
+pie_noon_macosx/tests/
+pie_noon_macosx/assets/
 tests/Debug/
 tests/Release/
 tests/pie_noon.build/
 tests/angle_test.dir/
 tests/character_state_machine_test.dir/
+tests/impel_test.dir/
 libogg/liblibogg.a
 libvorbis/liblibvorbis.a
 sdl_mixer/libsdl_mixer.a
@@ -33,6 +60,10 @@ webp/libexampleutil.a
 webp/cwebp
 webp/dwebp
 webp/include/*
+*.o
+*.d
+*.a
+xcuserdata
 
 # Visual Studio files
 build/
@@ -65,8 +96,8 @@ build.xml
 gen/
 local.properties
 proguard-project.txt
-src_java/org/
 
 # symlink to the Google Play Services library.
 google-play-services_lib
+
 

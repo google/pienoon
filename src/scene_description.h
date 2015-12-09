@@ -15,20 +15,26 @@
 #ifndef PIE_NOON_SCENE_DESCRIPTION_H
 #define PIE_NOON_SCENE_DESCRIPTION_H
 
-#include "mathfu/glsl_mappings.h"
 #include <memory>
 #include <vector>
+#include "mathfu/glsl_mappings.h"
 
 namespace fpl {
 
 class Renderable {
  public:
-  Renderable(uint16_t id, const mathfu::mat4& world_matrix,
+  Renderable(uint16_t id, uint16_t variant, const mathfu::mat4& world_matrix,
              const mathfu::vec4& color = mathfu::vec4(1, 1, 1, 1))
-      : id_(id), world_matrix_(world_matrix), color_(color) {}
+      : id_(id),
+        variant_(variant),
+        world_matrix_(world_matrix),
+        color_(color) {}
 
   uint16_t id() const { return id_; }
   void set_id(uint16_t id) { id_ = id; }
+
+  uint16_t variant() const { return variant_; }
+  void set_variant(uint16_t variant) { variant_ = variant; }
 
   const mathfu::mat4& world_matrix() const { return world_matrix_; }
   void set_world_matrix(const mathfu::mat4& mat) { world_matrix_ = mat; }
@@ -40,6 +46,10 @@ class Renderable {
   // Unique identifier for item to be rendered.
   // See renderable_id in timeline_generated.h.
   uint16_t id_;
+
+  // Variation of the renderable_id `id_` to be rendered.
+  // Could be an alternate color, for example.
+  uint16_t variant_;
 
   // Position and orientation of item.
   mathfu::mat4 world_matrix_;

@@ -1,0 +1,12 @@
+{
+  "name": "StingerLose",
+  "bus": "stingers",
+  "stream": true,
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/stinger_lose.ogg"
+      }
+    }
+  ]
+}

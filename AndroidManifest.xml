@@ -26,9 +26,9 @@ limitations under the License.
                  android:allowBackup="true"
                  android:isGame="true"
                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-        <activity android:name="FPLActivity"
+        <activity android:name="PieNoonActivity"
                   android:label="@string/app_name"
-                  android:screenOrientation="landscape"
+                  android:screenOrientation="sensorLandscape"
                   android:configChanges="orientation|keyboardHidden|screenSize">
             <!-- Tell NativeActivity the name of the .so -->
             <meta-data android:name="android.app.lib_name"
@@ -38,14 +38,30 @@ limitations under the License.
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="com.google.intent.category.CARDBOARD" />
             </intent-filter>
+            <intent-filter name="@string/app_name">
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="http"
+                    android:host="google.github.io"
+                    android:pathPrefix="/pienoon/launch/default" />
+            </intent-filter>
         </activity>
-        <activity android:name="FPLTvActivity"
+        <activity android:name="PienNoonTvActivity"
                   android:label="@string/app_name"
                   android:screenOrientation="landscape"
                   android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter name="@string/app_name">
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="http"
+                    android:host="google.github.io"
+                    android:pathPrefix="/pienoon/launch/tv" />
             </intent-filter>
         </activity>
         <meta-data android:name="com.google.android.gms.nearby.connection.SERVICE_ID"

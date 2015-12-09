@@ -15,12 +15,12 @@
 #ifndef COMPONENTS_SCENEOBJECT_H_
 #define COMPONENTS_SCENEOBJECT_H_
 
-#include "entity/component.h"
 #include "common.h"
 #include "components_generated.h"
-#include "scene_description.h"
+#include "corgi/component.h"
 #include "mathfu/constants.h"
 #include "motive/motivator.h"
+#include "scene_description.h"
 
 namespace motive {
 class MatrixInit;
@@ -36,8 +36,8 @@ class SceneObjectData {
       : global_matrix_(mathfu::mat4::Identity()),
         tint_(mathfu::kOnes4f),
         renderable_id_(0),
-        visible_(true) {
-  }
+        variant_(0),
+        visible_(true) {}
   void Initialize(motive::MotiveEngine* engine);
 
   // Set components of the transformation from object-to-local space.
@@ -66,7 +66,7 @@ class SceneObjectData {
   void SetRotationAboutZ(float angle) {
     transform_.SetChildValue1f(kRotateAboutZ, angle);
   }
-  void SetRotationAboutAxis(float angle, Axis axis) {
+  void SetRotationAboutAxis(float angle, fplbase::Axis axis) {
     transform_.SetChildValue1f(kRotateAboutX + axis, angle);
   }
   void SetPreRotation(const mathfu::vec3& rotation) {
@@ -81,7 +81,7 @@ class SceneObjectData {
   void SetPreRotationAboutZ(float angle) {
     transform_.SetChildValue1f(kPreRotateAboutZ, angle);
   }
-  void SetPreRotationAboutAxis(float angle, Axis axis) {
+  void SetPreRotationAboutAxis(float angle, fplbase::Axis axis) {
     transform_.SetChildValue1f(kPreRotateAboutX + axis, angle);
   }
   void SetTranslation(const mathfu::vec3& translation) {
@@ -104,9 +104,7 @@ class SceneObjectData {
   mathfu::vec3 Rotation() const {
     return transform_.ChildValue3f(kRotateAboutX);
   }
-  mathfu::vec3 Scale() const {
-    return transform_.ChildValue3f(kScaleX);
-  }
+  mathfu::vec3 Scale() const { return transform_.ChildValue3f(kScaleX); }
   mathfu::vec3 OriginPoint() const {
     return transform_.ChildValue3f(kTranslateToOriginX);
   }
@@ -119,15 +117,18 @@ class SceneObjectData {
   const mathfu::mat4& global_matrix() const { return global_matrix_; }
 
   bool HasParent() const { return parent_.IsValid(); }
-  entity::EntityRef& parent() { return parent_; }
-  const entity::EntityRef& parent() const { return parent_; }
-  void set_parent(entity::EntityRef& parent) { parent_ = parent; }
+  corgi::EntityRef& parent() { return parent_; }
+  const corgi::EntityRef& parent() const { return parent_; }
+  void set_parent(corgi::EntityRef& parent) { parent_ = parent; }
 
   mathfu::vec4 tint() const { return mathfu::vec4(tint_); }
   void set_tint(const mathfu::vec4& tint) { tint_ = tint; }
 
   uint16_t renderable_id() const { return renderable_id_; }
   void set_renderable_id(uint16_t id) { renderable_id_ = id; }
+
+  uint16_t variant() const { return variant_; }
+  void set_variant(uint16_t variant) { variant_ = variant; }
 
   bool visible() const { return visible_; }
   void set_visible(bool visible) { visible_ = visible; }
@@ -161,14 +162,14 @@ class SceneObjectData {
 
   // Position, orientation, and scale (in local space) of the object.
   // Composed of the basic matrix operations in TransformMatrixOperations.
-  motive::MotivatorMatrix4f transform_;
+  motive::MatrixMotivator4f transform_;
 
   // The parent defines the scene heirarchy. This scene object is positioned
   // relative to its parent. That is,
   //    global_matrix_ = parent_->global_matrix * transform_.Value()
   // If no parent is specified, the 'transform_' is assumed to be in global
   // space already.
-  entity::EntityRef parent_;
+  corgi::EntityRef parent_;
 
   // Color of object.
   mathfu::vec4_packed tint_;
@@ -176,25 +177,28 @@ class SceneObjectData {
   // Id of object model to render.
   uint16_t renderable_id_;
 
+  // Id of object model to render.
+  uint16_t variant_;
+
   // Whether object is currently on-screen or not.
   bool visible_;
 };
 
 // A sceneobject is "a thing I want to place in the scene and move around."
 // So it contains basic drawing info.
-class SceneObjectComponent : public entity::Component<SceneObjectData> {
+class SceneObjectComponent : public corgi::Component<SceneObjectData> {
  public:
   explicit SceneObjectComponent(motive::MotiveEngine* engine)
       : engine_(engine) {}
-  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
-  virtual void InitEntity(entity::EntityRef& entity);
+  virtual void AddFromRawData(corgi::EntityRef& entity, const void* data);
+  virtual void InitEntity(corgi::EntityRef& entity);
   void PopulateScene(SceneDescription* scene);
 
  private:
-  void UpdateGlobalMatrix(entity::EntityRef& entity,
+  void UpdateGlobalMatrix(corgi::EntityRef& entity,
                           std::vector<bool>& matrix_calculated);
   void UpdateGlobalMatrices();
-  bool VisibleInHierarchy(const entity::EntityRef& entity) const;
+  bool VisibleInHierarchy(const corgi::EntityRef& entity) const;
 
   motive::MotiveEngine* engine_;
 };
@@ -202,8 +206,7 @@ class SceneObjectComponent : public entity::Component<SceneObjectData> {
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::SceneObjectComponent,
-                              fpl::pie_noon::SceneObjectData,
-                              fpl::pie_noon::ComponentDataUnion_SceneObjectDef)
+CORGI_REGISTER_COMPONENT(fpl::pie_noon::SceneObjectComponent,
+                         fpl::pie_noon::SceneObjectData)
 
 #endif  // COMPONENTS_SCENEOBJECT_H_

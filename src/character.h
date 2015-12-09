@@ -15,14 +15,14 @@
 #ifndef PIE_NOON_CHARACTER_H_
 #define PIE_NOON_CHARACTER_H_
 
-#include "motive/math/angle.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
 #include "config_generated.h"
-#include "motive/util.h"
+#include "motive/math/angle.h"
 #include "motive/motivator.h"
-#include "player_controller.h"
+#include "motive/util.h"
 #include "pie_noon_common_generated.h"
+#include "player_controller.h"
 #include "timeline_generated.h"
 
 namespace motive {
@@ -60,8 +60,9 @@ class Character {
             const CharacterStateMachineDef* character_state_machine_def);
 
   // Resets the character to the start-of-game state.
-  void Reset(CharacterId target, CharacterHealth health, Angle face_angle,
-             const mathfu::vec3& position, motive::MotiveEngine* engine);
+  void Reset(CharacterId target, CharacterHealth health,
+             motive::Angle face_angle, const mathfu::vec3& position,
+             motive::MotiveEngine* engine);
 
   // Fake a reaction to input by making the character's face angle
   // jitter slightly in the requested direction. Does not change the
@@ -72,13 +73,17 @@ class Character {
   void force_target(CharacterId target) { target_ = target; }
 
   // Gets the character's current face angle.
-  Angle FaceAngle() const { return Angle(face_angle_.Value()); }
+  motive::Angle FaceAngle() const { return motive::Angle(face_angle_.Value()); }
 
   // Sets the character's target and our target face angle.
-  void SetTarget(CharacterId target, Angle angle_to_target);
+  void SetTarget(CharacterId target, motive::Angle angle_to_target);
 
   // Calculate the renderable id for the character at 'anim_time'.
   uint16_t RenderableId(WorldTime anim_time) const;
+
+  // Return the render variant. For characters: 0 for AI, 1 for player
+  // controlled.
+  uint16_t Variant() const;
 
   // On-screen color. Used in shader when rendering.
   mathfu::vec4 Color() const;
@@ -225,7 +230,7 @@ class AirbornePie {
   WorldTime flight_time_;
   CharacterHealth original_damage_;
   CharacterHealth damage_;
-  motive::MotivatorMatrix4f motivator_;
+  motive::MatrixMotivator4f motivator_;
 };
 
 // Return index of first item with time >= t.

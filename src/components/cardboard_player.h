@@ -18,7 +18,7 @@
 #include "common.h"
 #include "components_generated.h"
 #include "config_generated.h"
-#include "entity/component.h"
+#include "corgi/component.h"
 #include "scene_description.h"
 
 namespace fpl {
@@ -29,17 +29,17 @@ class GameState;
 const int kMaxHealthAccessories = 3;
 
 struct CardboardPlayerData {
-  entity::EntityRef target_reticle;
-  entity::EntityRef loaded_pie;
-  entity::EntityRef health[kMaxHealthAccessories];
+  corgi::EntityRef target_reticle;
+  corgi::EntityRef loaded_pie;
+  corgi::EntityRef health[kMaxHealthAccessories];
   CharacterId character_id;
 };
 
-class CardboardPlayerComponent : public entity::Component<CardboardPlayerData> {
+class CardboardPlayerComponent : public corgi::Component<CardboardPlayerData> {
  public:
-  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
-  virtual void UpdateAllEntities(entity::WorldTime delta_time);
-  virtual void InitEntity(entity::EntityRef& entity);
+  virtual void AddFromRawData(corgi::EntityRef& entity, const void* data);
+  virtual void UpdateAllEntities(corgi::WorldTime delta_time);
+  virtual void InitEntity(corgi::EntityRef& entity);
 
   void set_gamestate_ptr(GameState* gamestate_ptr) {
     gamestate_ptr_ = gamestate_ptr;
@@ -47,9 +47,9 @@ class CardboardPlayerComponent : public entity::Component<CardboardPlayerData> {
   void set_config(const Config* config) { config_ = config; }
 
  private:
-  void UpdateTargetReticle(entity::EntityRef entity);
-  void UpdateLoadedPie(entity::EntityRef entity);
-  void UpdateHealthAccessories(entity::EntityRef entity);
+  void UpdateTargetReticle(corgi::EntityRef entity);
+  void UpdateLoadedPie(corgi::EntityRef entity);
+  void UpdateHealthAccessories(corgi::EntityRef entity);
   const Config* config_;
   GameState* gamestate_ptr_;
 };
@@ -57,8 +57,7 @@ class CardboardPlayerComponent : public entity::Component<CardboardPlayerData> {
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(
-    fpl::pie_noon::CardboardPlayerComponent, fpl::pie_noon::CardboardPlayerData,
-    fpl::pie_noon::ComponentDataUnion_CardboardPlayerDef)
+CORGI_REGISTER_COMPONENT(fpl::pie_noon::CardboardPlayerComponent,
+                         fpl::pie_noon::CardboardPlayerData)
 
 #endif  // COMPONENTS_CARDBOARD_PLAYER_H_

@@ -1,0 +1,7 @@
+{
+    "texture_filenames": [
+        "textures/snow_particle.webp",
+        "textures/snow_particle.webp"
+    ],
+    "blendmode": "ALPHA",
+}

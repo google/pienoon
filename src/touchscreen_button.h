@@ -15,13 +15,10 @@
 #ifndef TOUCHSCREEN_BUTTON_H
 #define TOUCHSCREEN_BUTTON_H
 
-#include "precompiled.h"
 #include "common.h"
 #include "config_generated.h"
-#include "input.h"
-#include "material.h"
-#include "renderer.h"
 #include "pie_noon_common_generated.h"
+#include "precompiled.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -30,19 +27,23 @@ class TouchscreenButton {
  public:
   TouchscreenButton();
 
-  void AdvanceFrame(WorldTime delta_time, InputSystem* input, vec2 window_size);
+  void AdvanceFrame(WorldTime delta_time, fplbase::InputSystem* input,
+                    vec2 window_size);
 
   // bool HandlePointer(Pointer pointer, vec2 window_size);
-  void Render(Renderer& renderer);
+  void Render(fplbase::Renderer& renderer);
   void AdvanceFrame(WorldTime delta_time);
   ButtonId GetId() const;
-  bool WillCapturePointer(const Pointer& pointer, vec2 window_size);
+  bool WillCapturePointer(const fplbase::InputPointer& pointer,
+                          vec2 window_size);
   bool IsTriggered();
 
-  Button& button() { return button_; }
+  fplbase::Button& button() { return button_; }
 
-  const std::vector<Material*>& up_materials() const { return up_materials_; }
-  void set_up_material(size_t i, Material* up_material) {
+  const std::vector<fplbase::Material*>& up_materials() const {
+    return up_materials_;
+  }
+  void set_up_material(size_t i, fplbase::Material* up_material) {
     assert(up_material);
     if (i >= up_materials_.size()) up_materials_.resize(i + 1);
     up_materials_[i] = up_material;
@@ -52,27 +53,32 @@ class TouchscreenButton {
     up_current_ = which;
   }
 
-  Material* down_material() const { return down_material_; }
-  void set_down_material(Material* down_material) {
+  fplbase::Material* down_material() const { return down_material_; }
+  void set_down_material(fplbase::Material* down_material) {
     down_material_ = down_material;
   }
 
-  mathfu::vec2 up_offset() const { return up_offset_; }
+  mathfu::vec2 up_offset() const { return mathfu::vec2(up_offset_); }
   void set_up_offset(mathfu::vec2 up_offset) { up_offset_ = up_offset; }
 
-  mathfu::vec2 down_offset() const { return down_offset_; }
+  mathfu::vec2 down_offset() const { return mathfu::vec2(down_offset_); }
   void set_down_offset(mathfu::vec2 down_offset) { down_offset_ = down_offset; }
 
   const ButtonDef* button_def() const { return button_def_; }
   void set_button_def(const ButtonDef* button_def) { button_def_ = button_def; }
 
-  Shader* inactive_shader() const { return inactive_shader_; }
-  void set_inactive_shader(Shader* inactive_shader) {
+  fplbase::Shader* inactive_shader() const { return inactive_shader_; }
+  void set_inactive_shader(fplbase::Shader* inactive_shader) {
     inactive_shader_ = inactive_shader;
   }
 
-  Shader* shader() const { return shader_; }
-  void set_shader(Shader* shader) { shader_ = shader; }
+  fplbase::Shader* shader() const { return shader_; }
+  void set_shader(fplbase::Shader* shader) { shader_ = shader; }
+  fplbase::Shader* debug_shader() const { return debug_shader_; }
+  void set_debug_shader(fplbase::Shader* shader) { debug_shader_ = shader; }
+  void DebugRender(const vec3& position, const vec3& texture_size,
+                   fplbase::Renderer& renderer) const;
+  void set_draw_bounds(bool enable) { draw_bounds_ = enable; };
 
   bool is_active() const { return is_active_; }
   void set_is_active(bool is_active) { is_active_ = is_active; }
@@ -86,36 +92,38 @@ class TouchscreenButton {
   }
 
   void set_color(const mathfu::vec4& color) { color_ = color; }
-  const mathfu::vec4& color() { return color_; }
+  mathfu::vec4 color() { return mathfu::vec4(color_); }
 
   void SetCannonicalWindowHeight(int height) {
     one_over_cannonical_window_height_ = 1.0f / static_cast<float>(height);
   }
 
  private:
-  Button button_;
+  fplbase::Button button_;
   WorldTime elapsed_time_;
 
   const ButtonDef* button_def_;
-  Shader* shader_;
-  Shader* inactive_shader_;
+  fplbase::Shader* shader_;
+  fplbase::Shader* inactive_shader_;
+  fplbase::Shader* debug_shader_;
 
   // Textures to draw for the up/down states:
-  std::vector<Material*> up_materials_;
+  std::vector<fplbase::Material*> up_materials_;
   size_t up_current_;
 
-  Material* down_material_;
+  fplbase::Material* down_material_;
 
   // Allow overriding the default color in code.
-  mathfu::vec4 color_;
+  mathfu::vec4_packed color_;
 
   // Offsets to draw the textures at,
-  mathfu::vec2 up_offset_;
-  mathfu::vec2 down_offset_;
+  mathfu::vec2_packed up_offset_;
+  mathfu::vec2_packed down_offset_;
 
   bool is_active_;
   bool is_visible_;
   bool is_highlighted_;
+  bool draw_bounds_;
 
   // Scale the textures by the y-axis so that they are (proportionally)
   // the same height on every platform.
@@ -126,15 +134,16 @@ class StaticImage {
  public:
   StaticImage();
   void Initialize(const StaticImageDef& image_def,
-                  std::vector<Material*> materials, Shader* shader,
+                  std::vector<fplbase::Material*> materials,
+                  fplbase::Shader* shader,
                   int cannonical_window_height);
-  void Render(Renderer& renderer);
+  void Render(fplbase::Renderer& renderer);
   bool Valid() const;
   ButtonId GetId() const {
     return image_def_ == nullptr ? ButtonId_Undefined : image_def_->ID();
   }
   const StaticImageDef* image_def() const { return image_def_; }
-  const mathfu::vec2& scale() const { return scale_; }
+  mathfu::vec2 scale() const { return mathfu::vec2(scale_); }
   void set_scale(const mathfu::vec2& scale) { scale_ = scale; }
   void set_current_material_index(int i) { current_material_index_ = i; }
 
@@ -142,14 +151,14 @@ class StaticImage {
   bool is_visible() { return is_visible_; }
 
   void set_color(const mathfu::vec4& color) { color_ = color; }
-  const mathfu::vec4& color() { return color_; }
+  mathfu::vec4 color() { return mathfu::vec4(color_); }
 
   // Set the image position on screen, expressed as a fraction of the screen
   // dimensions to place the center point.
   void set_texture_position(const mathfu::vec2& position) {
     texture_position_ = position;
   }
-  const mathfu::vec2& texture_position() { return texture_position_; }
+  mathfu::vec2 texture_position() { return mathfu::vec2(texture_position_); }
 
  private:
   // Flatbuffer's definition of this image.
@@ -157,22 +166,22 @@ class StaticImage {
 
   // A list of materials that can be drawn. Choose current material with
   // set_current_material_index.
-  std::vector<Material*> materials_;
+  std::vector<fplbase::Material*> materials_;
 
   // The material that is currently being displayed.
   int current_material_index_;
 
   // The shader used to render the material.
-  Shader* shader_;
+  fplbase::Shader* shader_;
 
   // Draw image bigger or smaller. (1.0f, 1.0f) means no scaling.
-  mathfu::vec2 scale_;
+  mathfu::vec2_packed scale_;
 
   // Where to display the texture on screen.
-  mathfu::vec2 texture_position_;
+  mathfu::vec2_packed texture_position_;
 
   // Allow overriding the default color in code.
-  mathfu::vec4 color_;
+  mathfu::vec4_packed color_;
 
   // Scale the textures by the y-axis so that they are (proportionally)
   // the same height on every platform.

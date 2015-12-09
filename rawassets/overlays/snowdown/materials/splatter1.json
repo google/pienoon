@@ -1,0 +1,7 @@
+{
+    "texture_filenames": [
+        "textures/splat01.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
+}

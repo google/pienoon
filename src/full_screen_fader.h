@@ -15,14 +15,10 @@
 #ifndef FULL_SCREEN_FADER_H
 #define FULL_SCREEN_FADER_H
 
-#include "precompiled.h"
 #include "common.h"
+#include "precompiled.h"
 
 namespace fpl {
-
-class Renderer;
-class Material;
-class Shader;
 
 namespace pie_noon {
 
@@ -30,7 +26,7 @@ namespace pie_noon {
 // transparent.
 class FullScreenFader {
  public:
-  FullScreenFader(Renderer* renderer);
+  FullScreenFader(fplbase::Renderer* renderer);
   ~FullScreenFader() {}
 
   // Starts the fade.
@@ -46,10 +42,10 @@ class FullScreenFader {
     return !fade_in_ && CalculateOffset(time) >= 1.0f;
   }
 
-  void set_material(Material* material) { material_ = material; }
-  Material* material() const { return material_; }
-  void set_shader(Shader* shader) { shader_ = shader; }
-  Shader* shader() const { return shader_; }
+  void set_material(fplbase::Material* material) { material_ = material; }
+  fplbase::Material* material() const { return material_; }
+  void set_shader(fplbase::Shader* shader) { shader_ = shader; }
+  fplbase::Shader* shader() const { return shader_; }
   void set_ortho_mat(const mathfu::mat4& ortho_mat) { ortho_mat_ = ortho_mat; }
   const mathfu::mat4& ortho_mat() const { return ortho_mat_; }
   void set_extents(const mathfu::vec2i& extents) { extents_ = extents; }
@@ -74,11 +70,11 @@ class FullScreenFader {
   mathfu::mat4 ortho_mat_;
   // Extents of the fade region.
   mathfu::vec2i extents_;
-  Renderer* renderer_;
+  fplbase::Renderer* renderer_;
   // Material used to render the overlay.
-  Material* material_;
+  fplbase::Material* material_;
   // Shader used to render the overlay material.
-  Shader* shader_;
+  fplbase::Shader* shader_;
 };
 
 }  // namespace pie_noon

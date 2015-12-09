@@ -13,12 +13,11 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "config_generated.h"
 #include "common.h"
-#include "motive/io/flatbuffers.h"
-#include "motive/init.h"
+#include "config_generated.h"
 #include "game_camera.h"
-#include "utilities.h"
+#include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;

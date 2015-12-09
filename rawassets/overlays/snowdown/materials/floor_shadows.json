@@ -1,0 +1,7 @@
+{
+    "texture_filenames": [
+        "textures/shelf_top.webp",
+        "textures/shelf_top_shadow.webp"
+    ],
+    "blendmode": "ALPHA"
+}

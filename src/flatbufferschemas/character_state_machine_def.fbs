@@ -63,7 +63,8 @@ enum LogicalInputs:ushort (bit_flags) {
   Won,
   Lost,
   JoinedGame,
-  TriggerPieGrowth
+  TriggerPieGrowth,
+  TurnToTarget,
 }
 
 enum GameModeCondition:ushort {
@@ -135,3 +136,5 @@ table CharacterStateMachineDef {
 }
 
 root_type CharacterStateMachineDef;
+file_identifier "PIES";
+file_extension "piestate";

@@ -17,9 +17,7 @@
 
 #include "precompiled.h"
 
-#include "SDL_keycode.h"
 #include "controller.h"
-#include "input.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -28,7 +26,7 @@ namespace pie_noon {
 // input.
 struct Keybind {
   // The physical button that must pressed.
-  SDL_Keycode physical_input;
+  fplbase::FPL_Keycode physical_input;
 
   // The game specific input the button represents
   uint32_t logical_input;
@@ -59,14 +57,15 @@ class PlayerController : public Controller {
   // Set up a controller using the given input system and control scheme.
   // The input_system and scheme pointers are unowned and must outlive this
   // object.
-  void Initialize(InputSystem* input_system, const ControlScheme* scheme);
+  void Initialize(fplbase::InputSystem* input_system,
+                  const ControlScheme* scheme);
 
   // Map the input from the physical inputs to logical game inputs.
   virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
   // A pointer to the object to query for the current input state.
-  InputSystem* input_system_;
+  fplbase::InputSystem* input_system_;
 
   // The control scheme for this controller.
   const ControlScheme* scheme_;

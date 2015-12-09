@@ -12,23 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <assert.h>
+#include "precompiled.h"
 #include "scene_object.h"
 #include "shakeable_prop.h"
-#include "utilities.h"
 
 using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
 
+CORGI_DEFINE_COMPONENT(fpl::pie_noon::ShakeablePropComponent,
+                       fpl::pie_noon::ShakeablePropData)
+
 namespace fpl {
 namespace pie_noon {
 
 void ShakeablePropComponent::UpdateAllEntities(
-    entity::WorldTime /*delta_time*/) {
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
-    entity::EntityRef entity = iter->entity;
-    ShakeablePropData* sp_data = GetEntityData(iter->entity);
+    corgi::WorldTime /*delta_time*/) {
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
+    corgi::EntityRef entity = iter->entity;
+    ShakeablePropData* sp_data = GetComponentData(iter->entity);
     SceneObjectData* so_data = Data<SceneObjectData>(entity);
     assert(so_data != nullptr && sp_data != nullptr);
 
@@ -41,12 +44,11 @@ void ShakeablePropComponent::UpdateAllEntities(
 
 // Add the basic renderable component to the entity, if it doesn't have it
 // already.
-void ShakeablePropComponent::InitEntity(entity::EntityRef& entity) {
-  entity_manager_->AddEntityToComponent(entity,
-                                        ComponentDataUnion_SceneObjectDef);
+void ShakeablePropComponent::InitEntity(corgi::EntityRef& entity) {
+  entity_manager_->AddEntityToComponent<SceneObjectComponent>(entity);
 }
 
-void ShakeablePropComponent::AddFromRawData(entity::EntityRef& entity,
+void ShakeablePropComponent::AddFromRawData(corgi::EntityRef& entity,
                                             const void* data) {
   auto component_data = static_cast<const ComponentDefInstance*>(data);
   assert(component_data->data_type() == ComponentDataUnion_ShakeablePropDef);
@@ -83,8 +85,8 @@ void ShakeablePropComponent::LoadMotivatorSpecs() {
 }
 
 // Invalidate all our motivators before we get removed.
-void ShakeablePropComponent::CleanupEntity(entity::EntityRef& entity) {
-  ShakeablePropData* sp_data = GetEntityData(entity);
+void ShakeablePropComponent::CleanupEntity(corgi::EntityRef& entity) {
+  ShakeablePropData* sp_data = GetComponentData(entity);
   sp_data->motivator.Invalidate();
 }
 
@@ -95,7 +97,8 @@ void ShakeablePropComponent::ShakeProps(float damage_percent,
   (void)damage_percent;
   (void)damage_position;
 
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
     ShakeablePropData* data = &iter->data;
 
     SceneObjectData* so_data = Data<SceneObjectData>(iter->entity);

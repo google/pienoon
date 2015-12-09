@@ -15,25 +15,22 @@
 #ifndef PIE_NOON_GAME_H
 #define PIE_NOON_GAME_H
 
-#ifdef PLATFORM_MOBILE
 #ifdef __ANDROID__
 #define PIE_NOON_USES_GOOGLE_PLAY_GAMES
-#endif // __ANDROID__
-#endif
-
+#endif  // __ANDROID__
 
 #include "ai_controller.h"
 #include "cardboard_controller.h"
+#include "fplbase/asset_manager.h"
+#include "fplbase/input.h"
+#include "fplbase/renderer.h"
 #include "full_screen_fader.h"
 #include "game_state.h"
 #include "gui_menu.h"
-#include "input.h"
-#include "material_manager.h"
 #include "multiplayer_controller.h"
 #include "multiplayer_director.h"
 #include "pindrop/pindrop.h"
 #include "player_controller.h"
-#include "renderer.h"
 #include "scene_description.h"
 #include "touchscreen_button.h"
 #include "touchscreen_controller.h"
@@ -73,15 +70,28 @@ class PieNoonGame {
   bool Initialize(const char* const binary_directory);
   void Run();
 
+  // Set the overlay directory name to optionally load assets from.
+  static void SetOverlayName(const char* overlay_name) {
+    overlay_name_ = overlay_name;
+  }
+
+#if defined(__ANDROID__)
+  // Parse launch mode and overlay directory name from Intent data.
+  static void ParseViewIntentData(const std::string& intent_data,
+                                  std::string* launch_mode,
+                                  std::string* overlay);
+#endif  // defined(__ANDROID__)
+
  private:
   bool InitializeConfig();
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
   bool InitializeCardboardConfig();
 #endif
+  bool InitializeGpgIds();
   bool InitializeRenderer();
-  Mesh* CreateVerticalQuadMesh(const flatbuffers::String* material_name,
-                               const vec3& offset, const vec2& pixel_bounds,
-                               float pixel_to_world_scale);
+  fplbase::Mesh* CreateVerticalQuadMesh(
+      const flatbuffers::String* material_name, const vec3& offset,
+      const vec2& pixel_bounds, float pixel_to_world_scale);
   bool InitializeRenderingAssets();
   bool InitializeGameState();
   void RenderCardboard(const SceneDescription& scene,
@@ -92,18 +102,16 @@ class PieNoonGame {
   void RenderScene(const SceneDescription& scene,
                    const mat4& additional_camera_changes,
                    const vec2i& resolution);
-  void Render2DElements();
-  void GetCardboardTransforms(mat4& left_eye_transform,
-                              mat4& right_eye_transform);
+  void Render2DElements(const SceneDescription& scene,
+                        const mat4& additional_camera_changes);
   void CorrectCardboardCamera(mat4& cardboard_camera);
-  void RenderCardboardCenteringBar();
   void DebugPrintCharacterStates();
   void DebugPrintPieStates();
   void DebugCamera();
   const Config& GetConfig() const;
   const Config& GetCardboardConfig() const;
   const CharacterStateMachineDef* GetStateMachine() const;
-  Mesh* GetCardboardFront(int renderable_id);
+  fplbase::Mesh* GetCardboardFront(int renderable_id, int variant);
   PieNoonState UpdatePieNoonState();
   void TransitionToPieNoonState(PieNoonState next_state);
   PieNoonState UpdatePieNoonStateAndTransition();
@@ -135,7 +143,7 @@ class PieNoonGame {
   void LoadTutorialSlide(int slide_index);
   void LoadInitialTutorialSlides();
   void RenderInMiddleOfScreen(const mathfu::mat4& ortho_mat, float x_scale,
-                              Material* material);
+                              fplbase::Material* material);
 
   void ProcessMultiplayerMessages();
   void ProcessPlayerStatusMessage(const multiplayer::PlayerStatus&);
@@ -143,9 +151,8 @@ class PieNoonGame {
   // returns true if a new splat was displayed
   bool ShowMultiscreenSplat(int splat_num);
 
-  static int ReadPreference(const char* key, int initial_value,
-                            int failure_value);
-  static void WritePreference(const char* key, int value);
+  static void StringArrayResource(const char* resource_name,
+                                  std::vector<std::string>* strings);
 
   void CheckForNewAchievements();
 
@@ -157,6 +164,11 @@ class PieNoonGame {
   void ReloadMultiscreenMenu();
   void UpdateMultiscreenMenuIcons();
   void SetupWaitingForPlayersMenu();
+  bool ShouldTransitionFromSlide(WorldTime world_time);
+
+  // Overrides fplbase::LoadFile() in order to optionally load files from
+  // overlay directories.
+  static bool LoadFile(const char* filename, std::string* dest);
 
   // The overall operating mode of our game. See CalculatePieNoonState for the
   // state machine definition.
@@ -168,39 +180,39 @@ class PieNoonGame {
 
   // Hold configuration binary data.
   std::string config_source_;
-#ifdef ANDROID_CARDBOARD
+#ifdef ANDROID_HMD
   std::string cardboard_config_source_;
 #endif
 
   // Report touches, button presses, keyboard presses.
-  InputSystem input_;
+  fplbase::InputSystem input_;
 
   // Hold rendering context.
-  Renderer renderer_;
+  fplbase::Renderer renderer_;
 
   // Load and own rendering resources.
-  MaterialManager matman_;
+  fplbase::AssetManager matman_;
 
   // Manage ownership and playing of audio assets.
   pindrop::AudioEngine audio_engine_;
 
   // Map RenderableId to rendering mesh.
-  std::vector<Mesh*> cardboard_fronts_;
-  std::vector<Mesh*> cardboard_backs_;
+  std::vector<fplbase::Mesh*> cardboard_fronts_[RenderableId_Count];
+  fplbase::Mesh* cardboard_backs_[RenderableId_Count];
 
   // Rendering mesh for front and back of the stick that props cardboard.
-  Mesh* stick_front_;
-  Mesh* stick_back_;
+  fplbase::Mesh* stick_front_;
+  fplbase::Mesh* stick_back_;
 
   // Shaders we use.
-  Shader* shader_cardboard;
-  Shader* shader_lit_textured_normal_;
-  Shader* shader_simple_shadow_;
-  Shader* shader_textured_;
-  Shader* shader_grayscale_;
+  fplbase::Shader* shader_cardboard;
+  fplbase::Shader* shader_lit_textured_normal_;
+  fplbase::Shader* shader_simple_shadow_;
+  fplbase::Shader* shader_textured_;
+  fplbase::Shader* shader_grayscale_;
 
   // Shadow material.
-  Material* shadow_mat_;
+  fplbase::Material* shadow_mat_;
 
   // Hold state machine binary data.
   std::string state_machine_source_;
@@ -240,7 +252,7 @@ class PieNoonGame {
 
   // Debug data. For displaying when a character's state has changed.
   std::vector<int> debug_previous_states_;
-  std::vector<Angle> debug_previous_angles_;
+  std::vector<motive::Angle> debug_previous_angles_;
 
   TouchscreenController* touch_controller_;
   GuiMenu gui_menu_;
@@ -268,7 +280,8 @@ class PieNoonGame {
   pindrop::Channel music_channel_;
 
   // Tutorial slides we are in the midst of displaying.
-  std::vector<std::string> tutorial_slides_;
+  const flatbuffers::Vector<flatbuffers::Offset<fpl::pie_noon::Slide>>*
+      tutorial_slides_;
 
   // Tutorial aspect ratio
   float tutorial_aspect_ratio_;
@@ -294,6 +307,9 @@ class PieNoonGame {
 
   // The Worldtime when the game was paused, used just for analytics.
   WorldTime pause_time_;
+
+  // Name of the optional overlay to load assets from.
+  static std::string overlay_name_;
 
 #ifdef PIE_NOON_USES_GOOGLE_PLAY_GAMES
   GPGManager gpg_manager;

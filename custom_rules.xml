@@ -24,6 +24,12 @@ limitations under the License.
   <condition property="ndkbuild_exe" value="ndk-build.cmd" else="ndk-build">
     <os family="windows" />
   </condition>
+  <exec executable="${ndkbuild_exe}" outputproperty="fplbasepath">
+    <arg value="print_dependency"/>
+    <arg value="DEP_DIR=FPLBASE"/>
+  </exec>
+  <!--Include the common build rules from fplbase.-->
+  <include file="${fplbasepath}/jni/custom_rules.xml" as="fplbase"/>
 
   <target name="initialize-google-play-games_lib"
           description="Initialize Google Play Games library in the project.">
@@ -51,13 +57,6 @@ limitations under the License.
     </exec>
   </target>
 
-  <target name="copy-sdl-activity"
-          description="Copy SDL activity into the source directory."
-          depends="get-sdl-path">
-    <copy tofile="src_java/${sdlactivity}"
-          file="${sdlpath}/android-project/src/${sdlactivity}"/>
-  </target>
-
   <target name="get-cardboard-path"
           description="Save the Cardboard SDK's location in cardboardpath.">
     <exec executable="${ndkbuild_exe}" outputproperty="cardboardpath">
@@ -78,8 +77,9 @@ limitations under the License.
        the Google Play Games library and SDL Android activity to this
        directory before the build process starts. -->
   <target name="-pre-build"
-          depends="initialize-google-play-games_lib, copy-sdl-activity,
-                  copy-cardboard-libs" />
+          depends="fplbase.setup-fplbase,
+                   initialize-google-play-games_lib,
+                   copy-cardboard-libs" />
 
   <target name="-pre-clean" depends="initialize-google-play-games_lib" />
 

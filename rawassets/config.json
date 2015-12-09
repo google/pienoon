@@ -1,0 +1,3247 @@
+{
+    "entity_list": [
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentStageFront,
+              "position": { "x": 0, "y": -4.1, "z":0 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Sky:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentSky,
+              "position": { "x": 0, "y": 0, "z":12 },
+              "scale": { "x": 1.3, "y": 0.9, "z":1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Ambient occlusion shadow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentAmbientOcclusionShadow,
+              "position": { "x": -8.5, "y": 0.005, "z":4 },
+              "scale": { "x": 80, "y": 1, "z":1 },
+              "orientation": { "x": 90, "y": -40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Ambient occlusion shadow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentAmbientOcclusionShadow,
+              "position": { "x": 2.5, "y": 0.01, "z":6.7 },
+              "scale": { "x": 160, "y": 2, "z":1 },
+              "orientation": { "x": 90, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Sun glow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentSunGlow,
+              "position": { "x": 4, "y": 5.5, "z":7 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "orientation": { "x": 0, "y": 10, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          }
+        ]
+      },
+
+      // Store Front:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentStoreFront,
+              "position": { "x": -8.5, "y": 0, "z":5 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "orientation": { "x": 0, "y": -40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Store room:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentStoreRoom,
+              "position": { "x": 2.5, "y": -0.3, "z":7.6 },
+              "scale": { "x": 1, "y": 1, "z":1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // sun:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentSun,
+              "position":  { "x": 4, "y": 12.5, "z":6.9 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 6, "z": 0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Pendulum,
+              "shake_scale": 1.0,
+              "shake_axis": Z
+            }
+          }
+        ]
+      },
+
+      // cloud:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentCloud,
+              "position": { "x": -4, "y": 12, "z":6.5 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": -10, "z":0 },
+              "origin_point": { "x": 0, "y": 4.6, "z": 0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Pendulum,
+              "shake_scale": 0.7,
+              "shake_axis": Z
+            }
+          }
+        ]
+      },
+
+      // Cloud Shadow:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentCloudShadow,
+              "position": { "x": -2.5, "y": 5.5, "z":6.8 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": -10, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": -2.8, "y": -0.1, "z":6.7 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 0, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": -4.5, "y": 0, "z":5.7 },
+              "scale": { "x": 0.6, "y": 0.6, "z": 0.6 },
+              "orientation": { "x": 0, "y": -20, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Tree:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentTree,
+              "position": { "x": 7.5, "y": 0, "z":4.5 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 0.6
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": 9, "y": 0, "z":1 },
+              "scale": { "x": 1, "y": 1, "z": 1 },
+              "orientation": { "x": 0, "y": 20, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Tree:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentTree,
+              "position": { "x": -8.5, "y": 0, "z":0.7 },
+              "scale": { "x": -0.8, "y": 0.7, "z": 1 },
+              "orientation": { "x": 0, "y": -60, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 0.6
+            }
+          }
+        ]
+      },
+
+      // Bush:
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentBush,
+              "position": { "x": -7.5, "y": 0, "z":0.5 },
+              "scale": { "x": 0.7, "y": 0.7, "z": 0.7 },
+              "orientation": { "x": 0, "y": -40, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 1.0
+            }
+          }
+        ]
+      },
+
+      // Tree
+      {
+        "component_list": [
+          {
+            "data_type": SceneObjectDef,
+            "data": {
+              "renderable_id": EnvironmentTree,
+              "position": { "x": -10, "y": 0, "z":0.7 },
+              "scale": { "x": -0.8, "y": 0.7, "z": 1 },
+              "orientation": { "x": 0, "y": -80, "z":0 },
+              "origin_point": { "x": 0, "y": 0, "z":0 },
+              "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+            }
+          },
+          {
+            "data_type": ShakeablePropDef,
+            "data": {
+              "shake_motivator": Sway,
+              "shake_scale": 0.6
+            }
+          }
+        ]
+      }
+    ],
+
+    "ground_plane_width": 16.4,
+    "ground_plane_depth": 8,
+
+    "splatter_def" : {
+      "component_list": [
+        {
+          "data_type": SceneObjectDef,
+          "data": {
+            "renderable_id": Splatter1,
+            "position": { "x": 0, "y": -4.1, "z":0 },
+            "scale": { "x": 1, "y": 1, "z":1 },
+            "origin_point": { "x": 0, "y": 0, "z":0 },
+            "orientation": { "x": 0, "y": 0, "z":0 },
+            "tint": { "x": 1, "y": 1, "z":1, "w": 1 }
+          }
+        },
+        {
+          "data_type":DripAndVanishDef,
+          "data": {
+            "total_lifetime": 12.0,
+            "time_spent_dripping": 6.0,
+            "distance_dripped": 1.0
+          }
+        }
+      ]
+    },
+
+    "splatter_range_min": { "x": -2.0, "y": 0.0, "z":  -0.05 },
+    "splatter_range_max": { "x": 2.0, "y": 1.0, "z":  -0.15 },
+    "splatter_scale_min": 0.7,
+    "splatter_scale_max": 1.5,
+    "splatter_radius_squared": 25,
+
+    "character_count": 4,
+    "character_arrangements": [
+    {
+      "character_data": [
+        {
+          "position": { "x": -4.0, "y": 0.0, "z":  2.5 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": 4.0, "y": 0.0, "z":  2.5 },
+          "left_jump": 1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.0, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": 0.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.0, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -3.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  3.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.0, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -3.0, "y": 0.0, "z":  3.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 0.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  3.0, "y": 0.0, "z":  3.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.0, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.5, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -4.0, "y": 0.0, "z":  3.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": -2.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 2.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  4.0, "y": 0.0, "z":  3.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.5, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.5, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -4.5, "y": 0.0, "z":  3.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": -2.5, "y": 0.0, "z":  4.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 0.0, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 2.5, "y": 0.0, "z":  4.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  4.5, "y": 0.0, "z":  3.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.5, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        }
+      ]
+    },
+    {
+      "character_data": [
+        {
+          "position": { "x": -5.5, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        },
+        {
+          "position": { "x": -4.5, "y": 0.0, "z":  2.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": -3.0, "y": 0.0, "z":  3.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": -1.5, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 1.5, "y": 0.0, "z":  5.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x": 3.0, "y": 0.0, "z":  3.5 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  4.5, "y": 0.0, "z":  2.0 },
+          "left_jump": 1
+        },
+        {
+          "position": { "x":  5.5, "y": 0.0, "z":  0.8 },
+          "left_jump": -1
+        }
+      ]
+    }
+  ],
+
+  "game_mode": "Survival",
+  "game_time": 20000,
+  "touch_deflect_time": 1000,
+  "character_health": 10,
+  "target_score": 10,
+
+  "scoring_rules": {
+    "rules": [
+      {
+        "event": "ThrewPie",
+        "reward_type": "None"
+      },
+      {
+        // You lose points for getting hit.
+        "event": "HitByPie",
+        "reward_type": "AddPointValue",
+        "point_value": -1
+      },
+      {
+        "event": "DeflectedPie",
+        "reward_type": "None"
+      },
+      {
+        // A pie you created hit someone.
+        "event": "YourPieHitSomeone",
+        "reward_type": "None"
+      },
+      {
+        // A pie that you most recently interacted with hit someone.
+        "event": "HitSomeoneWithPie",
+        "reward_type": "AddDamage"
+      }
+    ]
+  },
+
+  "number_of_keyboard_controllers": 1,
+
+  "character_colors": [
+    { "x":  1.0, "y": 0.0, "z":  0.0 },
+    { "x":  0.0, "y": 1.0, "z":  0.0 },
+    { "x":  0.0, "y": 0.0, "z":  1.0 },
+    { "x":  1.0, "y": 1.0, "z":  0.0 },
+    { "x":  0.0, "y": 1.0, "z":  1.0 },
+    { "x":  1.0, "y": 0.0, "z":  1.0 },
+    { "x":  1.0, "y": 1.0, "z":  1.0 },
+    { "x":  0.5, "y": 0.5, "z":  0.5 }
+  ],
+
+  "character_global_brightness_factor": 0.25,
+  "character_global_brightness_factor_buttons": 0.5,
+
+  "ai_color": { "x":  0.7, "y": 0.7, "z":  0.7 },
+
+  "audio": {
+    "output_frequency": 44100,
+    "output_channels": "Stereo",
+    "output_buffer_size": 2048,
+    "mixer_channels": 16,
+    "bus_file": "buses.pinbus"
+  },
+
+    "confetti_def": {
+      "min_scale":  { "x": 5.0, "y": 5.0, "z": 5.0 },
+      "max_scale":  { "x": 10.0, "y": 10.0, "z": 10.0 },
+      "preserve_aspect": false,
+      "min_velocity":  { "x": -0.002, "y": -0.003, "z": -0.002 },
+      "max_velocity":  { "x": 0.002, "y": -0.005, "z": 0.002 },
+      "min_position_offset":  { "x": -10, "y": 0.0, "z": -10 },
+      "max_position_offset":  { "x": 10, "y": 0.0, "z": 10 },
+      "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
+      "max_orientation_offset":  { "x": 6.282, "y": 6.282, "z": 6.282 },
+      "min_angular_velocity": { "x": -0.02 , "y": -0.02, "z": -0.02 },
+      "max_angular_velocity": { "x": 0.02, "y": 0.02, "z": 0.02 },
+      "min_duration": 4000,
+      "max_duration": 5000,
+      "shrink_duration": 1000,
+      "fade_duration": 0,
+      "acceleration":  { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 },
+            { "x": 0, "y": 1, "z": 1, "w":1 },
+            { "x": 1, "y": 0, "z": 1, "w":1 },
+            { "x": 1, "y": 1, "z": 0, "w":1 },
+            { "x": 0, "y": 0, "z": 1, "w":1 },
+            { "x": 0, "y": 1, "z": 0, "w":1 },
+            { "x": 1, "y": 0, "z": 0, "w":1 }
+        ],
+      "renderable": ["Pixel1x1"]
+    },
+
+    "joining_confetti_count" : 100,
+
+    "joining_confetti_def": {
+      "min_scale":  { "x": 8.0, "y": 8.0, "z": 8.0 },
+      "max_scale":  { "x": 15.0, "y": 15.0, "z": 15.0 },
+      "preserve_aspect": false,
+      "min_velocity":  { "x": -0.002, "y": 0.0015, "z": -0.002 },
+      "max_velocity":  { "x": 0.002, "y": 0.0030, "z": 0.002 },
+      "min_position_offset":  { "x": -1, "y": 1.0, "z": -1 },
+      "max_position_offset":  { "x": 1, "y": 4.0, "z": 1 },
+      "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
+      "max_orientation_offset":  { "x": 6.282, "y": 6.282, "z": 6.282 },
+      "min_angular_velocity": { "x": -0.02 , "y": -0.02, "z": -0.02 },
+      "max_angular_velocity": { "x": 0.02, "y": 0.02, "z": 0.02 },
+      "min_duration": 1000,
+      "max_duration": 2000,
+      "shrink_duration": 500,
+      "fade_duration": 0,
+      "acceleration":  { "x": 0.0, "y": -0.000005, "z": 0.0 },
+      "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 }],
+      "renderable": ["Pixel1x1"]
+    },
+
+  "pie_splatter_def": {
+    "min_scale":  { "x": 0.5, "y": 0.5, "z": 0.5 },
+    "max_scale":  { "x": 1.0, "y": 1.0, "z": 1.0 },
+    "preserve_aspect": true,
+    "min_velocity":  { "x": -0.01, "y": 0, "z": -0.005 },
+    "max_velocity":  { "x": 0.005, "y": 0.01, "z": 0.005},
+    "min_position_offset":  { "x": 0, "y": 1.0, "z": 0 },
+    "max_position_offset":  { "x": 0, "y": 2.0, "z": 0 },
+    "min_orientation_offset":  { "x": 0, "y": 0, "z": 0 },
+    "max_orientation_offset":  { "x": 0, "y": 0, "z": 6.282 },
+    "min_angular_velocity": { "x": 0, "y": 0, "z": -0.005 },
+    "max_angular_velocity": { "x": 0, "y": 0, "z": 0.005 },
+    "min_duration": 150,
+    "max_duration": 900,
+    "shrink_duration": 400,
+    "fade_duration": 0,
+    "acceleration":  { "x": 0.0, "y": -0.00005, "z": 0.0 },
+    "tint": [{ "x": 1, "y": 1, "z": 1, "w":1 }],
+    "renderable": ["Splatter1", "Splatter2", "Splatter3"]
+  },
+  "pie_noon_particles_per_damage": 8,
+
+  "camera_position": { "x": 0.0, "y": 3.4, "z": -11.5 },
+  "camera_target": { "x": 0.0, "y": 3.5, "z": 0.0 },
+  "light_positions": [
+      { "x": -50.0, "y": 300.0, "z": -200.0 }
+    ],
+  "pie_flight_time": 833,
+  "pie_rotations": 0,
+  "pie_rotation_variance": 1,
+  "pie_initial_angle": 45,
+  "pie_target_angle": 135,
+  "pie_initial_height": 1.5,
+  "pie_arc_height": 5,
+  "pie_arc_height_variance": 2,
+  "pie_deflection_mode": "ToTargetOfTarget",
+  "pie_damage_change_when_deflected": -2,
+  "min_update_time": 10,
+  "max_update_time": 100,
+
+  "face_angle_def": {
+    "base": {
+      "modular": true,
+      "min": -3.14159265359,
+      "max": 3.14159265359
+    },
+    "max_velocity": 0.0126,
+    "max_delta": 3.141,
+    "at_target": { "max_difference": 0.03, "max_velocity": 0.0001 },
+    "acceleration_per_difference": 0.000192,
+    "wrong_direction_acceleration_multiplier": 6.0,
+    "max_delta_time": 20
+  },
+
+  "tilt_away_angle": 30,
+
+  "motivator_specifications": [
+    // None
+    {},
+
+    // Sway
+    {
+      "base": {
+        "modular": false,
+        "min": -0.5235,
+        "max": 0.5235
+      },
+      "max_velocity": 0.0126,
+      "max_delta": 1.5,
+      "at_target": { "max_difference": 0.0003, "max_velocity": 0.000003 },
+      "acceleration_per_difference": 0.00009,
+      "wrong_direction_acceleration_multiplier": 1.5
+    },
+
+    // Pendulum
+    {
+      "base": {
+        "modular": false,
+        "min": -1.047,
+        "max": 1.047
+      },
+      "max_velocity": 0.018,
+      "max_delta": 1.0,
+      "at_target": { "max_difference": 0.005, "max_velocity": 0.000003 },
+      "acceleration_per_difference": 0.000006,
+      "wrong_direction_acceleration_multiplier": 1.3
+    }
+  ],
+
+  "prop_shake_velocity": 0.03,
+  "prop_shake_percent_per_damage": 0.2,
+  "prop_shake_identity_distance_sq": 1.3,
+
+  "face_angle_twitch": {
+    "max_difference": 0.026,
+    "max_velocity": 0.000624
+  },
+
+  "face_angle_twitch_velocity": 0.00312,
+
+  "join_motivator_def": {
+    "base": {
+      "modular": false,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "max_velocity": 0.0015,
+    "max_delta": 1.0,
+    "at_target": { "max_difference": 0.01, "max_velocity": 0.0001 },
+    "acceleration_per_difference": 0.00004,
+    "wrong_direction_acceleration_multiplier": 1.0,
+    "max_delta_time": 40
+  },
+
+  "join_motivator_start_value": 0.7,
+  "join_motivator_target_value": 0.0,
+  "join_motivator_start_velocity": 0.0015,
+
+  "join_number_of_pies": 5,
+
+  "renderable_id_for_pie_damage": [
+    "PieEmpty",
+    "PieSmall",
+    "PieSmall",
+    "PieMedium",
+    "PieMedium",
+    "PieLarge"
+  ],
+
+  "hit_sound_id_for_pie_damage": [
+    "HitWithSmallPie",
+    "HitWithSmallPie",
+    "HitWithSmallPie",
+    "HitWithMediumPie",
+    "HitWithMediumPie",
+    "HitWithLargePie"
+  ],
+
+  "blocked_sound_id_for_pie_damage": [
+    "BlockedSmallPie",
+    "BlockedSmallPie",
+    "BlockedSmallPie",
+    "BlockedMediumPie",
+    "BlockedMediumPie",
+    "BlockedLargePie"
+  ],
+
+  "camera_move_on_damage_min_damage": 5,
+  "camera_move_on_damage": {
+    "position_from_subject": {"x": 1.1, "y": 0.0, "z": 0.2 },
+    "position_from_base": {"x": 1.0, "y": 0.8, "z": 1.0 },
+    "target_from_subject": {"x": 0.5, "y": 0.0, "z": 1.1 },
+    "target_from_base": {"x": 0.0, "y": 1.0, "z": 0.0 },
+    "start_velocity": 0.014,
+    "time": 170,
+    "def": {
+      "base": {
+        "modular": false,
+        "min": 0.0,
+        "max": 1.0
+      }
+    }
+  },
+  "camera_move_to_base": {
+    "position_from_subject": {"x": 0.0, "y": 0.0, "z": 0.0 },
+    "position_from_base": {"x": 1.0, "y": 1.0, "z": 1.0 },
+    "target_from_subject": {"x": 0.0, "y": 0.0, "z": 0.0 },
+    "target_from_base": {"x": 1.0, "y": 1.0, "z": 1.0 },
+    "start_velocity": 0.0,
+    "time": 1300,
+    "def": {
+      "base": {
+        "modular": false,
+        "min": 0.0,
+        "max": 1.0
+      }
+    }
+  },
+
+  "play_finished_timeout": 2000,
+
+  "window_size": { "x": 1280, "y": 800 },
+  "window_title": "Pie Noon",
+  "viewport_angle": 0.7853975,
+  "viewport_near_plane": 1.0,
+  "viewport_far_plane": 100.0,
+  "pixel_to_world_scale": 0.008,
+  "cardboard_front_z_offset": 0.0,
+  "cardboard_back_z_offset": -0.1,
+  "accessory_z_offset": 0.06,
+  "accessory_z_increment": 0.02,
+  "cardboard_bias_towards_stage_front": 2.0,
+  "cardboard_ambient_material": { "x": 0.75, "y": 0.75, "z": 0.75 },
+  "cardboard_diffuse_material": { "x": 0.85, "y": 0.85, "z": 0.85 },
+  "cardboard_specular_material": { "x": 0.3, "y": 0.3, "z": 0.3 },
+  "cardboard_shininess": 32,
+  "cardboard_normalmap_scale": 0.3,
+  "stick_y_offset": -1.0,
+  "stick_front_z_offset": -0.01,
+  "stick_back_z_offset": -0.09,
+  "stick_front": "materials/stick.fplmat",
+  "stick_back": "materials/stick_back.fplmat",
+  "stick_bounds": { "x": 64, "y": 256 },
+
+  "loading_material": "materials/loading.fplmat",
+  "loading_logo": "materials/loading_logo.fplmat",
+  "fade_material": "materials/pixel1x1.fplmat",
+  "min_loading_time": 2000,
+  "loading_anim_amplitude": 60.0,
+  "loading_anim_vert_translation": 0.5,
+  "loading_texture_vert_translation":0.7,
+  "full_screen_fade_time": 250,
+
+  "ui_arrow_offset": { "x": -0.7, "y": 1.0, "z": 0.05 },
+  "ui_arrow_scale": { "x": 1.7, "y": 1.7, "z": 1.7 },
+
+  "cardboard_center_material": "materials/pixel1x1.fplmat",
+  "cardboard_center_scale": { "x": 0.01, "y": 0.8 },
+  "cardboard_center_color": { "x": 0.3, "y": 0.3, "z": 0.3, "w": 1.0 },
+
+  "target_reticle_distance": 0.8,
+  "target_reticle_height": 0.5,
+  "cardboard_pie_offset": { "x": 1.0, "y": 0.1, "z": -0.02 },
+  "cardboard_pie_scale": { "x": 0.4, "y": 0.4, "z": 1.0 },
+  "cardboard_health_offset": { "x": 1.0, "y": 1.3, "z": 0.0 },
+  "cardboard_arrow_scale": 4.0,
+
+  "ai_minimum_time_between_actions": 200,
+  "ai_maximum_time_between_actions": 1000,
+  "ai_chance_to_block": 0.75,
+  "ai_chance_to_change_aim": 0.4,
+  "ai_chance_to_throw": 0.2,
+  "ai_block_min_duration": 1000,
+  "ai_block_max_duration": 2000,
+
+  "title_screen_buttons_android" : {
+    "starting_selection" : "MenuStart",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.0 },
+          "bottom_right" : { "x": 0.7, "y": 0.6 },
+          "ID" : "MenuStart",
+          "texture_normal" : [
+            { "standard" : "materials/menu_start.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
+          "texture_position" : { "x": 0.53, "y": 0.45 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_left" : ["MenuSignIn"],
+          "nav_right" : ["MenuExtras"],
+          "nav_down" : ["MenuGameModes"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.85 },
+          "bottom_right" : { "x": 0.7, "y": 1.0 },
+          "ID" : "MenuGameModes",
+          "texture_normal" : [
+            { "standard" : "materials/text_game_modes.fplmat" }
+          ],
+          "texture_pressed" : {
+            "standard" : "materials/text_game_modes.fplmat"
+          },
+          "texture_position" : { "x": 0.5, "y": 0.92 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.4, "y": 1.4 },
+          "draw_scale_pressed" : { "x": 1.4, "y": 1.4 },
+          "nav_right" : ["MenuExtras"],
+          "nav_left" : ["MenuSignIn"],
+          "nav_up" : ["MenuStart"]
+        },
+        {
+          "top_left" : { "x": 0.0, "y": 0.7 },
+          "bottom_right" : { "x": 0.3, "y": 1.0 },
+          "ID" : "MenuSignIn",
+          "texture_normal" : [
+            { "standard" : "materials/gpg_button.fplmat" },
+            { "standard" : "materials/gpg_button_disabled.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/gpg_button.fplmat" },
+          "texture_position" : { "x": 0.08, "y": 0.92 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_right" : ["MenuGameModes"],
+          "nav_up" : ["MenuStart"]
+        },
+        {
+          "top_left" : { "x": 0.7, "y": 0.85 },
+          "bottom_right" : { "x": 1.0, "y": 1.0 },
+          "ID" : "MenuExtras",
+          "texture_normal" : [
+            { "standard" : "materials/license_button.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/license_button.fplmat" },
+          "texture_position" : { "x": 0.92, "y": 0.92 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuGameModes"],
+          "nav_up" : ["MenuStart"]
+        }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        },
+        {
+          "ID" : "MenuSignInText",
+          "texture" : [
+              { "standard" : "materials/text_sign_out.fplmat" },
+              { "standard" : "materials/text_sign_in.fplmat" }
+          ],
+          "texture_position": { "x": 0.20, "y": 0.93 },
+          "draw_scale": { "x": 0.8, "y": 0.8 },
+          "z_depth" : 0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_extras.fplmat" } ],
+          "texture_position": { "x": 0.82, "y": 0.93 },
+          "draw_scale": { "x": 0.8, "y": 0.8 },
+          "z_depth" : 0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/multiscreen_button.fplmat" } ],
+          "texture_position" : { "x": 0.34, "y": 0.92 },
+          "draw_scale": { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/cardboard_button.fplmat" } ],
+          "texture_position" : { "x": 0.66, "y": 0.92 },
+          "draw_scale" : { "x": 0.8, "y": 0.8 },
+          "z_depth" : -0.1
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuStart",
+            "texture_foreground" : "textures/menu_start.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold",
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.0, "z" : 0.0, "w" : 0.0 },
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuSignIn",
+            "texture_foreground" : "textures/play_games_connected_button.webp",
+            "texture_background" : "textures/text_sign_in.webp",
+            "size" : 0.065,
+            "margin": { "x": -0.05, "y": 0.35, "z" : 0.34, "w" : 0.0 },
+            "foreground_position": { "x": -0.15, "y": -0.04 },
+            "foreground_size_pressed": 1.3,
+            "foreground_size_focus" : 1.3,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuExtras",
+            "texture_foreground" : "textures/license_button.webp",
+            "texture_background" : "textures/text_extras.webp",
+            "size" : 0.065,
+            "margin": { "x": 0.34, "y": 0.35, "z" : 0.3, "w" : 0.0 },
+            "foreground_position": { "x": 0.26, "y": -0.04 },
+            "foreground_size_pressed": 1.3,
+            "foreground_size_focus" : 1.3,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+    ]
+  },
+
+  "title_screen_buttons_non_android" : {
+    "starting_selection" : "MenuStart",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "ID" : "MenuStart",
+          "texture_normal" : [
+            { "standard" : "materials/menu_start.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
+          "texture_position" : { "x": 0.53, "y": 0.45 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 }
+        }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuStart",
+            "texture_foreground" : "textures/menu_start.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold",
+          }
+        }
+    ]
+  },
+
+  "extras_screen_buttons" : {
+    "starting_selection" : "MenuLeaderboard",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.5, "y": 0.24 },
+          "bottom_right" : { "x": 0.85, "y": 0.54 },
+          "ID" : "MenuAbout",
+          "texture_normal" : [
+            { "standard" : "materials/environment_bush.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/environment_bush.fplmat" },
+          "texture_position" : { "x": 0.545, "y": 0.47 },
+          "draw_scale_normal" : { "x": 0.22, "y": 0.22 },
+          "draw_scale_highlighted": { "x": 0.24, "y": 0.24 },
+          "draw_scale_pressed" : { "x": 0.24, "y": 0.24 },
+          "nav_left" : ["MenuLeaderboard"],
+          "nav_down" : ["MenuAchievements"]
+        },
+        {
+          "top_left" : { "x": 0.15, "y": 0.45 },
+          "bottom_right" : { "x": 0.5, "y": 0.73 },
+          "ID" : "MenuLeaderboard",
+          "texture_normal" : [
+            { "standard" : "materials/ui_cloud.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/ui_cloud.fplmat" },
+          "texture_position" : { "x": 0.455, "y": 0.65 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_right" : ["MenuAchievements"],
+          "nav_up" : ["MenuAbout"],
+          "nav_down" : ["MenuHowToPlay"]
+        },
+        {
+          "top_left" : { "x": 0.5, "y": 0.54 },
+          "bottom_right" : { "x": 0.85, "y": 0.73 },
+          "ID" : "MenuAchievements",
+          "texture_normal" : [
+            { "standard" : "materials/health.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/health.fplmat" },
+          "texture_position" : { "x": 0.545, "y": 0.65 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuLeaderboard"],
+          "nav_up" : ["MenuAbout"],
+          "nav_down" : ["MenuLicense"]
+        },
+        {
+          "top_left" : { "x": 0.15, "y": 0.73 },
+          "bottom_right" : { "x": 0.5, "y": 0.93 },
+          "ID" : "MenuHowToPlay",
+          "texture_normal" : [
+            { "standard" : "materials/ui_throw.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/ui_throw.fplmat" },
+          "texture_position" : { "x": 0.455, "y": 0.81 },
+          "draw_scale_normal" : { "x": 0.4, "y": 0.4 },
+          "draw_scale_highlighted": { "x": 0.5, "y": 0.5 },
+          "draw_scale_pressed" : { "x": 0.5, "y": 0.5 },
+          "nav_right" : ["MenuLicense"],
+          "nav_up" : ["MenuLeaderboard"]
+        },
+        {
+          "top_left" : { "x": 0.5, "y": 0.73 },
+          "bottom_right" : { "x": 0.85, "y": 0.93 },
+          "ID" : "MenuLicense",
+          "texture_normal" : [
+            { "standard" : "materials/license_button.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/license_button.fplmat" },
+          "texture_position" : { "x": 0.545, "y": 0.81 },
+          "draw_scale_normal" : { "x": 0.8, "y": 0.8 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 },
+          "nav_left" : ["MenuHowToPlay"],
+          "nav_up" : ["MenuAchievements"]
+        },
+        // Two invisible buttons to allow user to go back to main menu.
+        // Note that the buttons end at y=0.7 to avoid conflicting with main
+        // menu buttons.
+        {
+          "top_left" : { "x": 0.0, "y": 0.0 },
+          "bottom_right" : { "x": 0.15, "y": 0.7 },
+          "ID" : "MenuBack"
+        },
+        {
+          "top_left" : { "x": 0.85, "y": 0.0 },
+          "bottom_right" : { "x": 1.0, "y": 0.7 },
+          "ID" : "MenuBack"
+        }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.73 },
+          "draw_scale": { "x": 1.64, "y": 2.1 },
+          "z_depth" : -0.45
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/environment_string.fplmat" } ],
+          "texture_position": { "x": 0.68, "y": 0.57 },
+          "draw_scale": { "x": 0.4, "y": 1.0 },
+          "z_depth" : -0.55
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/environment_string.fplmat" } ],
+          "texture_position": { "x": 0.32, "y": 0.57 },
+          "draw_scale": { "x": 0.4, "y": 1.0 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_about.fplmat" } ],
+          "texture_position": { "x": 0.655, "y": 0.48 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_leaderboard.fplmat" } ],
+          "texture_position": { "x": 0.335, "y": 0.65 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_achievements.fplmat" } ],
+          "texture_position": { "x": 0.705, "y": 0.65 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_how_to_play.fplmat" } ],
+          "texture_position": { "x": 0.355, "y": 0.81 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_license.fplmat" } ],
+          "texture_position": { "x": 0.655, "y": 0.81 },
+          "draw_scale": { "x": 0.55, "y": 0.55 },
+          "z_depth" : -0.4
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.02, "z" : 0.0, "w" : 0.0 },
+            "texture_background" : "textures/splash.webp",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuAbout",
+            "texture_foreground" : "textures/bush.webp",
+            "texture_background" : "textures/text_about.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.69, "y": 0.435, "z" : 0.19, "w" : 0.05 },
+            "foreground_position": { "x": -0.14, "y": -0.01 },
+            "foreground_size_pressed": 1.3,
+            "foreground_size_focus" : 1.3,
+            "foreground_size" : 0.06,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutVerticalCenter",
+            "margin": { "x": 0.0, "y": 0.04, "z" : 0.0, "w" : 0.0 },
+            "texture_background" : "textures/splash_menu.webp",
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.0, "z" : 0.0, "w" : 0.0 },
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuLeaderboard",
+            "texture_foreground" : "textures/ui_cloud.webp",
+            "texture_background" : "textures/text_leaderboard.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.09, "y": 0.06, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.3, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuAchievements",
+            "texture_foreground" : "textures/scribble_heart.webp",
+            "texture_background" : "textures/text_achievements.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.23, "y": 0.06, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": -0.15, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+        {
+          "data_type": StartGroupDef,
+          "data" : {
+            "size" : 0.0,
+            "layout" : "GroupLayoutHorizontalCenter",
+            "margin": { "x": 0.0, "y": 0.00, "z" : 0.02, "w" : 0.0 },
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuHowToPlay",
+            "texture_foreground" : "textures/firing.webp",
+            "texture_background" : "textures/text_how_to_play.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.09, "y": 0.11, "z" : 0.0, "w" : 0.07 },
+            "foreground_position": { "x": 0.25, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuLicense",
+            "texture_foreground" : "textures/license_button.webp",
+            "texture_background" : "textures/text_license.webp",
+            "size" : 0.045,
+            "margin": { "x": 0.2, "y": 0.11, "z" : 0.15, "w" : 0.07 },
+            "foreground_position": { "x": -0.15, "y": -0.04 },
+            "foreground_size_pressed": 1.2,
+            "foreground_size_focus" : 1.2,
+            "foreground_size" : 0.13,
+            "event_trigger" : "ButtonPress",
+            "button_id" : "ExtraButton",
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+        {
+          "data_type": EndGroupDef,
+          "data" : {
+          }
+        },
+
+    ]
+  },
+
+
+  "msx_screen_buttons" : {
+    "starting_selection" : "MenuMultiScreenJoin",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.25 },
+          "bottom_right" : { "x": 0.7, "y": 0.4 },
+          "ID" : "MenuMultiScreenJoin",
+          "texture_normal" : [
+            { "standard" : "materials/text_multiscreen_join.fplmat" }
+          ],
+          "texture_pressed" : { "standard" :
+                                "materials/text_multiscreen_join.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.35 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_down" : ["MenuMultiScreenHost"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.45 },
+          "bottom_right" : { "x": 0.7, "y": 0.55 },
+          "ID" : "MenuMultiScreenHost",
+          "texture_normal" : [
+            { "standard" : "materials/text_multiscreen_host.fplmat" }
+          ],
+          "texture_pressed" : { "standard" :
+                                "materials/text_multiscreen_host.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.5 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuMultiScreenJoin"],
+          "nav_down" : ["MenuHowToPlay"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.6 },
+          "bottom_right" : { "x": 0.7, "y": 0.7 },
+          "ID" : "MenuHowToPlay",
+          "texture_normal" : [
+            { "standard" : "materials/text_multiscreen_how_to_play.fplmat" }
+          ],
+          "texture_pressed" : {
+            "standard" : "materials/text_multiscreen_how_to_play.fplmat"
+          },
+          "texture_position" : { "x": 0.5, "y": 0.65 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuMultiScreenHost"],
+          "nav_down" : ["MenuBack"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.75 },
+          "bottom_right" : { "x": 0.7, "y": 0.85 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_go_back.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.8 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuHowToPlay"]
+        }
+    ],
+    "static_image_list" :
+      [
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.15 },
+          "draw_scale": { "x": 1.1, "y": 1.2 },
+          "z_depth" : -0.45
+        },        {
+          "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.15 },
+          "draw_scale": { "x": 1.4, "y": 1.4 },
+          "z_depth" : -0.4
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.35 },
+          "draw_scale": { "x": 0.7, "y": 0.7 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.5 },
+          "draw_scale": { "x": 0.7, "y": 0.7 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.65 },
+          "draw_scale": { "x": 0.7, "y": 0.7 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.8 },
+          "draw_scale": { "x": 0.7, "y": 0.7 },
+          "z_depth" : -0.55
+        },
+      ]
+  },
+
+  "msx_pleasewait_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_cancel.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_please_wait.fplmat" } ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen_join.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "msx_waitingforplayers_screen_buttons" : {
+    "starting_selection" : "MenuStart",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "ID" : "MenuStart",
+          "texture_normal" : [
+            { "standard" : "materials/menu_start.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.62 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_down" : ["MenuBack"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.75 },
+          "bottom_right" : { "x": 0.7, "y": 0.85 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_cancel.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.8 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuStart"]
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.4 },
+        "draw_scale": { "x": 1.6, "y": 1.3 },
+        "z_depth" : -0.55
+      },
+      {
+        // behind the cancel button
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.8 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        // behind the start button
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.62 },
+        "draw_scale": { "x": 0.8, "y": 1.0 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_waiting_for_players.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.37 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_connected_players.fplmat" }
+        ],
+        "texture_position" : { "x": 0.46, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "ID" : "Multiplayer_NumPlayers",
+        "texture" : [
+          { "standard" : "materials/text_0.fplmat" },
+          { "standard" : "materials/text_1.fplmat" },
+          { "standard" : "materials/text_2.fplmat" },
+          { "standard" : "materials/text_3.fplmat" },
+          { "standard" : "materials/text_4.fplmat" }
+        ],
+        "texture_position" : { "x": 0.7, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        // title text
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen_host.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "msx_searching_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_cancel.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_searching_for_host.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen_host.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "msx_connecting_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_cancel.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_waiting_for_connection.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen_join.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "msx_cant_host_game_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_go_back.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_cant_host_game.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.9, "y": 1.9 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen_host.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "msx_connection_lost_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_go_back.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_connection_lost.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+
+  "msx_all_players_disconnected_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_go_back.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_all_players_disconnected.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "msx_host_disconnected_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_go_back.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_host_disconnected.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "msx_waitingforgame_screen_buttons" : {
+    "starting_selection" : "MenuBack",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.7 },
+          "bottom_right" : { "x": 0.7, "y": 0.8 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_cancel.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_cancel.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.75 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+        }
+    ],
+    "static_image_list" : [
+      {
+        // Splash screen image specified by this material name.
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.5 },
+        "draw_scale": { "x": 1.64, "y": 2.1 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.75 },
+        "draw_scale": { "x": 0.7, "y": 0.7 },
+        "z_depth" : -0.55
+      },
+      {
+        "texture" : [
+          { "standard" : "materials/text_waiting_for_game.fplmat" }
+        ],
+        "texture_position" : { "x": 0.5, "y": 0.45 },
+        "draw_scale" : { "x": 1.2, "y": 1.2 },
+        "z_depth" : -0.4
+      },
+      {
+        "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.1, "y": 1.2 },
+        "z_depth" : -0.45
+      },
+      {
+        "texture" : [ { "standard" : "materials/text_multiscreen_join.fplmat" } ],
+        "texture_position": { "x": 0.5, "y": 0.15 },
+        "draw_scale": { "x": 1.4, "y": 1.4 },
+        "z_depth" : -0.4
+      },
+    ]
+  },
+
+  "pause_screen_buttons" : {
+    "starting_selection" : "MenuResume",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.2, "y": 0.0 },
+          "bottom_right" : { "x": 0.8, "y": 0.6 },
+          "ID" : "MenuResume",
+          "texture_normal" : [
+            { "standard" : "materials/text_resume.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_resume.fplmat" },
+          "texture_position" : { "x": 0.52, "y": 0.45 },
+          "draw_scale_normal" : { "x": 1.0, "y": 1.0 },
+          "draw_scale_highlighted": { "x": 1.0, "y": 1.0 },
+          "draw_scale_pressed" : { "x": 1.0, "y": 1.0 }
+        }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuResume",
+            "texture_foreground" : "textures/text_resume.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold",
+          }
+        }
+    ]
+  },
+
+  // Multiplayer gameplay menu
+  "multiplayer_host" : {
+      "allow_controller_navigation" : true,
+      "cannonical_window_height": 800,
+      "default_shader" : "shaders/textured",
+      "default_inactive_shader" : "shaders/grayscale",
+      "button_list" : [],
+      "static_image_list" :
+      [
+        {
+          "ID" : "Multiplayer_Go",
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.2 },
+          "draw_scale": { "x": 1, "y": 1 },
+          "z_depth" : -0.45
+        },
+        {
+          "ID" : "Multiplayer_Look",
+          "texture" : [ { "standard" : "materials/text_look_down.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.2 },
+          "draw_scale": { "x": 1, "y": 1 },
+          "z_depth" : -0.4
+        },
+      ]
+  },
+
+  // Multiplayer gameplay menu
+  "multiplayer_client" : {
+      "starting_selection" : "Multiplayer_Button1",
+      "allow_controller_navigation" : true,
+      "cannonical_window_height": 800,
+      "default_shader" : "shaders/textured",
+      "default_inactive_shader" : "shaders/grayscale",
+      "button_list" : [
+          {
+            "top_left" : { "x": 0.15, "y": 0.22 },
+            "bottom_right" : { "x": 0.25, "y": 0.38 },
+            "ID" : "Multiplayer_Button2",
+            "texture_normal" : [
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
+            ],
+            "texture_position" : { "x": 0.2, "y": 0.3 },
+            "draw_scale_normal" : { "x": 1.5, "y": 1.5 },
+            "draw_scale_highlighted": { "x": 2.3, "y": 2.3 },
+            "draw_scale_pressed" : { "x": 1.7, "y": 1.7 },
+            "nav_right" : ["Multiplayer_Button2"],
+            "nav_down" : ["Multiplayer_Button1"],
+            "shader" : "shaders/textured",
+            "inactive_shader" : "shaders/grayscale"
+          },
+          {
+            "top_left" : { "x": 0.75, "y": 0.22 },
+            "bottom_right" : { "x": 0.85, "y": 0.38 },
+            "ID" : "Multiplayer_Button3",
+            "texture_normal" : [
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
+            ],
+            "texture_position" : { "x": 0.8, "y": 0.3 },
+            "draw_scale_normal" : { "x": -1.5, "y": 1.5 },
+            "draw_scale_highlighted": { "x": -2.3, "y": 2.3 },
+            "draw_scale_pressed" : { "x": -1.9, "y": 1.9 },
+            "nav_left" : ["Multiplayer_Button2"],
+            "nav_down" : ["Multiplayer_Button4"],
+            "shader" : "shaders/textured",
+            "inactive_shader" : "shaders/grayscale"
+          },
+          {
+            "top_left" : { "x": 0.15, "y": 0.62 },
+            "bottom_right" : { "x": 0.25, "y": 0.78 },
+            "ID" : "Multiplayer_Button1",
+            "texture_normal" : [
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
+            ],
+            "texture_position" : { "x": 0.2, "y": 0.7 },
+            "draw_scale_normal" : { "x":  1.5, "y": 1.5 },
+            "draw_scale_highlighted": { "x": 2.3, "y": 2.3 },
+            "draw_scale_pressed" : { "x": 1.7, "y": 1.7 },
+            "nav_up" : ["Multiplayer_Button2"],
+            "nav_right" : ["Multiplayer_Button4"],
+            "shader" : "shaders/textured",
+            "inactive_shader" : "shaders/grayscale"
+          },
+          {
+            "top_left" : { "x": 0.75, "y": 0.62 },
+            "bottom_right" : { "x": 0.85, "y": 0.78 },
+            "ID" : "Multiplayer_Button4",
+            "texture_normal" : [
+              { "standard" : "materials/ui_multiplayer_face.fplmat" },
+              { "standard" : "materials/ui_multiplayer_ko.fplmat" },
+              { "standard" : "materials/ui_multiplayer_wait.fplmat" },
+              { "standard" : "materials/ui_multiplayer_block.fplmat" },
+              { "standard" : "materials/ui_multiplayer_throw.fplmat" },
+              { "standard" : "materials/ui_multiplayer_dead.fplmat" }
+            ],
+            "texture_position" : { "x": 0.8, "y": 0.7 },
+            "draw_scale_normal" : { "x": -1.5, "y": 1.5 },
+            "draw_scale_highlighted": { "x": -2.3, "y": 2.3 },
+            "draw_scale_pressed" : { "x": -1.7, "y": 1.7 },
+            "nav_up" : ["Multiplayer_Button3"],
+            "nav_left" : ["Multiplayer_Button1"],
+            "shader" : "shaders/textured",
+            "inactive_shader" : "shaders/grayscale"
+          }
+      ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "ID" : "MenuMultiScreen",
+          "texture" : [ { "standard" : "materials/cardboard_bg.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.5 },
+          "draw_scale": { "x": 3, "y": 3 },
+          "z_depth" : -0.55
+        },
+        {
+          "ID" : "Counter1",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.40, "y": 0.5 },
+          "draw_scale": { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Counter2",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.45, "y": 0.5 },
+          "draw_scale": { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Counter3",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.50, "y": 0.5 },
+          "draw_scale": { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Counter4",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.55, "y": 0.5 },
+          "draw_scale": { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Counter5",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.60, "y": 0.5 },
+          "draw_scale": { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Multiplayer_Look",
+          "texture" : [ { "standard" : "materials/text_look_up.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.3 },
+          "draw_scale": { "x": 1.1, "y": 1.1 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Multiplayer_Go",
+          "texture" : [
+            { "standard" : "materials/text_choose_action_and_target.fplmat" }
+          ],
+          "texture_position": { "x": 0.5, "y": 0.3 },
+          "draw_scale": { "x": 1.9, "y": 1.9 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Multiplayer_Label1",
+          "texture" : [
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.2, "y": 0.85 },
+          "draw_scale": { "x": 1.2, "y": 1.2 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Multiplayer_Label2",
+          "texture" : [
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.2, "y": 0.45 },
+          "draw_scale": { "x": 1.2, "y": 1.2 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Multiplayer_Label3",
+          "texture" : [
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.8, "y": 0.45 },
+          "draw_scale": { "x": 1.2, "y": 1.2 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Multiplayer_Label4",
+          "texture" : [
+            { "standard" : "materials/text_grow.fplmat" } ,
+            { "standard" : "materials/text_block.fplmat" } ,
+            { "standard" : "materials/text_throw.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.8, "y": 0.85 },
+          "draw_scale": { "x": 1.2, "y": 1.2 },
+          "z_depth" : -0.2
+        },
+        {
+          "ID" : "Multiplayer_Splat1",
+          "texture" : [
+            { "standard" : "materials/multiscreen_splat1.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.2, "y": 0.7 },
+          "draw_scale": { "x": 3.3, "y": 3.3 },
+          "z_depth" : 0.1,
+          "render_after_buttons" : true,
+          "visible" : false
+        },
+        {
+          "ID" : "Multiplayer_Splat2",
+          "texture" : [
+            { "standard" : "materials/multiscreen_splat2.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.2, "y": 0.3 },
+          "draw_scale": { "x": 3.3, "y": 3.3 },
+          "z_depth" : 0.1,
+          "render_after_buttons" : true,
+          "visible" : false
+        },
+        {
+          "ID" : "Multiplayer_Splat3",
+          "texture" : [
+            { "standard" : "materials/multiscreen_splat1.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.8, "y": 0.3 },
+          "draw_scale": { "x": 3.3, "y": 3.3 },
+          "z_depth" : 0.1,
+          "render_after_buttons" : true,
+          "visible" : false,
+        },
+        {
+          "ID" : "Multiplayer_Splat4",
+          "texture" : [
+            { "standard" : "materials/multiscreen_splat2.fplmat" } ,
+          ],
+          "texture_position": { "x": 0.8, "y": 0.7 },
+          "draw_scale": { "x": 3.3, "y": 3.3 },
+          "z_depth" : 0.1,
+          "render_after_buttons" : true,
+          "visible" : false
+        },
+      ]
+  },
+
+  "join_screen_buttons" : {
+    "starting_selection" : "MenuResume",
+    "allow_controller_navigation" : false,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "static_image_list" : [
+        {
+          "ID" : "Counter1",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.36, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter2",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.44, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter3",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.52, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter4",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.60, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "ID" : "Counter5",
+          "texture" : [ { "standard" : "materials/ui_pie.fplmat" } ],
+          "texture_position": { "x": 0.68, "y": 0.435 },
+          "draw_scale": { "x": 0.4, "y": 0.4 }
+        },
+        {
+          "texture" : [ { "standard" : "materials/text_join_in.fplmat" } ],
+          "texture_position": { "x": 0.58, "y": 0.445 },
+          "draw_scale": { "x": 0.8, "y": 0.8 }
+        },
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.28 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ]
+  },
+
+  "cardboard_screen_buttons" : {
+    "starting_selection" : "MenuStart",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        // Trigger will start it because it is the starting selection
+        {
+          "top_left" : { "x": 0.0, "y": 0.0 },
+          "bottom_right" : { "x": 0.0, "y": 0.0 },
+          "ID" : "MenuStart",
+          "texture_normal" : [
+            { "standard" : "materials/menu_start.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/menu_start.fplmat" },
+          "texture_position" : { "x": 0.53, "y": 0.67 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 }
+        }
+    ],
+    "static_image_list" : [
+        {
+          // Splash screen image specified by this material name.
+          "texture" : [ { "standard" : "materials/splash.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.5 },
+          "draw_scale": { "x": 0.82, "y": 0.82 }
+        }
+    ],
+    "imgui_list" : [
+        {
+          "data_type": ImguiButtonDef,
+          "data" : {
+            "ID" : "MenuStart",
+            "texture_foreground" : "textures/menu_start.webp",
+            "texture_background" : "textures/splash.webp",
+            "size" : 0.53,
+            "margin": { "x": 0.0, "y": 0.020, "z" : 0.0, "w" : 0.0 },
+            "foreground_position": { "x": 0.38, "y": 0.38 },
+            "foreground_size" : 0.1,
+            "event_trigger" : "ButtonHold"
+          }
+        }
+    ]
+  },
+
+  "game_modes_screen_buttons" : {
+    "starting_selection" : "MenuMultiScreen",
+    "allow_controller_navigation" : true,
+    "cannonical_window_height": 800,
+    "default_shader" : "shaders/textured",
+    "default_inactive_shader" : "shaders/grayscale",
+    "button_list" : [
+        {
+          "top_left" : { "x": 0.3, "y": 0.05 },
+          "bottom_right" : { "x": 0.7, "y": 0.2 },
+          "ID" : "MenuMultiScreen",
+          "texture_normal" : [
+            { "standard" : "materials/text_multiscreen.fplmat" }
+          ],
+          "texture_pressed" : { "standard" :
+                                "materials/text_multiscreen.fplmat" },
+          "texture_position" : { "x": 0.55, "y": 0.15 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.4, "y": 1.4 },
+          "draw_scale_pressed" : { "x": 1.4, "y": 1.4 },
+          "nav_down" : ["MenuCardboard"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.35 },
+          "bottom_right" : { "x": 0.7, "y": 0.5 },
+          "ID" : "MenuCardboard",
+          "texture_normal" : [
+            { "standard" : "materials/text_cardboard.fplmat" }
+          ],
+          "texture_pressed" : { "standard" :
+                                "materials/text_cardboard.fplmat" },
+          "texture_position" : { "x": 0.55, "y": 0.45 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuMultiScreen"],
+          "nav_down" : ["MenuBack"]
+        },
+        {
+          "top_left" : { "x": 0.3, "y": 0.65 },
+          "bottom_right" : { "x": 0.7, "y": 0.75 },
+          "ID" : "MenuBack",
+          "texture_normal" : [
+            { "standard" : "materials/text_go_back.fplmat" }
+          ],
+          "texture_pressed" : { "standard" : "materials/text_go_back.fplmat" },
+          "texture_position" : { "x": 0.5, "y": 0.7 },
+          "draw_scale_normal" : { "x": 1.2, "y": 1.2 },
+          "draw_scale_highlighted": { "x": 1.2, "y": 1.2 },
+          "draw_scale_pressed" : { "x": 1.2, "y": 1.2 },
+          "nav_up" : ["MenuCardboard"]
+        }
+    ],
+    "static_image_list" : [
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.15 },
+          "draw_scale": { "x": 1.1, "y": 1.2 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/multiscreen_button.fplmat" } ],
+          "texture_position" : { "x": 0.35, "y": 0.15 },
+          "draw_scale" : { "x": 0.4, "y": 0.4 },
+          "z_depth" : -0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.45 },
+          "draw_scale": { "x": 1.1, "y": 1.2 },
+          "z_depth" : -0.55
+        },
+        {
+          "texture" : [ { "standard" : "materials/cardboard_button.fplmat" } ],
+          "texture_position" : { "x": 0.35, "y": 0.45 },
+          "draw_scale" : { "x": 0.8, "y": 0.8 },
+          "z_depth" : -0.1
+        },
+        {
+          "texture" : [ { "standard" : "materials/splash_menu.fplmat" } ],
+          "texture_position": { "x": 0.5, "y": 0.7 },
+          "draw_scale": { "x": 0.7, "y": 0.7 },
+          "z_depth" : -0.55
+        }
+    ]
+  },
+
+  "tutorial_slides": [
+      { "image": "materials/tutorial_you.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/tutorial_pie.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/tutorial_aim.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/tutorial_throw.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/tutorial_health.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/tutorial_deflect.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/tutorial_deflect_direction.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/tutorial_win.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+  ],
+  "tutorial_num_future_slides_to_load": 2,
+  "tutorial_aspect_ratio": 0.848,
+
+  "multiscreen_tutorial_slides": [
+      { "image": "materials/msx_tutorial_1.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/msx_tutorial_2.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/msx_tutorial_3.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/msx_tutorial_4.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+      { "image": "materials/msx_tutorial_5.fplmat",
+        "display_time": 0,
+        "fade_time": 200 },
+  ],
+  "multiscreen_tutorial_aspect_ratio": 0.828,
+
+  "draw_characters": true,
+  "draw_ui_arrows": true,
+  "draw_pies": true,
+  "draw_props": true,
+  "draw_axes": false,
+  "draw_character_lineup": false,
+  "draw_lineup_accessories": false,
+  "draw_fixed_renderable": "Invalid",
+  "button_to_camera_translation_scale": { "x": 0.08, "y": 0.04, "z": 0.08 },
+  "mouse_to_camera_rotation_scale": 0.002,
+  "allow_camera_movement": false,
+  "draw_touch_button_bounds": false,
+  "menu_button_debug_shader": "shaders/color",
+
+  "gpg_leaderboards_resource": "play_games_leaderboards",
+  "gpg_events_resource": "play_games_events",
+  "gpg_achievements_resource": "play_games_achievements",
+
+  "splatter_map": [
+    { "indices": [] },
+    { "indices": [4] },
+    { "indices": [4, 9] },
+    { "indices": [2, 9] },
+    { "indices": [1, 9] },
+    { "indices": [0, 9] },
+    { "indices": [0, 8] },
+    { "indices": [0, 7] },
+    { "indices": [0, 6] },
+    { "indices": [0, 5] },
+    { "indices": [0, 5, 10] }
+  ],
+
+  "splatter_accessories": [
+    // Splatter1, on the right side of the forehead, in various sizes.
+    {
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.8, "y": 0.8 },
+      "renderable": "Splatter1"
+    },
+    {
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.7, "y": 0.7 },
+      "renderable": "Splatter1"
+    },
+    {
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.5, "y": 0.5 },
+      "renderable": "Splatter1"
+    },
+    {
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.4, "y": 0.4 },
+      "renderable": "Splatter1"
+    },
+    {
+      "location": { "x": 0, "y": 85 },
+      "scale": {"x": 0.3, "y": 0.3 },
+      "renderable": "Splatter1"
+    },
+
+    // Splatter2, on the bottom of the chin, in various sizes.
+    {
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.6, "y": 0.6 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.5, "y": 0.5 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.4, "y": 0.4 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.3, "y": 0.3 },
+      "renderable": "Splatter2"
+    },
+    {
+      "location": { "x": 90, "y": -50 },
+      "scale": {"x": 0.2, "y": 0.2 },
+      "renderable": "Splatter2"
+    },
+
+    // Splatter3, on the left of the forehead.
+    {
+      "location": { "x": 110, "y": 105 },
+      "scale": {"x": 0.4, "y": 0.4 },
+      "renderable": "Splatter3"
+    }
+  ],
+
+  "health_map": [
+    { "indices": [] },
+    { "indices": [4] },
+    { "indices": [4, 9] },
+    { "indices": [2, 9] },
+    { "indices": [1, 9] },
+    { "indices": [0, 9] },
+    { "indices": [0, 8] },
+    { "indices": [0, 7] },
+    { "indices": [0, 6] },
+    { "indices": [0, 5] },
+    { "indices": [0, 5, 10] }
+  ],
+
+  "health_accessories": [
+    // Right heart, over the heart, in various sizes.
+    {
+      "location": { "x": 30, "y": 0 },
+      "scale": {"x": 0.30, "y": 0.30 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 30, "y": 3 },
+      "scale": {"x": 0.22, "y": 0.22 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 30, "y": 15 },
+      "scale": {"x": 0.17, "y": 0.17 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 30, "y": 22 },
+      "scale": {"x": 0.13, "y": 0.13 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 30, "y": 35 },
+      "scale": {"x": 0.10, "y": 0.10 },
+      "renderable": "Health"
+    },
+
+    // Left heart, in various sizes.
+    {
+      "location": { "x": 0, "y": 20 },
+      "scale": {"x": 0.30, "y": 0.30 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 5, "y": 20 },
+      "scale": {"x": 0.22, "y": 0.22 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 10, "y": 20 },
+      "scale": {"x": 0.17, "y": 0.17 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 15, "y": 20 },
+      "scale": {"x": 0.13, "y": 0.13 },
+      "renderable": "Health"
+    },
+    {
+      "location": { "x": 20, "y": 20 },
+      "scale": {"x": 0.10, "y": 0.10 },
+      "renderable": "Health"
+    },
+
+    // Small heart, to add visual distinction when at full health.
+    {
+      "location": { "x": 70, "y": 45 },
+      "scale": {"x": 0.13, "y": 0.13 },
+      "renderable": "Health"
+    }
+  ],
+
+  "renderables": [
+    {
+      "id": "Invalid",
+      "cardboard_fronts": [ "materials/invalid.fplmat" ],
+      "pixel_bounds": { "x": 256, "y": 512 }
+    },
+    {
+      "id": "CharacterIdle",
+      "cardboard_fronts": [ "materials/character_idle.fplmat" ],
+      "cardboard_back": "materials/character_idle_back.fplmat",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 161, "y": 256 }, // (224, 357) --> (161, 256)
+      "geometry_scale": 1.3945, // 357 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -50, "y": 150 },
+      "health_offset": { "x": -55, "y": 105 }
+    },
+    {
+      "id": "CharacterLoad1",
+      "cardboard_fronts": [ "materials/character_load1.fplmat" ],
+      "cardboard_back": "materials/character_load1_back.fplmat",
+      "offset": { "x": -0.3, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 195, "y": 256 }, // (257, 337) --> (195, 256)
+      "geometry_scale": 1.3164, // 337 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -75, "y": 140 },
+      "health_offset": { "x": -80, "y": 80 }
+    },
+    {
+      "id": "CharacterLoad2",
+      "cardboard_fronts": [ "materials/character_load2.fplmat" ],
+      "cardboard_back": "materials/character_load2_back.fplmat",
+      "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 200, "y": 256 }, // (289, 370) --> (200, 256)
+      "geometry_scale": 1.4453, // 370 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -80, "y": 120 },
+      "health_offset": { "x": -95, "y": 70 }
+    },
+    {
+      "id": "CharacterLoad3",
+      "cardboard_fronts": [ "materials/character_load3.fplmat" ],
+      "cardboard_back": "materials/character_load3_back.fplmat",
+      "offset": { "x": -0.9, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 208 }, // (384,312) --> (256, 208)
+      "geometry_scale": 1.5, // 384 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -90, "y": 70 },
+      "health_offset": { "x": -75, "y": 40 }
+    },
+    {
+      "id": "CharacterThrow",
+      "cardboard_fronts": [ "materials/character_throw.fplmat" ],
+      "cardboard_back": "materials/character_throw_back.fplmat",
+      "offset": { "x": 0.5, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 240, "y": 256 }, // (321,343) --> (240, 256)
+      "geometry_scale": 1.3398, // 343 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": 0, "y": 150 },
+      "health_offset": { "x": 60, "y": 110 }
+    },
+    {
+      "id": "CharacterBlock",
+      "cardboard_fronts": [ "materials/character_block.fplmat" ],
+      "cardboard_back": "materials/character_block_back.fplmat",
+      "offset": { "x": 0.3, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 189, "y": 256 }, // (269,365) --> (189, 256)
+      "geometry_scale": 1.4258, // 365 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -30, "y": 170 },
+      "health_offset": { "x": -50, "y": 120 }
+    },
+    {
+      "id": "CharacterHitByPieFrame0",
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame0.fplmat" ],
+      "cardboard_back": "materials/character_hit_by_pie_frame0_back.fplmat",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 240 }, // (298,279) --> (256, 240)
+      "geometry_scale": 1.1640, // 298 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -40, "y": 90 },
+      "health_offset": { "x": -50, "y": 80 }
+    },
+    {
+      "id": "CharacterHitByPieFrame1",
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame1.fplmat" ],
+      "cardboard_back": "materials/character_hit_by_pie_frame1_back.fplmat",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 214 }, // (290,242) --> (256, 214)
+      "geometry_scale": 1.1328, // 290 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -50, "y": 70 },
+      "health_offset": { "x": -50, "y": 80 }
+    },
+    {
+      "id": "CharacterHitByPieFrame2",
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame2.fplmat" ],
+      "cardboard_back": "materials/character_hit_by_pie_frame2_back.fplmat",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 211, "y": 256 }, // (232,282) --> (211, 256)
+      "geometry_scale": 1.1015, // 282 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -70, "y": 100 },
+      "health_offset": { "x": -50, "y": 80 }
+    },
+    {
+      "id": "CharacterHitByPieFrame3",
+      "cardboard_fronts": [ "materials/character_hit_by_pie_frame3.fplmat" ],
+      "cardboard_back": "materials/character_hit_by_pie_frame3_back.fplmat",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 191, "y": 256 }, // (219,294) --> (191, 256)
+      "geometry_scale": 1.1484, // 294 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -70, "y": 110 },
+      "health_offset": { "x": -50, "y": 80 }
+    },
+    {
+      "id": "CharacterKnockedOut",
+      "cardboard_fronts": [ "materials/character_knocked_out.fplmat" ],
+      "cardboard_back": "materials/character_knocked_out_back.fplmat",
+      "offset": { "x": 0, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 197 }, // (262,201) --> (256, 197)
+      "geometry_scale": 1.0234, // 262 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -80, "y": 20 },
+      "health_offset": { "x": -80, "y": 30 }
+    },
+    {
+      "id": "CharacterWin",
+      "cardboard_fronts": [ "materials/character_win.fplmat" ],
+      "cardboard_back": "materials/character_win_back.fplmat",
+      "offset": { "x": -0.6, "y": 0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 206, "y": 256 }, // (316,392) --> (206, 256)
+      "geometry_scale": 1.53125, // 392 / 256
+      "stick": true,
+      "shadow": true,
+      "cardboard": true,
+      "splatter_offset": { "x": -50, "y": 160 },
+      "health_offset": { "x": 20, "y": 160 }
+    },
+    {
+      "id": "PieEmpty",
+      "cardboard_fronts": [],
+    },
+    {
+      "id": "PieSmall",
+      "cardboard_fronts": [ "materials/pie_small.fplmat" ],
+      "offset": { "x": 0.0, "y": -0.2, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 64 },
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "PieMedium",
+      "cardboard_fronts": [ "materials/pie_medium.fplmat" ],
+      "offset": { "x": 0.0, "y": -0.3, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 256 },
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "PieLarge",
+      "cardboard_fronts": [ "materials/pie_large.fplmat" ],
+      "offset": { "x": 0.0, "y": -0.5, "z": 0.0 },
+      "pixel_bounds": { "x": 256, "y": 221 }, // (273,236) --> (256,221)
+      "geometry_scale": 1.4, // 1.0664 = 273 / 256, but grew a little
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "PieBlock",
+      "cardboard_fronts": [ "materials/pie_block.fplmat" ],
+      "pixel_bounds": { "x": 256, "y": 244 }, // (211,193) --> (256,234)
+      "geometry_scale": 0.8242, // 211 / 256
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "EnvironmentSky",
+      "cardboard_fronts": [ "materials/environment_sky.fplmat" ],
+      "pixel_bounds": { "x": 1024, "y": 512 }, // (4096,2048) --> (1024,512)
+      "geometry_scale": 4.5 // 4096 / 1024
+    },
+    {
+      // Not present in regular Pie Noon, only in Snowdown mode.
+      "id": "EnvironmentSkyTop",
+      "cardboard_fronts": [  ],
+      "pixel_bounds": { "x": 1, "y": 1 },
+    },
+    {
+      "id": "EnvironmentCloud",
+      "cardboard_fronts": [ "materials/environment_cloud.fplmat" ],
+      "pixel_bounds": { "x": 256, "y": 200 },
+      "geometry_scale": 2.8,
+      "cardboard": true
+    },
+    {
+      "id": "EnvironmentCloudShadow",
+      "cardboard_fronts": [ "materials/environment_cloud_shadow.fplmat" ],
+      "pixel_bounds": { "x": 1024, "y": 1024 }
+    },
+    {
+      "id": "EnvironmentSun",
+      "cardboard_fronts": [ "materials/environment_sun.fplmat" ],
+      "pixel_bounds": { "x": 128, "y": 256 },
+      "geometry_scale": 2.5,
+      "cardboard": true
+    },
+    {
+      "id": "EnvironmentSunGlow",
+      "pixel_bounds": { "x": 128, "y": 110 }, // (656,560) --> (128, 110)
+      "geometry_scale": 5.125, // 656 / 128
+      "cardboard_fronts": [ "materials/environment_sun_glow.fplmat" ]
+    },
+    {
+      "id": "EnvironmentTree",
+      "cardboard_fronts": [ "materials/environment_tree.fplmat" ],
+      "pixel_bounds": { "x": 364, "y": 512 }, // (683,960) --> (364, 512)
+      "geometry_scale": 1.875, // 960 / 512
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "EnvironmentBush",
+      "cardboard_fronts": [ "materials/environment_bush.fplmat" ],
+      "pixel_bounds": { "x": 512, "y": 256 },
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "EnvironmentString",
+      "cardboard_fronts": [ "materials/environment_string.fplmat" ],
+      "pixel_bounds": { "x": 32, "y": 128 },
+      "geometry_scale": 0.625 // 20 / 32
+    },
+    {
+      "id": "EnvironmentStageFront",
+      "cardboard_fronts": [ "materials/environment_stage_front.fplmat" ],
+      "pixel_bounds": { "x": 1024, "y": 128 }, // (4096,512) --> (1024, 128)
+      "geometry_scale": 4.0 // 4096 / 1024
+    },
+    {
+      "id": "EnvironmentStageGround",
+      "cardboard_fronts": [ "materials/environment_stage_ground.fplmat" ],
+      "pixel_bounds": { "x": 1024, "y": 256 }, // (4096,1024) --> (1024, 256)
+      "geometry_scale": 4.0 // 4096 / 1024
+    },
+    {
+      "id": "EnvironmentStageEdge",
+      "cardboard_fronts": [ "materials/environment_stage_edge.fplmat" ],
+      "pixel_bounds": { "x": 256, "y": 512 }
+    },
+    {
+      "id": "EnvironmentStoreFront",
+      "cardboard_fronts": [ "materials/environment_store_front.fplmat" ],
+      "pixel_bounds": { "x": 512, "y": 396 }, // (1133, 877) --> (512, 396)
+      "geometry_scale": 2.2129 // 1133 / 512
+    },
+    {
+      "id": "EnvironmentStoreRoom",
+      "cardboard_fronts": [ "materials/environment_store_room.fplmat" ],
+      "pixel_bounds": { "x": 1024, "y": 395 }, // (1946, 750) --> (1024, 395)
+      "geometry_scale": 1.9004 // 1946 / 1024
+    },
+    {
+      "id": "EnvironmentAmbientOcclusionShadow",
+      "cardboard_fronts": [ "materials/environment_ambient_occlusion_shadow.fplmat" ],
+      "pixel_bounds": { "x": 16, "y": 128 }
+    },
+    {
+      "id": "Splatter1",
+      "cardboard_fronts": [ "materials/splatter1.fplmat" ],
+      "pixel_bounds": { "x": 105, "y": 128 }, // (125, 157) --> (105, 128)
+      "geometry_scale": 1.2266, // 157 / 128
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "Splatter2",
+      "cardboard_fronts": [ "materials/splatter2.fplmat" ],
+      "pixel_bounds": { "x": 105, "y": 128 }, // (140, 161) --> (112, 128)
+      "geometry_scale": 1.2578, // 161 / 128
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "Splatter3",
+      "cardboard_fronts": [ "materials/splatter3.fplmat" ],
+      "pixel_bounds": { "x": 105, "y": 128 }, // (137, 183) --> (96, 128)
+      "geometry_scale": 1.4297, // 183 / 128
+      "shadow": true,
+      "cardboard": true
+    },
+    {
+      "id": "Health",
+      "cardboard_fronts": [ "materials/health.fplmat" ],
+      "pixel_bounds": { "x": 128, "y": 128 },
+      "geometry_scale": 2.0
+    },
+    {
+      "id": "UiArrow",
+      "cardboard_fronts": [ "materials/arrow.fplmat" ],
+      "pixel_bounds": { "x": 256, "y": 149 }
+    },
+    {
+      "id": "Pixel1x1",
+      "cardboard_fronts": [ "materials/pixel1x1.fplmat" ],
+      "pixel_bounds": { "x": 1, "y": 1 }
+    },
+    {
+      // Not present in regular Pie Noon, only in Snowdown mode.
+      "id": "SnowParticle",
+      "cardboard_fronts": [ ],
+      "pixel_bounds": { "x": 1, "y": 1 }
+    },
+    {
+      "id": "TargetReticle",
+      "cardboard_fronts": [ "materials/target_reticle.fplmat" ],
+      "pixel_bounds": { "x": 256, "y": 256 },
+      "cardboard": true
+    }
+  ],
+
+  "print_character_states": false,
+  "print_pie_states": false,
+  "print_camera_orientation": true,
+
+  "multiscreen_options": {
+    "turn_length": [
+      { "turn_seconds" : 10, "until_turn_number" : 1 },
+      { "turn_seconds" : 9, "until_turn_number" : 2 },
+      { "turn_seconds" : 8, "until_turn_number" : 3 },
+      { "turn_seconds" : 7, "until_turn_number" : 4 },
+      { "turn_seconds" : 6, "until_turn_number" : 5 },
+      { "turn_seconds" : 5, "until_turn_number" : 6 },
+      { "turn_seconds" : 4, "until_turn_number" : 12 },
+      { "turn_seconds" : 3, "until_turn_number" : 18 },
+      { "turn_seconds" : 2, "until_turn_number" : -1 },
+    ],
+    "network_grace_milliseconds" : 500,
+    "first_turn_delay_milliseconds": 5000,
+    "start_turn_delay_milliseconds": 4000,
+    "pie_delay_milliseconds": 750,
+    "block_delay_milliseconds": 1000,
+    "block_hold_milliseconds": 3000,
+    "char_delay_milliseconds": 125,
+    "grow_delay_milliseconds": 500,
+
+    "auto_connect_on_host":true,
+    // Dev only; in the real world you don't want clients to auto-connect.
+    "auto_connect_on_client":false,
+
+    // For privacy purposes, use the device name instead of full name.
+    "use_full_name_as_instance_name":false,
+
+    "nearby_connections_service_id": "pienoonmsx",
+    "nearby_connections_app_identifiers": [ "com.google.fpl.pie_noon" ],
+
+    "max_players":4,
+
+    "ai_enabled":true,
+
+    "ai_chance_to_throw":0.5,
+    "ai_chance_to_block":0.2,
+    "ai_chance_to_wait":0.1,
+    // left over: 0.2 chance to do the same action as last turn
+
+    "ai_chance_to_target_largest_pie":0.25,
+    "ai_chance_to_target_lowest_health":0.1,
+    "ai_chance_to_target_highest_health":0.1,
+    "ai_chance_to_target_random":0.4,
+    // left over: 0.15 chance to target the same opponent as last turn
+
+    "light_splat_damage_threshold":3,
+    "light_splat_num_buttons":1,
+    "heavy_splat_damage_threshold":5,
+    "heavy_splat_num_buttons":2,
+
+    "splat_start_scale":1.3,
+    "splat_scale_speed":0.97,
+    "splat_drip_speed":0.00025,
+  }
+}

@@ -14,18 +14,18 @@
 
 #include "precompiled.h"
 #include <vector>
+#include "character_state_machine_def_generated.h"
 #include "common.h"
 #include "controller.h"
 #include "player_controller.h"
 #include "timeline_generated.h"
-#include "character_state_machine_def_generated.h"
 
 namespace fpl {
 namespace pie_noon {
 
 PlayerController::PlayerController() : Controller(kTypePlayer) {}
 
-void PlayerController::Initialize(InputSystem* input_system,
+void PlayerController::Initialize(fplbase::InputSystem* input_system,
                                   const ControlScheme* scheme) {
   input_system_ = input_system;
   scheme_ = scheme;
@@ -47,37 +47,41 @@ void PlayerController::AdvanceFrame(WorldTime /*delta_time*/) {
   }
 }
 
-const Keybind kKeyBinds0[] = {{SDLK_e, LogicalInputs_Select},
-                              {SDLK_w, LogicalInputs_ThrowPie},
-                              {SDLK_s, LogicalInputs_Deflect},
-                              {SDLK_w, LogicalInputs_Up},
-                              {SDLK_s, LogicalInputs_Down},
-                              {SDLK_a, LogicalInputs_Left},
-                              {SDLK_d, LogicalInputs_Right}};
+const Keybind kKeyBinds0[] = {
+    {fplbase::FPLK_e, LogicalInputs_Select},
+    {fplbase::FPLK_w, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_s, LogicalInputs_Deflect},
+    {fplbase::FPLK_w, LogicalInputs_Up},
+    {fplbase::FPLK_s, LogicalInputs_Down},
+    {fplbase::FPLK_a, LogicalInputs_Left},
+    {fplbase::FPLK_d, LogicalInputs_Right}};
 
-const Keybind kKeyBinds1[] = {{SDLK_o, LogicalInputs_Select},
-                              {SDLK_i, LogicalInputs_ThrowPie},
-                              {SDLK_k, LogicalInputs_Deflect},
-                              {SDLK_i, LogicalInputs_Up},
-                              {SDLK_k, LogicalInputs_Down},
-                              {SDLK_j, LogicalInputs_Left},
-                              {SDLK_l, LogicalInputs_Right}};
+const Keybind kKeyBinds1[] = {
+    {fplbase::FPLK_o, LogicalInputs_Select},
+    {fplbase::FPLK_i, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_k, LogicalInputs_Deflect},
+    {fplbase::FPLK_i, LogicalInputs_Up},
+    {fplbase::FPLK_k, LogicalInputs_Down},
+    {fplbase::FPLK_j, LogicalInputs_Left},
+    {fplbase::FPLK_l, LogicalInputs_Right}};
 
-const Keybind kKeyBinds2[] = {{SDLK_RETURN, LogicalInputs_Select},
-                              {SDLK_UP, LogicalInputs_ThrowPie},
-                              {SDLK_DOWN, LogicalInputs_Deflect},
-                              {SDLK_UP, LogicalInputs_Up},
-                              {SDLK_DOWN, LogicalInputs_Down},
-                              {SDLK_LEFT, LogicalInputs_Left},
-                              {SDLK_RIGHT, LogicalInputs_Right}};
+const Keybind kKeyBinds2[] = {
+    {fplbase::FPLK_RETURN, LogicalInputs_Select},
+    {fplbase::FPLK_UP, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_DOWN, LogicalInputs_Deflect},
+    {fplbase::FPLK_UP, LogicalInputs_Up},
+    {fplbase::FPLK_DOWN, LogicalInputs_Down},
+    {fplbase::FPLK_LEFT, LogicalInputs_Left},
+    {fplbase::FPLK_RIGHT, LogicalInputs_Right}};
 
-const Keybind kKeyBinds3[] = {{SDLK_KP_ENTER, LogicalInputs_Select},
-                              {SDLK_KP_8, LogicalInputs_ThrowPie},
-                              {SDLK_KP_5, LogicalInputs_Deflect},
-                              {SDLK_KP_8, LogicalInputs_Up},
-                              {SDLK_KP_5, LogicalInputs_Down},
-                              {SDLK_KP_4, LogicalInputs_Left},
-                              {SDLK_KP_6, LogicalInputs_Right}};
+const Keybind kKeyBinds3[] = {
+    {fplbase::FPLK_KP_ENTER, LogicalInputs_Select},
+    {fplbase::FPLK_KP_8, LogicalInputs_ThrowPie},
+    {fplbase::FPLK_KP_5, LogicalInputs_Deflect},
+    {fplbase::FPLK_KP_8, LogicalInputs_Up},
+    {fplbase::FPLK_KP_5, LogicalInputs_Down},
+    {fplbase::FPLK_KP_4, LogicalInputs_Left},
+    {fplbase::FPLK_KP_6, LogicalInputs_Right}};
 
 const ControlScheme ControlScheme::kDefaultSchemes[] = {
     {std::vector<Keybind>(kKeyBinds0, &kKeyBinds0[PIE_ARRAYSIZE(kKeyBinds0)])},

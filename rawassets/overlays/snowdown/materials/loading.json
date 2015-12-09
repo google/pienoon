@@ -1,0 +1,6 @@
+{
+    "texture_filenames": [
+        "textures/loading_splash.webp"
+    ],
+    "blendmode": "ALPHA"
+}

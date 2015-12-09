@@ -1,0 +1,7 @@
+{
+    "texture_filenames": [
+        "textures/loading_back.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
+}

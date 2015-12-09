@@ -1143,6 +1143,9 @@ HTML_EXTRA_STYLESHEET  = $(SHARED_DOCS_PATH)/style.css
 HTML_EXTRA_FILES       = \
   "splash.png" \
   "programmers_guide/info_panel_data_driven_flatbuffers.png" \
+  "programmers_guide/info_panel_corgi.png" \
+  "programmers_guide/info_panel_flatui.png" \
+  "programmers_guide/info_panel_fplbase.png" \
   "programmers_guide/info_panel_google_play_games.png" \
   "programmers_guide/info_panel_multiple_control_schemes.png" \
   "programmers_guide/info_panel_normal_mapping.png" \

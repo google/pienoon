@@ -17,14 +17,6 @@
       "push": 0
     },
     {
-      "name": "googletest",
-      "url": "http://github.com/google/fplutil.git",
-      "branch": "googletest",
-      "is_library": 1,
-      "third_party": 0,
-      "push": 0
-    },
-    {
       "name": "flatbuffers",
       "url": "http://github.com/google/flatbuffers.git",
       "branch": "master",
@@ -38,7 +30,8 @@
       "branch": "develop",
       "is_library": 1,
       "third_party": 0,
-      "push": 0
+      "push": 0,
+      "fetch_dependencies": 1
     },
     {
       "name": "pindrop",
@@ -46,7 +39,8 @@
       "branch": "develop",
       "is_library": 1,
       "third_party": 0,
-      "push": 0
+      "push": 0,
+      "fetch_dependencies": 1
     },
     {
       "name": "motive",
@@ -54,85 +48,45 @@
       "branch": "develop",
       "is_library": 1,
       "third_party": 0,
-      "push": 0
+      "push": 0,
+      "fetch_dependencies": 1
     },
+
     {
-      "name": "vectorial",
-      "url": "http://github.com/google/mathfu.git",
-      "branch": "vectorial",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 0
-    },
-    {
-      "name": "sdl",
-      "url": "http://github.com/google/pienoon.git",
-      "branch": "sdl",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 1
-    },
-    {
-      "name": "sdl_mixer",
-      "url": "http://github.com/google/pienoon.git",
-      "branch": "sdl_mixer",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 1
-    },
-    {
-      "name": "webp",
-      "url": "https://chromium.googlesource.com/webm/libwebp",
-      "branch": "0.4.1",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 0
-    },
-    {
-      "name": "libogg",
-      "url": "https://git.xiph.org/mirrors/ogg.git",
-      "branch": "master",
-      "revision": "ab78196fd59ad7a329a2b19d2bcec5d840a9a21f",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 0
-    },
-    {
-      "name": "libvorbis",
-      "url": "https://git.xiph.org/mirrors/vorbis.git",
-      "branch": "master",
-      "revision": "ec345eee8c5af00154b237f67509c96b43cfa8a7",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 0
-    },
-    {
-      "name": "freetype",
-      "url": "git://git.sv.nongnu.org/freetype/freetype2.git",
-      "branch": "master",
-      "revision": "f353a38e87a894a0a3280f5e27278831a1a2aaad",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 0
-    },
-    {
-      "name": "harfbuzz",
-      "url": "http://github.com/behdad/harfbuzz.git",
-      "branch": "master",
-      "revision": "aee685086c8fde6f6c4590e483a177c19f222540",
-      "is_library": 1,
-      "third_party": 1,
-      "push": 0
-    },
-    {
-      "name": "cardboard-java",
-      "url": "https://github.com/googlesamples/cardboard-java.git",
-      "branch": "master",
-      "revision": "c2a953d093ef7b29b9b0a113c7d5d104fe5d188d",
+      "name": "fplbase",
+      "url": "http://github.com/google/fplbase.git",
+      "branch": "develop",
       "is_library": 1,
       "third_party": 0,
-      "prebuilts" : 1,
-      "push": 0
+      "push": 0,
+      "fetch_dependencies": 1
+    },
+    {
+      "name": "flatui",
+      "url": "http://github.com/google/flatui.git",
+      "branch": "develop",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0,
+      "fetch_dependencies": 1
+    },
+    {
+      "name": "corgi",
+      "url": "http://github.com/google/corgi.git",
+      "branch": "develop",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0,
+      "fetch_dependencies": 1
+    },
+    {
+      "name": "scene_lab",
+      "url": "http://github.com/google/scene_lab.git",
+      "branch": "develop",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0,
+      "fetch_dependencies": 1
     }
   ]
 }

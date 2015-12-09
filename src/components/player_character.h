@@ -19,7 +19,7 @@
 #include "common.h"
 #include "components_generated.h"
 #include "config_generated.h"
-#include "entity/component.h"
+#include "corgi/component.h"
 #include "mathfu/constants.h"
 #include "scene_description.h"
 
@@ -32,19 +32,19 @@ const int kMaxAccessories = 15;
 
 // Data for accessory components.
 struct PlayerCharacterData {
-  entity::EntityRef base_circle;
-  entity::EntityRef character;
-  entity::EntityRef accessories[kMaxAccessories];
+  corgi::EntityRef base_circle;
+  corgi::EntityRef character;
+  corgi::EntityRef accessories[kMaxAccessories];
   CharacterId character_id;
 };
 
 // Child Objects are basically anything that hangs off of a scene-object as a
 // child.  They inherit transformations from their parent.
-class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
+class PlayerCharacterComponent : public corgi::Component<PlayerCharacterData> {
  public:
-  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
-  virtual void UpdateAllEntities(entity::WorldTime delta_time);
-  virtual void InitEntity(entity::EntityRef& entity);
+  virtual void AddFromRawData(corgi::EntityRef& entity, const void* data);
+  virtual void UpdateAllEntities(corgi::WorldTime delta_time);
+  virtual void InitEntity(corgi::EntityRef& entity);
   void set_gamestate_ptr(GameState* gamestate_ptr) {
     gamestate_ptr_ = gamestate_ptr;
   }
@@ -52,12 +52,16 @@ class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
   void set_config(const Config* config) { config_ = config; }
 
  private:
-  void UpdateCharacterFacing(entity::EntityRef entity);
-  void UpdateCharacterTint(entity::EntityRef entity);
-  void UpdateUiArrow(entity::EntityRef entity);
-  void UpdateVisibility(entity::EntityRef entity);
-  int PopulatePieAccessories(entity::EntityRef entity, int num_accessories);
-  int PopulateHealthAccessories(entity::EntityRef entity, int num_accessories);
+  void UpdateCharacterFacing(corgi::EntityRef entity);
+  void UpdateCharacterTint(corgi::EntityRef entity);
+  void UpdateUiArrow(corgi::EntityRef entity);
+  void UpdateVisibility(corgi::EntityRef entity);
+  int PopulatePieAccessories(corgi::EntityRef entity, int num_accessories);
+  int PopulateHealthAccessories(corgi::EntityRef entity, int num_accessories);
+  Controller::ControllerType ControllerType(
+      const corgi::EntityRef& entity) const;
+  bool DrawBaseCircle(const corgi::EntityRef& entity) const;
+
   const Config* config_;
   GameState* gamestate_ptr_;
 };
@@ -65,8 +69,7 @@ class PlayerCharacterComponent : public entity::Component<PlayerCharacterData> {
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(
-    fpl::pie_noon::PlayerCharacterComponent, fpl::pie_noon::PlayerCharacterData,
-    fpl::pie_noon::ComponentDataUnion_PlayerCharacterDef)
+CORGI_REGISTER_COMPONENT(fpl::pie_noon::PlayerCharacterComponent,
+                         fpl::pie_noon::PlayerCharacterData)
 
 #endif  // COMPONENTS_PLAYER_CHARACTER_H_

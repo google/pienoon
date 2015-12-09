@@ -15,14 +15,14 @@
 #ifndef COMPONENTS_SHAKEABLE_PROP_H_
 #define COMPONENTS_SHAKEABLE_PROP_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 #include "common.h"
 #include "components_generated.h"
 #include "config_generated.h"
-#include "entity/component.h"
-#include "motive/io/flatbuffers.h"
+#include "corgi/component.h"
 #include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 #include "motive/util.h"
 
 namespace fpl {
@@ -31,16 +31,16 @@ namespace pie_noon {
 struct ShakeablePropData {
   ShakeablePropData() {}
   float shake_scale;
-  Axis axis;
+  fplbase::Axis axis;
   motive::Motivator1f motivator;
 };
 
-class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
+class ShakeablePropComponent : public corgi::Component<ShakeablePropData> {
  public:
-  virtual void UpdateAllEntities(entity::WorldTime delta_time);
-  virtual void AddFromRawData(entity::EntityRef& entity, const void* data);
-  virtual void InitEntity(entity::EntityRef& entity);
-  virtual void CleanupEntity(entity::EntityRef& entity);
+  virtual void UpdateAllEntities(corgi::WorldTime delta_time);
+  virtual void AddFromRawData(corgi::EntityRef& entity, const void* data);
+  virtual void InitEntity(corgi::EntityRef& entity);
+  virtual void CleanupEntity(corgi::EntityRef& entity);
 
   void set_config(const Config* config) { config_ = config; }
   void set_engine(motive::MotiveEngine* engine) { engine_ = engine; }
@@ -56,8 +56,7 @@ class ShakeablePropComponent : public entity::Component<ShakeablePropData> {
 }  // pie_noon
 }  // fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(fpl::pie_noon::ShakeablePropComponent,
-    fpl::pie_noon::ShakeablePropData,
-    fpl::pie_noon::ComponentDataUnion_ShakeablePropDef)
+CORGI_REGISTER_COMPONENT(fpl::pie_noon::ShakeablePropComponent,
+                         fpl::pie_noon::ShakeablePropData)
 
 #endif  // COMPONENTS_SHAKEABLE_PROP_H_

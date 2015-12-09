@@ -1,0 +1,12 @@
+{
+  "name": "InvalidInput",
+  "bus": "ui_sound_effects",
+  "audio_sample_set": [
+    {
+      "audio_sample": {
+        "filename": "sounds/pastryhit_01.ogg"
+      }
+    }
+  ]
+}
+

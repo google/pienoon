@@ -15,16 +15,16 @@
 #ifndef GAME_STATE_H_
 #define GAME_STATE_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 #include "character.h"
 #include "components/cardboard_player.h"
 #include "components/drip_and_vanish.h"
 #include "components/player_character.h"
 #include "components/scene_object.h"
 #include "components/shakeable_prop.h"
-#include "entity/entity.h"
-#include "entity/entity_manager.h"
+#include "corgi/entity.h"
+#include "corgi/entity_manager.h"
 #include "game_camera.h"
 #include "motive/engine.h"
 #include "motive/processor.h"
@@ -37,7 +37,6 @@ class AudioEngine;
 
 namespace fpl {
 
-class InputSystem;
 class SceneDescription;
 
 namespace pie_noon {
@@ -48,10 +47,10 @@ struct EventData;
 struct ReceivedPie;
 class MultiplayerDirector;
 
-class PieNoonEntityFactory : public entity::EntityFactoryInterface {
+class PieNoonEntityFactory : public corgi::EntityFactoryInterface {
  public:
-  virtual entity::EntityRef CreateEntityFromData(
-      const void* data, entity::EntityManager* entity_manager);
+  virtual corgi::EntityRef CreateEntityFromData(
+      const void* data, corgi::EntityManager* entity_manager);
 };
 
 class GameState {
@@ -81,11 +80,11 @@ class GameState {
   void PopulateScene(SceneDescription* scene);
 
   // Angle between two characters.
-  Angle AngleBetweenCharacters(CharacterId source_id,
-                               CharacterId target_id) const;
+  motive::Angle AngleBetweenCharacters(CharacterId source_id,
+                                       CharacterId target_id) const;
 
-  // Angle to the character's target.
-  Angle TargetFaceAngle(CharacterId id) const;
+  // motive::Angle to the character's target.
+  motive::Angle TargetFaceAngle(CharacterId id) const;
 
   // Returns one of the RenderableId enums.
   uint16_t CharacterState(CharacterId id) const;
@@ -120,6 +119,8 @@ class GameState {
   const std::vector<std::unique_ptr<AirbornePie>>& pies() const {
     return pies_;
   }
+
+  const CharacterArrangement& arrangement() const { return *arrangement_; }
 
   WorldTime time() const { return time_; }
 
@@ -181,8 +182,9 @@ class GameState {
   float CalculateCharacterFacingAngleVelocity(const Character* character,
                                               WorldTime delta_time) const;
   int RequestedTurn(CharacterId id) const;
-  Angle TiltTowardsStageFront(const Angle angle) const;
-  Angle TiltCharacterAwayFromCamera(CharacterId id, const Angle angle) const;
+  motive::Angle TiltTowardsStageFront(const motive::Angle angle) const;
+  motive::Angle TiltCharacterAwayFromCamera(CharacterId id,
+                                            const motive::Angle angle) const;
   motive::TwitchDirection FakeResponseToTurn(CharacterId id) const;
   void AddParticlesToScene(SceneDescription* scene) const;
   void CreatePieSplatter(pindrop::AudioEngine* audio_engine,
@@ -192,7 +194,7 @@ class GameState {
                       const int particle_count,
                       const mathfu::vec4& base_tint = mathfu::vec4(1, 1, 1, 1));
   void ShakeProps(float percent, const mathfu::vec3& damage_position);
-  void AddSplatterToProp(entity::EntityRef prop);
+  void AddSplatterToProp(corgi::EntityRef prop);
 
   WorldTime time_;
   // countdown_time_ is in seconds and is derived from the length of the game
@@ -210,7 +212,7 @@ class GameState {
   AnalyticsMode analytics_mode_;
 
   // Entity manager that tracks all of our entities.
-  entity::EntityManager entity_manager_;
+  corgi::EntityManager entity_manager_;
   // Entity factory for creating entities from flatbuffers:
   PieNoonEntityFactory pie_noon_entity_factory_;
 

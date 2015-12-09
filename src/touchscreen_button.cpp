@@ -1,5 +1,8 @@
 #include "touchscreen_button.h"
-#include "utilities.h"
+
+#if defined(_DEBUG)
+#define DEBUG_RENDER_BOUNDS
+#endif
 
 namespace fpl {
 namespace pie_noon {
@@ -12,7 +15,9 @@ TouchscreenButton::TouchscreenButton()
       is_active_(true),
       is_visible_(true),
       is_highlighted_(false),
-      one_over_cannonical_window_height_(0.0f) {}
+      one_over_cannonical_window_height_(0.0f) {
+  debug_shader_ = nullptr;
+}
 
 ButtonId TouchscreenButton::GetId() const {
   if (button_def_ != nullptr) {
@@ -22,7 +27,7 @@ ButtonId TouchscreenButton::GetId() const {
   }
 }
 
-bool TouchscreenButton::WillCapturePointer(const Pointer& pointer,
+bool TouchscreenButton::WillCapturePointer(const fplbase::InputPointer& pointer,
                                            vec2 window_size) {
   if (is_visible_ &&
       pointer.mousepos.x() / window_size.x() >= button_def_->top_left()->x() &&
@@ -36,15 +41,16 @@ bool TouchscreenButton::WillCapturePointer(const Pointer& pointer,
   return false;
 }
 
-void TouchscreenButton::AdvanceFrame(WorldTime delta_time, InputSystem* input,
+void TouchscreenButton::AdvanceFrame(WorldTime delta_time,
+                                     fplbase::InputSystem* input,
                                      vec2 window_size) {
   elapsed_time_ += delta_time;
   button_.AdvanceFrame();
   bool down = false;
 
-  for (size_t i = 0; i < input->pointers_.size(); i++) {
-    const Pointer& pointer = input->pointers_[i];
-    const Button pointer_button = input->GetPointerButton(pointer.id);
+  for (size_t i = 0; i < input->get_pointers().size(); i++) {
+    const fplbase::InputPointer& pointer = input->get_pointers()[i];
+    const fplbase::Button pointer_button = input->GetPointerButton(pointer.id);
     if ((pointer_button.is_down() || pointer_button.went_down()) &&
         WillCapturePointer(pointer, window_size)) {
       down = true;
@@ -61,15 +67,15 @@ bool TouchscreenButton::IsTriggered() {
           button_.went_down());
 }
 
-void TouchscreenButton::Render(Renderer& renderer) {
+void TouchscreenButton::Render(fplbase::Renderer& renderer) {
   static const float kButtonZDepth = 0.0f;
 
   if (!is_visible_) {
     return;
   }
-  renderer.color() = color_;
+  renderer.set_color(vec4(color_));
 
-  Material* mat = (button_.is_down() && down_material_ != nullptr)
+  auto mat = (button_.is_down() && down_material_ != nullptr)
                       ? down_material_
                       : up_current_ < up_materials_.size()
                             ? up_materials_[up_current_]
@@ -98,15 +104,74 @@ void TouchscreenButton::Render(Renderer& renderer) {
                        button_def()->texture_position()->y() * window_size.y(),
                        kButtonZDepth);
 
+  renderer.set_color(mathfu::kOnes4f);
   if (is_active_ || inactive_shader_ == nullptr) {
     shader_->Set(renderer);
   } else {
     inactive_shader_->Set(renderer);
   }
   mat->Set(renderer);
-  Mesh::RenderAAQuadAlongX(position - (texture_size / 2.0f),
+  fplbase::Mesh::RenderAAQuadAlongX(position - (texture_size / 2.0f),
                            position + (texture_size / 2.0f), vec2(0, 1),
                            vec2(1, 0));
+#if defined(DEBUG_RENDER_BOUNDS)
+  DebugRender(position, texture_size, renderer);
+#endif  // DEBUG_RENDER_BOUNDS
+}
+
+void TouchscreenButton::DebugRender(const vec3& position,
+                                    const vec3& texture_size,
+                                    fplbase::Renderer& renderer) const {
+#if defined(DEBUG_RENDER_BOUNDS)
+  if (debug_shader_ && draw_bounds_) {
+    const vec2 window_size = vec2(renderer.window_size());
+    static const float kButtonZDepth = 0.0f;
+    static const fplbase::Attribute kFormat[] = {fplbase::kPosition3f,
+                                                 fplbase::kEND};
+    static const unsigned short kIndices[] = {0, 1, 1, 3, 2, 3, 2, 0};
+    const vec3 bottom_left = position - (texture_size / 2.0f);
+    const vec3 top_right = position + (texture_size / 2.0f);
+
+    // vertex format is [x, y, z]
+    float vertices[] = {
+        bottom_left.x(), bottom_left.y(), bottom_left.z(), top_right.x(),
+        bottom_left.y(), bottom_left.z(), bottom_left.x(), top_right.y(),
+        top_right.z(),   top_right.x(),   top_right.y(),   top_right.z(),
+    };
+    renderer.set_color(vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    debug_shader_->Set(renderer);
+    fplbase::Mesh::RenderArray(fplbase::Mesh::kLines, 8,
+                               kFormat, sizeof(float) * 3,
+                               reinterpret_cast<const char*>(vertices),
+                               kIndices);
+
+    renderer.set_color(vec4(1.0f, 1.0f, 0.0f, 1.0f));
+    debug_shader_->Set(renderer);
+    static unsigned short indicesButtonDef[] = {1, 0, 1, 2, 2, 3, 3, 0};
+    float verticesButtonDef[] = {
+        button_def()->top_left()->x() * window_size.x(),
+        button_def()->top_left()->y() * window_size.y(),
+        kButtonZDepth,
+        button_def()->top_left()->x() * window_size.x(),
+        button_def()->bottom_right()->y() * window_size.y(),
+        kButtonZDepth,
+        button_def()->bottom_right()->x() * window_size.x(),
+        button_def()->bottom_right()->y() * window_size.y(),
+        kButtonZDepth,
+        button_def()->bottom_right()->x() * window_size.x(),
+        button_def()->top_left()->y() * window_size.y(),
+        kButtonZDepth,
+    };
+    fplbase::Mesh::RenderArray(fplbase::Mesh::kLines, 8, kFormat,
+                               sizeof(float) * 3,
+                               reinterpret_cast<const char*>(verticesButtonDef),
+                               indicesButtonDef);
+  }
+#else
+  (void)position;
+  (void)texture_size;
+  (void)renderer;
+#endif  // DEBUG_RENDER_BOUNDS
 }
 
 StaticImage::StaticImage()
@@ -120,7 +185,8 @@ StaticImage::StaticImage()
       is_visible_(true) {}
 
 void StaticImage::Initialize(const StaticImageDef& image_def,
-                             std::vector<Material*> materials, Shader* shader,
+                             std::vector<fplbase::Material*> materials,
+                             fplbase::Shader* shader,
                              int cannonical_window_height) {
   image_def_ = &image_def;
   materials_ = materials;
@@ -141,18 +207,18 @@ bool StaticImage::Valid() const {
          materials_[current_material_index_] != nullptr && shader_ != nullptr;
 }
 
-void StaticImage::Render(Renderer& renderer) {
+void StaticImage::Render(fplbase::Renderer& renderer) {
   if (!Valid()) return;
   if (!is_visible_) return;
-  renderer.color() = color_;
+  renderer.set_color(vec4(color_));
 
-  Material* material = materials_[current_material_index_];
+  auto material = materials_[current_material_index_];
   const vec2 window_size = vec2(renderer.window_size());
   const float texture_scale =
       window_size.y() * one_over_cannonical_window_height_;
   const vec2 texture_size =
-      texture_scale * vec2(material->textures()[0]->size()) * scale_;
-  const vec2 position_percent = texture_position_;
+      texture_scale * vec2(material->textures()[0]->size()) * vec2(scale_);
+  const vec2 position_percent = vec2(texture_position_);
   const vec2 position = window_size * position_percent;
 
   const vec3 position3d(position.x(), position.y(), image_def_->z_depth());
@@ -161,7 +227,7 @@ void StaticImage::Render(Renderer& renderer) {
   shader_->Set(renderer);
   material->Set(renderer);
 
-  Mesh::RenderAAQuadAlongX(position3d - texture_size3d * 0.5f,
+  fplbase::Mesh::RenderAAQuadAlongX(position3d - texture_size3d * 0.5f,
                            position3d + texture_size3d * 0.5f, vec2(0, 1),
                            vec2(1, 0));
 }

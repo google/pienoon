@@ -14,7 +14,9 @@
 
 #include "drip_and_vanish.h"
 #include "scene_object.h"
-#include "utilities.h"
+
+CORGI_DEFINE_COMPONENT(fpl::pie_noon::DripAndVanishComponent,
+                       fpl::pie_noon::DripAndVanishData)
 
 namespace fpl {
 namespace pie_noon {
@@ -25,10 +27,11 @@ using mathfu::vec3;
 // Gives a child scene object behavior such that it waits for a while,
 // and then slowly sinks, while shrinking.  It's used to govern behavior
 // for splatters on the background.
-void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
-  for (auto iter = entity_data_.begin(); iter != entity_data_.end(); ++iter) {
+void DripAndVanishComponent::UpdateAllEntities(corgi::WorldTime delta_time) {
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
     SceneObjectData* so_data = Data<SceneObjectData>(iter->entity);
-    DripAndVanishData* dv_data = GetEntityData(iter->entity);
+    DripAndVanishData* dv_data = GetComponentData(iter->entity);
 
     dv_data->lifetime_remaining -= delta_time;
     if (dv_data->lifetime_remaining > 0) {
@@ -56,7 +59,7 @@ void DripAndVanishComponent::UpdateAllEntities(entity::WorldTime delta_time) {
   }
 }
 
-void DripAndVanishComponent::AddFromRawData(entity::EntityRef& entity,
+void DripAndVanishComponent::AddFromRawData(corgi::EntityRef& entity,
                                             const void* raw_data) {
   auto component_data = static_cast<const ComponentDefInstance*>(raw_data);
   assert(component_data->data_type() == ComponentDataUnion_DripAndVanishDef);
@@ -73,7 +76,7 @@ void DripAndVanishComponent::AddFromRawData(entity::EntityRef& entity,
 }
 
 // Make sure we have an accessory.
-void DripAndVanishComponent::InitEntity(entity::EntityRef& entity) {
+void DripAndVanishComponent::InitEntity(corgi::EntityRef& entity) {
   ComponentInterface* scene_object_component =
       GetComponent<SceneObjectComponent>();
   assert(scene_object_component);
@@ -82,8 +85,8 @@ void DripAndVanishComponent::InitEntity(entity::EntityRef& entity) {
 
 // Set the starting values of the drip thing, since we populate them
 // just after creation.
-void DripAndVanishComponent::SetStartingValues(entity::EntityRef& entity) {
-  DripAndVanishData* entity_data = GetEntityData(entity);
+void DripAndVanishComponent::SetStartingValues(corgi::EntityRef& entity) {
+  DripAndVanishData* entity_data = GetComponentData(entity);
   SceneObjectData* so_data = Data<SceneObjectData>(entity);
 
   entity_data->start_position = so_data->Translation();

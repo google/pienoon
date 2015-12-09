@@ -14,8 +14,8 @@
 
 #include "precompiled.h"
 #include "character_state_machine.h"
-#include "timeline_generated.h"
 #include "character_state_machine_def_generated.h"
+#include "timeline_generated.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -82,20 +82,19 @@ void CharacterStateMachine::Update(const ConditionInputs& inputs) {
 bool CharacterStateMachineDef_Validate(
     const CharacterStateMachineDef* const state_machine_def) {
   if (state_machine_def->states()->Length() != StateId_Count) {
-    SDL_LogCritical(SDL_LOG_CATEGORY_ERROR,
-                    "Must include 1 state for each state id enum. "
-                    "Found %i states, expected %i.\n",
-                    state_machine_def->states()->Length(), StateId_Count);
+    printf(
+        "Must include 1 state for each state id enum. "
+        "Found %i states, expected %i.\n",
+        state_machine_def->states()->Length(), StateId_Count);
     return false;
   }
   for (uint16_t i = 0; i < state_machine_def->states()->Length(); i++) {
     auto id = state_machine_def->states()->Get(i)->id();
     if (id != i) {
-      SDL_LogCritical(SDL_LOG_CATEGORY_ERROR,
-                      "States must be declared in order. "
-                      "State #%i was %s, expected %s.\n",
-                      i, EnumNameStateId(id),
-                      EnumNameStateId(static_cast<StateId>(i)));
+      printf(
+          "States must be declared in order. "
+          "State #%i was %s, expected %s.\n",
+          i, EnumNameStateId(id), EnumNameStateId(static_cast<StateId>(i)));
       return false;
     }
   }

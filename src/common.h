@@ -15,8 +15,8 @@
 #ifndef PIE_NOON_COMMON_H
 #define PIE_NOON_COMMON_H
 
-#include "mathfu/quaternion.h"
 #include "mathfu/glsl_mappings.h"
+#include "mathfu/quaternion.h"
 
 namespace fpl {
 

@@ -13,17 +13,18 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "gui_menu.h"
-#include "config_generated.h"
 #include "character_state_machine_def_generated.h"
-#include "utilities.h"
+#include "config_generated.h"
+#include "gui_menu.h"
 
+using flatbuffers::uoffset_t;
 namespace fpl {
 namespace pie_noon {
 
 //#define USE_IMGUI (1)
 
-GuiMenu::GuiMenu() : time_elapsed_(0) {
+GuiMenu::GuiMenu()
+    : debug_shader(nullptr), draw_debug_bounds(false), time_elapsed_(0) {
 #ifdef USE_IMGUI
   // Initialize font manager.
   fontman_ = new FontManager();
@@ -33,7 +34,7 @@ GuiMenu::GuiMenu() : time_elapsed_(0) {
 
 static const char* TextureName(const ButtonTexture& button_texture) {
   const bool touch_screen =
-      button_texture.touch_screen() != nullptr && TouchScreenDevice();
+      button_texture.touch_screen() != nullptr && fplbase::TouchScreenDevice();
   return touch_screen ? button_texture.touch_screen()->c_str()
                       : button_texture.standard()->c_str();
 }
@@ -43,7 +44,7 @@ static inline size_t ArrayLength(const T* array) {
   return array == nullptr ? 0 : array->Length();
 }
 
-void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
+void GuiMenu::Setup(const UiGroup* menu_def, fplbase::AssetManager* matman) {
   ClearRecentSelections();
 
   // Save material manager instance for later use.
@@ -64,11 +65,11 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   current_focus_ = menu_def->starting_selection();
   // Empty the queue.
 
-  for (size_t i = 0; i < length_button_list; i++) {
+  for (uoffset_t i = 0; i < length_button_list; i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
     button_list_[i] = TouchscreenButton();
     const size_t length_texture_normal = ArrayLength(button->texture_normal());
-    for (size_t j = 0; j < length_texture_normal; j++) {
+    for (uoffset_t j = 0; j < length_texture_normal; j++) {
       const char* texture_name = TextureName(*button->texture_normal()->Get(j));
       button_list_[i].set_up_material(j, matman->FindMaterial(texture_name));
     }
@@ -80,48 +81,53 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
     const char* shader_name = (button->shader() == nullptr)
                                   ? menu_def->default_shader()->c_str()
                                   : button->shader()->c_str();
-    Shader* shader = matman->FindShader(shader_name);
+    fplbase::Shader* shader = matman->FindShader(shader_name);
 
     const char* inactive_shader_name =
         (button->inactive_shader() == nullptr)
             ? menu_def->default_inactive_shader()->c_str()
             : button->inactive_shader()->c_str();
-    Shader* inactive_shader = matman->FindShader(inactive_shader_name);
+    fplbase::Shader* inactive_shader = matman->FindShader(inactive_shader_name);
 
     if (shader == nullptr) {
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                  "Buttons used in menus must specify a shader!");
+      fplbase::LogInfo(fplbase::kApplication,
+                       "Buttons used in menus must specify a shader!");
     }
     button_list_[i].set_shader(shader);
     button_list_[i].set_inactive_shader(inactive_shader);
     button_list_[i].set_button_def(button);
     button_list_[i].set_is_active(button->starts_active() != 0);
     button_list_[i].set_is_highlighted(true);
-    button_list_[i]
-        .SetCannonicalWindowHeight(menu_def_->cannonical_window_height());
+
+    if (debug_shader) {
+      button_list_[i].set_debug_shader(matman->FindShader(debug_shader));
+    }
+    button_list_[i].set_draw_bounds(draw_debug_bounds);
+    button_list_[i].SetCannonicalWindowHeight(
+        menu_def_->cannonical_window_height());
   }
 
   // Initialize image_list_.
-  for (size_t i = 0; i < length_image_list; i++) {
+  for (uoffset_t i = 0; i < length_image_list; i++) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
 
     const int num_textures = image_def.texture()->Length();
-    std::vector<Material*> materials(num_textures);
+    std::vector<fplbase::Material*> materials(num_textures);
     for (int j = 0; j < num_textures; ++j) {
       const char* material_name = TextureName(*image_def.texture()->Get(j));
       materials[j] = matman->FindMaterial(material_name);
       if (materials[j] == nullptr) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                     "Static image '%s' not found", material_name);
+        fplbase::LogError(fplbase::kApplication, "Static image '%s' not found",
+                          material_name);
       }
     }
     const char* shader_name = (image_def.shader() == nullptr)
                                   ? menu_def->default_shader()->c_str()
                                   : image_def.shader()->c_str();
-    Shader* shader = matman->FindShader(shader_name);
+    fplbase::Shader* shader = matman->FindShader(shader_name);
     if (shader == nullptr) {
-      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                   "Static image missing shader '%s'", shader_name);
+      fplbase::LogError(fplbase::kApplication,
+                        "Static image missing shader '%s'", shader_name);
     }
 
     image_list_[i].Initialize(image_def, materials, shader,
@@ -129,16 +135,30 @@ void GuiMenu::Setup(const UiGroup* menu_def, MaterialManager* matman) {
   }
 }
 
+// Loads the debug shader if available
+// Sets option to draw render bounds for button
+void GuiMenu::LoadDebugShaderAndOptions(const Config* config,
+                                        fplbase::AssetManager* matman) {
+  if (config->menu_button_debug_shader() != nullptr &&
+      config->menu_button_debug_shader()->size() > 0) {
+    debug_shader = config->menu_button_debug_shader()->c_str();
+    matman->LoadShader(debug_shader);
+  }
+  draw_debug_bounds = config->draw_touch_button_bounds() != 0;
+}
+
 // Force the material manager to load all the textures and shaders
 // used in the UI group.
-void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
+void GuiMenu::LoadAssets(const UiGroup* menu_def,
+                         fplbase::AssetManager* matman) {
+  if (menu_def == nullptr) return;
   const size_t length_button_list = ArrayLength(menu_def->button_list());
   matman->LoadShader(menu_def->default_shader()->c_str());
   matman->LoadShader(menu_def->default_inactive_shader()->c_str());
-  for (size_t i = 0; i < length_button_list; i++) {
+  for (uoffset_t i = 0; i < length_button_list; i++) {
     const ButtonDef* button = menu_def->button_list()->Get(i);
     const size_t length_texture_normal = ArrayLength(button->texture_normal());
-    for (size_t j = 0; j < length_texture_normal; j++) {
+    for (uoffset_t j = 0; j < length_texture_normal; j++) {
       const char* texture_name = TextureName(*button->texture_normal()->Get(j));
       matman->LoadMaterial(texture_name);
     }
@@ -155,10 +175,10 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
   }
 
   const size_t length_image_list = ArrayLength(menu_def->static_image_list());
-  for (size_t i = 0; i < length_image_list; i++) {
+  for (uoffset_t i = 0; i < length_image_list; i++) {
     const StaticImageDef& image_def = *menu_def->static_image_list()->Get(i);
     const size_t length_texture = ArrayLength(image_def.texture());
-    for (size_t j = 0; j < length_texture; ++j) {
+    for (uoffset_t j = 0; j < length_texture; ++j) {
       matman->LoadMaterial(TextureName(*image_def.texture()->Get(j)));
     }
     if (image_def.shader() != nullptr) {
@@ -167,7 +187,7 @@ void GuiMenu::LoadAssets(const UiGroup* menu_def, MaterialManager* matman) {
   }
 }
 
-void GuiMenu::AdvanceFrame(WorldTime delta_time, InputSystem* input,
+void GuiMenu::AdvanceFrame(WorldTime delta_time, fplbase::InputSystem* input,
                            const vec2& window_size) {
   // Save input system for a later use.
   input_ = input;
@@ -235,24 +255,25 @@ void GuiMenu::RenderTexture(const Texture& tex, const vec2& pos,
   auto pos_scaled = pos - (size * (scale - mathfu::kOnes2f)) / 2.0;
   auto size_scaled = size * scale;
 
-  gui::RenderTexture(tex, mathfu::vec2i(pos_scaled),
-                     mathfu::vec2i(size_scaled));
+  flatui::RenderTexture(tex, mathfu::vec2i(pos_scaled),
+                        mathfu::vec2i(size_scaled));
 }
 
 // ImguiButton widget definition for imgui.
-// Using gui::CustomElement() to render it's own control.
-gui::Event GuiMenu::ImguiButton(const ImguiButtonDef& data) {
+// Using flatui::CustomElement() to render it's own control.
+flatui::Event GuiMenu::ImguiButton(const ImguiButtonDef& data) {
   // Start new group.
 
   // Each button should have an id.
   assert(data.button_id()->c_str() != nullptr);
   auto button_id = data.button_id()->c_str();
-  gui::StartGroup(gui::LAYOUT_VERTICAL_LEFT, 0, button_id);
+  flatui::StartGroup(flatui::LAYOUT_VERTICAL_LEFT, 0, button_id);
 
   // Set margin.
   auto m = reinterpret_cast<const vec4_packed*>(data.margin());
   if (m != nullptr) {
-    gui::SetMargin(gui::Margin(m->data[0], m->data[1], m->data[2], m->data[3]));
+    flatui::SetMargin(
+        flatui::Margin(m->data[0], m->data[1], m->data[2], m->data[3]));
   }
 
   // Calculate element size based on background texture size.
@@ -266,59 +287,59 @@ gui::Event GuiMenu::ImguiButton(const ImguiButtonDef& data) {
   }
 
   // Calculate foreground image size and position.
-  Texture *tex_foreground = nullptr;
+  Texture* tex_foreground = nullptr;
   auto size_foreground = mathfu::kOnes2f;
   auto pos_foreground = mathfu::kZeros2f;
   if (data.texture_foreground() != nullptr) {
     auto texture_foreground = data.texture_foreground()->c_str();
     tex_foreground = matman_->FindTexture(texture_foreground);
     auto size = data.foreground_size();
-    size_foreground = vec2(tex_foreground->size().x() * size /
-                           tex_foreground->size().y(), size);
-    pos_foreground = vec2(data.foreground_position()->x(),
-                          data.foreground_position()->y());
+    size_foreground = vec2(
+        tex_foreground->size().x() * size / tex_foreground->size().y(), size);
+    pos_foreground =
+        vec2(data.foreground_position()->x(), data.foreground_position()->y());
   }
 
   // Change image scale based on it's state.
-  auto event = gui::CheckEvent();
+  auto event = flatui::CheckEvent();
   auto image_scale = 1.0f;
   auto background_scale = mathfu::kOnes2f;
-  if (event & gui::EVENT_IS_DOWN) {
+  if (event & flatui::EVENT_IS_DOWN) {
     image_scale = data.foreground_size_pressed();
     if (data.draw_scale_pressed() != nullptr) {
       background_scale = LoadVec2(data.draw_scale_pressed());
     }
-  } else if (event & gui::EVENT_HOVER) {
+  } else if (event & flatui::EVENT_HOVER) {
     auto pulse = sinf(static_cast<float>(time_elapsed_) / 100.0f);
     image_scale += pulse * 0.05;
     image_scale *= data.foreground_size_focus();
   }
 
   // Draw element.
-  gui::CustomElement(
+  flatui::CustomElement(
       virtual_image_size, "__ImguiButton__",
       [this, tex, tex_foreground, pos_foreground, size_foreground, image_scale,
-       background_scale](
-          const vec2i& pos, const vec2i& size) mutable {
+       background_scale](const vec2i& pos, const vec2i& size) mutable {
         // Render background texture.
         RenderTexture(*tex, vec2(pos), vec2(size), background_scale);
 
         if (tex_foreground != nullptr) {
-          // It's not using gui::VirtualToPhysical() to avoid a scaling artifact
+          // It's not using flatui::VirtualToPhysical() to avoid a scaling
+          // artifact
           // due to a rounding up in the API.
-          auto p = vec2(pos) + pos_foreground * gui::GetScale();
-          auto s = size_foreground * gui::GetScale();
+          auto p = vec2(pos) + pos_foreground * flatui::GetScale();
+          auto s = size_foreground * flatui::GetScale();
           // Render foreground texture.
           RenderTexture(*tex_foreground, p, s, vec2(image_scale, image_scale));
         }
       });
 
-  gui::EndGroup();
+  flatui::EndGroup();
   return event;
 }
 #endif
 
-void GuiMenu::Render(Renderer* renderer) {
+void GuiMenu::Render(fplbase::Renderer* renderer) {
 #ifndef USE_IMGUI
   // Render touch controls, as long as the touch-controller is active.
   for (size_t i = 0; i < image_list_.size(); i++) {
@@ -338,9 +359,9 @@ void GuiMenu::Render(Renderer* renderer) {
 
   fontman_->SetRenderer(*renderer);
 
-  gui::Run(*matman_, *fontman_, *input_, [this]() {
+  flatui::Run(*matman_, *fontman_, *input_, [this]() {
     PositionUI(matman_->renderer().window_size(), 1.0,
-               gui::LAYOUT_HORIZONTAL_CENTER, gui::LAYOUT_VERTICAL_LEFT);
+               flatui::LAYOUT_HORIZONTAL_CENTER, flatui::LAYOUT_VERTICAL_LEFT);
 
     // Walk through gui definitions.
     const size_t length_imgui = ArrayLength(menu_def_->imgui_list());
@@ -349,21 +370,21 @@ void GuiMenu::Render(Renderer* renderer) {
       switch (widget->data_type()) {
         case ImguiWidgetUnion_StartGroupDef: {
           auto data = static_cast<const StartGroupDef*>(widget->data());
-          auto layout = static_cast<gui::Layout>(data->layout());
+          auto layout = static_cast<flatui::Layout>(data->layout());
           auto spacing = data->size();
           // Set margin if specified.
           auto m = data->margin();
           if (m != nullptr) {
-            gui::SetMargin(gui::Margin(m->x(), m->y(), m->z(), m->w()));
+            flatui::SetMargin(flatui::Margin(m->x(), m->y(), m->z(), m->w()));
           }
 
-          gui::StartGroup(layout, spacing);
+          flatui::StartGroup(layout, spacing);
 
           // Set background texture if specified.
           auto texture_background = data->texture_background();
           if (texture_background != nullptr) {
             auto tex = matman_->FindTexture(texture_background->c_str());
-            gui::ImageBackground(*tex);
+            flatui::ImageBackground(*tex);
           }
 
           break;
@@ -371,20 +392,21 @@ void GuiMenu::Render(Renderer* renderer) {
         case ImguiWidgetUnion_ImguiButtonDef: {
           auto data = static_cast<const ImguiButtonDef*>(widget->data());
           auto event = ImguiButton(*data);
-          auto flag = gui::EVENT_IS_DOWN;
+          auto flag = flatui::EVENT_IS_DOWN;
           if (data->event_trigger() == ButtonEvent_ButtonPress) {
-            flag = gui::EVENT_WENT_DOWN;
+            flag = flatui::EVENT_WENT_DOWN;
           } else if (data->event_trigger() == ButtonEvent_ButtonUp) {
-            flag = gui::EVENT_WENT_UP;
+            flag = flatui::EVENT_WENT_UP;
           }
-          if (event & flag && gui::GetCurrentPass() == gui::kGuiPassEvent) {
+          if (event & flag &&
+              flatui::GetCurrentPass() == flatui::kGuiPassEvent) {
             unhandled_selections_.push(
                 MenuSelection(data->ID(), kTouchController));
           }
           break;
         }
         case ImguiWidgetUnion_EndGroupDef: {
-          gui::EndGroup();
+          flatui::EndGroup();
           break;
         }
         default:
@@ -435,7 +457,7 @@ void GuiMenu::UpdateFocus(
     const flatbuffers::Vector<uint16_t>* destination_list) {
   // buttons are not required to provide a destination list for all directions.
   if (destination_list != nullptr) {
-    for (size_t i = 0; i < destination_list->Length(); i++) {
+    for (uoffset_t i = 0; i < destination_list->Length(); i++) {
       ButtonId destination_id = static_cast<ButtonId>(destination_list->Get(i));
       TouchscreenButton* destination = FindButtonById(destination_id);
       if (destination != nullptr && destination->is_visible()) {

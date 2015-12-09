@@ -15,10 +15,10 @@
 #ifndef CARDBOARD_CONTROLLER_H_
 #define CARDBOARD_CONTROLLER_H_
 
-#include "precompiled.h"
 #include "controller.h"
+#include "fplbase/input.h"
 #include "game_state.h"
-#include "input.h"
+#include "precompiled.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -27,14 +27,14 @@ class CardboardController : public Controller {
  public:
   CardboardController();
 
-  void Initialize(GameState* game_state, InputSystem* input_system);
+  void Initialize(GameState* game_state, fplbase::InputSystem* input_system);
 
   virtual void AdvanceFrame(WorldTime delta_time);
 
  private:
   GameState* game_state_;  // Pointer to the gamestate object
   // A pointer to the object to query for the current input state.
-  InputSystem* input_system_;
+  fplbase::InputSystem* input_system_;
 };
 
 }  // pie_noon

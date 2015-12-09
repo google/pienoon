@@ -17,12 +17,12 @@ project(harfbuzz)
 
 set(harfbuzz_dir ${dependencies_harfbuzz_distr_dir})
 
-if(WIN32)
+if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # Include pregeneraged harfbuzz header files on Windows.
 # On Windows, building harfbuzz requires prerequisites set up properly
 # (e.g.ragel, auto tools). To make the build process easier, we commit
 # pre-generated header files to our repository and include them only on Windows.
-include_directories(${CMAKE_SOURCE_DIR}/external/include/harfbuzz)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../external/include/harfbuzz)
 else()
 # Execute configuration script and make
 # Need ragel, autoconf, automake, libtool, pkg-config and freetype to configure

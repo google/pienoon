@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <math.h>
 #include "precompiled.h"
 #include "analytics_tracking.h"
 #include "audio_config_generated.h"
@@ -22,21 +21,25 @@
 #include "config_generated.h"
 #include "controller.h"
 #include "game_state.h"
-#include "motive/io/flatbuffers.h"
 #include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 #include "motive/util.h"
 #include "multiplayer_director.h"
 #include "pie_noon_common_generated.h"
 #include "pindrop/pindrop.h"
 #include "scene_description.h"
 #include "timeline_generated.h"
-#include "utilities.h"
 
+using flatbuffers::uoffset_t;
 using mathfu::vec2i;
 using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
+using motive::Angle;
+using motive::kDegreesToRadians;
+using motive::kHalfPi;
+using motive::kPi;
 
 namespace fpl {
 namespace pie_noon {
@@ -88,17 +91,40 @@ static T EnumerationValueForPieDamage(
   return static_cast<T>(lookup_vector.Get(clamped_damage));
 }
 
+static corgi::ComponentId ConvertEnumToComponentId(
+    ComponentDataUnion component) {
+  // We handle this via a switch rather than a static array to make it more
+  // robust.  (IDs are not assigned until after components are registered.)
+  switch (component) {
+    case ComponentDataUnion_NONE:
+      return corgi::kInvalidComponent;
+    case ComponentDataUnion_SceneObjectDef:
+      return corgi::ComponentIdLookup<SceneObjectComponent>::component_id;
+    case ComponentDataUnion_ShakeablePropDef:
+      return corgi::ComponentIdLookup<ShakeablePropComponent>::component_id;
+    case ComponentDataUnion_DripAndVanishDef:
+      return corgi::ComponentIdLookup<DripAndVanishComponent>::component_id;
+    case ComponentDataUnion_PlayerCharacterDef:
+      return corgi::ComponentIdLookup<PlayerCharacterComponent>::component_id;
+    case ComponentDataUnion_CardboardPlayerDef:
+      return corgi::ComponentIdLookup<CardboardPlayerComponent>::component_id;
+    default:
+      // Anything else is invalid.
+      return corgi::kInvalidComponent;
+  }
+}
+
 // Factory method for the entity manager, for converting data (in our case.
 // flatbuffer definitions) into entities and sticking them into the system.
-entity::EntityRef PieNoonEntityFactory::CreateEntityFromData(
-    const void* data, entity::EntityManager* entity_manager) {
+corgi::EntityRef PieNoonEntityFactory::CreateEntityFromData(
+    const void* data, corgi::EntityManager* entity_manager) {
   const EntityDefinition* def = static_cast<const EntityDefinition*>(data);
   assert(def != nullptr);
-  entity::EntityRef entity = entity_manager->AllocateNewEntity();
-  for (size_t i = 0; i < def->component_list()->size(); i++) {
+  corgi::EntityRef entity = entity_manager->AllocateNewEntity();
+  for (uoffset_t i = 0; i < def->component_list()->size(); i++) {
     const ComponentDefInstance* currentInstance = def->component_list()->Get(i);
-    entity::ComponentInterface* component =
-        entity_manager->GetComponent(currentInstance->data_type());
+    corgi::ComponentInterface* component = entity_manager->GetComponent(
+        ConvertEnumToComponentId(currentInstance->data_type()));
     assert(component != nullptr);
     component->AddFromRawData(entity, currentInstance);
   }
@@ -202,7 +228,8 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   camera_base_.target = LoadVec3(layout_config->camera_target());
   camera_.Initialize(camera_base_, &engine_);
   pies_.clear();
-  arrangement_ = GetBestArrangement(layout_config, characters_.size());
+  arrangement_ =
+      GetBestArrangement(layout_config, static_cast<int>(characters_.size()));
   analytics_mode_ = analytics_mode;
 
   entity_manager_.Clear();
@@ -228,7 +255,7 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   player_character_component_.set_gamestate_ptr(this);
   cardboard_player_component_.set_gamestate_ptr(this);
   // Load Entities from flatbuffer!
-  for (size_t i = 0; i < layout_config->entity_list()->size(); i++) {
+  for (uoffset_t i = 0; i < layout_config->entity_list()->size(); i++) {
     entity_manager_.CreateEntityFromData(layout_config->entity_list()->Get(i));
   }
 
@@ -254,7 +281,7 @@ void GameState::Reset(AnalyticsMode analytics_mode) {
   // Create player character entities:
   for (CharacterId id = 0; id < static_cast<CharacterId>(characters_.size());
        ++id) {
-    entity::EntityRef entity = entity_manager_.AllocateNewEntity();
+    corgi::EntityRef entity = entity_manager_.AllocateNewEntity();
     PlayerCharacterData* pc_data =
         player_character_component_.AddEntity(entity);
     pc_data->character_id = id;
@@ -329,7 +356,7 @@ float GameState::CalculatePieYRotation(CharacterId source_id,
     // If it is going directly towards or away from the cardboard, we want to
     // rotate it so it is visible
     if (source_id == 0 || target_id == 0) {
-      angle_to_target += Angle::FromRadians(fpl::kHalfPi);
+      angle_to_target += Angle::FromRadians(kHalfPi);
     }
   }
   return -angle_to_target.ToRadians();
@@ -381,7 +408,7 @@ static GameCameraMovement CalculateCameraMovement(
                         base.target * LoadVec3(m.target_from_base());
   movement.start_velocity = m.start_velocity();
   movement.time = static_cast<float>(m.time());
-  SmoothInitFromFlatBuffers(*m.def(), &movement.init);
+  SplineInitFromFlatBuffers(*m.def(), &movement.init);
   return movement;
 }
 
@@ -516,11 +543,12 @@ static vec3 RandomInRangeVec3(const vec3& min_range, const vec3& max_range) {
               mathfu::RandomInRange(min_range.z(), max_range.z()));
 }
 
-void GameState::AddSplatterToProp(entity::EntityRef prop) {
+void GameState::AddSplatterToProp(corgi::EntityRef prop) {
   static RenderableId id_list[] = {
       RenderableId_Splatter1, RenderableId_Splatter2, RenderableId_Splatter3};
-  if (prop->IsRegisteredForComponent(ComponentDataUnion_SceneObjectDef)) {
-    entity::EntityRef splatter =
+  if (entity_manager_.GetComponent<SceneObjectComponent>()->HasDataForEntity(
+          prop)) {
+    corgi::EntityRef splatter =
         entity_manager_.CreateEntityFromData(config_->splatter_def());
     auto so_data = entity_manager_.GetComponentData<SceneObjectData>(splatter);
 
@@ -617,8 +645,8 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->Active()) {
           character->set_victory_state(kVictorious);
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
-                      static_cast<int>(i) + 1);
+          fplbase::LogInfo(fplbase::kApplication,
+                           "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
@@ -634,17 +662,18 @@ void GameState::DetermineWinnersAndLosers() {
           const auto& character = characters_[i];
           if (character->score() == high_score) {
             character->set_victory_state(kVictorious);
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
-                        static_cast<int>(i) + 1);
+            fplbase::LogInfo(fplbase::kApplication,
+                             "Player %i wins!\n", static_cast<int>(i) + 1);
           } else {
             character->set_victory_state(kFailure);
           }
         }
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
+        fplbase::LogInfo(fplbase::kApplication, "Final scores:\n");
         for (size_t i = 0; i < characters_.size(); ++i) {
           const auto& character = characters_[i];
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "  Player %i: %i\n",
-                      static_cast<int>(i) + 1, character->score());
+          fplbase::LogInfo(fplbase::kApplication,
+                           "  Player %i: %i\n", static_cast<int>(i) + 1,
+                           character->score());
         }
       }
       break;
@@ -654,23 +683,25 @@ void GameState::DetermineWinnersAndLosers() {
         const auto& character = characters_[i];
         if (character->score() >= config_->target_score()) {
           character->set_victory_state(kVictorious);
-          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i wins!\n",
-                      static_cast<int>(i) + 1);
+          fplbase::LogInfo(fplbase::kApplication,
+                           "Player %i wins!\n", static_cast<int>(i) + 1);
         } else {
           character->set_victory_state(kFailure);
         }
       }
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Final scores:\n");
+      fplbase::LogInfo(fplbase::kApplication, "Final scores:\n");
       for (size_t i = 0; i < characters_.size(); ++i) {
         const auto& character = characters_[i];
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "  Player %i: %i\n",
-                    static_cast<int>(i) + 1, character->score());
+        fplbase::LogInfo(fplbase::kApplication,
+                         "  Player %i: %i\n", static_cast<int>(i) + 1,
+                         character->score());
       }
       break;
     }
   }
-  int winner_count = std::count_if(characters_.begin(), characters_.end(),
-                                   CharacterIsVictorious);
+  std::vector<std::unique_ptr<Character>>::difference_type winner_count =
+      std::count_if(characters_.begin(), characters_.end(),
+                    CharacterIsVictorious);
   for (size_t i = 0; i < characters_.size(); ++i) {
     auto& character = characters_[i];
     switch (winner_count) {
@@ -740,6 +771,12 @@ CharacterId GameState::CalculateCharacterTarget(CharacterId id) const {
   const int target_state = CharacterState(id);
   if (target_state == StateId_KO) return current_target;
 
+  // Check the inputs to see if we explicitly request a character.
+  const uint32_t logical_inputs = character->controller()->went_down();
+  if (logical_inputs & LogicalInputs_TurnToTarget) {
+    return character->controller()->target_id();
+  }
+
   // Check the inputs to see how requests for target change.
   const int requested_turn = RequestedTurn(id);
   if (requested_turn == 0) return current_target;
@@ -805,9 +842,9 @@ Angle GameState::TiltCharacterAwayFromCamera(CharacterId id,
   const Angle face_to_camera = angle - towards_camera;
   const float face_to_camera_value = face_to_camera.Abs().ToRadians();
   const float tilt_factor =
-      fpl::kHalfPi / (fpl::kDegreesToRadians * config_->tilt_away_angle());
+      kHalfPi / (kDegreesToRadians * config_->tilt_away_angle());
   const float adjusted_to_camera =
-      ((face_to_camera_value * (tilt_factor - 1)) + fpl::kHalfPi) / tilt_factor;
+      ((face_to_camera_value * (tilt_factor - 1)) + kHalfPi) / tilt_factor;
   const Angle adjusted_to_camera_signed =
       Angle::FromRadians(adjusted_to_camera) *
       (face_to_camera.ToRadians() < 0 ? -1 : 1);
@@ -893,9 +930,8 @@ void GameState::SpawnParticles(const mathfu::vec3& position,
 
   const Angle to_position = Angle::FromXZVector(position - camera().Position());
   const vec3 additional_rotation =
-      is_in_cardboard()
-          ? vec3(0.0f, -(to_position.ToRadians() + fpl::kHalfPi), 0.0f)
-          : mathfu::kZeros3f;
+      is_in_cardboard() ? vec3(0.0f, -(to_position.ToRadians() + kHalfPi), 0.0f)
+                        : mathfu::kZeros3f;
 
   for (int i = 0; i < particle_count; i++) {
     Particle* p = particle_manager_.CreateParticle();
@@ -943,14 +979,11 @@ void GameState::AdvanceFrame(WorldTime delta_time,
     int countdown = (config_->game_time() - time_) / kMillisecondsPerSecond;
     if (countdown != countdown_timer_) {
       countdown_timer_ = countdown;
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Timer remaining: %i\n",
-                  countdown_timer_);
+      fplbase::LogInfo(fplbase::kApplication, "Timer remaining: %i\n",
+                       countdown_timer_);
     }
   }
-  // Don't spawn in confetti when in cardboard, as it adds too many draw calls
-  if (NumActiveCharacters(true) == 0 && !is_in_cardboard()) {
-    SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
-  }
+  SpawnParticles(mathfu::vec3(0, 10, 0), config_->confetti_def(), 1);
 
   // Damage is queued up per character then applied during event processing.
   std::vector<EventData> event_data(characters_.size());
@@ -1104,7 +1137,7 @@ void GameState::AddParticlesToScene(SceneDescription* scene) const {
   auto plist = particle_manager_.get_particle_list();
   for (auto it = plist.begin(); it != plist.end(); ++it) {
     scene->renderables().push_back(std::unique_ptr<Renderable>(
-        new Renderable((*it)->renderable_id(), (*it)->CalculateMatrix(),
+        new Renderable((*it)->renderable_id(), 0, (*it)->CalculateMatrix(),
                        (*it)->CurrentTint())));
   }
 }
@@ -1132,7 +1165,7 @@ void GameState::PopulateScene(SceneDescription* scene) {
       scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
           EnumerationValueForPieDamage<uint16_t>(
               pie->damage(), *(config_->renderable_id_for_pie_damage())),
-          pie->Matrix())));
+          0, pie->Matrix())));
     }
   }
 
@@ -1145,19 +1178,19 @@ void GameState::PopulateScene(SceneDescription* scene) {
       const mat4 axis_dot =
           mat4::FromTranslationVector(vec3(static_cast<float>(i), 0.0f, 0.0f));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(RenderableId_PieSmall, axis_dot)));
+          new Renderable(RenderableId_PieSmall, 0, axis_dot)));
     }
     for (int i = 0; i < 4; ++i) {
       const mat4 axis_dot =
           mat4::FromTranslationVector(vec3(0.0f, 0.0f, static_cast<float>(i)));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(RenderableId_PieSmall, axis_dot)));
+          new Renderable(RenderableId_PieSmall, 0, axis_dot)));
     }
     for (int i = 0; i < 2; ++i) {
       const mat4 axis_dot =
           mat4::FromTranslationVector(vec3(0.0f, static_cast<float>(i), 0.0f));
       scene->renderables().push_back(std::unique_ptr<Renderable>(
-          new Renderable(RenderableId_PieSmall, axis_dot)));
+          new Renderable(RenderableId_PieSmall, 0, axis_dot)));
     }
   }
 
@@ -1165,7 +1198,7 @@ void GameState::PopulateScene(SceneDescription* scene) {
   // Rotate about z-axis so that it faces the camera.
   if (config_->draw_fixed_renderable() != RenderableId_Invalid) {
     scene->renderables().push_back(std::unique_ptr<Renderable>(new Renderable(
-        static_cast<uint16_t>(config_->draw_fixed_renderable()),
+        static_cast<uint16_t>(config_->draw_fixed_renderable()), 0,
         mat4::FromRotationMatrix(
             Quat::FromAngleAxis(kPi, mathfu::kAxisY3f).ToMatrix()))));
   }

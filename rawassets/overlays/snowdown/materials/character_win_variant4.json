@@ -1,0 +1,7 @@
+{
+    "texture_filenames": [
+        "textures/happy_front_variant4.webp",
+        "textures/cardboard-normal.webp"
+    ],
+    "blendmode": "ALPHA"
+}

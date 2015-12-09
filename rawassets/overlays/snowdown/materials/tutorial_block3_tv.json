@@ -1,0 +1,9 @@
+{
+    "texture_filenames": [
+        "textures/tutorial_block3_tv.webp"
+    ],
+    "blendmode": "ALPHA",
+    "desired_format": [
+        "F_888"
+    ]
+}

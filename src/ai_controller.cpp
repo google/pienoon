@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #include "precompiled.h"
-#include "common.h"
 #include "ai_controller.h"
+#include "common.h"
 #include "controller.h"
-#include "utilities.h"
 
 namespace fpl {
 namespace pie_noon {
@@ -74,8 +73,7 @@ void AiController::AdvanceFrame(WorldTime delta_time) {
     SetLogicalInputs(LogicalInputs_ThrowPie, true);
   }  // else do nothing.
 
-  if (!gamestate_->is_in_cardboard() &&
-      IsInDanger(character_id_) &&
+  if (!gamestate_->is_in_cardboard() && IsInDanger(character_id_) &&
       mathfu::Random<float>() < config_->ai_chance_to_block()) {
     block_timer_ = mathfu::RandomInRange<WorldTime>(
         config_->ai_block_min_duration(), config_->ai_block_max_duration());

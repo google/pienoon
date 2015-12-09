@@ -18,19 +18,22 @@
 #include "character.h"
 #include "character_state_machine.h"
 #include "character_state_machine_def_generated.h"
-#include "motive/io/flatbuffers.h"
 #include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 #include "motive/util.h"
 #include "pie_noon_common_generated.h"
 #include "scoring_rules_generated.h"
 #include "timeline_generated.h"
-#include "utilities.h"
 
 using mathfu::vec2i;
 using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::vec4;
 using mathfu::mat4;
+using motive::Angle;
+using motive::kPi;
+using motive::kTwoPi;
+using motive::Range;
 
 namespace fpl {
 namespace pie_noon {
@@ -100,6 +103,15 @@ uint16_t Character::RenderableId(WorldTime anim_time) const {
   return renderable->renderable();
 }
 
+uint16_t Character::Variant() const {
+  // Always display the bottom left character as the user variant, even when
+  // all AIs are playing. This reinforces the idea that, in single player mode,
+  // you are the bottom left character.
+  const bool use_ai_variant =
+      id_ != 0 && controller_->controller_type() == Controller::kTypeAI;
+  return use_ai_variant ? 0 : (id_ + 1) % config_->character_count();
+}
+
 mathfu::vec4 Character::Color() const {
   const bool ai = controller_->controller_type() == Controller::kTypeAI;
   const vec3 color = ai ? LoadVec3(config_->ai_color())
@@ -138,9 +150,9 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
       damage_(damage) {
   // x,z positions are within a reasonable bound.
   // Rotations are anglular values.
-  const motive::SmoothInit position_init(
-      fpl::Range(-kMaxPosition, kMaxPosition), false);
-  const motive::SmoothInit rotation_init(fpl::Range(-kPi, kPi), true);
+  const motive::SplineInit position_init(Range(-kMaxPosition, kMaxPosition),
+                                         false);
+  const motive::SplineInit rotation_init(Range(-kPi, kPi), true);
 
   // Move x,z at constant speed from source to target.
   const motive::MotiveTarget1f x_target(motive::CurrentToTargetConstVelocity1f(
@@ -172,12 +184,13 @@ AirbornePie::AirbornePie(CharacterId original_source, const Character& source,
       motive::CurrentToTargetConstVelocity1f(0.0f, rotations * kTwoPi,
                                              flight_time));
 
-  motive::MatrixInit init(5);
-  init.AddOp(motive::kTranslateX, position_init, x_target);
-  init.AddOp(motive::kTranslateY, position_init, y_target);
-  init.AddOp(motive::kTranslateZ, position_init, z_target);
-  init.AddOp(motive::kRotateAboutY, y_rotation);
-  init.AddOp(motive::kRotateAboutZ, rotation_init, z_rotation_target);
+  motive::MatrixOpArray ops(5);
+  ops.AddOp(motive::kTranslateX, position_init, x_target);
+  ops.AddOp(motive::kTranslateY, position_init, y_target);
+  ops.AddOp(motive::kTranslateZ, position_init, z_target);
+  ops.AddOp(motive::kRotateAboutY, y_rotation);
+  ops.AddOp(motive::kRotateAboutZ, rotation_init, z_rotation_target);
+  motive::MatrixInit init(ops);
   motivator_.Initialize(init, engine);
 }
 
@@ -190,24 +203,26 @@ void ApplyScoringRule(const ScoringRules* scoring_rules, ScoreEvent event,
     }
     case RewardType_AddDamage: {
       character->set_score(character->score() + damage);
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i got %i %s!\n",
-                  character->id(), damage, damage == 1 ? "point" : "points");
+      fplbase::LogInfo(fplbase::kApplication, "Player %i got %i %s!\n",
+                       character->id(), damage,
+                       damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_SubtractDamage: {
       character->set_score(character->score() - damage);
-      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i lost %i %s!\n",
-                  character->id(), damage, damage == 1 ? "point" : "points");
+      fplbase::LogInfo(fplbase::kApplication, "Player %i lost %i %s!\n",
+                       character->id(), damage,
+                       damage == 1 ? "point" : "points");
       break;
     }
     case RewardType_AddPointValue: {
       character->set_score(character->score() + rule->point_value());
       if (rule->point_value()) {
         int points = rule->point_value();
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player %i %s %i %s!\n",
-                    character->id(), points > 0 ? "got" : "lost",
-                    std::abs(points),
-                    std::abs(points) == 1 ? "point" : "points");
+        fplbase::LogInfo(fplbase::kApplication, "Player %i %s %i %s!\n",
+                         character->id(),
+                         points > 0 ? "got" : "lost", std::abs(points),
+                         std::abs(points) == 1 ? "point" : "points");
       }
       break;
     }

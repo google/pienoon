@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+include "common.fbs";
 include "pie_noon_common.fbs";
 include "motive.fbs";
 
@@ -20,12 +21,13 @@ namespace fpl.pie_noon;
 // Data definitions for all of components:
 // ---------------------------------------------
 table SceneObjectDef {
-  position:Vec3;
-  scale:Vec3;
-  orientation:Vec3;
-  origin_point:Vec3;
-  tint:Vec4;
+  position:fplbase.Vec3;
+  scale:fplbase.Vec3;
+  orientation:fplbase.Vec3;
+  origin_point:fplbase.Vec3;
+  tint:fplbase.Vec4;
   renderable_id:RenderableId;
+  variant:ushort;
   visible:bool = true;
 }
 
@@ -43,7 +45,7 @@ table DripAndVanishDef {
 
 union MotivatorDataUnion {
   motive.OvershootParameters,
-  motive.SmoothParameters,
+  motive.SplineParameters,
   motive.TwitchParameters
 }
 
@@ -72,7 +74,7 @@ table ShakeablePropDef {
   // X -- lean forward and back
   // Y -- twist side-to-side
   // Z -- swing left to right
-  shake_axis:Axis = X;
+  shake_axis:fplbase.Axis = X;
 }
 
 // Component for Cardboard Scenery.  It doesn't have any data, but we
@@ -89,9 +91,7 @@ table CardboardSceneryDef {
 // possible, so it can reset all the transformations before everyone else
 // messes with them.
 union ComponentDataUnion {
-  SceneObjectDef,   // Ideally this should be first.
-  MotivatorObjectDef,
-  CardboardSceneryDef,
+  SceneObjectDef,
   ShakeablePropDef,
   DripAndVanishDef,
   PlayerCharacterDef,
