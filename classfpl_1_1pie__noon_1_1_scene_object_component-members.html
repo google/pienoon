@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -109,39 +192,10 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_scene_object
 
 <p>This is the complete list of members for <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>, including all inherited members.</p>
 <table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>AddEntity</b>(EntityRef &amp;entity, AllocationLocation alloc_location) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>AddEntity</b>(EntityRef entity) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>AddEntityGenerically</b>(EntityRef &amp;entity) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>AddFromRawData</b>(entity::EntityRef &amp;entity, const void *data) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>begin</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>Cleanup</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>CleanupEntity</b>(EntityRef &amp;) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>ClearEntityData</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>Component</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>Data</b>(EntityRef &amp;entity) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>end</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>entity_data_</b> (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>entity_manager_</b> (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>EntityIterator</b> typedef (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetComponent</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>GetComponentId</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetEntityData</b>(size_t data_index) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>GetEntityData</b>(const EntityRef &amp;entity) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetEntityData</b>(size_t data_index) const (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>GetEntityData</b>(const EntityRef &amp;entity) const (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetEntityDataAsVoid</b>(const EntityRef &amp;entity) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>GetEntityDataAsVoid</b>(const EntityRef &amp;entity) const (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetEntityDataIndex</b>(const EntityRef &amp;entity) const (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>Init</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>InitEntity</b>(entity::EntityRef &amp;entity) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>PopulateScene</b>(SceneDescription *scene) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>RemoveEntity</b>(EntityRef &amp;entity) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>RemoveEntity</b>(EntityIterator iter) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>SceneObjectComponent</b>(motive::MotiveEngine *engine) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">explicit</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>SetEntityManager</b>(EntityManager *entity_manager) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>UpdateAllEntities</b>(WorldTime) (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>~Component</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; SceneObjectData &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>~ComponentInterface</b>() (defined in <a class="el" href="classfpl_1_1entity_1_1_component_interface.html">fpl::entity::ComponentInterface</a>)</td><td class="entry"><a class="el" href="classfpl_1_1entity_1_1_component_interface.html">fpl::entity::ComponentInterface</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>AddFromRawData</b>(corgi::EntityRef &amp;entity, const void *data) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>InitEntity</b>(corgi::EntityRef &amp;entity) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>PopulateScene</b>(SceneDescription *scene) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>SceneObjectComponent</b>(motive::MotiveEngine *engine) (defined in <a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a>)</td><td class="entry"><a class="el" href="classfpl_1_1pie__noon_1_1_scene_object_component.html">fpl::pie_noon::SceneObjectComponent</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">explicit</span></td></tr>
 </table></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

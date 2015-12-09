@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -121,9 +204,9 @@ Inheritance diagram for fpl::pie_noon::CardboardController:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af46f86d7d13b77407d1786d47a7cc347"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af46f86d7d13b77407d1786d47a7cc347"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (<a class="el" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a> *game_state, <a class="el" href="classfpl_1_1_input_system.html">InputSystem</a> *input_system)</td></tr>
-<tr class="separator:af46f86d7d13b77407d1786d47a7cc347"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90acfaa205ee4413899844d40e8a5136"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90acfaa205ee4413899844d40e8a5136"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (<a class="el" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a> *game_state, fplbase::InputSystem *input_system)</td></tr>
+<tr class="separator:a90acfaa205ee4413899844d40e8a5136"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc0fc38a6d8f0bcdfe9c9c47e6e8f303"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc0fc38a6d8f0bcdfe9c9c47e6e8f303"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time)</td></tr>
 <tr class="separator:abc0fc38a6d8f0bcdfe9c9c47e6e8f303"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,6 +235,12 @@ CharacterId&#160;</td><td class="memItemRight" valign="bottom"><b>character_id</
 <tr class="memitem:a4beb6f4be64f96c90a1856ddc9384447 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4beb6f4be64f96c90a1856ddc9384447"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_character_id</b> (CharacterId new_id)</td></tr>
 <tr class="separator:a4beb6f4be64f96c90a1856ddc9384447 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8460e9ad3e5fe158eb459f52fdc018f1 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8460e9ad3e5fe158eb459f52fdc018f1"></a>
+CharacterId&#160;</td><td class="memItemRight" valign="bottom"><b>target_id</b> () const </td></tr>
+<tr class="separator:a8460e9ad3e5fe158eb459f52fdc018f1 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32afc3623a8131a9d1e09bd9d21ce232 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a32afc3623a8131a9d1e09bd9d21ce232"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_target_id</b> (CharacterId new_id)</td></tr>
+<tr class="separator:a32afc3623a8131a9d1e09bd9d21ce232 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8e1402d8a1f8ee2b5da73b42406eb45 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab8e1402d8a1f8ee2b5da73b42406eb45"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearAllLogicalInputs</b> ()</td></tr>
 <tr class="separator:ab8e1402d8a1f8ee2b5da73b42406eb45 inherit pub_methods_classfpl_1_1pie__noon_1_1_controller"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,6 +273,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>went_up_</b></td>
 <tr class="memitem:a03fa7ddef7577d0f2537450d77ddf1be inherit pro_attribs_classfpl_1_1pie__noon_1_1_controller"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03fa7ddef7577d0f2537450d77ddf1be"></a>
 CharacterId&#160;</td><td class="memItemRight" valign="bottom"><b>character_id_</b></td></tr>
 <tr class="separator:a03fa7ddef7577d0f2537450d77ddf1be inherit pro_attribs_classfpl_1_1pie__noon_1_1_controller"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1904e53a0c8419ad0cc293532e60e096 inherit pro_attribs_classfpl_1_1pie__noon_1_1_controller"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1904e53a0c8419ad0cc293532e60e096"></a>
+CharacterId&#160;</td><td class="memItemRight" valign="bottom"><b>target_id_</b></td></tr>
+<tr class="separator:a1904e53a0c8419ad0cc293532e60e096 inherit pro_attribs_classfpl_1_1pie__noon_1_1_controller"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b12571f3b66bd35ce7452462925c55e inherit pro_attribs_classfpl_1_1pie__noon_1_1_controller"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b12571f3b66bd35ce7452462925c55e"></a>
 ControllerType&#160;</td><td class="memItemRight" valign="bottom"><b>controller_type_</b></td></tr>
 <tr class="separator:a8b12571f3b66bd35ce7452462925c55e inherit pro_attribs_classfpl_1_1pie__noon_1_1_controller"><td class="memSeparator" colspan="2">&#160;</td></tr>

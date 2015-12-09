@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -112,15 +195,15 @@ $(document).ready(function(){initNavTree('structfpl_1_1pie__noon_1_1_cardboard_p
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a3520e6f8ed6c177e01a9eeebe94a007d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3520e6f8ed6c177e01a9eeebe94a007d"></a>
-<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a>&#160;</td><td class="memItemRight" valign="bottom"><b>target_reticle</b></td></tr>
-<tr class="separator:a3520e6f8ed6c177e01a9eeebe94a007d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29ad676c8f6caeea2bad7d35ce495992"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29ad676c8f6caeea2bad7d35ce495992"></a>
-<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a>&#160;</td><td class="memItemRight" valign="bottom"><b>loaded_pie</b></td></tr>
-<tr class="separator:a29ad676c8f6caeea2bad7d35ce495992"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3e65783467c6edad2b2aca5c596a623"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3e65783467c6edad2b2aca5c596a623"></a>
-<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a>&#160;</td><td class="memItemRight" valign="bottom"><b>health</b> [kMaxHealthAccessories]</td></tr>
-<tr class="separator:ad3e65783467c6edad2b2aca5c596a623"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacae5f985f8c65c8f67f172f117e543d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aacae5f985f8c65c8f67f172f117e543d"></a>
+corgi::EntityRef&#160;</td><td class="memItemRight" valign="bottom"><b>target_reticle</b></td></tr>
+<tr class="separator:aacae5f985f8c65c8f67f172f117e543d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcd01f8fa7a399b4a1aaf9689f5e4b2d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adcd01f8fa7a399b4a1aaf9689f5e4b2d"></a>
+corgi::EntityRef&#160;</td><td class="memItemRight" valign="bottom"><b>loaded_pie</b></td></tr>
+<tr class="separator:adcd01f8fa7a399b4a1aaf9689f5e4b2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3093bbcb41778a9be46306abf5ae58ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3093bbcb41778a9be46306abf5ae58ff"></a>
+corgi::EntityRef&#160;</td><td class="memItemRight" valign="bottom"><b>health</b> [kMaxHealthAccessories]</td></tr>
+<tr class="separator:a3093bbcb41778a9be46306abf5ae58ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1db44b381922beda72a6049e74d6d544"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1db44b381922beda72a6049e74d6d544"></a>
 CharacterId&#160;</td><td class="memItemRight" valign="bottom"><b>character_id</b></td></tr>
 <tr class="separator:a1db44b381922beda72a6049e74d6d544"><td class="memSeparator" colspan="2">&#160;</td></tr>

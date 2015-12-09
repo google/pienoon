@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -127,9 +210,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetRotationAboutY</b>
 <tr class="memitem:a8f86e625b01d5ec594c0e86f02d63581"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f86e625b01d5ec594c0e86f02d63581"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetRotationAboutZ</b> (float angle)</td></tr>
 <tr class="separator:a8f86e625b01d5ec594c0e86f02d63581"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a392b9528c62f30731546d954ea93a623"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a392b9528c62f30731546d954ea93a623"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetRotationAboutAxis</b> (float angle, Axis axis)</td></tr>
-<tr class="separator:a392b9528c62f30731546d954ea93a623"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab672c8b99a1dd7357fa087467ad7f6c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab672c8b99a1dd7357fa087467ad7f6c5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetRotationAboutAxis</b> (float angle, fplbase::Axis axis)</td></tr>
+<tr class="separator:ab672c8b99a1dd7357fa087467ad7f6c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39f2eab66bf7e627461c327fd1ed4fee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39f2eab66bf7e627461c327fd1ed4fee"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPreRotation</b> (const mathfu::vec3 &amp;rotation)</td></tr>
 <tr class="separator:a39f2eab66bf7e627461c327fd1ed4fee"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,9 +225,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPreRotationAboutY<
 <tr class="memitem:ad1e7e76f3c708168c1a8b0ec5585a918"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1e7e76f3c708168c1a8b0ec5585a918"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPreRotationAboutZ</b> (float angle)</td></tr>
 <tr class="separator:ad1e7e76f3c708168c1a8b0ec5585a918"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67804e43e78f825d03f8903426d83074"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67804e43e78f825d03f8903426d83074"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPreRotationAboutAxis</b> (float angle, Axis axis)</td></tr>
-<tr class="separator:a67804e43e78f825d03f8903426d83074"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afeaa38e18b588f61ae3900012da032b1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afeaa38e18b588f61ae3900012da032b1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPreRotationAboutAxis</b> (float angle, fplbase::Axis axis)</td></tr>
+<tr class="separator:afeaa38e18b588f61ae3900012da032b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cf4b16b021bd811852b160d9f346d3e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8cf4b16b021bd811852b160d9f346d3e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetTranslation</b> (const mathfu::vec3 &amp;translation)</td></tr>
 <tr class="separator:a8cf4b16b021bd811852b160d9f346d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -190,15 +273,15 @@ const mathfu::mat4 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>g
 <tr class="memitem:ad5b008e19f5c510e23803c1b14929198"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad5b008e19f5c510e23803c1b14929198"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasParent</b> () const </td></tr>
 <tr class="separator:ad5b008e19f5c510e23803c1b14929198"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b74554ec908109b97d29b61e12b0d8f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b74554ec908109b97d29b61e12b0d8f"></a>
-<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>parent</b> ()</td></tr>
-<tr class="separator:a9b74554ec908109b97d29b61e12b0d8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a526a363fb5134962ca0744eec2a5f895"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a526a363fb5134962ca0744eec2a5f895"></a>
-const <a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>parent</b> () const </td></tr>
-<tr class="separator:a526a363fb5134962ca0744eec2a5f895"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d2add3a64d3baabefd016f57dd4776b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d2add3a64d3baabefd016f57dd4776b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_parent</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> &amp;parent)</td></tr>
-<tr class="separator:a1d2add3a64d3baabefd016f57dd4776b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf63c561167d057424b913a0d5e12c31"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf63c561167d057424b913a0d5e12c31"></a>
+corgi::EntityRef &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>parent</b> ()</td></tr>
+<tr class="separator:acf63c561167d057424b913a0d5e12c31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fecba0581da70eeee8bdc11ac2d6b2e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5fecba0581da70eeee8bdc11ac2d6b2e"></a>
+const corgi::EntityRef &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>parent</b> () const </td></tr>
+<tr class="separator:a5fecba0581da70eeee8bdc11ac2d6b2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a826c0eb7975bfc8b71d5e64ee7fb5ce7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a826c0eb7975bfc8b71d5e64ee7fb5ce7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_parent</b> (corgi::EntityRef &amp;parent)</td></tr>
+<tr class="separator:a826c0eb7975bfc8b71d5e64ee7fb5ce7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e5c951b81e9cd702e4051f6541b53f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e5c951b81e9cd702e4051f6541b53f2"></a>
 mathfu::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>tint</b> () const </td></tr>
 <tr class="separator:a9e5c951b81e9cd702e4051f6541b53f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,6 +294,12 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>renderable_id</b>
 <tr class="memitem:acf6c9576d269ac0a84c02232bdcd8689"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf6c9576d269ac0a84c02232bdcd8689"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_renderable_id</b> (uint16_t id)</td></tr>
 <tr class="separator:acf6c9576d269ac0a84c02232bdcd8689"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a2d0d3fd3271301b0bc5959be17ee83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a2d0d3fd3271301b0bc5959be17ee83"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>variant</b> () const </td></tr>
+<tr class="separator:a1a2d0d3fd3271301b0bc5959be17ee83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68fb4703744ddbf2cefe7ec07b156507"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68fb4703744ddbf2cefe7ec07b156507"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_variant</b> (uint16_t variant)</td></tr>
+<tr class="separator:a68fb4703744ddbf2cefe7ec07b156507"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98076fdbe1eabc7e3d790bfc9595872a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a98076fdbe1eabc7e3d790bfc9595872a"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible</b> () const </td></tr>
 <tr class="separator:a98076fdbe1eabc7e3d790bfc9595872a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -218,9 +307,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible</b> () const 
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_visible</b> (bool visible)</td></tr>
 <tr class="separator:ae11b254d19da62b317c0d3b2e466fdd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="scene__object_8h_source.html">scene_object.h</a></li>
-<li>scene_object.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

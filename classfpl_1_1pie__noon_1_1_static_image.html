@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -112,12 +195,12 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_static_image
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a54b0d74f4dcc8bc82ef901b696d3df73"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a54b0d74f4dcc8bc82ef901b696d3df73"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (const StaticImageDef &amp;image_def, std::vector&lt; <a class="el" href="classfpl_1_1_material.html">Material</a> * &gt; materials, <a class="el" href="classfpl_1_1_shader.html">Shader</a> *shader, int cannonical_window_height)</td></tr>
-<tr class="separator:a54b0d74f4dcc8bc82ef901b696d3df73"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d786c14c15943d4dff34b5c59d0bc2c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d786c14c15943d4dff34b5c59d0bc2c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Render</b> (<a class="el" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer)</td></tr>
-<tr class="separator:a6d786c14c15943d4dff34b5c59d0bc2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3af1997ab792214b560b2a100aed7f50"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3af1997ab792214b560b2a100aed7f50"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (const StaticImageDef &amp;image_def, std::vector&lt; fplbase::Material * &gt; materials, fplbase::Shader *shader, int cannonical_window_height)</td></tr>
+<tr class="separator:a3af1997ab792214b560b2a100aed7f50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57a7ca850ccde7c9e25b8cb319f1a2aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a57a7ca850ccde7c9e25b8cb319f1a2aa"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Render</b> (fplbase::Renderer &amp;renderer)</td></tr>
+<tr class="separator:a57a7ca850ccde7c9e25b8cb319f1a2aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0280ecc6dc62ed7fcbfeaf88af58054d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0280ecc6dc62ed7fcbfeaf88af58054d"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Valid</b> () const </td></tr>
 <tr class="separator:a0280ecc6dc62ed7fcbfeaf88af58054d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,9 +210,9 @@ ButtonId&#160;</td><td class="memItemRight" valign="bottom"><b>GetId</b> () cons
 <tr class="memitem:ab3f7d4cfcc1ca29f9400c749e64fed0c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3f7d4cfcc1ca29f9400c749e64fed0c"></a>
 const StaticImageDef *&#160;</td><td class="memItemRight" valign="bottom"><b>image_def</b> () const </td></tr>
 <tr class="separator:ab3f7d4cfcc1ca29f9400c749e64fed0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2fe3343f7a2f6076e073f148b375dc03"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2fe3343f7a2f6076e073f148b375dc03"></a>
-const mathfu::vec2 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>scale</b> () const </td></tr>
-<tr class="separator:a2fe3343f7a2f6076e073f148b375dc03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80c62ae01c7d37e963c20a5d565cc769"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80c62ae01c7d37e963c20a5d565cc769"></a>
+mathfu::vec2&#160;</td><td class="memItemRight" valign="bottom"><b>scale</b> () const </td></tr>
+<tr class="separator:a80c62ae01c7d37e963c20a5d565cc769"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47f16f887633f464f3a495b3d5ec73d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47f16f887633f464f3a495b3d5ec73d1"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_scale</b> (const mathfu::vec2 &amp;scale)</td></tr>
 <tr class="separator:a47f16f887633f464f3a495b3d5ec73d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,15 +228,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_visible</b> ()</td
 <tr class="memitem:a198b297ce7a94f82d2e022477bd60c06"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a198b297ce7a94f82d2e022477bd60c06"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_color</b> (const mathfu::vec4 &amp;color)</td></tr>
 <tr class="separator:a198b297ce7a94f82d2e022477bd60c06"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac8c8883f7ab931d437b406954893580"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac8c8883f7ab931d437b406954893580"></a>
-const mathfu::vec4 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>color</b> ()</td></tr>
-<tr class="separator:aac8c8883f7ab931d437b406954893580"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1f4779cccead9660b1e9eb1ccec8b2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa1f4779cccead9660b1e9eb1ccec8b2a"></a>
+mathfu::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>color</b> ()</td></tr>
+<tr class="separator:aa1f4779cccead9660b1e9eb1ccec8b2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6dc6a0c57838ddc65a5021fdcf596ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab6dc6a0c57838ddc65a5021fdcf596ae"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_texture_position</b> (const mathfu::vec2 &amp;position)</td></tr>
 <tr class="separator:ab6dc6a0c57838ddc65a5021fdcf596ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac35d2b0b7713f9a81cfadda00a4650a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac35d2b0b7713f9a81cfadda00a4650a9"></a>
-const mathfu::vec2 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>texture_position</b> ()</td></tr>
-<tr class="separator:ac35d2b0b7713f9a81cfadda00a4650a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49800a100e3c8986fd29a24c4d632c9f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49800a100e3c8986fd29a24c4d632c9f"></a>
+mathfu::vec2&#160;</td><td class="memItemRight" valign="bottom"><b>texture_position</b> ()</td></tr>
+<tr class="separator:a49800a100e3c8986fd29a24c4d632c9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="touchscreen__button_8h_source.html">touchscreen_button.h</a></li>

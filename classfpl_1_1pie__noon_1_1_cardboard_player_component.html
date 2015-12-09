@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -115,116 +198,29 @@ Inheritance diagram for fpl::pie_noon::CardboardPlayerComponent:</div>
  <div class="center">
   <img src="classfpl_1_1pie__noon_1_1_cardboard_player_component.png" usemap="#fpl::pie_noon::CardboardPlayerComponent_map" alt=""/>
   <map id="fpl::pie_noon::CardboardPlayerComponent_map" name="fpl::pie_noon::CardboardPlayerComponent_map">
-<area href="classfpl_1_1entity_1_1_component.html" alt="fpl::entity::Component&lt; CardboardPlayerData &gt;" shape="rect" coords="0,56,279,80"/>
-<area href="classfpl_1_1entity_1_1_component_interface.html" alt="fpl::entity::ComponentInterface" shape="rect" coords="0,0,279,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6d3e804792d2430c712cf7d407c6bf0a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d3e804792d2430c712cf7d407c6bf0a"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddFromRawData</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> &amp;entity, const void *data)</td></tr>
-<tr class="separator:a6d3e804792d2430c712cf7d407c6bf0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7035036590552f26d202cc23f2bfdda2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7035036590552f26d202cc23f2bfdda2"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateAllEntities</b> (entity::WorldTime delta_time)</td></tr>
-<tr class="separator:a7035036590552f26d202cc23f2bfdda2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9176012687f6cff5edbe8342945def4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac9176012687f6cff5edbe8342945def4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InitEntity</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">entity::EntityRef</a> &amp;entity)</td></tr>
-<tr class="separator:ac9176012687f6cff5edbe8342945def4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa43351adc5b3a4e2161e285010cf546"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa43351adc5b3a4e2161e285010cf546"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddFromRawData</b> (corgi::EntityRef &amp;entity, const void *data)</td></tr>
+<tr class="separator:aaa43351adc5b3a4e2161e285010cf546"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a600f64763f5fa894d07642baceb22d7c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a600f64763f5fa894d07642baceb22d7c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateAllEntities</b> (corgi::WorldTime delta_time)</td></tr>
+<tr class="separator:a600f64763f5fa894d07642baceb22d7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2df28830def75934bbf8770c8e659a08"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2df28830def75934bbf8770c8e659a08"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InitEntity</b> (corgi::EntityRef &amp;entity)</td></tr>
+<tr class="separator:a2df28830def75934bbf8770c8e659a08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6af7cc66b6c38c1e3383e69574fbf1e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab6af7cc66b6c38c1e3383e69574fbf1e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_gamestate_ptr</b> (<a class="el" href="classfpl_1_1pie__noon_1_1_game_state.html">GameState</a> *gamestate_ptr)</td></tr>
 <tr class="separator:ab6af7cc66b6c38c1e3383e69574fbf1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9d1c183bcc678d79ec9835c19ce6d4a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9d1c183bcc678d79ec9835c19ce6d4a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_config</b> (const Config *config)</td></tr>
 <tr class="separator:af9d1c183bcc678d79ec9835c19ce6d4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classfpl_1_1entity_1_1_component"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classfpl_1_1entity_1_1_component')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; CardboardPlayerData &gt;</a></td></tr>
-<tr class="memitem:a64b5a9237e4aa6faf320f86f38078fcf inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64b5a9237e4aa6faf320f86f38078fcf"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddEntityGenerically</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity)</td></tr>
-<tr class="separator:a64b5a9237e4aa6faf320f86f38078fcf inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1fe85f1ba15d7a4ef3c88ed7199711b inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae1fe85f1ba15d7a4ef3c88ed7199711b"></a>
-CardboardPlayerData *&#160;</td><td class="memItemRight" valign="bottom"><b>AddEntity</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity, AllocationLocation alloc_location)</td></tr>
-<tr class="separator:ae1fe85f1ba15d7a4ef3c88ed7199711b inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a433570abdd5dd6c5b3bbd55a46e7a961 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a433570abdd5dd6c5b3bbd55a46e7a961"></a>
-CardboardPlayerData *&#160;</td><td class="memItemRight" valign="bottom"><b>AddEntity</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> entity)</td></tr>
-<tr class="separator:a433570abdd5dd6c5b3bbd55a46e7a961 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3dff116c6022370fb07fdde07408b0d3 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3dff116c6022370fb07fdde07408b0d3"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveEntity</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity)</td></tr>
-<tr class="separator:a3dff116c6022370fb07fdde07408b0d3 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea45255a5e7831cbc57765e0f1d4baa0 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea45255a5e7831cbc57765e0f1d4baa0"></a>
-virtual <a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">EntityIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveEntity</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">EntityIterator</a> iter)</td></tr>
-<tr class="separator:aea45255a5e7831cbc57765e0f1d4baa0 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6addb3c7a91ee178d7423129a9af5b3 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac6addb3c7a91ee178d7423129a9af5b3"></a>
-virtual <a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">EntityIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> ()</td></tr>
-<tr class="separator:ac6addb3c7a91ee178d7423129a9af5b3 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27528bef53f7d5dd21dc2ec290814f5c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27528bef53f7d5dd21dc2ec290814f5c"></a>
-virtual <a class="el" href="classfpl_1_1_vector_pool_1_1_iterator_template.html">EntityIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> ()</td></tr>
-<tr class="separator:a27528bef53f7d5dd21dc2ec290814f5c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adbe7374780ae06cd64674c9c4bfd34c8 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adbe7374780ae06cd64674c9c4bfd34c8"></a>
-virtual void *&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntityDataAsVoid</b> (const <a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity)</td></tr>
-<tr class="separator:adbe7374780ae06cd64674c9c4bfd34c8 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6411897a86bdb9a6f17b8fea2f1d6310 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6411897a86bdb9a6f17b8fea2f1d6310"></a>
-virtual const void *&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntityDataAsVoid</b> (const <a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity) const</td></tr>
-<tr class="separator:a6411897a86bdb9a6f17b8fea2f1d6310 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc77a0a85ff0c214aecfa7d32c68e233 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc77a0a85ff0c214aecfa7d32c68e233"></a>
-CardboardPlayerData *&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntityData</b> (size_t data_index)</td></tr>
-<tr class="separator:acc77a0a85ff0c214aecfa7d32c68e233 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b80287d95ed1d02181c46168bbc4e8f inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b80287d95ed1d02181c46168bbc4e8f"></a>
-CardboardPlayerData *&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntityData</b> (const <a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity)</td></tr>
-<tr class="separator:a5b80287d95ed1d02181c46168bbc4e8f inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a585a4a4cc2780be07cff863821a2ce7b inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a585a4a4cc2780be07cff863821a2ce7b"></a>
-const CardboardPlayerData *&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntityData</b> (size_t data_index) const</td></tr>
-<tr class="separator:a585a4a4cc2780be07cff863821a2ce7b inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a653f8ec882b9fe583b4a92d330856bb6 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a653f8ec882b9fe583b4a92d330856bb6"></a>
-const CardboardPlayerData *&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntityData</b> (const <a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity) const</td></tr>
-<tr class="separator:a653f8ec882b9fe583b4a92d330856bb6 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4e6acd2be6211610c45542c36316a1c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4e6acd2be6211610c45542c36316a1c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearEntityData</b> ()</td></tr>
-<tr class="separator:ad4e6acd2be6211610c45542c36316a1c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa485cab9fa443e1eca389e04429e4299 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa485cab9fa443e1eca389e04429e4299"></a>
-ComponentDataType *&#160;</td><td class="memItemRight" valign="bottom"><b>Data</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity)</td></tr>
-<tr class="separator:aa485cab9fa443e1eca389e04429e4299 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37e4b80e7759af8ff5075e1c3bb61c9c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a37e4b80e7759af8ff5075e1c3bb61c9c"></a>
-ComponentDataType *&#160;</td><td class="memItemRight" valign="bottom"><b>GetComponent</b> ()</td></tr>
-<tr class="separator:a37e4b80e7759af8ff5075e1c3bb61c9c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d7d350ea0e0a2b2842280c986b2e97d inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d7d350ea0e0a2b2842280c986b2e97d"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Init</b> ()</td></tr>
-<tr class="separator:a2d7d350ea0e0a2b2842280c986b2e97d inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab9fc3d10d43cf1ebeba06a73277979b7 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab9fc3d10d43cf1ebeba06a73277979b7"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Cleanup</b> ()</td></tr>
-<tr class="separator:ab9fc3d10d43cf1ebeba06a73277979b7 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d3d6274958fb555af966699e98cc7f1 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d3d6274958fb555af966699e98cc7f1"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>CleanupEntity</b> (<a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;)</td></tr>
-<tr class="separator:a8d3d6274958fb555af966699e98cc7f1 inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98ca27f796a348dd05f71797ecdc7d1c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a98ca27f796a348dd05f71797ecdc7d1c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetEntityManager</b> (<a class="el" href="classfpl_1_1entity_1_1_entity_manager.html">EntityManager</a> *entity_manager)</td></tr>
-<tr class="separator:a98ca27f796a348dd05f71797ecdc7d1c inherit pub_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_types_classfpl_1_1entity_1_1_component"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classfpl_1_1entity_1_1_component')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; CardboardPlayerData &gt;</a></td></tr>
-<tr class="memitem:ac77b91aa78d492c08c0d65ceed686f07 inherit pub_types_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac77b91aa78d492c08c0d65ceed686f07"></a>
-typedef <a class="el" href="classfpl_1_1_vector_pool.html">VectorPool</a>&lt; EntityData &gt;<br class="typebreak"/>
-::Iterator&#160;</td><td class="memItemRight" valign="bottom"><b>EntityIterator</b></td></tr>
-<tr class="separator:ac77b91aa78d492c08c0d65ceed686f07 inherit pub_types_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_static_methods_classfpl_1_1entity_1_1_component"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_classfpl_1_1entity_1_1_component')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; CardboardPlayerData &gt;</a></td></tr>
-<tr class="memitem:a1d4189751822a636b454fe7533ca6c9f inherit pub_static_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d4189751822a636b454fe7533ca6c9f"></a>
-static ComponentId&#160;</td><td class="memItemRight" valign="bottom"><b>GetComponentId</b> ()</td></tr>
-<tr class="separator:a1d4189751822a636b454fe7533ca6c9f inherit pub_static_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_methods_classfpl_1_1entity_1_1_component"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classfpl_1_1entity_1_1_component')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; CardboardPlayerData &gt;</a></td></tr>
-<tr class="memitem:a99af5af6781e66658fd2ff0b1a4c7000 inherit pro_methods_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a99af5af6781e66658fd2ff0b1a4c7000"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntityDataIndex</b> (const <a class="el" href="classfpl_1_1_vector_pool_1_1_vector_pool_reference.html">EntityRef</a> &amp;entity) const</td></tr>
-<tr class="separator:a99af5af6781e66658fd2ff0b1a4c7000 inherit pro_methods_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_attribs_classfpl_1_1entity_1_1_component"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classfpl_1_1entity_1_1_component')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classfpl_1_1entity_1_1_component.html">fpl::entity::Component&lt; CardboardPlayerData &gt;</a></td></tr>
-<tr class="memitem:aecfae2421ebc515b50f1519bd21edac0 inherit pro_attribs_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aecfae2421ebc515b50f1519bd21edac0"></a>
-<a class="el" href="classfpl_1_1_vector_pool.html">VectorPool</a>&lt; EntityData &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>entity_data_</b></td></tr>
-<tr class="separator:aecfae2421ebc515b50f1519bd21edac0 inherit pro_attribs_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add1c9d8c7cdfabed5d1c79ed484a67f6 inherit pro_attribs_classfpl_1_1entity_1_1_component"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add1c9d8c7cdfabed5d1c79ed484a67f6"></a>
-<a class="el" href="classfpl_1_1entity_1_1_entity_manager.html">EntityManager</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>entity_manager_</b></td></tr>
-<tr class="separator:add1c9d8c7cdfabed5d1c79ed484a67f6 inherit pro_attribs_classfpl_1_1entity_1_1_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="cardboard__player_8h_source.html">cardboard_player.h</a></li>
-<li>cardboard_player.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -112,18 +195,18 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_gui_menu.htm
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2f6746d6b89579269990ffc955e312b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2f6746d6b89579269990ffc955e312b0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time, <a class="el" href="classfpl_1_1_input_system.html">InputSystem</a> *input, const vec2 &amp;window_size)</td></tr>
-<tr class="separator:a2f6746d6b89579269990ffc955e312b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6b46c97023629a5684689c9c06d0a56"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6b46c97023629a5684689c9c06d0a56"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Setup</b> (const UiGroup *menudef, <a class="el" href="classfpl_1_1_material_manager.html">MaterialManager</a> *matman)</td></tr>
-<tr class="separator:ad6b46c97023629a5684689c9c06d0a56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf4d39e093cf35e90032cec6ce6c38af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf4d39e093cf35e90032cec6ce6c38af"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadAssets</b> (const UiGroup *menu_def, <a class="el" href="classfpl_1_1_material_manager.html">MaterialManager</a> *matman)</td></tr>
-<tr class="separator:adf4d39e093cf35e90032cec6ce6c38af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a191b3cea08da8b9360286a1a4ae7cfa8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a191b3cea08da8b9360286a1a4ae7cfa8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Render</b> (<a class="el" href="classfpl_1_1_renderer.html">Renderer</a> *renderer)</td></tr>
-<tr class="separator:a191b3cea08da8b9360286a1a4ae7cfa8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad974f50e0256454319c2af1b6c096060"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad974f50e0256454319c2af1b6c096060"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time, fplbase::InputSystem *input, const vec2 &amp;window_size)</td></tr>
+<tr class="separator:ad974f50e0256454319c2af1b6c096060"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f511adf53c06fce3f32b8942079f730"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f511adf53c06fce3f32b8942079f730"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Setup</b> (const UiGroup *menudef, fplbase::AssetManager *matman)</td></tr>
+<tr class="separator:a8f511adf53c06fce3f32b8942079f730"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90fa4da22f326521be799dc3ee9d38c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90fa4da22f326521be799dc3ee9d38c9"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadAssets</b> (const UiGroup *menu_def, fplbase::AssetManager *matman)</td></tr>
+<tr class="separator:a90fa4da22f326521be799dc3ee9d38c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cefd97cf56f87bea0ea682a495e19b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5cefd97cf56f87bea0ea682a495e19b4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Render</b> (fplbase::Renderer *renderer)</td></tr>
+<tr class="separator:a5cefd97cf56f87bea0ea682a495e19b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a227b4d3c782069d5e1b099bcbe69f7bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a227b4d3c782069d5e1b099bcbe69f7bc"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time)</td></tr>
 <tr class="separator:a227b4d3c782069d5e1b099bcbe69f7bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,6 +231,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetFocus</b> (ButtonI
 <tr class="memitem:a1f1b00efe3d7e9e490a10ad62d4c9673"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f1b00efe3d7e9e490a10ad62d4c9673"></a>
 const UiGroup *&#160;</td><td class="memItemRight" valign="bottom"><b>menu_def</b> () const </td></tr>
 <tr class="separator:a1f1b00efe3d7e9e490a10ad62d4c9673"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a701bce956909e6c2db233019662cddc0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a701bce956909e6c2db233019662cddc0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadDebugShaderAndOptions</b> (const Config *config, fplbase::AssetManager *matman)</td></tr>
+<tr class="separator:a701bce956909e6c2db233019662cddc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="gui__menu_8h_source.html">gui_menu.h</a></li>

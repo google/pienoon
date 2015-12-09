@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -119,12 +202,12 @@ Components</h1>
 <p>The renderer also depends upon our <a href="http://google.github.io/mathfu">Pie Noon</a> library for all its vector and matrix datatypes. The (optional) material manager depends on our <a href="http://google.github.io/flatbuffers/">FlatBuffers</a> serialization library.</p>
 <h1><a class="anchor" id="engine_renderer"></a>
 Renderer</h1>
-<p>The Renderer (<code><a class="el" href="renderer_8h_source.html">renderer.h</a>/.cpp</code>) is the core of the engine, and is responsible for creating the OpenGL context and OpenGL resources such as shaders and textures.</p>
+<p>The Renderer (<code>renderer.h/.cpp</code>) is the core of the engine, and is responsible for creating the OpenGL context and OpenGL resources such as shaders and textures.</p>
 <p>To actually represent these resources, we have:</p>
 <ul>
-<li><code>Shader</code> (<code><a class="el" href="shader_8h_source.html">shader.h</a>/.cpp</code>)</li>
-<li><code>Mesh</code> (<code><a class="el" href="mesh_8h_source.html">mesh.h</a>/.cpp</code>)</li>
-<li><code>Texture</code> / <code>Material</code> (<code><a class="el" href="material_8h_source.html">material.h</a>/.cpp</code>)</li>
+<li><code>Shader</code> (<code>shader.h/.cpp</code>)</li>
+<li><code>Mesh</code> (<code>mesh.h/.cpp</code>)</li>
+<li><code>Texture</code> / <code>Material</code> (<code>material.h/.cpp</code>)</li>
 </ul>
 <p>The basic flow of using this lower level layer is as follows:</p>
 <ul>
@@ -157,10 +240,10 @@ Asynchronous Loader</h1>
 </ul>
 <h1><a class="anchor" id="engine_input"></a>
 Input System</h1>
-<p><code>InputSystem</code> (<code><a class="el" href="input_8h_source.html">input.h</a>/.cpp</code>) deals with time, touch/mouse/keyboard/gamepad input, and lifecycle events.</p>
+<p><code>InputSystem</code> (<code>input.h/.cpp</code>) deals with time, touch/mouse/keyboard/gamepad input, and lifecycle events.</p>
 <p>Similar to the renderer, instantiate it, then call <code>Initialize</code>, and once per frame call <code>AdvanceFrame</code> right after you called the same method on the renderer. This collects new input events from the system to be reflected in its internal state.</p>
 <p>Call <code>Time</code> for seconds since game start, and <code>DeltaTime</code> for seconds since the last frame.</p>
-<p>Now you can query the state of the inputs you're interested in. For example, call <code>GetButton</code> with one of the constants from <code><a class="el" href="input_8h_source.html">input.h</a></code> which can either be a keyboard key, or a pointer (meaning the mouse or touch inputs, depending on platform) or a gamepad button, and you can see if it went down or up this last frame, or wether it is currently down. The <code>Pointer</code> objects can tell you more about their current position.</p>
+<p>Now you can query the state of the inputs you're interested in. For example, call <code>GetButton</code> with one of the constants from <code>input.h</code> which can either be a keyboard key, or a pointer (meaning the mouse or touch inputs, depending on platform) or a gamepad button, and you can see if it went down or up this last frame, or wether it is currently down. The <code>Pointer</code> objects can tell you more about their current position.</p>
 <p>The Pie Noon game does not normally process input events directly, but rather passes them through to the <a class="el" href="pie_noon_guide_controllers.html">Controller</a> system, where they are normalized into a common set of inputs that is independent of the physical input device. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->

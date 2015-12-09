@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -112,42 +195,43 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_touchscreen_
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2c0a73f62f0d63b2c4259b6f93e8879f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c0a73f62f0d63b2c4259b6f93e8879f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time, <a class="el" href="classfpl_1_1_input_system.html">InputSystem</a> *input, vec2 window_size)</td></tr>
-<tr class="separator:a2c0a73f62f0d63b2c4259b6f93e8879f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33ee315888f37f62ae50e2f79100aa4d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33ee315888f37f62ae50e2f79100aa4d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Render</b> (<a class="el" href="classfpl_1_1_renderer.html">Renderer</a> &amp;renderer)</td></tr>
-<tr class="separator:a33ee315888f37f62ae50e2f79100aa4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a8d55c5e5dacfece6e99ac2afb6b189"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a8d55c5e5dacfece6e99ac2afb6b189"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time, fplbase::InputSystem *input, vec2 window_size)</td></tr>
+<tr class="separator:a7a8d55c5e5dacfece6e99ac2afb6b189"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02c618832859ca95fef9d377a68decb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02c618832859ca95fef9d377a68decb3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Render</b> (fplbase::Renderer &amp;renderer)</td></tr>
+<tr class="separator:a02c618832859ca95fef9d377a68decb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d328a36969aab6c96fe0ceb3cdaa1b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5d328a36969aab6c96fe0ceb3cdaa1b2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (WorldTime delta_time)</td></tr>
 <tr class="separator:a5d328a36969aab6c96fe0ceb3cdaa1b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47f0bd5dce845231881b750fcc2bcc3e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47f0bd5dce845231881b750fcc2bcc3e"></a>
 ButtonId&#160;</td><td class="memItemRight" valign="bottom"><b>GetId</b> () const </td></tr>
 <tr class="separator:a47f0bd5dce845231881b750fcc2bcc3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a540fde9d9394f70842be59cd063611bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a540fde9d9394f70842be59cd063611bc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>WillCapturePointer</b> (const <a class="el" href="structfpl_1_1_pointer.html">Pointer</a> &amp;pointer, vec2 window_size)</td></tr>
-<tr class="separator:a540fde9d9394f70842be59cd063611bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6751552518b24583f8ebd61ee1982f96"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6751552518b24583f8ebd61ee1982f96"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>WillCapturePointer</b> (const fplbase::InputPointer &amp;pointer, vec2 window_size)</td></tr>
+<tr class="separator:a6751552518b24583f8ebd61ee1982f96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a193f9b51b02d49c2de274d523e80aa64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a193f9b51b02d49c2de274d523e80aa64"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsTriggered</b> ()</td></tr>
 <tr class="separator:a193f9b51b02d49c2de274d523e80aa64"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55456d6abe1f5ab2c627fc6b5e36261e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a55456d6abe1f5ab2c627fc6b5e36261e"></a>
-<a class="el" href="classfpl_1_1_button.html">Button</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>button</b> ()</td></tr>
-<tr class="separator:a55456d6abe1f5ab2c627fc6b5e36261e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3b0e40ed53e2e3ac65dd8b53386d8f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3b0e40ed53e2e3ac65dd8b53386d8f8"></a>
-const std::vector&lt; <a class="el" href="classfpl_1_1_material.html">Material</a> * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>up_materials</b> () const </td></tr>
-<tr class="separator:ab3b0e40ed53e2e3ac65dd8b53386d8f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff004af0f28c24be7fa5a372060a0c82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff004af0f28c24be7fa5a372060a0c82"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_up_material</b> (size_t i, <a class="el" href="classfpl_1_1_material.html">Material</a> *up_material)</td></tr>
-<tr class="separator:aff004af0f28c24be7fa5a372060a0c82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65f945ce3b756637230dde8524c63fc8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a65f945ce3b756637230dde8524c63fc8"></a>
+fplbase::Button &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>button</b> ()</td></tr>
+<tr class="separator:a65f945ce3b756637230dde8524c63fc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d7df7126ed06917ee5d4e58f1ed097f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d7df7126ed06917ee5d4e58f1ed097f"></a>
+const std::vector<br class="typebreak"/>
+&lt; fplbase::Material * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>up_materials</b> () const </td></tr>
+<tr class="separator:a4d7df7126ed06917ee5d4e58f1ed097f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44b09ca6047b5c81aed21d2198d3184d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a44b09ca6047b5c81aed21d2198d3184d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_up_material</b> (size_t i, fplbase::Material *up_material)</td></tr>
+<tr class="separator:a44b09ca6047b5c81aed21d2198d3184d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04efbaa299f75702c2db38d5d3091c7b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04efbaa299f75702c2db38d5d3091c7b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_current_up_material</b> (size_t which)</td></tr>
 <tr class="separator:a04efbaa299f75702c2db38d5d3091c7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a543b619140e477b5cf428a9ef2fe1323"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a543b619140e477b5cf428a9ef2fe1323"></a>
-<a class="el" href="classfpl_1_1_material.html">Material</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>down_material</b> () const </td></tr>
-<tr class="separator:a543b619140e477b5cf428a9ef2fe1323"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a5ed269bb45488daa3c6521bc164104"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5a5ed269bb45488daa3c6521bc164104"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_down_material</b> (<a class="el" href="classfpl_1_1_material.html">Material</a> *down_material)</td></tr>
-<tr class="separator:a5a5ed269bb45488daa3c6521bc164104"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a073e714070d558a3a53ae65758a9ae0d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a073e714070d558a3a53ae65758a9ae0d"></a>
+fplbase::Material *&#160;</td><td class="memItemRight" valign="bottom"><b>down_material</b> () const </td></tr>
+<tr class="separator:a073e714070d558a3a53ae65758a9ae0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9991677386b3c5ec25dfe6a33c2dac1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac9991677386b3c5ec25dfe6a33c2dac1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_down_material</b> (fplbase::Material *down_material)</td></tr>
+<tr class="separator:ac9991677386b3c5ec25dfe6a33c2dac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd860ef22ce7a6e27906243149958558"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd860ef22ce7a6e27906243149958558"></a>
 mathfu::vec2&#160;</td><td class="memItemRight" valign="bottom"><b>up_offset</b> () const </td></tr>
 <tr class="separator:acd860ef22ce7a6e27906243149958558"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -166,18 +250,30 @@ const ButtonDef *&#160;</td><td class="memItemRight" valign="bottom"><b>button_d
 <tr class="memitem:a3ebb89f9dadbb25281e82d147b8b0101"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ebb89f9dadbb25281e82d147b8b0101"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_button_def</b> (const ButtonDef *button_def)</td></tr>
 <tr class="separator:a3ebb89f9dadbb25281e82d147b8b0101"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d3e9482ead0dd4c8c1ccd1f30048075"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d3e9482ead0dd4c8c1ccd1f30048075"></a>
-<a class="el" href="classfpl_1_1_shader.html">Shader</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>inactive_shader</b> () const </td></tr>
-<tr class="separator:a8d3e9482ead0dd4c8c1ccd1f30048075"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad7623063cb601500e5455af3774a620"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad7623063cb601500e5455af3774a620"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_inactive_shader</b> (<a class="el" href="classfpl_1_1_shader.html">Shader</a> *inactive_shader)</td></tr>
-<tr class="separator:aad7623063cb601500e5455af3774a620"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2fc4639bfd02a8f919f2fae289fa8bac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2fc4639bfd02a8f919f2fae289fa8bac"></a>
-<a class="el" href="classfpl_1_1_shader.html">Shader</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b> () const </td></tr>
-<tr class="separator:a2fc4639bfd02a8f919f2fae289fa8bac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ca5cd88b53a392670a3c4d905b4ed09"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ca5cd88b53a392670a3c4d905b4ed09"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_shader</b> (<a class="el" href="classfpl_1_1_shader.html">Shader</a> *shader)</td></tr>
-<tr class="separator:a0ca5cd88b53a392670a3c4d905b4ed09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69e9afc5bf1e85b1424fdc336b2c7517"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69e9afc5bf1e85b1424fdc336b2c7517"></a>
+fplbase::Shader *&#160;</td><td class="memItemRight" valign="bottom"><b>inactive_shader</b> () const </td></tr>
+<tr class="separator:a69e9afc5bf1e85b1424fdc336b2c7517"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1385b2f99d7ce2a12c9ff0d7a458d584"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1385b2f99d7ce2a12c9ff0d7a458d584"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_inactive_shader</b> (fplbase::Shader *inactive_shader)</td></tr>
+<tr class="separator:a1385b2f99d7ce2a12c9ff0d7a458d584"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39f761dfe83da43b6096ad0705f6f6b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39f761dfe83da43b6096ad0705f6f6b2"></a>
+fplbase::Shader *&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b> () const </td></tr>
+<tr class="separator:a39f761dfe83da43b6096ad0705f6f6b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9ea8695ec74f09a012eec8a77dddcd7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9ea8695ec74f09a012eec8a77dddcd7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_shader</b> (fplbase::Shader *shader)</td></tr>
+<tr class="separator:ad9ea8695ec74f09a012eec8a77dddcd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9955ffc216e4400396adbdb62461d34c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9955ffc216e4400396adbdb62461d34c"></a>
+fplbase::Shader *&#160;</td><td class="memItemRight" valign="bottom"><b>debug_shader</b> () const </td></tr>
+<tr class="separator:a9955ffc216e4400396adbdb62461d34c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a779fa2b4009bf4f9d6af6a7c5cb57ffa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a779fa2b4009bf4f9d6af6a7c5cb57ffa"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_debug_shader</b> (fplbase::Shader *shader)</td></tr>
+<tr class="separator:a779fa2b4009bf4f9d6af6a7c5cb57ffa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3645b0aa677c1b1d4c5120c9ecf7841"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa3645b0aa677c1b1d4c5120c9ecf7841"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DebugRender</b> (const vec3 &amp;position, const vec3 &amp;texture_size, fplbase::Renderer &amp;renderer) const </td></tr>
+<tr class="separator:aa3645b0aa677c1b1d4c5120c9ecf7841"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a784925acd87c6e5b2587b596312eb488"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a784925acd87c6e5b2587b596312eb488"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_draw_bounds</b> (bool enable)</td></tr>
+<tr class="separator:a784925acd87c6e5b2587b596312eb488"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96dca467ac75d753ac513b0f148bb2de"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96dca467ac75d753ac513b0f148bb2de"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_active</b> () const </td></tr>
 <tr class="separator:a96dca467ac75d753ac513b0f148bb2de"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -199,9 +295,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_is_highlighted</b
 <tr class="memitem:a97cf622e8add319da371c81bb035bb30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a97cf622e8add319da371c81bb035bb30"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_color</b> (const mathfu::vec4 &amp;color)</td></tr>
 <tr class="separator:a97cf622e8add319da371c81bb035bb30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a683fd4051b002528403339dc5d350de9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a683fd4051b002528403339dc5d350de9"></a>
-const mathfu::vec4 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>color</b> ()</td></tr>
-<tr class="separator:a683fd4051b002528403339dc5d350de9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a726bdd45feb2f361a9349b98a7d4f1ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a726bdd45feb2f361a9349b98a7d4f1ad"></a>
+mathfu::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>color</b> ()</td></tr>
+<tr class="separator:a726bdd45feb2f361a9349b98a7d4f1ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28972fee5b6a820a32608c42e5a5141e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28972fee5b6a820a32608c42e5a5141e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetCannonicalWindowHeight</b> (int height)</td></tr>
 <tr class="separator:a28972fee5b6a820a32608c42e5a5141e"><td class="memSeparator" colspan="2">&#160;</td></tr>

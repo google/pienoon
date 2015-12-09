@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -112,9 +195,9 @@ $(document).ready(function(){initNavTree('classfpl_1_1pie__noon_1_1_full_screen_
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4e0df6956d7c8470e1d45576246b900a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e0df6956d7c8470e1d45576246b900a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>FullScreenFader</b> (<a class="el" href="classfpl_1_1_renderer.html">Renderer</a> *renderer)</td></tr>
-<tr class="separator:a4e0df6956d7c8470e1d45576246b900a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11d7308addc3d810af463b46425025c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11d7308addc3d810af463b46425025c9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>FullScreenFader</b> (fplbase::Renderer *renderer)</td></tr>
+<tr class="separator:a11d7308addc3d810af463b46425025c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b0c93aa8700ab9b90845feb2c958dd9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b0c93aa8700ab9b90845feb2c958dd9"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Start</b> (const WorldTime &amp;time, const WorldTime &amp;fade_time, const mathfu::vec4 &amp;color, const bool fade_in)</td></tr>
 <tr class="separator:a9b0c93aa8700ab9b90845feb2c958dd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,18 +207,18 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Render</b> (const Wor
 <tr class="memitem:a4e78c744aeb154c532e80b34c9bc99fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e78c744aeb154c532e80b34c9bc99fc"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Finished</b> (const WorldTime &amp;time) const </td></tr>
 <tr class="separator:a4e78c744aeb154c532e80b34c9bc99fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a5e7b69e81e04439901bf85f301b78e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a5e7b69e81e04439901bf85f301b78e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_material</b> (<a class="el" href="classfpl_1_1_material.html">Material</a> *material)</td></tr>
-<tr class="separator:a9a5e7b69e81e04439901bf85f301b78e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a4ba8490861da9aa221529278b22f27"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a4ba8490861da9aa221529278b22f27"></a>
-<a class="el" href="classfpl_1_1_material.html">Material</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>material</b> () const </td></tr>
-<tr class="separator:a3a4ba8490861da9aa221529278b22f27"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08d282bfedbd0746ccb4c09171baddf9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08d282bfedbd0746ccb4c09171baddf9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_shader</b> (<a class="el" href="classfpl_1_1_shader.html">Shader</a> *shader)</td></tr>
-<tr class="separator:a08d282bfedbd0746ccb4c09171baddf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a331aa5741498d2041ceacdf40a8e1a71"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a331aa5741498d2041ceacdf40a8e1a71"></a>
-<a class="el" href="classfpl_1_1_shader.html">Shader</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b> () const </td></tr>
-<tr class="separator:a331aa5741498d2041ceacdf40a8e1a71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8ace708e0b5988cb986afd921948cdc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8ace708e0b5988cb986afd921948cdc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_material</b> (fplbase::Material *material)</td></tr>
+<tr class="separator:ae8ace708e0b5988cb986afd921948cdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0fe1af8da055d24e4a33f445a60a290"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0fe1af8da055d24e4a33f445a60a290"></a>
+fplbase::Material *&#160;</td><td class="memItemRight" valign="bottom"><b>material</b> () const </td></tr>
+<tr class="separator:ad0fe1af8da055d24e4a33f445a60a290"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a004a84a3f15c0babd24d1612b5ff5d93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a004a84a3f15c0babd24d1612b5ff5d93"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_shader</b> (fplbase::Shader *shader)</td></tr>
+<tr class="separator:a004a84a3f15c0babd24d1612b5ff5d93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cd26003a4871ab637bb95d7984abbbe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9cd26003a4871ab637bb95d7984abbbe"></a>
+fplbase::Shader *&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b> () const </td></tr>
+<tr class="separator:a9cd26003a4871ab637bb95d7984abbbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa8cf9fc1bc9fa61873aa400d353a214d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa8cf9fc1bc9fa61873aa400d353a214d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_ortho_mat</b> (const mathfu::mat4 &amp;ortho_mat)</td></tr>
 <tr class="separator:aa8cf9fc1bc9fa61873aa400d353a214d"><td class="memSeparator" colspan="2">&#160;</td></tr>

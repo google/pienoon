@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -37,6 +116,10 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Pie Noon
    </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
   </td>
  </tr>
  </tbody>
@@ -114,14 +197,14 @@ Overview</h1>
 <p>The Cardboard SDK provides various interfaces and classes to handle the information that is needed to work with a Cardboard device, like head tracking and detecting the magnet switch input. As the Cardboard SDK is a Java library, you can see these being used in FPLActivity.java. Java Native Interface (JNI) is used in order to interact with those objects from the C++ code base.</p>
 <h1><a class="anchor" id="cardboard_input"></a>
 Input</h1>
-<p>Similar to other input devices, a <a class="el" href="pie_noon_guide_controllers.html">Controller</a> is used to abstract input from the Cardboard (<a class="el" href="cardboard__controller_8h_source.html">cardboard_controller.h</a>/.cpp). In addition, the InputSystem class (<a class="el" href="input_8h_source.html">input.h</a>/.cpp) has a <b>CardboardInput</b> object, which is captures events sent from the Java SDK, and provides functions to interact with it from the C++ code base. You can reach this with the function <b>cardboard_input()</b>, on the InputSystem class.</p>
+<p>Similar to other input devices, a <a class="el" href="pie_noon_guide_controllers.html">Controller</a> is used to abstract input from the Cardboard (<a class="el" href="cardboard__controller_8h_source.html">cardboard_controller.h</a>/.cpp). In addition, the InputSystem class (input.h/.cpp) has a <b>CardboardInput</b> object, which is captures events sent from the Java SDK, and provides functions to interact with it from the C++ code base. You can reach this with the function <b>cardboard_input()</b>, on the InputSystem class.</p>
 <p>Head tracking is managed through the CardboardInput. Every frame it updates the two matrices it has for both eyes by calling, through JNI, <b>getCurrentEyeParams()</b> on <a href="https://developers.google.com/cardboard/android/latest/reference/com/google/vrtoolkit/cardboard/CardboardView">CardboardView</a>. These matrices can then be reached with <b>left/right_eye_transform()</b>, on the CardboardInput object, and are used when rendering for Cardboard, as they reflect the direction the device is oriented towards.</p>
 <p>Receiving input from the magnet switch is handled first in FPLActivity.java, by the <b>MagnetSensor</b>, and the implemention of the <b>OnCardboardTriggerListener</b> interface. When the device detects the magnet switch, a call is passed from that to <b>CardboardInput</b>. Then, to determine if it was triggered in that frame, you can check the <b>triggered()</b> function. This is used by the cardboard controller, which when a trigger is detected, converts it to the correct logical inputs (Select Menu Option and Throw Pies). Also in InputSystem, it checks for presses on the touchpad, which are also translates as Cardboard triggers. This is important, as not all Cardboard devices use the magnet switch to handle input, and instead rely on touch.</p>
 <h1><a class="anchor" id="cardboard_rendering"></a>
 Rendering</h1>
 <p>Rendering for Cardboard has to be handled, as the view needs to be duplicated for the left and right eye. Along with that, the Cardboard SDK provides the function <b>undistortTexture()</b> in <a href="https://developers.google.com/cardboard/android/latest/reference/com/google/vrtoolkit/cardboard/CardboardView">CardboardView</a>, which undistorts the given texture, adjusting the image to make it look correct for cardboard.</p>
 <p>Because of how Cardboard works, the game needs to be rendered from two, slightly different viewpoints, for the left and right eyes. This is handled in <a class="el" href="pie__noon__game_8h_source.html">pie_noon_game.h</a>/.cpp's <b>RenderForCardboard()</b>. In that function, we split the viewport in half, adjust the camera with the corresponding transform from the <b>CardboardInput</b>, and render the scene for each view.</p>
-<p>To use the undistort effects, some additional set up is required, which wraps the split rendering. The renderer class (<a class="el" href="renderer_8h_source.html">renderer.h</a>/.cpp) provides two functions which are used, <b>BeginUndistortFramebuffer()</b> and <b>FinishUndistortFramebuffer()</b>. The first sets up a framebuffer that will be rendered to, while that second takes that framebuffer modifies and renders it to the device, with the Cardboard SDK. These calls should wrap any rendering that is meant to be seen with both eyes.</p>
+<p>To use the undistort effects, some additional set up is required, which wraps the split rendering. The renderer class (renderer.h/.cpp) provides two functions which are used, <b>BeginUndistortFramebuffer()</b> and <b>FinishUndistortFramebuffer()</b>. The first sets up a framebuffer that will be rendered to, while that second takes that framebuffer modifies and renders it to the device, with the Cardboard SDK. These calls should wrap any rendering that is meant to be seen with both eyes.</p>
 <p>Additional rendering can be done outside of these calls to render on the device as normal. This can be seen with the <b>RenderCardboardCenteringBar()</b> function, which displays a bar in the center of the screen, letting players align the game correctly.</p>
 <p><br/>
  </p>
