@@ -25,9 +25,6 @@
 [submodule "dependencies/libvorbis"]
 	path = dependencies/libvorbis
 	url = https://git.xiph.org/mirrors/vorbis.git
-[submodule "dependencies/audio_engine"]
-	path = dependencies/audio_engine
-	url = http://github.com/google/pindrop.git
 [submodule "dependencies/motive"]
 	path = dependencies/motive
 	url = http://github.com/google/motive.git
