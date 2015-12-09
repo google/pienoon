@@ -46,3 +46,24 @@
 [submodule "vectorial"]
 	path = vectorial
 	url = http://github.com/scoopr/vectorial.git
+[submodule "dependencies/flatui"]
+	path = dependencies/flatui
+	url = http://github.com/google/flatui.git
+[submodule "dependencies/breadboard"]
+	path = dependencies/breadboard
+	url = http://github.com/google/breadboard.git
+[submodule "dependencies/scene_lab"]
+	path = dependencies/scene_lab
+	url = http://github.com/google/scene_lab.git
+[submodule "dependencies/libunibreak"]
+	path = dependencies/libunibreak
+	url = https://github.com/adah1972/libunibreak.git
+[submodule "dependencies/fplbase"]
+	path = dependencies/fplbase
+	url = http://github.com/google/fplbase.git
+[submodule "dependencies/bulletphysics"]
+	path = dependencies/bulletphysics
+	url = http://github.com/bulletphysics/bullet3.git
+[submodule "dependencies/corgi"]
+	path = dependencies/corgi
+	url = http://github.com/google/corgi.git
