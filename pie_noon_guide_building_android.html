@@ -245,12 +245,13 @@ $(document).ready(function(){initNavTree('pie_noon_guide_building_android.html',
 <p>For example: </p>
 <pre class="fragment">cd pie_noon
 ./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs
-</pre><h1>Installing and running the game.</h1>
-<p>Install the game using <a href="http://google.github.io/fplutil/build_all_android.html">build_all_android</a>.</p>
-<p>For example, the following will install and run the game on a device attached to the workstation with serial number <code>ADA123123</code>. </p>
+</pre><h1>Installing and Running the Game.</h1>
+<p><a href="http://google.github.io/fplutil/build_all_android.html">build_all_android</a> can also be used to install and run the game on a device. You will need to add several flags to the command line: <code>-S</code>, <code>-i</code>, and <code>-r</code> will tell it to sign, install, and run the generated APK, respectively.</p>
+<p>For example: </p>
 <pre class="fragment">cd pie_noon
-./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs -d ADA123123 -i -r -S
-</pre><p>If only one device is attached to a workstation, the <code>-d</code> argument (which selects a device) can be ommitted.</p>
+./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs -i -r -S
+</pre><p>If you have multiple android devices connected to your workstation, you will also need to specify which one you want to deploy to. Running <code>adb devices</code> returns a list of all connected devices and serial numbers, and you can specify the serial number of the device you want to deploy to via the optional <code>-d</code> flag.</p>
+<p>For more information, see <a href="http://google.github.io/fplutil/build_all_android.html#build_all_android_multiple_devices">Working with Multiple Devices.</a></p>
 <p><br/>
  </p>
 </div></div><!-- contents -->
