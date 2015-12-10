@@ -66,18 +66,24 @@ For example:
     cd pie_noon
     ./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs
 
-# Installing and running the game.
+# Installing and Running the Game.
 
-Install the game using [build_all_android][].
+[build_all_android][] can also be used to install and run the game on a device.
+You will need to add several flags to the command line:  `-S`, `-i`, and `-r`
+will tell it to sign, install, and run the generated APK, respectively.
 
-For example, the following will install and run the game on a device attached
-to the workstation with serial number `ADA123123`.
+For example:
 
     cd pie_noon
-    ./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs -d ADA123123 -i -r -S
+    ./dependencies/fplutil/bin/build_all_android -E dependencies jni/libs -i -r -S
 
-If only one device is attached to a workstation, the `-d` argument
-(which selects a device) can be ommitted.
+If you have multiple android devices connected to your workstation, you will
+also need to specify which one you want to deploy to.  Running `adb devices`
+returns a list of all connected devices and serial numbers, and you can specify
+the serial number of the device you want to deploy to via the optional `-d`
+flag.
+
+For more information, see [Working with Multiple Devices.][]
 
 <br>
 
@@ -101,3 +107,4 @@ If only one device is attached to a workstation, the `-d` argument
   [WebP Precompiled Utilities]: http://developers.google.com/speed/webp/docs/precompiled
   [Google Play Developer Console]: http://play.google.com/apps/publish/
   [Ragel]: http://www.colm.net/open-source/ragel/
+  [Working with Multiple Devices.]: http://google.github.io/fplutil/build_all_android.html#build_all_android_multiple_devices
