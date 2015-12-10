@@ -76,6 +76,7 @@ function(test_executable name)
       ${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}_test.cpp ${SUPPORT_SRCS}
       ${ARGN})
   mathfu_configure_flags(${name}_test)
+  add_dependencies(${name}_test generated_includes)
 endfunction()
 
 test_executable(character_state_machine ../src/character_state_machine.cpp)
